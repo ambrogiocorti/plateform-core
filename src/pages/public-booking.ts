@@ -4,17 +4,14 @@ import { z } from 'zod';
 import { ApplicationError, client, rpc, safeError } from '../api/client';
 import { button, el, emptyState, field } from '../components/dom';
 import type { Venue } from '../types/domain';
+import { addCalendarDays, bookableSlots, venueLocalToday, verifiedPaymentUrl } from '../services/public-booking-contract';
+import type { SearchKey } from '../services/public-booking-contract';
 
 async function bookingFailure(error: unknown): Promise<never> {
   if (error instanceof FunctionsHttpError) {
     try {
-      const payload = z
-        .object({ code: z.string(), request_id: z.string().optional() })
-        .parse(await error.context.json());
-      const parsed = safeError(
-        { message: payload.code },
-        payload.request_id ?? crypto.randomUUID(),
-      );
+      const payload = z.object({ code: z.string(), request_id: z.string().optional() }).parse(await error.context.json());
+      const parsed = safeError({ message: payload.code }, payload.request_id ?? crypto.randomUUID());
       if (parsed.code !== 'REQUEST_FAILED') throw parsed;
     } catch (parsed) {
       if (parsed instanceof ApplicationError) throw parsed;
@@ -24,45 +21,44 @@ async function bookingFailure(error: unknown): Promise<never> {
 }
 
 const bookingSchema = z.object({
-  services: z.array(
-    z.object({
-      id: z.uuid(),
-      name: z.string(),
-      starts_at: z.string(),
-      ends_at: z.string(),
-      weekdays: z.array(z.number()),
-      slot_interval_minutes: z.number(),
-    }),
-  ),
-  fields: z.array(
-    z.object({
-      id: z.uuid(),
-      key: z.string(),
-      type: z.string(),
-      label: z.string(),
-      placeholder: z.string().nullable(),
-      required: z.boolean(),
-      options: z.array(z.string()),
-    }),
-  ),
+  services: z.array(z.object({
+    id: z.uuid(), name: z.string(), starts_at: z.string(), ends_at: z.string(),
+    weekdays: z.array(z.number()), slot_interval_minutes: z.number(),
+  })),
+  fields: z.array(z.object({
+    id: z.uuid(), key: z.string(), type: z.string(), label: z.string(),
+    placeholder: z.string().nullable(), required: z.boolean(), options: z.array(z.string()),
+  })),
 });
 
-export async function bookingPage(venue: Venue): Promise<HTMLElement> {
-  if (!venue.reservations_enabled)
-    return emptyState(
-      'Prenotazioni online non disponibili',
-      `Per prenotare, contattaci al ${venue.phone}.`,
-    );
-  const configuration = await rpc(
-    'get_booking_configuration',
-    { p_venue: venue.id },
-    bookingSchema,
-  );
-  if (!configuration.services.length)
-    return emptyState(
-      'Prenota con noi',
-      `Contattaci al ${venue.phone} per verificare le disponibilità.`,
-    );
+const slotSchema = z.object({
+  time: z.string(), available: z.boolean(), reason: z.string().optional(),
+  status_if_booked: z.enum(['RESERVED','REQUESTED','PENDING_DEPOSIT']).optional(),
+  deposit: z.object({ amount_cents: z.number(), currency: z.string(), expiry_minutes: z.number() }).optional(),
+});
+const availabilitySchema = z.object({
+  venue_id: z.uuid(), service_id: z.uuid(), date: z.iso.date(),
+  party_size: z.number().int(), slots: z.array(slotSchema),
+});
+const bookingResult = z.discriminatedUnion('status', [
+  z.object({ id: z.uuid(), status: z.enum(['RESERVED', 'REQUESTED']) }),
+  z.object({ id: z.uuid(), status: z.literal('PENDING_DEPOSIT'), deposit: z.object({
+    id: z.uuid(), amount_cents: z.number().int().positive(), currency: z.literal('EUR'),
+    expires_at: z.iso.datetime({ offset: true }), access_token: z.string().min(32),
+  }) }),
+]);
+const checkoutResult = z.object({ deposit_id: z.uuid(), provider: z.enum(['STRIPE','SATISPAY']),
+  state: z.enum(['WAITING', 'COMPLETED', 'FAILED']), checkout_url: z.string().nullable(),
+});
+
+/** A public booking is online-only; a lost response is never presented as success. */
+export async function bookingPage(venue: Venue, privacyUrl?: string): Promise<HTMLElement> {
+  if (!venue.reservations_enabled || !privacyUrl || !privacyUrl.startsWith('https://'))
+    return emptyState('Prenotazioni online non disponibili', 'Contatta il ristorante per prenotare.');
+
+  const configuration = await rpc('get_booking_configuration', { p_venue: venue.id }, bookingSchema.nullable());
+  if (!configuration?.services.length) return emptyState('Prenotazioni non disponibili', 'Contatta il ristorante per verificare le disponibilità.');
+
   const form = el('section', { class: 'booking-form card' });
   const first = field('Nome', 'first');
   const last = field('Cognome', 'last');
@@ -70,96 +66,120 @@ export async function bookingPage(venue: Venue): Promise<HTMLElement> {
   phone.input.placeholder = '+39';
   phone.input.pattern = '\\+[0-9]{7,15}';
   const party = field('Persone', 'party', 'number', '2');
-  party.input.min = '1';
-  party.input.max = '1000';
+  party.input.min = '1'; party.input.max = '1000'; party.input.step = '1';
   const date = field('Data', 'date', 'date');
+  date.input.min = venueLocalToday(venue.timezone);
+  date.input.max = addCalendarDays(date.input.min, 180);
   for (const input of [first, last, phone, party, date]) input.input.required = true;
-  const service = el(
-    'select',
-    { 'aria-label': 'Servizio' },
-    ...configuration.services.map((entry) => el('option', { value: entry.id }, entry.name)),
-  );
+  const service = el('select', { 'aria-label': 'Servizio' },
+    ...configuration.services.map((entry) => el('option', { value: entry.id }, entry.name)));
   const time = el('select', { 'aria-label': 'Orario' });
-  const updateTimes = () => {
-    const current = configuration.services.find((entry) => entry.id === service.value);
-    if (!current) return;
-    const minutes = (value: string) => Number(value.slice(0, 2)) * 60 + Number(value.slice(3, 5));
-    const start = minutes(current.starts_at);
-    let end = minutes(current.ends_at);
-    if (end <= start) end += 1440;
-    time.replaceChildren();
-    for (let minute = start; minute < end; minute += current.slot_interval_minutes) {
-      const value = `${String(Math.floor((minute % 1440) / 60)).padStart(2, '0')}:${String(minute % 60).padStart(2, '0')}`;
-      time.append(el('option', { value }, value));
-    }
+  time.required = true;
+  const status = el('p', { role: 'status', 'aria-live': 'polite', class: 'muted' });
+  let sequence = 0;
+  let verifiedKey: SearchKey | undefined;
+  let submitted = false;
+  let locked = false;
+  const resetTime = () => {
+    sequence++;
+    verifiedKey = undefined;
+    time.disabled = true;
+    time.replaceChildren(el('option', { value: '' }, 'Verifica prima la disponibilità'));
+    status.textContent = '';
   };
-  service.addEventListener('change', updateTimes);
-  updateTimes();
-  form.append(
-    el('h2', {}, `Un tavolo da ${venue.name}`),
-    el(
-      'p',
-      { class: 'muted' },
-      'Scegli quando venirci a trovare. La disponibilità viene verificata al momento della richiesta.',
-    ),
-    ...[first, last, phone, party, date].map((input) => input.root),
+  resetTime();
+  const checkAvailability = button('Verifica disponibilità', async () => {
+    resetTime();
+    if (![party, date].every((entry) => entry.input.reportValidity())) return;
+    if (date.input.value < date.input.min || date.input.value > date.input.max) return;
+    const token = sequence;
+    const key: SearchKey = { venueId: venue.id, serviceId: service.value,
+      date: date.input.value, party: Number(party.input.value) };
+    status.textContent = 'Verifica disponibilità in corso…';
+    const result = await rpc('get_public_booking_availability', {
+      p_venue: key.venueId, p_service: key.serviceId, p_date: key.date, p_party: key.party,
+    }, availabilitySchema);
+    if (token !== sequence || !form.isConnected) return;
+    const slots = bookableSlots(result, key);
+    if (!slots.length) { status.textContent = 'Non ci sono orari disponibili per questa richiesta.'; return; }
+    verifiedKey = key;
+    time.disabled = false;
+    time.replaceChildren(el('option', { value: '' }, 'Seleziona un orario'),
+      ...slots.map((slot) => el('option', { value: slot.time }, slot.time)));
+    time.value = '';
+    status.textContent = `${slots.length} orari disponibili. Selezionane uno per continuare.`;
+  }, 'secondary');
+  for (const control of [service, date.input, party.input]) control.addEventListener('change', resetTime);
+  for (const control of [service, date.input, party.input]) control.addEventListener('input', resetTime);
+
+  form.append(el('h2', {}, `Un tavolo da ${venue.name}`),
+    el('p', { class: 'muted' }, 'Le disponibilità sono verificate dal ristorante in tempo reale.'),
+    ...[first, last, phone, party, date].map((entry) => entry.root),
     el('div', { class: 'field' }, el('label', {}, 'Servizio', service)),
-    el('div', { class: 'field' }, el('label', {}, 'Orario', time)),
-  );
+    checkAvailability,
+    el('div', { class: 'field' }, el('label', {}, 'Orario', time)),status);
   const answers = new Map(configuration.fields.map((entry) => [entry.id, bookingField(entry)]));
   for (const input of answers.values()) form.append(input.root);
-  const key = crypto.randomUUID();
-  form.append(
-    el(
-      'p',
-      { class: 'muted' },
-      'Per modificare o cancellare la prenotazione, contatta il ristorante.',
-    ),
-    button('Richiedi il tavolo', async () => {
-      if (
-        [first, last, phone, party, date].some((entry) => !entry.input.reportValidity()) ||
-        [...answers.values()].some((input) => !input.valid())
-      )
-        return;
-      const response: Record<string, unknown> = {};
-      for (const [id, input] of answers) response[id] = input.value();
-      const { data, error } = await client().functions.invoke('reservation', {
-        body: {
-          venue_id: venue.id,
-          service_id: service.value,
-          date: date.input.value,
-          time: time.value,
-          first_name: first.input.value,
-          last_name: last.input.value,
-          phone: phone.input.value,
-          party_size: Number(party.input.value),
-          answers: response,
-          idempotency_key: key,
-        },
-      });
+  const privacyConsent = el('input', { type: 'checkbox', required: '', id: 'booking-privacy-consent' });
+  const privacyLink = el('a', { href: privacyUrl, target: '_blank', rel: 'noopener noreferrer' }, 'informativa privacy');
+  form.append(el('label', { class: 'field' }, privacyConsent, ' Ho letto l’', privacyLink, ' e autorizzo il trattamento dei dati per la prenotazione.'));
+  form.append(el('p', { class: 'muted' }, 'Per modifiche o cancellazioni contatta il ristorante.'));
+  const requestKey = crypto.randomUUID();
+  const submit = button('Richiedi il tavolo', async () => {
+    if (locked || submitted) return;
+    if ([first, last, phone, party, date].some((entry) => !entry.input.reportValidity()) ||
+        !privacyConsent.reportValidity() || [...answers.values()].some((input) => !input.valid()) ||
+        !time.reportValidity()) return;
+    const search: SearchKey = { venueId: venue.id, serviceId: service.value,
+      date: date.input.value, party: Number(party.input.value) };
+    if (!verifiedKey || JSON.stringify(verifiedKey) !== JSON.stringify(search) || !time.value) {
+      status.textContent = 'Verifica di nuovo la disponibilità prima di inviare la richiesta.';
+      return;
+    }
+    locked = true;
+    const response: Record<string, unknown> = {};
+    for (const [id, input] of answers) response[id] = input.value();
+    status.textContent = 'Invio della richiesta in corso…';
+    try {
+      const { data, error } = await client().functions.invoke('reservation', { body: {
+        venue_id: venue.id, service_id: search.serviceId, date: search.date, time: time.value,
+        first_name: first.input.value, last_name: last.input.value, phone: phone.input.value,
+        party_size: search.party, answers: response, idempotency_key: requestKey,
+      }});
       if (error) await bookingFailure(error);
-      const result = z
-        .object({ id: z.uuid(), status: z.enum(['RESERVED', 'REQUESTED']) })
-        .parse(data);
-      form.replaceChildren(
-        el('p', { class: 'eyebrow' }, 'A presto'),
-        el(
-          'h2',
-          {},
-          result.status === 'RESERVED'
-            ? 'Il tuo tavolo è prenotato.'
-            : 'Abbiamo ricevuto la richiesta.',
-        ),
-        el(
-          'p',
-          {},
-          result.status === 'REQUESTED'
-            ? 'Il ristorante deve confermare la disponibilità per il tuo gruppo. Contattaci per maggiori informazioni.'
-            : 'Ti aspettiamo. Per modifiche o cancellazioni, contatta il ristorante.',
-        ),
-        el('a', { href: `tel:${venue.phone}` }, venue.phone),
-      );
-    }),
-  );
+      const result = bookingResult.parse(data);
+      submitted = true;
+      if (result.status === 'PENDING_DEPOSIT') {
+        form.replaceChildren(el('h2', {}, 'Caparra necessaria per completare la prenotazione'),
+          el('p', {}, `Importo: ${(result.deposit.amount_cents / 100).toLocaleString('it-IT',{style:'currency',currency:'EUR'})}. Il tavolo non è ancora confermato.`),
+          el('p', { role: 'status' }, 'Il pagamento deve essere confermato dal ristorante dopo la verifica del provider.'));
+        for (const provider of ['STRIPE', 'SATISPAY'] as const) {
+          form.append(button(`Paga la caparra con ${provider === 'STRIPE' ? 'Stripe' : 'Satispay'}`, async () => {
+            const { data: checkoutData, error: checkoutError } = await client().functions.invoke('reservation-deposit', {
+              body: { deposit_id: result.deposit.id, access_token: result.deposit.access_token,
+                provider, idempotency_key: crypto.randomUUID() },
+            });
+            if (checkoutError) await bookingFailure(checkoutError);
+            const checkout = checkoutResult.parse(checkoutData);
+            if (checkout.deposit_id !== result.deposit.id || checkout.provider !== provider || !checkout.checkout_url)
+              throw new Error('CHECKOUT_NOT_AVAILABLE');
+            window.location.assign(verifiedPaymentUrl(checkout.checkout_url, provider));
+          }, 'secondary'));
+        }
+      } else {
+        form.replaceChildren(el('p', { class: 'eyebrow' }, 'A presto'),
+          el('h2', {}, result.status === 'RESERVED' ? 'Il tuo tavolo è prenotato.' : 'Abbiamo ricevuto la richiesta.'),
+          el('p', {}, result.status === 'REQUESTED'
+            ? 'Il ristorante deve ancora confermare il tuo gruppo.'
+            : 'Ti aspettiamo. Per modifiche o cancellazioni, contatta il ristorante.'),
+          el('a', { href: `tel:${venue.phone.replace(/[^+0-9]/g, '')}` }, venue.phone));
+      }
+    } catch (error) {
+      // A request may already have committed even if its response was lost: never create a second booking.
+      status.textContent = 'Non è possibile verificare l’esito dell’invio. Non ripetere la prenotazione: contatta il ristorante.';
+      throw error;
+    }
+  });
+  form.append(submit);
   return form;
 }

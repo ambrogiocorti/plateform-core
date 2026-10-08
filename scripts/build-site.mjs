@@ -17,3 +17,10 @@ if (process.env.PAGES_CUSTOM_DOMAIN) {
 const staff = await readFile('dist/site/staff/index.html', 'utf8');
 if (!staff.includes('/staff/assets/'))
   throw new Error('La build GitHub Pages richiede VITE_STAFF_BASE_URL=https://dominio/staff/');
+
+// Build-time public pages are generated from anonymous server RPCs only.
+await import('./prerender-public.mjs').then(({prerenderPublic}) => prerenderPublic({
+  distDir: 'dist/site', siteOrigin: process.env.PUBLIC_SITE_ORIGIN,
+  supabaseUrl: process.env.VITE_SUPABASE_URL,
+  publishableKey: process.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+}));

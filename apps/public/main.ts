@@ -14,6 +14,7 @@ import { menuDishSchema, publicSiteSchema } from '../../src/types/domain';
 import type { PublicSite, Venue } from '../../src/types/domain';
 import { availabilityBadge } from '../../src/services/menu';
 import { formatMoney } from '../../src/services/money';
+import { setupPublicNavigation } from '../../src/services/public-navigation';
 import {
   bookingVenue,
   canonicalPublicUrl,
@@ -100,7 +101,7 @@ function applyMetadata(site: PublicSite, venue?: Venue): void {
     document.head.querySelector<HTMLMetaElement>('meta[name="robots"]') ??
     document.head.appendChild(document.createElement('meta'));
   robots.name = 'robots';
-  robots.content = location.pathname.startsWith('/tavolo/') ? 'noindex,nofollow' : 'index,follow';
+  robots.content = 'noindex,nofollow'; // Opt in only after authoritative metadata RPC confirms indexability.
   const previous = document.getElementById('restaurant-structured-data');
   previous?.remove();
   if (!location.pathname.startsWith('/tavolo/')) {
@@ -165,8 +166,39 @@ async function render(): Promise<void> {
   applyBrand(site);
   const venue = selectedVenue(site, location.pathname, location.search);
   applyMetadata(site, venue);
+  if (!location.pathname.startsWith('/tavolo/')) {
+    const pathForSeo = location.pathname;
+    const seoRevision = current;
+    void rpc('get_public_page_metadata', {
+      p_path: pathForSeo, p_venue: venue?.id ?? null,
+    }, z.object({
+      path: z.string(), title: z.string(), description: z.string(),
+      robots: z.enum(['index,follow', 'noindex,nofollow']),
+      canonical_url: z.string().nullable(), og_image_url: z.string().nullable(),
+    })).then((metadata) => {
+      if (seoRevision !== revision || metadata.path !== location.pathname) return;
+      document.title = metadata.title;
+      setMeta('description', metadata.description);
+      setMeta('og:title', metadata.title, true);
+      setMeta('og:description', metadata.description, true);
+      const multiVenueQuery = site.multi_venue && site.venues.length > 1 &&
+        new URLSearchParams(location.search).has('sede');
+      const robots = document.head.querySelector<HTMLMetaElement>('meta[name="robots"]');
+      if (robots) robots.content = multiVenueQuery ? 'noindex,nofollow' : metadata.robots;
+      const canonical = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+      if (canonical) {
+        if (metadata.canonical_url) canonical.href = metadata.canonical_url;
+        else canonical.remove();
+      }
+      if (metadata.og_image_url) setMeta('og:image', metadata.og_image_url, true);
+    }).catch(() => {
+      // Never promote an unverified route or deployment to public indexing.
+      const robots = document.head.querySelector<HTMLMetaElement>('meta[name="robots"]');
+      if (seoRevision === revision && robots) robots.content = 'noindex,nofollow';
+    });
+  }
   const reservationVenue = bookingVenue(site, venue);
-  const bookingEnabled = Boolean(reservationVenue);
+  const bookingEnabled = Boolean(venue?.reservations_enabled);
   const venueSlug = location.pathname.startsWith('/sedi/')
     ? location.pathname.split('/')[2]
     : undefined;
@@ -226,18 +258,10 @@ async function render(): Promise<void> {
       ),
     ),
   );
-  const menuButton = button(
-    'Menu',
-    async () => {
-      const open = menuButton.getAttribute('aria-expanded') === 'true';
-      menuButton.setAttribute('aria-expanded', String(!open));
-      navigation.classList.toggle('is-open', !open);
-    },
-    'quiet',
-  );
-  menuButton.classList.add('public-menu-toggle');
-  menuButton.setAttribute('aria-controls', 'public-navigation');
-  menuButton.setAttribute('aria-expanded', 'false');
+  const menuButton = el('button', {
+    type: 'button', class: 'button quiet public-menu-toggle',
+    'aria-controls': 'public-navigation', 'aria-expanded': 'false',
+  }, 'Menu');
   const header = el(
     'header',
     { class: 'public-header' },
@@ -250,12 +274,17 @@ async function render(): Promise<void> {
     navigation,
   );
   app.replaceChildren(header, main, footer(site));
+  setupPublicNavigation(menuButton, navigation, header, lifetime.signal);
   stopPerformance?.();
   stopPerformance = observePublicPerformance(venue?.id);
   recordPublicPageView(venue?.id);
   const path = location.pathname;
   if (path === '/') main.append(home(site, venue, bookingEnabled));
   else if (path === '/menu') main.append(await menu(site, venue));
+  else if (path.startsWith('/menu/') && venue) {
+    const slug = path.slice('/menu/'.length);
+    main.append(await (await import('../../src/pages/public-menu')).publishedMenuPage(slug, venue));
+  }
   else if (path === '/ristorante' && sectionEnabled(site, 'story'))
     main.append(
       el(
@@ -340,7 +369,9 @@ async function render(): Promise<void> {
     );
     main.append(section);
     section.append(
-      await (await import('../../src/pages/public-booking')).bookingPage(reservationVenue),
+      await (await import('../../src/pages/public-booking')).bookingPage(
+        reservationVenue, safePublicLink(textValue(site.content, 'privacy_url'), window.location.origin),
+      ),
     );
   } else if (path.startsWith('/tavolo/')) {
     stopLive?.();
@@ -542,6 +573,8 @@ async function menu(site: PublicSite, venue: Venue | undefined): Promise<HTMLEle
   if (!venue) return section;
   const picker = venuePicker(site, venue, false);
   if (picker) section.append(picker);
+  const availableMenus = await (await import('../../src/pages/public-menu')).publishedMenuIndex(venue, site.multi_venue);
+  if (availableMenus) section.append(availableMenus);
   const dishes = await rpc('get_public_menu', { p_venue: venue.id }, z.array(menuDishSchema));
   const categories = [...new Set(dishes.map((dish) => dish.category_name))];
   for (const category of categories) {

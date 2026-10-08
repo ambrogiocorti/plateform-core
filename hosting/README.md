@@ -29,3 +29,25 @@ Storage protetto. Lo staff riceve inoltre `X-Robots-Tag: noindex, nofollow`.
 
 Verificare prima del go-live: CSP effettiva, HTTPS/HSTS, fallback corretto, cache separate,
 Auth redirect esatti, origini CORS e contratti del gateway per l'indirizzo client.
+
+
+## Step 11 — SEO con rendering pubblico statico
+
+Per distribuire anche il sito prerenderizzato, usare `npm run build:pages` con
+`PUBLIC_SITE_ORIGIN`, `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY`
+esportati come variabili dell'ambiente di build. `PUBLIC_SITE_ORIGIN` deve essere
+l'origine HTTPS effettiva (senza slash finale, path, query o frammento), identica
+alla `public_base_url` validata sul progetto Supabase.
+
+La build interroga solo RPC pubbliche (`get_public_site`, `get_public_sitemap_entries`,
+`get_public_page_metadata`, `get_public_menu`, `get_public_menu_by_slug`). Se
+non riesce a validare il dominio, la chiave pubblica o una route, si interrompe;
+non sono ammesse chiavi segrete, service-role o contenuti simulati. In ambiente
+non indicizzabile produce solo una home `noindex` e un `robots.txt` restrittivo,
+senza sitemap. Non confondere questi file con gli header HTTP effettivamente
+applicati dall'hosting: i controlli HTTP restano obbligatori.
+
+Il fallback SPA, il service worker e la route `/staff/` devono essere verificati
+sull'host scelto. Il prerender HTML non effettua prenotazioni e non contiene dati
+personali o credenziali. In fase di deploy ricostruire i file da RPC anonime;
+non riutilizzare HTML prodotto per un altro ristorante o una diversa versione.
