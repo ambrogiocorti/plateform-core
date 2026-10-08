@@ -67,7 +67,7 @@
     "check:continuity-activation": "node scripts/check-continuity-activation.mjs",
     "check:step12": "node scripts/check-step12-static.mjs",
     "check:continuity-secret-config": "node scripts/check-continuity-secret-config.mjs",
-    "check:step11": "npm run check:step11-static && npm run check:step11-runtime && npm run check:step11-booking && npm run check:step11-prerender && npm run check:step11-build-assembly && npm run check:step11-assets",
+    "check:step11": "npm run check:step11-static && npm run check:step11-runtime && npm run check:step11-booking && npm run check:step11-prerender && npm run check:step11-build-assembly && npm run check:step11-assets && npm run check:step11-deploy-config",
     "check:step8": "npm run check:step8-static && node --experimental-strip-types scripts/check-step8-vault.mjs && node --experimental-strip-types scripts/check-step8-causality.mjs && node --experimental-strip-types scripts/check-step8-reconnect.mjs && node --experimental-strip-types scripts/check-step8-pwa.mjs",
     "check:step7": "node --experimental-strip-types scripts/check-step7-returns.mjs",
     "check:step10-cross-venue": "node --experimental-strip-types scripts/check-step10-cross-venue.mjs",
@@ -100,7 +100,12 @@
     "finalize:step12": "node scripts/finalize-step12.mjs",
     "check:step11-booking": "node --experimental-strip-types scripts/check-step11-booking-client.mjs",
     "check:step11-prerender": "node scripts/check-step11-prerender.mjs",
-    "check:step11-build-assembly": "node scripts/check-step11-build-assembly.mjs"
+    "check:step11-build-assembly": "node scripts/check-step11-build-assembly.mjs",
+    "check:step11-deploy-config": "node scripts/check-vercel-config.mjs && node scripts/check-migration-recovery.mjs && npm run check:staging-http-fixtures",
+    "reconcile:migrations": "node scripts/reconcile-migrations.mjs --dry-run",
+    "reconcile:migrations:write": "node scripts/reconcile-migrations.mjs --write",
+    "check:staging-http": "node scripts/verify-staging-http.mjs",
+    "check:staging-http-fixtures": "node scripts/check-staging-http.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.116.0",

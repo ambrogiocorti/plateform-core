@@ -1,0 +1,115 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "buildCommand": "npm run build:pages",
+  "installCommand": "npm ci",
+  "outputDirectory": "dist/site",
+  "public": false,
+  "rewrites": [
+    {
+      "source": "/staff",
+      "destination": "/staff/index.html"
+    },
+    {
+      "source": "/staff/:page([a-z0-9-]+)",
+      "destination": "/staff/index.html"
+    },
+    {
+      "source": "/menu/:slug([a-z0-9-]+)",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/sedi/:slug([a-z0-9-]+)",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/tavolo/:token([a-zA-Z0-9-]+)",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/menu",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/ristorante",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/gallery",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/prenota",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/contatti",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/sedi",
+      "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'none'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://abdxvlykasqmknexxhjo.supabase.co; font-src 'self'; connect-src 'self' https://abdxvlykasqmknexxhjo.supabase.co wss://abdxvlykasqmknexxhjo.supabase.co; worker-src 'self'; manifest-src 'self'; form-action 'self'; upgrade-insecure-requests"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=(), payment=()"
+        },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=31536000"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/staff/:path*",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "private, no-store"
+        }
+      ]
+    },
+    {
+      "source": "/staff",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "private, no-store"
+        }
+      ]
+    }
+  ]
+}

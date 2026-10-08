@@ -1,0 +1,61 @@
+name: Plateform staging release verification
+on:
+  workflow_dispatch:
+    inputs:
+      staging_origin:
+        description: 'Exact HTTPS staging origin already deployed on Vercel (no trailing slash)'
+        type: string
+        required: true
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    environment: staging
+    env:
+      PLATEFORM_STAGING_ORIGIN: ${{ inputs.staging_origin }}
+      PUBLIC_SITE_ORIGIN: ${{ inputs.staging_origin }}
+      VITE_ENVIRONMENT: staging
+      VITE_PUBLIC_BASE_URL: ${{ inputs.staging_origin }}
+      VITE_STAFF_BASE_URL: ${{ format('{0}/staff', inputs.staging_origin) }}
+      VITE_SUPABASE_URL: ${{ vars.STAGING_SUPABASE_URL }}
+      VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.STAGING_SUPABASE_PUBLISHABLE_KEY }}
+      VITE_RELEASE_VERSION: '0.1.0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Verify required environment
+        run: |
+          test -n "$VITE_SUPABASE_URL" || { echo 'STAGING_SUPABASE_URL missing'; exit 1; }
+          test -n "$VITE_SUPABASE_PUBLISHABLE_KEY" || { echo 'STAGING_SUPABASE_PUBLISHABLE_KEY missing'; exit 1; }
+          test -n "$PLATEFORM_STAGING_ORIGIN" || { echo 'Staging host missing'; exit 1; }
+      - name: Reproduce dependency installation
+        run: npm ci
+      - name: Source + contract checks
+        run: npm run check:step11
+      - name: Verify remote migration history (read-only; fail on drift)
+        env:
+          SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+        run: |
+          test -n "$SUPABASE_DB_URL" || { echo 'STAGING_SUPABASE_DB_URL missing'; exit 1; }
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client
+          node scripts/reconcile-migrations.mjs --dry-run
+      - name: Real Node 24 application build
+        run: npm run build:pages
+      - name: Check live hosted HTTP headers and routing
+        run: npm run check:staging-http
+      - name: Keep failure evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: plateform-staging-failure
+          path: |
+            test-results/
+            playwright-report/
+          if-no-files-found: ignore
+          retention-days: 7

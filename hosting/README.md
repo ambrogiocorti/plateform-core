@@ -51,3 +51,40 @@ Il fallback SPA, il service worker e la route `/staff/` devono essere verificati
 sull'host scelto. Il prerender HTML non effettua prenotazioni e non contiene dati
 personali o credenziali. In fase di deploy ricostruire i file da RPC anonime;
 non riutilizzare HTML prodotto per un altro ristorante o una diversa versione.
+
+## Vercel staging — configurazione controllata
+
+`vercel.json` e `scripts/vercel-configuration.mjs` preparano un deployment statico
+con frontend `/`, staff `/staff/` e rewrites limitati alle sole route valide.
+I file JS/CSS mancanti NON ricadono su un fallback HTML. La CSP limita
+connessioni/API al progetto Supabase indicato nella configurazione dello staging.
+Gli header dello staging includono `X-Robots-Tag: noindex, nofollow`.
+
+**Prima del collegamento al repository e del deployment:**
+
+1. Crea un progetto **Vercel privato di staging** collegato a un repository
+   Git privato contenente il progetto integrato. Imposta Node.js 24.x.
+2. Prima del push, se il backend cambia, rigenera e verifica `vercel.json`:
+   `VITE_SUPABASE_URL=https://<project-ref>.supabase.co node scripts/generate-vercel-config.mjs`
+   e `npm run check:step11-deploy-config`. Usa soltanto chiavi **publishable**
+   nelle variabili `VITE_*`: mai `service_role`, Stripe secret o credenziali DB.
+3. Configura `VITE_ENVIRONMENT=staging`, `VITE_PUBLIC_BASE_URL`,
+   `VITE_STAFF_BASE_URL=<origin>/staff`, `PUBLIC_SITE_ORIGIN=<origin>`,
+   `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY` e `VITE_RELEASE_VERSION`.
+   Vercel deve usare `npm ci` e `npm run build:pages` come da `vercel.json`.
+4. Configura l'origine staging anche nell'allowlist `ALLOWED_ORIGINS` delle
+   Edge Functions. Verifica auth redirects, servizi prenotabili, privacy e
+   attivazione del sito sul backend di sviluppo, non produzione.
+5. Dopo un deployment completo, esegui la pipeline manuale
+   `.github/workflows/staging-readiness.yml`, con le variabili GitHub
+   `STAGING_SUPABASE_URL` e il secret `STAGING_SUPABASE_PUBLISHABLE_KEY`.
+   Il collaudo HTTP read-only verifica home, menu, staff, CSP, SSL/HSTS, noindex,
+   robots.txt, mancanza di sitemap indicizzabile e 404 degli asset inesistenti.
+6. **Non** rendere pubblica la versione commerciale per la vendita finché
+   `npm run release:check`, integrazioni reali e 3 revisioni complete
+   consecutive non sono passati. Il test HTTP NON verifica pagamenti o restore.
+
+Il progetto staging può restare `noindex` su un dominio Vercel temporaneo. Per
+la futura produzione l'indicizzazione e i domini dei singoli clienti devono
+essere rigenerati usando il proprio backend isolato, non riutilizzando questa
+configurazione di sviluppo.
