@@ -12,6 +12,8 @@ playwright-report/
 *.log
 *.tsbuildinfo
 backups/
+supabase/migration-recovery-backups/
+supabase/.migration-recovery-staging-*/
 
 release/
 

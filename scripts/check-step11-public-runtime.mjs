@@ -6,6 +6,7 @@ import {
   isClientSidePublicPath,
   normalizePublicPath,
   readableInk,
+  resolveBookingVenue,
   safeAccent,
   safeBackground,
   safePublicLink,
@@ -53,12 +54,31 @@ assert.equal(selectedVenue(site, '/sedi/navigli', '')?.slug, 'navigli');
 assert.equal(selectedVenue(site, '/menu', '?sede=navigli')?.slug, 'navigli');
 assert.equal(selectedVenue(site, '/menu', '?sede=missing')?.slug, 'centro');
 assert.equal(bookingVenue(site, site.venues[0])?.slug, 'navigli');
+assert.equal(resolveBookingVenue(site, '/', '')?.slug, 'navigli', 'generic booking finds available venue');
+assert.equal(resolveBookingVenue(site, '/prenota', '?sede=navigli')?.slug, 'navigli');
+assert.equal(resolveBookingVenue(site, '/prenota', '?sede=centro'), undefined,
+  'disabled explicitly selected venue is never silently replaced');
+assert.equal(resolveBookingVenue(site, '/prenota', '?sede=missing'), undefined,
+  'unknown explicitly selected venue must fail closed');
+assert.equal(resolveBookingVenue(site, '/prenota', '?sede='), undefined,
+  'empty explicit selection must fail closed');
+assert.equal(resolveBookingVenue({...site,venues:site.venues.map(v=>({...v,reservations_enabled:false}))},'/prenota',''),undefined);
 assert.equal(venueAwarePath('/menu', site, site.venues[1]), '/menu?sede=navigli');
 assert.equal(venueAwarePath('/sedi', site, site.venues[1]), '/sedi');
 assert.equal(
   canonicalPublicUrl(site, '/menu', '?sede=navigli', 'https://restaurant.test'),
   'https://restaurant.test/menu?sede=navigli',
   'multi-venue canonical preserves the selected venue',
+);
+assert.equal(
+  canonicalPublicUrl(site, '/menu/carta-vini', '?sede=navigli', 'https://restaurant.test'),
+  'https://restaurant.test/menu/carta-vini?sede=navigli',
+  'published menu canonical preserves the authorized venue context',
+);
+assert.equal(
+  canonicalPublicUrl(site, '/menu/carta-vini', '?sede=centro', 'https://restaurant.test'),
+  'https://restaurant.test/menu/carta-vini?sede=centro',
+  'different venue published menu retains its own canonical',
 );
 assert.equal(
   canonicalPublicUrl(site, '/menu', '?sede=missing', 'https://restaurant.test'),

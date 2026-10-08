@@ -20,6 +20,7 @@ import {
   canonicalPublicUrl,
   isClientSidePublicPath,
   readableInk,
+  resolveBookingVenue,
   safeAccent,
   safeBackground,
   safePublicLink,
@@ -92,6 +93,7 @@ function applyMetadata(site: PublicSite, venue?: Venue): void {
   setMeta('og:url', canonicalUrl, true);
   const hero = safeImageUrl(site.content.hero_image_url);
   if (hero) setMeta('og:image', hero, true);
+  else document.head.querySelector('meta[property="og:image"]')?.remove();
   let canonical = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
   if (!canonical) {
     canonical = document.createElement('link');
@@ -206,8 +208,8 @@ async function render(): Promise<void> {
       if (seoRevision === revision && robots) robots.content = 'noindex,nofollow';
     });
   }
-  const reservationVenue = bookingVenue(site, venue);
-  const bookingEnabled = Boolean(venue?.reservations_enabled);
+  const reservationVenue = resolveBookingVenue(site, location.pathname, location.search);
+  const bookingEnabled = sectionEnabled(site, 'booking') && Boolean(reservationVenue);
   const venueSlug = location.pathname.startsWith('/sedi/')
     ? location.pathname.split('/')[2]
     : undefined;
@@ -288,7 +290,7 @@ async function render(): Promise<void> {
   stopPerformance = observePublicPerformance(venue?.id);
   recordPublicPageView(venue?.id);
   const path = location.pathname;
-  if (path === '/') main.append(home(site, venue, bookingEnabled));
+  if (path === '/') main.append(home(site, venue, bookingEnabled ? reservationVenue : undefined));
   else if (path === '/menu') main.append(await menu(site, venue));
   else if (path.startsWith('/menu/') && venue) {
     const slug = path.slice('/menu/'.length);
@@ -368,7 +370,7 @@ async function render(): Promise<void> {
         ),
       ),
     );
-  } else if (path === '/prenota' && reservationVenue && sectionEnabled(site, 'booking')) {
+  } else if (path === '/prenota' && reservationVenue && bookingEnabled) {
     const section = el(
       'section',
       { class: 'public-section' },
@@ -382,6 +384,9 @@ async function render(): Promise<void> {
         reservationVenue, safePublicLink(textValue(site.content, 'privacy_url'), window.location.origin),
       ),
     );
+  } else if (path === '/prenota') {
+    main.append(emptyState('Prenotazioni online non disponibili',
+      'La sede richiesta non accetta prenotazioni online. Contatta il ristorante o scegli un’altra sede.'));
   } else if (path.startsWith('/tavolo/')) {
     stopLive?.();
     stopLive = undefined;
@@ -446,6 +451,11 @@ async function render(): Promise<void> {
 }
 
 function applyBrand(site: PublicSite): void {
+  // Always reconstruct the theme from the latest authoritative site snapshot.
+  // Otherwise removing a previously configured color/font leaves stale inline
+  // CSS variables behind after Realtime refresh or SPA navigation.
+  for (const token of ['--bg', '--accent', '--accent-ink', '--font', '--public-heading-font'])
+    document.documentElement.style.removeProperty(token);
   const darkMode = site.branding.dark_mode !== false;
   const defaultBackground = darkMode ? '#111315' : '#f4f0e8';
   const background = safeBackground(textValue(site.branding, 'background_color'), darkMode);
@@ -489,10 +499,15 @@ function applyBrand(site: PublicSite): void {
       document.head.append(icon);
     }
     icon.href = favicon;
+  } else {
+    // A previously configured favicon must not survive its removal.
+    const icon = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
+    if (icon) icon.href = '/icon.svg';
   }
 }
 
-function home(site: PublicSite, venue: Venue | undefined, bookingEnabled: boolean): HTMLElement {
+function home(site: PublicSite, venue: Venue | undefined, bookingDestination?: Venue): HTMLElement {
+  const bookingEnabled = Boolean(bookingDestination);
   const image = safeImageUrl(site.content.hero_image_url);
   return el(
     'div',
@@ -526,7 +541,7 @@ function home(site: PublicSite, venue: Venue | undefined, bookingEnabled: boolea
           'a',
           {
             href: bookingEnabled
-              ? venueAwarePath('/prenota', site, bookingVenue(site, venue))
+              ? venueAwarePath('/prenota', site, bookingDestination)
               : venueAwarePath('/menu', site, venue),
             class: 'button primary',
           },

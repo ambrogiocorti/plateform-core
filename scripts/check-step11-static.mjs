@@ -51,6 +51,9 @@ for (const [needle, label] of [
   ["textValue(site.branding, 'font_body')", 'public_body_font'],
   ["textValue(site.branding, 'layout', 'EDITORIAL')", 'public_layout'],
   ['safeImageUrl(site.branding.favicon_url)', 'public_favicon'],
+  ["if (icon) icon.href = '/icon.svg'", 'public_removed_favicon_resets'],
+  ["document.documentElement.style.removeProperty(token)", 'public_brand_tokens_reset'],
+  ["else document.head.querySelector('meta[property=\"og:image\"]')?.remove()", 'public_og_image_clears'],
   ['safeImageUrl(site.content.hero_image_url)', 'public_hero_image'],
   ['applyMetadata(site, venue)', 'public_metadata'],
   ["sectionEnabled(site, 'gallery')", 'public_sections'],
@@ -60,7 +63,7 @@ for (const [needle, label] of [
   requireText(publicMain, needle, label);
 
 for (const [needle, label] of [
-  ['bookingVenue(site, venue)', 'bookable_venue_selection'],
+  ['resolveBookingVenue(site, location.pathname, location.search)', 'bookable_venue_selection'],
   ["venueAwarePath('/prenota'", 'venue_context_booking'],
   ['public-menu-toggle', 'mobile_navigation'],
   ['restaurant-structured-data', 'structured_data'],

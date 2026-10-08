@@ -20,6 +20,23 @@ export function bookingVenue(site: PublicSite, current?: Venue): Venue | undefin
   return site.venues.find((venue) => venue.reservations_enabled);
 }
 
+/** An explicitly requested venue must never be swapped for a different venue.
+ * The generic booking entry may suggest the first bookable venue, but an
+ * unknown, inactive or disabled ?sede= selection fails closed instead.
+ */
+export function resolveBookingVenue(
+  site: PublicSite,
+  pathname: string,
+  search: string,
+): Venue | undefined {
+  const requested = new URLSearchParams(search).get('sede');
+  if (requested !== null) {
+    const exact = site.venues.find((venue) => venue.slug === requested);
+    return exact?.reservations_enabled ? exact : undefined;
+  }
+  return bookingVenue(site, selectedVenue(site, pathname, search));
+}
+
 export function venueAwarePath(path: string, site: PublicSite, venue?: Venue): string {
   if (!venue || !site.multi_venue || site.venues.length <= 1 || path === '/' || path === '/sedi')
     return path;
@@ -36,7 +53,11 @@ export function canonicalPublicUrl(
 ): string {
   const contextual = new Set(['/menu', '/ristorante', '/gallery', '/prenota', '/contatti']);
   const venue = selectedVenue(site, pathname, search);
-  const path = contextual.has(pathname) ? venueAwarePath(pathname, site, venue) : pathname;
+  // Published menu QR pages share a slug across venues; the canonical URL must
+  // preserve the selected venue to avoid merging different menus and prices.
+  const namedMenu = /^\/menu\/[a-z0-9]+(?:-[a-z0-9]+)*$/.test(pathname);
+  const path = contextual.has(pathname) || namedMenu
+    ? venueAwarePath(pathname, site, venue) : pathname;
   return new URL(path, origin).toString();
 }
 

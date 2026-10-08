@@ -7,13 +7,15 @@
  *   SUPABASE_DB_URL=... node scripts/reconcile-migrations.mjs --dry-run
  *   SUPABASE_DB_URL=... node scripts/reconcile-migrations.mjs --write
  *   node scripts/reconcile-migrations.mjs --input-file /path/export.jsonl --write
+ *   node scripts/reconcile-migrations.mjs --input-file /path/export.jsonl --write \
+ *     --adopt-remote-with-backup --expected-inventory-sha256 <verified-digest>
  *
  * Requires psql for direct retrieval, but no npm dependencies. The connection
  * string is kept in PGDATABASE (environment) rather than process arguments.
  */
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
-import { mkdtemp, readFile, readdir, writeFile, rename, rm } from 'node:fs/promises';
+import { mkdtemp, mkdir, readFile, readdir, writeFile, rename, rm, copyFile } from 'node:fs/promises';
 import { resolve, join } from 'node:path';
 import { tmpdir } from 'node:os';
 
@@ -25,6 +27,8 @@ const valueAfter = (key) => {
 if (argv.has('--write') === argv.has('--dry-run')) {
   throw new Error('Specify exactly one of --write or --dry-run.');
 }
+const adopt = argv.has('--adopt-remote-with-backup');
+if (adopt && !argv.has('--write')) throw new Error('Remote adoption requires --write.');
 const repo = resolve(process.env.PLATEFORM_REPO_ROOT || '.');
 const migrationDir = join(repo, 'supabase/migrations');
 const manifestPath = join(repo, 'supabase/migration-manifest.json');
@@ -66,6 +70,15 @@ for (const row of remote) {
   remoteVersions.add(row.version);
 }
 if (!remote.length) throw new Error('Database migration history was empty.');
+const inventorySha256 = digest(remote
+  .toSorted((a, b) => a.version.localeCompare(b.version))
+  .map((row) => `${row.version}:${row.name}:${digest(row.sql)}`).join('\n'));
+const expectedInventory = valueAfter('--expected-inventory-sha256');
+if (expectedInventory && (!/^[a-f0-9]{64}$/.test(expectedInventory) ||
+    inventorySha256 !== expectedInventory))
+  throw new Error('REMOTE_MIGRATION_INVENTORY_FINGERPRINT_MISMATCH');
+if (adopt && inputPath && !expectedInventory)
+  throw new Error('Adopting an exported migration file requires an independently verified inventory fingerprint.');
 
 const localFiles = (await readdir(migrationDir)).filter((f) => f.endsWith('.sql'));
 const byVersion = new Map(remote.map((row) => [row.version, row]));
@@ -97,14 +110,62 @@ for (const item of current.migrations) {
 const missing = remote.filter((row) => !localFiles.includes(filenameOf(row)));
 console.log(JSON.stringify({ state: divergences.length ? 'DIVERGENT' : missing.length ? 'INCOMPLETE' : 'SYNCED',
   local: localFiles.length, database: remote.length, missing: missing.length,
+  inventory_sha256: inventorySha256,
   missing_first: missing[0]?.version ?? null, missing_last: missing.at(-1)?.version ?? null,
   mismatches: divergences, mismatch_count: divergences.length,
   mode: argv.has('--write') ? 'write' : 'dry-run' }, null, 2));
-if (divergences.length) {
-  if (argv.has('--write')) throw new Error('Local and remote SQL differ: refusing destructive reconciliation.');
+if (divergences.length && (!argv.has('--write') || !adopt)) {
+  if (argv.has('--write')) throw new Error('Local and remote SQL differ: refusing destructive reconciliation. Use --adopt-remote-with-backup only with verified SQL history.');
   process.exitCode = 2;
 } else if (argv.has('--dry-run')) {
   if (missing.length) process.exitCode = 2;
+}
+else if (divergences.length && adopt) {
+  // Remote SQL is the canonical applied history; keep the *entire* prior local
+  // migration tree and manifest before adopting it. Never rewrite DB history.
+  if (remote.length < localFiles.length ||
+      divergences.some((entry) => entry.reason !== 'SQL_SHA256_MISMATCH'))
+    throw new Error('REMOTE_HISTORY_INCOMPLETE: at least one local migration has no remote counterpart.');
+  const supabase = join(repo, 'supabase');
+  const backupRoot = join(supabase, 'migration-recovery-backups',
+    `${new Date().toISOString().replaceAll(/[:.]/g,'-')}-${randomUUID()}`);
+  const staged = await mkdtemp(join(supabase, '.migration-recovery-staging-'));
+  const stagedMigrations = join(staged, 'migrations');
+  await mkdir(stagedMigrations, {mode: 0o700});
+  let movedOld = false;
+  let movedNew = false;
+  try {
+    const manifest = { ...current, migrations: remote.map((row) => ({
+      filename: filenameOf(row), version: row.version, name: row.name, sha256: digest(row.sql),
+    })) };
+    for (const row of remote) {
+      const filename = filenameOf(row);
+      const destination = join(stagedMigrations, filename);
+      await writeFile(destination, row.sql, { flag: 'wx', mode: 0o600 });
+      if (digest(await readFile(destination)) !== digest(row.sql))
+        throw new Error(`Cannot verify canonical migration: ${filename}`);
+    }
+    await writeFile(join(staged, 'migration-manifest.json'),
+      JSON.stringify(manifest, null, 2) + '\n', { mode: 0o600 });
+    await mkdir(backupRoot, { recursive: true, mode: 0o700 });
+    await copyFile(manifestPath, join(backupRoot, 'migration-manifest.json'));
+    await writeFile(join(backupRoot, 'adoption-report.json'), JSON.stringify({
+      adopted_at: new Date().toISOString(), remote_inventory_sha256: inventorySha256,
+      prior_local_count: localFiles.length, remote_count: remote.length,
+      divergences, missing: missing.map(filenameOf),
+    }, null, 2) + '\n', { flag: 'wx', mode: 0o600 });
+    await rename(migrationDir, join(backupRoot, 'migrations'));
+    movedOld = true;
+    await rename(stagedMigrations, migrationDir);
+    movedNew = true;
+    await rename(join(staged, 'migration-manifest.json'), manifestPath);
+    console.log(`ADOPTED_REMOTE_HISTORY=${remote.length}; PREVIOUS_SOURCE_PRESERVED=${backupRoot}`);
+  } catch (error) {
+    // Roll back to the old manifest and migration tree on a partial swap.
+    if (movedNew) await rename(migrationDir, stagedMigrations);
+    if (movedOld) await rename(join(backupRoot, 'migrations'), migrationDir);
+    throw error;
+  } finally { await rm(staged, {recursive:true,force:true}); }
 }
 else {
   // Prepare the full inventory before any write. Do not modify old migration SQL.

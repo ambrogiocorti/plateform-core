@@ -44,6 +44,42 @@ try {
   const verified = run(['--dry-run']);
   assert.equal(verified.status, 0, verified.stderr); count++;
   assert.match(verified.stdout, /"missing": 0/); count++;
+
+  // A divergent applied migration may only be adopted from an independently
+  // fingerprinted export, and the original local history must be recoverable.
+  const remoteFingerprint = sha([unsafe, next].map((row) =>
+    `${row.version}:${row.name}:${sha(row.sql)}`).join('\n'));
+  const badFingerprint = run(['--write', '--adopt-remote-with-backup',
+    '--expected-inventory-sha256', '0'.repeat(64)], modified);
+  assert.notEqual(badFingerprint.status, 0); count++;
+  assert.match(badFingerprint.stderr, /REMOTE_MIGRATION_INVENTORY_FINGERPRINT_MISMATCH/); count++;
+  assert.equal(await readFile(join(migrate, oldName), 'utf8'), old.sql); count++;
+
+  const adopted = run(['--write', '--adopt-remote-with-backup',
+    '--expected-inventory-sha256', remoteFingerprint], modified);
+  assert.equal(adopted.status, 0, adopted.stderr); count++;
+  assert.equal(await readFile(join(migrate, oldName), 'utf8'), unsafe.sql); count++;
+  const archives = await readdir(join(root, 'supabase/migration-recovery-backups'));
+  assert.equal(archives.length, 1); count++;
+  const backup = join(root, 'supabase/migration-recovery-backups', archives[0]);
+  assert.equal(await readFile(join(backup, 'migrations', oldName), 'utf8'), old.sql); count++;
+  const originalManifest = JSON.parse(await readFile(join(backup, 'migration-manifest.json'),'utf8'));
+  assert.equal(originalManifest.migrations.length, 2); count++;
+  assert.equal(originalManifest.migrations[0].sha256, sha(old.sql)); count++;
+  const report = JSON.parse(await readFile(join(backup, 'adoption-report.json'),'utf8'));
+  assert.equal(report.remote_inventory_sha256, remoteFingerprint); count++;
+  assert.equal(report.divergences.length, 1); count++;
+  assert.equal(run(['--dry-run'],modified).status, 0); count++;
+
+  // Refuse a truncated export even with a matching hash for those few rows.
+  const truncated = join(root, 'truncated.jsonl');
+  await writeFile(truncated, JSON.stringify(unsafe)+'\n');
+  const truncatedHash = sha(`${unsafe.version}:${unsafe.name}:${sha(unsafe.sql)}`);
+  const denied = run(['--write','--adopt-remote-with-backup',
+    '--expected-inventory-sha256',truncatedHash],truncated);
+  assert.notEqual(denied.status,0); count++;
+  assert.match(denied.stderr,/REMOTE_HISTORY_INCOMPLETE/); count++;
+  assert.equal(await readFile(join(migrate,nextName),'utf8'),next.sql); count++;
   console.log(`STEP11_MIGRATION_RECOVERY=PASS (${count}/${count} assertions; no SQL applied to database)`);
 } finally {
   await rm(root, { recursive: true, force: true });
