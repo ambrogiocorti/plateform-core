@@ -18,6 +18,7 @@ jobs:
       - run: npm run format:check
       - run: npm run check
       - run: npx playwright install --with-deps chromium
+      - run: node scripts/check-step11-build-assembly.mjs --browser-node
       - run: npm run test:e2e
       - uses: actions/upload-artifact@v4
         if: failure()

@@ -38,6 +38,7 @@ let pageLifetime = new AbortController();
 let stopLive: (() => void) | undefined;
 let liveKey = '';
 let stopPerformance: (() => void) | undefined;
+let initialPage = true;
 function textValue(data: Record<string, unknown>, key: string, fallback = ''): string {
   return typeof data[key] === 'string' ? data[key] : fallback;
 }
@@ -147,9 +148,16 @@ async function render(): Promise<void> {
   pageLifetime = new AbortController();
   const lifetime = pageLifetime;
   environment();
-  app.replaceChildren(loading());
+  // Preserve server-rendered editorial content during initial hydration.
+  // Replacing it with a loading message causes layout shifts and an empty page
+  // whenever JavaScript starts before the public RPC has responded.
+  const preservePrerender = initialPage && app.querySelector('main#main') !== null;
+  initialPage = false;
+  if (preservePrerender) app.setAttribute('aria-busy', 'true');
+  else app.replaceChildren(loading());
   const site = await rpc('get_public_site', {}, publicSiteSchema.nullable());
   if (current !== revision) return;
+  app.removeAttribute('aria-busy');
   if (!site) {
     app.replaceChildren(
       el(
@@ -767,6 +775,7 @@ function footer(site: PublicSite): HTMLElement {
   );
 }
 function failed(error: unknown): void {
+  app.removeAttribute('aria-busy');
   app.replaceChildren(
     el(
       'main',
@@ -783,6 +792,8 @@ document.addEventListener('click', (event) => {
   if (
     !(target instanceof HTMLAnchorElement) ||
     target.origin !== location.origin ||
+    (target.target !== '' && target.target !== '_self') ||
+    target.hasAttribute('download') ||
     event.ctrlKey ||
     event.metaKey ||
     event.shiftKey ||

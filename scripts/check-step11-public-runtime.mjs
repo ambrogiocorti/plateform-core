@@ -4,6 +4,7 @@ import {
   canonicalPublicUrl,
   contrastRatio,
   normalizePublicPath,
+  readableInk,
   safeAccent,
   safeBackground,
   safePublicLink,
@@ -74,6 +75,9 @@ assert.ok(contrastRatio('#111315', '#f4f0e8') > 7);
 assert.equal(safeBackground('#ffffff', true), undefined);
 assert.equal(safeBackground('#111315', true), '#111315');
 assert.equal(safeAccent('#111315', '#111315'), undefined);
+for (const color of ['#ffffff','#ff0000','#ff6600','#00a0f0','#22cc99','#795127','#d3ab78']) {
+  assert.ok(contrastRatio(color,readableInk(color)) >= 4.5, `button text contrast: ${color}`);
+}
 assert.equal(
   safePublicLink('javascript:alert(1)', 'https://restaurant.test'),
   undefined,

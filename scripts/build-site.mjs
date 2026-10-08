@@ -1,4 +1,7 @@
-import { cp, mkdir, writeFile, readFile } from 'node:fs/promises';
+import { cp, mkdir, rm, writeFile, readFile } from 'node:fs/promises';
+// A prior deployment can contain published menus or venue pages that have since
+// been withdrawn. Never let those HTML files survive into a later release.
+await rm('dist/site', { recursive: true, force: true });
 await mkdir('dist/site', { recursive: true });
 await cp('dist/public', 'dist/site', { recursive: true });
 await cp('dist/staff', 'dist/site/staff', { recursive: true });

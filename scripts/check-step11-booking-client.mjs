@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {addCalendarDays,venueLocalToday,bookableSlots,verifiedPaymentUrl} from '../src/services/public-booking-contract.ts';
+import {addCalendarDays,venueLocalToday,bookableSlots,verifiedPaymentUrl,depositNextAction} from '../src/services/public-booking-contract.ts';
 let assertions = 0;
 const ok=(test)=>{test();assertions++;};
 ok(()=>assert.equal(venueLocalToday('Europe/Rome',new Date('2027-03-28T00:30:00Z')),'2027-03-28'));
@@ -23,4 +23,12 @@ ok(()=>assert.throws(()=>verifiedPaymentUrl('https://stripe.com.evil.example/','
 ok(()=>assert.throws(()=>verifiedPaymentUrl('https://stripe.com@evil.example/','STRIPE'),/INVALID_CHECKOUT_URL/));
 ok(()=>assert.throws(()=>verifiedPaymentUrl('http://checkout.stripe.com/','STRIPE'),/INVALID_CHECKOUT_URL/));
 ok(()=>assert.throws(()=>verifiedPaymentUrl('javascript:alert(1)','STRIPE'),/INVALID_CHECKOUT_URL/));
+const checkout={deposit_id:'d1',provider:'STRIPE',state:'WAITING',checkout_url:'https://checkout.stripe.com/pay/cs_123'};
+ok(()=>assert.deepEqual(depositNextAction(checkout,'d1','STRIPE'),{action:'REDIRECT',url:checkout.checkout_url}));
+ok(()=>assert.deepEqual(depositNextAction({...checkout,state:'COMPLETED',checkout_url:null},'d1','STRIPE'),{action:'AWAIT_CONFIRMATION'}));
+ok(()=>assert.deepEqual(depositNextAction({...checkout,state:'FAILED',checkout_url:null},'d1','STRIPE'),{action:'FAILED'}));
+ok(()=>assert.deepEqual(depositNextAction({...checkout,checkout_url:null},'d1','STRIPE'),{action:'PROCESSING'}));
+ok(()=>assert.throws(()=>depositNextAction({...checkout,deposit_id:'wrong'},'d1','STRIPE'),/INVALID_CHECKOUT_CONTEXT/));
+ok(()=>assert.throws(()=>depositNextAction({...checkout,checkout_url:'https://stripe.com.evil.example/'},'d1','STRIPE'),/INVALID_CHECKOUT_URL/));
+ok(()=>assert.throws(()=>depositNextAction({...checkout,provider:'SATISPAY'},'d1','STRIPE'),/INVALID_CHECKOUT_CONTEXT/));
 console.log(`STEP11_RECOVERED_BOOKING_CONTRACT=PASS (${assertions} assertions)`);

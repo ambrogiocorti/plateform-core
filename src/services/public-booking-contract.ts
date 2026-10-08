@@ -68,3 +68,24 @@ export function verifiedPaymentUrl(url: unknown, provider: 'STRIPE' | 'SATISPAY'
     throw new Error('INVALID_CHECKOUT_URL');
   return parsed.href;
 }
+
+export type CheckoutResult = {
+  deposit_id: string;
+  provider: 'STRIPE' | 'SATISPAY';
+  state: 'WAITING' | 'COMPLETED' | 'FAILED';
+  checkout_url: string | null;
+};
+
+/** Provider initiation is not a payment receipt; only the backend may confirm a booking. */
+export function depositNextAction(
+  result: CheckoutResult,
+  depositId: string,
+  provider: 'STRIPE' | 'SATISPAY',
+): { action: 'REDIRECT'; url: string } | { action: 'AWAIT_CONFIRMATION' | 'FAILED' | 'PROCESSING' } {
+  if (result.deposit_id !== depositId || result.provider !== provider)
+    throw new Error('INVALID_CHECKOUT_CONTEXT');
+  if (result.state === 'COMPLETED') return { action: 'AWAIT_CONFIRMATION' };
+  if (result.state === 'FAILED') return { action: 'FAILED' };
+  if (!result.checkout_url) return { action: 'PROCESSING' };
+  return { action: 'REDIRECT', url: verifiedPaymentUrl(result.checkout_url, provider) };
+}

@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { ApplicationError, client, rpc, safeError } from '../api/client';
 import { button, el, emptyState, field } from '../components/dom';
 import type { Venue } from '../types/domain';
-import { addCalendarDays, bookableSlots, venueLocalToday, verifiedPaymentUrl } from '../services/public-booking-contract';
+import { addCalendarDays, bookableSlots, depositNextAction, venueLocalToday } from '../services/public-booking-contract';
 import type { SearchKey } from '../services/public-booking-contract';
 
 async function bookingFailure(error: unknown): Promise<never> {
@@ -153,19 +153,37 @@ export async function bookingPage(venue: Venue, privacyUrl?: string): Promise<HT
         form.replaceChildren(el('h2', {}, 'Caparra necessaria per completare la prenotazione'),
           el('p', {}, `Importo: ${(result.deposit.amount_cents / 100).toLocaleString('it-IT',{style:'currency',currency:'EUR'})}. Il tavolo non è ancora confermato.`),
           el('p', { role: 'status' }, 'Il pagamento deve essere confermato dal ristorante dopo la verifica del provider.'));
+        let checkoutStarted = false;
+        const checkoutStatus = el('p', {role: 'status', 'aria-live': 'polite'});
         for (const provider of ['STRIPE', 'SATISPAY'] as const) {
           form.append(button(`Paga la caparra con ${provider === 'STRIPE' ? 'Stripe' : 'Satispay'}`, async () => {
-            const { data: checkoutData, error: checkoutError } = await client().functions.invoke('reservation-deposit', {
-              body: { deposit_id: result.deposit.id, access_token: result.deposit.access_token,
-                provider, idempotency_key: crypto.randomUUID() },
-            });
-            if (checkoutError) await bookingFailure(checkoutError);
-            const checkout = checkoutResult.parse(checkoutData);
-            if (checkout.deposit_id !== result.deposit.id || checkout.provider !== provider || !checkout.checkout_url)
-              throw new Error('CHECKOUT_NOT_AVAILABLE');
-            window.location.assign(verifiedPaymentUrl(checkout.checkout_url, provider));
+            if (checkoutStarted) return;
+            checkoutStarted = true; // A second provider must not race the first request.
+            checkoutStatus.textContent = 'Preparazione del pagamento in corso…';
+            try {
+              const { data: checkoutData, error: checkoutError } = await client().functions.invoke('reservation-deposit', {
+                body: { deposit_id: result.deposit.id, access_token: result.deposit.access_token,
+                  provider, idempotency_key: crypto.randomUUID() },
+              });
+              if (checkoutError) await bookingFailure(checkoutError);
+              const checkout = checkoutResult.parse(checkoutData);
+              const next = depositNextAction(checkout, result.deposit.id, provider);
+              if (next.action === 'AWAIT_CONFIRMATION') {
+                checkoutStatus.textContent = 'Pagamento rilevato. La conferma della prenotazione dipende dalla verifica del ristorante.';
+              } else if (next.action === 'FAILED') {
+                checkoutStatus.textContent = 'Pagamento non riuscito. Contatta il ristorante per verificare la prenotazione.';
+              } else if (next.action === 'REDIRECT') {
+                window.location.assign(next.url);
+              } else {
+                checkoutStatus.textContent = 'Il pagamento è in elaborazione. Contatta il ristorante prima di riprovare.';
+              }
+            } catch (error) {
+              checkoutStatus.textContent = 'Impossibile verificare l’avvio del pagamento. Non ripetere la richiesta; contatta il ristorante.';
+              throw error;
+            }
           }, 'secondary'));
         }
+        form.append(checkoutStatus);
       } else {
         form.replaceChildren(el('p', { class: 'eyebrow' }, 'A presto'),
           el('h2', {}, result.status === 'RESERVED' ? 'Il tuo tavolo è prenotato.' : 'Abbiamo ricevuto la richiesta.'),
