@@ -1,0 +1,38 @@
+{
+  "date": "2026-10-03",
+  "project": "abdxvlykasqmknexxhjo",
+  "step": 4,
+  "status": "PASSED",
+  "transactional_fixtures": "ROLLBACK",
+  "migrations": 67,
+  "edge": {
+    "customer-session": {
+      "version": 2,
+      "status": "ACTIVE",
+      "verify_jwt": false,
+      "sha256": "6384c2ae018a53c3a92704e0fa834826951c4275af7a22ced1a7652d1a19c37d"
+    }
+  },
+  "gates": [
+    "permanent public_table_id + six-digit account code and code-hash lifecycle",
+    "progressive HMAC-bucket customer-code backoff plus fixed IP/device rate limits",
+    "two simultaneous isolated customer sessions on one account",
+    "customer account projection with currency/locale/history details",
+    "public menu projection with images and dietary tags",
+    "TABLE waiter routing, acceptance, completion and response timestamps",
+    "WAITER_APPROVAL workspace -> approve -> CUSTOMER order -> persistent notification resolved",
+    "DIRECT ordering and DISABLED rejection",
+    "account-code rotation invalidates existing customer sessions",
+    "service_role-only backoff RPC grants and anon denial"
+  ],
+  "source_checks": [
+    "67 migration checksums verified",
+    "full TypeScript semantic typecheck passed with temporary test-only saxes declaration",
+    "modified Step 4 sources transpile without diagnostics"
+  ],
+  "notes": [
+    "Supabase live fixtures were rolled back.",
+    "PGlite rebuilt all 67 migrations from zero and passed targeted Step 4 gates.",
+    "The archived node_modules came from Windows; Playwright/Vitest on this Linux runner cannot start Vite because the Linux Rolldown optional native binding is absent and the npm registry is unreachable (EAI_AGAIN). This is an execution-environment limitation, not a skipped application failure; browser fixture sources were updated and TypeScript-checked."
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "date": "2026-10-05",
+  "step": 7,
+  "status": "PASSED",
+  "renderer": "src/printing/invoice.ts",
+  "css": "styles/staff.css",
+  "browser": "/usr/bin/chromium",
+  "pages": 1,
+  "page_mm": {"width": 210.23, "height": 297.35},
+  "checks": {
+    "single_page": true,
+    "a4_width": true,
+    "a4_height": true,
+    "non_fiscal": true,
+    "account": true,
+    "table": true,
+    "total": true,
+    "payment": true,
+    "refund": true,
+    "footer": true,
+    "dom_footer_matches_production_copy": true
+  },
+  "remaining": "Physical Epson/EPOS/print-bridge/offline-printer validation"
+}

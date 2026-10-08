@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-04",
+  "step": 12,
+  "status": "PASSED_ASSISTED_REHEARSAL_NOT_WORKER_CERTIFICATION",
+  "source_project_ref": "abdxvlykasqmknexxhjo",
+  "target_project_ref": "dkbjgvovxgglqhqxmuyb",
+  "target_name": "plateform-restore-test",
+  "region": "eu-west-1",
+  "migration": {
+    "count": 106,
+    "latest_version": "20261004205734",
+    "aggregate_sha256": "74776e587ba374f2be0f7efc55aff8bf933d4cce18d9040d0c8d8be79e01068b",
+    "source_target_equal": true
+  },
+  "schema": {
+    "public_tables": 95,
+    "public_functions": 196,
+    "private_functions": 124,
+    "public_policies": 93,
+    "storage_plateform_policies": 2,
+    "source_target_equal": true
+  },
+  "data": {
+    "public_root_and_auth_table_fingerprint_diff_count": 0,
+    "storage_bucket_count": 4,
+    "storage_object_count": 0,
+    "storage_metadata_hash": "d6447f7232f1cc26367d614f3e49550e83ffd87d00f3b6429c067a2865bf5a8f"
+  },
+  "smoke": {
+    "superadmin_role_resolved": true,
+    "venues_visible": 1,
+    "technical_workspace": true,
+    "schema_version": "20261004162621",
+    "release_version": "0.1.0"
+  },
+  "lessons_applied_to_worker": [
+    "quiesce plateform cron before verification",
+    "fingerprint durable private state",
+    "invalidate runtime security state after restore"
+  ],
+  "not_certified_yet": [
+    "backup artifact was not produced by the real encrypted backup worker",
+    "restore was assisted through the Supabase control connection rather than restore-test-worker --once",
+    "RPO/RTO from real worker run not observed"
+  ],
+  "target_lifecycle": {
+    "after_rehearsal": "PAUSED/INACTIVE",
+    "reusable_for_real_worker": false,
+    "reason": "Assisted rehearsal populated Plateform Storage buckets and database state; a real worker certification must use a fresh disposable target."
+  }
+}

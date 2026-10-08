@@ -1,0 +1,42 @@
+{
+  "status": "IN_PROGRESS_INTERNAL_INTEGRITY_GATES_IMPLEMENTED_LIVE_DRILL_PENDING",
+  "verified": {
+    "migration_history_backup_restore": true,
+    "migration_count_hash_latest_version": true,
+    "schema_version_bound_to_snapshot": true,
+    "storage_metadata_fingerprint": true,
+    "storage_snapshot_consistency": true,
+    "unsupported_storage_modes_fail_closed": true,
+    "manifest_hmac_sha256": true,
+    "backup_replica_required_server_side": true,
+    "replica_atomic_verified_copy": true,
+    "ambiguous_commit_reconciliation": true,
+    "portable_artifact_references": true,
+    "artifact_path_traversal_and_symlink_guards": true,
+    "encryption_key_rotation_keyring": true,
+    "auth_and_migration_snapshot_consistency": true,
+    "replica_idempotent_write_once": true,
+    "replica_conflict_preserved_fail_closed": true,
+    "operational_release_metadata_guard": true,
+    "invalid_text_version_triggers_removed": true
+  },
+  "latest_migrations": [
+    "20261004145929_step12_migration_history_recovery",
+    "20261004151630_step12_storage_metadata_integrity",
+    "20261004154213_step12_backup_replica_durability",
+    "20261004154534_step12_restore_retention_race_guard",
+    "20261004155039_step12_manifest_authentication",
+    "20261004155630_step12_schema_snapshot_binding",
+    "20261004160452_step12_pre_restore_priority_and_retention"
+  ],
+  "external_gate": [
+    "execute the queued backup on a production-capable continuity host with independent primary and replica storage",
+    "perform an isolated restore test on a disposable Supabase project",
+    "measure observed RPO and RTO"
+  ],
+  "migration_inventory": {
+    "count": 105,
+    "aggregate_sha256": "7c754c64396e64155f0edc104abde53890d7d8e264d6130fed8f6c065182ba3a",
+    "local_remote_exact": true
+  }
+}

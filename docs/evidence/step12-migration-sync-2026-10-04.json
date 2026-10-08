@@ -1,0 +1,15 @@
+{
+  "date": "2026-10-04",
+  "step": 12,
+  "status": "PASSED_106_EXACT_HASH",
+  "migration_count": 106,
+  "aggregate_sha256": "74776e587ba374f2be0f7efc55aff8bf933d4cce18d9040d0c8d8be79e01068b",
+  "comparison": "version + name + per-migration SHA-256, aggregated in version order",
+  "local_gate": "npm run check:migrations => 106 versioned migrations verified against the applied manifest",
+  "remote_project": "development",
+  "drift_remaining": false,
+  "local_count": 106,
+  "remote_count": 106,
+  "restore_test_target_count": 106,
+  "restore_test_target_hash": "74776e587ba374f2be0f7efc55aff8bf933d4cce18d9040d0c8d8be79e01068b"
+}

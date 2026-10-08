@@ -1,0 +1,100 @@
+{
+  "captured_at": "2026-10-05T23:58:00+02:00",
+  "project": "abdxvlykasqmknexxhjo",
+  "scope": "Step 11 asset-upload deployed contract + authorization/RLS live probe",
+  "edge_function": {
+    "slug": "asset-upload",
+    "status": "ACTIVE",
+    "version": 5,
+    "verify_jwt": true,
+    "deployed_sha256": "c93e2efff56c660d41648d708f4e15f534d38f895c811f686a75a1ea0b3701b6"
+  },
+  "deployed_contract": {
+    "auth_get_user": true,
+    "user_rpc_reservation": true,
+    "server_storage_after_reservation": true,
+    "max_file_bytes": 5242880,
+    "magic_byte_validation": true,
+    "sha256_checksum": true,
+    "rate_limit": "20 / 600s per authenticated user",
+    "allowed_buckets": [
+      "branding",
+      "dishes",
+      "gallery",
+      "documents"
+    ]
+  },
+  "buckets": {
+    "branding": {
+      "public": true,
+      "limit": 5242880,
+      "mime": [
+        "image/png",
+        "image/jpeg",
+        "image/webp"
+      ]
+    },
+    "dishes": {
+      "public": true,
+      "limit": 5242880,
+      "mime": [
+        "image/png",
+        "image/jpeg",
+        "image/webp"
+      ]
+    },
+    "gallery": {
+      "public": true,
+      "limit": 5242880,
+      "mime": [
+        "image/png",
+        "image/jpeg",
+        "image/webp"
+      ]
+    },
+    "documents": {
+      "public": false,
+      "limit": 5242880,
+      "mime": [
+        "application/pdf"
+      ]
+    }
+  },
+  "live_probe": {
+    "transactional_rollback": true,
+    "checks_total": 11,
+    "checks_passed": 11,
+    "checks": {
+      "admin_reserve_success": true,
+      "admin_retry_idempotent": true,
+      "single_reserved_row": true,
+      "foreign_venue_denied": true,
+      "invalid_mime_denied": true,
+      "quota_denied": true,
+      "authenticated_direct_storage_write_denied": true,
+      "admin_can_read_own_private_document": true,
+      "admin_cannot_read_foreign_private_document": true,
+      "waiter_reserve_denied": true,
+      "waiter_private_documents_hidden": true
+    },
+    "observed_errors": {
+      "foreign_venue": "42501:VENUE_FORBIDDEN",
+      "invalid_mime": "P0001:INVALID_ASSET",
+      "quota": "P0001:STORAGE_LIMIT",
+      "waiter": "42501:FORBIDDEN",
+      "direct_storage_insert": "42501 row-level security"
+    },
+    "cleanup": {
+      "probe_assets": 0,
+      "probe_objects": 0,
+      "probe_sessions": 0,
+      "probe_venue": 0,
+      "multi_venue_licensed": false,
+      "max_storage_bytes": 10737418240
+    }
+  },
+  "not_proven": [
+    "Authenticated browser HTTPS upload of real bytes through Edge Function and Storage",
+    "Real-browser public URL/download behavior and performance"
+  ]
+}

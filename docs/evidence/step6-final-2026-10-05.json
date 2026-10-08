@@ -1,0 +1,56 @@
+{
+  "date": "2026-10-05",
+  "project_id": "abdxvlykasqmknexxhjo",
+  "step": 6,
+  "status": "PASSED",
+  "summary": "Stripe and Satispay sandbox end-to-end payment/refund gates are complete; provider replay/out-of-order/retry reconciliation and refund-balance regression checks passed on development.",
+  "stripe": {
+    "sandbox_end_to_end": "PASSED",
+    "payment": "PASSED",
+    "webhook": "PASSED",
+    "authoritative_ledger": "PASSED",
+    "refund": "PASSED",
+    "idempotency": "PASSED"
+  },
+  "satispay": {
+    "sandbox_key_registration": "PASSED",
+    "authentication_self_test": "PASSED",
+    "payment_match_code": "PASSED",
+    "callback": "PASSED",
+    "duplicate_callback_observed": "PASSED",
+    "authoritative_completion": "PASSED",
+    "refund": "PASSED",
+    "refund_provider_attempts": 1,
+    "provider_last_error": null
+  },
+  "resilience": {
+    "duplicate_terminal_provider_event": "PASSED",
+    "stale_waiting_after_terminal_completion": "PASSED",
+    "provider_event_mismatch_guard": "PASSED",
+    "timeout_unknown_outcome_release": "PASSED_ROLLBACK_TEST",
+    "retry_reuses_same_operation": "PASSED_ROLLBACK_TEST",
+    "stale_lease_rejected": "PASSED_ROLLBACK_TEST",
+    "duplicate_after_recovery": "PASSED_ROLLBACK_TEST"
+  },
+  "security": {
+    "cashier_refund_denied": "PASSED_ROLLBACK_TEST",
+    "admin_step_up_refund": "PASSED_LIVE_UI",
+    "refund_audit": "PASSED",
+    "provider_authoritative_state": "PASSED"
+  },
+  "regression": {
+    "refund_reopens_balance": "PASSED",
+    "partial_refund_accounting": "IMPLEMENTED_BY_EFFECTIVE_ALLOCATION",
+    "payment_original_retained": "PASSED",
+    "provider_payment_invariants_bad_rows": 0,
+    "provider_refund_invariants_bad_rows": 0,
+    "refund_overflow_bad_rows": 0,
+    "billing_overallocation_bad_rows": 0,
+    "terminal_provider_leases_bad_rows": 0,
+    "completed_provider_errors_bad_rows": 0
+  },
+  "migrations": [
+    "supabase/migrations/20261005140800_step6_refund_reopens_balance.sql"
+  ],
+  "manual_ui_note": "All configured payment methods were exercised by the user in the development UI; online provider payment/refund outcomes were independently verified server-side."
+}

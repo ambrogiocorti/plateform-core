@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-03",
+  "project": "abdxvlykasqmknexxhjo",
+  "step": 3,
+  "status": "PASSED",
+  "transactional_fixtures": "ROLLBACK",
+  "gates": [
+    "CASH register open + service session + opening float",
+    "partial CASH + CARD_POS mixed settlement and overpayment denial",
+    "courtesy and DOCUMENTO NON FISCALE receipt print jobs",
+    "financial close preserves occupied floor for prepaid/unserved items; final fulfillment releases to TO_RESET",
+    "service reconciliation zero difference immutable close",
+    "cash difference -> AWAITING_APPROVAL -> Admin-only notification -> step-up approval -> authorized snapshot",
+    "item split to new financial account, merge accounts, equal split and duplicate share payment denial"
+  ],
+  "notes": [
+    "All live fixtures rolled back. Full local npm suite was not rerun because package registry access was unavailable in the execution environment; live PostgreSQL gates were used for this step."
+  ]
+}

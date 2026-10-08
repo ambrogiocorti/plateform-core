@@ -1,0 +1,62 @@
+{
+  "date": "2026-10-04",
+  "project_id": "abdxvlykasqmknexxhjo",
+  "step": 12,
+  "status": "IN_PROGRESS_OPERATIONAL_HEALTH_AND_SUPERADMIN_CONTROLS_PASSED",
+  "migration": {
+    "version": "20261004115400",
+    "name": "step12_operational_health"
+  },
+  "workspace": {
+    "backup_health": [
+      "last_success_at",
+      "last_failure_at",
+      "last_restore_test_at",
+      "pending_count",
+      "failed_24h",
+      "expiring_7d",
+      "latest_status",
+      "latest_integrity_verified",
+      "latest_retention_until",
+      "restore_pending_count",
+      "restore_failed_24h",
+      "latest_restore_status",
+      "cron_active"
+    ],
+    "restore_history_limit": 10,
+    "cron_active_live": true
+  },
+  "ui": {
+    "manual_backup": true,
+    "restore_test_only_verified_backup": true,
+    "restore_test_step_up": true,
+    "full_restore_only_verified_backup": true,
+    "full_restore_reason_min_length": 10,
+    "restaurant_name_confirmation": true,
+    "full_restore_step_up": true,
+    "pre_restore_snapshot_server_side": true,
+    "recent_backup_restore_statuses": true,
+    "retention_and_failure_visibility": true
+  },
+  "security": {
+    "get_technical_workspace_anon_execute": false,
+    "create_backup_anon_execute": false,
+    "request_restore_anon_execute": false,
+    "request_restore_test_anon_execute": false,
+    "confirm_restore_anon_execute": false,
+    "server_authorization": "SUPER_ADMIN"
+  },
+  "validation": {
+    "technical_page_typescript_syntax": "PASSED",
+    "backup_worker_gate": "PASSED",
+    "restore_test_worker_gate": "PASSED",
+    "live_workspace_shape_query": "PASSED"
+  },
+  "open": [
+    "real verified backup",
+    "real isolated restore test",
+    "active backup/restore notification alerting",
+    "RPO/RTO measurement",
+    "local migration synchronization"
+  ]
+}

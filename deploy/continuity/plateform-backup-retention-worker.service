@@ -1,0 +1,19 @@
+[Unit]
+Description=Plateform continuity retention worker (one purge job)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=%h/plateform
+EnvironmentFile=%h/.config/plateform/continuity.env
+ExecStart=/usr/bin/env node tools/backup-retention-worker/start.mjs --once
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=read-only
+ProtectSystem=strict
+ReadWritePaths=%h/.local/share/plateform/backups
+
+[Install]
+WantedBy=default.target

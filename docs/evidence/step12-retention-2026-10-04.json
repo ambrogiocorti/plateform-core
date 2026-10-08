@@ -1,0 +1,40 @@
+{
+  "date": "2026-10-04",
+  "project_id": "abdxvlykasqmknexxhjo",
+  "status": "PASSED_CONTROL_PLANE_AND_STATIC_WORKER",
+  "migrations": [
+    "20261004143611_step12_backup_retention_enforcement",
+    "20261004144057_step12_retention_operational_health"
+  ],
+  "database": {
+    "transactional_state_machine_test": "PASSED_ROLLED_BACK",
+    "active_restore_backup_not_claimed": true,
+    "expired_backup_claimed_once": true,
+    "successful_finish_sets_artifacts_purged_at": true,
+    "successful_finish_clears_file_references_only": true,
+    "historical_metadata_preserved": true,
+    "rpc_anon_execute": false,
+    "rpc_authenticated_execute": false,
+    "rpc_service_role_execute": true,
+    "live_claim_without_expired_successful_backup": null
+  },
+  "worker": {
+    "filesystem_delete_test": "PASSED",
+    "missing_directory_idempotency": "PASSED",
+    "outside_root_rejection": "PASSED",
+    "symlink_rejection": "PASSED",
+    "preflight_before_claim": true,
+    "systemd_timer": "30 minutes"
+  },
+  "operational_health": {
+    "expired_unpurged_count": 0,
+    "purge_in_progress_count": 0,
+    "purge_failed_count": 0,
+    "last_artifacts_purged_at": null,
+    "retention_overdue_incident": "implemented"
+  },
+  "limitations": [
+    "No real expired successful backup exists yet, so no production-like artifact was purged.",
+    "Off-site/immutable retention must still be proven on the actual continuity infrastructure."
+  ]
+}

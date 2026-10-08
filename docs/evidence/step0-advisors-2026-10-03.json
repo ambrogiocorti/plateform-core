@@ -1,0 +1,28 @@
+{
+  "project_ref": "abdxvlykasqmknexxhjo",
+  "checked_at": "2026-10-03",
+  "lints": [
+    {
+      "name": "rls_enabled_no_policy",
+      "level": "INFO",
+      "count": 19,
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy",
+      "review_status": "Baseline reviewed; full module authorization tests remain pending"
+    },
+    {
+      "name": "anon_security_definer_function_executable",
+      "level": "WARN",
+      "count": 3,
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0028_anon_security_definer_function_executable",
+      "review_status": "Baseline reviewed; full module authorization tests remain pending"
+    },
+    {
+      "name": "authenticated_security_definer_function_executable",
+      "level": "WARN",
+      "count": 134,
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable",
+      "review_status": "Baseline reviewed; full module authorization tests remain pending"
+    }
+  ],
+  "note": "RLS without policy denies access by default. Three anonymous projections and authenticated RPCs are deliberate public APIs with explicit grants. No global security certification."
+}

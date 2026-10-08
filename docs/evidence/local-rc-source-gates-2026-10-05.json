@@ -1,0 +1,30 @@
+{
+  "date": "2026-10-05",
+  "kind": "local_release_candidate_source_gate",
+  "development_project": "abdxvlykasqmknexxhjo",
+  "migrations": {
+    "count": 112,
+    "manifest_aligned": true
+  },
+  "checks": {
+    "step7_returns": "PASSED",
+    "step8_vault": "PASSED",
+    "step8_causality": "PASSED",
+    "step8_reconnect": "PASSED",
+    "step8_pwa_runtime": "PASSED",
+    "step9_room_editor_runtime": "PASSED",
+    "step10_cross_venue_rls": "PASSED",
+    "step11_static": "PASSED",
+    "step11_public_runtime": "PASSED",
+    "step11_asset_boundary": "PASSED",
+    "step12_static": "PASSED_26_OF_26",
+    "typescript": "PASSED",
+    "eslint": "PASSED",
+    "prettier": "PASSED"
+  },
+  "release_build": {
+    "status": "BLOCKED_ENVIRONMENT",
+    "reason": "Current sandbox is Node 22.16 Linux while project requires Node >=24.13 and recovered node_modules contains Windows-native Rolldown bindings. The local preflight detects this explicitly."
+  },
+  "commercial_release_ready": false
+}

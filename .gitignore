@@ -1,0 +1,21 @@
+node_modules/
+dist/
+coverage/
+test-results/
+playwright-report/
+.env
+.env.*
+!.env.example
+!.env.*.example
+.supabase/
+.local/
+*.log
+*.tsbuildinfo
+backups/
+
+release/
+
+# Local device certificates, configuration and durable print state
+tools/print-bridge/config.json
+tools/print-bridge/data/
+tools/print-bridge/tls/

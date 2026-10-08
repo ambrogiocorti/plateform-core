@@ -1,0 +1,4008 @@
+{
+  "specification": "MASTER_PROMPT_PLATEFORM_COMMERCIALE.md",
+  "sections": [
+    {
+      "section": 0,
+      "title": "Istruzione fondamentale",
+      "status": "pending",
+      "implementation": [],
+      "tests": [],
+      "external_verification": [],
+      "requirements": [
+        "ogni cliente Plateform corrisponde a **una sola catena, brand o attività ristorativa**;",
+        "ogni cliente utilizza una **installazione isolata** di Plateform, con proprio progetto Supabase, propri dati, proprie chiavi e proprio ciclo di deployment;",
+        "ogni installazione contiene **almeno una sede fisica**;",
+        "la gestione **multi-sede è opzionale** e può essere attivata tramite feature flag `MULTI_VENUE`;",
+        "quando `MULTI_VENUE = false`, l'interfaccia deve comportarsi come un gestionale mono-sede senza mostrare selettori o complessità inutili;",
+        "quando `MULTI_VENUE = true`, possono esistere più sedi, ma **tutte appartengono alla stessa catena**;",
+        "non devono esistere catene concorrenti, tenant commerciali differenti o clienti Plateform differenti nello stesso database di produzione.",
+        "funzionante;",
+        "sicura;",
+        "vendibile e distribuibile a ristoranti reali;",
+        "isolata per cliente/catena;",
+        "mono-sede di default e multi-sede opzionale;",
+        "utilizzabile da più utenti e dispositivi contemporaneamente;",
+        "responsive;",
+        "realtime;",
+        "installabile come PWA;",
+        "utilizzabile parzialmente offline;",
+        "auditabile;",
+        "osservabile;",
+        "scalabile;",
+        "modulare;",
+        "documentata;",
+        "testata;",
+        "versionata;",
+        "distribuibile tramite ambienti separati;",
+        "pronta per essere utilizzata durante un vero servizio di ristorazione.",
+        "schema database;",
+        "scope catena/sede;",
+        "autorizzazioni;",
+        "transazioni;",
+        "workflow;",
+        "stati;",
+        "concorrenza;",
+        "audit;",
+        "telemetry quando pertinente;",
+        "comportamento realtime;",
+        "comportamento offline;",
+        "gestione conflitti;",
+        "error handling;",
+        "privacy e retention;",
+        "test;",
+        "observability;",
+        "strategia di rollout e rollback."
+      ]
+    },
+    {
+      "section": 1,
+      "title": "Ruolo dell'AI",
+      "status": "pending",
+      "implementation": [],
+      "tests": [],
+      "external_verification": [],
+      "requirements": [
+        "Senior Software Architect;",
+        "Senior Frontend/TypeScript Developer;",
+        "Senior Supabase Engineer;",
+        "PostgreSQL Database Architect;",
+        "Cybersecurity Engineer;",
+        "Privacy & Data Governance Engineer;",
+        "UX/UI Designer specializzato in hospitality premium;",
+        "QA / Test Automation Engineer;",
+        "DevOps / CI-CD Engineer;",
+        "Site Reliability / Observability Engineer;",
+        "Product Engineer;",
+        "Technical Product Manager."
+      ]
+    },
+    {
+      "section": 2,
+      "title": "Nome e identità del prodotto",
+      "status": "pending",
+      "implementation": [],
+      "tests": [],
+      "external_verification": [],
+      "requirements": [
+        "nome;",
+        "logo del ristorante;",
+        "favicon;",
+        "colori;",
+        "font;",
+        "fotografie;",
+        "hero;",
+        "contenuti;",
+        "menu;",
+        "informazioni delle sedi;",
+        "dominio pubblico e sottodominio staff;",
+        "identità visiva."
+      ]
+    },
+    {
+      "section": 3,
+      "title": "Stack tecnologico obbligatorio",
+      "status": "partial",
+      "implementation": [
+        "package.json",
+        "tsconfig.json",
+        "src/types/domain.ts"
+      ],
+      "tests": [],
+      "external_verification": [],
+      "requirements": [
+        "HTML5 semantico;",
+        "CSS3 moderno;",
+        "**TypeScript**;",
+        "ES Modules;",
+        "DOM APIs native;",
+        "Supabase JavaScript SDK;",
+        "Vite come build tool/dev server.",
+        "React;",
+        "Vue;",
+        "Angular;",
+        "Svelte;",
+        "Next.js;",
+        "Nuxt;",
+        "framework SPA equivalenti.",
+        "editor grafico sala;",
+        "grafici;",
+        "QR Code;",
+        "stampa;",
+        "accessibilità;",
+        "validazione runtime dei payload;",
+        "date/timezone;",
+        "testing.",
+        "TypeScript `strict`;",
+        "ESLint;",
+        "Prettier;",
+        "moduli piccoli e coesi;",
+        "tipi condivisi per stati e payload;",
+        "niente `any` salvo eccezione documentata;",
+        "niente funzioni globali applicative;",
+        "niente logica business duplicata nelle pagine;",
+        "validazione runtime degli input non fidati;",
+        "source map gestite in modo sicuro in produzione;",
+        "test automatici per servizi e state machine."
+      ]
+    },
+    {
+      "section": 4,
+      "title": "Backend e Supabase",
+      "status": "partial",
+      "implementation": [
+        "supabase/migrations"
+      ],
+      "tests": [],
+      "external_verification": [],
+      "requirements": [
+        "PostgreSQL;",
+        "Supabase Auth;",
+        "Supabase Realtime;",
+        "Supabase Storage;",
+        "Row Level Security;",
+        "Database Functions;",
+        "Trigger;",
+        "RPC;",
+        "Edge Functions.",
+        "Edge Functions;",
+        "RPC SQL protette;",
+        "transazioni PostgreSQL;",
+        "funzioni server-side.",
+        "inserita nel JavaScript client;",
+        "esposta nel browser;",
+        "inserita nell'HTML;",
+        "inviata al frontend;",
+        "inserita in repository pubblici."
+      ]
+    },
+    {
+      "section": 5,
+      "title": "Architettura commerciale: una catena per installazione, multi-sede opzionale",
+      "status": "partial",
+      "implementation": [
+        "supabase/migrations/202609140001_foundation.sql"
+      ],
+      "tests": [],
+      "external_verification": [],
+      "requirements": [
+        "più clienti Plateform indipendenti;",
+        "marketplace di ristoranti;",
+        "tenant commerciali appartenenti a proprietari diversi;",
+        "self-service signup di nuovi clienti;",
+        "selettore di catene;",
+        "dati di ristoranti non collegati fra loro.",
+        "deve esistere una sola sede attiva;",
+        "non mostrare selettori di sede;",
+        "non mostrare dashboard aggregate inutili;",
+        "l'utente deve percepire Plateform come un gestionale mono-sede.",
+        "Admin autorizzati possono creare e gestire più sedi della stessa catena;",
+        "ogni sede ha indirizzo, contatti, orari, sale, tavoli, casse, stampanti, servizi, prenotazioni, staff assignments e configurazioni operative proprie;",
+        "menu e catalogo possono essere condivisi a livello catena con configurazioni per sede;",
+        "utenti e ruoli possono avere scope `CHAIN` oppure uno o più scope `VENUE`;",
+        "le dashboard aggregate devono essere disponibili solo ai ruoli autorizzati a livello catena.",
+        "progetto Supabase dedicato;",
+        "database dedicato;",
+        "Auth dedicato;",
+        "Storage dedicato;",
+        "secrets dedicati;",
+        "dominio/i dedicati;",
+        "ambiente production dedicato;",
+        "backup dedicati.",
+        "rooms;",
+        "room_layouts;",
+        "zones;",
+        "tables;",
+        "services;",
+        "reservations;",
+        "operational assignments;",
+        "cash registers;",
+        "print devices;",
+        "service sessions;",
+        "local availability;",
+        "ordini e conti attraverso tavolo/sessione/sede.",
+        "identità;",
+        "ruolo;",
+        "scope catena/sede;",
+        "assegnazione operativa;",
+        "relazione con la risorsa;",
+        "eventuale customer session."
+      ]
+    },
+    {
+      "section": 6,
+      "title": "Configurazione catena e sedi",
+      "status": "partial",
+      "implementation": [
+        "src/pages/technical.ts",
+        "src/pages/branding.ts",
+        "supabase/migrations/202610030041_governance.sql"
+      ],
+      "tests": [
+        "tests/database/configuration-floor.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "nome commerciale;",
+        "ragione sociale dove necessario;",
+        "branding Plateform-side;",
+        "dominio pubblico;",
+        "sottodominio staff;",
+        "configurazioni generali;",
+        "feature flags;",
+        "configurazioni condivise;",
+        "dati di contatto centrali;",
+        "impostazioni privacy e retention.",
+        "`CHAIN_LEVEL` se devono essere condivise;",
+        "`VENUE_LEVEL` se appartengono alla singola sede;",
+        "`CHAIN_DEFAULT_WITH_VENUE_OVERRIDE` solo nei casi esplicitamente previsti."
+      ]
+    },
+    {
+      "section": 7,
+      "title": "Ruoli e scope",
+      "status": "partial",
+      "implementation": [
+        "supabase/migrations/202609140004_authorization.sql"
+      ],
+      "tests": [],
+      "external_verification": [],
+      "requirements": [
+        "`CHAIN` consente le operazioni previste dal ruolo su tutte le sedi autorizzate della catena;",
+        "`VENUE` limita l'utente a una o più sedi assegnate."
+      ]
+    },
+    {
+      "section": 8,
+      "title": "SUPER_ADMIN",
+      "status": "partial",
+      "implementation": [
+        "src/pages/technical.ts",
+        "src/pages/staff-management.ts"
+      ],
+      "tests": [
+        "tests/database/configuration-floor.test.ts",
+        "tests/e2e/configuration.spec.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "eseguire setup iniziale della catena e prima sede;",
+        "attivare/disattivare `MULTI_VENUE` secondo contratto/configurazione;",
+        "creare o disattivare sedi quando la feature è autorizzata;",
+        "modificare configurazioni tecniche;",
+        "sospendere e riattivare l'installazione;",
+        "avviare la dismissione protetta;",
+        "configurare domini;",
+        "creare/modificare/disattivare Admin;",
+        "configurare limiti tecnici e feature flags;",
+        "vedere stato tecnico e observability;",
+        "gestire backup e restore;",
+        "gestire release e migrazioni autorizzate;",
+        "impersonare utenti secondo la sezione dedicata;",
+        "consultare audit tecnico completo;",
+        "gestire incidenti tecnici."
+      ]
+    },
+    {
+      "section": 9,
+      "title": "ADMIN del ristorante/catena",
+      "status": "partial",
+      "implementation": [
+        "src/pages/operational-settings.ts",
+        "src/pages/privacy.ts"
+      ],
+      "tests": [
+        "tests/e2e/configuration.spec.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "staff;",
+        "turni;",
+        "ruoli e assegnazioni;",
+        "menu;",
+        "categorie;",
+        "piatti;",
+        "ingredienti;",
+        "allergeni;",
+        "disponibilità;",
+        "varianti;",
+        "ingredienti rimovibili;",
+        "stazioni;",
+        "cucina;",
+        "Pass;",
+        "sala;",
+        "tavoli;",
+        "zone;",
+        "layout;",
+        "prenotazioni;",
+        "moduli;",
+        "Host;",
+        "casse;",
+        "stampanti;",
+        "pagamenti;",
+        "Stripe;",
+        "Satispay;",
+        "sito e branding;",
+        "impostazioni;",
+        "feature consentite;",
+        "ordini;",
+        "richieste modifica;",
+        "chiusure forzate;",
+        "rimborsi;",
+        "riapertura conti;",
+        "conflitti offline;",
+        "notification center operativo;",
+        "incidenti applicativi consentiti."
+      ]
+    },
+    {
+      "section": 10,
+      "title": "Staff del ristorante",
+      "status": "partial",
+      "implementation": [
+        "src/pages/staff-management.ts"
+      ],
+      "tests": [
+        "tests/database/devices.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "sede;",
+        "zona;",
+        "tavolo;",
+        "stazione;",
+        "cassa.",
+        "se un utente è assegnato a una sola sede, aprirla automaticamente;",
+        "se è assegnato a più sedi, mostrare un selettore compatto e chiaro;",
+        "memorizzare la sede operativa corrente senza considerarla una fonte di autorizzazione;",
+        "il server deve validare comunque lo scope ad ogni operazione."
+      ]
+    },
+    {
+      "section": 11,
+      "title": "Camerieri",
+      "status": "partial",
+      "implementation": [
+        "src/pages/floor.ts",
+        "src/pages/accounts.ts"
+      ],
+      "tests": [
+        "tests/database/service.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": []
+    },
+    {
+      "section": 12,
+      "title": "HOST",
+      "status": "partial",
+      "implementation": [
+        "src/pages/host.ts",
+        "src/components/floor-view.ts"
+      ],
+      "tests": [
+        "tests/e2e/staff-operations.spec.ts",
+        "tests/database/configuration-floor.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "vedere prenotazioni;",
+        "vedere sala;",
+        "vedere tavoli;",
+        "creare walk-in;",
+        "registrare arrivo;",
+        "assegnare tavoli;",
+        "cambiare tavolo;",
+        "unire tavoli;",
+        "separare tavoli;",
+        "gestire stati prenotazione;",
+        "segnare no-show;",
+        "segnare cancellazione;",
+        "utilizzare suggerimenti automatici Plateform.",
+        "creare ordini;",
+        "modificare ordini;",
+        "modificare conti;",
+        "gestire pagamenti;",
+        "modificare menu;",
+        "modificare disponibilità;",
+        "cambiare configurazioni amministrative."
+      ]
+    },
+    {
+      "section": 13,
+      "title": "Sito pubblico",
+      "status": "partial",
+      "implementation": [
+        "apps/public/main.ts"
+      ],
+      "tests": [],
+      "external_verification": [],
+      "requirements": [
+        "hero;",
+        "storia;",
+        "filosofia;",
+        "chef;",
+        "ristorante;",
+        "menu;",
+        "gallery;",
+        "contatti;",
+        "orari;",
+        "indirizzo;",
+        "mappa;",
+        "social;",
+        "prenotazioni;",
+        "footer."
+      ]
+    },
+    {
+      "section": 14,
+      "title": "Personalizzazione sito",
+      "status": "partial",
+      "implementation": [
+        "src/pages/branding.ts",
+        "supabase/functions/asset-upload/index.ts"
+      ],
+      "tests": [
+        "tests/database/configuration-floor.test.ts",
+        "supabase/functions/_tests/assets.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "logo;",
+        "favicon;",
+        "immagini;",
+        "colori;",
+        "font;",
+        "hero;",
+        "testi;",
+        "sezioni;",
+        "contatti;",
+        "partita IVA;",
+        "indirizzo;",
+        "social;",
+        "footer;",
+        "dark mode;",
+        "layout base."
+      ]
+    },
+    {
+      "section": 15,
+      "title": "Dominio pubblico e sottodominio staff",
+      "status": "partial",
+      "implementation": [
+        "vite.public.config.ts",
+        "vite.staff.config.ts"
+      ],
+      "tests": [],
+      "external_verification": [],
+      "requirements": [
+        "non mostrare selettori sede;",
+        "home, contatti, orari, menu e prenotazioni possono riferirsi direttamente a quella sede.",
+        "mostrare sedi in modo elegante;",
+        "consentire pagine dedicate;",
+        "prenotazioni e menu devono conoscere la sede selezionata;",
+        "la sede può essere scelta esplicitamente o determinata dal percorso pubblico;",
+        "non mischiare disponibilità o orari tra sedi.",
+        "se non autenticato → login;",
+        "se autenticato con una sola sede operativa → dashboard;",
+        "se autenticato con più sedi e il ruolo lo richiede → selezione/contesto sede oppure dashboard chain-level."
+      ]
+    },
+    {
+      "section": 16,
+      "title": "Identificatori staff",
+      "status": "pending",
+      "implementation": [],
+      "tests": [],
+      "external_verification": [],
+      "requirements": []
+    },
+    {
+      "section": 17,
+      "title": "Password, MFA e recovery",
+      "status": "partial",
+      "implementation": [
+        "src/auth/staff.ts",
+        "supabase/migrations/202609140008_staff_auth.sql"
+      ],
+      "tests": [],
+      "external_verification": [],
+      "requirements": [
+        "applicare policy password adeguata;",
+        "proteggere reset e cambio password;",
+        "invalidare sessioni quando necessario;",
+        "auditare reset amministrativi;",
+        "non mostrare password in chiaro dopo la creazione.",
+        "restore;",
+        "refund;",
+        "force close;",
+        "modifica ruoli privilegiati;",
+        "disattivazione MFA;",
+        "impersonazione write-enabled;",
+        "variazioni critiche pagamenti;",
+        "dismissione installazione.",
+        "verifica identità;",
+        "MFA/step-up del soggetto autorizzante;",
+        "audit;",
+        "invalidazione sessioni precedenti."
+      ]
+    },
+    {
+      "section": 18,
+      "title": "PIN operativo",
+      "status": "partial",
+      "implementation": [
+        "src/auth/lock.ts",
+        "src/auth/staff.ts",
+        "supabase/migrations/202609140008_staff_auth.sql",
+        "supabase/migrations/202609150017_session_devices.sql"
+      ],
+      "tests": [
+        "tests/database/devices.test.ts",
+        "tests/e2e/staff-operations.spec.ts"
+      ],
+      "external_verification": [
+        "Full Supabase integration and concurrent PostgreSQL connections remain unverified."
+      ],
+      "requirements": [
+        "30 minuti;",
+        "1 ora;",
+        "2 ore;",
+        "4 ore;",
+        "intero turno;",
+        "altri valori sensati.",
+        "scelto dall'utente;",
+        "hashato;",
+        "mai in chiaro;",
+        "modificabile;",
+        "resettabile dall'Admin;",
+        "protetto da brute force;",
+        "dopo troppi errori richiede password completa."
+      ]
+    },
+    {
+      "section": 19,
+      "title": "Turni",
+      "status": "partial",
+      "implementation": [
+        "src/pages/planning.ts"
+      ],
+      "tests": [
+        "tests/database/completion.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "timbratura;",
+        "presenza;",
+        "ritardi;",
+        "pause;",
+        "rilevamento entrata/uscita."
+      ]
+    },
+    {
+      "section": 20,
+      "title": "Servizi del ristorante",
+      "status": "partial",
+      "implementation": [
+        "src/pages/planning.ts",
+        "src/pages/configuration.ts"
+      ],
+      "tests": [
+        "tests/database/completion.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "nome;",
+        "orario inizio;",
+        "orario fine;",
+        "giorni;",
+        "limite prenotazioni/coperti;",
+        "stato attivo/inattivo."
+      ]
+    },
+    {
+      "section": 21,
+      "title": "Menu",
+      "status": "partial",
+      "implementation": [
+        "src/pages/configuration.ts",
+        "supabase/migrations/202609140005_setup_catalog.sql"
+      ],
+      "tests": [],
+      "external_verification": [],
+      "requirements": [
+        "categorie;",
+        "piatti;",
+        "bevande;",
+        "immagini;",
+        "descrizione;",
+        "prezzo;",
+        "disponibilità;",
+        "ingredienti;",
+        "allergeni;",
+        "informazioni dietetiche;",
+        "varianti;",
+        "ingredienti rimovibili;",
+        "stazioni;",
+        "disponibilità temporale."
+      ]
+    },
+    {
+      "section": 22,
+      "title": "Ingredienti",
+      "status": "partial",
+      "implementation": [
+        "src/pages/catalog.ts",
+        "src/pages/configuration.ts"
+      ],
+      "tests": [
+        "tests/unit/domain.test.ts",
+        "tests/database/service.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": []
+    },
+    {
+      "section": 23,
+      "title": "Allergeni",
+      "status": "partial",
+      "implementation": [
+        "src/pages/catalog.ts"
+      ],
+      "tests": [
+        "tests/unit/domain.test.ts",
+        "tests/database/service.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": []
+    },
+    {
+      "section": 24,
+      "title": "Informazioni dietetiche",
+      "status": "partial",
+      "implementation": [
+        "src/pages/catalog.ts",
+        "src/types/domain.ts"
+      ],
+      "tests": [
+        "tests/unit/domain.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "vegetariano;",
+        "vegano;",
+        "senza glutine;",
+        "altre caratteristiche configurabili."
+      ]
+    },
+    {
+      "section": 25,
+      "title": "Disponibilità giornaliera",
+      "status": "partial",
+      "implementation": [
+        "supabase/migrations/202609140006_accounts_orders.sql"
+      ],
+      "tests": [],
+      "external_verification": [],
+      "requirements": [
+        "server-side;",
+        "atomico;",
+        "transazionale;",
+        "realtime."
+      ]
+    },
+    {
+      "section": 26,
+      "title": "Badge disponibilità",
+      "status": "partial",
+      "implementation": [
+        "src/services/menu.ts"
+      ],
+      "tests": [
+        "tests/unit/domain.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "il piatto rimane visibile;",
+        "mostra badge Esaurito;",
+        "non è ordinabile;",
+        "controlli di ordinazione disabilitati."
+      ]
+    },
+    {
+      "section": 27,
+      "title": "Prezzo storico",
+      "status": "partial",
+      "implementation": [
+        "supabase/migrations/202609140006_accounts_orders.sql"
+      ],
+      "tests": [],
+      "external_verification": [],
+      "requirements": [
+        "ordine precedente resta €18;",
+        "nuovi ordini usano €20."
+      ]
+    },
+    {
+      "section": 28,
+      "title": "Archiviazione entità",
+      "status": "partial",
+      "implementation": [
+        "src/pages/configuration.ts"
+      ],
+      "tests": [
+        "tests/database/completion.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": []
+    },
+    {
+      "section": 29,
+      "title": "Ingredienti rimovibili",
+      "status": "partial",
+      "implementation": [
+        "src/pages/catalog.ts",
+        "src/pages/accounts.ts"
+      ],
+      "tests": [
+        "tests/unit/domain.test.ts",
+        "tests/database/service.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": []
+    },
+    {
+      "section": 30,
+      "title": "Varianti",
+      "status": "partial",
+      "implementation": [
+        "src/pages/catalog.ts"
+      ],
+      "tests": [
+        "tests/database/completion.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": []
+    },
+    {
+      "section": 31,
+      "title": "Piatti del giorno / temporanei",
+      "status": "partial",
+      "implementation": [
+        "src/pages/catalog.ts"
+      ],
+      "tests": [
+        "tests/database/completion.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "sempre;",
+        "data specifica;",
+        "giorni specifici;",
+        "intervallo date."
+      ]
+    },
+    {
+      "section": 32,
+      "title": "Menu dell'unico ristorante",
+      "status": "partial",
+      "implementation": [
+        "src/pages/configuration.ts",
+        "src/pages/catalog.ts"
+      ],
+      "tests": [
+        "tests/database/scope-host.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "prezzo;",
+        "disponibilità;",
+        "visibilità;",
+        "stazione principale e stazioni osservatrici;",
+        "periodo di disponibilità;",
+        "configurazioni operative."
+      ]
+    },
+    {
+      "section": 33,
+      "title": "Editor sala",
+      "status": "partial",
+      "implementation": [
+        "supabase/migrations/202609140002_operations_schema.sql",
+        "src/room-editor/model.ts",
+        "src/pages/room-editor.ts"
+      ],
+      "tests": [
+        "tests/database/completion.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "più sale;",
+        "muri;",
+        "porte;",
+        "finestre;",
+        "banconi;",
+        "forme;",
+        "elementi decorativi;",
+        "testo;",
+        "zone;",
+        "tavoli;",
+        "drag & drop;",
+        "resize;",
+        "rotazione;",
+        "zoom;",
+        "snap opzionale;",
+        "undo;",
+        "redo;",
+        "duplicazione;",
+        "selezione multipla;",
+        "livelli.",
+        "rotondi;",
+        "quadrati;",
+        "rettangolari;",
+        "altre forme sensate."
+      ]
+    },
+    {
+      "section": 34,
+      "title": "Tavoli",
+      "status": "partial",
+      "implementation": [
+        "src/pages/floor.ts",
+        "src/components/floor-view.ts"
+      ],
+      "tests": [
+        "tests/database/configuration-floor.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": []
+    },
+    {
+      "section": 35,
+      "title": "Layout sala",
+      "status": "partial",
+      "implementation": [
+        "src/pages/room-editor.ts"
+      ],
+      "tests": [
+        "tests/database/completion.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": []
+    },
+    {
+      "section": 36,
+      "title": "Stati tavolo",
+      "status": "partial",
+      "implementation": [
+        "src/components/floor-view.ts",
+        "src/pages/operational-settings.ts"
+      ],
+      "tests": [
+        "tests/e2e/staff-operations.spec.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "nome visibile;",
+        "colore;",
+        "icona;",
+        "ordine;",
+        "eventuali stati aggiuntivi."
+      ]
+    },
+    {
+      "section": 37,
+      "title": "Unione tavoli",
+      "status": "partial",
+      "implementation": [
+        "src/pages/floor.ts",
+        "supabase/migrations/202609150019_table_group_operations.sql"
+      ],
+      "tests": [
+        "tests/database/scope-host.test.ts"
+      ],
+      "external_verification": [
+        "Full Supabase integration and concurrent PostgreSQL connections remain unverified."
+      ],
+      "requirements": []
+    },
+    {
+      "section": 38,
+      "title": "Cambio tavolo",
+      "status": "partial",
+      "implementation": [
+        "src/pages/floor.ts",
+        "supabase/migrations/202609150019_table_group_operations.sql"
+      ],
+      "tests": [
+        "tests/database/service.test.ts"
+      ],
+      "external_verification": [
+        "Full Supabase integration and concurrent PostgreSQL connections remain unverified."
+      ],
+      "requirements": [
+        "conti;",
+        "ordini;",
+        "sessioni;",
+        "codice conto;",
+        "waiter assignment;",
+        "chiamate;",
+        "stato;",
+        "storico operativo."
+      ]
+    },
+    {
+      "section": 39,
+      "title": "Prenotazioni ON/OFF",
+      "status": "partial",
+      "implementation": [
+        "src/pages/operational-settings.ts"
+      ],
+      "tests": [
+        "tests/e2e/configuration.spec.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "link Prenota nascosto;",
+        "pagina prenotazioni non utilizzabile;",
+        "API operative prenotazione disabilitate.",
+        "link Prenota visibile;",
+        "modulo interno disponibile."
+      ]
+    },
+    {
+      "section": 40,
+      "title": "Modulo prenotazioni interno",
+      "status": "partial",
+      "implementation": [
+        "src/pages/planning.ts",
+        "src/components/booking-fields.ts"
+      ],
+      "tests": [
+        "tests/database/completion.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "text;",
+        "textarea;",
+        "number;",
+        "tel;",
+        "date;",
+        "time;",
+        "select;",
+        "radio;",
+        "checkbox.",
+        "nome;",
+        "cognome;",
+        "telefono;",
+        "persone;",
+        "data;",
+        "ora;",
+        "note;",
+        "allergie;",
+        "occasione speciale."
+      ]
+    },
+    {
+      "section": 41,
+      "title": "Prenotazione automatica e booking pacing",
+      "status": "partial",
+      "implementation": [
+        "supabase/migrations/202609140009_reservations.sql"
+      ],
+      "tests": [],
+      "external_verification": [],
+      "requirements": [
+        "sede;",
+        "servizio;",
+        "data;",
+        "fascia oraria;",
+        "coperti totali servizio;",
+        "pacing della fascia;",
+        "eventuali chiusure/blocchi;",
+        "dimensione gruppo."
+      ]
+    },
+    {
+      "section": 42,
+      "title": "Duplicati prenotazione",
+      "status": "partial",
+      "implementation": [
+        "src/pages/public-booking.ts"
+      ],
+      "tests": [
+        "tests/database/reservations-auth.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "telefono;",
+        "data;",
+        "servizio;",
+        "orario;"
+      ]
+    },
+    {
+      "section": 43,
+      "title": "Cancellazione prenotazione",
+      "status": "partial",
+      "implementation": [
+        "src/pages/reservation-editor.ts"
+      ],
+      "tests": [
+        "tests/database/reservations-auth.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": []
+    },
+    {
+      "section": 44,
+      "title": "Stati prenotazione",
+      "status": "partial",
+      "implementation": [
+        "supabase/migrations/202609140016_host_operations.sql"
+      ],
+      "tests": [],
+      "external_verification": [],
+      "requirements": []
+    },
+    {
+      "section": 45,
+      "title": "Assegnazione tavolo prenotazione",
+      "status": "partial",
+      "implementation": [
+        "src/pages/host.ts",
+        "supabase/migrations/202609150018_host_workspace.sql"
+      ],
+      "tests": [
+        "tests/database/scope-host.test.ts",
+        "tests/e2e/staff-operations.spec.ts"
+      ],
+      "external_verification": [
+        "Full Supabase integration and concurrent PostgreSQL connections remain unverified."
+      ],
+      "requirements": [
+        "Host vede chiaramente l'assegnazione;",
+        "può modificarla;",
+        "deve confermare il cambio.",
+        "coperti;",
+        "capacità;",
+        "zona;",
+        "disponibilità;",
+        "tavoli unibili;",
+        "altre prenotazioni."
+      ]
+    },
+    {
+      "section": 46,
+      "title": "Walk-in",
+      "status": "partial",
+      "implementation": [
+        "src/pages/host.ts",
+        "supabase/migrations/202609140016_host_operations.sql"
+      ],
+      "tests": [
+        "tests/database/scope-host.test.ts"
+      ],
+      "external_verification": [
+        "Full Supabase integration and concurrent PostgreSQL connections remain unverified."
+      ],
+      "requirements": []
+    },
+    {
+      "section": 47,
+      "title": "QR Code",
+      "status": "partial",
+      "implementation": [
+        "src/pages/floor.ts"
+      ],
+      "tests": [],
+      "external_verification": [],
+      "requirements": []
+    },
+    {
+      "section": 48,
+      "title": "Creazione conto",
+      "status": "partial",
+      "implementation": [
+        "supabase/migrations/202609140006_accounts_orders.sql"
+      ],
+      "tests": [],
+      "external_verification": [],
+      "requirements": []
+    },
+    {
+      "section": 49,
+      "title": "Più conti per tavolo",
+      "status": "partial",
+      "implementation": [
+        "src/pages/floor.ts",
+        "src/pages/accounts.ts"
+      ],
+      "tests": [
+        "tests/database/service.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": []
+    },
+    {
+      "section": 50,
+      "title": "Codice conto",
+      "status": "partial",
+      "implementation": [
+        "supabase/migrations/202609140006_accounts_orders.sql"
+      ],
+      "tests": [],
+      "external_verification": [],
+      "requirements": [
+        "essere generato server-side con CSPRNG;",
+        "essere temporaneo;",
+        "essere associato al tavolo/conto corretto;",
+        "essere protetto da brute force;",
+        "essere rate-limited per IP/device/sessione;",
+        "avere lockout/backoff progressivo;",
+        "essere invalidato alla chiusura;",
+        "poter essere rigenerato dal cameriere responsabile;",
+        "non essere salvato in chiaro se non strettamente necessario: preferire hash/verifica sicura.",
+        "vecchio codice invalidato;",
+        "customer session esistenti invalidate;",
+        "cliente deve autenticarsi nuovamente."
+      ]
+    },
+    {
+      "section": 51,
+      "title": "Accesso cliente",
+      "status": "partial",
+      "implementation": [
+        "supabase/functions/customer-session/index.ts"
+      ],
+      "tests": [],
+      "external_verification": [],
+      "requirements": []
+    },
+    {
+      "section": 52,
+      "title": "Funzioni cliente",
+      "status": "partial",
+      "implementation": [
+        "src/pages/customer.ts"
+      ],
+      "tests": [],
+      "external_verification": [],
+      "requirements": [
+        "vedere menu;",
+        "categorie;",
+        "immagini;",
+        "descrizioni;",
+        "ingredienti;",
+        "allergeni;",
+        "badge alimentari;",
+        "disponibilità;",
+        "storico del proprio conto;",
+        "prodotti già ordinati;",
+        "totale corrente;",
+        "chiamare cameriere;",
+        "eventualmente ordinare;",
+        "eventualmente richiedere conto.",
+        "altri conti;",
+        "workflow cucina;",
+        "dati staff;",
+        "dati di altri clienti."
+      ]
+    },
+    {
+      "section": 53,
+      "title": "Ordinazione cliente",
+      "status": "partial",
+      "implementation": [
+        "src/pages/customer.ts"
+      ],
+      "tests": [],
+      "external_verification": [],
+      "requirements": []
+    },
+    {
+      "section": 54,
+      "title": "Carrello cliente",
+      "status": "partial",
+      "implementation": [
+        "src/pages/customer.ts"
+      ],
+      "tests": [
+        "tests/e2e/customer.spec.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "cambiare quantità;",
+        "rimuovere prodotti;",
+        "scegliere ingredienti rimovibili;",
+        "scegliere varianti.",
+        "non può modificare;",
+        "non può cancellare;",
+        "deve contattare staff."
+      ]
+    },
+    {
+      "section": 55,
+      "title": "Chiamata cameriere",
+      "status": "partial",
+      "implementation": [
+        "supabase/migrations/202609140012_kitchen_calls.sql"
+      ],
+      "tests": [],
+      "external_verification": [],
+      "requirements": []
+    },
+    {
+      "section": 56,
+      "title": "Notifiche e Notification Center",
+      "status": "partial",
+      "implementation": [
+        "src/pages/notifications.ts",
+        "src/components/notification-indicator.ts",
+        "src/services/notification-sound.ts",
+        "src/pages/operational-settings.ts"
+      ],
+      "tests": [
+        "tests/database/configuration-floor.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "toast;",
+        "badge;",
+        "suoni;",
+        "notifiche contestuali;",
+        "Notification Center persistente.",
+        "chiamata cameriere;",
+        "nuovo ordine;",
+        "richiesta ordine cliente;",
+        "step pronto;",
+        "richiesta conto;",
+        "operazioni cucina;",
+        "conflitto offline;",
+        "stampante guasta;",
+        "pagamento in stato anomalo."
+      ]
+    },
+    {
+      "section": 57,
+      "title": "Ordine cameriere",
+      "status": "partial",
+      "implementation": [
+        "src/pages/accounts.ts"
+      ],
+      "tests": [],
+      "external_verification": [],
+      "requirements": [
+        "conto;",
+        "piatti;",
+        "quantità;",
+        "ingredienti rimossi;",
+        "varianti;",
+        "step."
+      ]
+    },
+    {
+      "section": 58,
+      "title": "Step",
+      "status": "partial",
+      "implementation": [
+        "src/pages/kitchen.ts",
+        "src/pages/offline.ts"
+      ],
+      "tests": [
+        "tests/database/completion.test.ts",
+        "tests/database/service.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "WAITER;",
+        "PASS;",
+        "KITCHEN_ADMIN."
+      ]
+    },
+    {
+      "section": 59,
+      "title": "Stati ordine",
+      "status": "partial",
+      "implementation": [
+        "src/services/state-machine.ts"
+      ],
+      "tests": [],
+      "external_verification": [],
+      "requirements": [
+        "ordine;",
+        "item;",
+        "step."
+      ]
+    },
+    {
+      "section": 60,
+      "title": "Modifiche ordine",
+      "status": "partial",
+      "implementation": [
+        "src/pages/order-changes.ts"
+      ],
+      "tests": [
+        "tests/database/completion.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "order;",
+        "item;",
+        "disponibilità;",
+        "totale;",
+        "step;",
+        "stazioni;",
+        "audit;",
+        "realtime."
+      ]
+    },
+    {
+      "section": 61,
+      "title": "Stazioni",
+      "status": "partial",
+      "implementation": [
+        "supabase/migrations/202609140012_kitchen_calls.sql"
+      ],
+      "tests": [],
+      "external_verification": [],
+      "requirements": [
+        "Cucina calda;",
+        "Griglia;",
+        "Primi;",
+        "Freddi;",
+        "Pasticceria;",
+        "Bar;",
+        "Pizzeria."
+      ]
+    },
+    {
+      "section": 62,
+      "title": "KITCHEN_ADMIN",
+      "status": "partial",
+      "implementation": [
+        "src/pages/kitchen.ts",
+        "src/pages/catalog.ts"
+      ],
+      "tests": [
+        "tests/database/service.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "vedere tutte le stazioni;",
+        "coordinare cucina;",
+        "vedere ordini;",
+        "cambiare stati consentiti;",
+        "coordinare step;",
+        "gestire piatti tornati indietro se funzione attiva."
+      ]
+    },
+    {
+      "section": 63,
+      "title": "KITCHEN_STAFF",
+      "status": "partial",
+      "implementation": [
+        "supabase/migrations/202609150030_prepaid_fulfillment.sql",
+        "src/pages/accounts.ts"
+      ],
+      "tests": [
+        "tests/database/reconciliation.test.ts",
+        "tests/e2e/accounts.spec.ts"
+      ],
+      "external_verification": [],
+      "requirements": [
+        "vedere propria stazione;",
+        "vedere item pertinenti;",
+        "aggiornare preparazione.",
+        "modificare conti;",
+        "modificare prezzi;",
+        "effettuare modifiche economiche;",
+        "cambiare configurazioni."
+      ]
+    },
+    {
+      "section": 64,
+      "title": "PASS",
+      "status": "partial",
+      "implementation": [
+        "src/pages/kitchen.ts",
+        "supabase/migrations/202609150030_prepaid_fulfillment.sql",
+        "src/pages/accounts.ts"
+      ],
+      "tests": [
+        "tests/database/reconciliation.test.ts",
+        "tests/e2e/accounts.spec.ts"
+      ],
+      "external_verification": [],
+      "requirements": [
+        "Runner;",
+        "waiter table;",
+        "waiter zone;",
+        "combinazioni."
+      ]
+    },
+    {
+      "section": 65,
+      "title": "Piatti tornati indietro",
+      "status": "partial",
+      "implementation": [
+        "src/pages/order-changes.ts",
+        "src/pages/kitchen.ts"
+      ],
+      "tests": [
+        "tests/database/completion.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "PASS;",
+        "KITCHEN_ADMIN."
+      ]
+    },
+    {
+      "section": 66,
+      "title": "Stampanti stazioni",
+      "status": "partial",
+      "implementation": [
+        "src/pages/operational-settings.ts",
+        "src/pages/printing.ts"
+      ],
+      "tests": [
+        "tests/database/completion.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "se abilitata;",
+        "quali eventi stampano;",
+        "quale stampante;",
+        "stampa automatica/manuale."
+      ]
+    },
+    {
+      "section": 67,
+      "title": "Stati conto",
+      "status": "partial",
+      "implementation": [
+        "supabase/migrations/202609150025_account_workspace.sql",
+        "supabase/migrations/202609150026_account_floor_lifecycle.sql",
+        "supabase/migrations/202609150027_financial_command_retry.sql",
+        "src/pages/accounts.ts",
+        "src/pages/account-finance.ts",
+        "src/pages/account-list.ts",
+        "supabase/migrations/202609150030_prepaid_fulfillment.sql"
+      ],
+      "tests": [
+        "tests/database/reconciliation.test.ts",
+        "tests/e2e/accounts.spec.ts"
+      ],
+      "external_verification": [],
+      "requirements": []
+    },
+    {
+      "section": 68,
+      "title": "Richiesta conto",
+      "status": "partial",
+      "implementation": [
+        "src/pages/customer.ts",
+        "src/pages/notifications.ts"
+      ],
+      "tests": [
+        "tests/database/service.test.ts",
+        "tests/e2e/customer.spec.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "cameriere responsabile;",
+        "Cassa."
+      ]
+    },
+    {
+      "section": 69,
+      "title": "Casse multiple",
+      "status": "partial",
+      "implementation": [
+        "src/pages/cash.ts",
+        "supabase/migrations/202609150025_account_workspace.sql",
+        "supabase/migrations/202609150026_account_floor_lifecycle.sql",
+        "supabase/migrations/202609150027_financial_command_retry.sql",
+        "src/pages/accounts.ts",
+        "src/pages/account-finance.ts",
+        "src/pages/account-list.ts"
+      ],
+      "tests": [
+        "tests/database/reconciliation.test.ts",
+        "tests/e2e/accounts.spec.ts"
+      ],
+      "external_verification": [],
+      "requirements": [
+        "nome;",
+        "codice;",
+        "posizione o area all'interno del ristorante;",
+        "stato;",
+        "stampante;",
+        "metodi pagamento;",
+        "configurazione."
+      ]
+    },
+    {
+      "section": 70,
+      "title": "Più utenti nella stessa cassa",
+      "status": "partial",
+      "implementation": [
+        "supabase/migrations/202609150021_cash_journal.sql",
+        "supabase/migrations/202609150023_cash_reconciliation.sql"
+      ],
+      "tests": [
+        "tests/database/reconciliation.test.ts"
+      ],
+      "external_verification": [
+        "Supabase reale e verifiche end-to-end ancora da eseguire; stato non verificato integralmente."
+      ],
+      "requirements": []
+    },
+    {
+      "section": 71,
+      "title": "Apri / Chiudi Cassa",
+      "status": "partial",
+      "implementation": [
+        "supabase/migrations/202609150021_cash_journal.sql",
+        "supabase/migrations/202609150023_cash_reconciliation.sql"
+      ],
+      "tests": [
+        "tests/database/reconciliation.test.ts"
+      ],
+      "external_verification": [
+        "Supabase reale e verifiche end-to-end ancora da eseguire; stato non verificato integralmente."
+      ],
+      "requirements": [
+        "attivare;",
+        "disattivare;"
+      ]
+    },
+    {
+      "section": 72,
+      "title": "Servizio di cassa",
+      "status": "partial",
+      "implementation": [
+        "supabase/migrations/202609150021_cash_journal.sql",
+        "supabase/migrations/202609150023_cash_reconciliation.sql",
+        "src/pages/reconciliation.ts"
+      ],
+      "tests": [
+        "tests/database/reconciliation.test.ts",
+        "tests/e2e/cash.spec.ts"
+      ],
+      "external_verification": [
+        "Supabase reale e verifiche end-to-end ancora da eseguire; stato non verificato integralmente."
+      ],
+      "requirements": []
+    },
+    {
+      "section": 73,
+      "title": "Chiudi Servizio",
+      "status": "partial",
+      "implementation": [
+        "supabase/migrations/202609150021_cash_journal.sql",
+        "supabase/migrations/202609150023_cash_reconciliation.sql",
+        "src/pages/reconciliation.ts"
+      ],
+      "tests": [
+        "tests/database/reconciliation.test.ts",
+        "tests/e2e/cash.spec.ts"
+      ],
+      "external_verification": [
+        "Supabase reale e verifiche end-to-end ancora da eseguire; stato non verificato integralmente."
+      ],
+      "requirements": [
+        "fondo iniziale;",
+        "incassi;",
+        "contanti teorici;",
+        "contanti reali;",
+        "differenza;",
+        "pagamenti per metodo;",
+        "mance;",
+        "rimborsi;",
+        "conti chiusi;",
+        "anomalie.",
+        "serve approvazione Admin;",
+        "Admin deve inserire la propria password;",
+        "differenza e autorizzazione devono essere auditati."
+      ]
+    },
+    {
+      "section": 74,
+      "title": "Concorrenza casse",
+      "status": "partial",
+      "implementation": [
+        "supabase/migrations/202609140007_cash_payments.sql",
+        "supabase/migrations/202609150028_billing_units.sql",
+        "supabase/migrations/202609150029_discounts.sql",
+        "src/pages/billing.ts",
+        "src/pages/account-payments.ts"
+      ],
+      "tests": [
+        "tests/database/billing.test.ts",
+        "tests/e2e/accounts.spec.ts"
+      ],
+      "external_verification": [],
+      "requirements": [
+        "doppio pagamento;",
+        "doppia selezione prodotto;",
+        "doppio rimborso;",
+        "race conditions.",
+        "transaction;",
+        "locking;",
+        "idempotency key;",
+        "constraints;",
+        "Realtime."
+      ]
+    },
+    {
+      "section": 75,
+      "title": "Operazioni Cassa",
+      "status": "partial",
+      "implementation": [
+        "supabase/migrations/202609150025_account_workspace.sql",
+        "supabase/migrations/202609150026_account_floor_lifecycle.sql",
+        "supabase/migrations/202609150027_financial_command_retry.sql",
+        "src/pages/accounts.ts",
+        "src/pages/account-finance.ts",
+        "src/pages/account-list.ts",
+        "supabase/migrations/202609150028_billing_units.sql",
+        "supabase/migrations/202609150029_discounts.sql",
+        "src/pages/billing.ts",
+        "src/pages/account-payments.ts"
+      ],
+      "tests": [
+        "tests/database/reconciliation.test.ts",
+        "tests/e2e/accounts.spec.ts",
+        "tests/database/billing.test.ts"
+      ],
+      "external_verification": [],
+      "requirements": [
+        "dividere conto equamente;",
+        "dividere per importo;",
+        "dividere per prodotti;",
+        "creare più pagamenti;",
+        "spostare prodotti fra conti;",
+        "creare nuovo conto durante divisione;",
+        "unire conti;",
+        "gestire pagamenti misti."
+      ]
+    },
+    {
+      "section": 76,
+      "title": "Pagamento prodotti",
+      "status": "partial",
+      "implementation": [
+        "supabase/migrations/202609150028_billing_units.sql",
+        "supabase/migrations/202609150029_discounts.sql",
+        "src/pages/billing.ts",
+        "src/pages/account-payments.ts"
+      ],
+      "tests": [
+        "tests/database/billing.test.ts",
+        "tests/e2e/accounts.spec.ts"
+      ],
+      "external_verification": [],
+      "requirements": []
+    },
+    {
+      "section": 77,
+      "title": "Metodi pagamento",
+      "status": "partial",
+      "implementation": [
+        "supabase/migrations/202609140007_cash_payments.sql"
+      ],
+      "tests": [],
+      "external_verification": [],
+      "requirements": []
+    },
+    {
+      "section": 78,
+      "title": "POS tradizionale",
+      "status": "partial",
+      "implementation": [
+        "src/pages/account-payments.ts"
+      ],
+      "tests": [
+        "tests/database/billing.test.ts",
+        "tests/e2e/cash.spec.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "Plateform mostra importo;",
+        "cassiere usa POS esterno;",
+        "conferma manualmente esito."
+      ]
+    },
+    {
+      "section": 79,
+      "title": "Stripe",
+      "status": "partial",
+      "implementation": [
+        "supabase/functions/payments/index.ts",
+        "supabase/functions/stripe-webhook/index.ts",
+        "supabase/functions/_shared/providers.ts"
+      ],
+      "tests": [
+        "supabase/functions/_tests/providers.test.ts",
+        "tests/database/completion.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "pagamento;",
+        "stato;",
+        "webhook;",
+        "idempotenza;",
+        "errore;",
+        "conferma."
+      ]
+    },
+    {
+      "section": 80,
+      "title": "Satispay",
+      "status": "partial",
+      "implementation": [
+        "supabase/functions/payments/index.ts",
+        "supabase/functions/satispay-callback/index.ts",
+        "supabase/functions/_shared/providers.ts"
+      ],
+      "tests": [
+        "supabase/functions/_tests/providers.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "richieste;",
+        "stato;",
+        "callback/webhook;",
+        "errori;",
+        "idempotenza."
+      ]
+    },
+    {
+      "section": 81,
+      "title": "Pagamenti",
+      "status": "partial",
+      "implementation": [
+        "src/pages/account-payments.ts",
+        "src/pages/provider-payments.ts",
+        "supabase/functions/payments/index.ts"
+      ],
+      "tests": [
+        "tests/database/billing.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": []
+    },
+    {
+      "section": 82,
+      "title": "Mance",
+      "status": "partial",
+      "implementation": [
+        "supabase/migrations/202609140007_cash_payments.sql"
+      ],
+      "tests": [],
+      "external_verification": [],
+      "requirements": [
+        "contanti;",
+        "carta/POS;",
+        "Stripe;",
+        "Satispay;",
+        "metodo compatibile."
+      ]
+    },
+    {
+      "section": 83,
+      "title": "Sconti e omaggi",
+      "status": "partial",
+      "implementation": [
+        "supabase/migrations/202609150028_billing_units.sql",
+        "supabase/migrations/202609150029_discounts.sql",
+        "src/pages/billing.ts",
+        "src/pages/account-payments.ts"
+      ],
+      "tests": [
+        "tests/database/billing.test.ts",
+        "tests/e2e/accounts.spec.ts"
+      ],
+      "external_verification": [],
+      "requirements": [
+        "sconto percentuale;",
+        "sconto fisso;",
+        "piatto offerto;",
+        "conto offerto."
+      ]
+    },
+    {
+      "section": 84,
+      "title": "Storno pagamento manuale",
+      "status": "partial",
+      "implementation": [
+        "supabase/migrations/202609150021_cash_journal.sql",
+        "supabase/migrations/202609150023_cash_reconciliation.sql",
+        "supabase/migrations/202609150025_account_workspace.sql",
+        "supabase/migrations/202609150026_account_floor_lifecycle.sql",
+        "supabase/migrations/202609150027_financial_command_retry.sql",
+        "src/pages/accounts.ts",
+        "src/pages/account-finance.ts",
+        "src/pages/account-list.ts"
+      ],
+      "tests": [
+        "tests/database/reconciliation.test.ts",
+        "tests/e2e/accounts.spec.ts"
+      ],
+      "external_verification": [
+        "Supabase reale e verifiche end-to-end ancora da eseguire; stato non verificato integralmente."
+      ],
+      "requirements": [
+        "interviene Admin;",
+        "operazione auditata."
+      ]
+    },
+    {
+      "section": 85,
+      "title": "Rimborsi",
+      "status": "partial",
+      "implementation": [
+        "supabase/migrations/202609140007_cash_payments.sql",
+        "supabase/migrations/202609150021_cash_journal.sql",
+        "supabase/migrations/202609150023_cash_reconciliation.sql",
+        "supabase/migrations/202609150025_account_workspace.sql",
+        "supabase/migrations/202609150026_account_floor_lifecycle.sql",
+        "supabase/migrations/202609150027_financial_command_retry.sql",
+        "src/pages/accounts.ts",
+        "src/pages/account-finance.ts",
+        "src/pages/account-list.ts"
+      ],
+      "tests": [
+        "tests/database/reconciliation.test.ts",
+        "tests/e2e/accounts.spec.ts"
+      ],
+      "external_verification": [
+        "Supabase reale e verifiche end-to-end ancora da eseguire; stato non verificato integralmente."
+      ],
+      "requirements": [
+        "rimborso totale;",
+        "rimborso parziale.",
+        "autorizzazione Admin;",
+        "inserimento password Admin.",
+        "Stripe;",
+        "Satispay API;",
+        "cash;",
+        "POS;"
+      ]
+    },
+    {
+      "section": 86,
+      "title": "Chiusura conto",
+      "status": "partial",
+      "implementation": [
+        "supabase/migrations/202609150022_audit_context.sql",
+        "supabase/migrations/202609150025_account_workspace.sql",
+        "supabase/migrations/202609150026_account_floor_lifecycle.sql",
+        "supabase/migrations/202609150027_financial_command_retry.sql",
+        "src/pages/accounts.ts",
+        "src/pages/account-finance.ts",
+        "src/pages/account-list.ts",
+        "supabase/migrations/202609150030_prepaid_fulfillment.sql"
+      ],
+      "tests": [
+        "tests/database/reconciliation.test.ts",
+        "tests/e2e/accounts.spec.ts"
+      ],
+      "external_verification": [
+        "Supabase reale e verifiche end-to-end ancora da eseguire; stato non verificato integralmente."
+      ],
+      "requirements": [
+        "password Admin;",
+        "conferma;",
+        "motivo;",
+        "audit."
+      ]
+    },
+    {
+      "section": 87,
+      "title": "Riapertura conto",
+      "status": "partial",
+      "implementation": [
+        "supabase/migrations/202609150022_audit_context.sql",
+        "supabase/migrations/202609150025_account_workspace.sql",
+        "supabase/migrations/202609150026_account_floor_lifecycle.sql",
+        "supabase/migrations/202609150027_financial_command_retry.sql",
+        "src/pages/accounts.ts",
+        "src/pages/account-finance.ts",
+        "src/pages/account-list.ts",
+        "supabase/migrations/202609150030_prepaid_fulfillment.sql"
+      ],
+      "tests": [
+        "tests/database/reconciliation.test.ts",
+        "tests/e2e/accounts.spec.ts"
+      ],
+      "external_verification": [
+        "Supabase reale e verifiche end-to-end ancora da eseguire; stato non verificato integralmente."
+      ],
+      "requirements": [
+        "password/autorizzazione;",
+        "motivo;",
+        "audit."
+      ]
+    },
+    {
+      "section": 88,
+      "title": "Conto di cortesia",
+      "status": "partial",
+      "implementation": [
+        "src/pages/printing.ts",
+        "shared/print-document.ts"
+      ],
+      "tests": [
+        "tests/unit/printing.test.ts",
+        "tests/database/completion.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "logo;",
+        "ristorante;",
+        "indirizzo della sede operativa;",
+        "tavolo;",
+        "conto;",
+        "prodotti;",
+        "quantità;",
+        "prezzi;",
+        "totale."
+      ]
+    },
+    {
+      "section": 89,
+      "title": "Ricevuta finale",
+      "status": "partial",
+      "implementation": [
+        "src/pages/printing.ts",
+        "shared/print-document.ts"
+      ],
+      "tests": [
+        "tests/unit/printing.test.ts",
+        "tests/database/completion.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "logo/nome;",
+        "indirizzo della sede operativa;",
+        "data;",
+        "ora;",
+        "conto;",
+        "tavolo;",
+        "prodotti;",
+        "quantità;",
+        "prezzi;",
+        "sconti;",
+        "totale;",
+        "metodi pagamento;",
+        "mance separate."
+      ]
+    },
+    {
+      "section": 90,
+      "title": "Epson",
+      "status": "partial",
+      "implementation": [
+        "tools/print-bridge/service.ts",
+        "shared/print-authorization.ts",
+        "supabase/functions/print-authorization/index.ts"
+      ],
+      "tests": [
+        "tests/unit/print-bridge.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "Epson ePOS SDK/API dove compatibile;",
+        "local print bridge/agent;",
+        "fallback browser print.",
+        "dispositivo;",
+        "cassa;",
+        "stazione;",
+        "tipo stampa;",
+        "permessi."
+      ]
+    },
+    {
+      "section": 91,
+      "title": "Print jobs",
+      "status": "partial",
+      "implementation": [
+        "src/pages/printing.ts",
+        "supabase/migrations/202610030038_print_queue.sql"
+      ],
+      "tests": [
+        "tests/database/completion.test.ts",
+        "tests/unit/print-bridge.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": []
+    },
+    {
+      "section": 92,
+      "title": "Statistiche",
+      "status": "partial",
+      "implementation": [
+        "src/pages/statistics.ts",
+        "supabase/migrations/202610030049_analytics_details.sql"
+      ],
+      "tests": [
+        "tests/database/configuration-floor.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "utenti `VENUE` vedono solo la propria sede;",
+        "utenti `CHAIN` autorizzati possono vedere aggregati e confronto sintetico tra sedi.",
+        "fatturato;",
+        "piatti più venduti;",
+        "scontrino medio;",
+        "tempo medio permanenza;",
+        "tempo medio preparazione piatto;",
+        "piatti annullati;",
+        "piatti tornati indietro;",
+        "chiamate cameriere;",
+        "tempo medio risposta chiamate;",
+        "categorie più vendute;",
+        "prenotazioni/no-show;",
+        "utilizzo capacità per servizio;",
+        "errori/incidenti operativi rilevanti."
+      ]
+    },
+    {
+      "section": 93,
+      "title": "Super Admin e dati economici",
+      "status": "partial",
+      "implementation": [
+        "src/pages/technical.ts",
+        "supabase/migrations/202610030050_technical_health.sql"
+      ],
+      "tests": [
+        "tests/database/configuration-floor.test.ts",
+        "tests/e2e/configuration.spec.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "Admin;",
+        "Cashier."
+      ]
+    },
+    {
+      "section": 94,
+      "title": "Feature flags",
+      "status": "partial",
+      "implementation": [
+        "src/pages/technical.ts",
+        "src/pages/operational-settings.ts"
+      ],
+      "tests": [
+        "tests/database/configuration-floor.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": []
+    },
+    {
+      "section": 95,
+      "title": "Limiti operativi e tecnici",
+      "status": "partial",
+      "implementation": [
+        "src/pages/technical.ts",
+        "supabase/migrations/202610030051_resource_quotas.sql"
+      ],
+      "tests": [
+        "tests/database/configuration-floor.test.ts",
+        "tests/database/completion.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "utenti massimi;",
+        "sedi massime quando `MULTI_VENUE` è attivo;",
+        "tavoli massimi per sede;",
+        "piatti massimi;",
+        "storage massimo;",
+        "dispositivi registrati;",
+        "retention tecnica dove previsto."
+      ]
+    },
+    {
+      "section": 96,
+      "title": "Sospensione operativa dell'installazione",
+      "status": "partial",
+      "implementation": [
+        "src/pages/technical.ts",
+        "supabase/migrations/202610030050_technical_health.sql"
+      ],
+      "tests": [
+        "tests/database/foundation.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "home pubblica;",
+        "contenuti sito;",
+        "menu pubblico in sola lettura.",
+        "login operativo di Admin e staff;",
+        "dashboard operative;",
+        "customer session operativa;",
+        "ordini;",
+        "chiamate;",
+        "prenotazioni;",
+        "pagamenti;",
+        "realtime operativo."
+      ]
+    },
+    {
+      "section": 97,
+      "title": "Dismissione protetta dell'installazione",
+      "status": "pending",
+      "implementation": [],
+      "tests": [],
+      "external_verification": [],
+      "requirements": [
+        "password Super Admin;",
+        "digitazione del nome del ristorante;",
+        "conferma;",
+        "backup."
+      ]
+    },
+    {
+      "section": 98,
+      "title": "Dashboard tecnica Super Admin — Operational Health",
+      "status": "partial",
+      "implementation": [
+        "src/pages/technical.ts",
+        "supabase/functions/health-probe/index.ts",
+        "supabase/migrations/20261004115400_step12_operational_health.sql",
+        "supabase/migrations/20261004121556_step12_continuity_alerting.sql",
+        "supabase/migrations/20261004122645_step12_continuity_targets.sql",
+        "supabase/migrations/20261004123049_step12_continuity_targets_api_hardening.sql",
+        "supabase/migrations/20261004125043_step12_restore_cutover_gate.sql",
+        "supabase/migrations/20261004125610_step12_restore_cutover_alerting.sql",
+        "supabase/migrations/20261004143611_step12_backup_retention_enforcement.sql",
+        "supabase/migrations/20261004144057_step12_retention_operational_health.sql",
+        "supabase/migrations/20261004145929_step12_migration_history_recovery.sql",
+        "supabase/migrations/20261004151630_step12_storage_metadata_integrity.sql",
+        "supabase/migrations/20261004154213_step12_backup_replica_durability.sql",
+        "supabase/migrations/20261004154534_step12_restore_retention_race_guard.sql",
+        "supabase/migrations/20261004155039_step12_manifest_authentication.sql",
+        "supabase/migrations/20261004155630_step12_schema_snapshot_binding.sql",
+        "supabase/migrations/20261004160452_step12_pre_restore_priority_and_retention.sql",
+        "tools/backup-retention-worker",
+        "deploy/continuity/plateform-backup-retention.service",
+        "deploy/continuity/plateform-backup-retention.timer",
+        "supabase/migrations/20261004161807_step12_operational_release_baseline.sql",
+        "supabase/migrations/20261004162621_step12_release_metadata_hardening.sql",
+        "supabase/migrations/20261004205734_step12_private_state_recovery_policy.sql",
+        "tools/backup-worker/private-state.mjs",
+        "scripts/check-private-recovery-policy.mjs",
+        "docs/evidence/step12-private-state-recovery-2026-10-04.json",
+        "docs/evidence/step12-disposable-restore-rehearsal-2026-10-04.json"
+      ],
+      "tests": [
+        "tests/database/configuration-floor.test.ts",
+        "tests/e2e/configuration.spec.ts",
+        "scripts/check-continuity-alerting.mjs",
+        "docs/evidence/step12-continuity-alerting-2026-10-04.json",
+        "scripts/check-continuity-targets.mjs",
+        "docs/evidence/step12-continuity-targets-2026-10-04.json",
+        "scripts/check-restore-cutover.mjs",
+        "docs/evidence/step12-restore-cutover-2026-10-04.json",
+        "scripts/check-backup-replica.mjs",
+        "scripts/check-backup-manifest-auth.mjs",
+        "scripts/check-backup-commit-reconciliation.mjs",
+        "scripts/check-backup-snapshot-consistency.mjs",
+        "scripts/check-backup-filesystem-safety.mjs",
+        "scripts/check-backup-keyring.mjs",
+        "scripts/check-storage-metadata-integrity.mjs",
+        "scripts/check-migration-history-recovery.mjs",
+        "scripts/check-backup-retention-worker.mjs",
+        "scripts/check-continuity-project-binding.mjs",
+        "docs/evidence/step12-continuity-integrity-2026-10-04.json",
+        "docs/evidence/step12-pre-restore-2026-10-04.json",
+        "docs/evidence/step12-consolidated-2026-10-04.json",
+        "docs/evidence/step12-operational-release-baseline-2026-10-04.json",
+        "scripts/check-operational-release-metadata.mjs"
+      ],
+      "external_verification": [
+        "Operational Health backend/UI and automatic continuity incidents are implemented; production certification still depends on a real verified backup, real isolated restore test and observed RPO/RTO."
+      ],
+      "requirements": [
+        "database;",
+        "Auth;",
+        "Realtime;",
+        "Storage;",
+        "Edge Functions;",
+        "provider pagamenti attivi;",
+        "print bridge;",
+        "error rate;",
+        "latency;",
+        "sessioni attive;",
+        "dispositivi online/offline;",
+        "queue offline;",
+        "conflitti sync;",
+        "webhook pending/falliti;",
+        "backup;",
+        "restore test;",
+        "versione applicazione;",
+        "versione schema DB;",
+        "incidenti aperti."
+      ],
+      "verification_notes": [
+        "Rehearsal storico del 4 ottobre: 106/106 migration allora sincronizzate, schema/public/Auth/Storage esatto, private-state duraturo fingerprintato e runtime security-state invalidato. Build corrente: 130/130 migration; il rehearsal deve essere rieseguito sulla baseline corrente. Certificazione finale ancora bloccata dal backup cifrato reale + restore-test worker + RPO/RTO osservati + cutover rehearsal."
+      ]
+    },
+    {
+      "section": 99,
+      "title": "Impersonazione",
+      "status": "partial",
+      "implementation": [
+        "apps/staff/main.ts",
+        "supabase/migrations/202610030041_governance.sql"
+      ],
+      "tests": [
+        "tests/database/foundation.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "utente impersonato;",
+        "Super Admin reale."
+      ]
+    },
+    {
+      "section": 100,
+      "title": "Audit log — requisito assoluto per eventi rilevanti",
+      "status": "partial",
+      "implementation": [
+        "supabase/migrations/202609140003_finance_audit.sql",
+        "supabase/migrations/202609150022_audit_context.sql"
+      ],
+      "tests": [],
+      "external_verification": [
+        "Supabase reale e verifiche end-to-end ancora da eseguire; stato non verificato integralmente."
+      ],
+      "requirements": [
+        "login/logout e autenticazione fallita;",
+        "MFA e recovery;",
+        "creazione/modifica/disattivazione utenti;",
+        "modifiche ruoli/scope;",
+        "accessi a risorse sensibili quando richiesto;",
+        "creazione/modifica/cancellazione logica ordini;",
+        "modifiche prezzi/disponibilità;",
+        "pagamenti;",
+        "rimborsi;",
+        "sconti/omaggi;",
+        "cassa e quadrature;",
+        "prenotazioni contenenti dati personali quando opportuno;",
+        "esportazioni dati;",
+        "modifiche configurazioni;",
+        "impersonazione;",
+        "backup/restore;",
+        "deploy/migration ad alto impatto;",
+        "sync offline e conflitti risolti;",
+        "incidenti e azioni amministrative.",
+        "Super Admin;",
+        "Admin;",
+        "Host;",
+        "Cashier;",
+        "Kitchen Admin;",
+        "Kitchen Staff;",
+        "Pass;",
+        "Waiter;",
+        "Customer;",
+        "System;",
+        "Edge Functions;",
+        "processi automatici."
+      ]
+    },
+    {
+      "section": 101,
+      "title": "Audit vs Telemetry",
+      "status": "partial",
+      "implementation": [
+        "AUDIT.md",
+        "OBSERVABILITY.md",
+        "supabase/migrations/202610030052_observability.sql"
+      ],
+      "tests": [
+        "tests/database/configuration-floor.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "pagine utilizzate;",
+        "performance;",
+        "latenza;",
+        "errori UI;",
+        "funnel e utilizzo feature;",
+        "metriche tecniche aggregate."
+      ]
+    },
+    {
+      "section": 102,
+      "title": "Struttura audit",
+      "status": "partial",
+      "implementation": [
+        "supabase/migrations/202609150022_audit_context.sql"
+      ],
+      "tests": [],
+      "external_verification": [
+        "Supabase reale e verifiche end-to-end ancora da eseguire; stato non verificato integralmente."
+      ],
+      "requirements": []
+    },
+    {
+      "section": 103,
+      "title": "Audit immutabile",
+      "status": "partial",
+      "implementation": [
+        "supabase/migrations/202609140003_finance_audit.sql",
+        "supabase/migrations/202609150024_audit_search.sql"
+      ],
+      "tests": [
+        "tests/database/audit-search.test.ts"
+      ],
+      "external_verification": [
+        "Supabase reale e verifiche end-to-end ancora da eseguire; stato non verificato integralmente."
+      ],
+      "requirements": [
+        "modificare;",
+        "cancellare;",
+        "sovrascrivere;"
+      ]
+    },
+    {
+      "section": 104,
+      "title": "Dashboard Audit",
+      "status": "partial",
+      "implementation": [
+        "supabase/migrations/202609150024_audit_search.sql",
+        "src/pages/audit.ts"
+      ],
+      "tests": [
+        "tests/database/audit-search.test.ts"
+      ],
+      "external_verification": [
+        "Supabase reale e verifiche end-to-end ancora da eseguire; stato non verificato integralmente."
+      ],
+      "requirements": [
+        "ricerca;",
+        "data;",
+        "utente;",
+        "ruolo;",
+        "azione;",
+        "risorsa;",
+        "esito;",
+        "request ID;",
+        "correlation ID;",
+        "dettaglio old/new;",
+        "impersonazione;",
+        "pagination."
+      ]
+    },
+    {
+      "section": 105,
+      "title": "Dati sensibili audit",
+      "status": "partial",
+      "implementation": [
+        "AUDIT.md",
+        "supabase/migrations/202609140003_finance_audit.sql"
+      ],
+      "tests": [
+        "tests/database/reconciliation.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "password;",
+        "PIN;",
+        "JWT;",
+        "refresh token;",
+        "service role key;",
+        "API secrets;",
+        "Stripe secrets;",
+        "Satispay secrets;",
+        "CVV;",
+        "dati completi carta."
+      ]
+    },
+    {
+      "section": 106,
+      "title": "Audit automatico",
+      "status": "partial",
+      "implementation": [
+        "supabase/migrations/202609140003_finance_audit.sql"
+      ],
+      "tests": [
+        "tests/database/foundation.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "disponibilità scalata;",
+        "webhook;",
+        "sync;",
+        "retry;",
+        "payment confirmation;",
+        "payment failure;",
+        "invalidazione codice;",
+        "generazione codice;",
+        "stampa;",
+        "backup;",
+        "restore;",
+        "processi automatici;",
+        "errori importanti."
+      ]
+    },
+    {
+      "section": 107,
+      "title": "Scalabilità audit",
+      "status": "partial",
+      "implementation": [
+        "supabase/migrations/202609150024_audit_search.sql"
+      ],
+      "tests": [
+        "tests/database/audit-search.test.ts"
+      ],
+      "external_verification": [
+        "Supabase reale e verifiche end-to-end ancora da eseguire; stato non verificato integralmente."
+      ],
+      "requirements": [
+        "partizionamento;",
+        "indici;",
+        "pagination;",
+        "query ottimizzate;",
+        "archiviazione storica;",
+        "hot storage;",
+        "historical storage."
+      ]
+    },
+    {
+      "section": 108,
+      "title": "Realtime",
+      "status": "partial",
+      "implementation": [
+        "REALTIME.md",
+        "src/realtime/live.ts",
+        "src/realtime/reconcile.ts",
+        "supabase/migrations/202609150020_realtime_signals.sql"
+      ],
+      "tests": [
+        "tests/database/service.test.ts",
+        "tests/e2e/customer.spec.ts",
+        "tests/unit/reconcile.test.ts"
+      ],
+      "external_verification": [
+        "Full Supabase integration and concurrent PostgreSQL connections remain unverified."
+      ],
+      "requirements": [
+        "menu;",
+        "disponibilità;",
+        "ordini;",
+        "cucina;",
+        "Pass;",
+        "tavoli;",
+        "assegnazioni;",
+        "chiamate;",
+        "conti;",
+        "pagamenti;",
+        "casse;",
+        "prenotazioni;",
+        "notifications.",
+        "ruolo;",
+        "scope sede;",
+        "assegnazione;",
+        "conto/customer session;",
+        "feature attive."
+      ]
+    },
+    {
+      "section": 109,
+      "title": "PWA",
+      "status": "partial",
+      "implementation": [
+        "vite.pwa.ts",
+        "src/services/pwa.ts"
+      ],
+      "tests": [
+        "tests/e2e/interface.spec.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "manifest;",
+        "service worker;",
+        "icone;",
+        "installazione;",
+        "cache;",
+        "gestione aggiornamenti;",
+        "stato connessione."
+      ]
+    },
+    {
+      "section": 110,
+      "title": "Offline",
+      "status": "partial",
+      "implementation": [
+        "src/offline/store.ts",
+        "src/offline/authorization.ts",
+        "src/pages/offline.ts",
+        "OFFLINE.md"
+      ],
+      "tests": [
+        "tests/unit/offline-authorization.test.ts",
+        "tests/unit/offline-queue.test.ts",
+        "tests/database/completion.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "menu cache;",
+        "sala cache;",
+        "tavoli cache;",
+        "ordini già sincronizzati;",
+        "creazione ordini in coda;",
+        "operazioni non finanziarie autorizzate."
+      ]
+    },
+    {
+      "section": 111,
+      "title": "Sincronizzazione offline",
+      "status": "partial",
+      "implementation": [
+        "src/pages/offline.ts",
+        "supabase/migrations/202610030055_offline_workspace.sql"
+      ],
+      "tests": [
+        "tests/database/completion.test.ts",
+        "tests/unit/offline-queue.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "verificare nuovamente identità e autorizzazioni;",
+        "mantenere l'ordine causale dove necessario;",
+        "usare idempotency keys;",
+        "evitare duplicati;",
+        "considerare server e PostgreSQL autoritativi;",
+        "auditare sync rilevanti;",
+        "confrontare revision/version;",
+        "gestire conflitti esplicitamente;",
+        "non scartare silenziosamente operazioni."
+      ]
+    },
+    {
+      "section": 112,
+      "title": "Conflitti offline e Conflict Center",
+      "status": "partial",
+      "implementation": [
+        "src/pages/offline.ts",
+        "supabase/migrations/202610030039_offline_commands.sql"
+      ],
+      "tests": [
+        "tests/database/completion.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "nessuna disponibilità negativa;",
+        "prima operazione valida secondo regola server;",
+        "seconda operazione entra in `CONFLICT`;",
+        "non fingere successo;",
+        "auditare il conflitto.",
+        "sede;",
+        "risorsa;",
+        "utente/dispositivo;",
+        "ora locale e ora sync;",
+        "motivo;",
+        "stato server corrente;",
+        "operazione richiesta;",
+        "possibili azioni sicure."
+      ]
+    },
+    {
+      "section": 113,
+      "title": "Vietato offline",
+      "status": "partial",
+      "implementation": [
+        "src/offline/store.ts",
+        "supabase/migrations/202610030055_offline_workspace.sql"
+      ],
+      "tests": [
+        "tests/database/completion.test.ts",
+        "tests/unit/offline-queue.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "Stripe;",
+        "Satispay API;",
+        "conferma definitiva di pagamenti online;",
+        "rimborsi online;",
+        "modifica ruoli/scope;",
+        "reset password/MFA;",
+        "restore;",
+        "modifiche amministrative sensibili;",
+        "operazioni dopo scadenza authorization snapshot;",
+        "operazioni che richiedono server immediato."
+      ]
+    },
+    {
+      "section": 114,
+      "title": "Storage",
+      "status": "partial",
+      "implementation": [
+        "supabase/functions/asset-upload/index.ts",
+        "src/pages/branding.ts"
+      ],
+      "tests": [
+        "supabase/functions/_tests/assets.test.ts",
+        "tests/database/configuration-floor.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": []
+    },
+    {
+      "section": 115,
+      "title": "Backup, RPO e RTO",
+      "status": "partial",
+      "implementation": [
+        "BACKUP_RESTORE.md",
+        "tools/backup-worker",
+        "supabase/migrations/20261004075252_step12_backup_state_machine.sql",
+        "supabase/migrations/20261004110052_step12_scheduled_backup_queue.sql",
+        "supabase/migrations/20261004114444_step12_daily_backup_schedule.sql",
+        "supabase/migrations/20261004115400_step12_operational_health.sql",
+        "supabase/migrations/20261004121556_step12_continuity_alerting.sql",
+        "supabase/migrations/20261004122645_step12_continuity_targets.sql",
+        "supabase/migrations/20261004123049_step12_continuity_targets_api_hardening.sql",
+        "tools/restore-worker",
+        "supabase/migrations/20261004123554_step12_restore_mode_isolation.sql",
+        "supabase/migrations/20261004125043_step12_restore_cutover_gate.sql",
+        "supabase/migrations/20261004125610_step12_restore_cutover_alerting.sql",
+        "deploy/continuity/README.md",
+        "deploy/continuity/plateform-backup-worker.service",
+        "deploy/continuity/plateform-backup-worker.timer",
+        "supabase/migrations/20261004143611_step12_backup_retention_enforcement.sql",
+        "supabase/migrations/20261004144057_step12_retention_operational_health.sql",
+        "supabase/migrations/20261004145929_step12_migration_history_recovery.sql",
+        "supabase/migrations/20261004151630_step12_storage_metadata_integrity.sql",
+        "supabase/migrations/20261004154213_step12_backup_replica_durability.sql",
+        "supabase/migrations/20261004154534_step12_restore_retention_race_guard.sql",
+        "supabase/migrations/20261004155039_step12_manifest_authentication.sql",
+        "supabase/migrations/20261004155630_step12_schema_snapshot_binding.sql",
+        "supabase/migrations/20261004160452_step12_pre_restore_priority_and_retention.sql",
+        "tools/backup-retention-worker",
+        "deploy/continuity/plateform-backup-retention.service",
+        "deploy/continuity/plateform-backup-retention.timer",
+        "supabase/migrations/20261004161807_step12_operational_release_baseline.sql",
+        "supabase/migrations/20261004162621_step12_release_metadata_hardening.sql",
+        "supabase/migrations/20261004205734_step12_private_state_recovery_policy.sql",
+        "tools/backup-worker/private-state.mjs",
+        "scripts/check-private-recovery-policy.mjs",
+        "docs/evidence/step12-private-state-recovery-2026-10-04.json",
+        "docs/evidence/step12-disposable-restore-rehearsal-2026-10-04.json"
+      ],
+      "tests": [
+        "scripts/check-backup-worker.mjs",
+        "scripts/check-continuity-alerting.mjs",
+        "docs/evidence/step12-backup-worker-2026-10-04.json",
+        "docs/evidence/step12-continuity-alerting-2026-10-04.json",
+        "scripts/check-continuity-targets.mjs",
+        "docs/evidence/step12-continuity-targets-2026-10-04.json",
+        "scripts/check-restore-worker.mjs",
+        "docs/evidence/step12-restore-worker-2026-10-04.json",
+        "scripts/check-restore-cutover.mjs",
+        "scripts/check-continuity-host.mjs",
+        "docs/evidence/step12-restore-cutover-2026-10-04.json",
+        "docs/evidence/step12-continuity-runtime-2026-10-04.json",
+        "scripts/check-backup-replica.mjs",
+        "scripts/check-backup-manifest-auth.mjs",
+        "scripts/check-backup-commit-reconciliation.mjs",
+        "scripts/check-backup-snapshot-consistency.mjs",
+        "scripts/check-backup-filesystem-safety.mjs",
+        "scripts/check-backup-keyring.mjs",
+        "scripts/check-storage-metadata-integrity.mjs",
+        "scripts/check-migration-history-recovery.mjs",
+        "scripts/check-backup-retention-worker.mjs",
+        "scripts/check-continuity-project-binding.mjs",
+        "docs/evidence/step12-continuity-integrity-2026-10-04.json",
+        "docs/evidence/step12-pre-restore-2026-10-04.json",
+        "docs/evidence/step12-consolidated-2026-10-04.json",
+        "docs/evidence/step12-operational-release-baseline-2026-10-04.json",
+        "scripts/check-operational-release-metadata.mjs",
+        "scripts/check-step12-real-rehearsal.mjs",
+        "docs/evidence/step12-real-rehearsal-2026-10-06.json"
+      ],
+      "external_verification": [
+        "Prima del completamento Step 12 serve almeno un backup reale database/Auth/Storage sulla baseline corrente e almeno un restore test isolato riuscito; RPO/RTO sono documentati come target 60/60 e non dichiarati garantiti. Misure production/cutover completo restano gate di go-live."
+      ],
+      "requirements": [
+        "PostgreSQL;",
+        "utenti/Auth;",
+        "Storage;",
+        "immagini/documenti;",
+        "menu;",
+        "sedi;",
+        "sala/layout/tavoli;",
+        "prenotazioni;",
+        "conti/ordini;",
+        "pagamenti/casse/quadrature;",
+        "turni;",
+        "impostazioni;",
+        "feature;",
+        "audit;",
+        "configurazioni.",
+        "ultimo backup riuscito;",
+        "ultimo backup fallito;",
+        "ultimo restore test;",
+        "durata;",
+        "integrità verificata;",
+        "retention backup."
+      ],
+      "verification_notes": [
+        "Rehearsal storico del 4 ottobre: 106/106 migration allora sincronizzate, schema/public/Auth/Storage esatto, private-state duraturo fingerprintato e runtime security-state invalidato. Build corrente: 130/130 migration; il rehearsal deve essere rieseguito sulla baseline corrente. Certificazione finale ancora bloccata dal backup cifrato reale + restore-test worker + RPO/RTO osservati + cutover rehearsal.",
+        "Il gate `npm run check:step12-rehearsal` è fail-closed sulla baseline corrente 130 / 20261006051256 / 7cb63618015f92a81eac5871e82904a845546f64cf0114d25958a8c09a668e9c e resta bloccato finché backup reale, restore-test, RPO/RTO e cutover rehearsal non sono tutti documentati."
+      ]
+    },
+    {
+      "section": 116,
+      "title": "Restore",
+      "status": "partial",
+      "implementation": [
+        "BACKUP_RESTORE.md",
+        "src/pages/technical.ts",
+        "tools/restore-test-worker",
+        "supabase/migrations/20261004080808_step12_restore_control_plane.sql",
+        "supabase/migrations/20261004105716_step12_restore_worker_protocol.sql",
+        "supabase/migrations/20261004110736_step12_restore_test_control.sql",
+        "supabase/migrations/20261004122645_step12_continuity_targets.sql",
+        "tools/restore-worker",
+        "supabase/migrations/20261004123554_step12_restore_mode_isolation.sql",
+        "supabase/migrations/20261004125043_step12_restore_cutover_gate.sql",
+        "supabase/migrations/20261004125610_step12_restore_cutover_alerting.sql",
+        "supabase/migrations/20261004143611_step12_backup_retention_enforcement.sql",
+        "supabase/migrations/20261004144057_step12_retention_operational_health.sql",
+        "supabase/migrations/20261004145929_step12_migration_history_recovery.sql",
+        "supabase/migrations/20261004151630_step12_storage_metadata_integrity.sql",
+        "supabase/migrations/20261004154213_step12_backup_replica_durability.sql",
+        "supabase/migrations/20261004154534_step12_restore_retention_race_guard.sql",
+        "supabase/migrations/20261004155039_step12_manifest_authentication.sql",
+        "supabase/migrations/20261004155630_step12_schema_snapshot_binding.sql",
+        "supabase/migrations/20261004160452_step12_pre_restore_priority_and_retention.sql",
+        "tools/backup-retention-worker",
+        "deploy/continuity/plateform-backup-retention.service",
+        "deploy/continuity/plateform-backup-retention.timer",
+        "supabase/migrations/20261004161807_step12_operational_release_baseline.sql",
+        "supabase/migrations/20261004162621_step12_release_metadata_hardening.sql",
+        "supabase/migrations/20261004205734_step12_private_state_recovery_policy.sql",
+        "tools/backup-worker/private-state.mjs",
+        "scripts/check-private-recovery-policy.mjs",
+        "docs/evidence/step12-private-state-recovery-2026-10-04.json",
+        "docs/evidence/step12-disposable-restore-rehearsal-2026-10-04.json"
+      ],
+      "tests": [
+        "scripts/check-restore-test-worker.mjs",
+        "docs/evidence/step12-restore-test-worker-2026-10-04.json",
+        "docs/evidence/step12-operational-health-2026-10-04.json",
+        "scripts/check-continuity-targets.mjs",
+        "docs/evidence/step12-continuity-targets-2026-10-04.json",
+        "scripts/check-restore-worker.mjs",
+        "docs/evidence/step12-restore-worker-2026-10-04.json",
+        "scripts/check-restore-cutover.mjs",
+        "docs/evidence/step12-restore-cutover-2026-10-04.json",
+        "scripts/check-backup-replica.mjs",
+        "scripts/check-backup-manifest-auth.mjs",
+        "scripts/check-backup-commit-reconciliation.mjs",
+        "scripts/check-backup-snapshot-consistency.mjs",
+        "scripts/check-backup-filesystem-safety.mjs",
+        "scripts/check-backup-keyring.mjs",
+        "scripts/check-storage-metadata-integrity.mjs",
+        "scripts/check-migration-history-recovery.mjs",
+        "scripts/check-backup-retention-worker.mjs",
+        "scripts/check-continuity-project-binding.mjs",
+        "docs/evidence/step12-continuity-integrity-2026-10-04.json",
+        "docs/evidence/step12-pre-restore-2026-10-04.json",
+        "docs/evidence/step12-consolidated-2026-10-04.json",
+        "docs/evidence/step12-operational-release-baseline-2026-10-04.json",
+        "scripts/check-operational-release-metadata.mjs",
+        "scripts/check-step12-real-rehearsal.mjs",
+        "docs/evidence/step12-real-rehearsal-2026-10-06.json"
+      ],
+      "external_verification": [
+        "Prima del completamento Step 12 serve almeno un backup reale database/Auth/Storage sulla baseline corrente e almeno un restore test isolato riuscito; RPO/RTO sono documentati come target 60/60 e non dichiarati garantiti. Misure production/cutover completo restano gate di go-live."
+      ],
+      "requirements": [
+        "password Super Admin;",
+        "conferma;",
+        "selezione backup;",
+        "selezione ambito restore.",
+        "mostrare impatto;",
+        "creare snapshot/pre-restore backup;",
+        "chiedere conferma forte."
+      ],
+      "verification_notes": [
+        "Rehearsal storico del 4 ottobre: 106/106 migration allora sincronizzate, schema/public/Auth/Storage esatto, private-state duraturo fingerprintato e runtime security-state invalidato. Build corrente: 130/130 migration; il rehearsal deve essere rieseguito sulla baseline corrente. Certificazione finale ancora bloccata dal backup cifrato reale + restore-test worker + RPO/RTO osservati + cutover rehearsal.",
+        "Il gate `npm run check:step12-rehearsal` è fail-closed sulla baseline corrente 130 / 20261006051256 / 7cb63618015f92a81eac5871e82904a845546f64cf0114d25958a8c09a668e9c e resta bloccato finché backup reale, restore-test, RPO/RTO e cutover rehearsal non sono tutti documentati."
+      ]
+    },
+    {
+      "section": 117,
+      "title": "Sicurezza — requisito continuo",
+      "status": "partial",
+      "implementation": [
+        "SECURITY.md",
+        "src/offline/authorization.ts",
+        "shared/print-authorization.ts"
+      ],
+      "tests": [
+        "tests/database/foundation.test.ts",
+        "tests/unit/offline-authorization.test.ts",
+        "tests/unit/print-bridge.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "RLS;",
+        "least privilege;",
+        "scope chain/venue;",
+        "MFA;",
+        "step-up authentication;",
+        "validation server-side;",
+        "CSP;",
+        "protezione XSS;",
+        "sanitizzazione dove necessaria;",
+        "output encoding;",
+        "secure headers;",
+        "brute-force protection;",
+        "rate limiting;",
+        "session security;",
+        "device/session revocation;",
+        "idempotenza;",
+        "transazioni;",
+        "protezione secrets;",
+        "dependency review;",
+        "secure logging;",
+        "separazione ambienti;",
+        "secret rotation procedure;",
+        "security tests automatizzati."
+      ]
+    },
+    {
+      "section": 118,
+      "title": "Client non autoritativo",
+      "status": "partial",
+      "implementation": [
+        "src/api/client.ts",
+        "supabase/migrations/202609140006_accounts_orders.sql"
+      ],
+      "tests": [
+        "tests/database/service.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": []
+    },
+    {
+      "section": 119,
+      "title": "Importi",
+      "status": "partial",
+      "implementation": [
+        "src/services/money.ts",
+        "supabase/migrations/202609150028_billing_units.sql",
+        "supabase/migrations/202609150029_discounts.sql",
+        "src/pages/billing.ts",
+        "src/pages/account-payments.ts"
+      ],
+      "tests": [
+        "tests/unit/domain.test.ts",
+        "tests/database/billing.test.ts",
+        "tests/e2e/accounts.spec.ts"
+      ],
+      "external_verification": [
+        "Supabase reale e verifiche end-to-end ancora da eseguire; stato non verificato integralmente."
+      ],
+      "requirements": [
+        "integer cents;",
+        "PostgreSQL numeric appropriato."
+      ]
+    },
+    {
+      "section": 120,
+      "title": "Database",
+      "status": "partial",
+      "implementation": [
+        "supabase/migrations"
+      ],
+      "tests": [],
+      "external_verification": [],
+      "requirements": [
+        "enabled;",
+        "local_price;",
+        "availability;",
+        "local_station;",
+        "temporal availability."
+      ]
+    },
+    {
+      "section": 121,
+      "title": "RLS",
+      "status": "partial",
+      "implementation": [
+        "supabase/migrations/202609140004_authorization.sql"
+      ],
+      "tests": [],
+      "external_verification": [],
+      "requirements": [
+        "auth identity;",
+        "ruolo;",
+        "scope `CHAIN`/`VENUE`;",
+        "venue assignment;",
+        "relazione con risorsa;",
+        "assegnazione operativa;",
+        "customer session quando pertinente.",
+        "Admin CHAIN → operazioni consentite su sedi della catena;",
+        "Admin VENUE → solo sedi assegnate;",
+        "Host → prenotazioni/sala/tavoli delle sedi assegnate;",
+        "Cashier → conti/pagamenti/casse della sede operativa autorizzata;",
+        "Kitchen → ordini pertinenti alla propria sede/stazione;",
+        "Waiter → dati operativi necessari secondo sede e assegnazioni;",
+        "Customer → esclusivamente proprio conto/sessione;",
+        "Super Admin → privilegi tecnici controllati;",
+        "Audit → append-only tramite percorsi autorizzati, update/delete vietati."
+      ]
+    },
+    {
+      "section": 122,
+      "title": "RPC / Edge Functions critiche",
+      "status": "partial",
+      "implementation": [
+        "supabase/functions",
+        "supabase/migrations"
+      ],
+      "tests": [
+        "tests/database/completion.test.ts",
+        "supabase/functions/_tests/http.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": []
+    },
+    {
+      "section": 123,
+      "title": "State machine",
+      "status": "partial",
+      "implementation": [
+        "src/services/state-machine.ts"
+      ],
+      "tests": [
+        "tests/unit/domain.test.ts",
+        "tests/database/service.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "installazione, inclusi sospensione e ciclo di vita;",
+        "configurazione di pubblicazione dei due host, se il provider scelto richiede un workflow applicativo;",
+        "prenotazione;",
+        "tavolo;",
+        "conto;",
+        "ordine;",
+        "item;",
+        "step;",
+        "chiamata;",
+        "pagamento;",
+        "rimborso;",
+        "cassa;",
+        "servizio;",
+        "stampa;",
+        "backup;",
+        "restore."
+      ]
+    },
+    {
+      "section": 124,
+      "title": "UX per ruolo e performance operativa",
+      "status": "partial",
+      "implementation": [
+        "apps/staff/main.ts",
+        "src/components/floor-view.ts"
+      ],
+      "tests": [
+        "tests/e2e/staff-operations.spec.ts",
+        "tests/e2e/configuration.spec.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "mobile-first;",
+        "elegante;",
+        "semplice;",
+        "minima;",
+        "niente linguaggio tecnico.",
+        "smartphone-first;",
+        "grandi touch target;",
+        "azioni rapide;",
+        "feedback immediato;",
+        "flusso `apri tavolo → aggiungi piatto → invia ordine` in idealmente 3–4 interazioni principali dopo il contesto tavolo.",
+        "smartphone-first;",
+        "lista consegne dal Pass;",
+        "presa in carico rapida;",
+        "nessuna UI amministrativa.",
+        "tablet/desktop;",
+        "mappa sala dominante;",
+        "prenotazioni e walk-in sempre raggiungibili;",
+        "cambio tavolo con conferme chiare.",
+        "tablet/display;",
+        "leggibilità da distanza;",
+        "evitare modali ripetitive;",
+        "comandi grandi;",
+        "stato ordine leggibile in meno di un secondo.",
+        "desktop;",
+        "supporto tastiera esteso;",
+        "ricerca conto immediata;",
+        "pagamenti eseguibili con pochi passaggi.",
+        "desktop;",
+        "Command Palette globale;",
+        "ricerca per tavolo, cliente, prenotazione, conto, piatto, utente, cassa;",
+        "operazioni distruttive separate dalle azioni comuni.",
+        "nessun loader indefinito;",
+        "ogni azione deve mostrare stato pending/success/error;",
+        "pulsanti critici devono prevenire doppio click;",
+        "operazioni lente devono avere request/correlation id recuperabile;",
+        "touch target almeno adeguati a dispositivi operativi;",
+        "niente dipendenza esclusiva dal colore per gli stati."
+      ]
+    },
+    {
+      "section": 125,
+      "title": "Design system Plateform",
+      "status": "partial",
+      "implementation": [
+        "styles"
+      ],
+      "tests": [],
+      "external_verification": [],
+      "requirements": [
+        "minimalista;",
+        "elegante;",
+        "contemporanea;",
+        "calda ma tecnica;",
+        "alta leggibilità;",
+        "densità informativa controllata;",
+        "gerarchia forte;",
+        "animazioni brevi e funzionali;",
+        "dark mode e light mode;",
+        "responsive.",
+        "font sans moderno e altamente leggibile per UI;",
+        "numeri tabulari per importi, cassa e tempi;",
+        "peso tipografico usato per gerarchia, non decorazione;",
+        "evitare font eccentrici nell'area operativa.",
+        "sidebar;",
+        "top bar;",
+        "venue switcher;",
+        "command palette;",
+        "cards KPI;",
+        "data table;",
+        "status pill;",
+        "drawer;",
+        "modal;",
+        "confirmation dialog;",
+        "toast;",
+        "notification center;",
+        "floor map;",
+        "KDS ticket;",
+        "payment panel;",
+        "offline banner;",
+        "incident banner;",
+        "sync conflict card;",
+        "empty/error/loading states.",
+        "top bar compatta;",
+        "bottom navigation o actions contestuali;",
+        "niente sidebar desktop compressa artificialmente.",
+        "colore;",
+        "label;",
+        "icona dove utile;",
+        "posizione coerente.",
+        "120–220 ms per transizioni comuni;",
+        "niente animazioni decorative durante flussi operativi;",
+        "rispettare `prefers-reduced-motion`."
+      ]
+    },
+    {
+      "section": 126,
+      "title": "Accessibilità",
+      "status": "partial",
+      "implementation": [
+        "src/components/dom.ts",
+        "src/components/floor-view.ts"
+      ],
+      "tests": [
+        "tests/e2e/staff-operations.spec.ts",
+        "tests/e2e/interface.spec.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "focus visibile;",
+        "tastiera;",
+        "ARIA;",
+        "contrasto;",
+        "label corrette;",
+        "target touch grandi;",
+        "messaggi errore chiari."
+      ]
+    },
+    {
+      "section": 127,
+      "title": "Performance e SLO applicativi",
+      "status": "pending",
+      "implementation": [],
+      "tests": [],
+      "external_verification": [],
+      "requirements": [
+        "lazy loading;",
+        "immagini;",
+        "query;",
+        "realtime;",
+        "indici;",
+        "pagination;",
+        "caching;",
+        "asset;",
+        "service worker;",
+        "liste grandi;",
+        "bundle splitting per aree;",
+        "preload solo dove utile.",
+        "p50/p95/p99 latency;",
+        "error rate;",
+        "failed RPC;",
+        "reconnect realtime;",
+        "queue offline;",
+        "web vital del sito pubblico;",
+        "performance dei flussi staff principali."
+      ]
+    },
+    {
+      "section": 128,
+      "title": "Error handling",
+      "status": "partial",
+      "implementation": [
+        "src/api/client.ts"
+      ],
+      "tests": [],
+      "external_verification": [],
+      "requirements": [
+        "SQL;",
+        "stack trace;",
+        "segreti;",
+        "dettagli infrastrutturali sensibili."
+      ]
+    },
+    {
+      "section": 129,
+      "title": "Testing",
+      "status": "partial",
+      "implementation": [
+        "TESTING.md",
+        "tests"
+      ],
+      "tests": [],
+      "external_verification": [],
+      "requirements": [
+        "disponibilità;",
+        "allergeni;",
+        "totali;",
+        "mance;",
+        "rimborsi;",
+        "varianti;",
+        "state machine;",
+        "codici conto;",
+        "sconti;",
+        "booking pacing;",
+        "scope chain/venue;",
+        "conflict resolution pure logic.",
+        "RLS;",
+        "Supabase;",
+        "RPC;",
+        "Edge Functions;",
+        "audit;",
+        "storage;",
+        "auth;",
+        "MFA paths;",
+        "realtime;",
+        "multi-venue isolation;",
+        "idempotenza;",
+        "migrations.",
+        "mono-sede senza selettore;",
+        "attivazione multi-sede;",
+        "utente assegnato a una sola sede;",
+        "utente multi-sede;",
+        "accesso cross-venue negato;",
+        "menu con override per sede;",
+        "booking pacing;",
+        "grande gruppo in REQUESTED;",
+        "Notification Center;",
+        "Conflict Center;",
+        "MFA Super Admin;",
+        "command palette e scorciatoie critiche dove automatizzabili."
+      ]
+    },
+    {
+      "section": 130,
+      "title": "Audit acceptance test",
+      "status": "pending",
+      "implementation": [],
+      "tests": [],
+      "external_verification": [],
+      "requirements": [
+        "operazioni sensibili generano audit;",
+        "modifiche economiche generano audit;",
+        "modifiche ruoli/scope generano audit;",
+        "customer action rilevante genera audit dove previsto;",
+        "system action rilevante genera audit;",
+        "impersonazione registra attore reale e impersonato;",
+        "old/new corretti dove applicabile;",
+        "Super Admin autorizzato può leggere;",
+        "Admin non può leggere audit tecnico completo salvo viste esplicitamente consentite;",
+        "nessuno può modificare o cancellare audit;",
+        "eventi di pura navigazione vanno in telemetry, non nell'audit di sicurezza;",
+        "dati sensibili sono redatti/minimizzati."
+      ]
+    },
+    {
+      "section": 131,
+      "title": "Security test",
+      "status": "partial",
+      "implementation": [
+        "tests/database"
+      ],
+      "tests": [],
+      "external_verification": [],
+      "requirements": [
+        "accesso non autorizzato tra ruoli;",
+        "accesso cross-venue;",
+        "aggiramento scope chain/venue;",
+        "aggiramento assegnazioni operative;",
+        "tentativo di creare seconda sede con MULTI_VENUE=false;",
+        "tentativo di creare seconda catena nella stessa installazione;",
+        "brute force codice conto;",
+        "brute force PIN;",
+        "bypass MFA;",
+        "session fixation/revocation;",
+        "manipolazione prezzo;",
+        "manipolazione disponibilità;",
+        "manipolazione payment status;",
+        "accesso Storage;",
+        "accesso audit;",
+        "endpoint amministrativi;",
+        "impersonazione;",
+        "force close;",
+        "refund;",
+        "offline authorization scaduta;",
+        "replay idempotency key;",
+        "escalation di scope;",
+        "venue_id manipolato dal client."
+      ]
+    },
+    {
+      "section": 132,
+      "title": "Struttura progetto suggerita",
+      "status": "partial",
+      "implementation": [
+        "README.md",
+        "ARCHITECTURE.md",
+        "tools/print-bridge/README.md"
+      ],
+      "tests": [],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": []
+    },
+    {
+      "section": 133,
+      "title": "Documentazione obbligatoria",
+      "status": "partial",
+      "implementation": [
+        "README.md",
+        "SECURITY.md",
+        "TESTING.md",
+        "ARCHITECTURE.md",
+        "DATABASE.md",
+        "PRIVACY.md",
+        "AUDIT.md",
+        "OBSERVABILITY.md",
+        "OFFLINE.md",
+        "DEPLOYMENT.md",
+        "OPERATIONS.md",
+        "RUNBOOK.md",
+        "BACKUP_RESTORE.md",
+        "INCIDENT_RESPONSE.md",
+        "CHANGELOG.md"
+      ],
+      "tests": [],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "setup;",
+        "sviluppo;",
+        "configurazione;",
+        "ambienti;",
+        "Supabase;",
+        "env;",
+        "PWA;",
+        "seed;",
+        "test.",
+        "modello single-customer;",
+        "mono/multi-sede;",
+        "moduli;",
+        "autorizzazioni;",
+        "realtime;",
+        "offline;",
+        "state machine.",
+        "schema;",
+        "relazioni;",
+        "indici;",
+        "trigger;",
+        "RPC;",
+        "RLS;",
+        "migration policy.",
+        "Auth;",
+        "MFA;",
+        "RLS;",
+        "Edge Functions;",
+        "secrets;",
+        "PIN;",
+        "codici;",
+        "pagamenti;",
+        "impersonazione;",
+        "step-up authentication.",
+        "data inventory;",
+        "classificazione;",
+        "retention;",
+        "minimizzazione;",
+        "export;",
+        "cancellazione/anonimizzazione;",
+        "telemetry;",
+        "subprocessor/infrastruttura da documentare al cliente.",
+        "eventi;",
+        "schema;",
+        "immutabilità;",
+        "retention;",
+        "query;",
+        "impersonazione;",
+        "differenza audit/telemetry.",
+        "logs;",
+        "metrics;",
+        "traces/correlation;",
+        "dashboard;",
+        "alerting.",
+        "cache;",
+        "authorization snapshot;",
+        "queue;",
+        "idempotenza;",
+        "conflitti;",
+        "Conflict Center.",
+        "development;",
+        "staging;",
+        "production;",
+        "CI/CD;",
+        "versioning;",
+        "rollback.",
+        "Supabase degradato;",
+        "Realtime offline;",
+        "provider pagamento indisponibile;",
+        "webhook pending;",
+        "stampante offline;",
+        "queue offline bloccata;",
+        "conflitto sync;",
+        "restore;",
+        "incident response.",
+        "RPO/RTO;",
+        "schedule;",
+        "retention;",
+        "restore test.",
+        "severità;",
+        "escalation;",
+        "comunicazione;",
+        "timeline;",
+        "chiusura/postmortem.",
+        "unit;",
+        "integration;",
+        "E2E;",
+        "security;",
+        "chaos;",
+        "release gates."
+      ]
+    },
+    {
+      "section": 134,
+      "title": "Prima del codice",
+      "status": "partial",
+      "implementation": [
+        "ARCHITECTURE.md"
+      ],
+      "tests": [],
+      "external_verification": [],
+      "requirements": []
+    },
+    {
+      "section": 135,
+      "title": "Ordine di sviluppo obbligatorio",
+      "status": "pending",
+      "implementation": [],
+      "tests": [],
+      "external_verification": [],
+      "requirements": []
+    },
+    {
+      "section": 136,
+      "title": "Funzionalità complete obbligatorie",
+      "status": "pending",
+      "implementation": [],
+      "tests": [],
+      "external_verification": [],
+      "requirements": []
+    },
+    {
+      "section": 137,
+      "title": "Regola finale",
+      "status": "pending",
+      "implementation": [],
+      "tests": [],
+      "external_verification": [],
+      "requirements": [
+        "RLS e scope chain/venue non sono testati;",
+        "MFA Super Admin non è attiva;",
+        "pagamenti non sono server-authoritative;",
+        "disponibilità non è transazionale;",
+        "casse concorrenti non sono protette;",
+        "conti/customer session sono isolati;",
+        "QR/codici sono sicuri;",
+        "impersonazione è auditata;",
+        "audit e telemetry sono separati;",
+        "offline usa authorization snapshot, idempotenza e Conflict Center;",
+        "Realtime può recuperare snapshot autoritativi;",
+        "backup ha restore test;",
+        "privacy/retention sono definite;",
+        "observability e alerting dei flussi critici sono attivi;",
+        "development/staging/production sono separati;",
+        "CI/CD esegue test e migration checks;",
+        "rollback applicativo/migrazione è documentato;",
+        "security e chaos tests critici passano;",
+        "`MULTI_VENUE=false` impedisce seconda sede attiva;",
+        "`MULTI_VENUE=true` mantiene isolamento tra sedi;",
+        "non esiste un secondo cliente/catena nello stesso database production;",
+        "home pubblica e staff host funzionano correttamente;",
+        "documentazione operativa e runbook sono utilizzabili."
+      ]
+    },
+    {
+      "section": 138,
+      "title": "Ambienti: Development, Staging, Production",
+      "status": "partial",
+      "implementation": [
+        "DEPLOYMENT.md",
+        ".env.example",
+        "src/config/environment.ts"
+      ],
+      "tests": [],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "Supabase project separato dove economicamente/operativamente sostenibile;",
+        "secrets separati;",
+        "redirect URL separati;",
+        "Storage separato;",
+        "dataset di test non contenente copie indiscriminate di dati personali production;",
+        "configurazioni provider pagamenti coerenti con sandbox/live."
+      ]
+    },
+    {
+      "section": 139,
+      "title": "CI/CD e Release Gates",
+      "status": "partial",
+      "implementation": [
+        ".github/workflows/ci.yml",
+        "scripts/check-release.mjs",
+        "scripts/package-release.mjs",
+        "scripts/release-archive.py"
+      ],
+      "tests": [
+        "tests/unit/release.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "patch;",
+        "feature;",
+        "schema migration;",
+        "payment change;",
+        "security change."
+      ]
+    },
+    {
+      "section": 140,
+      "title": "Migrazioni database e rollback",
+      "status": "partial",
+      "implementation": [
+        "DATABASE.md",
+        "DEPLOYMENT.md",
+        "supabase/migrations"
+      ],
+      "tests": [
+        "tests/database/harness.ts",
+        "tests/database/billing.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "backup/snapshot;",
+        "verifica spazio e durata;",
+        "staging rehearsal;",
+        "piano rollback/roll-forward;",
+        "finestra operativa appropriata."
+      ]
+    },
+    {
+      "section": 141,
+      "title": "Privacy & Data Governance",
+      "status": "partial",
+      "implementation": [
+        "PRIVACY.md",
+        "src/pages/privacy.ts",
+        "supabase/functions/maintenance/index.ts",
+        "supabase/migrations/202610030054_privacy_retention.sql"
+      ],
+      "tests": [
+        "tests/database/privacy.test.ts",
+        "tests/e2e/configuration.spec.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "menu pubblico → PUBLIC;",
+        "configurazioni operative → INTERNAL;",
+        "dati prenotazione → CONFIDENTIAL;",
+        "credenziali/secrets → SENSITIVE.",
+        "finalità;",
+        "accesso;",
+        "retention;",
+        "cancellazione/anonimizzazione;",
+        "backup retention;",
+        "export;",
+        "logging consentito.",
+        "export dati personali quando richiesto dal cliente;",
+        "correzione;",
+        "anonimizzazione/cancellazione compatibile con obblighi contabili e audit;",
+        "gestione prenotazioni storiche;",
+        "customer sessions scadute;",
+        "IP/user-agent nei log;",
+        "telemetry."
+      ]
+    },
+    {
+      "section": 142,
+      "title": "Observability",
+      "status": "partial",
+      "implementation": [
+        "OBSERVABILITY.md",
+        "src/pages/technical.ts",
+        "supabase/migrations/202610030052_observability.sql",
+        "supabase/migrations/20261004121556_step12_continuity_alerting.sql",
+        "supabase/migrations/20261004122645_step12_continuity_targets.sql",
+        "supabase/migrations/20261004125610_step12_restore_cutover_alerting.sql",
+        "supabase/migrations/20261004143611_step12_backup_retention_enforcement.sql",
+        "supabase/migrations/20261004144057_step12_retention_operational_health.sql",
+        "supabase/migrations/20261004145929_step12_migration_history_recovery.sql",
+        "supabase/migrations/20261004151630_step12_storage_metadata_integrity.sql",
+        "supabase/migrations/20261004154213_step12_backup_replica_durability.sql",
+        "supabase/migrations/20261004154534_step12_restore_retention_race_guard.sql",
+        "supabase/migrations/20261004155039_step12_manifest_authentication.sql",
+        "supabase/migrations/20261004155630_step12_schema_snapshot_binding.sql",
+        "supabase/migrations/20261004160452_step12_pre_restore_priority_and_retention.sql",
+        "tools/backup-retention-worker",
+        "deploy/continuity/plateform-backup-retention.service",
+        "deploy/continuity/plateform-backup-retention.timer"
+      ],
+      "tests": [
+        "tests/database/configuration-floor.test.ts",
+        "scripts/check-continuity-alerting.mjs",
+        "docs/evidence/step12-continuity-alerting-2026-10-04.json",
+        "scripts/check-continuity-targets.mjs",
+        "docs/evidence/step12-continuity-targets-2026-10-04.json",
+        "scripts/check-restore-cutover.mjs",
+        "docs/evidence/step12-restore-cutover-2026-10-04.json",
+        "scripts/check-backup-replica.mjs",
+        "scripts/check-backup-manifest-auth.mjs",
+        "scripts/check-backup-commit-reconciliation.mjs",
+        "scripts/check-backup-snapshot-consistency.mjs",
+        "scripts/check-backup-filesystem-safety.mjs",
+        "scripts/check-backup-keyring.mjs",
+        "scripts/check-storage-metadata-integrity.mjs",
+        "scripts/check-migration-history-recovery.mjs",
+        "scripts/check-backup-retention-worker.mjs",
+        "scripts/check-continuity-project-binding.mjs",
+        "docs/evidence/step12-continuity-integrity-2026-10-04.json",
+        "docs/evidence/step12-pre-restore-2026-10-04.json"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "RPC/Edge Function error rate;",
+        "latency p50/p95/p99;",
+        "DB errors;",
+        "Realtime reconnect;",
+        "payment failure;",
+        "webhook retry;",
+        "print failure;",
+        "offline queue size;",
+        "sync conflicts;",
+        "auth failure;",
+        "active sessions."
+      ]
+    },
+    {
+      "section": 143,
+      "title": "Incident Management",
+      "status": "partial",
+      "implementation": [
+        "INCIDENT_RESPONSE.md",
+        "src/pages/technical.ts",
+        "supabase/migrations/20261004121556_step12_continuity_alerting.sql",
+        "supabase/migrations/20261004122645_step12_continuity_targets.sql",
+        "supabase/migrations/20261004125043_step12_restore_cutover_gate.sql",
+        "supabase/migrations/20261004125610_step12_restore_cutover_alerting.sql",
+        "supabase/migrations/20261004143611_step12_backup_retention_enforcement.sql",
+        "supabase/migrations/20261004144057_step12_retention_operational_health.sql",
+        "supabase/migrations/20261004145929_step12_migration_history_recovery.sql",
+        "supabase/migrations/20261004151630_step12_storage_metadata_integrity.sql",
+        "supabase/migrations/20261004154213_step12_backup_replica_durability.sql",
+        "supabase/migrations/20261004154534_step12_restore_retention_race_guard.sql",
+        "supabase/migrations/20261004155039_step12_manifest_authentication.sql",
+        "supabase/migrations/20261004155630_step12_schema_snapshot_binding.sql",
+        "supabase/migrations/20261004160452_step12_pre_restore_priority_and_retention.sql",
+        "tools/backup-retention-worker",
+        "deploy/continuity/plateform-backup-retention.service",
+        "deploy/continuity/plateform-backup-retention.timer"
+      ],
+      "tests": [
+        "scripts/check-continuity-alerting.mjs",
+        "docs/evidence/step12-continuity-alerting-2026-10-04.json",
+        "scripts/check-continuity-targets.mjs",
+        "docs/evidence/step12-continuity-targets-2026-10-04.json",
+        "scripts/check-restore-cutover.mjs",
+        "docs/evidence/step12-restore-cutover-2026-10-04.json",
+        "scripts/check-backup-replica.mjs",
+        "scripts/check-backup-manifest-auth.mjs",
+        "scripts/check-backup-commit-reconciliation.mjs",
+        "scripts/check-backup-snapshot-consistency.mjs",
+        "scripts/check-backup-filesystem-safety.mjs",
+        "scripts/check-backup-keyring.mjs",
+        "scripts/check-storage-metadata-integrity.mjs",
+        "scripts/check-migration-history-recovery.mjs",
+        "scripts/check-backup-retention-worker.mjs",
+        "scripts/check-continuity-project-binding.mjs",
+        "docs/evidence/step12-continuity-integrity-2026-10-04.json",
+        "docs/evidence/step12-pre-restore-2026-10-04.json"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "sede interessata;",
+        "componente;",
+        "inizio;",
+        "stato;",
+        "impatto;",
+        "owner;",
+        "timeline;",
+        "azioni;",
+        "risoluzione;",
+        "postmortem quando necessario."
+      ]
+    },
+    {
+      "section": 144,
+      "title": "Device Management",
+      "status": "partial",
+      "implementation": [
+        "src/pages/staff-management.ts",
+        "supabase/migrations/202610030052_observability.sql"
+      ],
+      "tests": [
+        "tests/database/devices.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": []
+    },
+    {
+      "section": 145,
+      "title": "Command Palette e ricerca globale",
+      "status": "partial",
+      "implementation": [
+        "apps/staff/main.ts"
+      ],
+      "tests": [
+        "tests/database/configuration-floor.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "tavoli;",
+        "conti;",
+        "prenotazioni;",
+        "clienti prenotazione;",
+        "piatti;",
+        "utenti;",
+        "casse;",
+        "sedi;",
+        "impostazioni."
+      ]
+    },
+    {
+      "section": 146,
+      "title": "Reservation Operations avanzate",
+      "status": "partial",
+      "implementation": [
+        "src/pages/reservation-editor.ts",
+        "src/pages/host.ts"
+      ],
+      "tests": [
+        "tests/e2e/staff-operations.spec.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "chiusura manuale di slot;",
+        "blocco prenotazioni per data/servizio;",
+        "capacity override auditato;",
+        "note interne;",
+        "grandi gruppi in approval;",
+        "no-show;",
+        "walk-in;",
+        "preassegnazione tavolo."
+      ]
+    },
+    {
+      "section": 147,
+      "title": "Commercial Deployment Model",
+      "status": "partial",
+      "implementation": [
+        "DEPLOYMENT.md",
+        "BACKUP_RESTORE.md"
+      ],
+      "tests": [],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": []
+    },
+    {
+      "section": 148,
+      "title": "Release Strategy",
+      "status": "partial",
+      "implementation": [
+        "CHANGELOG.md",
+        "scripts/check-release.mjs"
+      ],
+      "tests": [
+        "tests/unit/release.test.ts"
+      ],
+      "external_verification": [
+        "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
+      ],
+      "requirements": [
+        "Auth/MFA;",
+        "staff;",
+        "sede;",
+        "menu;",
+        "sala;",
+        "tavoli;",
+        "conti;",
+        "ordini;",
+        "cucina;",
+        "Pass;",
+        "cassa;",
+        "cash/card manuale;",
+        "audit;",
+        "observability base.",
+        "QR;",
+        "customer session;",
+        "menu cliente;",
+        "chiamata cameriere;",
+        "customer ordering;",
+        "prenotazioni/pacing;",
+        "notification center.",
+        "Stripe;",
+        "Satispay API;",
+        "offline completo;",
+        "Conflict Center;",
+        "advanced room editor;",
+        "print bridge avanzato;",
+        "analytics avanzate;",
+        "multi-sede commerciale se non già abilitata."
+      ]
+    },
+    {
+      "section": 149,
+      "title": "Definition of Done",
+      "status": "pending",
+      "implementation": [],
+      "tests": [],
+      "external_verification": [],
+      "requirements": [
+        "requisito funzionale;",
+        "UX;",
+        "permessi;",
+        "schema/migration;",
+        "RLS;",
+        "API authoritative;",
+        "validazione;",
+        "error states;",
+        "realtime se necessario;",
+        "offline behavior esplicito;",
+        "audit/telemetry corretti;",
+        "observability;",
+        "unit/integration/E2E pertinenti;",
+        "documentazione;",
+        "comportamento multi-sede definito;",
+        "rollback/compatibilità quando pertinente."
+      ]
+    },
+    {
+      "section": 150,
+      "title": "Principio prodotto",
+      "status": "pending",
+      "implementation": [],
+      "tests": [],
+      "external_verification": [],
+      "requirements": []
+    }
+  ],
+  "last_updated": "2026-10-04",
+  "commercial_release_ready": false,
+  "clean_full_reviews": 0
+}

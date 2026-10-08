@@ -1,0 +1,34 @@
+{
+  "date": "2026-10-04",
+  "project_id": "abdxvlykasqmknexxhjo",
+  "step": 12,
+  "status": "IN_PROGRESS_BACKUP_WORKER_CANONICALIZED",
+  "backup_worker": {
+    "external_worker_source": "tools/backup-worker/start.mjs",
+    "prerequisite_check_before_claim": true,
+    "docker_check_before_claim": true,
+    "database_dump": "supabase db dump roles/schema/data",
+    "auth_source": "data.sql",
+    "auth_copy_gate": "COPY auth.users required",
+    "auth_user_count_manifest": true,
+    "storage_export": "Supabase Storage service-role SDK",
+    "encryption": "AES-256-GCM per artifact",
+    "plaintext_removed_after_verified_encryption": true,
+    "manifest_sha256": true,
+    "static_gate": "PASSED",
+    "encryption_roundtrip": "PASSED",
+    "preflight_fail_closed": "PASSED"
+  },
+  "scheduler": {
+    "extension": "pg_cron 1.6.4",
+    "job_name": "plateform-daily-backup",
+    "schedule": "*/5 * * * *",
+    "behavior": "enqueue due backup against configured RPO; external worker performs backup"
+  },
+  "not_yet_verified": [
+    "real database/Auth/Storage backup produced by worker",
+    "off-site/immutable destination durability",
+    "real isolated restore test",
+    "observed RPO/RTO"
+  ]
+}

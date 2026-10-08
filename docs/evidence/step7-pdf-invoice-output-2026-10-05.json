@@ -1,0 +1,40 @@
+{
+  "step": 7,
+  "date": "2026-10-05",
+  "feature": "PDF / Browser A4 invoice-style non-fiscal output",
+  "status": "IMPLEMENTED_AWAITING_BROWSER_E2E",
+  "live_backend": {
+    "virtual_pdf_device_seeded": true,
+    "device_name": "PDF / Browser A4",
+    "driver": "BROWSER",
+    "configuration": {
+      "output": "PDF",
+      "paper": "A4",
+      "system_managed": true
+    },
+    "allowed_roles": ["ADMIN", "CASHIER", "WAITER"],
+    "future_venue_trigger": true,
+    "refund_aware_document_snapshot": true,
+    "fully_refunded_payment_net_amount": 0,
+    "completed_refunds_listed_separately": true
+  },
+  "frontend": {
+    "a4_invoice_style_renderer": "src/printing/invoice.ts",
+    "browser_save_as_pdf_flow": "src/pages/printing.ts",
+    "system_pdf_device_hidden_from_station_and_register_printer_assignment": true,
+    "system_pdf_device_read_only_in_printer_settings": true,
+    "non_fiscal_disclaimer": true
+  },
+  "migrations": [
+    "20261005155412_step7_pdf_invoice_output.sql",
+    "20261005155543_step7_document_snapshot_refunds.sql"
+  ],
+  "verification": {
+    "migration_manifest": "118/118 PASS",
+    "supabase_device_query": "PASS",
+    "receipt_snapshot_live": "PASS",
+    "browser_save_as_pdf": "PENDING_FRONTEND_E2E",
+    "physical_epos_bridge": "BLOCKED_EXTERNAL_HARDWARE"
+  },
+  "fiscal_scope": "The generated PDF is an explicitly non-fiscal courtesy copy. Legal Italian e-invoicing is a separate future XML/FatturaPA + SdI integration."
+}

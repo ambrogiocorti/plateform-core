@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-05",
+  "step": "11",
+  "status": "INTERNAL_GATES_PASS_EXTERNAL_HTTP_BROWSER_REMAIN",
+  "checks": {
+    "asset_boundary_live": "PASSED_15_OF_15",
+    "file_signature_magic_bytes": "PASSED_8_OF_8",
+    "anon_public_contract": "PASSED_13_OF_13",
+    "anon_populated_fixture_contract": "PASSED_11_OF_11",
+    "asset_upload_deployed": "ACTIVE_V5",
+    "asset_upload_verify_jwt": true,
+    "asset_upload_deploy_source_functional_parity": "PASSED_COMMENT_AND_TRAILING_NEWLINE_ONLY",
+    "edge_http_probe": "BLOCKED_CONTAINER_DNS"
+  },
+  "remaining": [
+    "authenticated asset upload over real HTTPS",
+    "real Storage byte upload/download over HTTPS",
+    "full Node >=24.13 build",
+    "real-browser WCAG/Web Vitals",
+    "real HTTPS public/staff routing/cache separation"
+  ]
+}

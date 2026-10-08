@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-06",
+  "development_project": "abdxvlykasqmknexxhjo",
+  "migration_count": 130,
+  "latest_version": "20261006051256",
+  "latest_name": "step12_backup_requester_index",
+  "local_manifest": "PASSED_130_OF_130",
+  "step12_static_regression": "PASSED_34_OF_34",
+  "performance_advisor": {
+    "unindexed_restore_jobs_fk": "CLEARED",
+    "unindexed_backup_metadata_requested_by": "CLEARED",
+    "remaining_related": [
+      "unused_index informational for newly-created indexes"
+    ]
+  },
+  "security_advisor": {
+    "private_continuity_worker_heartbeats_no_policy": "INTENTIONAL_FAIL_CLOSED",
+    "client_direct_access": "DENIED",
+    "write_path": "service-role-only public.record_continuity_worker_heartbeat RPC"
+  },
+  "aggregate_sha256": "7cb63618015f92a81eac5871e82904a845546f64cf0114d25958a8c09a668e9c"
+}

@@ -1,0 +1,76 @@
+{
+  "date": "2026-10-05",
+  "environment": "Supabase development abdxvlykasqmknexxhjo",
+  "method": "transactional SQL probes with ROLLBACK",
+  "analytics": {
+    "status": "PASSED",
+    "checks": 26,
+    "expected": {
+      "receipts_cents": 6500,
+      "refunds_cents": 1000,
+      "net_cents": 5500,
+      "tips_cents": 500,
+      "covers": 4,
+      "closed_accounts": 1,
+      "average_check_cents": 6500,
+      "reservations": 1,
+      "no_shows": 1,
+      "walk_ins": 1,
+      "no_show_percent": 50,
+      "average_stay_seconds": 7200,
+      "preparation_seconds_weighted": 105,
+      "returns": 1,
+      "calls": 2,
+      "call_acceptance_seconds": 60,
+      "call_completion_seconds": 120,
+      "capacity_percent": 70
+    }
+  },
+  "device_management": {
+    "status": "PASSED",
+    "checks": 9,
+    "covered": [
+      "complete_staff_login registration",
+      "heartbeat_device",
+      "online/current workspace state",
+      "private heartbeat persistence",
+      "device revoke",
+      "staff session revoke",
+      "offline authorization snapshot revoke",
+      "step-up grant consumed",
+      "heartbeat after revoke denied 42501:FORBIDDEN"
+    ]
+  },
+  "command_palette": {
+    "status": "PASSED",
+    "checks": 10,
+    "covered": [
+      "ADMIN:VENUE own resources",
+      "p_venue null does not widen scope",
+      "forged foreign venue does not leak venue-scoped resources",
+      "foreign staff hidden",
+      "authorized staff visible",
+      "one-character query empty",
+      "WAITER sees only assigned table/account",
+      "WAITER cannot retrieve staff/foreign venue resources"
+    ]
+  },
+  "room_editor_server": {
+    "status": "PASSED",
+    "checks": 10,
+    "covered": [
+      "save creates table and elements",
+      "idempotent retry produces same result and one revision",
+      "stale version VERSION_CONFLICT",
+      "layout activation switches active layout",
+      "active service blocks save LAYOUT_IN_SERVICE",
+      "WAITER denied 42501:FORBIDDEN",
+      "save/activate audit events present"
+    ]
+  },
+  "cleanup": "All probe fixtures and temporary feature-flag changes were rolled back.",
+  "limitations": [
+    "Real browser gesture regression for Room Editor remains required.",
+    "Full Vite/Playwright release build remains required on Node >=24.13 with complete dependencies."
+  ]
+}

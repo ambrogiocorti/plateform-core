@@ -1,0 +1,1045 @@
+# ORDINE DI IMPLEMENTAZIONE A STEP — PLATEFORM
+
+Plateform deve essere sviluppata progressivamente, seguendo dipendenze tecniche e priorità operative.
+
+Non tentare di implementare contemporaneamente tutte le funzionalità del master prompt.
+
+Procedere **uno step alla volta**.
+
+Ogni step deve essere completato, verificato e stabilizzato prima di passare al successivo.
+
+Le priorità sono:
+
+```text
+P0 = prerequisiti tecnici indispensabili
+P1 = funzionalità primarie / core operativo
+P2 = funzionalità secondarie
+P3 = funzionalità avanzate
+P4 = funzionalità commerciali e di ottimizzazione
+P5 = hardening finale e go-live
+```
+
+Sicurezza, RLS, audit, validazione server-side, testing, observability e gestione errori sono requisiti trasversali e devono essere implementati insieme alle funzionalità, non aggiunti soltanto alla fine.
+
+---
+
+# STEP 0 — FONDAMENTA TECNICHE
+
+## Priorità P0
+
+Prima di sviluppare le funzionalità operative costruire la base sulla quale dipenderà tutto il resto.
+
+Implementare:
+
+### Architettura
+
+- struttura progetto;
+- TypeScript strict;
+- Vite;
+- configurazione ambienti;
+- DEVELOPMENT;
+- STAGING;
+- PRODUCTION;
+- configurazione variabili ambiente;
+- configurazione Supabase;
+- sistema migration;
+- configurazione URL pubblico/staff.
+
+### Database
+
+- schema PostgreSQL iniziale;
+- relazioni fondamentali;
+- singleton ristorante/catena;
+- `venues`;
+- utenti;
+- ruoli;
+- scope;
+- feature flags;
+- migration versionate.
+
+### Sicurezza
+
+- RLS baseline;
+- permission model;
+- scope `CHAIN` / `VENUE`;
+- protezione cross-venue;
+- validazione server-side;
+- secure headers;
+- gestione secrets;
+- rate limiting dove necessario;
+- session security.
+
+### Infrastruttura trasversale
+
+- sistema error handling;
+- request ID;
+- correlation ID;
+- audit framework;
+- telemetry separata dall'audit;
+- logging strutturato;
+- observability baseline.
+
+### Output dello STEP 0
+
+Alla fine devono esistere fondamenta reali e testate sulle quali costruire il prodotto.
+
+Non serve ancora che il ristorante possa svolgere un servizio completo.
+
+---
+
+# STEP 1 — ACCESSO E CONFIGURAZIONE PRIMARIA
+
+## Priorità P1
+
+Implementare tutto ciò che permette al personale di entrare correttamente nella piattaforma e configurare il ristorante.
+
+### Login e autenticazione
+
+- login staff;
+- logout;
+- sessioni;
+- ruoli;
+- scope;
+- protezione route;
+- redirect per ruolo;
+- password;
+- reset password;
+- PIN operativo;
+- MFA Super Admin;
+- MFA configurabile per Admin/Cashier;
+- step-up authentication;
+- revoca sessione/dispositivo.
+
+### Super Admin
+
+Implementare:
+
+- setup iniziale installazione;
+- profilo catena;
+- prima sede;
+- configurazioni tecniche;
+- feature flags;
+- creazione Admin;
+- stato installazione.
+
+### Admin
+
+Implementare gestione:
+
+- utenti;
+- ruoli;
+- sedi autorizzate;
+- turni;
+- assegnazioni;
+- servizi;
+- configurazioni operative fondamentali.
+
+### Branding e struttura UI
+
+Implementare:
+
+- design system Plateform;
+- sidebar;
+- top bar;
+- navigazione;
+- dashboard per ruolo;
+- responsive staff;
+- light/dark mode;
+- stati loading/error/empty.
+
+Al termine dello STEP 1 deve essere possibile:
+
+```text
+SUPER ADMIN
+→ configura installazione
+→ crea prima sede
+→ crea ADMIN
+
+ADMIN
+→ effettua login
+→ crea e configura staff
+→ assegna ruoli e permessi
+```
+
+---
+
+# STEP 2 — CORE OPERATIVO DEL RISTORANTE
+
+## Priorità P1 — MASSIMA PRIORITÀ
+
+Questo è il cuore di Plateform.
+
+Deve essere completato e stabilizzato prima delle funzionalità avanzate.
+
+## 2.1 Menu
+
+Implementare:
+
+- categorie;
+- piatti;
+- bevande;
+- prezzi;
+- ingredienti;
+- allergeni;
+- informazioni dietetiche;
+- varianti;
+- ingredienti rimovibili;
+- disponibilità;
+- piatti temporanei;
+- archiviazione;
+- storico prezzi;
+- stazioni.
+
+## 2.2 Sala
+
+Implementare:
+
+- sale;
+- zone;
+- tavoli;
+- layout;
+- stati tavolo;
+- assegnazioni waiter;
+- modalità ZONE;
+- modalità TABLE;
+- modalità RUNNER;
+- cambio tavolo;
+- unione/separazione tavoli.
+
+L'editor sala avanzato non è ancora necessario: in questa fase basta una gestione completa e affidabile dei tavoli.
+
+## 2.3 Conti
+
+Implementare:
+
+- apertura conto;
+- associazione al tavolo;
+- più conti per tavolo;
+- stato conto;
+- codice conto sicuro;
+- rigenerazione codice;
+- spostamento conto;
+- chiusura conto.
+
+## 2.4 Ordinazioni
+
+Questa è una delle funzionalità più importanti dell'intero prodotto.
+
+Implementare completamente:
+
+```text
+CAMERIERE
+→ TAVOLO
+→ CONTO
+→ AGGIUNGI PIATTI
+→ VARIANTI
+→ INGREDIENTI RIMOSSI
+→ STEP
+→ INVIA ORDINE
+```
+
+Implementare:
+
+- creazione ordine;
+- order items;
+- step;
+- state machine ordine;
+- disponibilità atomica;
+- snapshot prezzo;
+- modifica ordine;
+- richiesta modifica;
+- richiesta cancellazione;
+- approvazione Admin;
+- idempotenza;
+- concorrenza.
+
+## 2.5 Cucina
+
+Implementare:
+
+- stazioni;
+- KITCHEN_ADMIN;
+- KITCHEN_STAFF;
+- ticket;
+- item per stazione;
+- `RECEIVED`;
+- `IN_PREPARATION`;
+- `READY`;
+- `SERVED`;
+- gestione step.
+
+## 2.6 Pass
+
+Implementare:
+
+```text
+CUCINA
+→ READY
+→ PASS
+→ PRONTO PER IL SERVIZIO
+→ WAITER/RUNNER
+```
+
+## 2.7 Realtime operativo
+
+Attivare realtime per:
+
+- ordini;
+- item;
+- disponibilità;
+- tavoli;
+- conti;
+- cucina;
+- Pass;
+- assegnazioni.
+
+Dopo reconnessione recuperare sempre uno snapshot autoritativo dal server.
+
+### Gate STEP 2
+
+Prima di procedere deve funzionare realmente questo scenario:
+
+```text
+LOGIN CAMERIERE
+→ APRE TAVOLO
+→ CREA CONTO
+→ CREA ORDINE
+→ DISPONIBILITÀ AGGIORNATA
+→ ORDINE ARRIVA IN CUCINA
+→ CUCINA PREPARA
+→ PASS COORDINA
+→ CAMERIERE SERVE
+```
+
+Se questo flusso non è affidabile, non procedere alle funzionalità successive.
+
+---
+
+# STEP 3 — CASSA E PAGAMENTI BASE
+
+## Priorità P1
+
+Dopo l'ordinazione completare il ciclo economico fondamentale.
+
+Implementare:
+
+### Cassa
+
+- cash registers;
+- apertura cassa;
+- chiusura cassa;
+- service session;
+- più cashier contemporanei;
+- ricerca conto;
+- spostamento prodotti;
+- divisione conto;
+- unione conti;
+- pagamento parziale;
+- pagamenti misti.
+
+### Pagamenti base
+
+Implementare prima:
+
+```text
+CASH
+CARD_POS
+```
+
+Il POS nella prima release può essere esterno con conferma manuale.
+
+Implementare:
+
+- pagamento;
+- allocations;
+- prevenzione doppio pagamento;
+- idempotenza;
+- stato pagamento;
+- residuo;
+- chiusura conto.
+
+### Quadratura
+
+Implementare:
+
+- fondo iniziale;
+- incassi;
+- contanti teorici;
+- contanti reali;
+- differenza;
+- approvazione Admin;
+- snapshot finale.
+
+### Ricevute
+
+Implementare:
+
+- conto di cortesia;
+- ricevuta non fiscale;
+- stampa browser iniziale;
+- print jobs.
+
+### Gate STEP 3
+
+Deve funzionare:
+
+```text
+ORDINE
+→ SERVIZIO
+→ CONTO
+→ CASSA
+→ DIVISIONE EVENTUALE
+→ PAGAMENTO
+→ RICEVUTA
+→ CHIUSURA CONTO
+→ QUADRATURA SERVIZIO
+```
+
+A questo punto Plateform possiede il **core operativo primario**.
+
+---
+
+# STEP 4 — ESPERIENZA CLIENTE E FRONT OF HOUSE
+
+## Priorità P2
+
+Solo dopo che il core staff è stabile implementare l'esperienza cliente.
+
+## QR e sessione cliente
+
+Implementare:
+
+- QR permanente tavolo;
+- `public_table_id`;
+- codice conto;
+- customer session;
+- protezione brute force;
+- isolamento tra conti;
+- sessioni multiple.
+
+## Menu cliente
+
+Implementare:
+
+- categorie;
+- piatti;
+- immagini;
+- ingredienti;
+- allergeni;
+- disponibilità;
+- varianti;
+- storico conto;
+- totale.
+
+Mobile-first.
+
+## Chiamata cameriere
+
+Implementare routing:
+
+```text
+TABLE WAITER
+→ altrimenti
+ZONE WAITER
+```
+
+con:
+
+- presa in carico;
+- completamento;
+- tempi risposta;
+- notifiche persistenti.
+
+## Ordinazione cliente
+
+Implementare le modalità:
+
+```text
+DISABLED
+WAITER_APPROVAL
+DIRECT
+```
+
+Default:
+
+```text
+WAITER_APPROVAL
+```
+
+Implementare:
+
+```text
+CLIENTE
+→ CARRELLO
+→ INVIA
+→ CAMERIERE APPROVA
+→ ORDINE
+→ CUCINA
+```
+
+---
+
+# STEP 5 — PRENOTAZIONI E HOST
+
+## Priorità P2
+
+Implementare successivamente il sistema prenotazioni.
+
+### Prenotazioni
+
+- ON/OFF;
+- form builder;
+- servizi;
+- slot;
+- capacity;
+- booking pacing;
+- protezione duplicati;
+- grandi gruppi;
+- REQUESTED;
+- RESERVED;
+- ARRIVED;
+- SEATED;
+- COMPLETED;
+- NO_SHOW;
+- CANCELLED.
+
+### Host
+
+Implementare:
+
+- dashboard Host;
+- prenotazioni;
+- walk-in;
+- assegnazione tavolo;
+- cambio tavolo;
+- suggerimenti Plateform;
+- gestione arrivi;
+- no-show.
+
+### Flusso completo
+
+```text
+CLIENTE
+→ PRENOTA
+→ HOST
+→ ARRIVO
+→ TAVOLO
+→ CAMERIERE
+→ CONTO
+```
+
+---
+
+# STEP 6 — FUNZIONALITÀ FINANZIARIE SECONDARIE
+
+## Priorità P2/P3
+
+Solo quando pagamenti base e conti sono affidabili aggiungere:
+
+- sconti;
+- omaggi;
+- mance;
+- force close;
+- reopen account;
+- storni;
+- rimborsi;
+- autorizzazione Admin;
+- step-up authentication;
+- audit finanziario completo.
+
+Implementare quindi integrazioni esterne:
+
+### Stripe
+
+- Edge Functions;
+- webhook;
+- idempotenza;
+- conferma server-side;
+- error handling.
+
+### Satispay
+
+- SATISPAY_POS;
+- SATISPAY_API;
+- callback;
+- idempotenza;
+- stato authoritative.
+
+Non sviluppare Stripe/Satispay prima che il sistema di pagamento interno sia corretto.
+
+---
+
+# STEP 7 — NOTIFICHE, STAMPA E OPERATIVITÀ AVANZATA
+
+## Priorità P3
+
+Implementare:
+
+### Notification Center
+
+- persistente;
+- priorità;
+- acknowledge;
+- resolve;
+- eventi per ruolo;
+- suoni configurabili.
+
+### Stampa avanzata
+
+- stampanti cucina;
+- stampanti cassa;
+- Epson;
+- print bridge;
+- retry;
+- queue;
+- gestione stampante offline;
+- uscita PDF A4 dal browser in formato fattura/copia di cortesia;
+- indicazione esplicita `NON FISCALE` finché non esiste un modulo FatturaPA XML + SdI.
+
+### Piatti tornati indietro
+
+- errore ordine;
+- RIFARE;
+- ANNULLARE;
+- approvazione economica Admin quando necessaria.
+
+---
+
+# STEP 8 — PWA, OFFLINE E SINCRONIZZAZIONE
+
+## Priorità P3
+
+Questa fase deve iniziare soltanto quando i workflow online sono stabili.
+
+Implementare:
+
+### PWA
+
+- manifest;
+- service worker;
+- installazione;
+- cache;
+- aggiornamenti;
+- separazione public/staff.
+
+### Offline
+
+- authorization snapshot;
+- cache operativa;
+- IndexedDB;
+- queue locale;
+- idempotency key;
+- causal ordering;
+- retry.
+
+### Reconnect
+
+```text
+OFFLINE
+→ QUEUE
+→ RECONNECT
+→ AUTHORIZATION CHECK
+→ SNAPSHOT SERVER
+→ SYNC
+→ RECONCILIATION
+```
+
+### Conflict Center
+
+Implementare gestione esplicita di:
+
+- ordini incompatibili;
+- disponibilità esaurita;
+- version conflict;
+- operazioni revocate;
+- utenti/dispositivi revocati.
+
+Mai simulare successo quando il server rifiuta un'operazione offline.
+
+---
+
+# STEP 9 — FUNZIONALITÀ COMMERCIALI E AVANZATE
+
+## Priorità P4
+
+Quando il prodotto base è stabile implementare ciò che aumenta il valore commerciale ma non è necessario per il primo servizio reale.
+
+### Editor sala avanzato
+
+- drag & drop;
+- muri;
+- porte;
+- finestre;
+- decorazioni;
+- resize;
+- rotate;
+- zoom;
+- snap;
+- layers;
+- undo/redo;
+- multiselection.
+
+### Analytics
+
+- fatturato;
+- scontrino medio;
+- prodotti venduti;
+- tempi preparazione;
+- prenotazioni;
+- no-show;
+- capacità;
+- chiamate;
+- errori operativi.
+
+### Command Palette
+
+Implementare:
+
+```text
+Ctrl/Cmd + K
+```
+
+con ricerca globale autorizzata.
+
+### Device Management
+
+- dispositivi;
+- sede;
+- ruolo/stazione;
+- versione;
+- last seen;
+- revoca.
+
+---
+
+# STEP 10 — MULTI-SEDE
+
+## Priorità P4
+
+Plateform deve nascere con uno schema compatibile con più sedi, ma l'esperienza commerciale multi-sede avanzata può essere completata dopo la stabilizzazione mono-sede.
+
+Prima verificare perfettamente:
+
+```text
+MULTI_VENUE = false
+```
+
+quindi implementare e testare:
+
+```text
+MULTI_VENUE = true
+```
+
+con:
+
+- sedi multiple;
+- venue switcher;
+- utenti multi-sede;
+- Admin CHAIN;
+- Admin VENUE;
+- menu condiviso;
+- override per sede;
+- statistiche aggregate;
+- configurazioni locali;
+- RLS cross-venue;
+- isolamento assoluto dei dati.
+
+Il multi-sede non deve mai introdurre più clienti Plateform nello stesso database.
+
+---
+
+# STEP 11 — SITO PUBBLICO E PERSONALIZZAZIONE COMMERCIALE
+
+## Priorità P4
+
+Completare il prodotto pubblico:
+
+- home premium;
+- menu;
+- ristorante;
+- gallery;
+- contatti;
+- sedi;
+- prenotazioni;
+- responsive;
+- branding;
+- immagini;
+- font;
+- colori;
+- favicon;
+- SEO tecnico essenziale;
+- performance;
+- accessibilità.
+
+Il sito pubblico non deve interferire con l'affidabilità del gestionale staff.
+
+---
+
+# STEP 12 — BACKUP, RESTORE E CONTINUITÀ OPERATIVA
+
+## Priorità P4 / requisito production
+
+Implementare e verificare:
+
+- backup database;
+- backup Storage;
+- metadata backup;
+- retention;
+- restore;
+- pre-restore snapshot;
+- restore test;
+- RPO/RTO documentati;
+- dashboard Operational Health;
+- incident management;
+- runbook.
+
+Un backup non è considerato verificato finché almeno un restore test non è stato completato con successo.
+
+---
+
+# STEP 13 — HARDENING E GO-LIVE
+
+## Priorità P5
+
+Soltanto dopo tutti gli step precedenti effettuare il consolidamento finale.
+
+### Security
+
+Eseguire:
+
+- RLS test;
+- cross-role test;
+- cross-venue test;
+- privilege escalation test;
+- brute force test;
+- MFA test;
+- manipulation test;
+- payment security test;
+- Storage test;
+- session test;
+- offline authorization test.
+
+### Testing
+
+Completare:
+
+- unit;
+- integration;
+- E2E;
+- security;
+- chaos;
+- regression.
+
+### Failure simulation
+
+Testare almeno:
+
+```text
+database non disponibile
+realtime interrotto
+network timeout
+duplicate webhook
+payment retry
+due casse sullo stesso conto
+due device sull'ultima porzione
+stampante offline
+device revocato offline
+Edge Function retry
+```
+
+### CI/CD
+
+La pipeline deve diventare:
+
+```text
+COMMIT
+→ FORMAT
+→ LINT
+→ TYPESCRIPT CHECK
+→ UNIT TEST
+→ MIGRATION CHECK
+→ RLS TEST
+→ SECURITY TEST
+→ INTEGRATION TEST
+→ BUILD
+→ STAGING
+→ E2E
+→ RELEASE GATE
+→ PRODUCTION
+```
+
+### Documentazione
+
+Completare:
+
+- README;
+- ARCHITECTURE;
+- DATABASE;
+- SECURITY;
+- PRIVACY;
+- AUDIT;
+- OBSERVABILITY;
+- OFFLINE;
+- DEPLOYMENT;
+- OPERATIONS;
+- RUNBOOK;
+- BACKUP_RESTORE;
+- INCIDENT_RESPONSE;
+- TESTING;
+- CHANGELOG.
+
+---
+
+# REGOLA DI ESECUZIONE DEGLI STEP
+
+Per ogni step seguire sempre:
+
+```text
+1. ANALIZZA DIPENDENZE
+2. PROGETTA
+3. IMPLEMENTA
+4. TESTA
+5. VERIFICA RLS E SICUREZZA
+6. VERIFICA CONCORRENZA
+7. VERIFICA REALTIME/OFFLINE SE PERTINENTE
+8. VERIFICA AUDIT/TELEMETRY
+9. VERIFICA ERROR HANDLING
+10. AGGIORNA DOCUMENTAZIONE
+11. ESEGUI REGRESSION TEST
+12. MARCA LO STEP COME COMPLETATO
+13. PASSA ALLO STEP SUCCESSIVO
+```
+
+Non lavorare indiscriminatamente su funzionalità appartenenti a step molto successivi se lo step corrente contiene ancora dipendenze incomplete.
+
+---
+
+# DEFINITION OF DONE DI OGNI FUNZIONALITÀ
+
+Una funzionalità non è completa solo perché la UI esiste.
+
+Deve avere, quando pertinente:
+
+```text
+UI
++
+DATABASE
++
+MIGRATION
++
+PERMESSI
++
+RLS
++
+API/RPC/EDGE FUNCTION
++
+VALIDAZIONE SERVER
++
+STATE MACHINE
++
+TRANSAZIONI
++
+CONCORRENZA
++
+ERROR HANDLING
++
+REALTIME
++
+OFFLINE BEHAVIOR
++
+AUDIT
++
+OBSERVABILITY
++
+TEST
++
+DOCUMENTAZIONE
+```
+
+Se uno degli elementi necessari manca, la funzionalità rimane:
+
+```text
+IN PROGRESS
+```
+
+e non:
+
+```text
+COMPLETED
+```
+
+---
+
+# REGISTRO DI AVANZAMENTO
+
+Mantenere durante tutto lo sviluppo un registro simile a:
+
+```text
+STEP 0 — Fondamenta                     COMPLETE
+STEP 1 — Login/configurazione           COMPLETE
+STEP 2 — Core operativo                 IN PROGRESS
+  Menu                                  COMPLETE
+  Sala                                  COMPLETE
+  Conti                                 COMPLETE
+  Ordini                                IN PROGRESS
+  Cucina                                TODO
+  Pass                                  TODO
+
+STEP 3 — Cassa                          TODO
+STEP 4 — Cliente                        TODO
+STEP 5 — Prenotazioni                   TODO
+...
+```
+
+Aggiornarlo dopo ogni intervento significativo.
+
+Non ricontrollare indiscriminatamente l'intero progetto dopo ogni piccola modifica: eseguire prima i test pertinenti allo step corrente e i regression test necessari.
+
+---
+
+# ORDINE DI PRIORITÀ ASSOLUTO
+
+In caso di dubbio tra due implementazioni utilizzare questo ordine:
+
+```text
+1. LOGIN / SICUREZZA / PERMESSI
+2. MENU E DISPONIBILITÀ
+3. SALA E TAVOLI
+4. CONTI
+5. ORDINAZIONI
+6. CUCINA
+7. PASS E SERVIZIO
+8. CASSA
+9. PAGAMENTI
+10. CLIENTE / QR
+11. PRENOTAZIONI / HOST
+12. NOTIFICHE
+13. FUNZIONI FINANZIARIE AVANZATE
+14. STAMPA AVANZATA
+15. PWA / OFFLINE
+16. ANALYTICS
+17. MULTI-SEDE
+18. PERSONALIZZAZIONI AVANZATE
+19. OTTIMIZZAZIONI COMMERCIALI
+```
+
+Una funzionalità esteticamente interessante non deve avere precedenza su una funzionalità necessaria al servizio reale.
+
+L'obiettivo iniziale non è avere il maggior numero possibile di funzioni.
+
+L'obiettivo iniziale è ottenere il prima possibile un ciclo completamente affidabile:
+
+```text
+LOGIN
+→ SALA
+→ CONTO
+→ ORDINE
+→ CUCINA
+→ PASS
+→ SERVIZIO
+→ CASSA
+→ PAGAMENTO
+→ CHIUSURA
+```
+
+Dopo aver reso questo ciclo solido, estendere progressivamente Plateform con le funzionalità secondarie, avanzate e commerciali.

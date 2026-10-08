@@ -1,0 +1,8 @@
+node_modules
+dist
+.local
+package-lock.json
+MASTER_PROMPT_PLATEFORM_COMMERCIALE.md
+coverage
+playwright-report
+test-results

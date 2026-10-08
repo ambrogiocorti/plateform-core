@@ -1,0 +1,28 @@
+{
+  "date": "2026-10-05",
+  "step": "10C",
+  "status": "SERVER_CONTRACT_PASS_WEBSOCKET_BLOCKED_ENVIRONMENT",
+  "documentation": "Supabase Realtime Postgres Changes applies RLS per subscriber",
+  "server_contract": {
+    "publication": "supabase_realtime",
+    "published_tables": [
+      "public.realtime_signals"
+    ],
+    "rls_enabled": true,
+    "authenticated_select_grant": true,
+    "policies": [
+      "public_signal: topic PUBLIC + private.can_read_signal",
+      "visible_signal: private.can_read_signal"
+    ]
+  },
+  "transport": {
+    "rest_https": "BLOCKED_CONTAINER_DNS",
+    "realtime_websocket": "BLOCKED_CONTAINER_DNS",
+    "storage_https": "BLOCKED_CONTAINER_DNS"
+  },
+  "remaining": [
+    "representative REST denial over HTTP",
+    "representative Realtime WebSocket own-vs-foreign delivery",
+    "private Storage HTTP own-vs-foreign access"
+  ]
+}

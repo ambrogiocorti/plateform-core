@@ -1,0 +1,58 @@
+{
+  "date": "2026-10-04",
+  "project_id": "abdxvlykasqmknexxhjo",
+  "step": 6,
+  "provider": "SATISPAY_API",
+  "status": "READY_AWAITING_SATISPAY_EMAIL",
+  "documentation_verified": {
+    "sandbox_base_url": "https://staging.authservices.satispay.com",
+    "rsa_key_size_bits": 4096,
+    "private_key_format": "PKCS#8 PEM",
+    "payment_flow": "MATCH_CODE",
+    "callback_method": "GET",
+    "refund_flow": "REFUND",
+    "refund_parent_field": "parent_payment_uid",
+    "idempotency_header": "Idempotency-Key",
+    "authoritative_refresh": "GET /g_business/v1/payments/{id}",
+    "authentication_test_endpoint": "https://staging.authservices.satispay.com/wally-services/protocol/tests/signature",
+    "current_sandbox_web_host": "staging.online.satispay.com",
+    "api_redirect_legacy_host_accepted": "staging-online.satispay.com"
+  },
+  "code_readiness": {
+    "signed_http_message": "IMPLEMENTED",
+    "digest_host_date_request_target": "IMPLEMENTED",
+    "callback_rate_limit_and_token": "IMPLEMENTED",
+    "authoritative_get_after_callback": "IMPLEMENTED",
+    "match_code_redirect_host_validation": "IMPLEMENTED",
+    "refund": "IMPLEMENTED",
+    "fail_closed_base_url": "IMPLEMENTED",
+    "operation_scoped_callback_token": "IMPLEMENTED",
+    "global_callback_secret_not_embedded_in_callback_url": "VERIFIED",
+    "redirect_allowlist_current_and_legacy_sandbox_hosts": "IMPLEMENTED_FAIL_CLOSED",
+    "authentication_self_test_after_key_registration": "IMPLEMENTED"
+  },
+  "setup_tool": {
+    "path": "scripts/setup-satispay-sandbox.mjs",
+    "dry_run": "PASSED",
+    "generated_private_key": "RSA 4096 PKCS#8 PEM",
+    "generated_public_key": "SPKI PEM",
+    "activation_code_persisted": false,
+    "output_directory": ".local/satispay-sandbox (gitignored)",
+    "post_registration_authentication_test": "IMPLEMENTED",
+    "accepted_auth_roles": ["ONLINE_SHOP", "DEVICE"]
+  },
+  "external_blocker": "Sandbox request submitted; waiting for Satispay email containing staging app access and the disposable sandbox activation code.",
+  "next": "When the Satispay email arrives, run the setup script with the activation code, configure generated KeyId/private key/callback token in Supabase Edge secrets, then execute the live MATCH_CODE/callback/cancel/refund gate.",
+  "source_checks": {
+    "provider_typescript_transpile": "PASSED",
+    "config_gate_with_ephemeral_rsa_key": "PASSED",
+    "migration_inventory": "PASSED_71",
+    "provider_typescript_transpile_after_callback_hardening": "PASSED",
+    "callback_typescript_transpile": "PASSED",
+    "setup_script_dry_run_rsa_4096": "PASSED",
+    "sandbox_config_gate_with_ephemeral_fixture_after_hardening": "PASSED",
+    "remote_payments_edge_v8": "PASSED",
+    "remote_satispay_callback_edge_v7": "PASSED",
+    "remote_callback_operation_scoped_token": "PASSED"
+  }
+}

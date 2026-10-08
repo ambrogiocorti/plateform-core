@@ -1,0 +1,14 @@
+{
+  "date": "2026-10-06",
+  "status": "PASSED",
+  "migration_count": 130,
+  "recovered_versions": [
+    "20261005221652",
+    "20261005222521",
+    "20261005223140",
+    "20261005223814"
+  ],
+  "latest_version": "20261006051256",
+  "manifest": "supabase/migration-manifest.json",
+  "aggregate_sha256": "7cb63618015f92a81eac5871e82904a845546f64cf0114d25958a8c09a668e9c"
+}

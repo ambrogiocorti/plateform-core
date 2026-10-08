@@ -1,0 +1,57 @@
+{
+  "date": "2026-10-04",
+  "project_id": "abdxvlykasqmknexxhjo",
+  "step": 12,
+  "status": "IN_PROGRESS_RESTORE_TEST_WORKER_IMPLEMENTED_NOT_LIVE_EXECUTED",
+  "source": {
+    "worker": "tools/restore-test-worker/start.mjs",
+    "protocol": "claim_restore_test_job -> restore -> mark_restore_verifying -> finish_restore_job",
+    "database_restore": "psql single transaction with ON_ERROR_STOP and session_replication_role=replica",
+    "storage_restore": "recreate bucket config and upload decrypted objects",
+    "manifest_integrity": "sha256 + AES-256-GCM ciphertext/plaintext verification"
+  },
+  "safety": {
+    "same_source_target_rejected": true,
+    "explicit_destructive_ack_required": true,
+    "target_with_plateform_schema_rejected": true,
+    "nonempty_target_storage_rejected": true,
+    "preflight_before_claim": true,
+    "failure_transitions_to_terminal_failed_when_possible": true
+  },
+  "verification_gates": [
+    "database",
+    "auth",
+    "storage",
+    "manifest",
+    "rls",
+    "accounts",
+    "payments",
+    "audit",
+    "sessions",
+    "devices"
+  ],
+  "tests": {
+    "source_syntax": "PASSED",
+    "static_gate": "PASSED",
+    "preflight_expected_result": "PREREQUISITE_MISSING:psql:ENOENT",
+    "restore_jobs_before": 0,
+    "restore_jobs_after": 0,
+    "queue_untouched": "PASSED"
+  },
+  "remote_scheduler": {
+    "migration_version": "20261004114444",
+    "migration_name": "step12_daily_backup_schedule",
+    "pg_cron_version": "1.6.4",
+    "job": "plateform-daily-backup",
+    "schedule": "30 2 * * *",
+    "active": true
+  },
+  "open": [
+    "real verified backup",
+    "disposable target credentials/environment",
+    "real successful restore test",
+    "RPO/RTO measurement",
+    "Operational Health backup alerts",
+    "migration source synchronization"
+  ]
+}

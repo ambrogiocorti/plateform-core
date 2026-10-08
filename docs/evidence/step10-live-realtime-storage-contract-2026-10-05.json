@@ -1,0 +1,25 @@
+{
+  "captured_at": "2026-10-05T23:59:30+02:00",
+  "project": "abdxvlykasqmknexxhjo",
+  "scope": "Step 10 live Realtime publication/RLS and private Storage isolation contract",
+  "realtime_signals": {
+    "published_in_supabase_realtime": true,
+    "rls_enabled": true,
+    "authenticated_policy": "private.can_read_signal(realtime_signals.*)",
+    "anon_policy": "topic = PUBLIC AND private.can_read_signal(realtime_signals.*)",
+    "cross_venue_transactional_probe": "PASSED: foreign realtime_signals row invisible to ADMIN:VENUE"
+  },
+  "private_documents": {
+    "bucket_private": true,
+    "storage_select_role": "authenticated",
+    "storage_policy_requires_saved_asset_upload": true,
+    "asset_uploads_rls_enabled": true,
+    "asset_upload_read_policy": "ADMIN and (CHAIN for global OR private.has_venue(venue_id))",
+    "live_probe": "own ADMIN sees own private document; foreign private document hidden; WAITER sees none; direct authenticated INSERT denied by RLS"
+  },
+  "conclusion": "DATABASE_AND_STORAGE_RLS_CONTRACT_PASSED_LIVE",
+  "not_proven": [
+    "Actual WebSocket subscription delivery/denial over client network",
+    "Actual Storage HTTP download from a browser session"
+  ]
+}

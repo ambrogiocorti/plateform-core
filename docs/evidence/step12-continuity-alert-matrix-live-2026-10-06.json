@@ -1,0 +1,15 @@
+{
+  "date": "2026-10-06",
+  "migration_inventory": 129,
+  "checks": {
+    "rpo_rto_metric_logic": "PASSED 9/9",
+    "continuity_threshold_alerts": "PASSED 13/13",
+    "cutover_pending_alert": "PASSED 5/5",
+    "worker_alert_matrix": "PASSED 10/10",
+    "failure_recovery_alerts": "PASSED 8/8",
+    "cron_alert": "PASSED 6/6",
+    "postcheck": "cron active, schedule */5 * * * *, one job, zero probe backup/restore rows"
+  },
+  "measurement_scope": "Control-plane logic only. Does not count as measured production RPO/RTO or physical restore rehearsal.",
+  "all_data_probes_rollback": true
+}

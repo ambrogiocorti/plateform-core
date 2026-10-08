@@ -1,0 +1,29 @@
+{
+  "date": "2026-10-05",
+  "step": "8",
+  "status": "PARTIAL_PASS_BROWSER_E2E_BLOCKED_ENVIRONMENT",
+  "checks": {
+    "vault_core": "PASSED",
+    "static": "PASSED_16_OF_16",
+    "causality": "PASSED",
+    "reconnect": "PASSED",
+    "pwa_runtime": "PASSED",
+    "live_offline_sync": "PASSED_21_OF_21",
+    "browser_navigation": "BLOCKED_BY_ADMINISTRATOR"
+  },
+  "vault_core_assertions": [
+    "aes_gcm_roundtrip",
+    "ciphertext_no_plaintext",
+    "logout_preserves_queue_only",
+    "tampered_queue_fail_closed",
+    "additional_data_record_name_binding"
+  ],
+  "browser_probe": {
+    "http_localhost": "ERR_BLOCKED_BY_ADMINISTRATOR",
+    "https_virtual_origin": "ERR_BLOCKED_BY_ADMINISTRATOR",
+    "file_origin": "ERR_BLOCKED_BY_ADMINISTRATOR"
+  },
+  "remaining": [
+    "release-build browser install/offline/online/update with real IndexedDB"
+  ]
+}

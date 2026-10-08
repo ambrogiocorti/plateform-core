@@ -1,0 +1,22 @@
+{
+  "timestamp": "2026-10-06T06:15:00+02:00",
+  "step": 12,
+  "microstep": "12A.7-control-plane-privilege-boundary",
+  "checks_passed": 5,
+  "checks_total": 5,
+  "assertions": {
+    "anon_worker_functions_denied": true,
+    "authenticated_worker_functions_denied": true,
+    "queued_backup_unchanged": true,
+    "worker_heartbeat_not_forgeable": true,
+    "transaction_rolled_back": true
+  },
+  "functions_tested": [
+    "claim_backup_job",
+    "claim_restore_test_job",
+    "claim_restore_job",
+    "enqueue_scheduled_backup",
+    "enqueue_due_backup",
+    "record_continuity_worker_heartbeat"
+  ]
+}

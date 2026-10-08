@@ -1,0 +1,18 @@
+{
+  "checked_at": "2026-10-03T17:44:40.829Z",
+  "project_ref": "abdxvlykasqmknexxhjo",
+  "environment": "development",
+  "checks": {
+    "auth_reachable": "PASSED",
+    "public_signup_disabled": "PASSED",
+    "anonymous_auth_disabled": "PASSED",
+    "public_projection": "PASSED",
+    "anonymous_denied_get_auth_requirements": "PASSED",
+    "anonymous_denied_bootstrap_technical_user": "PASSED"
+  },
+  "status": "PASSED",
+  "limits": [
+    "Does not verify password policy, JWT expiry, redirect allowlist, MFA configuration or Edge secrets.",
+    "Those settings require the project management API or an authorized dashboard configuration."
+  ]
+}

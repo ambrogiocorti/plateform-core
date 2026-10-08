@@ -1,0 +1,18 @@
+{
+  "host": "127.0.0.1",
+  "port": 7443,
+  "origin": "https://print.restaurant.example:7443",
+  "issuer": "https://PROJECT_REF.supabase.co",
+  "allowed_origins": ["https://staff.restaurant.example"],
+  "public_keys": [],
+  "certificate_file": "tls/bridge.crt",
+  "private_key_file": "tls/bridge.key",
+  "database_file": "data/jobs.sqlite",
+  "printers": [
+    {
+      "device_id": "10000000-0000-4000-8000-000000000001",
+      "endpoint": "https://printer.restaurant.example/cgi-bin/epos/service.cgi?devid=local_printer&timeout=45000",
+      "ca_file": "tls/printer-ca.crt"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "date": "2026-10-04",
+  "step": 12,
+  "status": "PASSED",
+  "accepted": ["sb_secret_*", "legacy JWT with role=service_role"],
+  "rejected": [
+    "REPLACE_* placeholders",
+    "sb_publishable_*",
+    "legacy JWT role=anon",
+    "malformed keys"
+  ],
+  "source": "tools/continuity/server-key.mjs",
+  "gate": "npm run check:continuity-server-key"
+}

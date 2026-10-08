@@ -1,0 +1,64 @@
+project_id = "plateform-development"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 500
+
+[db]
+port = 54322
+major_version = 17
+
+[auth]
+enabled = true
+site_url = "http://localhost:5174"
+additional_redirect_urls = ["http://localhost:5174/login"]
+jwt_expiry = 900
+enable_signup = false
+enable_anonymous_sign_ins = false
+minimum_password_length = 12
+
+[auth.mfa.totp]
+enroll_enabled = true
+verify_enabled = true
+
+[functions.reservation]
+verify_jwt = false
+
+[functions.step-up]
+verify_jwt = false
+
+[functions.staff-admin]
+verify_jwt = false
+
+[functions.customer-session]
+verify_jwt = false
+
+[functions.payments]
+verify_jwt = true
+
+[functions.stripe-webhook]
+verify_jwt = false
+
+[functions.satispay-callback]
+verify_jwt = false
+
+[functions.offline-authorization]
+verify_jwt = false
+
+[functions.asset-upload]
+verify_jwt = true
+
+[functions.health-probe]
+verify_jwt = false
+
+[functions.print-authorization]
+verify_jwt = false
+
+[functions.maintenance]
+verify_jwt = false
+
+[functions.public-telemetry]
+verify_jwt = false

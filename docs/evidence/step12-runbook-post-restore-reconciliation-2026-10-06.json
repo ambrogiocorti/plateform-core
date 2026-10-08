@@ -1,0 +1,14 @@
+{
+  "date": "2026-10-06",
+  "gate": "STEP12_RUNBOOK_RECONCILIATION_GATE",
+  "status": "PASSED",
+  "checks": 11,
+  "scope": [
+    "provider payments/refunds",
+    "sessions/codes/auth",
+    "print jobs",
+    "offline devices/queues",
+    "cutover fail-safe"
+  ],
+  "notes": "A database restore never authorizes automatic replay of an external side effect."
+}

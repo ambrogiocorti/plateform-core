@@ -1,0 +1,38 @@
+{
+  "date": "2026-10-05",
+  "step": 7,
+  "scope": "Authenticated returned-item workflow",
+  "result": "PASS",
+  "venue_id": "8241033e-7053-44d3-9427-fbf7ea72e684",
+  "checks": {
+    "returns_enabled": true,
+    "pass_identity_authenticated": "PASS",
+    "kitchen_admin_identity_authenticated": "PASS",
+    "remake_from_pass": "PASS",
+    "remake_resets_item_to_received": "PASS",
+    "cancel_request_from_pass": "PASS",
+    "cancel_request_requires_admin_decision": "PASS",
+    "admin_reject_path": "PASS",
+    "admin_approve_path": "PASS",
+    "approved_item_status_cancelled": "PASS",
+    "approved_order_status_cancelled": "PASS",
+    "return_approval_notification_resolved": "PASS",
+    "pass_and_admin_audit_chain": "PASS",
+    "already_refunded_payment_not_double_refunded": "PASS",
+    "unexpected_refunds_after_approval": 0
+  },
+  "request_id": "4e5413ff-d92a-40f5-8ef9-cf7bf943fa3f",
+  "order_item_id": "aa6ca893-00e5-4b33-8f2f-644dc1d52c60",
+  "order_id": "c32c5302-7e50-4054-8bf9-2ed610cf7421",
+  "payment_id": "00a104a1-4d7c-4165-a6aa-baeca6d8c181",
+  "payment_state": "REFUNDED",
+  "refund_total_cents": 100,
+  "notes": [
+    "A real PASS identity created RETURN_CANCELLATION.",
+    "An ADMIN approved the request and the item/order transitioned to CANCELLED.",
+    "The related RETURN_APPROVAL notification transitioned to RESOLVED.",
+    "Audit contains PASS request creation and ADMIN ORDER_CORRECTED/decision entries.",
+    "No new refund was created because the Stripe payment was already fully refunded.",
+    "Migration 20261005152701 fixes stale notification closure and uses effective payment allocation when deciding whether an item is still settled."
+  ]
+}

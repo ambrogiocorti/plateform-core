@@ -1,0 +1,53 @@
+{
+  "captured_at": "2026-10-05T23:58:03+02:00",
+  "project": "abdxvlykasqmknexxhjo",
+  "scope": "Step 12 live continuity operational state",
+  "continuity_settings": {
+    "rpo_target_minutes": 60,
+    "rto_target_minutes": 60,
+    "backup_retention_days": 30,
+    "restore_test_interval_days": 30
+  },
+  "backup_inventory": [
+    {
+      "id": "b182b690-8aec-4c46-856f-60cd72a19507",
+      "status": "QUEUED",
+      "purpose": "SCHEDULED",
+      "created_at": "2026-10-04T12:28:30.264386Z",
+      "started_at": null,
+      "completed_at": null,
+      "integrity_verified": false,
+      "last_restore_test_at": null,
+      "storage_reference": null,
+      "database_reference": null,
+      "auth_reference": null
+    }
+  ],
+  "restore_jobs": [],
+  "automatic_incidents": [
+    {
+      "automation_key": "CONTINUITY_BACKUP_QUEUE_STUCK",
+      "severity": "DEGRADED",
+      "status": "OPEN",
+      "title": "Coda backup bloccata"
+    },
+    {
+      "automation_key": "CONTINUITY_VERIFIED_BACKUP_MISSING",
+      "severity": "WARNING",
+      "status": "OPEN",
+      "title": "Backup verificato oltre target RPO"
+    },
+    {
+      "automation_key": "CONTINUITY_RESTORE_TEST_MISSING",
+      "severity": "WARNING",
+      "status": "OPEN",
+      "title": "Restore test da verificare"
+    }
+  ],
+  "conclusion": "FAIL_CLOSED_OPERATIONAL_ALERTING_WORKS_BUT_REAL_CONTINUITY_GATE_NOT_COMPLETE",
+  "open": [
+    "Run queued backup on real continuity host and produce verified encrypted primary+replica artifact",
+    "Run real isolated restore test from that artifact",
+    "Measure RPO/RTO and execute cutover rehearsal"
+  ]
+}

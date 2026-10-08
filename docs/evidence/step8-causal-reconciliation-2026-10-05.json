@@ -1,0 +1,30 @@
+{
+  "date": "2026-10-05",
+  "project_id": "abdxvlykasqmknexxhjo",
+  "step": 8,
+  "status": "IN_PROGRESS_BROWSER_E2E_BLOCKED_ENVIRONMENT",
+  "changes": {
+    "causal_predecessor_assignment": "IMPLEMENTED",
+    "server_status_reconciliation_before_replay": "IMPLEMENTED",
+    "terminal_statuses": ["SYNCED", "REJECTED", "RESOLVED"],
+    "post_reconnect_authorization_refresh": "IMPLEMENTED_FAIL_CLOSED",
+    "foreign_nonterminal_queue_guard": "IMPLEMENTED",
+    "resource_nonterminal_queue_guard": "IMPLEMENTED"
+  },
+  "verification": {
+    "step8_static_gate": "PASSED_16_OF_16",
+    "pure_queue_policy": "PASSED",
+    "live_rpc_contract": "VERIFIED",
+    "live_sync_terminal_predecessor_contract": "VERIFIED_SYNCED_REJECTED_RESOLVED",
+    "live_conflict_resolution_source_event": "VERIFIED_REJECTED",
+    "browser_e2e": "NOT_RUN_NODE_24_RELEASE_TOOLCHAIN_UNAVAILABLE"
+  },
+  "safety": {
+    "persistent_test_data_written": false,
+    "probe_transactions_committed": false
+  },
+  "open": [
+    "Run real browser online→offline→online flow on clean Linux Node >=24.13 build.",
+    "Validate resolved conflict followed by causally dependent event in IndexedDB/browser E2E."
+  ]
+}

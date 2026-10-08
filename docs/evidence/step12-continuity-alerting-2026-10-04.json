@@ -1,0 +1,59 @@
+{
+  "date": "2026-10-04",
+  "project_id": "abdxvlykasqmknexxhjo",
+  "step": 12,
+  "status": "IN_PROGRESS_CONTINUITY_ALERTING_IMPLEMENTED",
+  "migration": "20261004121556_step12_continuity_alerting",
+  "migration_sha256": "a50d11d5acd6a28f1a6563ffe23c619daf6e9bbf4288c48d221832d9aa5eed85",
+  "scheduler": {
+    "job": "plateform-continuity-alerts",
+    "schedule": "*/10 * * * *",
+    "active": true,
+    "database_role": "postgres"
+  },
+  "automatic_conditions": [
+    "backup_cron_inactive",
+    "verified_backup_missing_or_older_than_36h",
+    "backup_failed_without_later_verified_success",
+    "backup_queue_or_lease_stuck",
+    "restore_failed_without_later_success",
+    "restore_stuck",
+    "restore_test_missing"
+  ],
+  "incident_lifecycle": {
+    "deduplicated_by_partial_unique_automation_key": true,
+    "auto_open_event": "AUTO_OPEN",
+    "auto_update_event": "AUTO_UPDATED",
+    "auto_resolve_event": "AUTO_RESOLVED",
+    "timeline_actor_for_system": null
+  },
+  "security": {
+    "reconcile_continuity_alerts_anon_execute": false,
+    "reconcile_continuity_alerts_authenticated_execute": false,
+    "reconcile_continuity_alerts_service_role_execute": true,
+    "new_security_advisor_warning_for_reconciler": false
+  },
+  "live_verification": {
+    "expected_open_continuity_incidents": 2,
+    "open_conditions": ["CONTINUITY_VERIFIED_BACKUP_MISSING", "CONTINUITY_RESTORE_TEST_MISSING"],
+    "second_reconcile_active_incidents": 2,
+    "second_reconcile_event_count": 2,
+    "deduplication": "PASSED",
+    "transactional_auto_resolve": "PASSED"
+  },
+  "ui": {
+    "operational_health_incident_banner": true,
+    "accessible_role_alert": true,
+    "automatic_incident_label": true
+  },
+  "local_checks": {
+    "step12_continuity_alerting_static_gate": "PASSED",
+    "technical_typescript_parser": "PASSED"
+  },
+  "remaining_gates": [
+    "real database/Auth/Storage backup",
+    "real isolated restore test",
+    "measured RPO/RTO",
+    "external alert delivery/escalation if required by deployment plan"
+  ]
+}

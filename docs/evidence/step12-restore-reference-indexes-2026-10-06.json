@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-06",
+  "gate": "STEP12_RESTORE_REFERENCE_INDEXES",
+  "status": "PASSED",
+  "migration": "20261006045641_step12_restore_reference_indexes",
+  "checks": {
+    "restore_jobs_backup_id_index": true,
+    "restore_jobs_pre_restore_backup_id_partial_index": true,
+    "advisor_backup_id_finding_removed": true,
+    "advisor_pre_restore_backup_id_finding_removed": true,
+    "requested_by_index_deferred_as_non_operational": true,
+    "cutover_confirmed_by_index_deferred_as_non_operational": true,
+    "static_gate": "9/9",
+    "step12_regression": "31/31",
+    "migration_manifest": "129/129",
+    "restore_jobs_requested_by_index": true,
+    "restore_jobs_cutover_confirmed_by_partial_index": true,
+    "advisor_all_restore_job_fk_findings_removed": true
+  },
+  "migration_count": 129,
+  "actor_index_migration": "20261006050249_step12_restore_actor_indexes"
+}

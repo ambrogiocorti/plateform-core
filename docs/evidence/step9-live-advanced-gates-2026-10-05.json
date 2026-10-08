@@ -1,0 +1,76 @@
+{
+  "date": "2026-10-05",
+  "environment": "Supabase development abdxvlykasqmknexxhjo",
+  "mode": "transactional rollback fixtures",
+  "analytics": {
+    "checks_passed": 26,
+    "checks_total": 26,
+    "highlights": {
+      "receipts_cents": 6500,
+      "refunds_cents": 1000,
+      "net_cents": 5500,
+      "tips_cents": 500,
+      "covers": 4,
+      "average_check_cents": 6500,
+      "no_show_percent": 50,
+      "preparation_seconds_quantity_weighted": 105,
+      "call_acceptance_seconds": 60,
+      "call_completion_seconds": 120,
+      "capacity_utilization_percent": 70
+    }
+  },
+  "device_management": {
+    "checks_passed": 9,
+    "checks_total": 9,
+    "post_revoke_heartbeat": "42501:FORBIDDEN",
+    "verified": [
+      "registration",
+      "heartbeat",
+      "online/current workspace",
+      "private heartbeat row",
+      "device revoke",
+      "session revoke",
+      "offline snapshot revoke",
+      "step-up consumption",
+      "heartbeat denied after revoke"
+    ]
+  },
+  "command_palette": {
+    "checks_passed": 10,
+    "checks_total": 10,
+    "verified": [
+      "ADMIN own venue resources",
+      "ADMIN NULL scope does not widen",
+      "forged foreign venue does not expose foreign resources",
+      "foreign staff hidden",
+      "authorized staff visible",
+      "short query empty",
+      "WAITER only assigned table/account",
+      "WAITER NULL scope does not widen",
+      "WAITER forged foreign empty",
+      "WAITER staff search empty"
+    ]
+  },
+  "room_editor": {
+    "checks_passed": 10,
+    "checks_total": 10,
+    "observed_errors": [
+      "P0001:VERSION_CONFLICT",
+      "P0001:LAYOUT_IN_SERVICE",
+      "42501:FORBIDDEN"
+    ],
+    "verified": [
+      "save",
+      "element/table persistence",
+      "idempotent retry",
+      "single revision",
+      "version conflict",
+      "atomic activation",
+      "service lock",
+      "WAITER denial",
+      "save audit",
+      "activate audit"
+    ]
+  },
+  "cleanup": "All temporary venues/devices/sessions/layouts/data rolled back; feature flags restored."
+}

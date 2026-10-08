@@ -1,0 +1,31 @@
+{
+  "date": "2026-10-05",
+  "step": 7,
+  "feature": "PDF invoice-style output",
+  "status": "PASSED_IMPLEMENTATION_AND_LIVE_BACKEND",
+  "checks": {
+    "pdf_virtual_device_live": true,
+    "device_name": "PDF / Browser A4",
+    "driver": "BROWSER",
+    "paper": "A4",
+    "roles": [
+      "ADMIN",
+      "CASHIER",
+      "WAITER"
+    ],
+    "invoice_style_renderer_present": true,
+    "browser_save_as_pdf_flow_present": true,
+    "receipt_snapshot_refunds_netting_live": true,
+    "explicit_non_fiscal_label": true,
+    "migration_inventory": "118/118 PASS"
+  },
+  "migrations": [
+    "20261005155412_step7_pdf_invoice_output.sql",
+    "20261005155543_step7_document_snapshot_refunds.sql"
+  ],
+  "notes": [
+    "The PDF output is an invoice-style non-fiscal courtesy document, not an Italian electronic fiscal invoice.",
+    "Fiscal invoicing via XML/SdI is intentionally not claimed as implemented.",
+    "Physical Epson/print-bridge/offline-printer validation remains blocked by unavailable representative hardware."
+  ]
+}

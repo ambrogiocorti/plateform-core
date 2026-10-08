@@ -1,0 +1,29 @@
+{
+  "status": "PASSED_DEVELOPMENT_BASELINE",
+  "verified_at": "2026-10-04T18:11:00+02:00",
+  "migration": "20261004161807_step12_operational_release_baseline",
+  "application_release": {
+    "version": "0.1.0",
+    "status": "STAGING",
+    "build_id": "development-baseline-0.1.0",
+    "git_commit": "not-recorded",
+    "production_release": false
+  },
+  "operational_health": {
+    "schema_source": "supabase_migrations.schema_migrations",
+    "release_registry_nonempty": true
+  },
+  "migration_inventory": {
+    "count": 105,
+    "aggregate_sha256": "7c754c64396e64155f0edc104abde53890d7d8e264d6130fed8f6c065182ba3a",
+    "local_remote_exact": true
+  },
+  "hardening_migration": "20261004162621_step12_release_metadata_hardening",
+  "verified": {
+    "invalid_touch_version_removed_from_application_releases": true,
+    "invalid_touch_version_removed_from_database_migrations_metadata": true,
+    "backup_release_version_rewritten_to_latest_operational_release": true,
+    "backup_blocked_when_no_operational_release_exists": true,
+    "technical_ui_prefers_released_or_staging": true
+  }
+}

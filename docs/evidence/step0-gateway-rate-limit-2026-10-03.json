@@ -1,0 +1,69 @@
+{
+  "checked_at": "2026-10-03T17:57:10.479Z",
+  "project_ref": "abdxvlykasqmknexxhjo",
+  "environment": "development",
+  "run": "a15aad7c-31ad-4580-a3fe-95bec5811d15",
+  "status": "PASSED",
+  "results": [
+    {
+      "name": "temporary_capability_rejects_invalid_token",
+      "status": "PASSED"
+    },
+    {
+      "name": "gateway_provides_digestible_address",
+      "status": "PASSED"
+    },
+    {
+      "name": "client_cannot_spoof_forwarded_single",
+      "status": "PASSED",
+      "http_status": 200
+    },
+    {
+      "name": "client_cannot_spoof_forwarded_other",
+      "status": "PASSED",
+      "http_status": 200
+    },
+    {
+      "name": "client_cannot_spoof_forwarded_chain",
+      "status": "PASSED",
+      "http_status": 200
+    },
+    {
+      "name": "client_cannot_spoof_alternate_headers",
+      "status": "PASSED",
+      "http_status": 403
+    },
+    {
+      "name": "http_rate_limit_attempt_1",
+      "status": "PASSED",
+      "http_status": 200,
+      "request_id": "803d7891-a087-41fa-998f-252c6752d352",
+      "correlation_id": "9a2807c7-a2a6-40d9-bc3c-4d58d939e930"
+    },
+    {
+      "name": "http_rate_limit_attempt_2",
+      "status": "PASSED",
+      "http_status": 200,
+      "request_id": "2383b31a-da1d-41d7-809b-a0c680b30eef",
+      "correlation_id": "766f4c61-b171-42db-81ab-a40d19e6acec"
+    },
+    {
+      "name": "http_rate_limit_attempt_3",
+      "status": "PASSED",
+      "http_status": 429,
+      "request_id": "abc5e867-709e-4d65-89db-f91f5852df6c",
+      "correlation_id": "1a15a069-22ac-4065-b37b-6b363e420f83"
+    },
+    {
+      "name": "http_rate_limit_attempt_4",
+      "status": "PASSED",
+      "http_status": 429,
+      "request_id": "9905765a-1df6-45f5-bd45-f6e177fda2e2",
+      "correlation_id": "df6e843c-50ca-44ac-a2b0-d89d8c157ec9"
+    }
+  ],
+  "limits": [
+    "Tests the current hosted gateway and this client network path; re-run after gateway changes.",
+    "Raw addresses, HMAC digests and the temporary capability are excluded from this report."
+  ]
+}

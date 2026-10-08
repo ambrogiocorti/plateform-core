@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-03",
+  "project": "abdxvlykasqmknexxhjo",
+  "step": "4.1",
+  "name": "QR e customer session",
+  "status": "PASSED_FOR_SUBSTEP_SCOPE",
+  "transactional_fixtures": "ROLLBACK",
+  "migration_inventory": 69,
+  "migrations": [
+    "20261003210902_step4_customer_access_hardening",
+    "20261003211043_step4_customer_backoff_cleanup"
+  ],
+  "edge": {
+    "customer-session": {
+      "version": 2,
+      "status": "ACTIVE",
+      "verify_jwt": false,
+      "sha256": "6384c2ae018a53c3a92704e0fa834826951c4275af7a22ced1a7652d1a19c37d"
+    }
+  },
+  "gates": {
+    "embedded_postgresql_customer_access_gate": "PASSED",
+    "live_progressive_backoff": "PASSED",
+    "public_table_id_database_immutability": "PASSED",
+    "service_role_verify_customer_code": "PASSED",
+    "anonymous_verify_customer_code_denied": "PASSED",
+    "service_role_attach_customer_session": "PASSED",
+    "authenticated_customer_projection_rpc": "PASSED",
+    "two_parallel_customer_sessions": "PASSED",
+    "cross_account_isolation": "PASSED",
+    "code_rotation_revokes_existing_sessions": "PASSED",
+    "account_close_revokes_customer_access": "PASSED",
+    "six_digit_csprng_code_bcrypt_hash": "PASSED",
+    "backoff_stale_bucket_cleanup": "PASSED",
+    "modified_source_typescript_transpile": "PASSED",
+    "migration_manifest_checksums": "PASSED"
+  },
+  "security_advisor": {
+    "customer_access_backoff_rls_no_policy": "INFO_EXPECTED",
+    "reason": "private table has RLS enabled and no direct grants; access is only through explicitly granted service-role SECURITY DEFINER RPCs",
+    "anon_direct_select": false,
+    "authenticated_direct_select": false,
+    "service_role_direct_select": false,
+    "service_role_purge_rpc": true,
+    "anon_purge_rpc": false
+  },
+  "environment_limitations": [
+    "Full Vitest/Vite execution is blocked in this Linux container because archived node_modules contains Windows native Rolldown dependencies and the Linux optional binding is absent.",
+    "npm registry access timed out, so the missing native binding could not be restored in-session.",
+    "Full TypeScript/Deno commands are affected by the same incomplete cross-platform dependency snapshot; no passing result is claimed for those global commands after the latest 4.1 changes."
+  ],
+  "next_substep": "4.2 Menu cliente"
+}

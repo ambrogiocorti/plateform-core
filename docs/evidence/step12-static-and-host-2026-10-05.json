@@ -1,0 +1,38 @@
+{
+  "date": "2026-10-05",
+  "static_regression": "26_OF_26_PASSED",
+  "additional_passes": [
+    "backup encryption round-trip",
+    "backup preflight fail-closed",
+    "database snapshot stability",
+    "auth/migration/private-state change fail-closed",
+    "independent replica guards and immutable copy",
+    "manifest HMAC valid/tamper/wrong-key/malformed",
+    "migration history dump/restore/verify/mismatch fail-closed",
+    "storage metadata verify/mismatch fail-closed",
+    "retention filesystem/path/symlink safety",
+    "restore cutover static gate",
+    "continuity alerting static gate",
+    "continuity targets static gate",
+    "server key/installer/bootstrap/activation/secret configuration"
+  ],
+  "host_check": {
+    "status": "NOT_READY",
+    "failures": [
+      "NODE_VERSION_UNSUPPORTED",
+      "COMMAND_MISSING:supabase",
+      "COMMAND_MISSING:psql",
+      "COMMAND_MISSING:docker",
+      "ENV_MISSING:SUPABASE_URL",
+      "ENV_MISSING:SUPABASE_SERVICE_ROLE_KEY",
+      "ENV_MISSING:SUPABASE_DB_URL",
+      "ENV_MISSING:PLATEFORM_BACKUP_ENCRYPTION_KEY_BASE64",
+      "ENV_MISSING:PLATEFORM_BACKUP_ENCRYPTION_KEY_ID",
+      "ENV_MISSING:PLATEFORM_BACKUP_ROOT",
+      "ENV_MISSING:PLATEFORM_BACKUP_REPLICA_ROOT"
+    ],
+    "node": "22.16.0"
+  },
+  "classification": "BLOCKED_ENVIRONMENT",
+  "note": "Workers fail closed with CONFIG_REQUIRED when mandatory continuity configuration is absent. No real backup/restore was marked passed."
+}

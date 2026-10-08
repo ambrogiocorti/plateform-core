@@ -1,0 +1,36 @@
+{
+  "timestamp": "2026-10-06T06:15:00+02:00",
+  "step": 12,
+  "microstep": "12A-host-preflight",
+  "runtime": {
+    "node": "v22.16.0",
+    "psql": false,
+    "docker": false,
+    "podman": false,
+    "supabase_cli": false,
+    "filesystem": "single-overlay"
+  },
+  "worker_preflight": [
+    {
+      "case": "production-equivalent-roots",
+      "result": "BLOCKED",
+      "error": "BACKUP_REPLICA_SAME_DEVICE"
+    },
+    {
+      "case": "same-device-bypass-test-only",
+      "result": "BLOCKED",
+      "error": "PREREQUISITE_MISSING:supabase:ENOENT"
+    },
+    {
+      "case": "stub-supabase-test-only",
+      "result": "BLOCKED",
+      "error": "PREREQUISITE_MISSING:psql:ENOENT"
+    },
+    {
+      "case": "stub-supabase-psql-test-only",
+      "result": "BLOCKED",
+      "error": "PREREQUISITE_MISSING:docker:ENOENT"
+    }
+  ],
+  "conclusion": "This sandbox cannot be promoted to a valid Plateform continuity host without violating the production prerequisites."
+}

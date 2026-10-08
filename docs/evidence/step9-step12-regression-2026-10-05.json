@@ -1,0 +1,49 @@
+{
+  "captured_at": "2026-10-05T10:15:00+02:00",
+  "project_ref": "abdxvlykasqmknexxhjo",
+  "migration_inventory": {
+    "local": 112,
+    "live": 112,
+    "manifest": "PASSED"
+  },
+  "source_quality": {
+    "typescript": "PASSED_WITH_TEMPORARY_DECLARATION_SHIM_FOR_MISSING_SANDBOX_SAXES",
+    "eslint": "PASSED",
+    "prettier": "PASSED"
+  },
+  "static_gates": {
+    "step11": "PASSED",
+    "step12": "PASSED_26_OF_26"
+  },
+  "step9_live": {
+    "device_management": "PASSED",
+    "command_palette_scope": "PASSED",
+    "room_editor": "PASSED",
+    "analytics_independent_sql_comparison": "PASSED",
+    "static_gate": "PASSED_16_OF_16",
+    "browser_release_regression": "BLOCKED_ENVIRONMENT"
+  },
+  "step10_live": {
+    "create_idempotency_stepup_audit": "PASSED",
+    "venue_scope_manipulated_id": "PASSED",
+    "catalog_override": "PASSED",
+    "multi_assignment_chain_aggregate": "PASSED",
+    "venue_lifecycle": "PASSED",
+    "static_gate": "PASSED_15_OF_15",
+    "rest_realtime_storage_browser_cross_venue": "TODO"
+  },
+  "release_toolchain": {
+    "required_node": ">=24.13.0",
+    "current_node": "22.16.0",
+    "recovered_node_modules_origin": "Windows archive",
+    "vitest": "BLOCKED_BEFORE_TESTS_NATIVE_ROLLDOWN_BINDING",
+    "vite_build": "BLOCKED_NATIVE_ROLLDOWN_BINDING",
+    "note": "No Vitest/Vite/browser release gate has been marked PASSED or FAILED from this sandbox."
+  },
+  "step12": {
+    "static_regression": "PASSED_26_OF_26",
+    "real_backup_artifact": "TODO_CONTINUITY_HOST",
+    "real_restore_test": "TODO_CONTINUITY_HOST",
+    "rpo_rto": "TODO_REAL_REHEARSAL"
+  }
+}

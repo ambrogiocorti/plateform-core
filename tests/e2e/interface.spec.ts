@@ -1,0 +1,99 @@
+import { expect, test } from '@playwright/test';
+
+// Browser contract tests use explicit HTTP fixtures. They are not Supabase integration tests.
+const venue = {
+  id: '10000000-0000-4000-8000-000000000001',
+  name: 'Ristorante di prova',
+  slug: 'ristorante',
+  address: 'Via di prova 1',
+  phone: '+390000000001',
+  email: null,
+  opening_hours: { 'Lunedì – Sabato': '19:00 – 23:00' },
+  timezone: 'Europe/Rome',
+  currency: 'EUR',
+  locale: 'it-IT',
+  reservations_enabled: false,
+};
+const site = {
+  name: 'Ristorante di prova',
+  branding: {},
+  content: {
+    hero_title: 'Una cucina da ricordare.',
+    hero_subtitle: 'Il piacere di ritrovarsi, attorno alla stessa tavola.',
+    story_title: 'La nostra storia.',
+    story: 'Una cucina legata al territorio e alla stagione.',
+  },
+  contact: {},
+  multi_venue: false,
+  venues: [venue],
+};
+
+test('staff root opens an accessible login and never displays a public restaurant selector', async ({
+  page,
+}) => {
+  await page.goto('http://localhost:5174');
+  await expect(page).toHaveURL('http://localhost:5174/login');
+  await expect(page.getByRole('heading', { name: 'Bentornato.' })).toBeVisible();
+  await expect(page.getByLabel('Identificativo staff')).toBeVisible();
+  await expect(page.getByLabel('Password', { exact: true })).toHaveAttribute('type', 'password');
+  await expect(page.getByRole('button', { name: 'Accedi al servizio' })).toBeVisible();
+  await expect(page.getByRole('combobox')).toHaveCount(0);
+  await page.screenshot({ path: 'test-results/staff-login.png', fullPage: true });
+});
+
+test('public home preserves the restaurant brand and hides disabled booking and staff entry', async ({
+  page,
+}) => {
+  await page.route('**/rest/v1/rpc/get_public_site', (route) => route.fulfill({ json: site }));
+  await page.goto('http://localhost:5173');
+  await expect(page.getByRole('heading', { name: 'Una cucina da ricordare.' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Prenota', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('link', { name: /staff/i })).toHaveCount(0);
+  await expect(page.getByRole('combobox')).toHaveCount(0);
+  await page.screenshot({ path: 'test-results/public-home.png', fullPage: true });
+});
+
+test('menu renders allergen information and treats untrusted dish names as text', async ({
+  page,
+}) => {
+  await page.route('**/rest/v1/rpc/get_public_site', (route) => route.fulfill({ json: site }));
+  await page.route('**/rest/v1/rpc/get_public_menu', (route) =>
+    route.fulfill({
+      json: [
+        {
+          id: '40000000-0000-4000-8000-000000000001',
+          category_id: '40000000-0000-4000-8000-000000000002',
+          name: '<img src=x onerror=alert(1)>',
+          category_name: 'Primi',
+          description: 'Pasta fresca',
+          image_path: null,
+          beverage: false,
+          price_cents: 1800,
+          availability: 0,
+          ingredients: [
+            { id: '40000000-0000-4000-8000-000000000003', name: 'Pecorino', removable: false },
+          ],
+          allergens: [{ code: 'MILK', name: 'Latte' }],
+          dietary_tags: [],
+          variant_groups: [],
+        },
+      ],
+    }),
+  );
+  await page.goto('http://localhost:5173/menu');
+  await expect(page.getByRole('heading', { name: '<img src=x onerror=alert(1)>' })).toBeVisible();
+  await expect(page.getByText('Contiene: Latte')).toBeVisible();
+  await expect(page.getByText('Esaurito', { exact: true })).toBeVisible();
+  await expect(page.locator('article img')).toHaveCount(0);
+});
+
+test('public phone layout stays within the viewport', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.route('**/rest/v1/rpc/get_public_site', (route) => route.fulfill({ json: site }));
+  await page.goto('http://localhost:5173');
+  await expect(page.getByRole('heading', { name: 'Una cucina da ricordare.' })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
+    true,
+  );
+  await page.screenshot({ path: 'test-results/public-mobile.png', fullPage: true });
+});

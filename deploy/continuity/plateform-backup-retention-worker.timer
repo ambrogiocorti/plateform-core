@@ -1,0 +1,12 @@
+[Unit]
+Description=Apply Plateform backup retention every 30 minutes
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=30min
+AccuracySec=1min
+Persistent=true
+Unit=plateform-backup-retention-worker.service
+
+[Install]
+WantedBy=timers.target
