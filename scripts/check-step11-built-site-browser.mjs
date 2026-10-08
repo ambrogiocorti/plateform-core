@@ -26,7 +26,7 @@ try {
       assert.equal((await page.locator('#main h1').innerText()).trim(),heading);tests++;
       assert.equal(await page.locator('a.skip-link').count(),1);tests++;
       assert.equal(await page.locator('nav[aria-label="Principale"]').count(),1);tests++;
-      assert.equal(await page.locator('body').evaluate(el=>el.scrollWidth<=window.innerWidth+1),true);tests++;
+      assert.equal(await page.locator('body').evaluate(el=>el.scrollWidth<=globalThis.innerWidth+1),true);tests++;
       if(path==='/menu') {
         assert.equal(await page.getByText('Risotto & limone').count(),1);tests++;
         assert.ok(await page.getByText('Latte',{exact:false}).count()>=1);tests++;
