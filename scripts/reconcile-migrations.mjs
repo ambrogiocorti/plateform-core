@@ -84,8 +84,24 @@ if (inputPath) {
       env: connectionEnv,
       encoding: 'utf8', maxBuffer: 32 * 1024 * 1024, timeout: 60000,
     });
-  if (run.error || run.status !== 0)
-    throw new Error('Migration history query failed. Verify private DB access and the psql client.');
+  if (run.error || run.status !== 0) {
+    // Do not echo libpq stderr: it may contain user-entered connection details.
+    // Classify common errors without disclosing any credential or connection URI.
+    const diagnostic = String(run.stderr || '') + ' ' + String(run.error?.code || '');
+    const reason =
+      /ENOBUFS|ERR_CHILD_PROCESS_STDIO_MAXBUFFER/i.test(diagnostic) ? 'QUERY_OUTPUT_TOO_LARGE' :
+      /ENOENT/i.test(diagnostic) ? 'PSQL_EXECUTABLE_NOT_FOUND' :
+      /password authentication failed|invalid password|28P01/i.test(diagnostic) ? 'DATABASE_AUTHENTICATION_FAILED' :
+      /could not translate host name|name or service not known|no such host|ENOTFOUND|EAI_AGAIN/i.test(diagnostic) ? 'DATABASE_HOST_DNS_FAILED' :
+      /network is unreachable|no route to host|0x00002743/i.test(diagnostic) ? 'DATABASE_NETWORK_UNREACHABLE_TRY_SESSION_POOLER_IPV4' :
+      /connection timed out|timeout expired|ETIMEDOUT/i.test(diagnostic) || run.error?.code === 'ETIMEDOUT'
+        ? 'DATABASE_CONNECTION_TIMEOUT_TRY_SESSION_POOLER_IPV4' :
+      /connection refused|ECONNREFUSED/i.test(diagnostic) ? 'DATABASE_CONNECTION_REFUSED' :
+      /tenant or user not found|invalid tenant/i.test(diagnostic) ? 'POOLER_PROJECT_OR_USERNAME_INVALID' :
+      /SSL|certificate/i.test(diagnostic) ? 'DATABASE_TLS_ERROR' :
+      'PSQL_CONNECTION_OR_QUERY_FAILED';
+    throw new Error(`Migration history query failed: ${reason}. Database unchanged. Credentials intentionally omitted.`);
+  }
   lines = run.stdout.trim().split(/\r?\n/);
 }
 const remote = lines.filter(Boolean).map((line) => JSON.parse(line));
