@@ -49,28 +49,28 @@ export async function database(through = Number.POSITIVE_INFINITY) {
       return ref;
     end $$;
     create function cron.unschedule(p_jobname text) returns boolean
-    language plpgsql as $
+    language plpgsql as $$
     begin
       delete from cron.job where jobname=p_jobname;
       return found;
-    end $;
+    end $$;
     -- Match the additional pg_cron overloads installed on Supabase:
     -- unschedule accepts a job ID and unnamed schedules use two arguments.
     create function cron.unschedule(p_jobid bigint) returns boolean
-    language plpgsql as $
+    language plpgsql as $$
     begin
       delete from cron.job where jobid=p_jobid;
       return found;
-    end $;
+    end $$;
     create function cron.schedule(p_schedule text,p_command text) returns bigint
-    language plpgsql as $
+    language plpgsql as $$
     declare ref bigint;
     begin
       insert into cron.job(schedule,command,active)
       values(p_schedule,p_command,true)
       returning jobid into ref;
       return ref;
-    end $;
+    end $$;
     create schema supabase_migrations;
     create table supabase_migrations.schema_migrations(
       version text primary key,
