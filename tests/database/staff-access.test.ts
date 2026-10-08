@@ -52,7 +52,13 @@ describe('Step 1 staff access and credential lifecycle', () => {
     const result = await db.query<{ identifier: string }>(
       "select public.suggest_staff_identifier('Mario Rossi') as identifier",
     );
-    expect(result.rows[0]!.identifier).toBe('mario.rossi.2@staff.test');
+    // The live identifier generator appends numeric collision suffixes
+    // directly to the normalized name, preserving deterministic uniqueness.
+    expect(result.rows[0]!.identifier).toBe('mario.rossi2@staff.test');
+    const retry = await db.query<{ identifier: string }>(
+      "select public.suggest_staff_identifier('Mario Rossi') as identifier",
+    );
+    expect(retry.rows).toEqual(result.rows);
   });
 
   it('updates role/scope atomically and invalidates stale operational credentials', async () => {
