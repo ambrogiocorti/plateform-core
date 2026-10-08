@@ -1,0 +1,4 @@
+# Migration SQL is audited against SHA-256 digests of canonical LF source.
+# Git for Windows must not change checked-out SQL bytes to CRLF.
+supabase/migrations/*.sql text eol=lf
+supabase/migration-manifest.json text eol=lf
