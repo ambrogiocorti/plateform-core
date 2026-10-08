@@ -2,12 +2,15 @@ import { z } from 'npm:zod@4.6.5';
 import { endpoint, rateLimit, secret, userClient } from '../_shared/http.ts';
 import { eposDocument, type PrintPayload } from '../../../shared/print-document.ts';
 import { documentHash, signPrintAuthorization } from '../../../shared/print-authorization.ts';
+import { epsonPrintingIncluded } from '../../../src/services/commercial-scope.ts';
 const schema = z.object({ job_id: z.uuid(), lease_id: z.uuid() }).strict();
 Deno.serve(
   endpoint(schema, async (body, request) => {
     const user = userClient(request);
     const { data: identity, error } = await user.auth.getUser();
     if (error || !identity.user) throw new Error('UNAUTHORIZED');
+    // CORE can render browser/PDF documents, but must never sign a bridge/Epson job.
+    if (!epsonPrintingIncluded) throw new Error('PRINT_DRIVER_NOT_INCLUDED');
     await rateLimit(`print:${identity.user.id}`, 60, 60, request);
     const { data, error: authorizeError } = await user.rpc('get_print_bridge_authorization', {
       p_job: body.job_id,

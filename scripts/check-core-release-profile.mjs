@@ -17,7 +17,7 @@ const evidence = (edition = 'CORE') => ({
   local_checks: Object.fromEntries(
     [
       'typecheck', 'lint', 'edge', 'unit_database', 'browser', 'build',
-      ...(edition === 'CORE' ? ['core_edition_contract', 'core_server_policy_source', 'core_release_profile'] : []),
+      ...(edition === 'CORE' ? ['core_edition_contract', 'core_server_policy_source', 'core_edge_guard_source', 'core_release_profile'] : []),
     ].map((key) => [key, 'passed']),
   ),
   integration_checks: Object.fromEntries(
@@ -57,6 +57,9 @@ check(() => assert.ok(releaseProblems(core, missingCore, digest).some((x) => x.i
 const missingPolicy = evidence();
 delete missingPolicy.local_checks.core_server_policy_source;
 check(() => assert.ok(releaseProblems(core, missingPolicy, digest).some((x) => x.includes('core_server_policy_source'))));
+const missingEdgeGuard = evidence();
+delete missingEdgeGuard.local_checks.core_edge_guard_source;
+check(() => assert.ok(releaseProblems(core, missingEdgeGuard, digest).some((x) => x.includes('core_edge_guard_source'))));
 const reviews = evidence();
 reviews.clean_reviews[2].unresolved_findings = 1;
 check(() => assert.ok(releaseProblems(core, reviews, digest).some((x) => x.includes('revisioni'))));

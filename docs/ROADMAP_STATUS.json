@@ -785,7 +785,8 @@
         "Enforcement SQL CORE applicato su Development con 10 test negativi e 3 permessi a rollback; completare test RPC con JWT autentici e verifica dell isolation per ruolo su staging prima di Production.",
         "Configurare staging HTTPS separato con domini, publishable key e isolamento delle credenziali; eseguire i collaudi su dispositivi reali.",
         "Registrare 3 revisioni integrali consecutive senza rilievi aperti e dossier di release completo; nessuna certificazione finche i gate non passano.",
-        "Eseguire `core_booking_without_deposit_sql_live` anche su staging con database isolato e sessioni HTTP/JWT vere; i vecchi FULL-edition test delle caparre risultano ora incompatibili con il blocco CORE."
+        "Eseguire `core_booking_without_deposit_sql_live` anche su staging con database isolato e sessioni HTTP/JWT vere; i vecchi FULL-edition test delle caparre risultano ora incompatibili con il blocco CORE.",
+        "CORE Edge Function guards deployed on Development (payments v10, print-authorization v3); run authenticated HTTP/JWT negative tests against both endpoints in isolated HTTPS staging before Production."
       ]
     }
   ],

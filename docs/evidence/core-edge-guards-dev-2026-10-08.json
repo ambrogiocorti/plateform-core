@@ -1,0 +1,39 @@
+{
+  "source_commit_base": "eba0fae",
+  "development_project": "abdxvlykasqmknexxhjo",
+  "date": "2026-10-08",
+  "edition": "CORE",
+  "production_modified": false,
+  "deployments": [
+    {
+      "function": "payments",
+      "version": 10,
+      "status": "ACTIVE",
+      "verify_jwt": true,
+      "capability": "externalPaymentProvidersIncluded",
+      "flag_value": false,
+      "authenticated_guard_before_provider_rpc": true,
+      "jwt_http_negative_test": "NOT_RUN"
+    },
+    {
+      "function": "print-authorization",
+      "version": 3,
+      "status": "ACTIVE",
+      "verify_jwt": false,
+      "body_validates_user_jwt": true,
+      "capability": "epsonPrintingIncluded",
+      "flag_value": false,
+      "authenticated_guard_before_print_rpc": true,
+      "jwt_http_negative_test": "NOT_RUN"
+    }
+  ],
+  "source_contract": "npm run check:core-edge-guards",
+  "server_policy": "20261008181605_core_edition_payment_and_print_denial.sql",
+  "remaining_release_evidence": [
+    "Authenticated HTTP requests proving both endpoints reject excluded actions",
+    "Complete Node 24 dependency installation, build, and CI",
+    "Complete SQL migration history and full restore rehearsal",
+    "Independent HTTPS staging functional and security E2E"
+  ],
+  "commercial_release_approved": false
+}

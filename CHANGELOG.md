@@ -163,3 +163,10 @@ Non è una release commerciale. Tre revisioni integrali pulite: 0/3.
 - Public metric deduplication retains only an allowlisted venue slug, not arbitrary query parameters containing possible email, phone, token or tracking values. The initial document timing key uses the same sanitized normalization so UTM parameters do not suppress the first-page timing metrics.
 - Verified dependency-free public routing/booking/telemetry tests, STEP11 static checks and a 31-case Chromium desktop/mobile static HTML audit. CORE source, SQL policy, release profile, migration-manifest and STEP12 static checks remained green in the available environment.
 - **Release not approved:** these checks do not replace the Node >=24.13 full build, authenticated HTTP/JS browser E2E, 323 missing historical migrations, current restore and production readiness. Production was not accessed.
+
+### 2026-10-08 — CORE Edge Functions deny provider/bridge execution on Development
+
+- Added fail-closed checks in the authenticated `payments` and `print-authorization` Edge handlers, sharing the same immutable CORE capability flags as the client.
+- Development `payments` v10 and `print-authorization` v3 deployed ACTIVE; source inspected after deployment to verify guard order before sensitive RPCs.
+- Added `check:core-edge-guards` as a mandatory local/CI release source gate and required authenticated HTTP/JWT denial evidence in the CORE commercial release gate. The source tests pass but the remote authenticated HTTP test has **not been performed**.
+- Retained historical provider/print records and browser/PDF CORE support; Production unchanged. This is not a release approval.
