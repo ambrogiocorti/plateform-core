@@ -2,3 +2,4 @@
 # Git for Windows must not change checked-out SQL bytes to CRLF.
 supabase/migrations/*.sql text eol=lf
 supabase/migration-manifest.json text eol=lf
+supabase/config.toml text eol=lf
