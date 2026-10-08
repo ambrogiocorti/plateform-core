@@ -43,7 +43,8 @@ describe('commercial release gate', () => {
     const record = evidence();
     Object.assign(record, { edition: 'CORE' });
     Object.assign(record.local_checks, {
-      core_edition_contract: 'passed', core_server_policy_source: 'passed', core_release_profile: 'passed',
+      core_edition_contract: 'passed', core_server_policy_source: 'passed',
+      core_edge_guard_source: 'passed', core_release_profile: 'passed',
     });
     record.integration_checks = Object.fromEntries(
       requiredCoreIntegrationChecks.map((name) => [
