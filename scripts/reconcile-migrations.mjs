@@ -34,6 +34,13 @@ const repo = resolve(process.env.PLATEFORM_REPO_ROOT || '.');
 const migrationDir = join(repo, 'supabase/migrations');
 const manifestPath = join(repo, 'supabase/migration-manifest.json');
 const digest = (bytes) => createHash('sha256').update(bytes).digest('hex');
+// A Windows checkout created before .gitattributes may still use CRLF.
+// Compare against the manifest using only canonical newline equivalence;
+// the original bytes are preserved in the recovery backup before adoption.
+const canonicalLocalHash = (bytes, expected) => {
+  const raw = digest(bytes);
+  return raw === expected ? raw : digest(bytes.toString('utf8').replace(/\r\n/g, '\n'));
+};
 
 const query = `SELECT row_to_json(m)::text FROM (
  SELECT version, name, array_to_string(statements,E'\\n') AS sql
@@ -104,7 +111,8 @@ for (const filename of localFiles) {
     continue;
   }
   const existing = await readFile(join(migrationDir, filename));
-  const localSha = digest(existing), remoteSha = digest(row.sql);
+  const remoteSha = digest(row.sql);
+  const localSha = canonicalLocalHash(existing, remoteSha);
   if (localSha !== remoteSha) {
     divergences.push({ filename, reason: 'SQL_SHA256_MISMATCH',
       local_sha256: localSha, remote_sha256: remoteSha });
@@ -115,7 +123,7 @@ if (!Array.isArray(current.migrations) || current.migrations.length !== localFil
   throw new Error('Local manifest does not describe the local migration files.');
 for (const item of current.migrations) {
   if (!localFiles.includes(item.filename) ||
-      digest(await readFile(join(migrationDir, item.filename))) !== item.sha256)
+      canonicalLocalHash(await readFile(join(migrationDir, item.filename)), item.sha256) !== item.sha256)
     throw new Error(`Local manifest is invalid: ${item.filename}`);
 }
 
