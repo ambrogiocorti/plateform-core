@@ -14,10 +14,15 @@ if (
 for (const row of rows) {
   if (row.filename !== `${row.version}_${row.name}.sql`)
     throw new Error(`Migration version mismatch: ${row.filename}`);
-  const hash = createHash('sha256')
-    .update(await readFile(`supabase/migrations/${row.filename}`))
-    .digest('hex');
-  if (hash !== row.sha256)
+  const contents = await readFile(`supabase/migrations/${row.filename}`);
+  const digest = (value) => createHash('sha256').update(value).digest('hex');
+  // Git for Windows may have checked out the SQL with CRLF before the
+  // repository acquired .gitattributes. Accept only newline-equivalent SQL;
+  // every meaningful byte change still fails the authoritative manifest.
+  const hash = digest(contents);
+  const canonicalHash =
+    hash === row.sha256 ? hash : digest(contents.toString('utf8').replace(/\r\n/g, '\n'));
+  if (canonicalHash !== row.sha256)
     throw new Error(`Applied migration changed: ${row.filename}. Add a new migration instead.`);
 }
 console.log(`${rows.length} versioned migrations verified against the applied manifest.`);
