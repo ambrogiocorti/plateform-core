@@ -77,7 +77,7 @@
     "local:verify": "npm run local:preflight && npm run local:source-gates && npm run check:edge && npm run test:edge && npm test && npm run build",
     "local:browser": "npm run test:e2e",
     "local:full": "npm run local:verify && npm run local:browser",
-    "check:step11-runtime": "node --experimental-strip-types scripts/check-step11-public-runtime.mjs",
+    "check:step11-runtime": "node --experimental-strip-types scripts/check-step11-public-runtime.mjs && node --experimental-strip-types scripts/check-step11-telemetry-observers.mjs",
     "check:step11-static": "node scripts/check-step11-static.mjs",
     "check:step11-assets": "node --experimental-strip-types scripts/check-step11-assets.mjs",
     "local:package": "npm run local:source-gates && node scripts/package-local-rc.mjs",

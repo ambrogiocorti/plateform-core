@@ -87,6 +87,19 @@ export function normalizePublicPath(
     : null;
 }
 
+/** Snapshot the non-sensitive public URL *when* a metric observer starts.
+ * SPA navigation must never attribute a previous page's CLS/LCP to the next
+ * page, and QR/customer session URLs must not enter public analytics.
+ */
+export function publicMetricContext(pathname: string, search: string): {
+  path: Exclude<ReturnType<typeof normalizePublicPath>, '/tavolo/:id' | null>;
+  key: string;
+} | null {
+  const path = normalizePublicPath(pathname);
+  if (!path || path === '/tavolo/:id') return null;
+  return { path, key: `${pathname}${search}` };
+}
+
 /** Only a route owned by the public SPA may be intercepted by its click router.
  * Staff, provider callbacks, document links and unknown URLs must perform a
  * normal browser navigation so the server can enforce host/path isolation.

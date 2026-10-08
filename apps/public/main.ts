@@ -48,6 +48,27 @@ let stopLive: (() => void) | undefined;
 let liveKey = '';
 let stopPerformance: (() => void) | undefined;
 let initialPage = true;
+
+function releasePublicObservers(): void {
+  stopLive?.();
+  stopLive = undefined;
+  liveKey = '';
+  stopPerformance?.();
+  stopPerformance = undefined;
+}
+
+function failClosedPublicMetadata(): void {
+  let robots = document.head.querySelector<HTMLMetaElement>('meta[name="robots"]');
+  if (!robots) {
+    robots = document.createElement('meta');
+    robots.name = 'robots';
+    document.head.append(robots);
+  }
+  robots.content = 'noindex,nofollow';
+  document.head.querySelector('link[rel="canonical"]')?.remove();
+  document.getElementById('restaurant-structured-data')?.remove();
+}
+
 function textValue(data: Record<string, unknown>, key: string, fallback = ''): string {
   return typeof data[key] === 'string' ? data[key] : fallback;
 }
@@ -148,11 +169,21 @@ function applyMetadata(site: PublicSite, venue?: Venue): void {
 function logoForStructuredData(site: PublicSite): string | undefined {
   return safeImageUrl(site.branding.logo_url);
 }
+function startPublicRender(focusAfterNavigation = false): void {
+  const pending = render();
+  const expectedRevision = revision;
+  void pending.then(() => {
+    if (expectedRevision === revision && focusAfterNavigation)
+      document.getElementById('main')?.focus({ preventScroll: true });
+  }).catch((error: unknown) => {
+    // A superseded slow RPC must not replace a newer, successfully rendered
+    // page with the error state from the previous navigation.
+    if (expectedRevision === revision) failed(error);
+  });
+}
 function route(path: string): void {
   history.pushState(null, '', path);
-  void render()
-    .then(() => document.getElementById('main')?.focus({ preventScroll: true }))
-    .catch(failed);
+  startPublicRender(true);
 }
 
 async function render(): Promise<void> {
@@ -172,6 +203,8 @@ async function render(): Promise<void> {
   if (current !== revision) return;
   app.removeAttribute('aria-busy');
   if (!site) {
+    releasePublicObservers();
+    failClosedPublicMetadata();
     app.replaceChildren(
       el(
         'main',
@@ -193,10 +226,11 @@ async function render(): Promise<void> {
     // Invalid/archived venue URLs are never indexable and must not receive a
     // canonical address or structured data belonging to another venue.
     document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]')?.remove();
+    document.head.querySelector('meta[property="og:url"]')?.remove();
     const robots = document.head.querySelector<HTMLMetaElement>('meta[name="robots"]');
     if (robots) robots.content = 'noindex,nofollow';
   }
-  if (!location.pathname.startsWith('/tavolo/')) {
+  if (!location.pathname.startsWith('/tavolo/') && !invalidVenueContext) {
     const pathForSeo = location.pathname;
     const seoRevision = current;
     void rpc('get_public_page_metadata', {
@@ -431,6 +465,13 @@ async function render(): Promise<void> {
         el('a', { href: '/' }, 'Torna alla home'),
       ),
     );
+  if (!venue || path.startsWith('/tavolo/')) {
+    // Leaving a known public venue must unsubscribe before a stale callback
+    // can refresh an invalid venue page or retain the previous venue context.
+    stopLive?.();
+    stopLive = undefined;
+    liveKey = '';
+  }
   if (venue && !path.startsWith('/tavolo/')) {
     const key = `${venue.id}:${path}`;
     const connection = el('p', {
@@ -824,6 +865,8 @@ function footer(site: PublicSite): HTMLElement {
 }
 function failed(error: unknown): void {
   app.removeAttribute('aria-busy');
+  releasePublicObservers();
+  failClosedPublicMetadata();
   app.replaceChildren(
     el(
       'main',
@@ -854,9 +897,7 @@ document.addEventListener('click', (event) => {
   event.preventDefault();
   route(target.pathname + target.search);
 });
-window.addEventListener('popstate', () => {
-  void render().catch(failed);
-});
-void render().catch(failed);
+window.addEventListener('popstate', () => startPublicRender());
+startPublicRender();
 
 void registerPwa().catch(() => {});

@@ -5,6 +5,7 @@ import {
   contrastRatio,
   isClientSidePublicPath,
   normalizePublicPath,
+  publicMetricContext,
   readableInk,
   resolveBookingVenue,
   safeRecoveredPublicRoute,
@@ -107,6 +108,13 @@ assert.equal(normalizePublicPath('/sedi/navigli'), '/sedi/:venue');
 assert.equal(normalizePublicPath('/menu/carta-vini'), '/menu/:slug');
 assert.equal(normalizePublicPath('/tavolo/abc'), '/tavolo/:id');
 assert.equal(normalizePublicPath('/unknown'), null);
+assert.deepEqual(publicMetricContext('/menu/carta-vini', '?sede=navigli'), {
+  path: '/menu/:slug', key: '/menu/carta-vini?sede=navigli',
+}, 'performance metrics use a stable, venue-specific route snapshot');
+assert.equal(publicMetricContext('/tavolo/private-customer-token', '?sede=navigli'), null,
+  'QR/customer URLs must not be recorded in public page telemetry');
+assert.equal(publicMetricContext('/staff/login', ''), null,
+  'staff URLs must never be counted as public routes');
 for (const route of ['/', '/menu', '/menu/carta-vini', '/sedi/navigli', '/tavolo/abc', '/prenota']) {
   assert.equal(isClientSidePublicPath(route), true, `public route: ${route}`);
 }

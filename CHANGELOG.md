@@ -111,3 +111,12 @@ Non è una release commerciale. Tre revisioni integrali pulite: 0/3.
 - Database regression, security and test-catalog gates remain green on Development at 455 applied migrations; 323 historical SQL files remain missing locally.
 
 - Reran available dependency-free role UX and Step9/11/12 checks; separate blocked PGlite/fake-indexeddb gates from passing tests in the latest verification log.
+
+### 2026-10-08 — Step11 Realtime and public performance lifecycle hardening
+
+- Public analytics now bind performance observations to a captured route and venue context, instead of attributing CLS from a previous menu to the next SPA route.
+- QR/customer session paths never emit public analytics. Historical document TTFB/FCP timings are not re-emitted for SPA navigation; pagehide handlers and observers are disconnected on route cleanup.
+- Leaving an active venue, or failing to load the public site, closes stale public Realtime subscriptions and performance observers. Error fallback removes canonical/structured restaurant metadata and sets `noindex,nofollow`.
+- A stale asynchronous page-render failure can no longer replace a newer successful navigation; invalid venue context also skips the SEO RPC and removes inherited Open Graph URLs.
+- Added a zero-npm TypeScript observer regression harness; included in `npm run check:step11-runtime` and verified alongside static, prerender, booking and build-assembly gates.
+- **Not certified**: real hosted Chromium user journeys, Node >=24.13 full npm CI, 323 missing historical applied SQL files, stage deployment, provider/hardware certification and current-schema restore.
