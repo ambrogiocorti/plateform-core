@@ -16,7 +16,6 @@ const result = spawnSync(
   [
     resolve('node_modules/deno/bin.cjs'),
     mode,
-    '--node-modules-dir=manual',
     '--config',
     'supabase/functions/deno.json',
     ...(mode === 'test' ? ['--allow-env'] : []),
