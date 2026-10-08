@@ -18,6 +18,7 @@ import { setupPublicNavigation } from '../../src/services/public-navigation';
 import {
   bookingVenue,
   canonicalPublicUrl,
+  isClientSidePublicPath,
   readableInk,
   safeAccent,
   safeBackground,
@@ -792,6 +793,7 @@ document.addEventListener('click', (event) => {
   if (
     !(target instanceof HTMLAnchorElement) ||
     target.origin !== location.origin ||
+    !isClientSidePublicPath(target.pathname) ||
     (target.target !== '' && target.target !== '_self') ||
     target.hasAttribute('download') ||
     event.ctrlKey ||

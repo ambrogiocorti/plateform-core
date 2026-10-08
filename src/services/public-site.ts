@@ -42,8 +42,12 @@ export function canonicalPublicUrl(
 
 export function normalizePublicPath(
   pathname: string,
-): PublicPath | '/sedi/:venue' | '/tavolo/:id' | null {
-  if (pathname.startsWith('/sedi/') && pathname.split('/').filter(Boolean).length === 2)
+): PublicPath | '/menu/:slug' | '/sedi/:venue' | '/tavolo/:id' | null {
+  // Keep the public route catalogue aligned with the pages actually rendered by
+  // apps/public/main.ts. These canonical route labels are also used by telemetry.
+  if (/^\/menu\/[a-z0-9]+(?:-[a-z0-9]+)*$/.test(pathname))
+    return '/menu/:slug';
+  if (/^\/sedi\/[a-z0-9]+(?:-[a-z0-9]+)*$/.test(pathname))
     return '/sedi/:venue';
   if (pathname.startsWith('/tavolo/') && pathname.split('/').filter(Boolean).length === 2)
     return '/tavolo/:id';
@@ -52,6 +56,14 @@ export function normalizePublicPath(
   )
     ? (pathname as PublicPath)
     : null;
+}
+
+/** Only a route owned by the public SPA may be intercepted by its click router.
+ * Staff, provider callbacks, document links and unknown URLs must perform a
+ * normal browser navigation so the server can enforce host/path isolation.
+ */
+export function isClientSidePublicPath(pathname: string): boolean {
+  return normalizePublicPath(pathname) !== null;
 }
 
 function rgb(hex: string): [number, number, number] | null {

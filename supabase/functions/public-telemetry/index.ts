@@ -7,6 +7,7 @@ const schema = z
     path: z.enum([
       '/',
       '/menu',
+      '/menu/:slug',
       '/ristorante',
       '/gallery',
       '/sedi',

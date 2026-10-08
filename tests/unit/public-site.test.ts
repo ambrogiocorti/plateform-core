@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import {
   bookingVenue,
   contrastRatio,
+  isClientSidePublicPath,
+  normalizePublicPath,
   readableInk,
   safeAccent,
   safeBackground,
@@ -48,6 +50,15 @@ const site: PublicSite = {
 };
 
 describe('public site venue routing', () => {
+  it('reserves staff and non-app URLs for native browser navigation', () => {
+    expect(normalizePublicPath('/menu/carta-vini')).toBe('/menu/:slug');
+    expect(isClientSidePublicPath('/menu/carta-vini')).toBe(true);
+    expect(isClientSidePublicPath('/staff')).toBe(false);
+    expect(isClientSidePublicPath('/staff/login')).toBe(false);
+    expect(isClientSidePublicPath('/sitemap.xml')).toBe(false);
+    expect(isClientSidePublicPath('/api/status')).toBe(false);
+    expect(isClientSidePublicPath('/menu/../../staff')).toBe(false);
+  });
   it('selects a venue from path or query and falls back safely', () => {
     expect(selectedVenue(site, '/sedi/navigli', '')?.slug).toBe('navigli');
     expect(selectedVenue(site, '/menu', '?sede=navigli')?.slug).toBe('navigli');

@@ -81,6 +81,7 @@ for (const [needle, label] of [
   ],
   ['observePublicPerformance', 'public_performance_observability'],
   ['recordPublicPageView', 'public_page_telemetry'],
+  ['!isClientSidePublicPath(target.pathname)', 'non_public_path_does_not_intercept_staff'],
 ])
   requireText(publicMain, needle, label);
 
@@ -89,6 +90,7 @@ for (const [needle, label] of [
   ['PUBLIC_PERFORMANCE', 'telemetry_performance'],
   ['rateLimit(`public-telemetry:', 'telemetry_rate_limit'],
   ['telemetry_events', 'telemetry_sink'],
+  ["'/menu/:slug'", 'telemetry_accepts_named_public_menu'],
 ])
   requireText(telemetryEdge, needle, label);
 

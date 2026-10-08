@@ -3,6 +3,7 @@ import {
   bookingVenue,
   canonicalPublicUrl,
   contrastRatio,
+  isClientSidePublicPath,
   normalizePublicPath,
   readableInk,
   safeAccent,
@@ -69,8 +70,16 @@ assert.equal(
   'https://restaurant.test/sedi/navigli',
 );
 assert.equal(normalizePublicPath('/sedi/navigli'), '/sedi/:venue');
+assert.equal(normalizePublicPath('/menu/carta-vini'), '/menu/:slug');
 assert.equal(normalizePublicPath('/tavolo/abc'), '/tavolo/:id');
 assert.equal(normalizePublicPath('/unknown'), null);
+for (const route of ['/', '/menu', '/menu/carta-vini', '/sedi/navigli', '/tavolo/abc', '/prenota']) {
+  assert.equal(isClientSidePublicPath(route), true, `public route: ${route}`);
+}
+for (const route of ['/staff', '/staff/login', '/api/status', '/sitemap.xml',
+  '/robots.txt', '/menu/../../staff', '/menu/', '/sedi/milano/extra', '/unknown']) {
+  assert.equal(isClientSidePublicPath(route), false, `not a public SPA route: ${route}`);
+}
 assert.ok(contrastRatio('#111315', '#f4f0e8') > 7);
 assert.equal(safeBackground('#ffffff', true), undefined);
 assert.equal(safeBackground('#111315', true), '#111315');
