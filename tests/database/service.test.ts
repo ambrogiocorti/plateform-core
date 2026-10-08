@@ -312,9 +312,11 @@ describe('Authoritative service workflows', () => {
         [table],
       )
     ).rows[0]!.public_table_id;
+    await db.exec('savepoint before_qr_identity_violation');
     await expect(
       db.query('update public.tables set public_table_id=gen_random_uuid() where id=$1', [table]),
     ).rejects.toThrow('PUBLIC_TABLE_ID_IMMUTABLE');
+    await db.exec('rollback to savepoint before_qr_identity_violation');
     expect(
       (
         await db.query<{ public_table_id: string }>(
