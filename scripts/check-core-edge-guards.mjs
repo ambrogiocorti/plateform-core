@@ -25,7 +25,7 @@ const checks = [
 ];
 let checked = 2;
 for (const {file,flag,error,before,external} of checks) {
-  const source = readFileSync(file,'utf8');
+  const source = readFileSync(file,'utf8').replace(/\r\n/g, '\n');
   const importLine = `import { ${flag} } from '../../../src/services/commercial-scope.ts';`;
   assert.ok(source.includes(importLine), `${file}: must use common CORE capability`);
   checked++;
