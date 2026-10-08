@@ -142,7 +142,11 @@ export function releaseProblems(matrix, evidence, digest, now = Date.now()) {
     errors.push('Le 151 sezioni del master devono risultare verificate con evidenze.');
   if (evidence.source_digest !== digest)
     errors.push('Le evidenze non corrispondono ai sorgenti attuali.');
-  for (const suite of ['typecheck', 'lint', 'edge', 'unit_database', 'browser', 'build'])
+  const requiredLocalSuites = [
+    'typecheck', 'lint', 'edge', 'unit_database', 'browser', 'build',
+    ...(coreEdition ? ['core_edition_contract', 'core_release_profile'] : []),
+  ];
+  for (const suite of requiredLocalSuites)
     if (evidence.local_checks?.[suite] !== 'passed')
       errors.push(`Verifica locale mancante: ${suite}.`);
   if (evidence.edition && evidence.edition !== 'CORE' && evidence.edition !== 'FULL')

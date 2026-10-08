@@ -4,6 +4,7 @@ import { providerPaymentDialog } from './provider-payments';
 import { stepUp } from '../auth/step-up';
 import { button, dialog, el, field, status, toast } from '../components/dom';
 import { formatMoney, parseMoney } from '../services/money';
+import { permittedPaymentMethod } from '../services/commercial-scope';
 import { paymentRegisterSchema } from '../types/accounts';
 import type { Account, AccountBalance } from '../types/accounts';
 import { command } from './staff-context';
@@ -143,7 +144,12 @@ export async function accountPaymentHistory(
           `Mancia separata ${formatMoney(payment.tip_cents)} · Rimborsi ${formatMoney(payment.refunded_cents)} + ${formatMoney(payment.refunded_tip_cents)} mance`,
         ),
       );
-      if (!manual(payment.method) && payment.status === 'PENDING')
+      if (!permittedPaymentMethod(payment.method))
+        card.append(
+          el('p', { class: 'muted' },
+            'Operazione storica con metodo escluso dalla CORE: consultazione consentita; nuove rettifiche e richieste al provider non disponibili.'),
+        );
+      if (!manual(payment.method) && payment.status === 'PENDING' && permittedPaymentMethod(payment.method))
         card.append(
           button(
             'Riprendi verifica online',
@@ -153,6 +159,7 @@ export async function accountPaymentHistory(
         );
       if (
         manual(payment.method) &&
+        permittedPaymentMethod(payment.method) &&
         ['COMPLETED', 'PENDING'].includes(payment.status) &&
         !payment.refunds.some((item) => !['FAILED', 'REJECTED'].includes(item.status)) &&
         (account.status !== 'CLOSED' || context.profile.role === 'ADMIN')
@@ -196,6 +203,7 @@ export async function accountPaymentHistory(
       }
       if (
         context.profile.role === 'ADMIN' &&
+        permittedPaymentMethod(payment.method) &&
         ['COMPLETED', 'PARTIALLY_REFUNDED'].includes(payment.status) &&
         (payment.amount_cents > payment.refunded_cents ||
           payment.tip_cents > payment.refunded_tip_cents)
@@ -205,6 +213,7 @@ export async function accountPaymentHistory(
         if (
           refund.status === 'PENDING' &&
           !manual(payment.method) &&
+          permittedPaymentMethod(payment.method) &&
           context.profile.role === 'ADMIN'
         )
           card.append(
@@ -246,6 +255,13 @@ async function refundDialog(
   account: Account,
   payment: Payment,
 ): Promise<void> {
+  if (!permittedPaymentMethod(payment.method)) {
+    dialog(
+      'Rimborso non disponibile',
+      el('p', {}, 'Questo metodo appartiene a un provider escluso dalla versione CORE. La transazione storica resta visibile ma non può essere rimborsata da questa edizione.'),
+    );
+    return;
+  }
   const registers = await rpc(
     'get_payment_registers',
     { p_venue: account.venue_id },

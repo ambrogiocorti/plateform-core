@@ -32,6 +32,8 @@ describe('printing protocol boundary', () => {
     expect(lines).toContain('Totale: 10,01 €');
     expect(lines).toContain('Mancia separata: 2,00 €');
     expect(lines).toContain('Rimborso CASH: -3,00 €');
+    expect(lines).toContain('DOCUMENTO NON FISCALE');
+    expect(lines).toContain('Non costituisce fattura elettronica né documento commerciale fiscale.');
   });
   it('distinguishes the managed PDF/browser output from a normal browser printer', () => {
     expect(isPdfOutput({ output: 'PDF', paper: 'A4' })).toBe(true);

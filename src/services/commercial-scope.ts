@@ -22,3 +22,10 @@ export function permittedPrintDriver(driver: string): boolean {
 export function permittedPrintDrivers(): string[] {
   return epsonPrintingIncluded ? ['BROWSER', 'EPOS', 'BRIDGE'] : ['BROWSER'];
 }
+
+/** Do not offer a reservation slot whose only payment path is excluded. */
+export function permittedBookingSlots<T extends { status_if_booked?: string }>(slots: readonly T[]): T[] {
+  return externalPaymentProvidersIncluded
+    ? [...slots]
+    : slots.filter((slot) => slot.status_if_booked !== 'PENDING_DEPOSIT');
+}

@@ -133,6 +133,7 @@ export async function operationalSettingsPage(context: StaffContext): Promise<HT
     gift = select('Omaggi', policies, settings.complimentary_policy);
   const financeKey = crypto.randomUUID();
   financial.append(
+    el('p', { class: 'muted' }, 'Edizione CORE: incassi in contanti o POS carta esterno, senza collegamento al provider. Verifica l’esito sul terminale prima di confermare.'),
     pay.root,
     el('label', {}, 'Sconti', discount),
     el('label', {}, 'Omaggi', gift),
@@ -223,7 +224,9 @@ export async function operationalSettingsPage(context: StaffContext): Promise<HT
     )
   ).filter((device) => device.configuration.output !== 'PDF' && permittedPrintDriver(device.driver));
   const stations = await readRows('stations', record, context.venue.id, { active: 'true' });
-  const printConfig = el('section', { class: 'card stack' }, el('h2', {}, 'Postazioni e stampa'));
+  const printConfig = el('section', { class: 'card stack' },
+    el('h2', {}, 'Postazioni e stampa'),
+    el('p', { class: 'muted' }, 'Edizione CORE: stampa via browser/PDF. Driver Epson e bridge non inclusi.'));
   for (const register of registers)
     printConfig.append(
       button(

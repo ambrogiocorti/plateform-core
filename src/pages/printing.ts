@@ -10,6 +10,7 @@ import {
 } from '../printing/document';
 import { invoiceDocument, isPdfOutput } from '../printing/invoice';
 import { safeImageUrl } from '../config/environment';
+import { permittedPrintDriver } from '../services/commercial-scope';
 import type { StaffContext } from './staff-context';
 const jobSchema = z.object({
   id: z.uuid(),
@@ -30,9 +31,9 @@ export async function accountPrintAction(
   context: StaffContext,
   account: string,
 ): Promise<HTMLElement> {
-  const devices = await readRows('print_devices', deviceSchema, context.venue?.id, {
+  const devices = (await readRows('print_devices', deviceSchema, context.venue?.id, {
     active: 'true',
-  });
+  })).filter((device) => permittedPrintDriver(device.driver));
   return button(
     'Stampa conto',
     () => {
@@ -95,6 +96,13 @@ export async function processPrint(context: StaffContext, id: string): Promise<v
     );
     await context.refresh?.();
   };
+  // This also guards jobs created before the edition was restricted: callers
+  // must not dispatch a historical EPOS/BRIDGE job through processPrint().
+  if (!permittedPrintDriver(device.driver)) {
+    await finish(false);
+    toast('La stampa su questo dispositivo non è inclusa in Plateform CORE.', true);
+    return;
+  }
   if (device.driver === 'BROWSER') {
     const logo = safeImageUrl(job.payload.logo);
     const pdf = isPdfOutput(device.configuration);

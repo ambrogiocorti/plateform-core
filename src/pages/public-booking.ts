@@ -6,7 +6,7 @@ import { button, el, emptyState, field } from '../components/dom';
 import type { Venue } from '../types/domain';
 import { addCalendarDays, bookableSlots, depositNextAction, venueLocalToday } from '../services/public-booking-contract';
 import type { SearchKey } from '../services/public-booking-contract';
-import { externalPaymentProvidersIncluded } from '../services/commercial-scope';
+import { externalPaymentProvidersIncluded, permittedBookingSlots } from '../services/commercial-scope';
 
 async function bookingFailure(error: unknown): Promise<never> {
   if (error instanceof FunctionsHttpError) {
@@ -105,8 +105,7 @@ export async function bookingPage(venue: Venue, privacyUrl?: string): Promise<HT
     // unavailable online deposit provider. The authoritative server may have
     // stricter rules than the public UI last observed.
     const confirmedSlots = bookableSlots(result, key);
-    const slots = confirmedSlots.filter((slot) =>
-      externalPaymentProvidersIncluded || slot.status_if_booked !== 'PENDING_DEPOSIT');
+    const slots = permittedBookingSlots(confirmedSlots);
     if (!slots.length) {
       status.textContent = confirmedSlots.some((slot) => slot.status_if_booked === 'PENDING_DEPOSIT')
         ? 'Gli orari disponibili richiedono una caparra online non gestita in questa edizione. Contatta il ristorante.'

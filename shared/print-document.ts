@@ -71,6 +71,10 @@ export function printLines(payload: PrintPayload): string[] {
     );
   for (const refund of payload.refunds ?? [])
     lines.push(`Rimborso ${refund.method}: -${money(refund.amount_cents)}`);
+  // The browser/thermal printout is a courtesy copy, never a fiscal receipt.
+  // Enforce this on the document itself, not only on the dialog surrounding it.
+  lines.push('', 'DOCUMENTO NON FISCALE',
+    'Non costituisce fattura elettronica né documento commerciale fiscale.');
   return lines.filter((line, index) => line !== '' || index > 6);
 }
 const xml = (s: string) =>

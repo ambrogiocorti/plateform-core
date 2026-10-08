@@ -15,7 +15,10 @@ const evidence = (edition = 'CORE') => ({
   source_digest: digest,
   version: '1.0.0',
   local_checks: Object.fromEntries(
-    ['typecheck', 'lint', 'edge', 'unit_database', 'browser', 'build'].map((key) => [key, 'passed']),
+    [
+      'typecheck', 'lint', 'edge', 'unit_database', 'browser', 'build',
+      ...(edition === 'CORE' ? ['core_edition_contract', 'core_release_profile'] : []),
+    ].map((key) => [key, 'passed']),
   ),
   integration_checks: Object.fromEntries(
     (edition === 'CORE' ? requiredCoreIntegrationChecks : requiredIntegrationChecks).map((key) => [key, {
@@ -48,6 +51,9 @@ check(() => assert.ok(releaseProblems(core, forged, digest).some((x) => x.includ
 const stale = evidence();
 stale.local_checks.browser = 'not-run';
 check(() => assert.ok(releaseProblems(core, stale, digest).some((x) => x.includes('browser'))));
+const missingCore = evidence();
+delete missingCore.local_checks.core_edition_contract;
+check(() => assert.ok(releaseProblems(core, missingCore, digest).some((x) => x.includes('core_edition_contract'))));
 const reviews = evidence();
 reviews.clean_reviews[2].unresolved_findings = 1;
 check(() => assert.ok(releaseProblems(core, reviews, digest).some((x) => x.includes('revisioni'))));

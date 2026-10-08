@@ -3,6 +3,7 @@ import { z } from 'zod';
 import QRCode from 'qrcode';
 import { ApplicationError, client, safeError } from '../api/client';
 import { button, dialog, el, status, toast } from '../components/dom';
+import { externalPaymentProvidersIncluded } from '../services/commercial-scope';
 import type { StaffContext } from './staff-context';
 const resultSchema = z.object({
   id: z.uuid(),
@@ -28,6 +29,13 @@ export async function providerPaymentDialog(
   refund?: string,
   onReturn?: () => void | Promise<void>,
 ): Promise<void> {
+  if (!externalPaymentProvidersIncluded) {
+    dialog(
+      'Provider non incluso in Plateform CORE',
+      el('p', {}, 'Questo pagamento o rimborso storico necessita di riconciliazione con il gestore originale. Plateform CORE non avvia chiamate ai provider esclusi e non modifica lo stato dell’operazione.'),
+    );
+    return;
+  }
   const content = el('div', { class: 'stack', 'aria-live': 'polite' });
   const popup = dialog(refund ? 'Esito rimborso online' : 'Pagamento online', content);
   async function reconcile(): Promise<void> {

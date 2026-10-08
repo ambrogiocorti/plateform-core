@@ -8,13 +8,16 @@
 - `src/pages/account-payments.ts`: modalità disabilitata e messaggio esplicito se una cassa ha solo metodi esclusi; protezione prima della RPC di incasso.
 - `src/pages/operational-settings.ts`: limitazione configurazioni sede/cassa e dispositivi di stampa al perimetro CORE; dispositivi storici Epson visualizzati ma non configurabili nella UI CORE.
 - `src/pages/public-booking.ts`: niente offerte caparra checkout; fail-closed quando una prenotazione risulta PENDING_DEPOSIT.
+- `src/pages/printing.ts`: solo device browser selezionabili, e fail-closed anche per code di stampa preesistenti con driver EPOS/BRIDGE (mai inviate al dispositivo dalla CORE).
+- `src/pages/account-finance.ts`, `src/pages/cash.ts`, `src/pages/provider-payments.ts`: storico di pagamenti esclusi consultabile, ma nuove rettifiche, rimborsi e chiamate provider non eseguibili da CORE; verifica contanti/POS consentita.
+- `shared/print-document.ts`: indicazione obbligatoria **NON FISCALE** nel documento stampato anche in modalità browser testuale.
 - `scripts/check-release.mjs`: variante commerciale CORE con esclusione controllata dei §§79, 80, 90, più nuovi test obbligatori e mantenimento delle tre revisioni pulite.
 - `scripts/check-core-edition.mjs` e `scripts/check-core-release-profile.mjs`: controlli eseguibili senza dipendenze esterne e collegati a `npm run check` e `local:source-gates`.
 
 ## Evidenza misurata
 
-- `check:core-edition`: 25/25 controlli mirati eseguiti con Node 22.
-- `check:core-release-profile`: 15/15 controlli mirati eseguiti con Node 22.
+- `check:core-edition`: 41/41 controlli mirati eseguiti con Node 22, inclusa la formattazione reale del documento browser/termico.
+- `check:core-release-profile`: 16/16 controlli mirati eseguiti con Node 22.
 - Test indipendenti dalle dipendenze: Step 9 UX avanzata, Step 10 UX multi-sede, Step 11 runtime/booking/prerender/deploy fixtures e Step 12 static 34/34 superati.
 - Syntax check TypeScript eseguito su nuovi/modificati file; **NON equivale al typecheck strict** con Node 24 e tutte le dipendenze.
 

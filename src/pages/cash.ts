@@ -11,6 +11,7 @@ import {
   toast,
 } from '../components/dom';
 import { formatMoney, parseMoney } from '../services/money';
+import { permittedPaymentMethod } from '../services/commercial-scope';
 import { accountWorkspaceSchema } from '../types/accounts';
 import { accountPrintAction } from './printing';
 import { paymentDialog } from './account-payments';
@@ -370,7 +371,7 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
           `Conto ${formatMoney(payment.amount_cents)} · mancia ${formatMoney(payment.tip_cents)}`,
         ),
       );
-      if (['CASH', 'CARD_POS', 'SATISPAY_POS'].includes(payment.method))
+      if (permittedPaymentMethod(payment.method))
         card.append(
           button(
             'Verifica esito',
