@@ -32,7 +32,7 @@ check(() => assert.throws(() => createVercelConfiguration({ supabaseUrl: 'https:
 check(() => assert.throws(() => createVercelConfiguration({ supabaseUrl: 'http://localhost:54321' }), /INVALID_VERCEL_SUPABASE_ORIGIN/));
 check(() => assert.throws(() => createVercelConfiguration({ supabaseUrl: project, mode: 'production' }), /PRODUCTION_CONFIG_REQUIRES_EXPLICIT_AUTHORIZATION/));
 
-const workflow = await readFile('.github/workflows/staging-readiness.yml', 'utf8');
+const workflow = (await readFile('.github/workflows/staging-readiness.yml', 'utf8')).replace(/\r\n/g, '\n');
 check(() => assert.match(workflow, /node-version: '24'/));
 check(() => assert.match(workflow, /run: npm ci/));
 check(() => assert.match(workflow, /npm run format:check/));
