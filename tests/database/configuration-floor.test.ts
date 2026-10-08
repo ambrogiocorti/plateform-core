@@ -164,7 +164,7 @@ describe('configuration and operational floor boundaries', () => {
         true,
         crypto.randomUUID(),
       ]),
-    ).rejects.toThrow('INVALID_PRINT_ENDPOINT');
+    ).rejects.toThrow('PRINT_DRIVER_NOT_INCLUDED');
   });
   it('does not allow online methods without the technical license', async () => {
     const version = (
