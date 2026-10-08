@@ -25,6 +25,15 @@ il lavoro in corso e non costituisce una release commerciale delle Release 1–3
 - La proposta di blocco server-side `docs/CORE_EDITION_SERVER_POLICY_PENDING.sql` **non è stata applicata**: la modifica remota è stata bloccata da un controllo di sicurezza. I provider rimangono fuori scope nell'UI, ma la vendita è ancora bloccata fino all'enforcement backend.
 - Resta il disallineamento 132/455 migrazioni locali/remote, non è stata installata la toolchain Node 24 né verificato uno staging HTTPS.
 
+### CORE — hardening prudenziale aggiuntivo, 8 ottobre 2026 (non rilasciato)
+
+- Filtro slot booking fail-closed anche su metadati `deposit` incoerenti con `status_if_booked` e su stati ignoti; UI informa senza offrire orari che potrebbero richiedere checkout online.
+- Il pannello tecnico del Super Admin mostra Stripe/Satispay come `FUORI PERIMETRO CORE` anche se il flag remoto è rimasto concesso; questo non equivale a blocco RPC.
+- La proposta SQL **non applicata** è stata rafforzata: controllo di preflight su operazioni/rimborsi/caparre/job aperti, disabilitazione della licenza `BOOKING_DEPOSITS`, trigger su licenze e configurazione dei registratori, nuove operazioni provider, metodi pagamento/rimborso e nuove stampe su driver esclusi. Corretto l'uso di uno stato rimborso inesistente nell'enum.
+- Nuovo `check:core-server-policy` (26 contratti sorgente) richiesto dal gate commerciale CORE, oltre ai test API negativi reali obbligatori (compreso il divieto di nuove caparre online).
+- Verifiche effettive: CORE 50/50; policy SQL 26/26 (SOLO STATICA); gate CORE 18/18; migrazioni locali 132/132; Step 8 16/16 e Step 12 statico 34/34. 16 gruppi UX/Step 11 disponibili superati, Step 10 cross-venue test PostgreSQL bloccato da `node_modules` incompleta.
+- Preflight Node 22 / binding Vite-Rolldown assente e variabili staging non configurate; `release:check` nega il rilascio per assenza dossier reali. Rimane irrisolto lo storico SQL 132 locale / 455 Development. Nessuna migrazione, dato remoto o Production modificato durante questo incremento.
+
 ### UX operativa WAITER / RUNNER — 5 ottobre 2026
 
 - Aggiunta la home staff `/servizio`, ora primo ingresso del ruolo WAITER, con priorità visibili per chiamate cliente, piatti pronti e tavoli assegnati.

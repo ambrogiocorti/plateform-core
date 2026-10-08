@@ -10,14 +10,14 @@ Lo scope è codificato in `src/services/commercial-scope.ts`, applicato alla sel
 
 Il frontend da solo non è una barriera di sicurezza. Prima di qualsiasi pubblicazione commerciale bisogna verificare che l'istanza di destinazione impedisca **anche via API diretta** la creazione di pagamenti Stripe/Satispay, l'attivazione dei metodi Satispay POS e nuove configurazioni Epson; i flag di licenza e i permessi di sede devono restare coerenti con l'edizione CORE. Qualsiasi attività di rimborso/provider preesistente deve essere riconciliata prima della disattivazione dei servizi.
 
-**Blocco operativo aperto:** l'istanza Development aveva ancora licenze Stripe/Satispay abilitate al momento del controllo. La proposta di guardia server-side è in `docs/CORE_EDITION_SERVER_POLICY_PENDING.sql`, ma la sua applicazione remota è stata bloccata: non può essere dichiarata implementata o verificata. Una release CORE rimane vietata finché questo gate non è risolto.
+**Blocco operativo aperto:** l'istanza Development aveva ancora licenze Stripe/Satispay abilitate al momento del controllo. La proposta di guardia server-side aggiornata (nuovi pagamenti/rimborsi, caparre non concluse, configurazione, licenze (incluse `BOOKING_DEPOSITS`), provider operations e stampa) è in `docs/CORE_EDITION_SERVER_POLICY_PENDING.sql`, ma la sua applicazione remota è stata bloccata: non può essere dichiarata implementata o verificata. Una release CORE rimane vietata finché questo gate non è risolto.
 
 ## Gestione prenotazioni con caparra
 
-Il cliente non riceve offerte di slot che richiedono caparra online; in caso di variazione delle condizioni durante la richiesta, la pagina avverte che la prenotazione non è confermata e invita a contattare il ristorante, senza fare tentativi di pagamento né promettere automaticamente la prenotazione. La configurazione della sede deve vietare caparre che richiedono un provider escluso.
+Il cliente non riceve offerte di slot che richiedono caparra online; in caso di variazione delle condizioni durante la richiesta, la pagina avverte che la prenotazione non è confermata e invita a contattare il ristorante, senza fare tentativi di pagamento né promettere automaticamente la prenotazione. La configurazione della sede deve vietare caparre che richiedono un provider escluso. Il filtro è fail-closed anche se una risposta incoerente segnala `RESERVED` o `REQUESTED` ma include metadati `deposit`.
 
 ## Gate non derogabili
 
 Non sono state eliminate le condizioni su RLS, audit, sessioni, backup/restore, integrità dei dati, compatibilità del database, tenant isolation, test E2E, HTTPS staging, accessibilità e sicurezza. L'assenza di provider integrati riduce i collaudi sui gateway di pagamento, ma **non** sostituisce il collaudo dei pagamenti manuali, dell'incasso e del rimborso.
 
-**Stato: sviluppo; non ancora autorizzato alla vendita.**
+**Stato: sviluppo; non ancora autorizzato alla vendita.** Il controllo `check:core-server-policy` è un contratto statico della proposta SQL: non prova in alcun modo l’applicazione della policy su Supabase. Il gate commerciale richiede separatamente `server_denies_stripe_satispay_and_epson` con evidenze di test negativi contro RPC reali, oltre a `server_denies_online_booking_deposits`.

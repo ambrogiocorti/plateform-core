@@ -20,6 +20,7 @@ export const requiredCoreIntegrationChecks = [
   'concurrent_booking_stock_payments',
   'cash_pos_manual_payment_and_refund_e2e',
   'server_denies_stripe_satispay_and_epson',
+  'server_denies_online_booking_deposits',
   'browser_pdf_output_verified',
   'pwa_offline_revocation_and_conflicts',
   'backup_restore_database_auth_storage',
@@ -144,7 +145,7 @@ export function releaseProblems(matrix, evidence, digest, now = Date.now()) {
     errors.push('Le evidenze non corrispondono ai sorgenti attuali.');
   const requiredLocalSuites = [
     'typecheck', 'lint', 'edge', 'unit_database', 'browser', 'build',
-    ...(coreEdition ? ['core_edition_contract', 'core_release_profile'] : []),
+    ...(coreEdition ? ['core_edition_contract', 'core_server_policy_source', 'core_release_profile'] : []),
   ];
   for (const suite of requiredLocalSuites)
     if (evidence.local_checks?.[suite] !== 'passed')

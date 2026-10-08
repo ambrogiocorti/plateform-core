@@ -9,6 +9,7 @@ import {
   permittedPrintDriver,
   permittedPrintDrivers,
   permittedBookingSlots,
+  requiresExcludedDeposit,
 } from '../src/services/commercial-scope.ts';
 
 let count = 0;
@@ -35,6 +36,12 @@ const bookingSlots = [
 check(() => assert.deepEqual(permittedBookingSlots(bookingSlots).map((entry) => entry.time), ['19:00', '19:30']));
 check(() => assert.equal(bookingSlots.length, 3, 'caller input must not be mutated'));
 check(() => assert.deepEqual(permittedBookingSlots([{ time: '20:00', status_if_booked: 'PENDING_DEPOSIT' }]), []));
+check(() => assert.deepEqual(permittedBookingSlots([{ time: '20:30', status_if_booked: 'RESERVED', deposit: { amount_cents: 1000 } }]), []));
+check(() => assert.deepEqual(permittedBookingSlots([{ time: '20:45', status_if_booked: 'REQUESTED', deposit: { amount_cents: 1000 } }]), []));
+check(() => assert.deepEqual(permittedBookingSlots([{ time: '21:00', status_if_booked: 'UNKNOWN' }]), []));
+check(() => assert.deepEqual(permittedBookingSlots([{ time: '21:15' }]), []));
+check(() => assert.equal(requiresExcludedDeposit({ status_if_booked: 'RESERVED', deposit: { amount_cents: 1000 } }), true));
+check(() => assert.equal(requiresExcludedDeposit({ status_if_booked: 'RESERVED' }), false));
 
 const accountPayments = readFileSync('src/pages/account-payments.ts', 'utf8');
 const operationalSettings = readFileSync('src/pages/operational-settings.ts', 'utf8');
@@ -43,6 +50,7 @@ const printing = readFileSync('src/pages/printing.ts', 'utf8');
 const accountFinance = readFileSync('src/pages/account-finance.ts', 'utf8');
 const cashPage = readFileSync('src/pages/cash.ts', 'utf8');
 const providerPayments = readFileSync('src/pages/provider-payments.ts', 'utf8');
+const technicalPage = readFileSync('src/pages/technical.ts', 'utf8');
 check(() => assert.match(accountPayments, /const allowed = permittedPaymentMethods\(/));
 check(() => assert.match(accountPayments, /method\.disabled = allowed\.length === 0/));
 check(() => assert.match(accountPayments, /if \(!permittedPaymentMethod\(method\.value\)\)/));
@@ -50,6 +58,7 @@ check(() => assert.match(operationalSettings, /const methods = permittedPaymentM
 check(() => assert.match(operationalSettings, /permittedPrintDrivers\(\)/));
 check(() => assert.match(operationalSettings, /permittedPrintDriver\(device\.driver\)/));
 check(() => assert.match(publicBooking, /permittedBookingSlots\(confirmedSlots\)/));
+check(() => assert.match(publicBooking, /confirmedSlots\.some\(requiresExcludedDeposit\)/));
 check(() => assert.match(publicBooking, /if \(!externalPaymentProvidersIncluded\)/));
 check(() => assert.match(publicBooking, /Non inviare un’altra richiesta/));
 check(() => assert.match(printing, /\.filter\(\(device\) => permittedPrintDriver\(device\.driver\)\)/));
@@ -61,6 +70,8 @@ check(() => assert.match(accountFinance, /Operazione storica con metodo escluso 
 check(() => assert.match(accountFinance, /refund\.status === 'PENDING' &&\s*!manual\(payment\.method\) &&\s*permittedPaymentMethod\(payment\.method\)/));
 check(() => assert.match(cashPage, /if \(permittedPaymentMethod\(payment\.method\)\)/));
 check(() => assert.match(providerPayments, /if \(!externalPaymentProvidersIncluded\) \{/));
+check(() => assert.match(technicalPage, /FUORI PERIMETRO CORE/));
+check(() => assert.match(technicalPage, /excludedFromCore/));
 const receiptLines = printLines({
   restaurant: 'Plateform QA', at: '2026-10-08T17:00:00Z',
   account: 'A-01', table: '7', document: 'Conto di cortesia',

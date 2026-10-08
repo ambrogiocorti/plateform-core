@@ -24,8 +24,22 @@ export function permittedPrintDrivers(): string[] {
 }
 
 /** Do not offer a reservation slot whose only payment path is excluded. */
-export function permittedBookingSlots<T extends { status_if_booked?: string }>(slots: readonly T[]): T[] {
+export type CoreBookingSlot = { status_if_booked?: string; deposit?: unknown };
+
+/** A deposit object is authoritative evidence that a slot may require online payment,
+ * even when a legacy or inconsistent API response labels it RESERVED/REQUESTED.
+ * Unknown booking statuses must fail closed in the CORE edition.
+ */
+export function requiresExcludedDeposit(slot: CoreBookingSlot): boolean {
+  return !externalPaymentProvidersIncluded &&
+    (slot.status_if_booked === 'PENDING_DEPOSIT' || slot.deposit != null);
+}
+
+export function permittedBookingSlots<T extends CoreBookingSlot>(slots: readonly T[]): T[] {
   return externalPaymentProvidersIncluded
     ? [...slots]
-    : slots.filter((slot) => slot.status_if_booked !== 'PENDING_DEPOSIT');
+    : slots.filter((slot) =>
+      (slot.status_if_booked === 'RESERVED' || slot.status_if_booked === 'REQUESTED') &&
+      !requiresExcludedDeposit(slot),
+    );
 }

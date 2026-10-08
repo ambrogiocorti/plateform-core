@@ -1,0 +1,41 @@
+{
+  "title": "CORE scope hardening — local source verification",
+  "date": "2026-10-08",
+  "release_authorized": false,
+  "remote_database_modified_in_this_increment": false,
+  "production_modified": false,
+  "source_checks": {
+    "core_edition": "PASSED_50_OF_50",
+    "core_server_policy": "PASSED_26_OF_26_SOURCE_ONLY",
+    "core_release_profile": "PASSED_18_OF_18",
+    "migration_manifest_local": "PASSED_132_OF_132",
+    "step8_static": "PASSED_16_OF_16",
+    "step12_static": "PASSED_34_OF_34",
+    "operational_and_step11_groups": "PASSED_16_OF_17",
+    "step10_cross_venue_integration": "BLOCKED_MISSING_PGLITE_DEPENDENCY"
+  },
+  "release_preflight": {
+    "status": "BLOCKED",
+    "node_installed": "22.16.0",
+    "node_required": ">=24.13.0",
+    "npm_registry": "UNREACHABLE_EAI_AGAIN",
+    "vite_rolldown_binding": "MISSING",
+    "staging_configuration": "MISSING",
+    "commercial_test_dossier": "MISSING"
+  },
+  "database": {
+    "local_migrations": 132,
+    "development_migrations_last_verified": 455,
+    "remote_sql_missing_locally": 323,
+    "core_server_policy_applied": false,
+    "core_server_negative_api_test_passed": false,
+    "core_booking_deposit_negative_api_test_passed": false
+  },
+  "next_actions": [
+    "Reconcile full remote migration history against local source and verify SHA-256",
+    "Execute CORE SQL policy safely on isolated Development with open-operation preflight and direct negative RPC tests",
+    "Run complete Node 24 npm CI, PostgreSQL and browser tests on HTTPS staging",
+    "Perform current-schema database/Auth/Storage restore test",
+    "Collect three independent complete reviews and release dossier"
+  ]
+}

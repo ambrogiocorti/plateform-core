@@ -43,7 +43,7 @@ describe('commercial release gate', () => {
     const record = evidence();
     Object.assign(record, { edition: 'CORE' });
     Object.assign(record.local_checks, {
-      core_edition_contract: 'passed', core_release_profile: 'passed',
+      core_edition_contract: 'passed', core_server_policy_source: 'passed', core_release_profile: 'passed',
     });
     record.integration_checks = Object.fromEntries(
       requiredCoreIntegrationChecks.map((name) => [
@@ -52,6 +52,11 @@ describe('commercial release gate', () => {
       ]),
     );
     expect(releaseProblems(reduced, record, digest)).toEqual([]);
+    delete record.local_checks.core_server_policy_source;
+    expect(releaseProblems(reduced, record, digest)).toContain(
+      'Verifica locale mancante: core_server_policy_source.',
+    );
+    record.local_checks.core_server_policy_source = 'passed';
     delete record.integration_checks.server_denies_stripe_satispay_and_epson;
     expect(releaseProblems(reduced, record, digest)).toContain(
       'Collaudo reale mancante: server_denies_stripe_satispay_and_epson.',

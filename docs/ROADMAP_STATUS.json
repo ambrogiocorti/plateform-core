@@ -333,7 +333,7 @@
         "docs/evidence/step7-pdf-browser-2026-10-05.json"
       ],
       "open": [
-        "Execute real Epson/print-bridge and offline-printer recovery on representative hardware."
+        "CORE: testare realmente il flusso stampa browser/PDF, esito incerto, retry ed audit durante un servizio; Epson/ePOS/bridge fuori perimetro (sezioni 90)."
       ]
     },
     {
@@ -523,7 +523,8 @@
         "authenticated asset upload E2E from a real staff browser session",
         "full Node >=24.13 typecheck/lint/build with dependencies installed",
         "real-browser WCAG AA and Web Vitals/performance gate",
-        "real HTTPS deployment proving public/staff routing and cache separation"
+        "real HTTPS deployment proving public/staff routing and cache separation",
+        "CORE: validare in browser le prenotazioni che richiedono caparra (esclusione fail-closed) e le etichette salute provider fuori perimetro."
       ]
     },
     {
@@ -757,9 +758,9 @@
         "docs/evidence/step12-rehearsal-gate-2026-10-06.json"
       ],
       "open": [
-        "Run the queued backup through the real Plateform backup worker and obtain a real database/Auth/Storage artifact with integrity verification.",
-        "Run restore-test-worker --once against a fresh disposable Supabase target aligned to the current 130-migration baseline and obtain SUCCEEDED.",
-        "Run `npm run check:step12-rehearsal` and obtain PASS on the current 130-migration baseline; historical 106-migration rehearsal is not sufficient."
+        "Recuperare in sorgente le 323 migrazioni SQL applicate su Supabase Development ma mancanti localmente (132 file locali, 455 remote al controllo 2026-10-08), verificando ogni SHA-256.",
+        "Generare un nuovo backup coerente con il database corrente e testarne il restore su target Supabase nuovo, isolato e temporaneo, compresi Auth e Storage.",
+        "Rieseguire npm run check:step12-rehearsal con attestazione completa di restore corrente: le precedenti prove storiche non certificano la versione attuale."
       ]
     },
     {
@@ -768,10 +769,15 @@
       "status": "TODO",
       "checks": {},
       "evidence": [],
-      "open": []
+      "open": [
+        "Installare Node >=24.13, eseguire npm ci su ambiente raggiungibile e ottenere typecheck, lint, test PostgreSQL, browser E2E e build tutti PASS.",
+        "Verificare su Development l enforcement SQL CORE con test negativi diretti delle RPC prima di qualunque modifica a Production; proposta attuale non applicata.",
+        "Configurare staging HTTPS separato con domini, publishable key e isolamento delle credenziali; eseguire i collaudi su dispositivi reali.",
+        "Registrare 3 revisioni integrali consecutive senza rilievi aperti e dossier di release completo; nessuna certificazione finche i gate non passano."
+      ]
     }
   ],
-  "note": "Il checkpoint contiene moduli di step successivi, ma la loro presenza non certifica il completamento. La verifica riparte dallo Step 0 e non modifica i progetti Supabase precedenti.",
+  "note": "Il checkpoint contiene moduli di step successivi, ma la loro presenza non certifica il completamento. La verifica riparte dallo Step 0 e non modifica i progetti Supabase precedenti. Aggiornamento CORE 2026-10-08: Stripe/Satispay/Epson fuori scope, non interpretare test statici come verifica server-side o certificazione commerciale.",
   "local_release_candidate": {
     "status": "SOURCE_GATES_PASSED_BUILD_PENDING_LOCAL_PC",
     "source_gate_evidence": "docs/evidence/local-rc-source-gates-2026-10-05.json",

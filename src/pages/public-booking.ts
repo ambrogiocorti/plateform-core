@@ -6,7 +6,7 @@ import { button, el, emptyState, field } from '../components/dom';
 import type { Venue } from '../types/domain';
 import { addCalendarDays, bookableSlots, depositNextAction, venueLocalToday } from '../services/public-booking-contract';
 import type { SearchKey } from '../services/public-booking-contract';
-import { externalPaymentProvidersIncluded, permittedBookingSlots } from '../services/commercial-scope';
+import { externalPaymentProvidersIncluded, permittedBookingSlots, requiresExcludedDeposit } from '../services/commercial-scope';
 
 async function bookingFailure(error: unknown): Promise<never> {
   if (error instanceof FunctionsHttpError) {
@@ -107,7 +107,7 @@ export async function bookingPage(venue: Venue, privacyUrl?: string): Promise<HT
     const confirmedSlots = bookableSlots(result, key);
     const slots = permittedBookingSlots(confirmedSlots);
     if (!slots.length) {
-      status.textContent = confirmedSlots.some((slot) => slot.status_if_booked === 'PENDING_DEPOSIT')
+      status.textContent = confirmedSlots.some(requiresExcludedDeposit)
         ? 'Gli orari disponibili richiedono una caparra online non gestita in questa edizione. Contatta il ristorante.'
         : 'Non ci sono orari disponibili per questa richiesta.';
       return;
