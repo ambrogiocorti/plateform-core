@@ -20,6 +20,7 @@ export default tseslint.config(
         Response: 'readonly',
         TextEncoder: 'readonly',
         TextDecoder: 'readonly',
+        structuredClone: 'readonly',
       },
     },
   },
