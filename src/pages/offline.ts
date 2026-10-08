@@ -40,7 +40,7 @@ export async function syncQueue(): Promise<void> {
   try {
     if (!navigator.locks) throw new Error('OFFLINE_BROWSER_UNSUPPORTED');
     await navigator.locks.request('plateform-offline-queue', async () => {
-      let events = await queuedEvents();
+      const events = await queuedEvents();
       const {
         data: { session },
       } = await client().auth.getSession();
