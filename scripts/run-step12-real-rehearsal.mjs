@@ -56,7 +56,7 @@ function psqlJson(sql) {
 
 const host = run(process.execPath, ['scripts/check-continuity-host.mjs']);
 if (host.error || host.status !== 0) {
-  let doctor = null;
+  let doctor;
   try {
     doctor = parseLastJson(host.stdout, 'HOST_CHECK_OUTPUT_INVALID');
   } catch {
