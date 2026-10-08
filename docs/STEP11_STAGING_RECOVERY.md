@@ -6,7 +6,15 @@ Questo documento non autorizza la vendita: è una procedura di collaudo.
 ## Dati verificati (8 ottobre 2026)
 
 - Checkpoint integrato locale: 130 migrazioni (`npm run check:migrations` PASS).
-- Supabase development `abdxvlykasqmknexxhjo`: 451 migrazioni applicate, 321
+- ATTENZIONE: il confronto SHA-256 su versioni storiche ha rilevato
+  divergenze **anche tra le 130 già presenti**. In particolare la versione
+  `20261005062508_step10_venue_lifecycle_management` cambia l'ordine tra
+  validazione dei dati e consumo del token di autorizzazione rafforzata;
+  `20261006051256_step12_backup_requester_index` differisce per un a capo
+  iniziale nel SQL registrato. Non considerarle equivalenti senza un diff
+  completo e una revisione. `--write` deve rifiutare il recupero se esiste
+  anche un solo checksum discordante.
+- Supabase development `abdxvlykasqmknexxhjo`: 453 migrazioni applicate, 323
   successive al checkpoint; lo storico sul server contiene SQL per tutte.
 - Localmente l'ambiente ha Node 22 e non raggiunge il registry npm; il build Vite
   Node 24 e i test E2E non sono certificati qui.
@@ -35,7 +43,7 @@ mancanti e aggiorna il manifest. **Non esegue SQL sul database**. Non si devono
 modificare le versioni già applicate né usare il progetto di produzione.
 
 Il test isolato `node scripts/check-migration-recovery.mjs` deve passare.
-Questo test non sostituisce il recupero reale delle 321 versioni mancanti.
+Questo test non sostituisce il recupero reale delle 323 versioni mancanti.
 
 ## Staging Vercel
 

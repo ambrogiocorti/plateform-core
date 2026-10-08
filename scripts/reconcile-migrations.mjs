@@ -55,25 +55,35 @@ if (inputPath) {
 const remote = lines.filter(Boolean).map((line) => JSON.parse(line));
 const filenameOf = (row) => `${row.version}_${row.name}.sql`;
 const remoteFiles = new Set();
+const remoteVersions = new Set();
 for (const row of remote) {
   if (!/^\d{14}$/.test(row.version) || !/^[a-z0-9_]+$/.test(row.name) || typeof row.sql !== 'string')
     throw new Error('Invalid database migration metadata (refusing to write).');
   const file = filenameOf(row);
-  if (remoteFiles.has(file)) throw new Error('Duplicate migration in database history.');
+  if (remoteFiles.has(file) || remoteVersions.has(row.version))
+    throw new Error('Duplicate migration version in database history.');
   remoteFiles.add(file);
+  remoteVersions.add(row.version);
 }
 if (!remote.length) throw new Error('Database migration history was empty.');
 
 const localFiles = (await readdir(migrationDir)).filter((f) => f.endsWith('.sql'));
 const byVersion = new Map(remote.map((row) => [row.version, row]));
+const divergences = [];
 for (const filename of localFiles) {
   const match = /^(\d{14})_([a-z0-9_]+)\.sql$/.exec(filename);
   if (!match) throw new Error(`Unexpected local migration file: ${filename}`);
   const row = byVersion.get(match[1]);
-  if (!row || row.name !== match[2]) throw new Error(`Local migration is absent or renamed in remote history: ${filename}`);
+  if (!row || row.name !== match[2]) {
+    divergences.push({ filename, reason: 'MISSING_OR_RENAMED_REMOTE_VERSION' });
+    continue;
+  }
   const existing = await readFile(join(migrationDir, filename));
-  if (digest(existing) !== digest(row.sql))
-    throw new Error(`Local and remote SQL differ for ${filename}: refusing destructive reconciliation.`);
+  const localSha = digest(existing), remoteSha = digest(row.sql);
+  if (localSha !== remoteSha) {
+    divergences.push({ filename, reason: 'SQL_SHA256_MISMATCH',
+      local_sha256: localSha, remote_sha256: remoteSha });
+  }
 }
 const current = JSON.parse(await readFile(manifestPath, 'utf8'));
 if (!Array.isArray(current.migrations) || current.migrations.length !== localFiles.length)
@@ -85,11 +95,17 @@ for (const item of current.migrations) {
 }
 
 const missing = remote.filter((row) => !localFiles.includes(filenameOf(row)));
-console.log(JSON.stringify({ state: missing.length ? 'INCOMPLETE' : 'SYNCED',
+console.log(JSON.stringify({ state: divergences.length ? 'DIVERGENT' : missing.length ? 'INCOMPLETE' : 'SYNCED',
   local: localFiles.length, database: remote.length, missing: missing.length,
   missing_first: missing[0]?.version ?? null, missing_last: missing.at(-1)?.version ?? null,
+  mismatches: divergences, mismatch_count: divergences.length,
   mode: argv.has('--write') ? 'write' : 'dry-run' }, null, 2));
-if (argv.has('--dry-run')) { if (missing.length) process.exitCode = 2; }
+if (divergences.length) {
+  if (argv.has('--write')) throw new Error('Local and remote SQL differ: refusing destructive reconciliation.');
+  process.exitCode = 2;
+} else if (argv.has('--dry-run')) {
+  if (missing.length) process.exitCode = 2;
+}
 else {
   // Prepare the full inventory before any write. Do not modify old migration SQL.
   const manifest = { ...current, migrations: remote.map((row) => ({
