@@ -87,6 +87,7 @@ for (const [needle, label] of [
   ['!isClientSidePublicPath(target.pathname)', 'non_public_path_does_not_intercept_staff'],
   ["safeRecoveredPublicRoute(storedRoute, location.origin)", 'static_404_recovery_is_public_only'],
   ['if (invalidVenueContext)', 'invalid_venue_context_is_not_indexed'],
+  ['const entry = venue;', 'venue_details_respect_conflicting_selector_denial'],
   ['releasePublicObservers();', 'failed_site_closes_observers'],
   ['failClosedPublicMetadata();', 'failed_site_never_stays_indexable'],
   ['if (expectedRevision === revision) failed(error)', 'stale_navigation_errors_do_not_replace_new_page'],

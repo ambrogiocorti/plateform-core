@@ -9,13 +9,15 @@ export function selectedVenue(
   search: string,
 ): Venue | undefined {
   const params = new URLSearchParams(search);
-  const querySlug = params.get('sede');
+  const requestedSlugs = params.getAll('sede');
   const pathSlug = pathname.startsWith('/sedi/') ? pathname.split('/')[2] : undefined;
-  // An explicitly selected venue (including an empty/unknown slug) is
-  // authoritative for routing. Never show another venue's menu/prices,
-  // contacts or schema.org details in response to a stale venue-specific QR.
-  if (pathSlug !== undefined || querySlug !== null) {
-    const slug = pathSlug !== undefined ? pathSlug : querySlug;
+  // Conflicting or repeated explicit selectors are ambiguous, never silently
+  // substitute another venue's menu, prices or reservation capacity.
+  if (requestedSlugs.length > 1 ||
+      (pathSlug !== undefined && requestedSlugs.length === 1 && requestedSlugs[0] !== pathSlug))
+    return undefined;
+  if (pathSlug !== undefined || requestedSlugs.length === 1) {
+    const slug = pathSlug !== undefined ? pathSlug : requestedSlugs[0];
     return site.venues.find((venue) => venue.slug === slug);
   }
   return site.venues[0];
@@ -35,14 +37,14 @@ export function resolveBookingVenue(
   pathname: string,
   search: string,
 ): Venue | undefined {
-  const requested = new URLSearchParams(search).get('sede');
-  if (requested !== null) {
-    const exact = site.venues.find((venue) => venue.slug === requested);
-    return exact?.reservations_enabled ? exact : undefined;
-  }
-  if (pathname.startsWith('/sedi/') && !selectedVenue(site, pathname, search))
-    return undefined;
-  return bookingVenue(site, selectedVenue(site, pathname, search));
+  const selected = selectedVenue(site, pathname, search);
+  const explicitVenue = pathname.startsWith('/sedi/') ||
+    new URLSearchParams(search).has('sede');
+  // Even when the default venue cannot accept bookings, only the generic
+  // booking entry may suggest another venue. Detail pages and explicit QR
+  // links must never silently book a different location.
+  return explicitVenue ? (selected?.reservations_enabled ? selected : undefined)
+    : bookingVenue(site, selected);
 }
 
 export function venueAwarePath(path: string, site: PublicSite, venue?: Venue): string {
@@ -97,7 +99,14 @@ export function publicMetricContext(pathname: string, search: string): {
 } | null {
   const path = normalizePublicPath(pathname);
   if (!path || path === '/tavolo/:id') return null;
-  return { path, key: `${pathname}${search}` };
+  // Retain only an allowlisted venue slug for deduplication. Arbitrary query
+  // strings (tokens, phone numbers, email addresses, campaign metadata) must
+  // never be copied into the analytics observer's long-lived Set keys.
+  const params = new URLSearchParams(search);
+  const venue = params.getAll('sede');
+  const suffix = venue.length === 1 && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(venue[0]) && venue[0].length <= 80
+    ? `?sede=${venue[0]}` : '';
+  return { path, key: `${pathname}${suffix}` };
 }
 
 /** Only a route owned by the public SPA may be intercepted by its click router.

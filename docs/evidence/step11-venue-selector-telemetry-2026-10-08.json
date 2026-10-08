@@ -1,0 +1,33 @@
+{
+  "edition": "CORE",
+  "date": "2026-10-08",
+  "environment": "local-source-checks",
+  "scope": [
+    "conflicting and duplicated venue selectors fail closed",
+    "public booking selection never substitutes an explicit disabled venue",
+    "venue detail rendering uses the authoritative selected venue",
+    "telemetry observer deduplication excludes arbitrary query strings",
+    "first document metrics use sanitized route identity"
+  ],
+  "verified": [
+    "npm run check:step11-static",
+    "npm run check:step11-runtime",
+    "npm run check:step11-booking",
+    "node scripts/check-step11-build-assembly.mjs --browser-python"
+  ],
+  "browser_validation": {
+    "engine": "Chromium",
+    "javascript": false,
+    "checks": 31,
+    "scope": "static generated HTML desktop/mobile"
+  },
+  "not_verified": [
+    "production Vite bundle",
+    "HTTP and JWT E2E",
+    "new hosted staging deployment",
+    "independent database restore on current schema",
+    "complete migration history",
+    "three commercial clean reviews"
+  ],
+  "release_approved": false
+}

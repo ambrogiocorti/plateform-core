@@ -61,6 +61,10 @@ assert.equal(selectedVenue(site, '/menu', '?sede='), undefined,
   'empty explicit venue must not display default-venue prices');
 assert.equal(selectedVenue(site, '/sedi/missing', ''), undefined,
   'unknown venue detail must not inherit another venue');
+assert.equal(selectedVenue(site, '/sedi/navigli', '?sede=centro'), undefined,
+  'conflicting path/query venue selectors must fail closed');
+assert.equal(selectedVenue(site, '/menu', '?sede=centro&sede=navigli'), undefined,
+  'repeated venue selectors must not choose the first price list');
 assert.equal(bookingVenue(site, site.venues[0])?.slug, 'navigli');
 assert.equal(resolveBookingVenue(site, '/', '')?.slug, 'navigli', 'generic booking finds available venue');
 assert.equal(resolveBookingVenue(site, '/prenota', '?sede=navigli')?.slug, 'navigli');
@@ -70,6 +74,12 @@ assert.equal(resolveBookingVenue(site, '/prenota', '?sede=missing'), undefined,
   'unknown explicitly selected venue must fail closed');
 assert.equal(resolveBookingVenue(site, '/prenota', '?sede='), undefined,
   'empty explicit selection must fail closed');
+assert.equal(resolveBookingVenue(site, '/sedi/centro', ''), undefined,
+  'non-bookable venue details must not fall back to a different location');
+assert.equal(resolveBookingVenue(site, '/sedi/navigli', '?sede=centro'), undefined,
+  'conflicting explicit booking selectors must be rejected');
+assert.equal(resolveBookingVenue(site, '/prenota', '?sede=centro&sede=navigli'), undefined,
+  'duplicate booking venue selectors must be rejected');
 assert.equal(resolveBookingVenue({...site,venues:site.venues.map(v=>({...v,reservations_enabled:false}))},'/prenota',''),undefined);
 assert.equal(venueAwarePath('/menu', site, site.venues[1]), '/menu?sede=navigli');
 assert.equal(venueAwarePath('/sedi', site, site.venues[1]), '/sedi');
@@ -115,6 +125,12 @@ assert.equal(publicMetricContext('/tavolo/private-customer-token', '?sede=navigl
   'QR/customer URLs must not be recorded in public page telemetry');
 assert.equal(publicMetricContext('/staff/login', ''), null,
   'staff URLs must never be counted as public routes');
+assert.deepEqual(publicMetricContext('/menu/carta-vini', '?sede=navigli&email=private@example.test&token=abc'), {
+  path: '/menu/:slug', key: '/menu/carta-vini?sede=navigli',
+}, 'telemetry deduplication does not store arbitrary potentially sensitive query strings');
+assert.deepEqual(publicMetricContext('/menu', '?utm_campaign=test&phone=1234'), {
+  path: '/menu', key: '/menu',
+}, 'tracking and personal query params must not enter observer keys');
 for (const route of ['/', '/menu', '/menu/carta-vini', '/sedi/navigli', '/tavolo/abc', '/prenota']) {
   assert.equal(isClientSidePublicPath(route), true, `public route: ${route}`);
 }

@@ -265,9 +265,6 @@ async function render(): Promise<void> {
   }
   const reservationVenue = resolveBookingVenue(site, location.pathname, location.search);
   const bookingEnabled = sectionEnabled(site, 'booking') && Boolean(reservationVenue);
-  const venueSlug = location.pathname.startsWith('/sedi/')
-    ? location.pathname.split('/')[2]
-    : undefined;
   const links = [
     { path: '/', label: 'Home', current: '/' },
     { path: venueAwarePath('/menu', site, venue), label: 'Menu', current: '/menu' },
@@ -401,7 +398,9 @@ async function render(): Promise<void> {
       ),
     );
   } else if (path.startsWith('/sedi/') && sectionEnabled(site, 'venues')) {
-    const entry = site.venues.find((candidate) => candidate.slug === venueSlug);
+    // Respect the same fail-closed venue resolution used for SEO, menus and
+    // booking links. A conflicting ?sede= must not render a different detail.
+    const entry = venue;
     if (!entry) {
       main.append(
         el(

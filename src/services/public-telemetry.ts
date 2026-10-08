@@ -2,7 +2,7 @@ import { client } from '../api/client';
 import { publicMetricContext } from './public-site';
 
 const sent = new Set<string>();
-const firstDocumentRoute = `${location.pathname}${location.search}`;
+const firstDocumentRoute = publicMetricContext(location.pathname, location.search)?.key ?? null;
 
 type MetricName = 'TTFB' | 'FCP' | 'LCP' | 'CLS' | 'INP';
 

@@ -155,3 +155,11 @@ Non è una release commerciale. Tre revisioni integrali pulite: 0/3.
 - Verified 10 server-side negative SQL cases and 3 allowed CORE updates in rollback-only transactions; release security and database regression gates remain green.
 - Added `supabase/tests/core_booking.live.sql` with CORE-safe live booking, idempotency, large-group and deposit-fail-closed tests, exercised successfully against Development with rollback.
 - The two older FULL-edition booking/deposit probes now fail by design under CORE licence denial and must not be represented as current test PASS. Full CI, JWT/HTTP E2E, staging, 323 migration files, current-schema restore and three independent reviews remain required.
+
+### 2026-10-08 — CORE public venue selectors and telemetry privacy regression
+
+- Removed contradictory multi-venue resolution when a venue detail path and `?sede=` identify different venues; repeated `sede` query parameters are now rejected, not silently resolved to the first venue.
+- Booking from an explicitly selected venue that does not accept reservations now fails closed rather than silently redirecting to another location. Venue detail rendering uses the same authoritative selection as booking and SEO.
+- Public metric deduplication retains only an allowlisted venue slug, not arbitrary query parameters containing possible email, phone, token or tracking values. The initial document timing key uses the same sanitized normalization so UTM parameters do not suppress the first-page timing metrics.
+- Verified dependency-free public routing/booking/telemetry tests, STEP11 static checks and a 31-case Chromium desktop/mobile static HTML audit. CORE source, SQL policy, release profile, migration-manifest and STEP12 static checks remained green in the available environment.
+- **Release not approved:** these checks do not replace the Node >=24.13 full build, authenticated HTTP/JS browser E2E, 323 missing historical migrations, current restore and production readiness. Production was not accessed.

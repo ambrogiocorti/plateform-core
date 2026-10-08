@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
   bookingVenue,
+  resolveBookingVenue,
+  publicMetricContext,
   contrastRatio,
   isClientSidePublicPath,
   normalizePublicPath,
@@ -67,6 +69,11 @@ describe('public site venue routing', () => {
     expect(selectedVenue(site, '/menu', '?sede=missing')).toBeUndefined();
     expect(selectedVenue(site, '/menu', '?sede=')).toBeUndefined();
     expect(selectedVenue(site, '/sedi/missing', '')).toBeUndefined();
+    expect(selectedVenue(site, '/sedi/navigli', '?sede=centro')).toBeUndefined();
+    expect(selectedVenue(site, '/menu', '?sede=centro&sede=navigli')).toBeUndefined();
+    expect(resolveBookingVenue(site, '/sedi/centro', '')).toBeUndefined();
+    expect(resolveBookingVenue(site, '/sedi/navigli', '?sede=centro')).toBeUndefined();
+    expect(resolveBookingVenue(site, '/prenota', '?sede=centro&sede=navigli')).toBeUndefined();
   });
   it('recovers only owned, same-origin public routes from static 404 fallback', () => {
     const origin = 'https://ristorante.example';
@@ -84,6 +91,15 @@ describe('public site venue routing', () => {
   it('preserves venue context across public pages', () => {
     expect(venueAwarePath('/menu', site, site.venues[1])).toBe('/menu?sede=navigli');
     expect(venueAwarePath('/sedi', site, site.venues[1])).toBe('/sedi');
+  });
+});
+
+describe('public telemetry privacy', () => {
+  it('does not retain personal or marketing query parameters in observer keys', () => {
+    expect(publicMetricContext('/menu', '?sede=navigli&email=private@example.test&token=secret'))
+      .toEqual({ path:'/menu',key:'/menu?sede=navigli' });
+    expect(publicMetricContext('/menu', '?phone=123456&utm_source=private'))
+      .toEqual({ path:'/menu',key:'/menu' });
   });
 });
 

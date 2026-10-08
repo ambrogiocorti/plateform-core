@@ -20,7 +20,7 @@ export const client = () => ({functions: {invoke: async (_name, {body}) => {
 }}});
 `);
   globalThis.__plateformTestEvents = [];
-  globalThis.location = { pathname: '/menu/carta-vini', search: '?sede=navigli' };
+  globalThis.location = { pathname: '/menu/carta-vini', search: '?sede=navigli&token=should-never-be-stored' };
   const eventListeners = new Map();
   globalThis.window = {
     PerformanceObserver: true,
@@ -48,6 +48,8 @@ export const client = () => ({functions: {invoke: async (_name, {body}) => {
   const oldCount = observers.length;
   assert.equal(oldCount, 4);
   assert.equal(globalThis.__plateformTestEvents.filter((x) => x.metric === 'TTFB').length, 1);
+  assert.ok(globalThis.__plateformTestEvents.every((event) => !JSON.stringify(event).includes('should-never-be-stored')),
+    'telemetry payloads must not contain arbitrary search tokens');
 
   // Simulate SPA navigation before the previous route's CLS observer is closed.
   location.pathname = '/contatti';
@@ -80,7 +82,7 @@ export const client = () => ({functions: {invoke: async (_name, {body}) => {
   stopQr();
   assert.equal(globalThis.__plateformTestEvents.length, before,
     'customer QR/session paths must not generate public analytics');
-  console.log('STEP11_TELEMETRY_LIFECYCLE=PASS (12 contract assertions)');
+  console.log('STEP11_TELEMETRY_LIFECYCLE=PASS (13 contract assertions)');
 } finally {
   await rm(dir, { recursive:true, force:true });
   delete globalThis.__plateformTestEvents;

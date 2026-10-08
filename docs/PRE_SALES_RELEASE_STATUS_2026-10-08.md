@@ -51,3 +51,10 @@ or an installable customer deliverable.
 No production credentials, payment flows or production tenant data were used
 or changed in this source-side review. The database of development was not
 reset and no commercial archive was generated.
+
+## Additional CORE source checkpoint (8 October, evening)
+
+- Resolved conflicting `/sedi/{slug}?sede=other` and duplicate `?sede=` selectors consistently in detail views, menus and booking eligibility; no cross-venue substitution on invalid or disabled explicit selection.
+- Prevented arbitrary URL query strings from being retained in public telemetry observer keys. Confirmed first-document TTFB remains measured when extra URL parameters are present.
+- Reran dependency-free public smoke checks and Chromium desktop/mobile static HTML validation (31 checks with JavaScript disabled). These are **not** authenticated browser E2E and do **not** validate the Vite production bundles.
+- Continued to observe the existing blocking release prerequisites. Do not interpret this checkpoint as a shipping/production approval.
