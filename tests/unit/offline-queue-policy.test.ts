@@ -11,7 +11,6 @@ const base = (id: string, status: CausalQueueEvent['sync_status']): CausalQueueE
   client_event_id: id,
   user_id: '20000000-0000-4000-8000-000000000004',
   venue_id: '10000000-0000-4000-8000-000000000001',
-  resource_id: crypto.randomUUID(),
   sync_status: status,
   predecessor_id: null,
 });
