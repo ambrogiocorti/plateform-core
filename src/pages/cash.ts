@@ -227,13 +227,15 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
         moneyKpi('RESIDUO', balance.remaining_cents, 'cashier-kpi-primary'),
         moneyKpi('IN ATTESA', balance.pending_cents, balance.pending_cents ? 'cashier-kpi-warning' : ''),
       ),
-      balance.pending_cents > 0
-        ? el(
-            'div',
-            { class: 'cashier-warning', role: 'alert' },
-            `Pagamento in attesa: ${formatMoney(balance.pending_cents)}. Verifica l’esito prima di creare un nuovo incasso sullo stesso saldo.`,
-          )
-        : null,
+      ...(balance.pending_cents > 0
+        ? [
+            el(
+              'div',
+              { class: 'cashier-warning', role: 'alert' },
+              `Pagamento in attesa: ${formatMoney(balance.pending_cents)}. Verifica l’esito prima di creare un nuovo incasso sullo stesso saldo.`,
+            ),
+          ]
+        : []),
       primaryActions,
       el('div', { class: 'cashier-account-details' }, products, payments),
     );

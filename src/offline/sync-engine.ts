@@ -18,7 +18,7 @@ export async function reconcileOfflineEvents<T extends CausalQueueEvent>(
   for (const venue of venues)
     for (const clientEvents of chunkClientEventIds(events, userId, venue)) {
       const statuses = await fetchStatuses(venue, clientEvents);
-      const reconciled = reconcileQueueStatuses(events, statuses) as T[];
+      const reconciled = reconcileQueueStatuses(events, statuses);
       if (
         reconciled.some(
           (event, index) =>

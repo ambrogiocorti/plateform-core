@@ -104,8 +104,13 @@ export function publicMetricContext(pathname: string, search: string): {
   // never be copied into the analytics observer's long-lived Set keys.
   const params = new URLSearchParams(search);
   const venue = params.getAll('sede');
-  const suffix = venue.length === 1 && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(venue[0]) && venue[0].length <= 80
-    ? `?sede=${venue[0]}` : '';
+  const selectedSlug = venue.length === 1 ? venue[0] : undefined;
+  const suffix =
+    selectedSlug &&
+    /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(selectedSlug) &&
+    selectedSlug.length <= 80
+      ? `?sede=${selectedSlug}`
+      : '';
   return { path, key: `${pathname}${suffix}` };
 }
 

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { Drawing } from './runtime';
 export const elementSchema = z.object({
   id: z.uuid(),
   kind: z.enum([

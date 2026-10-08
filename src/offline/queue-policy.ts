@@ -6,7 +6,6 @@ export type CausalQueueEvent = {
   client_event_id: string;
   user_id: string;
   venue_id: string;
-  resource_id: string;
   sync_status: SyncStatus;
   predecessor_id: string | null;
 };

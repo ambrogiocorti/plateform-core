@@ -11,7 +11,6 @@ import { availabilityBadge } from '../../src/services/menu';
 import { formatMoney } from '../../src/services/money';
 import { setupPublicNavigation } from '../../src/services/public-navigation';
 import {
-  bookingVenue,
   canonicalPublicUrl,
   isClientSidePublicPath,
   readableInk,

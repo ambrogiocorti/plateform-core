@@ -3,7 +3,7 @@ import { client, readRows, rpc, safeError } from '../api/client';
 import { button, dialog, el, field, status, toast } from '../components/dom';
 import type { StaffContext } from './staff-context';
 import { stepUp } from '../auth/step-up';
-import { externalPaymentProvidersIncluded, epsonPrintingIncluded } from '../services/commercial-scope';
+import { externalPaymentProvidersIncluded } from '../services/commercial-scope';
 const record = z.record(z.string(), z.unknown());
 
 export async function technicalPage(context: StaffContext): Promise<HTMLElement> {

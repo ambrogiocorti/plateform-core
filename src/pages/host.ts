@@ -67,6 +67,9 @@ export async function hostPage(context: StaffContext): Promise<HTMLElement> {
   const venue = context.venue;
   if (!venue)
     return emptyState('Nessuna sede assegnata', 'Configura una sede per gestire l’accoglienza.');
+  // Capture immutable identifiers before entering asynchronous callbacks.
+  const venueId = venue.id;
+  const venueName = venue.name;
 
   const services = await readRows(
     'services',
@@ -318,7 +321,7 @@ export async function hostPage(context: StaffContext): Promise<HTMLElement> {
     const result = await rpc(
       'get_host_reservations',
       {
-        p_venue: venue.id,
+        p_venue: venueId,
         p_date: date.input.value,
         p_service: service.value || null,
         p_status: state.value || null,
@@ -378,7 +381,7 @@ export async function hostPage(context: StaffContext): Promise<HTMLElement> {
       await rpc(
         'create_walk_in',
         {
-          p_venue: venue.id,
+          p_venue: venueId,
           p_service: walkInService.value,
           p_party: Number(walkInCovers.input.value),
           p_name: walkInName.input.value,
@@ -428,7 +431,7 @@ export async function hostPage(context: StaffContext): Promise<HTMLElement> {
   async function refreshFloor(): Promise<void> {
     try {
       map.replaceChildren(
-        el('div', { class: 'row between' }, el('h2', {}, 'Sala in servizio'), el('span', { class: 'muted' }, venue.name)),
+        el('div', { class: 'row between' }, el('h2', {}, 'Sala in servizio'), el('span', { class: 'muted' }, venueName)),
         await floorPage(context),
       );
     } catch (error) {
