@@ -193,10 +193,14 @@ describe('local HTTPS print bridge', () => {
     await once(bridge.server, 'listening');
   });
   afterAll(async () => {
-    await new Promise<void>((resolve) => bridge?.server.close(() => resolve()));
+    // A missing OpenSSL binary can fail before the servers start. Cleanup must
+    // never hang waiting for a close callback from an uninitialized fixture.
+    if (bridge?.server.listening)
+      await new Promise<void>((resolve) => bridge.server.close(() => resolve()));
     bridge?.store.close();
-    await new Promise<void>((resolve) => printer?.close(() => resolve()));
-    rmSync(directory, { recursive: true, force: true });
+    if (printer?.listening)
+      await new Promise<void>((resolve) => printer.close(() => resolve()));
+    if (directory) rmSync(directory, { recursive: true, force: true });
   });
   async function post(
     body: unknown,
