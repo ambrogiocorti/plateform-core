@@ -19,7 +19,7 @@ export function renderPublicBody(path,site,{legacyMenu=[],publishedMenu=null}={}
  const name=escape(site.name);
  const head=`<header class="public-header"><a class="restaurant-brand" href="/">${name}</a><nav aria-label="Principale"><a href="/menu">Menu</a> <a href="/ristorante">Ristorante</a> <a href="/gallery">Gallery</a> <a href="/contatti">Contatti</a></nav></header>`;
  const footer=`<footer class="public-footer"><p>${name}</p></footer>`;
- let body='';
+ let body;
  if(path==='/') body=section(str(content,'hero_title')||site.name,`<p>${escape(str(content,'hero_subtitle'))}</p>${image(str(content,'hero_image_url'),str(content,'hero_image_alt'))}<h2>${escape(str(content,'story_title')||'Il ristorante')}</h2><p>${escape(str(content,'story'))}</p>`);
  else if(path==='/ristorante') body=section(str(content,'story_title')||'Il ristorante',`<p>${escape(str(content,'story'))}</p>`);
  else if(path==='/gallery') body=section('Gallery',`<div class="gallery-grid">${(Array.isArray(content.gallery)?content.gallery:[]).map(x=>image(x.url,x.alt)).join('')}</div>`);
