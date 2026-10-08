@@ -45,7 +45,15 @@ check('applied migration version and digest match the source manifest', () => {
   assert.ok(row, 'the CORE migration must be versioned');
   assert.equal(row.version, '20261008181605');
   assert.equal(row.name, 'core_edition_payment_and_print_denial');
-  assert.equal(row.sha256, createHash('sha256').update(migrationBytes).digest('hex'));
+  const hash = (source) => createHash('sha256').update(source).digest('hex');
+  const rawHash = hash(migrationBytes);
+  // Windows Git checkouts predating .gitattributes may contain CRLF. Accept
+  // only the byte-identical SQL or an LF-canonicalized equivalent, never a
+  // changed migration body. The manifest remains the authority.
+  const verifiedHash = rawHash === row.sha256
+    ? rawHash
+    : hash(sql.replace(/\r\n/g, '\n'));
+  assert.equal(row.sha256, verifiedHash);
 });
 for (const pattern of [
   /CORE_EDITION_PENDING_PROVIDER_OPERATIONS/,
