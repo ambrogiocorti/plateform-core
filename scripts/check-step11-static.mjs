@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 
-const read = (path) => readFile(path, 'utf8');
+const read = async (path) => (await readFile(path, 'utf8')).replace(/\r\n/g, '\n');
 const requireText = (source, needle, label) => {
   if (!source.includes(needle)) throw new Error(`STEP11_STATIC_FAILED:${label}`);
 };
