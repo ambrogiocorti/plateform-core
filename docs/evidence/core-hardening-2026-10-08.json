@@ -2,13 +2,13 @@
   "title": "CORE scope hardening — local source verification",
   "date": "2026-10-08",
   "release_authorized": false,
-  "remote_database_modified_in_this_increment": false,
+  "remote_database_modified_in_this_increment": true,
   "production_modified": false,
   "source_checks": {
     "core_edition": "PASSED_50_OF_50",
-    "core_server_policy": "PASSED_26_OF_26_SOURCE_ONLY",
-    "core_release_profile": "PASSED_18_OF_18",
-    "migration_manifest_local": "PASSED_132_OF_132",
+    "core_server_policy": "PASSED_28_OF_28_SOURCE_AND_MANIFEST",
+    "core_release_profile": "PASSED_19_OF_19",
+    "migration_manifest_local": "PASSED_133_OF_133",
     "step8_static": "PASSED_16_OF_16",
     "step12_static": "PASSED_34_OF_34",
     "operational_and_step11_groups": "PASSED_16_OF_17",
@@ -24,18 +24,32 @@
     "commercial_test_dossier": "MISSING"
   },
   "database": {
-    "local_migrations": 132,
-    "development_migrations_last_verified": 455,
+    "local_migrations": 133,
+    "development_migrations_last_verified": 456,
     "remote_sql_missing_locally": 323,
-    "core_server_policy_applied": false,
-    "core_server_negative_api_test_passed": false,
-    "core_booking_deposit_negative_api_test_passed": false
+    "core_server_policy_applied_on_development": true,
+    "core_sql_negative_tests": "PASSED_10_OF_10_ROLLBACK",
+    "core_sql_allowed_updates": "PASSED_3_OF_3_ROLLBACK",
+    "core_server_rpc_jwt_negative_tests_passed": false,
+    "core_booking_deposit_jwt_negative_api_test_passed": false,
+    "core_migration_version": "20261008181605",
+    "core_migration_sql_sha256": "ffe4d024c6611632ea07a78a636422889f6e40c5985ec0c169f745672c5c3509",
+    "production_modified": false,
+    "core_booking_sql_live_no_deposit": "PASSED_WITH_ROLLBACK",
+    "core_booking_sql_live_deposit_required_fails_closed": "PASSED_WITH_ROLLBACK",
+    "old_full_deposit_probes_now_fail_as_expected": [
+      "private.test_step11_public_booking_transaction",
+      "private.test_public_booking_availability_server_authority"
+    ],
+    "existing_test_catalog_results_are_historical": true
   },
   "next_actions": [
     "Reconcile full remote migration history against local source and verify SHA-256",
-    "Execute CORE SQL policy safely on isolated Development with open-operation preflight and direct negative RPC tests",
+    "Run the new CORE booking SQL regression on new staging and keep FULL deposit-required probes out of CORE PASS counts, without weakening feature enforcement.",
+    "Test CORE access denial via PostgREST/RPC using valid authorized JWT roles on Development/staging; database trigger tests already passed.",
     "Run complete Node 24 npm CI, PostgreSQL and browser tests on HTTPS staging",
     "Perform current-schema database/Auth/Storage restore test",
-    "Collect three independent complete reviews and release dossier"
+    "Collect three independent complete reviews and release dossier",
+    "Require core_booking_without_deposit_sql_live in commercial CORE release dossier, separately from deposit/provider API denial evidence."
   ]
 }

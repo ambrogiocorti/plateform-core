@@ -791,6 +791,12 @@
       "version": "20261008163715",
       "name": "step11_notification_probe_expiring_fixture_fix",
       "sha256": "533726aa7a4c485db44758ddac4dadcba55bc7c7115d3e879095a55307e46388"
+    },
+    {
+      "filename": "20261008181605_core_edition_payment_and_print_denial.sql",
+      "version": "20261008181605",
+      "name": "core_edition_payment_and_print_denial",
+      "sha256": "ffe4d024c6611632ea07a78a636422889f6e40c5985ec0c169f745672c5c3509"
     }
   ]
 }

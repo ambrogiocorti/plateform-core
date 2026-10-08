@@ -1,9 +1,14 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 
-// SOURCE-ONLY checks. These never imply that the SQL was applied or that API
-// bypass attempts were exercised against a real Supabase instance.
-const sql = readFileSync('docs/CORE_EDITION_SERVER_POLICY_PENDING.sql', 'utf8');
+// SOURCE-ONLY checks against the exact applied, versioned Development migration.
+// Remote negative SQL checks are evidence documented separately; this script
+// alone cannot certify API authorization behavior or Production deployment.
+const migrationFile = '20261008181605_core_edition_payment_and_print_denial.sql';
+const migrationPath = `supabase/migrations/${migrationFile}`;
+const migrationBytes = readFileSync(migrationPath);
+const sql = migrationBytes.toString('utf8');
 const foundation = readFileSync('supabase/migrations/20261003165439_foundation.sql', 'utf8');
 const enumValues = (type) => {
   const match = foundation.match(new RegExp(`create type public\\.${type} as enum \\(([^)]*)\\)`, 'i'));
@@ -22,13 +27,26 @@ check('payment enum contains only documented CORE methods', () => {
   assert.deepEqual(paymentMethods, ['CASH','CARD_POS','STRIPE','SATISPAY_POS','SATISPAY_API']);
 });
 check('payment preflight terminal enum is valid', () => {
-  for (const value of ['FAILED','CANCELLED']) assert.ok(paymentStatuses.includes(value));
+  for (const value of ['FAILED','CANCELLED','REFUNDED']) assert.ok(paymentStatuses.includes(value));
 });
 check('refund preflight terminal enum is valid', () => {
-  for (const value of ['FAILED','REJECTED']) assert.ok(refundStatuses.includes(value));
+  for (const value of ['FAILED','REJECTED','COMPLETED']) assert.ok(refundStatuses.includes(value));
   assert.ok(!sql.match(/refunds[\s\S]{0,170}CANCELLED/), 'no nonexistent refund enum states');
 });
-check('proposal is explicitly unexecuted', () => assert.match(sql, /NOT APPLIED[\s\S]*MUST be tested/));
+check('historical refunded payments do not block activation', () => {
+  assert.match(sql, /payments[\s\S]{0,170}status NOT IN \('FAILED',\s*'CANCELLED',\s*'REFUNDED'\)/);
+});
+check('historical completed refunds do not block activation', () => {
+  assert.match(sql, /refunds[\s\S]{0,170}status NOT IN \('FAILED',\s*'REJECTED',\s*'COMPLETED'\)/);
+});
+check('applied migration version and digest match the source manifest', () => {
+  const manifest = JSON.parse(readFileSync('supabase/migration-manifest.json', 'utf8'));
+  const row = manifest.migrations.find((entry) => entry.filename === migrationFile);
+  assert.ok(row, 'the CORE migration must be versioned');
+  assert.equal(row.version, '20261008181605');
+  assert.equal(row.name, 'core_edition_payment_and_print_denial');
+  assert.equal(row.sha256, createHash('sha256').update(migrationBytes).digest('hex'));
+});
 for (const pattern of [
   /CORE_EDITION_PENDING_PROVIDER_OPERATIONS/,
   /CORE_EDITION_EXISTING_PROVIDER_PAYMENTS/,
@@ -47,18 +65,18 @@ for (const pattern of [
   /CORE_PROVIDER_OPERATION_FORBIDDEN/,
   /PRINT_DRIVER_NOT_INCLUDED/,
   /CORE_PRINT_DEVICE_FORBIDDEN/,
-  /SET licensed = false/,
-  /'BOOKING_DEPOSITS'\) AND licensed = true/,
-  /FROM PUBLIC, anon, authenticated/,
+  /SET licensed\s*=\s*false/,
+  /'BOOKING_DEPOSITS'\) AND licensed\s*=\s*true/,
+  /FROM PUBLIC,\s*anon,\s*authenticated/,
 ]) check(`required policy: ${pattern}`, () => assert.match(sql, pattern));
 
 check('all function scopes have fixed search path', () => {
   const functions = sql.match(/CREATE OR REPLACE FUNCTION/g) ?? [];
-  const secured = sql.match(/RETURNS trigger LANGUAGE plpgsql SET search_path = ''/g) ?? [];
+  const secured = sql.match(/RETURNS trigger LANGUAGE plpgsql SET search_path\s*=\s*''/g) ?? [];
   assert.ok(functions.length >= 6);
   assert.equal(secured.length, functions.length);
 });
 check('policy does not perform destructive historical deletes', () => {
   assert.doesNotMatch(sql, /\b(?:DELETE FROM|TRUNCATE|DROP TABLE|DROP TYPE)\b/i);
 });
-console.log(`CORE_SERVER_POLICY_SOURCE=PASS (${count}/${count} source checks; remote enforcement NOT verified)`);
+console.log(`CORE_SERVER_POLICY_SOURCE=PASS (${count}/${count} source checks; real JWT API authorization still required)`);

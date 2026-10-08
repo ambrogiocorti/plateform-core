@@ -22,7 +22,7 @@ il lavoro in corso e non costituisce una release commerciale delle Release 1–3
 - Prenotazioni pubbliche: gli slot che richiedono caparra online sono esclusi; se una risposta stale richiede una caparra, il cliente viene informato senza creare un checkout o simulare conferma.
 - Gate commerciale distinto per profilo FULL/CORE: soltanto le sezioni 79, 80 e 90 del master possono essere marcate fuori scope in CORE; gli altri 148 requisiti, 14 step e i test E2E/sicurezza/restore/review restano obbligatori.
 - Verifiche pure `check:core-edition` e `check:core-release-profile` aggiunte alla pipeline; non equivalgono a collaudi di produzione.
-- La proposta di blocco server-side `docs/CORE_EDITION_SERVER_POLICY_PENDING.sql` **non è stata applicata**: la modifica remota è stata bloccata da un controllo di sicurezza. I provider rimangono fuori scope nell'UI, ma la vendita è ancora bloccata fino all'enforcement backend.
+- Il primo tentativo di applicare una policy CORE su Development era stato bloccato. Una successiva migrazione, descritta più sotto, è stata applicata e verificata su Development; questi stati storici non certificano Production.
 - Resta il disallineamento 132/455 migrazioni locali/remote, non è stata installata la toolchain Node 24 né verificato uno staging HTTPS.
 
 ### CORE — hardening prudenziale aggiuntivo, 8 ottobre 2026 (non rilasciato)
@@ -33,6 +33,13 @@ il lavoro in corso e non costituisce una release commerciale delle Release 1–3
 - Nuovo `check:core-server-policy` (26 contratti sorgente) richiesto dal gate commerciale CORE, oltre ai test API negativi reali obbligatori (compreso il divieto di nuove caparre online).
 - Verifiche effettive: CORE 50/50; policy SQL 26/26 (SOLO STATICA); gate CORE 18/18; migrazioni locali 132/132; Step 8 16/16 e Step 12 statico 34/34. 16 gruppi UX/Step 11 disponibili superati, Step 10 cross-venue test PostgreSQL bloccato da `node_modules` incompleta.
 - Preflight Node 22 / binding Vite-Rolldown assente e variabili staging non configurate; `release:check` nega il rilascio per assenza dossier reali. Rimane irrisolto lo storico SQL 132 locale / 455 Development. Nessuna migrazione, dato remoto o Production modificato durante questo incremento.
+
+### CORE — Enforcement SQL Development, 8 ottobre 2026 (non rilasciato)
+
+- Su Supabase Development il preflight CORE è passato: provider operations aperte 0, caparre pendenti 0, stampanti esterne attive 0, job di stampa esterni pendenti 0. I dati effettivi comprendono **2 pagamenti Stripe e 1 Satispay API REFUNDED**, **1 pagamento Satispay POS CANCELLED** e **3 rimborsi provider COMPLETED**. Queste righe storiche sono state preservate.
+- Applicata `20261008181605_core_edition_payment_and_print_denial` (8 trigger), con licenze Stripe/Satispay/BOOKING_DEPOSITS a false e blocco delle nuove operazioni lato DB. SQL locale identico ai 5.552 byte e SHA-256 registrati dal database.
+- Verificate 10 azioni negate e 3 update CORE consentiti, senza lasciare dati fixture (ROLLBACK); `release_security_gate` e `release_database_regression_gate` sono PASS.
+- Restano obbligatorie prove RPC reali con JWT e ruolo, build Node 24, staging HTTPS, restore attuale, 3 review e recupero delle 323 migrazioni storiche. L'enforcement è **solo su Development** e non equivale a certificazione Production.
 
 ### UX operativa WAITER / RUNNER — 5 ottobre 2026
 
@@ -141,3 +148,10 @@ Non è una release commerciale. Tre revisioni integrali pulite: 0/3.
 - A stale asynchronous page-render failure can no longer replace a newer successful navigation; invalid venue context also skips the SEO RPC and removes inherited Open Graph URLs.
 - Added a zero-npm TypeScript observer regression harness; included in `npm run check:step11-runtime` and verified alongside static, prerender, booking and build-assembly gates.
 - **Not certified**: real hosted Chromium user journeys, Node >=24.13 full npm CI, 323 missing historical applied SQL files, stage deployment, provider/hardware certification and current-schema restore.
+
+### 2026-10-08 — CORE Development server enforcement and booking regression
+
+- Applied `20261008181605_core_edition_payment_and_print_denial` on the Development project only: eight SQL triggers block excluded payment methods, provider commands, booking-deposit licences and Epson print drivers; historical refunded/cancelled/completed transactions remain untouched.
+- Verified 10 server-side negative SQL cases and 3 allowed CORE updates in rollback-only transactions; release security and database regression gates remain green.
+- Added `supabase/tests/core_booking.live.sql` with CORE-safe live booking, idempotency, large-group and deposit-fail-closed tests, exercised successfully against Development with rollback.
+- The two older FULL-edition booking/deposit probes now fail by design under CORE licence denial and must not be represented as current test PASS. Full CI, JWT/HTTP E2E, staging, 323 migration files, current-schema restore and three independent reviews remain required.

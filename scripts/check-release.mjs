@@ -21,6 +21,7 @@ export const requiredCoreIntegrationChecks = [
   'cash_pos_manual_payment_and_refund_e2e',
   'server_denies_stripe_satispay_and_epson',
   'server_denies_online_booking_deposits',
+  'core_booking_without_deposit_sql_live',
   'browser_pdf_output_verified',
   'pwa_offline_revocation_and_conflicts',
   'backup_restore_database_auth_storage',

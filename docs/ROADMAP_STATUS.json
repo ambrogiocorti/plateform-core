@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-06T07:18:00+02:00",
+  "updated_at": "2026-10-08T20:00:00+02:00",
   "source": "docs/ROADMAP.txt",
   "development_project": "abdxvlykasqmknexxhjo",
   "commercial_release_ready": false,
@@ -499,7 +499,10 @@
         "anon_public_contract": "PASSED_13_OF_13_2026_10_05",
         "anon_public_populated_fixture": "PASSED_11_OF_11_ROLLBACK_2026_10_05",
         "asset_upload_deploy_parity": "PASSED_FUNCTIONAL_V5_VERIFY_JWT_2026_10_05",
-        "asset_upload_http_probe": "BLOCKED_CONTAINER_DNS_2026_10_05"
+        "asset_upload_http_probe": "BLOCKED_CONTAINER_DNS_2026_10_05",
+        "core_booking_without_deposit_sql_development": "PASSED_ROLLBACK",
+        "core_booking_legacy_required_deposit_denial_development": "PASSED_ROLLBACK",
+        "full_deposit_probes_under_core_license": "INCOMPATIBLE_WITH_CORE_EXPECTED_DENIAL"
       },
       "evidence": [
         "docs/evidence/step11-public-branding-2026-10-04.json",
@@ -517,7 +520,8 @@
         "supabase/migrations/20261004224445_step11_branding_theme_default_contrast_fix.sql",
         "docs/evidence/step9-step12-regression-2026-10-05.json",
         "docs/evidence/step11-live-asset-authorization-2026-10-05.json",
-        "docs/evidence/step11-browser-a11y-2026-10-05.json"
+        "docs/evidence/step11-browser-a11y-2026-10-05.json",
+        "supabase/tests/core_booking.live.sql"
       ],
       "open": [
         "authenticated asset upload E2E from a real staff browser session",
@@ -758,7 +762,7 @@
         "docs/evidence/step12-rehearsal-gate-2026-10-06.json"
       ],
       "open": [
-        "Recuperare in sorgente le 323 migrazioni SQL applicate su Supabase Development ma mancanti localmente (132 file locali, 455 remote al controllo 2026-10-08), verificando ogni SHA-256.",
+        "Recuperare in sorgente le 323 migrazioni SQL applicate su Supabase Development ma mancanti localmente (133 file locali, 456 remote al controllo 2026-10-08), verificando ogni SHA-256.",
         "Generare un nuovo backup coerente con il database corrente e testarne il restore su target Supabase nuovo, isolato e temporaneo, compresi Auth e Storage.",
         "Rieseguire npm run check:step12-rehearsal con attestazione completa di restore corrente: le precedenti prove storiche non certificano la versione attuale."
       ]
@@ -767,13 +771,21 @@
       "step": 13,
       "name": "Hardening e go-live",
       "status": "TODO",
-      "checks": {},
-      "evidence": [],
+      "checks": {
+        "core_dev_server_sql_enforcement": "PASSED_10_NEGATIVE_3_ALLOWED_SQL_ROLLBACK",
+        "core_dev_booking_sql_e2e": "PASSED_SQL_ROLLBACK_NOT_HTTP_JWT"
+      },
+      "evidence": [
+        "supabase/migrations/20261008181605_core_edition_payment_and_print_denial.sql",
+        "docs/evidence/core-hardening-2026-10-08.json",
+        "supabase/tests/core_booking.live.sql"
+      ],
       "open": [
         "Installare Node >=24.13, eseguire npm ci su ambiente raggiungibile e ottenere typecheck, lint, test PostgreSQL, browser E2E e build tutti PASS.",
-        "Verificare su Development l enforcement SQL CORE con test negativi diretti delle RPC prima di qualunque modifica a Production; proposta attuale non applicata.",
+        "Enforcement SQL CORE applicato su Development con 10 test negativi e 3 permessi a rollback; completare test RPC con JWT autentici e verifica dell isolation per ruolo su staging prima di Production.",
         "Configurare staging HTTPS separato con domini, publishable key e isolamento delle credenziali; eseguire i collaudi su dispositivi reali.",
-        "Registrare 3 revisioni integrali consecutive senza rilievi aperti e dossier di release completo; nessuna certificazione finche i gate non passano."
+        "Registrare 3 revisioni integrali consecutive senza rilievi aperti e dossier di release completo; nessuna certificazione finche i gate non passano.",
+        "Eseguire `core_booking_without_deposit_sql_live` anche su staging con database isolato e sessioni HTTP/JWT vere; i vecchi FULL-edition test delle caparre risultano ora incompatibili con il blocco CORE."
       ]
     }
   ],
