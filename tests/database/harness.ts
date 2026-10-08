@@ -71,6 +71,42 @@ export async function database(through = Number.POSITIVE_INFINITY) {
       returning jobid into ref;
       return ref;
     end $$;
+    -- Supabase Vault is hosted; PGlite cannot load its encrypted storage.
+    -- This fixture only reproduces SQL shape and create/read behavior in the
+    -- disposable database. It does NOT validate encryption, Vault policies
+    -- or production secret delivery. Never insert live credentials here.
+    create schema if not exists vault;
+    create table vault.secrets(
+      id uuid primary key default gen_random_uuid(),
+      name text unique,
+      description text,
+      secret text not null,
+      key_id uuid
+    );
+    create view vault.decrypted_secrets as
+      select id,name,description,secret,secret as decrypted_secret,key_id
+      from vault.secrets;
+    create function vault.create_secret(
+      new_secret text,
+      new_name text default null,
+      new_description text default null,
+      new_key_id uuid default null
+    ) returns uuid
+    language plpgsql
+    security invoker
+    set search_path=''
+    as $$
+    declare new_id uuid;
+    begin
+      insert into vault.secrets(name,description,secret,key_id)
+      values(new_name,new_description,new_secret,new_key_id)
+      returning id into new_id;
+      return new_id;
+    end $$;
+    revoke all on schema vault from public,anon,authenticated;
+    revoke all on vault.secrets,vault.decrypted_secrets from public,anon,authenticated;
+    revoke all on function vault.create_secret(text,text,text,uuid)
+      from public,anon,authenticated;
     create schema supabase_migrations;
     create table supabase_migrations.schema_migrations(
       version text primary key,
