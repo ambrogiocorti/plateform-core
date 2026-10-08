@@ -53,8 +53,15 @@ describe('PostgreSQL migrations and installation invariants', () => {
       where n.nspname='public' and has_function_privilege('anon',p.oid,'EXECUTE') order by p.proname`);
     expect(result.rows.map((row) => row.name)).toEqual([
       'get_booking_configuration',
+      'get_public_booking_availability',
       'get_public_menu',
+      'get_public_menu_by_id',
+      'get_public_menu_by_slug',
+      'get_public_menu_index',
+      'get_public_navigation',
+      'get_public_page_metadata',
       'get_public_site',
+      'get_public_sitemap_entries',
     ]);
   });
   it('denies direct API writes and service-only RPC execution to staff', async () => {
