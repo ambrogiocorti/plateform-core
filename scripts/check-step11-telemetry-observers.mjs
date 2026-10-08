@@ -52,8 +52,8 @@ export const client = () => ({functions: {invoke: async (_name, {body}) => {
     'telemetry payloads must not contain arbitrary search tokens');
 
   // Simulate SPA navigation before the previous route's CLS observer is closed.
-  location.pathname = '/contatti';
-  location.search = '';
+  globalThis.location.pathname = '/contatti';
+  globalThis.location.search = '';
   stopOld();
   assert.equal(eventListeners.get('pagehide')?.size, 0, 'cleanup removes old pagehide listener');
   assert.ok(observers.slice(0,oldCount).every((x) => x.disconnected));
@@ -75,7 +75,7 @@ export const client = () => ({functions: {invoke: async (_name, {body}) => {
   stopNew();
   assert.equal(eventListeners.get('pagehide')?.size, 0);
 
-  location.pathname = '/tavolo/private-session-token';
+  globalThis.location.pathname = '/tavolo/private-session-token';
   recordPublicPageView();
   const before = globalThis.__plateformTestEvents.length;
   const stopQr = observePublicPerformance();
