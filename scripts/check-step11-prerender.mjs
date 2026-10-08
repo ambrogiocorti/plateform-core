@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdtemp,readFile,writeFile,mkdir } from 'node:fs/promises';
+import { mkdtemp,readFile,writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { prerenderPublic,renderPublicBody } from './prerender-public.mjs';
