@@ -127,7 +127,9 @@ describe('PostgreSQL migrations and installation invariants', () => {
       ).rows[0]!.result;
       expect(category.id).toMatch(/^[0-9a-f-]{36}$/);
     } finally {
-      await db.exec('reset role; rollback');
+      // Roll back first even when a preceding SQL assertion aborts the transaction.
+      await db.exec('rollback');
+      await db.exec('reset role');
     }
   });
   it('cannot deactivate the only venue', async () => {
