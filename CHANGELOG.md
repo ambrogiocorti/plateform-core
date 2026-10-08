@@ -109,3 +109,5 @@ Non è una release commerciale. Tre revisioni integrali pulite: 0/3.
 - Repaired the private SQL Notification Center test fixture's expired full-auth window, with transactional rollback, without changing real authentication controls.
 - Stabilized eight Step12 validator regressions against an isolated historical manifest; retained explicit failure for obsolete restore evidence against the current source.
 - Database regression, security and test-catalog gates remain green on Development at 455 applied migrations; 323 historical SQL files remain missing locally.
+
+- Reran available dependency-free role UX and Step9/11/12 checks; separate blocked PGlite/fake-indexeddb gates from passing tests in the latest verification log.
