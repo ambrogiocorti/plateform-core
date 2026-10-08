@@ -113,9 +113,15 @@ describe('PostgreSQL migrations and installation invariants', () => {
     await db.exec('begin');
     try {
       await identity(db, ids.admin);
-      expect((await db.query('select private.can_manage_shared_catalog() allowed')).rows).toEqual([
-        { allowed: true },
-      ]);
+      // Private authorization helpers must remain non-executable by staff.
+      // The public command below exercises that helper through its security boundary.
+      expect(
+        (
+          await db.query(
+            "select has_function_privilege('authenticated','private.can_manage_shared_catalog()','EXECUTE') as allowed",
+          )
+        ).rows,
+      ).toEqual([{ allowed: false }]);
       const category = (
         await db.query<{ result: { id: string } }>(
           "select public.save_configuration_command('categories',null,null,$1::jsonb,null,$2) result",
