@@ -360,13 +360,15 @@ describe('Authoritative service workflows', () => {
   });
 
   it('routes customer calls to the TABLE waiter and records acceptance and completion timing', async () => {
+    // Create the account while its original zone waiter is responsible.
+    // Reassign the table before the customer calls.
+    const account = await createAccount();
     await identity(db, ids.admin);
     await db.query("select public.assign_waiter($1,$2,'TABLE',$3,null)", [
       ids.venue,
       tableWaiter,
       table,
     ]);
-    const account = await createAccount();
     await attachCustomer(account);
     const call = (
       await db.query<{ id: string }>("select public.call_waiter($1,'WAITER') id", [account.id])
@@ -865,6 +867,9 @@ describe('Authoritative service workflows', () => {
     );
     await db.query('select public.deliver_step($1,false)', [item.step_id]);
     await db.query('select public.deliver_step($1,true)', [item.step_id]);
+    // The Runner can deliver this step but cannot read orders directly.
+    expect((await db.query('select status from public.orders')).rows).toEqual([]);
+    await db.exec('reset role');
     expect((await db.query('select status from public.orders')).rows).toEqual([
       { status: 'SERVED' },
     ]);
