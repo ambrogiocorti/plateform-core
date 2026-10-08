@@ -4,6 +4,7 @@ import { button, dialog, el, field, toast } from '../components/dom';
 import { formatMoney, parseMoney } from '../services/money';
 import { providerPaymentDialog } from './provider-payments';
 import { paymentRegisterSchema } from '../types/accounts';
+import { permittedPaymentMethod, permittedPaymentMethods } from '../services/commercial-scope';
 import type { StaffContext } from './staff-context';
 
 export async function paymentDialog(
@@ -41,28 +42,32 @@ export async function paymentDialog(
   const tip = field('Mancia separata', 'tip', 'text', '0,00');
   tip.input.inputMode = 'decimal';
   const method = el('select', { 'aria-label': 'Metodo di pagamento' });
+  const paymentMethodNotice = el('p', { class: 'muted', role: 'status' });
   const updateMethods = () => {
-    method.replaceChildren(
-      ...(registers.find((row) => row.id === register.value)?.payment_methods ?? [])
-        .filter((value) =>
-          ['CASH', 'CARD_POS', 'SATISPAY_POS', 'STRIPE', 'SATISPAY_API'].includes(value),
-        )
-        .map((value) =>
-          el(
-            'option',
-            { value },
-            (
-              {
-                CASH: 'Contanti',
-                CARD_POS: 'POS carta',
-                SATISPAY_POS: 'POS Satispay',
-                STRIPE: 'Carta online',
-                SATISPAY_API: 'Satispay online',
-              } as Record<string, string>
-            )[value] ?? value,
-          ),
-        ),
+    const allowed = permittedPaymentMethods(
+      registers.find((row) => row.id === register.value)?.payment_methods ?? [],
     );
+    method.replaceChildren(
+      ...allowed.map((value) =>
+        el(
+          'option',
+          { value },
+          (
+            {
+              CASH: 'Contanti',
+              CARD_POS: 'POS carta',
+              SATISPAY_POS: 'POS Satispay',
+              STRIPE: 'Carta online',
+              SATISPAY_API: 'Satispay online',
+            } as Record<string, string>
+          )[value] ?? value,
+        ),
+      ),
+    );
+    method.disabled = allowed.length === 0;
+    paymentMethodNotice.textContent = allowed.length
+      ? ''
+      : 'Questa cassa non ha metodi utilizzabili nell’edizione CORE: abilita Contanti o POS esterno nelle impostazioni.';
   };
   register.addEventListener('change', updateMethods);
   updateMethods();
@@ -73,9 +78,14 @@ export async function paymentDialog(
     amount.root,
     tip.root,
     el('label', {}, 'Metodo', method),
+    paymentMethodNotice,
   );
   editor.append(
     button('Prepara pagamento', async () => {
+      if (!permittedPaymentMethod(method.value)) {
+        toast('Configura una cassa con contanti o POS esterno per effettuare l’incasso.', true);
+        return;
+      }
       const result = await rpc(
         'create_payment',
         {

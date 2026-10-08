@@ -20,7 +20,7 @@
     "test:e2e": "playwright test",
     "check:edge": "node scripts/run-edge.mjs check",
     "test:edge": "node scripts/run-edge.mjs test",
-    "check": "npm run check:migrations && npm run check:waiter-ux && npm run check:step11 && npm run typecheck && npm run lint && npm run check:edge && npm run test:edge && npm test && npm run build",
+    "check": "npm run check:migrations && npm run check:core-edition && npm run check:core-release-profile && npm run check:waiter-ux && npm run check:step11 && npm run typecheck && npm run lint && npm run check:edge && npm run test:edge && npm test && npm run build",
     "requirements": "node scripts/check-requirements.mjs",
     "build:pages": "npm run build && node scripts/build-site.mjs",
     "release:check": "node scripts/check-release.mjs",
@@ -73,7 +73,7 @@
     "check:step10-cross-venue": "node --experimental-strip-types scripts/check-step10-cross-venue.mjs",
     "check:step9-room-editor": "node --experimental-strip-types scripts/check-step9-room-editor.mjs",
     "local:preflight": "node scripts/local-release-preflight.mjs",
-    "local:source-gates": "npm run check:migrations && npm run check:waiter-ux && npm run check:kitchen-pass-ux && npm run check:host-ux && npm run check:cashier-ux && npm run check:kitchen-admin-ux && npm run check:admin-ux && npm run check:super-admin-ux && npm run check:step7 && npm run check:step8 && npm run check:step9-room-editor && npm run check:step9-advanced && npm run check:step10-cross-venue && npm run check:step10-ux && npm run check:step11 && npm run check:step12 && npm run typecheck && npm run lint && npm run format:check",
+    "local:source-gates": "npm run check:migrations && npm run check:core-edition && npm run check:core-release-profile && npm run check:waiter-ux && npm run check:kitchen-pass-ux && npm run check:host-ux && npm run check:cashier-ux && npm run check:kitchen-admin-ux && npm run check:admin-ux && npm run check:super-admin-ux && npm run check:step7 && npm run check:step8 && npm run check:step9-room-editor && npm run check:step9-advanced && npm run check:step10-cross-venue && npm run check:step10-ux && npm run check:step11 && npm run check:step12 && npm run typecheck && npm run lint && npm run format:check",
     "local:verify": "npm run local:preflight && npm run local:source-gates && npm run check:edge && npm run test:edge && npm test && npm run build",
     "local:browser": "npm run test:e2e",
     "local:full": "npm run local:verify && npm run local:browser",
@@ -105,7 +105,9 @@
     "reconcile:migrations": "node scripts/reconcile-migrations.mjs --dry-run",
     "reconcile:migrations:write": "node scripts/reconcile-migrations.mjs --write",
     "check:staging-http": "node scripts/verify-staging-http.mjs",
-    "check:staging-http-fixtures": "node scripts/check-staging-http.mjs"
+    "check:staging-http-fixtures": "node scripts/check-staging-http.mjs",
+    "check:core-edition": "node --experimental-strip-types scripts/check-core-edition.mjs",
+    "check:core-release-profile": "node scripts/check-core-release-profile.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.116.0",

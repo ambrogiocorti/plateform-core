@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
+  excludedCoreSections,
+  requiredCoreIntegrationChecks,
   requiredIntegrationChecks,
   releaseProblems,
   roadmapProblems,
@@ -35,6 +37,27 @@ function evidence() {
   };
 }
 describe('commercial release gate', () => {
+  it('permits only explicitly excluded provider/driver sections for CORE', () => {
+    const reduced = structuredClone(matrix);
+    for (const section of excludedCoreSections) reduced.sections[section]!.status = 'out_of_scope_core';
+    const record = evidence();
+    Object.assign(record, { edition: 'CORE' });
+    record.integration_checks = Object.fromEntries(
+      requiredCoreIntegrationChecks.map((name) => [
+        name,
+        { status: 'passed', evidence: ['report:verified-core-scope'] },
+      ]),
+    );
+    expect(releaseProblems(reduced, record, digest)).toEqual([]);
+    delete record.integration_checks.server_denies_stripe_satispay_and_epson;
+    expect(releaseProblems(reduced, record, digest)).toContain(
+      'Collaudo reale mancante: server_denies_stripe_satispay_and_epson.',
+    );
+    reduced.sections[91]!.status = 'out_of_scope_core';
+    expect(releaseProblems(reduced, record, digest)).toContain(
+      'Le 151 sezioni del master devono risultare verificate con evidenze.',
+    );
+  });
   it('requires all roadmap steps, including unresolved integration checks', () => {
     const steps = Array.from({ length: 14 }, (_, step) => ({
       step,

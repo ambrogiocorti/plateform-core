@@ -11,6 +11,21 @@ export const requiredIntegrationChecks = [
   'backup_restore_database_auth_storage',
   'accessibility_mobile_and_load',
 ];
+/** The CORE edition still requires real end-to-end cash/POS/PDF testing and
+ * *negative* server-side tests proving the absent integrations cannot run.
+ * It is not sufficient to hide the Stripe/Satispay/Epson controls in the UI.
+ */
+export const requiredCoreIntegrationChecks = [
+  'supabase_auth_rls_realtime_storage',
+  'concurrent_booking_stock_payments',
+  'cash_pos_manual_payment_and_refund_e2e',
+  'server_denies_stripe_satispay_and_epson',
+  'browser_pdf_output_verified',
+  'pwa_offline_revocation_and_conflicts',
+  'backup_restore_database_auth_storage',
+  'accessibility_mobile_and_load',
+];
+export const excludedCoreSections = [79, 80, 90];
 export const requiredDocuments = [
   'README.md',
   'ARCHITECTURE.md',
@@ -111,12 +126,17 @@ export function roadmapProblems(roadmap) {
 }
 export function releaseProblems(matrix, evidence, digest, now = Date.now()) {
   const errors = [];
+  const coreEdition = evidence.edition === 'CORE';
+  const expectedSections = coreEdition
+    ? (row) => row.status === 'verified' ||
+        (excludedCoreSections.includes(row.section) && row.status === 'out_of_scope_core')
+    : (row) => row.status === 'verified';
   if (
     !Array.isArray(matrix.sections) ||
     matrix.sections.length !== 151 ||
     new Set(matrix.sections.map((row) => row.section)).size !== 151 ||
     Array.from({ length: 151 }, (_, i) => i).some(
-      (i) => !matrix.sections.some((row) => row.section === i && row.status === 'verified'),
+      (i) => !matrix.sections.some((row) => row.section === i && expectedSections(row)),
     )
   )
     errors.push('Le 151 sezioni del master devono risultare verificate con evidenze.');
@@ -125,7 +145,9 @@ export function releaseProblems(matrix, evidence, digest, now = Date.now()) {
   for (const suite of ['typecheck', 'lint', 'edge', 'unit_database', 'browser', 'build'])
     if (evidence.local_checks?.[suite] !== 'passed')
       errors.push(`Verifica locale mancante: ${suite}.`);
-  for (const name of requiredIntegrationChecks) {
+  if (evidence.edition && evidence.edition !== 'CORE' && evidence.edition !== 'FULL')
+    errors.push('Edizione commerciale sconosciuta.');
+  for (const name of coreEdition ? requiredCoreIntegrationChecks : requiredIntegrationChecks) {
     const check = evidence.integration_checks?.[name];
     if (
       !check ||

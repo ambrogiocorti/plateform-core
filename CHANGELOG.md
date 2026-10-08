@@ -13,6 +13,16 @@
 Molte funzionalità e verifiche richieste restano aperte. Questa versione identifica
 il lavoro in corso e non costituisce una release commerciale delle Release 1–3 del master.
 
+### Edizione CORE ridotta — 8 ottobre 2026 (non rilasciata)
+
+- Formalizzato il perimetro richiesto per la vendita senza Stripe, Satispay (incluso POS Satispay) ed Epson/ePOS/bridge. Restano contanti, POS carta esterno con conferma operatore e stampa browser/PDF.
+- Moduli staff aggiornati per impedire la selezione dei metodi di pagamento e dei driver non inclusi, anche quando presenti nello stato della sede o cassa già memorizzato.
+- Prenotazioni pubbliche: gli slot che richiedono caparra online sono esclusi; se una risposta stale richiede una caparra, il cliente viene informato senza creare un checkout o simulare conferma.
+- Gate commerciale distinto per profilo FULL/CORE: soltanto le sezioni 79, 80 e 90 del master possono essere marcate fuori scope in CORE; gli altri 148 requisiti, 14 step e i test E2E/sicurezza/restore/review restano obbligatori.
+- Verifiche pure `check:core-edition` e `check:core-release-profile` aggiunte alla pipeline; non equivalgono a collaudi di produzione.
+- La proposta di blocco server-side `docs/CORE_EDITION_SERVER_POLICY_PENDING.sql` **non è stata applicata**: la modifica remota è stata bloccata da un controllo di sicurezza. I provider rimangono fuori scope nell'UI, ma la vendita è ancora bloccata fino all'enforcement backend.
+- Resta il disallineamento 132/455 migrazioni locali/remote, non è stata installata la toolchain Node 24 né verificato uno staging HTTPS.
+
 ### UX operativa WAITER / RUNNER — 5 ottobre 2026
 
 - Aggiunta la home staff `/servizio`, ora primo ingresso del ruolo WAITER, con priorità visibili per chiamate cliente, piatti pronti e tavoli assegnati.

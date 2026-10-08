@@ -6,6 +6,7 @@ import { button, el, emptyState, field } from '../components/dom';
 import type { Venue } from '../types/domain';
 import { addCalendarDays, bookableSlots, depositNextAction, venueLocalToday } from '../services/public-booking-contract';
 import type { SearchKey } from '../services/public-booking-contract';
+import { externalPaymentProvidersIncluded } from '../services/commercial-scope';
 
 async function bookingFailure(error: unknown): Promise<never> {
   if (error instanceof FunctionsHttpError) {
@@ -100,8 +101,18 @@ export async function bookingPage(venue: Venue, privacyUrl?: string): Promise<HT
       p_venue: key.venueId, p_service: key.serviceId, p_date: key.date, p_party: key.party,
     }, availabilitySchema);
     if (token !== sequence || !form.isConnected) return;
-    const slots = bookableSlots(result, key);
-    if (!slots.length) { status.textContent = 'Non ci sono orari disponibili per questa richiesta.'; return; }
+    // In the core-only edition, never offer a time slot that requires an
+    // unavailable online deposit provider. The authoritative server may have
+    // stricter rules than the public UI last observed.
+    const confirmedSlots = bookableSlots(result, key);
+    const slots = confirmedSlots.filter((slot) =>
+      externalPaymentProvidersIncluded || slot.status_if_booked !== 'PENDING_DEPOSIT');
+    if (!slots.length) {
+      status.textContent = confirmedSlots.some((slot) => slot.status_if_booked === 'PENDING_DEPOSIT')
+        ? 'Gli orari disponibili richiedono una caparra online non gestita in questa edizione. Contatta il ristorante.'
+        : 'Non ci sono orari disponibili per questa richiesta.';
+      return;
+    }
     verifiedKey = key;
     time.disabled = false;
     time.replaceChildren(el('option', { value: '' }, 'Seleziona un orario'),
@@ -150,6 +161,14 @@ export async function bookingPage(venue: Venue, privacyUrl?: string): Promise<HT
       const result = bookingResult.parse(data);
       submitted = true;
       if (result.status === 'PENDING_DEPOSIT') {
+        if (!externalPaymentProvidersIncluded) {
+          form.replaceChildren(
+            el('h2', {}, 'Prenotazione non ancora confermata'),
+            el('p', { role: 'alert' }, 'La sede richiede una caparra online non disponibile in questa edizione. Non inviare un’altra richiesta: contatta direttamente il ristorante.'),
+            el('a', { href: `tel:${venue.phone.replace(/[^+0-9]/g, '')}` }, venue.phone),
+          );
+          return;
+        }
         form.replaceChildren(el('h2', {}, 'Caparra necessaria per completare la prenotazione'),
           el('p', {}, `Importo: ${(result.deposit.amount_cents / 100).toLocaleString('it-IT',{style:'currency',currency:'EUR'})}. Il tavolo non è ancora confermato.`),
           el('p', { role: 'status' }, 'Il pagamento deve essere confermato dal ristorante dopo la verifica del provider.'));

@@ -1,4 +1,6 @@
 export const requiredIntegrationChecks: string[];
+export const requiredCoreIntegrationChecks: string[];
+export const excludedCoreSections: number[];
 export const requiredDocuments: string[];
 export function roadmapProblems(roadmap: unknown): string[];
 export function releaseProblems(

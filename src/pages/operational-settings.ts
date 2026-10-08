@@ -5,9 +5,10 @@ import type { StaffContext } from './staff-context';
 import { floorStatusLabels } from '../components/floor-view';
 import { notificationRulesSchema } from '../components/notification-indicator';
 import { enableNotificationSound, playNotificationSound } from '../services/notification-sound';
+import { permittedPaymentMethods, permittedPrintDriver, permittedPrintDrivers } from '../services/commercial-scope';
 
 const record = z.record(z.string(), z.unknown());
-const methods = ['CASH', 'CARD_POS', 'STRIPE', 'SATISPAY_POS', 'SATISPAY_API'] as const;
+const methods = permittedPaymentMethods(['CASH', 'CARD_POS', 'STRIPE', 'SATISPAY_POS', 'SATISPAY_API']);
 const methodNames: Record<string, string> = {
   CASH: 'Contanti',
   CARD_POS: 'POS esterno',
@@ -214,12 +215,13 @@ export async function operationalSettingsPage(context: StaffContext): Promise<HT
     z.object({
       id: z.uuid(),
       name: z.string(),
+      driver: z.enum(['BROWSER', 'EPOS', 'BRIDGE']),
       configuration: z.record(z.string(), z.unknown()).default({}),
     }),
     context.venue.id,
     { active: 'true' },
     )
-  ).filter((device) => device.configuration.output !== 'PDF');
+  ).filter((device) => device.configuration.output !== 'PDF' && permittedPrintDriver(device.driver));
   const stations = await readRows('stations', record, context.venue.id, { active: 'true' });
   const printConfig = el('section', { class: 'card stack' }, el('h2', {}, 'Postazioni e stampa'));
   for (const register of registers)
@@ -329,6 +331,10 @@ async function printerConfiguration(context: StaffContext): Promise<HTMLElement>
   const devices = await readRows('print_devices', schema, context.venue!.id),
     section = el('section', { class: 'stack' }, el('h3', {}, 'Stampanti della sede'));
   function edit(existing?: z.infer<typeof schema>): void {
+    if (existing && !permittedPrintDriver(existing.driver)) {
+      toast('Il driver Epson/bridge non è incluso in questa edizione.', true);
+      return;
+    }
     const name = field('Nome stampante', 'printer_name', 'text', existing?.name ?? ''),
       endpoint = field(
         'Indirizzo HTTPS della stampante o del bridge',
@@ -340,7 +346,7 @@ async function printerConfiguration(context: StaffContext): Promise<HTMLElement>
     name.input.maxLength = 160;
     const driver = select(
       'Collegamento stampante',
-      ['BROWSER', 'EPOS', 'BRIDGE'],
+      permittedPrintDrivers(),
       existing?.driver ?? 'BROWSER',
     );
     const roles = checkboxGroup(
@@ -365,7 +371,7 @@ async function printerConfiguration(context: StaffContext): Promise<HTMLElement>
       el(
         'p',
         { class: 'muted' },
-        'Epson: /cgi-bin/epos/service.cgi. Bridge locale: /v1/print. Per il browser non occorre un indirizzo.',
+        'Questa edizione include soltanto la stampa tramite browser e PDF.',
       ),
       roles.root,
       el('label', {}, active, 'Stampante attiva'),
@@ -425,7 +431,9 @@ async function printerConfiguration(context: StaffContext): Promise<HTMLElement>
         ),
         managedPdf
           ? el('span', { class: 'muted' }, 'Gestita da Plateform')
-          : button('Configura stampante', () => edit(device), 'secondary'),
+          : permittedPrintDriver(device.driver)
+            ? button('Configura stampante', () => edit(device), 'secondary')
+            : el('span', { class: 'muted' }, 'Driver non incluso in questa edizione'),
       ),
     );
   }
