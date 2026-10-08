@@ -55,9 +55,33 @@ if (inputPath) {
   const conn = process.env.SUPABASE_DB_URL;
   if (!conn || !/^postgres(?:ql)?:\/\//.test(conn))
     throw new Error('SUPABASE_DB_URL must be configured with a PostgreSQL URL.');
+  // PGDATABASE is only the *database name*, not a portable way to pass
+  // a complete PostgreSQL URI. Supply each non-secret connection option
+  // explicitly, and the password only through the child process environment.
+  // -w ensures a bad/missing password never prompts for a Windows username.
+  let databaseUrl;
+  try { databaseUrl = new URL(conn); }
+  catch { throw new Error('Invalid SUPABASE_DB_URL: expected a PostgreSQL URI.'); }
+  const host = databaseUrl.hostname;
+  const port = databaseUrl.port || '5432';
+  const username = decodeURIComponent(databaseUrl.username);
+  const password = decodeURIComponent(databaseUrl.password);
+  const database = decodeURIComponent(databaseUrl.pathname.slice(1));
+  if (!['postgres:', 'postgresql:'].includes(databaseUrl.protocol) ||
+      !host || !username || !password || !database ||
+      !/^\d{1,5}$/.test(port) || Number(port) > 65535)
+    throw new Error('Invalid PostgreSQL connection URI; host, user, password, database and port are required.');
+  const connectionEnv = { ...process.env, PGPASSWORD: password, PGSSLMODE: 'require',
+    PGCONNECT_TIMEOUT: '15' };
+  // Ignore ambient libpq settings from unrelated local PostgreSQL accounts.
+  for (const key of ['SUPABASE_DB_URL', 'PGHOST', 'PGHOSTADDR', 'PGPORT',
+    'PGUSER', 'PGDATABASE', 'PGSERVICE', 'PGSERVICEFILE', 'PGPASSFILE'])
+    delete connectionEnv[key];
   const run = spawnSync(process.env.PSQL_BIN || 'psql',
-    ['-X', '--no-align', '--tuples-only', '--set', 'ON_ERROR_STOP=1', '--command', query], {
-      env: { ...process.env, PGDATABASE: conn, PGCONNECT_TIMEOUT: '15' },
+    ['-X', '-w', '--no-align', '--tuples-only', '--set', 'ON_ERROR_STOP=1',
+      '--host', host, '--port', port, '--username', username,
+      '--dbname', database, '--command', query], {
+      env: connectionEnv,
       encoding: 'utf8', maxBuffer: 32 * 1024 * 1024, timeout: 60000,
     });
   if (run.error || run.status !== 0)
