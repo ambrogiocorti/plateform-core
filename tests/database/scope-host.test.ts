@@ -63,9 +63,14 @@ describe('Cross-venue isolation and Host transitions', () => {
   it('does not allow a venue Admin to create venues or edit the shared catalog', async () => {
     await identity(db, ids.admin);
     await db.exec('savepoint before_venue');
+    // Use the actual 11-parameter public RPC. An Admin of one venue cannot
+    // create venues even when MULTI_VENUE is enabled for the installation.
     await expect(
-      db.query("select public.create_venue('Other','other','V3','Via','+390000000003')"),
-    ).rejects.toThrow('CHAIN_SCOPE_REQUIRED');
+      db.query(
+        "select public.create_venue('Other','other','V3','Via','+390000000003',null,'Europe/Rome','EUR','it-IT',null,$1)",
+        [crypto.randomUUID()],
+      ),
+    ).rejects.toThrow('FORBIDDEN');
     await db.exec('rollback to savepoint before_venue');
     await expect(
       db.query(
