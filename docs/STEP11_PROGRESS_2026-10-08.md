@@ -90,3 +90,7 @@ The verified export of all 453 complete SQL statement bodies is **not** availabl
 - Il report Supabase rimane `IN PROGRESS`: 7 gate Beta bloccanti. La pipeline
   Node 24, la riconciliazione di 323 SQL mancanti e i collaudi reali
   browser/HTTPS restano aperti.
+- Ulteriori prove SQL in transazione con rollback: snapshot offline, print
+  claimable, ricerca autorizzata, no-show/deposit provider state machine,
+  waitlist/messaging e revoca logout idempotente **PASS**. Non certificano
+  browser, stampanti, WhatsApp o pagamenti provider esterni.

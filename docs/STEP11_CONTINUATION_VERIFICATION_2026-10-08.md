@@ -27,6 +27,12 @@ permanente, nessun rilascio production, nessuna credenziale di produzione.
 | Catalogo condiviso e prezzo/disponibilità per sede | PASS | rollback |
 | Abilitazione multi-sede e step-up | PASS | rollback |
 | Editor sala avanzato e vincoli operativi | PASS | rollback |
+| Authorization snapshot offline firmato | PASS | rollback |
+| Job di stampa claimable e separazione ruoli | PASS | rollback |
+| Command Palette con scope e RLS | PASS | rollback |
+| No-show e rimborsi caparra server-authoritative | PASS | rollback |
+| Lista d'attesa e messaggistica, token privati | PASS | rollback |
+| Logout e revoca sessione idempotente | PASS | rollback |
 
 Il test Notification Center eseguito senza aggiornare il fixture falliva con
 `NOTIFICATION_TEST_AUTH_CONTEXT_FAILED`, perché `full_auth_expires_at` del
@@ -34,6 +40,11 @@ fixture era trascorso. Verificata la validità del controllo `private.real_role(
 il test è riuscito dopo il rinnovo temporaneo della finestra di autenticazione
 **dentro un BEGIN/ROLLBACK esterno**. Va aggiornato il fixture di regressione
 nella futura migrazione versionata (non eseguire una modifica SQL fuori storia).
+
+Il primo tentativo in batch del test logout non ha restituito un risultato
+interpretabile; ripetuto isolatamente in una nuova transazione di verifica,
+ha confermato la revoca, l'audit e l'idempotenza. Nessuna modifica alla
+sessione di sviluppo è stata conservata.
 
 ## Evidenze non ottenute
 
