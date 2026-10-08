@@ -42,4 +42,12 @@ for (const {file,flag,error,before,external} of checks) {
   assert.ok(externalAt >= 0 && guardAt < externalAt, `${file}: guard must precede external side effects`);
   checked++;
 }
+// Edge tests use Deno's isolated npm/JSR cache rather than npm's Node tree.
+const edgeDenoConfig = JSON.parse(readFileSync('supabase/functions/deno.json', 'utf8'));
+assert.equal(edgeDenoConfig.nodeModulesDir, 'none', 'Edge dependency resolution must use the Deno cache');
+checked++;
+const edgeRunner = readFileSync('scripts/run-edge.mjs', 'utf8');
+assert.doesNotMatch(edgeRunner, /--node-modules-dir=(?:auto|manual)/,
+  'Edge runner must honor the Deno config rather than override its cache mode');
+checked++;
 console.log(`CORE_EDGE_FUNCTION_GUARDS=PASS (${checked}/${checked} checks; requires remote deploy and JWT HTTP verification)`);
