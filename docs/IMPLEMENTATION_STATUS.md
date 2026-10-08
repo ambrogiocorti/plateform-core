@@ -1,5 +1,13 @@
 # Plateform — stato di implementazione
 
+> **Aggiornamento prevalente — 8 ottobre 2026.** I conteggi di seguito sono
+> checkpoint storici e non descrivono lo stato corrente del progetto remoto.
+> Supabase Development contiene **453** migrazioni applicate; il sorgente locale
+> ne contiene **130**. L'inventario differisce e non è ancora riconciliato:
+> nessuna distribuzione commerciale è autorizzata. Vedere
+> `STEP11_PROGRESS_2026-10-08.md` e
+> `STEP11_CONTINUATION_VERIFICATION_2026-10-08.md` per le evidenze più recenti.
+
 Aggiornamento: 3 ottobre 2026. **Sviluppo incompleto; non pronto per la vendita.**
 Specifica di riferimento: §§0–150 del master, senza riduzione dello scope.
 Revisioni integrali consecutive pulite: **0/3**. Tutte le sezioni restano pending/partial

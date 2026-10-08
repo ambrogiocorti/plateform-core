@@ -8,6 +8,7 @@ import {
   safeAccent,
   safeBackground,
   safePublicLink,
+  safeRecoveredPublicRoute,
   selectedVenue,
   venueAwarePath,
 } from '../../src/services/public-site';
@@ -59,10 +60,22 @@ describe('public site venue routing', () => {
     expect(isClientSidePublicPath('/api/status')).toBe(false);
     expect(isClientSidePublicPath('/menu/../../staff')).toBe(false);
   });
-  it('selects a venue from path or query and falls back safely', () => {
+  it('selects a venue from path or query without silently substituting explicit venue', () => {
     expect(selectedVenue(site, '/sedi/navigli', '')?.slug).toBe('navigli');
     expect(selectedVenue(site, '/menu', '?sede=navigli')?.slug).toBe('navigli');
-    expect(selectedVenue(site, '/menu', '?sede=missing')?.slug).toBe('centro');
+    expect(selectedVenue(site, '/menu', '')?.slug).toBe('centro');
+    expect(selectedVenue(site, '/menu', '?sede=missing')).toBeUndefined();
+    expect(selectedVenue(site, '/menu', '?sede=')).toBeUndefined();
+    expect(selectedVenue(site, '/sedi/missing', '')).toBeUndefined();
+  });
+  it('recovers only owned, same-origin public routes from static 404 fallback', () => {
+    const origin = 'https://ristorante.example';
+    expect(safeRecoveredPublicRoute('/menu/carta-vini?sede=navigli#menu', origin))
+      .toBe('/menu/carta-vini?sede=navigli#menu');
+    for (const candidate of ['//attacker.example', '/staff', '/staff/login', '/api/status',
+      '/robots.txt', '/menu/../../staff', 'https://attacker.example', '/non-esistente']) {
+      expect(safeRecoveredPublicRoute(candidate, origin)).toBeNull();
+    }
   });
   it('selects the first bookable venue instead of a disabled default', () => {
     expect(bookingVenue(site, site.venues[0])?.slug).toBe('navigli');

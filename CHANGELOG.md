@@ -90,3 +90,10 @@ Non è una release commerciale. Tre revisioni integrali pulite: 0/3.
 - Il reconnect rinnova authorization snapshot e workspace; in caso di refresh fallito vengono eliminate le cache offline sensibili ma la queue viene preservata.
 - Le risorse con eventi non terminali e le queue appartenenti ad altri utenti restano bloccate.
 - Nuovo gate statico STEP 8: **16/16 PASS**; test puro della queue policy PASS. Il browser E2E release resta aperto.
+
+### 2026-10-08 — Step 11 venue fail-closed and development SQL regressions
+
+- Public venue selection now fails closed for unknown explicit venue slugs instead of displaying another venue’s menus and prices. Invalid venue metadata is noindex without canonical/JSON-LD from the default venue.
+- Static host 404 restoration is restricted to same-origin public application routes; /staff without a slash is treated as staff.
+- Added unit and Node runtime/static regressions; Development SQL rollback tests passed for notifications, conflicts, venue scope, overrides, room editor and reservation workflows.
+- Commercial release remains blocked by incomplete migration source, Node 24 dependencies, staging/browser E2E, provider/hardware gates and three independent reviews.

@@ -1,8 +1,3 @@
-const recoveredPublicRoute = sessionStorage.getItem('plateform-route-public');
-if (recoveredPublicRoute?.startsWith('/') && !recoveredPublicRoute.startsWith('/staff/')) {
-  sessionStorage.removeItem('plateform-route-public');
-  history.replaceState(null, '', recoveredPublicRoute);
-}
 import { registerPwa } from '../../src/services/pwa';
 import '../../styles/public.css';
 import { z } from 'zod';
@@ -21,6 +16,7 @@ import {
   isClientSidePublicPath,
   readableInk,
   resolveBookingVenue,
+  safeRecoveredPublicRoute,
   safeAccent,
   safeBackground,
   safePublicLink,
@@ -31,6 +27,17 @@ import {
   observePublicPerformance,
   recordPublicPageView,
 } from '../../src/services/public-telemetry';
+
+try {
+  const storedRoute = sessionStorage.getItem('plateform-route-public');
+  if (storedRoute !== null) {
+    sessionStorage.removeItem('plateform-route-public');
+    const recovered = safeRecoveredPublicRoute(storedRoute, location.origin);
+    if (recovered) history.replaceState(null, '', recovered);
+  }
+} catch {
+  // Storage may be unavailable in a privacy-restricted browser. Serve /.
+}
 
 const root = document.getElementById('app');
 if (!root) throw new Error('Missing application root');
@@ -62,6 +69,9 @@ function setMeta(name: string, content: string, property = false): void {
   meta.content = content;
 }
 function applyMetadata(site: PublicSite, venue?: Venue): void {
+  const explicitlySelectedVenue = location.pathname.startsWith('/sedi/') ||
+    new URLSearchParams(location.search).has('sede');
+  const invalidVenueContext = explicitlySelectedVenue && !venue;
   const pageLabels: Record<string, string> = {
     '/menu': 'Menu',
     '/ristorante': 'Il ristorante',
@@ -108,7 +118,7 @@ function applyMetadata(site: PublicSite, venue?: Venue): void {
   robots.content = 'noindex,nofollow'; // Opt in only after authoritative metadata RPC confirms indexability.
   const previous = document.getElementById('restaurant-structured-data');
   previous?.remove();
-  if (!location.pathname.startsWith('/tavolo/')) {
+  if (!location.pathname.startsWith('/tavolo/') && !invalidVenueContext) {
     const structured = document.createElement('script');
     structured.id = 'restaurant-structured-data';
     structured.type = 'application/ld+json';
@@ -177,6 +187,15 @@ async function render(): Promise<void> {
   applyBrand(site);
   const venue = selectedVenue(site, location.pathname, location.search);
   applyMetadata(site, venue);
+  const invalidVenueContext = !venue &&
+    (location.pathname.startsWith('/sedi/') || new URLSearchParams(location.search).has('sede'));
+  if (invalidVenueContext) {
+    // Invalid/archived venue URLs are never indexable and must not receive a
+    // canonical address or structured data belonging to another venue.
+    document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]')?.remove();
+    const robots = document.head.querySelector<HTMLMetaElement>('meta[name="robots"]');
+    if (robots) robots.content = 'noindex,nofollow';
+  }
   if (!location.pathname.startsWith('/tavolo/')) {
     const pathForSeo = location.pathname;
     const seoRevision = current;
@@ -195,10 +214,12 @@ async function render(): Promise<void> {
       const multiVenueQuery = site.multi_venue && site.venues.length > 1 &&
         new URLSearchParams(location.search).has('sede');
       const robots = document.head.querySelector<HTMLMetaElement>('meta[name="robots"]');
-      if (robots) robots.content = multiVenueQuery ? 'noindex,nofollow' : metadata.robots;
+      if (robots) robots.content = invalidVenueContext || multiVenueQuery
+        ? 'noindex,nofollow' : metadata.robots;
       const canonical = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
       if (canonical) {
-        if (metadata.canonical_url) canonical.href = metadata.canonical_url;
+        if (invalidVenueContext) canonical.remove();
+        else if (metadata.canonical_url) canonical.href = metadata.canonical_url;
         else canonical.remove();
       }
       if (metadata.og_image_url) setMeta('og:image', metadata.og_image_url, true);
@@ -295,6 +316,11 @@ async function render(): Promise<void> {
   else if (path.startsWith('/menu/') && venue) {
     const slug = path.slice('/menu/'.length);
     main.append(await (await import('../../src/pages/public-menu')).publishedMenuPage(slug, venue));
+  }
+  else if (path.startsWith('/menu/') && !venue) {
+    main.append(emptyState('Sede non disponibile',
+      'Il collegamento del menu si riferisce a una sede non valida o non più attiva.'));
+    if (site.multi_venue) main.append(el('a', { href: '/sedi' }, 'Visualizza le sedi'));
   }
   else if (path === '/ristorante' && sectionEnabled(site, 'story'))
     main.append(
@@ -594,7 +620,13 @@ async function menu(site: PublicSite, venue: Venue | undefined): Promise<HTMLEle
     el('p', { class: 'eyebrow' }, 'A tavola'),
     el('h1', {}, 'Il nostro menu'),
   );
-  if (!venue) return section;
+  if (!venue) {
+    section.append(emptyState('Sede non disponibile',
+      'Il collegamento indica una sede non valida o non più attiva. Seleziona una sede dal sito del ristorante.'));
+    if (site.multi_venue)
+      section.append(el('a', { href: '/sedi', class: 'button secondary' }, 'Visualizza le sedi'));
+    return section;
+  }
   const picker = venuePicker(site, venue, false);
   if (picker) section.append(picker);
   const availableMenus = await (await import('../../src/pages/public-menu')).publishedMenuIndex(venue, site.multi_venue);

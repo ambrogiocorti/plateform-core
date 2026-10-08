@@ -11,8 +11,14 @@ export function selectedVenue(
   const params = new URLSearchParams(search);
   const querySlug = params.get('sede');
   const pathSlug = pathname.startsWith('/sedi/') ? pathname.split('/')[2] : undefined;
-  const slug = pathSlug || querySlug;
-  return site.venues.find((venue) => venue.slug === slug) ?? site.venues[0];
+  // An explicitly selected venue (including an empty/unknown slug) is
+  // authoritative for routing. Never show another venue's menu/prices,
+  // contacts or schema.org details in response to a stale venue-specific QR.
+  if (pathSlug !== undefined || querySlug !== null) {
+    const slug = pathSlug !== undefined ? pathSlug : querySlug;
+    return site.venues.find((venue) => venue.slug === slug);
+  }
+  return site.venues[0];
 }
 
 export function bookingVenue(site: PublicSite, current?: Venue): Venue | undefined {
@@ -34,6 +40,8 @@ export function resolveBookingVenue(
     const exact = site.venues.find((venue) => venue.slug === requested);
     return exact?.reservations_enabled ? exact : undefined;
   }
+  if (pathname.startsWith('/sedi/') && !selectedVenue(site, pathname, search))
+    return undefined;
   return bookingVenue(site, selectedVenue(site, pathname, search));
 }
 
@@ -85,6 +93,20 @@ export function normalizePublicPath(
  */
 export function isClientSidePublicPath(pathname: string): boolean {
   return normalizePublicPath(pathname) !== null;
+}
+
+/** Restore only an owned same-origin public route from a static hosting 404.
+ * A stored protocol-relative, staff, provider or unknown URL must never be
+ * passed to history.replaceState. */
+export function safeRecoveredPublicRoute(value: string | null, origin: string): string | null {
+  if (!value?.startsWith('/') || value.startsWith('//')) return null;
+  try {
+    const url = new URL(value, origin);
+    if (url.origin !== origin || !isClientSidePublicPath(url.pathname)) return null;
+    return `${url.pathname}${url.search}${url.hash}`;
+  } catch {
+    return null;
+  }
 }
 
 function rgb(hex: string): [number, number, number] | null {

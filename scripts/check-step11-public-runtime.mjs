@@ -7,6 +7,7 @@ import {
   normalizePublicPath,
   readableInk,
   resolveBookingVenue,
+  safeRecoveredPublicRoute,
   safeAccent,
   safeBackground,
   safePublicLink,
@@ -52,7 +53,13 @@ const site = {
 
 assert.equal(selectedVenue(site, '/sedi/navigli', '')?.slug, 'navigli');
 assert.equal(selectedVenue(site, '/menu', '?sede=navigli')?.slug, 'navigli');
-assert.equal(selectedVenue(site, '/menu', '?sede=missing')?.slug, 'centro');
+assert.equal(selectedVenue(site, '/menu', '')?.slug, 'centro', 'generic menu uses the default venue');
+assert.equal(selectedVenue(site, '/menu', '?sede=missing'), undefined,
+  'unknown explicit venue must not display default-venue prices');
+assert.equal(selectedVenue(site, '/menu', '?sede='), undefined,
+  'empty explicit venue must not display default-venue prices');
+assert.equal(selectedVenue(site, '/sedi/missing', ''), undefined,
+  'unknown venue detail must not inherit another venue');
 assert.equal(bookingVenue(site, site.venues[0])?.slug, 'navigli');
 assert.equal(resolveBookingVenue(site, '/', '')?.slug, 'navigli', 'generic booking finds available venue');
 assert.equal(resolveBookingVenue(site, '/prenota', '?sede=navigli')?.slug, 'navigli');
@@ -82,9 +89,16 @@ assert.equal(
 );
 assert.equal(
   canonicalPublicUrl(site, '/menu', '?sede=missing', 'https://restaurant.test'),
-  'https://restaurant.test/menu?sede=centro',
-  'invalid venue canonical normalizes to the real fallback venue',
+  'https://restaurant.test/menu',
+  'invalid venue canonical must not falsely attribute prices to the default venue',
 );
+assert.equal(safeRecoveredPublicRoute('/menu/carta-vini?sede=navigli#lista', 'https://restaurant.test'),
+  '/menu/carta-vini?sede=navigli#lista');
+for (const forged of ['//attacker.example/', '/staff', '/staff/login', '/api/status',
+  '/sitemap.xml', '/unknown', 'https://attacker.example/', '/menu/../../staff']) {
+  assert.equal(safeRecoveredPublicRoute(forged, 'https://restaurant.test'), null,
+    `static 404 route recovery rejects ${forged}`);
+}
 assert.equal(
   canonicalPublicUrl(site, '/sedi/navigli', '', 'https://restaurant.test'),
   'https://restaurant.test/sedi/navigli',
