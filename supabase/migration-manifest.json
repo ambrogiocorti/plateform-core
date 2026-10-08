@@ -779,6 +779,18 @@
       "version": "20261006051256",
       "name": "step12_backup_requester_index",
       "sha256": "18e1dd1db40797d03a0afa92ef07c8e305ba3f44c341dcad0609dd7987ec1bf1"
+    },
+    {
+      "filename": "20261008163112_step11_public_rpc_permission_manifest.sql",
+      "version": "20261008163112",
+      "name": "step11_public_rpc_permission_manifest",
+      "sha256": "eaaa188e228f1bbb025b940b82f19a43aeca29b760f6f73bd2c51c8b69a50120"
+    },
+    {
+      "filename": "20261008163715_step11_notification_probe_expiring_fixture_fix.sql",
+      "version": "20261008163715",
+      "name": "step11_notification_probe_expiring_fixture_fix",
+      "sha256": "533726aa7a4c485db44758ddac4dadcba55bc7c7115d3e879095a55307e46388"
     }
   ]
 }

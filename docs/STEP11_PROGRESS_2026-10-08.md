@@ -14,11 +14,11 @@ Status: **IN PROGRESS**. Do not release, market, or deploy to Production.
 
 Observed directly from **plateform-development**, Supabase project `abdxvlykasqmknexxhjo`:
 
-- Remote count: **453**; total applied SQL bytes: **2,192,771**.
-- First version: `20261003165439`; latest version: `20261008134229`.
+- Remote count: **455**; total applied SQL bytes: **2,195,418**.
+- First version: `20261003165439`; latest version: `20261008163715`.
 - Authenticated inventory fingerprint calculated from ordered `version:name:SHA256(SQL)` rows:
-  `838b9ff1bcc6f5a148fbac22ebde8d7f7d73713b74501d29808a27c6e12e1c50`.
-- Local inventory: **130** files through `20261006051256`; remote has exactly **130** entries through that checkpoint. Remaining **323** remote migrations are not present locally.
+  `cf82ef8189d3645c4d07586e2c4a31a2f381a9e567a8e9d96d46811b2a41da92`.
+- Local inventory: **132** files (130 legacy + 2 newly applied Development migrations); 130 historical entries through `20261006051256`; remote has exactly **130** entries through that checkpoint. Remaining **323** remote migrations are not present locally.
 - The earlier checkpoint recorded 24 divergent local/remote SQL files. This count was **not** independently reverified in this checkpoint without the complete remote SQL export.
 - **No remote history rows were modified, deleted, or marked applied.**
 
@@ -33,11 +33,11 @@ Observed directly from **plateform-development**, Supabase project `abdxvlykasqm
 5. Uses same-filesystem directory swaps and rollbacks if the new tree or manifest cannot be installed.
 6. Never executes a migration against Supabase or manipulates `supabase_migrations` history.
 
-The verified export of all 453 complete SQL statement bodies is **not** available in this local environment. **Do not run adoption against a partial export and do not claim source/database reconciliation completed.**
+The verified export of all 455 complete SQL statement bodies is **not** available in this local environment. **Do not run adoption against a partial export and do not claim source/database reconciliation completed.**
 
 ## Executed checks
 
-- `scripts/check-migrations.mjs`: **PASS** (local 130 manifest files only; *not* a remote consistency assertion).
+- `scripts/check-migrations.mjs`: **PASS** (local 132 manifest files only; *not* a remote consistency assertion).
 - `scripts/check-migration-recovery.mjs`: **PASS, 27/27**, including wrong digest rejection, preserved prior files, archived manifest, adopted canonical SQL, truncated export rejection.
 - `scripts/check-step11-static.mjs`: **PASS**.
 - `scripts/check-step11-public-runtime.mjs`: **PASS** (including explicit booking venue isolation and multi-venue menu canonical tests).
@@ -94,3 +94,17 @@ The verified export of all 453 complete SQL statement bodies is **not** availabl
   claimable, ricerca autorizzata, no-show/deposit provider state machine,
   waitlist/messaging e revoca logout idempotente **PASS**. Non certificano
   browser, stampanti, WhatsApp o pagamenti provider esterni.
+
+## Database RPC security-gate remediation — 8 ottobre 2026
+
+- Migrazione Development: `20261008163112_step11_public_rpc_permission_manifest.sql`.
+- Le 4 RPC pubbliche per menu index, navigation, page metadata e sitemap erano già invocabili da `anon` e `authenticated`, ma mancavano dal manifesto delle autorizzazioni. Sono stati verificati firma, contesto SECURITY DEFINER e search_path; lettura delle quattro RPC verificata con `SET LOCAL ROLE anon`.
+- La migrazione registra solo le **8 assegnazioni già esistenti** su `private.api_permission_manifest` senza modificare GRANT, RLS o dati operativi. File locale di **1593 byte**, SHA-256 `eaaa188e228f1bbb025b940b82f19a43aeca29b760f6f73bd2c51c8b69a50120` identico a SQL applicato nel DB.
+- `release_security_gate`: **PASS** (manifest anon 11/11, authenticated 242/242, grant non documentati 0, RLS disabilitata 0, DML diretto su risorse critiche 0). Questo **non** certifica il gate completo di go-live o la configurazione Auth di leaked-password.
+- Il repository conserva solo 132/455 migrazioni: 323 file SQL applicati su Development non sono ancora stati recuperati; non si considera la storia riconciliata.
+
+## Verifica Step 12 e stabilizzazione test — 8 ottobre 2026
+
+- Il validatore della prova di restore storica (130 migrazioni, 6 ottobre) ora viene esercitato in una directory fixture temporanea. I suoi **8 test** includono la conferma esplicita che il validatore reale rifiuti la prova come vecchia rispetto allo schema corrente. La prova di restore nuova **non è stata eseguita e il gate resta chiuso**.
+- Migrazione `20261008163715_step11_notification_probe_expiring_fixture_fix.sql` su Development: corretta esclusivamente la funzione di **test privata** affinché aggiorni temporaneamente `full_auth_at`, `full_auth_expires_at` e `unlocked_until` del proprio fixture in transazione; nessuna modifica alle regole applicative di autenticazione. SQL locale di 1054 byte, SHA-256 `533726aa7a4c485db44758ddac4dadcba55bc7c7115d3e879095a55307e46388` identico al remoto. Test Notification Center con rollback **PASS senza setup manuale**.
+- Database Development (ultimo inventario): **455** migrazioni, **132** sorgenti locali e **323** versioni remote ancora mancanti; fingerprint aggregato `cf82ef8189d3645c4d07586e2c4a31a2f381a9e567a8e9d96d46811b2a41da92`. Gate di sicurezza, regressione database e catalogo di test Supabase **PASS**, ma Beta ancora **7 blocchi aperti**.

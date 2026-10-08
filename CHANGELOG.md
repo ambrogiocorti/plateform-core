@@ -97,3 +97,15 @@ Non è una release commerciale. Tre revisioni integrali pulite: 0/3.
 - Static host 404 restoration is restricted to same-origin public application routes; /staff without a slash is treated as staff.
 - Added unit and Node runtime/static regressions; Development SQL rollback tests passed for notifications, conflicts, venue scope, overrides, room editor and reservation workflows.
 - Commercial release remains blocked by incomplete migration source, Node 24 dependencies, staging/browser E2E, provider/hardware gates and three independent reviews.
+
+### 2026-10-08 — Step11 security permission manifest (Development)
+
+- Registered the four existing public read RPCs under `anon` and `authenticated` in the authorization manifest (8 entries) without granting any new privilege.
+- Applied `20261008163112_step11_public_rpc_permission_manifest.sql` to Development; reproduced the exact applied SQL checksum in source and updated the local manifest to 131 versioned files.
+- Verified `release_security_gate` green (0 undocumented grants, 0 disabled RLS tables). Remaining 323 applied remote migrations and production readiness gates are still open.
+
+### 2026-10-08 — Repeatable Notification Center DB test and honest restore gate
+
+- Repaired the private SQL Notification Center test fixture's expired full-auth window, with transactional rollback, without changing real authentication controls.
+- Stabilized eight Step12 validator regressions against an isolated historical manifest; retained explicit failure for obsolete restore evidence against the current source.
+- Database regression, security and test-catalog gates remain green on Development at 455 applied migrations; 323 historical SQL files remain missing locally.

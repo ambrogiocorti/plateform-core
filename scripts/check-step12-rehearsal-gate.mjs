@@ -1,16 +1,24 @@
-import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, rm, writeFile, mkdir, readFile } from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
-import { readFile } from 'node:fs/promises';
+import { join, resolve } from 'node:path';
 
-const manifest = JSON.parse(await readFile('supabase/migration-manifest.json', 'utf8'));
-const expectedCount = manifest.migrations.length;
-const expectedLatest = manifest.migrations.at(-1).version;
+// Test the validator against the historical, genuine 130-migration snapshot.
+// Never rewrite or forward-date a successful restore proof for a later schema.
+const currentManifest = JSON.parse(await readFile('supabase/migration-manifest.json', 'utf8'));
 const baseline = JSON.parse(
   await readFile('docs/evidence/step12-migration-sync-130-2026-10-06.json', 'utf8'),
 );
+const historicalRows = currentManifest.migrations.slice(0, baseline.migration_count);
+if (
+  historicalRows.length !== baseline.migration_count ||
+  historicalRows.at(-1)?.version !== baseline.latest_version
+) throw new Error('HISTORICAL_REHEARSAL_BASELINE_NOT_IN_CURRENT_SOURCE');
+const expectedCount = baseline.migration_count;
+const expectedLatest = baseline.latest_version;
 const expectedHash = baseline.aggregate_sha256;
+const verifier = resolve('scripts/check-step12-real-rehearsal.mjs');
+const projectRoot = process.cwd();
 
 const base = {
   date: '2026-10-06T07:30:00+02:00',
@@ -51,21 +59,32 @@ const base = {
 };
 
 const dir = await mkdtemp(join(tmpdir(), 'plateform-step12-rehearsal-gate-'));
-async function run(name, evidence, shouldPass, expectedError = null) {
+async function run(name, evidence, shouldPass, expectedError = null, cwd = dir) {
   const file = join(dir, `${name}.json`);
   await writeFile(file, `${JSON.stringify(evidence, null, 2)}\n`);
-  const result = spawnSync(process.execPath, ['scripts/check-step12-real-rehearsal.mjs', '--evidence', file], {
-    cwd: process.cwd(),
+  const result = spawnSync(process.execPath, [verifier, '--evidence', file], {
+    cwd,
     encoding: 'utf8',
   });
   const combined = `${result.stdout ?? ''}\n${result.stderr ?? ''}`;
   if (shouldPass && result.status !== 0) throw new Error(`EXPECTED_PASS:${name}:${combined}`);
   if (!shouldPass && result.status === 0) throw new Error(`EXPECTED_FAIL:${name}`);
   if (expectedError && !combined.includes(expectedError))
-    throw new Error(`EXPECTED_ERROR_MISSING:${name}:${expectedError}`);
+    throw new Error(`EXPECTED_ERROR_MISSING:${name}:${expectedError}:${combined}`);
 }
 try {
-  await run('valid', structuredClone(base), true);
+  await mkdir(join(dir, 'supabase'), { recursive: true });
+  await mkdir(join(dir, 'docs/evidence'), { recursive: true });
+  await writeFile(
+    join(dir, 'supabase/migration-manifest.json'),
+    `${JSON.stringify({ migrations: historicalRows }, null, 2)}\n`,
+  );
+  await writeFile(
+    join(dir, 'docs/evidence/step12-migration-sync-130-2026-10-06.json'),
+    `${JSON.stringify(baseline, null, 2)}\n`,
+  );
+
+  await run('valid-historical-proof', structuredClone(base), true);
 
   const sameTarget = structuredClone(base);
   sameTarget.target_project_ref = sameTarget.source_project_ref;
@@ -93,7 +112,19 @@ try {
   target.target_reachable_verified = false;
   await run('target-inactive', target, false, 'DISPOSABLE_TARGET_NOT_ACTIVE_HEALTHY');
 
-  console.log('STEP12_REAL_REHEARSAL_GATE_TEST=PASSED_7_OF_7');
+  // The current local 131-migration source must NOT accept the historical proof.
+  if (currentManifest.migrations.length > historicalRows.length) {
+    await run(
+      'current-source-rejects-historical-proof',
+      structuredClone(base),
+      false,
+      'LIVE_BASELINE_COUNT_STALE',
+      projectRoot,
+    );
+  }
+  console.log(
+    `STEP12_REAL_REHEARSAL_VALIDATOR_TEST=PASSED_${currentManifest.migrations.length > historicalRows.length ? 8 : 7}_OF_${currentManifest.migrations.length > historicalRows.length ? 8 : 7} (historical proof only; current restore gate remains closed)`,
+  );
 } finally {
   await rm(dir, { recursive: true, force: true });
 }

@@ -2,8 +2,8 @@
 
 > **Aggiornamento prevalente — 8 ottobre 2026.** I conteggi di seguito sono
 > checkpoint storici e non descrivono lo stato corrente del progetto remoto.
-> Supabase Development contiene **453** migrazioni applicate; il sorgente locale
-> ne contiene **130**. L'inventario differisce e non è ancora riconciliato:
+> Supabase Development contiene **455** migrazioni applicate; il sorgente locale
+> ne contiene **132**. L'inventario differisce e non è ancora riconciliato:
 > nessuna distribuzione commerciale è autorizzata. Vedere
 > `STEP11_PROGRESS_2026-10-08.md` e
 > `STEP11_CONTINUATION_VERIFICATION_2026-10-08.md` per le evidenze più recenti.
