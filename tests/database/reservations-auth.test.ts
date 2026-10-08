@@ -9,6 +9,10 @@ describe('Booking pacing and session security', () => {
     db = await database();
     await seed(db);
     await db.exec(`
+      -- The current booking readiness guard requires an HTTPS privacy notice.
+      -- Test the real configured booking path, not a partially initialized site.
+      update public.restaurant_profile
+        set public_content=public_content || '{"privacy_url":"https://restaurant.test/privacy"}'::jsonb;
       update public.venue_settings set reservations_enabled=true where venue_id='${ids.venue}';
       insert into public.services(id,venue_id,name,starts_at,ends_at) values('${service}','${ids.venue}','Cena','19:00','23:00');
       insert into public.service_booking_rules(venue_id,service_id,max_covers_service,max_arrivals_per_slot,max_covers_per_slot,max_party_size_auto_confirm)
