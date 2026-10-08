@@ -56,7 +56,7 @@ try {
   assert.equal(await readFile(join(migrate, oldName), 'utf8'), old.sql); count++;
 
   const adopted = run(['--write', '--adopt-remote-with-backup',
-    '--expected-inventory-sha256', remoteFingerprint], modified);
+    '--expected-remote-count','2', '--expected-inventory-sha256', remoteFingerprint], modified);
   assert.equal(adopted.status, 0, adopted.stderr); count++;
   assert.equal(await readFile(join(migrate, oldName), 'utf8'), unsafe.sql); count++;
   const archives = await readdir(join(root, 'supabase/migration-recovery-backups'));
@@ -76,10 +76,20 @@ try {
   await writeFile(truncated, JSON.stringify(unsafe)+'\n');
   const truncatedHash = sha(`${unsafe.version}:${unsafe.name}:${sha(unsafe.sql)}`);
   const denied = run(['--write','--adopt-remote-with-backup',
-    '--expected-inventory-sha256',truncatedHash],truncated);
+    '--expected-remote-count','2', '--expected-inventory-sha256',truncatedHash],truncated);
   assert.notEqual(denied.status,0); count++;
-  assert.match(denied.stderr,/REMOTE_HISTORY_INCOMPLETE/); count++;
+  assert.match(denied.stderr,/REMOTE_MIGRATION_COUNT_MISMATCH/); count++;
   assert.equal(await readFile(join(migrate,nextName),'utf8'),next.sql); count++;
+
+  const noCount = run(['--write','--adopt-remote-with-backup',
+    '--expected-inventory-sha256',remoteFingerprint],modified);
+  assert.notEqual(noCount.status,0); count++;
+  assert.match(noCount.stderr,/independently verified remote migration count/); count++;
+
+  const wrongCount = run(['--write','--adopt-remote-with-backup',
+    '--expected-remote-count','3','--expected-inventory-sha256',remoteFingerprint],modified);
+  assert.notEqual(wrongCount.status,0); count++;
+  assert.match(wrongCount.stderr,/REMOTE_MIGRATION_COUNT_MISMATCH/); count++;
   console.log(`STEP11_MIGRATION_RECOVERY=PASS (${count}/${count} assertions; no SQL applied to database)`);
 } finally {
   await rm(root, { recursive: true, force: true });

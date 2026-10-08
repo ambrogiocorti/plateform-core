@@ -29,8 +29,15 @@ La pubblicazione Realtime contiene soltanto INSERT di `realtime_signals`, senza 
 
 ## Migrazioni e storico
 
-La nuova installazione development usa 58 migrazioni. Il manifest
-`supabase/migration-manifest.json` conserva versioni remote, nomi originali e SHA-256.
+**Verifica live 8 ottobre 2026:** il progetto `plateform-development` ha 456
+migrazioni applicate, mentre il repository ne conserva 133: 323 mancano e sette
+file locali differiscono ancora dal SQL remoto anche dopo la normalizzazione
+degli spazi ai margini. L'impronta SHA-256 completa del database e i riferimenti
+dei sette file sono in `docs/evidence/remote-migration-audit-2026-10-08.json`.
+La riconciliazione NON è completata: non applicare `db push` o promuovere
+questo sorgente su un database finché lo storico canonico non è stato recuperato.
+Il manifest `supabase/migration-manifest.json` conserva le versioni, i nomi
+e gli SHA-256 dei **soli file locali recuperati**.
 `npm run check:migrations` impedisce modifica o perdita di una migrazione applicata.
 La storia dei progetti precedenti non è stata modificata; il loro eventuale upgrade
 richiede riconciliazione esplicita delle versioni prima di usare questi sorgenti.
@@ -38,3 +45,15 @@ richiede riconciliazione esplicita delle versioni prima di usare questi sorgenti
 Applicare i file di `supabase/migrations` in ordine, su un database di sviluppo dedicato. Le migrazioni 28–30 trasformano addebiti e ciclo di occupazione: confrontare gli storici esistenti prima di migrare dati reali. `accounts.admitted_covers` evita che trasferimenti contabili modifichino i coperti storici; il backfill non può ricostruire spostamenti avvenuti prima dell’introduzione del campo.
 
 Non riscrivere migrazioni già applicate a una installazione. Una correzione successiva richiede una nuova migrazione. Il codice attuale non include ancora una procedura collaudata di upgrade/rollback da ogni versione commerciale. Vedere DEPLOYMENT.md e BACKUP_RESTORE.md.
+
+Per adottare lo storico remoto originale completo, con backup del precedente
+sorgente e dopo avere verificato indipendentemente numero e fingerprint:
+
+```bash
+node scripts/reconcile-migrations.mjs --input-file /percorso/export-completo.jsonl --write \
+  --adopt-remote-with-backup --expected-remote-count 456 \
+  --expected-inventory-sha256 988224616fc43432904246360f87c7e637d4a64444dd2af2b0d60aa498f62b43
+```
+
+Questi valori valgono esclusivamente per l'istantanea verificata l'8 ottobre;
+un'ulteriore migrazione su Development richiede un nuovo confronto indipendente.

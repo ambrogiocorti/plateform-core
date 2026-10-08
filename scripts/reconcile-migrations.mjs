@@ -8,7 +8,8 @@
  *   SUPABASE_DB_URL=... node scripts/reconcile-migrations.mjs --write
  *   node scripts/reconcile-migrations.mjs --input-file /path/export.jsonl --write
  *   node scripts/reconcile-migrations.mjs --input-file /path/export.jsonl --write \
- *     --adopt-remote-with-backup --expected-inventory-sha256 <verified-digest>
+ *     --adopt-remote-with-backup --expected-remote-count <verified-count> \
+ *     --expected-inventory-sha256 <verified-digest>
  *
  * Requires psql for direct retrieval, but no npm dependencies. The connection
  * string is kept in PGDATABASE (environment) rather than process arguments.
@@ -77,8 +78,19 @@ const expectedInventory = valueAfter('--expected-inventory-sha256');
 if (expectedInventory && (!/^[a-f0-9]{64}$/.test(expectedInventory) ||
     inventorySha256 !== expectedInventory))
   throw new Error('REMOTE_MIGRATION_INVENTORY_FINGERPRINT_MISMATCH');
+// A complete export must contain every applied migration, not simply all files
+// already known locally. Check the independent remote count before any writes.
+const expectedCountText = valueAfter('--expected-remote-count');
+const expectedCount = expectedCountText === null ? null : Number(expectedCountText);
+if (expectedCountText !== null && (!/^[1-9]\d*$/.test(expectedCountText) ||
+    !Number.isSafeInteger(expectedCount)))
+  throw new Error('INVALID_EXPECTED_REMOTE_MIGRATION_COUNT');
+if (expectedCount !== null && remote.length !== expectedCount)
+  throw new Error('REMOTE_MIGRATION_COUNT_MISMATCH');
 if (adopt && inputPath && !expectedInventory)
   throw new Error('Adopting an exported migration file requires an independently verified inventory fingerprint.');
+if (adopt && inputPath && expectedCount === null)
+  throw new Error('Adopting an exported migration file requires the independently verified remote migration count.');
 
 const localFiles = (await readdir(migrationDir)).filter((f) => f.endsWith('.sql'));
 const byVersion = new Map(remote.map((row) => [row.version, row]));
@@ -110,6 +122,7 @@ for (const item of current.migrations) {
 const missing = remote.filter((row) => !localFiles.includes(filenameOf(row)));
 console.log(JSON.stringify({ state: divergences.length ? 'DIVERGENT' : missing.length ? 'INCOMPLETE' : 'SYNCED',
   local: localFiles.length, database: remote.length, missing: missing.length,
+  expected_remote_count: expectedCount,
   inventory_sha256: inventorySha256,
   missing_first: missing[0]?.version ?? null, missing_last: missing.at(-1)?.version ?? null,
   mismatches: divergences, mismatch_count: divergences.length,

@@ -82,7 +82,15 @@ Il backup worker deve essere eseguito su un host operativo dedicato e non sul pr
 
 `npm run continuity:host-check` verifica il runtime **prima** dell'avvio. Anche `backup:once` controlla Supabase CLI e Docker **prima** di reclamare un job; un daemon Docker non disponibile o rootful non autorizzato non consuma la coda. Il template systemd user esegue un solo `backup:once` al minuto: lease e `skip locked` lato database rendono il polling idempotente, mentre `enqueue_due_backup()` decide se il target RPO richiede effettivamente un nuovo job. Restore test e restore reale restano one-shot controllati perché richiedono un target distinto e confermato.
 
-Nell'attuale container di sviluppo il check restituisce correttamente `NOT_READY` (Node 22, Supabase CLI/psql/Docker e secret operativi mancanti); questo è un gate fail-closed, non un errore considerato superato. Il rehearsal del 4 ottobre 2026 era stato eseguito su **106 migration** con hash aggregato identico `74776e587ba374f2be0f7efc55aff8bf933d4cce18d9040d0c8d8be79e01068b`. Il repository e il development correnti sono ora allineati su **130 migration**; il prossimo target disposable deve quindi essere creato/riallineato dalla migration history corrente prima del nuovo restore test reale.
+Nell'attuale container di sviluppo il check restituisce correttamente `NOT_READY` (Node 22, Supabase CLI/psql/Docker e secret operativi mancanti); questo è un gate fail-closed, non un errore considerato superato. Il rehearsal del 4 ottobre 2026 era stato eseguito su **106 migration** con hash aggregato identico `74776e587ba374f2be0f7efc55aff8bf933d4cce18d9040d0c8d8be79e01068b`.
+**Aggiornamento 8 ottobre 2026:** Development ha 456 migrazioni e il
+repository ne contiene solo 133. Un backup `SUCCEEDED` con integrità verificata
+è stato completato sulla versione `20261008181605`, ma il restore test riuscito
+più recente riguarda `20261006051256` (6 ottobre): non è evidenza di ripristino
+della versione corrente. Il target `plateform-restore-test` è già popolato
+(12 utenti Auth, 95 tabelle public, 135 migrazioni); prima di un nuovo restore
+serve un target vuoto disposable oppure una procedura esplicitamente autorizzata
+di preparazione di quel target. Nessun restore distruttivo è stato eseguito.
 
 ## Retention fisica e rotazione chiavi
 

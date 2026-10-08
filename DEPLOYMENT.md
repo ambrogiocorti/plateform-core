@@ -1,11 +1,18 @@
 # Deployment e release
 
-Versione corrente 0.1.0 di sviluppo. Creato e migrato il nuovo progetto Supabase development
-`abdxvlykasqmknexxhjo`, con 112 migrations allineate al repository e verifiche PostgreSQL/PostgREST dei gate completati.
+Versione corrente 0.1.0 di sviluppo. Il progetto Supabase development
+`abdxvlykasqmknexxhjo` è attivo; le verifiche database di sicurezza e
+regressione passano. **Lo storico SQL non è allineato** (456 migrazioni remote,
+133 locali, sette divergenze non spiegabili soltanto con spazi ai margini):
+vedere `docs/evidence/remote-migration-audit-2026-10-08.json`.
 Auth e secrets development configurati e verificati nella dashboard autorizzata;
 CORS, errori, diagnostica, telemetry e gateway/rate limiting collaudati via HTTP reale.
 Vedere `docs/REMOTE_CONFIGURATION.md`.
 Nessun host o ambiente production è stato distribuito. Release commerciale bloccata.
+All'8 ottobre 2026 non risulta un progetto Vercel collegato. Node 24,
+`npm ci`, l'ambiente staging HTTPS, i test JWT/browser reali e un restore della
+versione corrente non sono ancora certificati. Il target restore-test esistente
+non è vuoto; non deve essere azzerato senza esplicita autorizzazione e verifica.
 
 ## Ambienti
 
