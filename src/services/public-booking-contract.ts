@@ -63,9 +63,12 @@ export function verifiedPaymentUrl(url: unknown, provider: 'STRIPE' | 'SATISPAY'
   const parsed = new URL(url);
   if (parsed.protocol !== 'https:' || parsed.username || parsed.password || parsed.port)
     throw new Error('INVALID_CHECKOUT_URL');
-  const root = provider === 'STRIPE' ? 'stripe.com' : 'satispay.com';
-  if (parsed.hostname !== root && !parsed.hostname.endsWith(`.${root}`))
-    throw new Error('INVALID_CHECKOUT_URL');
+  // Match only the concrete checkout hosts allowed by the server integration.
+  // A generic *.stripe.com / *.satispay.com suffix would allow unrelated hosts.
+  const allowedHosts = provider === 'STRIPE'
+    ? ['checkout.stripe.com']
+    : ['online.satispay.com', 'staging-online.satispay.com', 'staging.online.satispay.com'];
+  if (!allowedHosts.includes(parsed.hostname)) throw new Error('INVALID_CHECKOUT_URL');
   return parsed.href;
 }
 

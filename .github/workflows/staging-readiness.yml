@@ -11,7 +11,7 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 55
     environment: staging
     env:
       PLATEFORM_STAGING_ORIGIN: ${{ inputs.staging_origin }}
@@ -35,8 +35,14 @@ jobs:
           test -n "$PLATEFORM_STAGING_ORIGIN" || { echo 'Staging host missing'; exit 1; }
       - name: Reproduce dependency installation
         run: npm ci
-      - name: Source + contract checks
-        run: npm run check:step11
+      - name: Source formatting and full application verification
+        run: |
+          npm run format:check
+          npm run check
+      - name: Browser prerequisites
+        run: npx playwright install --with-deps chromium
+      - name: Integrated public and staff browser regression
+        run: npm run test:e2e
       - name: Verify remote migration history (read-only; fail on drift)
         env:
           SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}

@@ -19,6 +19,14 @@ ok(()=>assert.throws(()=>bookableSlots({...available,slots:[{time:'25:00',availa
 ok(()=>assert.throws(()=>bookableSlots({...available,slots:[{time:'03:00',available:true,status_if_booked:'RESERVED'},{time:'03:00',available:true,status_if_booked:'RESERVED'}]},key),/INVALID_AVAILABILITY/));
 ok(()=>assert.equal(verifiedPaymentUrl('https://checkout.stripe.com/pay/cs_123','STRIPE'),'https://checkout.stripe.com/pay/cs_123'));
 ok(()=>assert.equal(verifiedPaymentUrl('https://online.satispay.com/checkout','SATISPAY'),'https://online.satispay.com/checkout'));
+ok(()=>assert.equal(verifiedPaymentUrl('https://staging-online.satispay.com/checkout','SATISPAY'),'https://staging-online.satispay.com/checkout'));
+ok(()=>assert.equal(verifiedPaymentUrl('https://staging.online.satispay.com/checkout','SATISPAY'),'https://staging.online.satispay.com/checkout'));
+ok(()=>assert.throws(()=>verifiedPaymentUrl('https://api.stripe.com/v1/','STRIPE'),/INVALID_CHECKOUT_URL/));
+ok(()=>assert.throws(()=>verifiedPaymentUrl('https://preview.stripe.com/checkout','STRIPE'),/INVALID_CHECKOUT_URL/));
+ok(()=>assert.throws(()=>verifiedPaymentUrl('https://evil.satispay.com/checkout','SATISPAY'),/INVALID_CHECKOUT_URL/));
+ok(()=>assert.throws(()=>verifiedPaymentUrl('https://checkout.stripe.com/','SATISPAY'),/INVALID_CHECKOUT_URL/));
+ok(()=>assert.throws(()=>verifiedPaymentUrl('https://online.satispay.com/','STRIPE'),/INVALID_CHECKOUT_URL/));
+
 ok(()=>assert.throws(()=>verifiedPaymentUrl('https://stripe.com.evil.example/','STRIPE'),/INVALID_CHECKOUT_URL/));
 ok(()=>assert.throws(()=>verifiedPaymentUrl('https://stripe.com@evil.example/','STRIPE'),/INVALID_CHECKOUT_URL/));
 ok(()=>assert.throws(()=>verifiedPaymentUrl('http://checkout.stripe.com/','STRIPE'),/INVALID_CHECKOUT_URL/));

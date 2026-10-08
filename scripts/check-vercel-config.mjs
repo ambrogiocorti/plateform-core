@@ -31,4 +31,17 @@ check(() => assert.doesNotMatch(JSON.stringify(verified), /service_role|sb_secre
 check(() => assert.throws(() => createVercelConfiguration({ supabaseUrl: 'https://someone@abdxvlykasqmknexxhjo.supabase.co' }), /INVALID_VERCEL_SUPABASE_ORIGIN/));
 check(() => assert.throws(() => createVercelConfiguration({ supabaseUrl: 'http://localhost:54321' }), /INVALID_VERCEL_SUPABASE_ORIGIN/));
 check(() => assert.throws(() => createVercelConfiguration({ supabaseUrl: project, mode: 'production' }), /PRODUCTION_CONFIG_REQUIRES_EXPLICIT_AUTHORIZATION/));
+
+const workflow = await readFile('.github/workflows/staging-readiness.yml', 'utf8');
+check(() => assert.match(workflow, /node-version: '24'/));
+check(() => assert.match(workflow, /run: npm ci/));
+check(() => assert.match(workflow, /npm run format:check/));
+check(() => assert.match(workflow, /npm run check\n/));
+check(() => assert.match(workflow, /npx playwright install --with-deps chromium/));
+check(() => assert.match(workflow, /run: npm run test:e2e/));
+check(() => assert.match(workflow, /node scripts\/reconcile-migrations\.mjs --dry-run/));
+check(() => assert.match(workflow, /run: npm run build:pages/));
+check(() => assert.match(workflow, /run: npm run check:staging-http/));
+check(() => assert.match(workflow, /STAGING_SUPABASE_DB_URL/));
+
 console.log(`STEP11_VERCEL_STAGING_CONFIG=PASS (${n}/${n} assertions)`);
