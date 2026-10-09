@@ -180,13 +180,13 @@ describe('configuration and operational floor boundaries', () => {
       ),
     ).rejects.toThrow('FEATURE_NOT_LICENSED');
   });
-  it('does not give Super Admin access to financial statistics', async () => {
+  it('does not expose unlicensed advanced statistics to the technical Super Admin in CORE', async () => {
     await identity(db, ids.superAdmin);
     await expect(
       db.query('select public.get_operational_statistics($1,current_date,current_date)', [
         ids.venue,
       ]),
-    ).rejects.toThrow('FORBIDDEN');
+    ).rejects.toThrow('FEATURE_NOT_LICENSED');
   });
   it('exposes technical counts and real probe history without financial amounts', async () => {
     await identity(db, ids.superAdmin);
@@ -224,21 +224,18 @@ describe('configuration and operational floor boundaries', () => {
       expect.objectContaining({ component: 'STORAGE', status: 'UNAVAILABLE' }),
     ]);
   });
-  it('uses null for metrics that have no actual events', async () => {
-    const data = (
-      await db.query<{
-        r: {
-          average_check_cents: number | null;
-          no_show_percent: number | null;
-          call_acceptance_seconds: number | null;
-          categories: unknown[];
-        };
-      }>('select public.get_operational_statistics($1,current_date,current_date) r', [ids.venue])
-    ).rows[0]!.r;
-    expect(data.average_check_cents).toBeNull();
-    expect(data.no_show_percent).toBeNull();
-    expect(data.call_acceptance_seconds).toBeNull();
-    expect(data.categories).toEqual([]);
+  it('keeps advanced statistics disabled in the CORE database, even without events', async () => {
+    await db.exec('reset role');
+    const flag = await db.query<{ licensed: boolean }>(
+      "select licensed from public.feature_flags where name='ADVANCED_ANALYTICS'",
+    );
+    expect(flag.rows).toEqual([{ licensed: false }]);
+    await identity(db, ids.admin);
+    await expect(
+      db.query('select public.get_operational_statistics($1,current_date,current_date)', [
+        ids.venue,
+      ]),
+    ).rejects.toThrow('FEATURE_NOT_LICENSED');
   });
   it('cannot bypass the table quota by reactivating an archived table', async () => {
     await db.exec('reset role');
