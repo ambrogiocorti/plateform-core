@@ -1,0 +1,121 @@
+{
+  "classification": "OBSERVED_NATIVE_SUPABASE_CI_NOT_COMMERCIAL_RELEASE_ATTESTATION",
+  "platform": {
+    "server_version": "17.11",
+    "server_version_num": 170011,
+    "auth_users": true,
+    "storage_objects": true
+  },
+  "catalog": {
+    "substrate": "Supabase Docker / native PostgreSQL 17.11",
+    "application_fixtures": [],
+    "hosted_supabase_certified": false,
+    "missing": {
+      "relations": [],
+      "routines": [],
+      "triggers": [],
+      "columns": [],
+      "indexes": [],
+      "constraints": [],
+      "policies": []
+    },
+    "added": {
+      "relations": [],
+      "routines": [],
+      "triggers": [],
+      "columns": [],
+      "indexes": [],
+      "constraints": [],
+      "policies": []
+    },
+    "changed": {
+      "relations": [],
+      "routines": [],
+      "triggers": [],
+      "columns": [],
+      "indexes": [],
+      "constraints": [],
+      "policies": []
+    },
+    "counts": {
+      "relations": {
+        "reference": 163,
+        "replayed": 163
+      },
+      "routines": {
+        "reference": 553,
+        "replayed": 552
+      },
+      "triggers": {
+        "reference": 311,
+        "replayed": 313
+      },
+      "columns": {
+        "reference": 1485,
+        "replayed": 1485
+      },
+      "indexes": {
+        "reference": 444,
+        "replayed": 444
+      },
+      "constraints": {
+        "reference": 903,
+        "replayed": 903
+      },
+      "policies": {
+        "reference": 110,
+        "replayed": 110
+      }
+    },
+    "not_null_semantics": "Compared for every column; PG18-only contype=n catalog entries excluded",
+    "ok": true
+  },
+  "migrations": 458,
+  "release_test_catalog": {
+    "definitions": 197,
+    "recovered_definitions": 31,
+    "definitions_sha256": "57ac6d0ffb46e9603879c66409e39d336b7d51fe2455b0a9ca51cb11d071db1b"
+  },
+  "inventory_sha256": "29031e10f987a98882f5f811373abbaf59cb271f608221fbbe31961d0f2edd9e",
+  "historical_inventory_sha256": "ae79b608e86dfe6c7ca8dd93c88170cdd4dc38dd6324ccb3391342b135a59f41",
+  "bootstrap_sha256": "aaa20fba9a525bfd5f7017ee827d45cf342d8b3e6d97eefc19e50fb0a51de11e",
+  "postlude_sha256": "fe5f140c8f6d8ea306fcad7135c4b1d717f97281f865d05f3b804cb5c0e4eda9",
+  "evidence": {
+    "test_pass": 0,
+    "gate_pass": 0,
+    "preserved_test_claims": 25,
+    "preserved_gate_claims": 0,
+    "legacy_test_claims_without_metadata": 0,
+    "legacy_gate_claims_without_metadata": 0,
+    "provenance_pending": true,
+    "required_total": 197,
+    "required_passed": 0,
+    "gate_ok": false
+  },
+  "rejected_pass_writes": 4,
+  "repeat_install_blocked": true,
+  "cron_disabled": true,
+  "external_container_network": "bridge_with_verified_egress_drop_rule",
+  "network": {
+    "containers": 5,
+    "ipv6_disabled": true,
+    "loopback_ports": true
+  },
+  "http": {
+    "auth_health": true,
+    "storage_health": true,
+    "service_role_gate": true,
+    "anon_gate_denied": true
+  },
+  "source_commit": "ff8c93514613c4e04b871f7da0586d63d2c38372",
+  "workflow_run_id": "37889836463",
+  "hosted_supabase_certified": false,
+  "commercial_release_ready": false,
+  "remaining": [
+    "Hosted installation/restore",
+    "Authenticated user sessions and scope HTTP scenarios",
+    "Realtime and native concurrency",
+    "Current-schema restore",
+    "Immutable CI evidence ingestion"
+  ]
+}

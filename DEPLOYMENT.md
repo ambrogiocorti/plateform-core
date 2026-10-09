@@ -3,14 +3,18 @@
 Versione corrente 0.1.0 di sviluppo; nessuna release commerciale autorizzata.
 Al 9 ottobre 2026 lo storico di `plateform-development` è recuperato: 457
 migrazioni canoniche e una nuova migrazione preparata, non applicata.
-TypeScript, lint, gate sorgente, 242 test locali e build pubblico/staff passano;
-quattro test sono esclusi CORE. Installazione Supabase isolata, CI/Edge/browser
-completi, JWT/HTTP reali e restore corrente restano gate aperti.
+La run GitHub 66 passa formato, check completo, 245 test unit/database,
+13 test Edge, 20 contratti browser e build pubblico/staff; quattro test sono
+esclusi CORE. Il replay Supabase Docker/PostgreSQL 17.11 verifica installatore,
+ledger, cataloghi e tutte le 197 definizioni obbligatorie senza risultati PASS.
+Installazione hosted, sessioni utente/scope HTTP/JWT, Realtime, concorrenza,
+Storage upload/download e restore corrente restano gate aperti.
 Il target restore-test esistente contiene dati e non deve essere azzerato.
 
 L'applicazione remota della protezione contro PASS non attestati è stata
 respinta dal controllo automatico per autorizzazione specifica mancante e replay
-isolato incompleto; il database remoto è rimasto invariato.
+isolato incompleto al momento del rifiuto. Il replay Docker nativo ora passa;
+il database Development è rimasto invariato e l'applicazione richiede consenso specifico.
 Vedere `docs/BASELINE_RECOVERY_2026-10-09.md` per proposta e limiti delle prove.
 
 ## Ambienti

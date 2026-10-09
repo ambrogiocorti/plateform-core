@@ -1,0 +1,668 @@
+﻿2026-10-09T05:42:13.7971508Z Current runner version: '2.337.0'
+2026-10-09T05:42:13.8008157Z ##[group]Runner Image Provisioner
+2026-10-09T05:42:13.8009625Z Hosted Compute Agent
+2026-10-09T05:42:13.8011214Z Version: 20261002.596
+2026-10-09T05:42:13.8012380Z Commit: c3d12f3313a95f25162a1503be624f3b0617f8c0
+2026-10-09T05:42:13.8013605Z Build Date: 2026-10-02T22:28:27Z
+2026-10-09T05:42:13.8014976Z Worker ID: {4f9e368e-d0b8-4b5d-90d9-ce244429e53a}
+2026-10-09T05:42:13.8016284Z Region: westus
+2026-10-09T05:42:13.8017370Z Cloud: Azure
+2026-10-09T05:42:13.8018555Z ##[endgroup]
+2026-10-09T05:42:13.8021494Z ##[group]Operating System
+2026-10-09T05:42:13.8022699Z Ubuntu
+2026-10-09T05:42:13.8023616Z 24.04.5
+2026-10-09T05:42:13.8024534Z LTS
+2026-10-09T05:42:13.8025470Z ##[endgroup]
+2026-10-09T05:42:13.8026398Z ##[group]Runner Image
+2026-10-09T05:42:13.8027507Z Image: ubuntu-24.04
+2026-10-09T05:42:13.8028477Z Version: 20261004.327.1
+2026-10-09T05:42:13.8031154Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261004.327/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-09T05:42:13.8033950Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261004.327
+2026-10-09T05:42:13.8035907Z ##[endgroup]
+2026-10-09T05:42:13.8037884Z ##[group]GITHUB_TOKEN Permissions
+2026-10-09T05:42:13.8041058Z Contents: read
+2026-10-09T05:42:13.8042096Z Metadata: read
+2026-10-09T05:42:13.8043039Z ##[endgroup]
+2026-10-09T05:42:13.8046299Z Secret source: Actions
+2026-10-09T05:42:13.8047929Z Cache mode: write
+2026-10-09T05:42:13.8049346Z Prepare workflow directory
+2026-10-09T05:42:13.8824353Z Prepare all required actions
+2026-10-09T05:42:13.8898577Z Getting action download info
+2026-10-09T05:42:14.3305807Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-10-09T05:42:14.4306835Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+2026-10-09T05:42:14.5378327Z Download action repository 'supabase/setup-cli@v1' (SHA:1dedf2c611547ede7232d26866dd3c56ab903bbb)
+2026-10-09T05:42:14.9893910Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-10-09T05:42:15.2457055Z Complete job name: native-clean-install
+2026-10-09T05:42:15.3651471Z ##[group]Run actions/checkout@v4
+2026-10-09T05:42:15.3652845Z with:
+2026-10-09T05:42:15.3653714Z   repository: ambrogiocorti/plateform-core
+2026-10-09T05:42:15.3663089Z   token: ***
+2026-10-09T05:42:15.3663897Z   ssh-strict: true
+2026-10-09T05:42:15.3664697Z   ssh-user: git
+2026-10-09T05:42:15.3665521Z   persist-credentials: true
+2026-10-09T05:42:15.3666441Z   clean: true
+2026-10-09T05:42:15.3667271Z   sparse-checkout-cone-mode: true
+2026-10-09T05:42:15.3668269Z   fetch-depth: 1
+2026-10-09T05:42:15.3669066Z   fetch-tags: false
+2026-10-09T05:42:15.3670028Z   show-progress: true
+2026-10-09T05:42:15.3670874Z   lfs: false
+2026-10-09T05:42:15.3671664Z   submodules: false
+2026-10-09T05:42:15.3672530Z   set-safe-directory: true
+2026-10-09T05:42:15.3673492Z   allow-unsafe-pr-checkout: false
+2026-10-09T05:42:15.3674776Z env:
+2026-10-09T05:42:15.3676093Z   SUPABASE_DB_URL: ***127.0.0.1:54322/postgres
+2026-10-09T05:42:15.3677236Z   PLATEFORM_INSTALL_LOCAL: 1
+2026-10-09T05:42:15.3678230Z   PLATEFORM_NATIVE_CI: 1
+2026-10-09T05:42:15.3679354Z   PLATEFORM_LOCAL_STATUS_FILE: .local/native-ci/status.json
+2026-10-09T05:42:15.3680774Z ##[endgroup]
+2026-10-09T05:42:15.4933365Z Syncing repository: ambrogiocorti/plateform-core
+2026-10-09T05:42:15.4938258Z ##[group]Getting Git version info
+2026-10-09T05:42:15.4942129Z Working directory is '/home/runner/work/plateform-core/plateform-core'
+2026-10-09T05:42:15.4947054Z [command]/usr/bin/git version
+2026-10-09T05:42:15.5197641Z git version 2.55.0
+2026-10-09T05:42:15.5203080Z ##[endgroup]
+2026-10-09T05:42:15.5212290Z Temporarily overriding HOME='/home/runner/work/_temp/b40b1efe-93a7-4e46-9fb1-058cbbef672a' before making global git config changes
+2026-10-09T05:42:15.5217077Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-09T05:42:15.5222031Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/plateform-core/plateform-core
+2026-10-09T05:42:15.5256243Z Deleting the contents of '/home/runner/work/plateform-core/plateform-core'
+2026-10-09T05:42:15.5259030Z ##[group]Initializing the repository
+2026-10-09T05:42:15.5261234Z [command]/usr/bin/git init /home/runner/work/plateform-core/plateform-core
+2026-10-09T05:42:15.5452873Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-09T05:42:15.5465381Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-09T05:42:15.5471432Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-09T05:42:15.5474695Z hint: call:
+2026-10-09T05:42:15.5477254Z hint:
+2026-10-09T05:42:15.5481176Z hint: 	git config --global init.defaultBranch <name>
+2026-10-09T05:42:15.5483293Z hint:
+2026-10-09T05:42:15.5489045Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-09T05:42:15.5501376Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-09T05:42:15.5505010Z hint:
+2026-10-09T05:42:15.5506871Z hint: 	git branch -m <name>
+2026-10-09T05:42:15.5509549Z hint:
+2026-10-09T05:42:15.5512915Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-09T05:42:15.5516982Z Initialized empty Git repository in /home/runner/work/plateform-core/plateform-core/.git/
+2026-10-09T05:42:15.5524339Z [command]/usr/bin/git remote add origin https://github.com/ambrogiocorti/plateform-core
+2026-10-09T05:42:15.5530321Z ##[endgroup]
+2026-10-09T05:42:15.5533228Z ##[group]Disabling automatic garbage collection
+2026-10-09T05:42:15.5536464Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-09T05:42:15.5752508Z ##[endgroup]
+2026-10-09T05:42:15.5755376Z ##[group]Setting up auth
+2026-10-09T05:42:15.5772458Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-09T05:42:15.5786460Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-09T05:42:15.6232992Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-09T05:42:15.6297186Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-09T05:42:15.6643420Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-09T05:42:15.6703018Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-09T05:42:15.6984887Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-09T05:42:15.7032876Z ##[endgroup]
+2026-10-09T05:42:15.7036017Z ##[group]Fetching the repository
+2026-10-09T05:42:15.7048485Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +ff8c93514613c4e04b871f7da0586d63d2c38372:refs/remotes/pull/5/merge
+2026-10-09T05:42:16.9002328Z From https://github.com/ambrogiocorti/plateform-core
+2026-10-09T05:42:16.9011519Z  * [new ref]         ff8c93514613c4e04b871f7da0586d63d2c38372 -> pull/5/merge
+2026-10-09T05:42:16.9015689Z ##[endgroup]
+2026-10-09T05:42:16.9016899Z ##[group]Determining the checkout info
+2026-10-09T05:42:16.9018155Z ##[endgroup]
+2026-10-09T05:42:16.9019001Z [command]/usr/bin/git sparse-checkout disable
+2026-10-09T05:42:16.9080370Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-09T05:42:16.9116423Z ##[group]Checking out the ref
+2026-10-09T05:42:16.9120531Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/5/merge
+2026-10-09T05:42:17.0048355Z Note: switching to 'refs/remotes/pull/5/merge'.
+2026-10-09T05:42:17.0049810Z 
+2026-10-09T05:42:17.0050879Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-09T05:42:17.0052360Z changes and commit them, and you can discard any commits you make in this
+2026-10-09T05:42:17.0053782Z state without impacting any branches by switching back to a branch.
+2026-10-09T05:42:17.0054582Z 
+2026-10-09T05:42:17.0055177Z If you want to create a new branch to retain commits you create, you may
+2026-10-09T05:42:17.0056322Z do so (now or later) by using -c with the switch command. Example:
+2026-10-09T05:42:17.0057135Z 
+2026-10-09T05:42:17.0057663Z   git switch -c <new-branch-name>
+2026-10-09T05:42:17.0058321Z 
+2026-10-09T05:42:17.0061095Z Or undo this operation with:
+2026-10-09T05:42:17.0064368Z 
+2026-10-09T05:42:17.0065417Z   git switch -
+2026-10-09T05:42:17.0066269Z 
+2026-10-09T05:42:17.0067067Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-09T05:42:17.0068096Z 
+2026-10-09T05:42:17.0069119Z HEAD is now at ff8c935 Merge 139fb1b1e73f9af371389c32b24bef800fa8e279 into bba9b44cc2af738aff0ad0c0cfd99b80a2c749c8
+2026-10-09T05:42:17.0073587Z ##[endgroup]
+2026-10-09T05:42:17.0123180Z [command]/usr/bin/git log -1 --format=%H
+2026-10-09T05:42:17.0156152Z ff8c93514613c4e04b871f7da0586d63d2c38372
+2026-10-09T05:42:17.0457681Z ##[group]Run actions/setup-node@v4
+2026-10-09T05:42:17.0458156Z with:
+2026-10-09T05:42:17.0458501Z   node-version: 24
+2026-10-09T05:42:17.0458864Z   cache: npm
+2026-10-09T05:42:17.0459206Z   always-auth: false
+2026-10-09T05:42:17.0459568Z   check-latest: false
+2026-10-09T05:42:17.0462498Z   token: ***
+2026-10-09T05:42:17.0462854Z env:
+2026-10-09T05:42:17.0463402Z   SUPABASE_DB_URL: ***127.0.0.1:54322/postgres
+2026-10-09T05:42:17.0463860Z   PLATEFORM_INSTALL_LOCAL: 1
+2026-10-09T05:42:17.0464269Z   PLATEFORM_NATIVE_CI: 1
+2026-10-09T05:42:17.0464728Z   PLATEFORM_LOCAL_STATUS_FILE: .local/native-ci/status.json
+2026-10-09T05:42:17.0465214Z ##[endgroup]
+2026-10-09T05:42:17.1978685Z Found in cache @ /opt/hostedtoolcache/node/24.21.0/x64
+2026-10-09T05:42:17.1985256Z (node:2084) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-09T05:42:17.1989550Z ##[group]Environment details
+2026-10-09T05:42:17.1999262Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-09T05:42:17.9226376Z node: v24.21.0
+2026-10-09T05:42:17.9235609Z npm: 11.19.0
+2026-10-09T05:42:17.9236456Z yarn: 1.22.22
+2026-10-09T05:42:17.9237924Z ##[endgroup]
+2026-10-09T05:42:17.9238877Z [command]/opt/hostedtoolcache/node/24.21.0/x64/bin/npm config get cache
+2026-10-09T05:42:18.0381637Z /home/runner/.npm
+2026-10-09T05:42:18.3239330Z (node:2084) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-09T05:42:18.3255166Z Cache hit for: node-cache-Linux-x64-npm-a0e3ec2a2175e9ad6df7f6a7dc3a1d3e9c5d6aa24618e9a119e58bdc53790ae7
+2026-10-09T05:42:19.5926082Z Received 4194304 of 94994439 (4.4%), 4.0 MBs/sec
+2026-10-09T05:42:20.3684204Z Received 94994439 of 94994439 (100.0%), 51.0 MBs/sec
+2026-10-09T05:42:20.3685468Z Cache Size: ~91 MB (94994439 B)
+2026-10-09T05:42:20.3829278Z [command]/usr/bin/tar -xf /home/runner/work/_temp/8c5cb218-3523-418f-a4f8-1dae32d13f1c/cache.tzst -P -C /home/runner/work/plateform-core/plateform-core --use-compress-program unzstd
+2026-10-09T05:42:20.5871211Z Cache restored successfully
+2026-10-09T05:42:20.5941500Z Cache restored from key: node-cache-Linux-x64-npm-a0e3ec2a2175e9ad6df7f6a7dc3a1d3e9c5d6aa24618e9a119e58bdc53790ae7
+2026-10-09T05:42:20.6131026Z ##[group]Run npm ci
+2026-10-09T05:42:20.6131369Z [36;1mnpm ci[0m
+2026-10-09T05:42:20.6412635Z shell: /usr/bin/bash -e {0}
+2026-10-09T05:42:20.6413029Z env:
+2026-10-09T05:42:20.6413652Z   SUPABASE_DB_URL: ***127.0.0.1:54322/postgres
+2026-10-09T05:42:20.6414053Z   PLATEFORM_INSTALL_LOCAL: 1
+2026-10-09T05:42:20.6414373Z   PLATEFORM_NATIVE_CI: 1
+2026-10-09T05:42:20.6414991Z   PLATEFORM_LOCAL_STATUS_FILE: .local/native-ci/status.json
+2026-10-09T05:42:20.6415423Z ##[endgroup]
+2026-10-09T05:42:24.3937605Z 
+2026-10-09T05:42:24.3948850Z added 183 packages, and audited 184 packages in 4s
+2026-10-09T05:42:24.3951139Z 
+2026-10-09T05:42:24.3951756Z 45 packages are looking for funding
+2026-10-09T05:42:24.3952578Z   run `npm fund` for details
+2026-10-09T05:42:24.3965163Z 
+2026-10-09T05:42:24.3965721Z 1 high severity vulnerability
+2026-10-09T05:42:24.3966500Z 
+2026-10-09T05:42:24.3967061Z To address all issues, run:
+2026-10-09T05:42:24.3967799Z   npm audit fix
+2026-10-09T05:42:24.3968308Z 
+2026-10-09T05:42:24.3968893Z Run `npm audit` for details.
+2026-10-09T05:42:24.3980707Z npm warn install-scripts 1 package has install scripts not yet covered by allowScripts:
+2026-10-09T05:42:24.3982487Z npm warn install-scripts   deno@2.9.6 (postinstall: node ./install.cjs)
+2026-10-09T05:42:24.3983653Z npm warn install-scripts
+2026-10-09T05:42:24.3985113Z npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+2026-10-09T05:42:24.4651454Z ##[group]Run supabase/setup-cli@v1
+2026-10-09T05:42:24.4651783Z with:
+2026-10-09T05:42:24.4651981Z   version: 2.120.0
+2026-10-09T05:42:24.4652187Z env:
+2026-10-09T05:42:24.4652661Z   SUPABASE_DB_URL: ***127.0.0.1:54322/postgres
+2026-10-09T05:42:24.4652976Z   PLATEFORM_INSTALL_LOCAL: 1
+2026-10-09T05:42:24.4653236Z   PLATEFORM_NATIVE_CI: 1
+2026-10-09T05:42:24.4653548Z   PLATEFORM_LOCAL_STATUS_FILE: .local/native-ci/status.json
+2026-10-09T05:42:24.4653880Z ##[endgroup]
+2026-10-09T05:42:25.2117734Z [command]/usr/bin/tar xz --warning=no-unknown-keyword --overwrite -C /home/runner/work/_temp/135cf211-a399-4c9c-a4de-95c2c3e5692c -f /home/runner/work/_temp/f3d2305c-0783-4147-b576-f4f0e2214673
+2026-10-09T05:42:26.8878392Z ##[group]Run mkdir -p .local/native-ci/supabase
+2026-10-09T05:42:26.8878835Z [36;1mmkdir -p .local/native-ci/supabase[0m
+2026-10-09T05:42:26.8879312Z [36;1mcp supabase/clean-install/ci-config.toml .local/native-ci/supabase/config.toml[0m
+2026-10-09T05:42:26.8880686Z [36;1mdocker network create --opt com.docker.network.bridge.host_binding_ipv4=127.0.0.1 --opt com.docker.network.bridge.name=pf_native_ci plateform-clean-install-ci[0m
+2026-10-09T05:42:26.8882232Z [36;1msupabase start --workdir .local/native-ci --network-id plateform-clean-install-ci --exclude realtime,imgproxy,mailpit,postgres-meta,studio,edge-runtime,logflare,vector,supavisor > .local/native-ci/start.log[0m
+2026-10-09T05:42:26.8883346Z [36;1msupabase status --workdir .local/native-ci --output json > .local/native-ci/status.json[0m
+2026-10-09T05:42:26.8883936Z [36;1msudo iptables -I DOCKER-USER 1 -i pf_native_ci ! -o pf_native_ci -j DROP[0m
+2026-10-09T05:42:26.8884500Z [36;1msudo iptables -C DOCKER-USER -i pf_native_ci ! -o pf_native_ci -j DROP[0m
+2026-10-09T05:42:26.8884990Z [36;1mprintf 'PLATEFORM_NATIVE_EGRESS_BLOCKED=1\n' >> "$GITHUB_ENV"[0m
+2026-10-09T05:42:26.8949450Z shell: /usr/bin/bash -e {0}
+2026-10-09T05:42:26.8949732Z env:
+2026-10-09T05:42:26.8950709Z   SUPABASE_DB_URL: ***127.0.0.1:54322/postgres
+2026-10-09T05:42:26.8951039Z   PLATEFORM_INSTALL_LOCAL: 1
+2026-10-09T05:42:26.8951295Z   PLATEFORM_NATIVE_CI: 1
+2026-10-09T05:42:26.8951608Z   PLATEFORM_LOCAL_STATUS_FILE: .local/native-ci/status.json
+2026-10-09T05:42:26.8951940Z ##[endgroup]
+2026-10-09T05:42:27.0566891Z 702c308ddf1a40440fb6a4d2a78c05ee0ed360462aa516e547804eb9fd8a2a59
+2026-10-09T05:42:28.6923705Z 2.8.1: Pulling from supabase/kong
+2026-10-09T05:42:28.6952848Z v16.4: Pulling from supabase/postgrest
+2026-10-09T05:42:28.7333379Z v2.197.0: Pulling from supabase/gotrue
+2026-10-09T05:42:28.7369421Z v1.79.36: Pulling from supabase/storage-api
+2026-10-09T05:42:28.7389473Z 17.11.0.004: Pulling from supabase/postgres
+2026-10-09T05:42:28.7653451Z toomanyrequests: Rate exceeded
+2026-10-09T05:42:28.7688882Z Retrying after 4s: public.ecr.aws/supabase/postgrest:v16.4
+2026-10-09T05:42:28.8071842Z toomanyrequests: Rate exceeded
+2026-10-09T05:42:28.8124712Z Retrying after 4s: public.ecr.aws/supabase/gotrue:v2.197.0
+2026-10-09T05:42:28.8141954Z toomanyrequests: Rate exceeded
+2026-10-09T05:42:28.8161523Z Retrying after 4s: public.ecr.aws/supabase/storage-api:v1.79.36
+2026-10-09T05:42:28.8252490Z 213ec9aee27d: Pulling fs layer
+2026-10-09T05:42:28.8253694Z a70653f7a2d5: Pulling fs layer
+2026-10-09T05:42:28.8255140Z 531e3bd93090: Pulling fs layer
+2026-10-09T05:42:28.8264102Z 814dd06d26c7: Pulling fs layer
+2026-10-09T05:42:28.8271375Z 814dd06d26c7: Waiting
+2026-10-09T05:42:28.8989868Z d0c1d894c237: Pulling fs layer
+2026-10-09T05:42:28.8991555Z 5cf28f105869: Pulling fs layer
+2026-10-09T05:42:28.8993008Z 1a9e682628cb: Pulling fs layer
+2026-10-09T05:42:28.8994497Z 43735ba4f30d: Pulling fs layer
+2026-10-09T05:42:28.8995774Z 51f23b99e4a3: Pulling fs layer
+2026-10-09T05:42:28.8996461Z 40372fae5294: Pulling fs layer
+2026-10-09T05:42:28.8998075Z 5ccb9367156d: Pulling fs layer
+2026-10-09T05:42:28.8999804Z 0dd5a94004df: Pulling fs layer
+2026-10-09T05:42:28.9001407Z a48842864032: Pulling fs layer
+2026-10-09T05:42:28.9003057Z 9005a6945685: Pulling fs layer
+2026-10-09T05:42:28.9003870Z 328e0b3331b4: Pulling fs layer
+2026-10-09T05:42:28.9008717Z 91bfd1c8cab7: Pulling fs layer
+2026-10-09T05:42:28.9024254Z a23edf8f81d7: Pulling fs layer
+2026-10-09T05:42:28.9025453Z eac09143570a: Pulling fs layer
+2026-10-09T05:42:28.9027954Z a1d230f0e554: Pulling fs layer
+2026-10-09T05:42:28.9028618Z 452cef34484a: Pulling fs layer
+2026-10-09T05:42:28.9157832Z eeb5336451ed: Pulling fs layer
+2026-10-09T05:42:28.9159073Z 307e4246aff6: Pulling fs layer
+2026-10-09T05:42:28.9162626Z 00d155684986: Pulling fs layer
+2026-10-09T05:42:28.9163917Z 8da71f92e18b: Pulling fs layer
+2026-10-09T05:42:28.9166067Z fbe0d6445ecd: Pulling fs layer
+2026-10-09T05:42:28.9166858Z 7102497fb037: Pulling fs layer
+2026-10-09T05:42:28.9168850Z db7948e1c6a1: Pulling fs layer
+2026-10-09T05:42:28.9169585Z bf900ae624e1: Pulling fs layer
+2026-10-09T05:42:28.9171084Z 6f59b56c3042: Pulling fs layer
+2026-10-09T05:42:28.9171823Z 474923b67587: Pulling fs layer
+2026-10-09T05:42:28.9174532Z 1c35b45899a8: Pulling fs layer
+2026-10-09T05:42:28.9175112Z dfd05d548524: Pulling fs layer
+2026-10-09T05:42:28.9175686Z f7548fe51e6c: Pulling fs layer
+2026-10-09T05:42:28.9176232Z d0c1d894c237: Waiting
+2026-10-09T05:42:28.9176678Z 5cf28f105869: Waiting
+2026-10-09T05:42:28.9177204Z 1a9e682628cb: Waiting
+2026-10-09T05:42:28.9177737Z 43735ba4f30d: Waiting
+2026-10-09T05:42:28.9178157Z 51f23b99e4a3: Waiting
+2026-10-09T05:42:28.9178585Z 40372fae5294: Waiting
+2026-10-09T05:42:28.9179014Z 5ccb9367156d: Waiting
+2026-10-09T05:42:28.9179425Z 0dd5a94004df: Waiting
+2026-10-09T05:42:28.9179831Z a48842864032: Waiting
+2026-10-09T05:42:28.9180651Z 9005a6945685: Waiting
+2026-10-09T05:42:28.9181071Z 328e0b3331b4: Waiting
+2026-10-09T05:42:28.9181485Z 91bfd1c8cab7: Waiting
+2026-10-09T05:42:28.9182026Z a23edf8f81d7: Waiting
+2026-10-09T05:42:28.9182396Z eac09143570a: Waiting
+2026-10-09T05:42:28.9182835Z a1d230f0e554: Waiting
+2026-10-09T05:42:28.9183220Z 452cef34484a: Waiting
+2026-10-09T05:42:28.9183628Z eeb5336451ed: Waiting
+2026-10-09T05:42:28.9183910Z 6f59b56c3042: Waiting
+2026-10-09T05:42:28.9184139Z 474923b67587: Waiting
+2026-10-09T05:42:28.9184378Z 1c35b45899a8: Waiting
+2026-10-09T05:42:28.9184612Z dfd05d548524: Waiting
+2026-10-09T05:42:28.9184835Z f7548fe51e6c: Waiting
+2026-10-09T05:42:28.9185060Z 00d155684986: Waiting
+2026-10-09T05:42:28.9185287Z 8da71f92e18b: Waiting
+2026-10-09T05:42:28.9185507Z 307e4246aff6: Waiting
+2026-10-09T05:42:28.9185780Z fbe0d6445ecd: Waiting
+2026-10-09T05:42:28.9186044Z 7102497fb037: Waiting
+2026-10-09T05:42:28.9186270Z db7948e1c6a1: Waiting
+2026-10-09T05:42:28.9186494Z bf900ae624e1: Waiting
+2026-10-09T05:42:28.9186772Z a70653f7a2d5: Verifying Checksum
+2026-10-09T05:42:28.9187081Z a70653f7a2d5: Download complete
+2026-10-09T05:42:28.9303047Z 213ec9aee27d: Verifying Checksum
+2026-10-09T05:42:28.9304491Z 213ec9aee27d: Download complete
+2026-10-09T05:42:29.0159360Z 814dd06d26c7: Verifying Checksum
+2026-10-09T05:42:29.0177854Z 814dd06d26c7: Download complete
+2026-10-09T05:42:29.1076426Z 531e3bd93090: Verifying Checksum
+2026-10-09T05:42:29.1083266Z 531e3bd93090: Download complete
+2026-10-09T05:42:29.1085604Z d0c1d894c237: Verifying Checksum
+2026-10-09T05:42:29.1091352Z d0c1d894c237: Download complete
+2026-10-09T05:42:29.1385582Z 213ec9aee27d: Pull complete
+2026-10-09T05:42:29.1911733Z 5cf28f105869: Verifying Checksum
+2026-10-09T05:42:29.1913037Z 5cf28f105869: Download complete
+2026-10-09T05:42:29.2411061Z 1a9e682628cb: Verifying Checksum
+2026-10-09T05:42:29.2411826Z 1a9e682628cb: Download complete
+2026-10-09T05:42:29.2888857Z 51f23b99e4a3: Verifying Checksum
+2026-10-09T05:42:29.2916701Z 51f23b99e4a3: Download complete
+2026-10-09T05:42:29.3805953Z 40372fae5294: Verifying Checksum
+2026-10-09T05:42:29.3814157Z 40372fae5294: Download complete
+2026-10-09T05:42:29.3845714Z 5ccb9367156d: Verifying Checksum
+2026-10-09T05:42:29.3846815Z 5ccb9367156d: Download complete
+2026-10-09T05:42:29.4185348Z d0c1d894c237: Pull complete
+2026-10-09T05:42:29.7551028Z a48842864032: Verifying Checksum
+2026-10-09T05:42:29.7552090Z a48842864032: Download complete
+2026-10-09T05:42:29.7554671Z 0dd5a94004df: Verifying Checksum
+2026-10-09T05:42:29.7555274Z 0dd5a94004df: Download complete
+2026-10-09T05:42:30.0066772Z 328e0b3331b4: Download complete
+2026-10-09T05:42:30.0068008Z 9005a6945685: Verifying Checksum
+2026-10-09T05:42:30.0072654Z 9005a6945685: Download complete
+2026-10-09T05:42:30.1133899Z 91bfd1c8cab7: Verifying Checksum
+2026-10-09T05:42:30.1134918Z 91bfd1c8cab7: Download complete
+2026-10-09T05:42:30.1135823Z a23edf8f81d7: Verifying Checksum
+2026-10-09T05:42:30.1136496Z a23edf8f81d7: Download complete
+2026-10-09T05:42:30.2057444Z eac09143570a: Verifying Checksum
+2026-10-09T05:42:30.2058403Z eac09143570a: Download complete
+2026-10-09T05:42:30.2080441Z a1d230f0e554: Download complete
+2026-10-09T05:42:30.3806120Z eeb5336451ed: Download complete
+2026-10-09T05:42:30.3807223Z 452cef34484a: Verifying Checksum
+2026-10-09T05:42:30.3808335Z 452cef34484a: Download complete
+2026-10-09T05:42:30.6482765Z 00d155684986: Verifying Checksum
+2026-10-09T05:42:30.6484636Z 00d155684986: Download complete
+2026-10-09T05:42:30.6584530Z 307e4246aff6: Verifying Checksum
+2026-10-09T05:42:30.6585883Z 307e4246aff6: Download complete
+2026-10-09T05:42:30.9473848Z fbe0d6445ecd: Download complete
+2026-10-09T05:42:30.9480988Z 8da71f92e18b: Verifying Checksum
+2026-10-09T05:42:30.9482334Z 8da71f92e18b: Download complete
+2026-10-09T05:42:31.0473856Z 7102497fb037: Verifying Checksum
+2026-10-09T05:42:31.0483533Z 7102497fb037: Download complete
+2026-10-09T05:42:31.0584697Z db7948e1c6a1: Verifying Checksum
+2026-10-09T05:42:31.0585898Z db7948e1c6a1: Download complete
+2026-10-09T05:42:31.1629653Z bf900ae624e1: Verifying Checksum
+2026-10-09T05:42:31.1630835Z bf900ae624e1: Download complete
+2026-10-09T05:42:31.1767355Z 6f59b56c3042: Verifying Checksum
+2026-10-09T05:42:31.1768189Z 6f59b56c3042: Download complete
+2026-10-09T05:42:31.2531602Z 474923b67587: Verifying Checksum
+2026-10-09T05:42:31.2532644Z 474923b67587: Download complete
+2026-10-09T05:42:31.3177972Z 1c35b45899a8: Verifying Checksum
+2026-10-09T05:42:31.3179181Z 1c35b45899a8: Download complete
+2026-10-09T05:42:31.4345526Z dfd05d548524: Verifying Checksum
+2026-10-09T05:42:31.4348014Z dfd05d548524: Download complete
+2026-10-09T05:42:31.4637791Z f7548fe51e6c: Verifying Checksum
+2026-10-09T05:42:31.4672021Z f7548fe51e6c: Download complete
+2026-10-09T05:42:32.1909765Z 43735ba4f30d: Verifying Checksum
+2026-10-09T05:42:32.1921600Z 43735ba4f30d: Download complete
+2026-10-09T05:42:34.2112972Z 5cf28f105869: Pull complete
+2026-10-09T05:42:34.2113583Z a70653f7a2d5: Pull complete
+2026-10-09T05:42:34.2601719Z 1a9e682628cb: Pull complete
+2026-10-09T05:42:34.3326840Z v2.197.0: Pulling from supabase/gotrue
+2026-10-09T05:42:34.3556457Z v1.79.36: Pulling from supabase/storage-api
+2026-10-09T05:42:34.3600516Z v16.4: Pulling from supabase/postgrest
+2026-10-09T05:42:34.4965097Z 55afa1ecc21d: Already exists
+2026-10-09T05:42:34.4976287Z 71eb50013731: Pulling fs layer
+2026-10-09T05:42:34.4977279Z 74c409e3506a: Pulling fs layer
+2026-10-09T05:42:34.4980736Z e5d190db8191: Pulling fs layer
+2026-10-09T05:42:34.4983319Z f30f4fcb85f4: Pulling fs layer
+2026-10-09T05:42:34.4986933Z c0cb7126d877: Pulling fs layer
+2026-10-09T05:42:34.4988474Z f30f4fcb85f4: Waiting
+2026-10-09T05:42:34.4988977Z c0cb7126d877: Waiting
+2026-10-09T05:42:34.5062793Z d0c1d894c237: Already exists
+2026-10-09T05:42:34.5063371Z f0bff0b17bb6: Pulling fs layer
+2026-10-09T05:42:34.5063906Z bf5074c0b7fa: Pulling fs layer
+2026-10-09T05:42:34.5064393Z 76bc8d85aed0: Pulling fs layer
+2026-10-09T05:42:34.5064883Z 8039b21a00ac: Pulling fs layer
+2026-10-09T05:42:34.5065361Z 0c91f59dd719: Pulling fs layer
+2026-10-09T05:42:34.5065844Z 6a5c742fadca: Pulling fs layer
+2026-10-09T05:42:34.5066327Z 018eaf08b9fd: Pulling fs layer
+2026-10-09T05:42:34.5066840Z fb772985a92d: Pulling fs layer
+2026-10-09T05:42:34.5067340Z 2923bc55a2bd: Pulling fs layer
+2026-10-09T05:42:34.5067846Z 23af072915d6: Pulling fs layer
+2026-10-09T05:42:34.5068364Z 9f5e13364d13: Pulling fs layer
+2026-10-09T05:42:34.5068869Z 4c76576d4885: Pulling fs layer
+2026-10-09T05:42:34.5069384Z fb9dd83d9835: Pulling fs layer
+2026-10-09T05:42:34.5069848Z f0bff0b17bb6: Waiting
+2026-10-09T05:42:34.5070497Z bf5074c0b7fa: Waiting
+2026-10-09T05:42:34.5070900Z 76bc8d85aed0: Waiting
+2026-10-09T05:42:34.5071279Z 8039b21a00ac: Waiting
+2026-10-09T05:42:34.5071651Z 0c91f59dd719: Waiting
+2026-10-09T05:42:34.5072037Z 6a5c742fadca: Waiting
+2026-10-09T05:42:34.5072414Z 018eaf08b9fd: Waiting
+2026-10-09T05:42:34.5072880Z fb772985a92d: Waiting
+2026-10-09T05:42:34.5073270Z 2923bc55a2bd: Waiting
+2026-10-09T05:42:34.5073666Z 23af072915d6: Waiting
+2026-10-09T05:42:34.5074038Z 9f5e13364d13: Waiting
+2026-10-09T05:42:34.5074439Z 4c76576d4885: Waiting
+2026-10-09T05:42:34.5074823Z fb9dd83d9835: Waiting
+2026-10-09T05:42:34.5121395Z 9d7a4870f477: Pulling fs layer
+2026-10-09T05:42:34.5121918Z 9d7a4870f477: Waiting
+2026-10-09T05:42:34.5903137Z 71eb50013731: Verifying Checksum
+2026-10-09T05:42:34.5912866Z 71eb50013731: Download complete
+2026-10-09T05:42:34.6340865Z 74c409e3506a: Verifying Checksum
+2026-10-09T05:42:34.6341648Z 74c409e3506a: Download complete
+2026-10-09T05:42:34.6756641Z 71eb50013731: Pull complete
+2026-10-09T05:42:34.7268629Z f30f4fcb85f4: Verifying Checksum
+2026-10-09T05:42:34.7270296Z f30f4fcb85f4: Download complete
+2026-10-09T05:42:34.7468382Z c0cb7126d877: Verifying Checksum
+2026-10-09T05:42:34.7470799Z c0cb7126d877: Download complete
+2026-10-09T05:42:34.7937126Z e5d190db8191: Verifying Checksum
+2026-10-09T05:42:34.7944935Z e5d190db8191: Download complete
+2026-10-09T05:42:34.9299330Z bf5074c0b7fa: Verifying Checksum
+2026-10-09T05:42:34.9300734Z bf5074c0b7fa: Download complete
+2026-10-09T05:42:34.9366864Z 76bc8d85aed0: Verifying Checksum
+2026-10-09T05:42:34.9367938Z 76bc8d85aed0: Download complete
+2026-10-09T05:42:35.0542221Z 0c91f59dd719: Verifying Checksum
+2026-10-09T05:42:35.0551714Z 0c91f59dd719: Download complete
+2026-10-09T05:42:35.1167375Z 74c409e3506a: Pull complete
+2026-10-09T05:42:35.1681551Z f0bff0b17bb6: Verifying Checksum
+2026-10-09T05:42:35.1682389Z f0bff0b17bb6: Download complete
+2026-10-09T05:42:35.1908452Z 6a5c742fadca: Verifying Checksum
+2026-10-09T05:42:35.1910679Z 6a5c742fadca: Download complete
+2026-10-09T05:42:35.3134166Z 018eaf08b9fd: Verifying Checksum
+2026-10-09T05:42:35.3137985Z 018eaf08b9fd: Download complete
+2026-10-09T05:42:35.4464696Z 2923bc55a2bd: Verifying Checksum
+2026-10-09T05:42:35.4466553Z 2923bc55a2bd: Download complete
+2026-10-09T05:42:35.6556705Z fb772985a92d: Verifying Checksum
+2026-10-09T05:42:35.6568872Z fb772985a92d: Download complete
+2026-10-09T05:42:35.8906609Z 8039b21a00ac: Verifying Checksum
+2026-10-09T05:42:35.8907810Z 8039b21a00ac: Download complete
+2026-10-09T05:42:35.9345552Z 9f5e13364d13: Verifying Checksum
+2026-10-09T05:42:35.9346968Z 9f5e13364d13: Download complete
+2026-10-09T05:42:36.0236541Z 4c76576d4885: Verifying Checksum
+2026-10-09T05:42:36.0238012Z 4c76576d4885: Download complete
+2026-10-09T05:42:36.0431367Z fb9dd83d9835: Verifying Checksum
+2026-10-09T05:42:36.0449052Z fb9dd83d9835: Download complete
+2026-10-09T05:42:36.0790760Z 23af072915d6: Verifying Checksum
+2026-10-09T05:42:36.0805537Z 23af072915d6: Download complete
+2026-10-09T05:42:36.1834922Z 9d7a4870f477: Verifying Checksum
+2026-10-09T05:42:36.1836153Z 9d7a4870f477: Download complete
+2026-10-09T05:42:36.6774741Z 9d7a4870f477: Pull complete
+2026-10-09T05:42:36.7120476Z Digest: sha256:d155c6718ed9a9f990d159a2ab7c0a3f16944dbb6d0a0344557421042acfe0df
+2026-10-09T05:42:36.7124350Z Status: Downloaded newer image for public.ecr.aws/supabase/postgrest:v16.4
+2026-10-09T05:42:36.7171114Z public.ecr.aws/supabase/postgrest:v16.4
+2026-10-09T05:42:38.9362703Z e5d190db8191: Pull complete
+2026-10-09T05:42:39.7853999Z f30f4fcb85f4: Pull complete
+2026-10-09T05:42:39.9328741Z c0cb7126d877: Pull complete
+2026-10-09T05:42:40.0033249Z Digest: sha256:1736a63078f5922b198c4cbe50f80ab9a2d3b54fe8b7b6cfb2e9dc5dbbc12c6b
+2026-10-09T05:42:40.0034638Z Status: Downloaded newer image for public.ecr.aws/supabase/gotrue:v2.197.0
+2026-10-09T05:42:40.0241803Z public.ecr.aws/supabase/gotrue:v2.197.0
+2026-10-09T05:42:40.3997103Z f0bff0b17bb6: Pull complete
+2026-10-09T05:42:40.5836394Z bf5074c0b7fa: Pull complete
+2026-10-09T05:42:40.6230560Z 76bc8d85aed0: Pull complete
+2026-10-09T05:42:41.0017602Z 531e3bd93090: Pull complete
+2026-10-09T05:42:41.0177798Z 814dd06d26c7: Pull complete
+2026-10-09T05:42:41.0266935Z Digest: sha256:1b53405d8680a09d6f44494b7990bf7da2ea43f84a258c59717d4539abf09f6d
+2026-10-09T05:42:41.0268125Z Status: Downloaded newer image for public.ecr.aws/supabase/kong:2.8.1
+2026-10-09T05:42:41.0284926Z public.ecr.aws/supabase/kong:2.8.1
+2026-10-09T05:42:46.8646832Z 8039b21a00ac: Pull complete
+2026-10-09T05:42:46.9041709Z 0c91f59dd719: Pull complete
+2026-10-09T05:42:47.6196246Z 6a5c742fadca: Pull complete
+2026-10-09T05:42:47.8971361Z 018eaf08b9fd: Pull complete
+2026-10-09T05:42:49.4352152Z fb772985a92d: Pull complete
+2026-10-09T05:42:49.7635350Z 2923bc55a2bd: Pull complete
+2026-10-09T05:42:57.0142685Z 43735ba4f30d: Pull complete
+2026-10-09T05:43:00.4659098Z 51f23b99e4a3: Pull complete
+2026-10-09T05:43:00.5031056Z 40372fae5294: Pull complete
+2026-10-09T05:43:00.5377933Z 5ccb9367156d: Pull complete
+2026-10-09T05:43:00.5923655Z 0dd5a94004df: Pull complete
+2026-10-09T05:43:00.6160974Z a48842864032: Pull complete
+2026-10-09T05:43:00.6600999Z 9005a6945685: Pull complete
+2026-10-09T05:43:00.6728504Z 328e0b3331b4: Pull complete
+2026-10-09T05:43:00.6877257Z 91bfd1c8cab7: Pull complete
+2026-10-09T05:43:00.7030621Z a23edf8f81d7: Pull complete
+2026-10-09T05:43:00.7156741Z eac09143570a: Pull complete
+2026-10-09T05:43:00.7288741Z a1d230f0e554: Pull complete
+2026-10-09T05:43:00.7468194Z 452cef34484a: Pull complete
+2026-10-09T05:43:00.7730327Z eeb5336451ed: Pull complete
+2026-10-09T05:43:00.7936807Z 307e4246aff6: Pull complete
+2026-10-09T05:43:00.8075179Z 00d155684986: Pull complete
+2026-10-09T05:43:00.8291571Z 8da71f92e18b: Pull complete
+2026-10-09T05:43:00.8421216Z fbe0d6445ecd: Pull complete
+2026-10-09T05:43:00.8595596Z 7102497fb037: Pull complete
+2026-10-09T05:43:00.8778611Z db7948e1c6a1: Pull complete
+2026-10-09T05:43:00.8932267Z bf900ae624e1: Pull complete
+2026-10-09T05:43:00.9411002Z 6f59b56c3042: Pull complete
+2026-10-09T05:43:00.9619167Z 474923b67587: Pull complete
+2026-10-09T05:43:00.9846744Z 1c35b45899a8: Pull complete
+2026-10-09T05:43:01.0025018Z dfd05d548524: Pull complete
+2026-10-09T05:43:01.0216562Z f7548fe51e6c: Pull complete
+2026-10-09T05:43:01.0283020Z Digest: sha256:06ddc7962e11ab0f4f0334fd05671e97c30ea202f6e6a7113800bd3d6e416108
+2026-10-09T05:43:01.0311428Z Status: Downloaded newer image for public.ecr.aws/supabase/postgres:17.11.0.004
+2026-10-09T05:43:01.0327552Z public.ecr.aws/supabase/postgres:17.11.0.004
+2026-10-09T05:43:18.1552536Z 23af072915d6: Pull complete
+2026-10-09T05:43:18.5514206Z 9f5e13364d13: Pull complete
+2026-10-09T05:43:18.5642539Z 4c76576d4885: Pull complete
+2026-10-09T05:43:18.5762806Z fb9dd83d9835: Pull complete
+2026-10-09T05:43:18.5804521Z Digest: sha256:6a32896ae2d1ae2ea2d05ecaf6ed6c8a6b091739b469a8cf860ee89b2604d28f
+2026-10-09T05:43:18.5813968Z Status: Downloaded newer image for public.ecr.aws/supabase/storage-api:v1.79.36
+2026-10-09T05:43:18.5823945Z public.ecr.aws/supabase/storage-api:v1.79.36
+2026-10-09T05:43:18.6064224Z Starting database...
+2026-10-09T05:43:29.2076317Z Initialising schema...
+2026-10-09T05:43:29.6697176Z v2.140.10: Pulling from supabase/realtime
+2026-10-09T05:43:29.8105695Z 062e450697fa: Pulling fs layer
+2026-10-09T05:43:29.8106541Z aadc1df55248: Pulling fs layer
+2026-10-09T05:43:29.8107360Z b470f3a22f61: Pulling fs layer
+2026-10-09T05:43:29.8108148Z 7b69c108b62c: Pulling fs layer
+2026-10-09T05:43:29.8108907Z 2f8dc9fd16f0: Pulling fs layer
+2026-10-09T05:43:29.8109694Z e7e8db2397d8: Pulling fs layer
+2026-10-09T05:43:29.8111101Z 2f95f9f41a30: Pulling fs layer
+2026-10-09T05:43:29.8112149Z 32b7ef0c5fea: Pulling fs layer
+2026-10-09T05:43:29.8112846Z 115059bab117: Pulling fs layer
+2026-10-09T05:43:29.8113458Z f47527675d7e: Pulling fs layer
+2026-10-09T05:43:29.8113885Z 1069c9c41b7a: Pulling fs layer
+2026-10-09T05:43:29.8114351Z 4f4fb700ef54: Pulling fs layer
+2026-10-09T05:43:29.8114780Z 7b69c108b62c: Waiting
+2026-10-09T05:43:29.8115132Z 2f8dc9fd16f0: Waiting
+2026-10-09T05:43:29.8115496Z e7e8db2397d8: Waiting
+2026-10-09T05:43:29.8115833Z 2f95f9f41a30: Waiting
+2026-10-09T05:43:29.8116170Z 32b7ef0c5fea: Waiting
+2026-10-09T05:43:29.8116535Z 115059bab117: Waiting
+2026-10-09T05:43:29.8116920Z f47527675d7e: Waiting
+2026-10-09T05:43:29.8117291Z 1069c9c41b7a: Waiting
+2026-10-09T05:43:29.8117662Z 4f4fb700ef54: Waiting
+2026-10-09T05:43:30.0283819Z 062e450697fa: Verifying Checksum
+2026-10-09T05:43:30.0284933Z 062e450697fa: Download complete
+2026-10-09T05:43:30.1234137Z aadc1df55248: Verifying Checksum
+2026-10-09T05:43:30.1235212Z aadc1df55248: Download complete
+2026-10-09T05:43:30.1405725Z 7b69c108b62c: Verifying Checksum
+2026-10-09T05:43:30.1407076Z 7b69c108b62c: Download complete
+2026-10-09T05:43:30.2148462Z b470f3a22f61: Verifying Checksum
+2026-10-09T05:43:30.2150834Z b470f3a22f61: Download complete
+2026-10-09T05:43:30.2254776Z 2f8dc9fd16f0: Download complete
+2026-10-09T05:43:30.2391750Z e7e8db2397d8: Verifying Checksum
+2026-10-09T05:43:30.2407198Z e7e8db2397d8: Download complete
+2026-10-09T05:43:30.3060850Z 32b7ef0c5fea: Verifying Checksum
+2026-10-09T05:43:30.3062212Z 32b7ef0c5fea: Download complete
+2026-10-09T05:43:30.3143348Z 2f95f9f41a30: Verifying Checksum
+2026-10-09T05:43:30.3144040Z 2f95f9f41a30: Download complete
+2026-10-09T05:43:30.3264089Z 115059bab117: Verifying Checksum
+2026-10-09T05:43:30.3264768Z 115059bab117: Download complete
+2026-10-09T05:43:30.3932815Z 4f4fb700ef54: Verifying Checksum
+2026-10-09T05:43:30.3933980Z 4f4fb700ef54: Download complete
+2026-10-09T05:43:30.4317036Z 1069c9c41b7a: Verifying Checksum
+2026-10-09T05:43:30.4319240Z 1069c9c41b7a: Download complete
+2026-10-09T05:43:30.4538183Z f47527675d7e: Verifying Checksum
+2026-10-09T05:43:30.4543192Z f47527675d7e: Download complete
+2026-10-09T05:43:31.2988776Z 062e450697fa: Pull complete
+2026-10-09T05:43:37.3608240Z aadc1df55248: Pull complete
+2026-10-09T05:43:37.4960491Z b470f3a22f61: Pull complete
+2026-10-09T05:43:37.5100782Z 7b69c108b62c: Pull complete
+2026-10-09T05:43:37.5250633Z 2f8dc9fd16f0: Pull complete
+2026-10-09T05:43:37.5451577Z e7e8db2397d8: Pull complete
+2026-10-09T05:43:37.5740991Z 2f95f9f41a30: Pull complete
+2026-10-09T05:43:37.5870895Z 32b7ef0c5fea: Pull complete
+2026-10-09T05:43:37.5954724Z 115059bab117: Pull complete
+2026-10-09T05:43:38.8826495Z f47527675d7e: Pull complete
+2026-10-09T05:43:38.9028909Z 1069c9c41b7a: Pull complete
+2026-10-09T05:43:38.9136575Z 4f4fb700ef54: Pull complete
+2026-10-09T05:43:38.9187272Z Digest: sha256:f704b3222e3c772610865e016153d606a3f94f0a55a7548a903b3f6d7f3f8270
+2026-10-09T05:43:38.9200142Z Status: Downloaded newer image for public.ecr.aws/supabase/realtime:v2.140.10
+2026-10-09T05:43:38.9205530Z public.ecr.aws/supabase/realtime:v2.140.10
+2026-10-09T05:43:44.8061273Z Seeding globals from roles.sql...
+2026-10-09T05:43:44.8151373Z Starting containers...
+2026-10-09T05:43:45.9348906Z Waiting for health checks...
+2026-10-09T05:43:56.6681250Z Started supabase local development setup.
+2026-10-09T05:43:56.6682187Z 
+2026-10-09T05:43:56.6698458Z Local dev security notice
+2026-10-09T05:43:56.6699436Z All services bind to 0.0.0.0 (network-accessible, not just localhost)
+2026-10-09T05:43:56.6700542Z API keys and JWT secrets are shared defaults. Do not use in production
+2026-10-09T05:43:56.6701401Z Studio, pgMeta (/pg/*), and analytics have no authentication
+2026-10-09T05:43:56.6702032Z 
+2026-10-09T05:43:58.1671495Z Stopped services: [supabase_inbucket_plateform-clean-install-ci supabase_realtime_plateform-clean-install-ci supabase_imgproxy_plateform-clean-install-ci supabase_pg_meta_plateform-clean-install-ci supabase_studio_plateform-clean-install-ci supabase_edge_runtime_plateform-clean-install-ci supabase_analytics_plateform-clean-install-ci supabase_vector_plateform-clean-install-ci supabase_pooler_plateform-clean-install-ci]
+2026-10-09T05:43:58.6938709Z ##[group]Run node scripts/check-native-clean-install.mjs --prepare
+2026-10-09T05:43:58.6939218Z [36;1mnode scripts/check-native-clean-install.mjs --prepare[0m
+2026-10-09T05:43:58.7007024Z shell: /usr/bin/bash -e {0}
+2026-10-09T05:43:58.7007274Z env:
+2026-10-09T05:43:58.7007739Z   SUPABASE_DB_URL: ***127.0.0.1:54322/postgres
+2026-10-09T05:43:58.7008050Z   PLATEFORM_INSTALL_LOCAL: 1
+2026-10-09T05:43:58.7008292Z   PLATEFORM_NATIVE_CI: 1
+2026-10-09T05:43:58.7008588Z   PLATEFORM_LOCAL_STATUS_FILE: .local/native-ci/status.json
+2026-10-09T05:43:58.7008933Z   PLATEFORM_NATIVE_EGRESS_BLOCKED: 1
+2026-10-09T05:43:58.7009189Z ##[endgroup]
+2026-10-09T05:43:59.1085561Z {"platform":{"server_version":"17.11","server_version_num":170011,"auth_users":true,"storage_objects":true},"cron_disabled":true,"phase":"platform_prepared"}
+2026-10-09T05:43:59.1173007Z ##[group]Run npm run db:install
+2026-10-09T05:43:59.1173325Z [36;1mnpm run db:install[0m
+2026-10-09T05:43:59.1238490Z shell: /usr/bin/bash -e {0}
+2026-10-09T05:43:59.1238747Z env:
+2026-10-09T05:43:59.1239226Z   SUPABASE_DB_URL: ***127.0.0.1:54322/postgres
+2026-10-09T05:43:59.1239558Z   PLATEFORM_INSTALL_LOCAL: 1
+2026-10-09T05:43:59.1239806Z   PLATEFORM_NATIVE_CI: 1
+2026-10-09T05:43:59.1240372Z   PLATEFORM_LOCAL_STATUS_FILE: .local/native-ci/status.json
+2026-10-09T05:43:59.1240734Z   PLATEFORM_NATIVE_EGRESS_BLOCKED: 1
+2026-10-09T05:43:59.1240990Z ##[endgroup]
+2026-10-09T05:43:59.2915223Z 
+2026-10-09T05:43:59.2916028Z > plateform@0.1.0 db:install
+2026-10-09T05:43:59.2917077Z > node scripts/install-database.mjs
+2026-10-09T05:43:59.2917753Z 
+2026-10-09T05:44:03.3365201Z {"installed":true,"migrations":458,"inventory_sha256":"29031e10f987a98882f5f811373abbaf59cb271f608221fbbe31961d0f2edd9e","bootstrap_sha256":"aaa20fba9a525bfd5f7017ee827d45cf342d8b3e6d97eefc19e50fb0a51de11e","postlude_sha256":"fe5f140c8f6d8ea306fcad7135c4b1d717f97281f865d05f3b804cb5c0e4eda9"}
+2026-10-09T05:44:03.3696364Z ##[group]Run node scripts/check-native-clean-install.mjs
+2026-10-09T05:44:03.3697126Z [36;1mnode scripts/check-native-clean-install.mjs[0m
+2026-10-09T05:44:03.3799077Z shell: /usr/bin/bash -e {0}
+2026-10-09T05:44:03.3799507Z env:
+2026-10-09T05:44:03.3800577Z   SUPABASE_DB_URL: ***127.0.0.1:54322/postgres
+2026-10-09T05:44:03.3801108Z   PLATEFORM_INSTALL_LOCAL: 1
+2026-10-09T05:44:03.3801520Z   PLATEFORM_NATIVE_CI: 1
+2026-10-09T05:44:03.3802028Z   PLATEFORM_LOCAL_STATUS_FILE: .local/native-ci/status.json
+2026-10-09T05:44:03.3802621Z   PLATEFORM_NATIVE_EGRESS_BLOCKED: 1
+2026-10-09T05:44:03.3803064Z ##[endgroup]
+2026-10-09T05:44:04.0703328Z {"substrate":"Supabase Docker / native PostgreSQL 17.11","application_fixtures":[],"hosted_supabase_certified":false,"missing":{"relations":[],"routines":[],"triggers":[],"columns":[],"indexes":[],"constraints":[],"policies":[]},"added":{"relations":[],"routines":[],"triggers":[],"columns":[],"indexes":[],"constraints":[],"policies":[]},"changed":{"relations":[],"routines":[],"triggers":[],"columns":[],"indexes":[],"constraints":[],"policies":[]},"counts":{"relations":{"reference":163,"replayed":163},"routines":{"reference":553,"replayed":552},"triggers":{"reference":311,"replayed":313},"columns":{"reference":1485,"replayed":1485},"indexes":{"reference":444,"replayed":444},"constraints":{"reference":903,"replayed":903},"policies":{"reference":110,"replayed":110}},"not_null_semantics":"Compared for every column; PG18-only contype=n catalog entries excluded","ok":true}
+2026-10-09T05:44:05.1245134Z {"classification":"OBSERVED_NATIVE_SUPABASE_CI_NOT_COMMERCIAL_RELEASE_ATTESTATION","platform":{"server_version":"17.11","server_version_num":170011,"auth_users":true,"storage_objects":true},"catalog":{"substrate":"Supabase Docker / native PostgreSQL 17.11","application_fixtures":[],"hosted_supabase_certified":false,"missing":{"relations":[],"routines":[],"triggers":[],"columns":[],"indexes":[],"constraints":[],"policies":[]},"added":{"relations":[],"routines":[],"triggers":[],"columns":[],"indexes":[],"constraints":[],"policies":[]},"changed":{"relations":[],"routines":[],"triggers":[],"columns":[],"indexes":[],"constraints":[],"policies":[]},"counts":{"relations":{"reference":163,"replayed":163},"routines":{"reference":553,"replayed":552},"triggers":{"reference":311,"replayed":313},"columns":{"reference":1485,"replayed":1485},"indexes":{"reference":444,"replayed":444},"constraints":{"reference":903,"replayed":903},"policies":{"reference":110,"replayed":110}},"not_null_semantics":"Compared for every column; PG18-only contype=n catalog entries excluded","ok":true},"migrations":458,"release_test_catalog":{"definitions":197,"recovered_definitions":31,"definitions_sha256":"57ac6d0ffb46e9603879c66409e39d336b7d51fe2455b0a9ca51cb11d071db1b"},"inventory_sha256":"29031e10f987a98882f5f811373abbaf59cb271f608221fbbe31961d0f2edd9e","historical_inventory_sha256":"ae79b608e86dfe6c7ca8dd93c88170cdd4dc38dd6324ccb3391342b135a59f41","bootstrap_sha256":"aaa20fba9a525bfd5f7017ee827d45cf342d8b3e6d97eefc19e50fb0a51de11e","postlude_sha256":"fe5f140c8f6d8ea306fcad7135c4b1d717f97281f865d05f3b804cb5c0e4eda9","evidence":{"test_pass":0,"gate_pass":0,"preserved_test_claims":25,"preserved_gate_claims":0,"legacy_test_claims_without_metadata":0,"legacy_gate_claims_without_metadata":0,"provenance_pending":true,"required_total":197,"required_passed":0,"gate_ok":false},"rejected_pass_writes":4,"repeat_install_blocked":true,"cron_disabled":true,"external_container_network":"bridge_with_verified_egress_drop_rule","network":{"containers":5,"ipv6_disabled":true,"loopback_ports":true},"http":{"auth_health":true,"storage_health":true,"service_role_gate":true,"anon_gate_denied":true},"source_commit":"ff8c93514613c4e04b871f7da0586d63d2c38372","workflow_run_id":"37889836463","hosted_supabase_certified":false,"commercial_release_ready":false,"remaining":["Hosted installation/restore","Authenticated user sessions and scope HTTP scenarios","Realtime and native concurrency","Current-schema restore","Immutable CI evidence ingestion"],"report_sha256":"60071bc90286da18736b047fb71f9cf6199c67cec7cab668c1413d4dd35dc720"}
+2026-10-09T05:44:05.1695594Z ##[group]Run actions/upload-artifact@v4
+2026-10-09T05:44:05.1696118Z with:
+2026-10-09T05:44:05.1696534Z   name: native-clean-install-verification
+2026-10-09T05:44:05.1697105Z   path: .local/native-ci/verification.json
+2026-10-09T05:44:05.1697604Z   retention-days: 14
+2026-10-09T05:44:05.1698005Z   if-no-files-found: warn
+2026-10-09T05:44:05.1698420Z   compression-level: 6
+2026-10-09T05:44:05.1698816Z   overwrite: false
+2026-10-09T05:44:05.1699215Z   include-hidden-files: false
+2026-10-09T05:44:05.1699629Z env:
+2026-10-09T05:44:05.1710779Z   SUPABASE_DB_URL: ***127.0.0.1:54322/postgres
+2026-10-09T05:44:05.1711342Z   PLATEFORM_INSTALL_LOCAL: 1
+2026-10-09T05:44:05.1711789Z   PLATEFORM_NATIVE_CI: 1
+2026-10-09T05:44:05.1712351Z   PLATEFORM_LOCAL_STATUS_FILE: .local/native-ci/status.json
+2026-10-09T05:44:05.1712990Z   PLATEFORM_NATIVE_EGRESS_BLOCKED: 1
+2026-10-09T05:44:05.1713453Z ##[endgroup]
+2026-10-09T05:44:05.5052058Z (node:5896) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-09T05:44:05.5071123Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-09T05:44:05.5476614Z With the provided path, there will be 1 file uploaded
+2026-10-09T05:44:05.5539111Z Artifact name is valid!
+2026-10-09T05:44:05.5568993Z Root directory input is valid!
+2026-10-09T05:44:05.9393869Z Beginning upload of artifact content to blob storage
+2026-10-09T05:44:05.9602508Z (node:5896) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-09T05:44:06.2493705Z Uploaded bytes 1431
+2026-10-09T05:44:06.3289486Z Finished uploading artifact content to blob storage!
+2026-10-09T05:44:06.3291936Z SHA256 digest of uploaded artifact zip is 7cccc4f9d693e23b121bfb31812c85d1f47d15afa68e7bd7bfcbb9b4e8241c95
+2026-10-09T05:44:06.3295103Z Finalizing artifact upload
+2026-10-09T05:44:06.6034329Z Artifact native-clean-install-verification.zip successfully finalized. Artifact ID 11598391003
+2026-10-09T05:44:06.6037027Z Artifact native-clean-install-verification has been successfully uploaded! Final size is 1431 bytes. Artifact ID is 11598391003
+2026-10-09T05:44:06.6042080Z Artifact download URL: https://github.com/ambrogiocorti/plateform-core/actions/runs/37889836463/artifacts/11598391003
+2026-10-09T05:44:06.6176114Z ##[group]Run supabase stop --workdir .local/native-ci --no-backup
+2026-10-09T05:44:06.6176616Z [36;1msupabase stop --workdir .local/native-ci --no-backup[0m
+2026-10-09T05:44:06.6177021Z [36;1mdocker network rm plateform-clean-install-ci[0m
+2026-10-09T05:44:06.6241851Z shell: /usr/bin/bash -e {0}
+2026-10-09T05:44:06.6242108Z env:
+2026-10-09T05:44:06.6242597Z   SUPABASE_DB_URL: ***127.0.0.1:54322/postgres
+2026-10-09T05:44:06.6242919Z   PLATEFORM_INSTALL_LOCAL: 1
+2026-10-09T05:44:06.6243178Z   PLATEFORM_NATIVE_CI: 1
+2026-10-09T05:44:06.6243487Z   PLATEFORM_LOCAL_STATUS_FILE: .local/native-ci/status.json
+2026-10-09T05:44:06.6243849Z   PLATEFORM_NATIVE_EGRESS_BLOCKED: 1
+2026-10-09T05:44:06.6244129Z ##[endgroup]
+2026-10-09T05:44:07.1641909Z Stopping containers...
+2026-10-09T05:44:14.4123920Z Stopped supabase local development setup.
+2026-10-09T05:44:15.0040410Z plateform-clean-install-ci
+2026-10-09T05:44:15.0142347Z Post job cleanup.
+2026-10-09T05:44:15.1475574Z (node:6306) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-09T05:44:15.1477495Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-09T05:44:15.1481169Z Cache hit occurred on the primary key node-cache-Linux-x64-npm-a0e3ec2a2175e9ad6df7f6a7dc3a1d3e9c5d6aa24618e9a119e58bdc53790ae7, not saving cache.
+2026-10-09T05:44:15.1619580Z Post job cleanup.
+2026-10-09T05:44:15.2581153Z [command]/usr/bin/git version
+2026-10-09T05:44:15.2653982Z git version 2.55.0
+2026-10-09T05:44:15.2716218Z Temporarily overriding HOME='/home/runner/work/_temp/567ccc6d-4c53-4939-97db-249bd74c335c' before making global git config changes
+2026-10-09T05:44:15.2736589Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-09T05:44:15.2762984Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/plateform-core/plateform-core
+2026-10-09T05:44:15.2793835Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-09T05:44:15.2858504Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-09T05:44:15.3361255Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-09T05:44:15.3424728Z http.https://github.com/.extraheader
+2026-10-09T05:44:15.3455569Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-09T05:44:15.3568332Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-09T05:44:15.4012432Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-09T05:44:15.4111659Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-09T05:44:15.4819485Z Cleaning up orphan processes
+2026-10-09T05:44:15.5133571Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-node@v4, actions/upload-artifact@v4, supabase/setup-cli@v1. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

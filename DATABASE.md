@@ -1,6 +1,6 @@
 # Database Plateform
 
-Stato al 9 ottobre 2026: storico Development recuperato; replay PGlite verificato; installazione Supabase isolata ancora da collaudare. Le migrazioni SQL sono la fonte autoritativa. Una installazione contiene un solo `restaurant_profile` e una o più `venues` dello stesso cliente. `MULTI_VENUE=false` impedisce l’attivazione di più sedi.
+Stato al 9 ottobre 2026: storico Development recuperato; replay PGlite e Supabase Docker/PostgreSQL 17.11 verificati, con tutte le 197 definizioni del catalogo release. Collaudo hosted, sessioni utente e restore corrente ancora aperti. Le migrazioni SQL sono la fonte autoritativa. Una installazione contiene un solo `restaurant_profile` e una o più `venues` dello stesso cliente. `MULTI_VENUE=false` impedisce l’attivazione di più sedi.
 
 ## Domini e invarianti
 

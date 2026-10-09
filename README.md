@@ -8,6 +8,9 @@ Vite e Supabase. Una sola catena per installazione, mono-sede di default.
 La Roadmap e il registro degli step sono in `docs/ROADMAP.txt` e `docs/ROADMAP_STATUS.json`.
 Le verifiche reali delle fondamenta sono documentate in `docs/STEP_0_VERIFICATION.md`.
 La specifica completa resta [MASTER_PROMPT_PLATEFORM_COMMERCIALE.md](MASTER_PROMPT_PLATEFORM_COMMERCIALE.md).
+La [CI corrente](docs/CI_BASELINE_VERIFICATION_2026-10-09.md), run 66,
+verifica 245 test, 20 contratti browser e l'installatore su Supabase Docker/PostgreSQL 17.11.
+Il collaudo hosted, le sessioni utente, il restore e le attestazioni commerciali restano aperti.
 
 ## Prerequisiti
 
@@ -44,7 +47,9 @@ Per un **nuovo database Supabase vuoto e isolato**, predisporre `psql` e
 La pipeline usa bootstrap versionato, SQL originali e postlude: il solo
 `supabase db reset` non ricostruisce gli oggetti mancanti dallo storico legacy.
 L'installatore rifiuta schemi applicativi/storico già presenti e non esegue reset.
-Il collaudo di questa procedura su Supabase ospitato è ancora aperto.
+La procedura passa su Supabase Docker nativo con tutte le 197 definizioni
+obbligatorie del catalogo release, senza copiare risultati PASS.
+Il collaudo su Supabase ospitato è ancora aperto.
 
 Per controllare impronte e replay locale senza accesso remoto:
 `npm run check:clean-install`. Le installazioni esistenti usano soltanto
@@ -86,8 +91,9 @@ Questo fallimento è intenzionale durante lo sviluppo e impedisce una dichiarazi
 ## Build
 
 `dist/public` e `dist/staff` sono artefatti separati per i due host, senza source map
-pubbliche. Le due PWA e un workflow CI sono presenti. Il progetto non è stato pubblicato né il
-workflow eseguito su GitHub. Configurazione di hosting, integrazioni reali e procedure
+pubbliche. Le due PWA sono presenti e il workflow completo passa su GitHub.
+Il progetto resta in sviluppo.
+Configurazione di hosting, integrazioni reali e procedure
 di recovery restano gate aperti; vedere il registro di implementazione.
 
 ## Progettazione e revisioni

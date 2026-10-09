@@ -1,8 +1,8 @@
 # Recupero baseline — 9 ottobre 2026
 
 Lo Step 0 resta **IN_PROGRESS**. Lo storico SQL e il replay locale sono stati
-recuperati; il collaudo su Supabase isolato e la provenienza delle evidenze
-di rilascio restano aperti. Nessuna release commerciale è certificata.
+recuperati; il replay Supabase Docker nativo passa. Restano il collaudo hosted,
+le sessioni utente, il restore corrente e la provenienza delle evidenze di rilascio. Nessuna release commerciale è certificata.
 
 ## Storico canonico
 
@@ -35,7 +35,9 @@ erano anch'esse presenti soltanto nel catalogo live. La pipeline esplicita è:
    nessun accesso diretto anon/authenticated/service_role, nessuna chiave o payload iniziale.
 2. Tutti i file SQL ordinati, con il testo originale registrato nel migration ledger.
 3. `supabase/clean-install/postlude.sql`: le due RPC operative recuperate,
-   con autorizzazioni e grant del catalogo originale.
+   con autorizzazioni e grant del catalogo originale, e 31 definizioni obbligatorie
+   del catalogo di test assenti dallo storico. La nuova installazione contiene
+   tutte le 197 definizioni originali; nessun risultato PASS viene copiato.
 
 Il bootstrap rifiuta schemi applicativi già popolati o uno storico migrazioni
 non vuoto prima di scrivere. L'installatore non esegue reset/drop. Un errore
@@ -54,6 +56,11 @@ processo figlio, mai negli argomenti o nei log. Il SQL temporaneo ha permessi 06
 ed è rimosso al termine. Non utilizzare questa procedura su Development,
 restore-test esistente o installazioni cliente. Gli upgrade usano soltanto
 migrazioni successive dopo collaudo e verifica della versione di partenza.
+
+Il trasporto `psql` aggiunge un delimitatore tra ogni SQL storico e il relativo
+INSERT nel ledger: alcuni statement applicati terminano senza punto e virgola.
+Il testo registrato e il digest di ciascuna migrazione restano originali.
+Il replay nativo ha individuato e verificato questa correzione.
 
 Le tabelle recuperate sono elencate nel manifest e documentate in
 `evidence/clean-install-catalog-2026-10-09.json`. Le RPC operative sono
@@ -101,8 +108,9 @@ ogni certificazione positiva resta bloccata. Non è una chiusura completa del
 problema di provenienza, ma una protezione contro certificazioni non dimostrate.
 
 Il controllo automatico ha respinto l'applicazione persistente su Development:
-autorizzazione remota specifica mancante e replay isolato incompleto. Non è stata
-tentata un'applicazione indiretta. Il progetto remoto conserva le 457 migrazioni
+autorizzazione remota specifica mancante e replay isolato incompleto al momento
+del rifiuto. Il replay Docker nativo ora passa; la migrazione rimane non applicata.
+Il progetto remoto conserva le 457 migrazioni
 e le evidenze precedenti; la proposta è disponibile nel sorgente per revisione.
 
 ## Specifica e verifiche
@@ -112,7 +120,8 @@ Il master aggiornato è copiato integralmente dalla fonte fornita: 158 sezioni
 sezione. Le sezioni nuove o modificate restano pending; CORE esclude soltanto
 79, 80 e 90. Nessun requisito avanzato è escluso implicitamente.
 
-- `npm test`: 242 passati, quattro esclusi CORE, 24 file test passati.
+- CI run 66, `npm test`: 245 passati, quattro esclusi CORE, 24 file test passati.
+- CI run 66: 13 test Edge e 20 contratti browser passati, `npm run check` completo passato.
 - `npm run local:source-gates`: passato, inclusi TypeScript, ESLint e Prettier.
 - `npm run build`: passati entrambi i bundle production pubblico/staff.
 - `npm run check:clean-install` e `check:migrations`: passati.
@@ -122,27 +131,47 @@ sezione. Le sezioni nuove o modificate restano pending; CORE esclude soltanto
 Formattazione Prettier riallineata per rendere ripetibile il gate già previsto;
 gli SQL applicati e il master originale non vengono formattati.
 
+## Collaudo Supabase Docker nativo
+
+La run GitHub 66 sul commit `139fb1b1e73f9af371389c32b24bef800fa8e279`
+verifica lo stesso installatore tramite `psql` su PostgreSQL **17.11**, con
+Auth, Storage e PostgREST reali e senza adattatori applicativi. Bootstrap,
+458 migrazioni, postlude e digest del ledger passano; i sette cataloghi
+corrispondono al riferimento e il dizionario contiene **197 definizioni**.
+Confrontati chiave, categoria, obbligatorietà e descrizione, con ordine ASCII
+indipendente dalla locale PostgreSQL.
+
+Il replay conserva 25 dichiarazioni PASS già scritte nello storico come
+`UNVERIFIED_LEGACY_CLAIM/PENDING`. Le sette dichiarazioni manuali di gate
+Development non sono presenti in un database nuovo; due fixture esplicite
+di upgrade verificano la conservazione esatta di evidenza, autore e data
+prima/dopo la migrazione. La nuova installazione ha **zero PASS** e il gate
+commerciale resta negativo con 197 prove obbligatorie.
+
+Verificati quattro tentativi di successo non attestato (RPC e scritture dirette),
+rifiuto della reinstallazione senza variazione del ledger, health HTTP di
+Auth/Storage e gate PostgREST con JWT service-role locale; JWT anonimo negato.
+Cinque container su bridge dedicato, porte loopback, IPv6 disattivato ed egress
+bloccato da regola verificata; cron disattivato prima dello storico. La sola
+configurazione del server usa l’amministratore del container; l’installatore
+applicativo usa `postgres`. Nessuna credenziale o dato operativo Development
+viene copiato. Report originale e log sono conservati nelle evidenze CI.
+
 ## Limiti ancora aperti
 
-PGlite esegue PostgreSQL reale in WASM, ma usa adattatori espliciti Auth/Storage,
-Vault e cron; il DDL applicativo proviene dal piano versionato. Non certifica
-GoTrue, PostgREST, websocket, Storage HTTP o contesa tra connessioni separate.
-Il PostgreSQL nativo non è stato avviato per limiti di permessi dell'ambiente.
-La capacità Supabase per ottenere costo/provisionare un nuovo target isolato
-non è disponibile nella connessione corrente; restore-test esistente non è stato toccato.
+PGlite usa adattatori espliciti Auth/Storage/Vault/cron e serializza le richieste.
+Il replay nativo copre ora trasporto `psql`, piattaforma locale e i controlli
+HTTP indicati; non certifica login/TOTP/sessioni utente, scope multi-sede,
+Realtime, contesa simultanea, invocazione Edge hosted o Storage upload/download.
+Non esegue un restore da backup dello schema corrente. I worker storici con
+riferimenti fissi Development richiedono verifica/configurazione prima di un
+installatore cliente; nel replay non sono eseguiti automaticamente.
 
-I check/test Edge sono bloccati dal recupero delle dipendenze Deno/JSR/npm.
-Il download Chromium è fallito; nessun Playwright E2E è stato eseguito.
-`npm run check` complessivo non passa finché tali dipendenze non sono disponibili.
-Restano CI con prove autentiche, installazione e restore Supabase isolati,
-integrazione HTTP/JWT, audit della specifica e tre revisioni complete pulite.
-
-## Aggiornamento CI successivo
-
-La run GitHub 54 sul commit `3f35d78a0bb6a2e80772393bcc01327980504dbf`
-passa check completo, Edge, browser gate della build e 20 test browser con fixture,
-dopo l’aggiornamento dei sei contratti obsoleti emersi nella prima run.
-Le limitazioni locali descritte sopra restano valide per quell’ambiente;
-le categorie Edge/browser sono ora eseguite in CI. Questa prova non chiude
-Supabase isolato, HTTP/JWT reale, restore o attestazioni commerciali.
+La capacità Supabase per ottenere costo/provisionare un nuovo target hosted
+isolato non è disponibile nella connessione corrente; restore-test esistente
+non è stato toccato. Nel solo ambiente locale i download Deno/Chromium restano
+limitati; le categorie Edge/browser passano su GitHub. La CI tecnica non popola
+le attestazioni commerciali: restano ingestione autenticata, log immutabili,
+binding commit/schema per singolo requisito, audit delle 158 sezioni e tre
+revisioni integrali pulite. Migrazione Development ancora non applicata.
 Vedere `CI_BASELINE_VERIFICATION_2026-10-09.md`.

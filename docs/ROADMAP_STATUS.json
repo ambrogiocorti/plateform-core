@@ -13,15 +13,18 @@
         "local_inventory_458": "PASSED_457_APPLIED_1_PREPARED",
         "versioned_clean_install_pglite": "PASSED_NO_HIDDEN_APPLICATION_DDL",
         "catalog_columns_indexes_constraints_policies": "PASSED_2026_10_09",
-        "unit_database_tests": "PASSED_242_4_CORE_SKIPPED",
+        "unit_database_tests": "PASSED_245_4_CORE_SKIPPED_GITHUB_CI_RUN_66",
         "source_gates_typecheck_lint_format": "PASSED_2026_10_09",
         "public_staff_build": "PASSED_2026_10_09",
-        "edge_checks_tests": "PASSED_GITHUB_CI_RUN_54_COMMIT_3F35D78",
-        "browser_e2e": "PASSED_20_GITHUB_CI_FIXTURES_NOT_HOSTED_INTEGRATION",
-        "isolated_supabase_clean_install": "BLOCKED_ISOLATED_TARGET_NOT_AVAILABLE",
+        "edge_checks_tests": "PASSED_13_GITHUB_CI_RUN_66_COMMIT_139FB1B",
+        "browser_e2e": "PASSED_20_GITHUB_CI_RUN_66_FIXTURES_NOT_HOSTED_INTEGRATION",
         "release_evidence_migration_development": "BLOCKED_AUTO_REVIEW_REQUIRES_SPECIFIC_AUTHORIZATION",
         "authenticated_ci_immutable_evidence": "PENDING_IMPLEMENTATION",
-        "built_site_browser_gate": "PASSED_GITHUB_CI_RUN_54"
+        "built_site_browser_gate": "PASSED_GITHUB_CI_RUN_66",
+        "native_supabase_clean_install": "PASSED_PG17_11_GITHUB_CI_RUN_66",
+        "native_release_test_catalog": "PASSED_ALL_197_DEFINITIONS_NO_PASS_RESULTS",
+        "native_service_role_anon_http": "PASSED_GATE_DENIALS_NOT_USER_SESSIONS_OR_SCOPE",
+        "hosted_supabase_clean_install": "PENDING_NEW_ISOLATED_TARGET"
       },
       "evidence": [
         "docs/STEP_0_VERIFICATION.md",
@@ -44,12 +47,19 @@
         "supabase/clean-install/manifest.json",
         "tests/database/clean-install.test.ts",
         "docs/CI_BASELINE_VERIFICATION_2026-10-09.md",
-        "docs/evidence/baseline-ci-verification-2026-10-09.json"
+        "docs/evidence/baseline-ci-verification-2026-10-09.json",
+        "docs/evidence/baseline-native-ci-verification-2026-10-09.json",
+        "docs/evidence/native-clean-install-2026-10-09.json",
+        "scripts/install-database.mjs",
+        "scripts/check-native-clean-install.mjs",
+        "scripts/clean-install-catalog.mjs",
+        "supabase/clean-install/ci-config.toml",
+        "supabase/clean-install/release-test-catalog.json"
       ],
       "open": [
-        "Collaudare bootstrap, storico e postlude su un nuovo Supabase isolato con Auth/Storage/cron/Vault reali; non azzerare il restore-test esistente.",
-        "Applicazione della protezione PASS su Development respinta dal controllo automatico: autorizzazione remota specifica mancante e replay isolato incompleto. Database remoto invariato.",
-        "Implementare evidenze CI autenticate con log immutabili e binding commit/schema, poi prove HTTP/JWT e concorrenza reale."
+        "Collaudare installazione su un nuovo Supabase hosted isolato e i flussi login/TOTP/sessioni, scope HTTP/JWT, Storage upload/download, Realtime ed Edge. Replay Supabase Docker nativo e cataloghi passati; non azzerare il restore-test esistente.",
+        "Applicazione della protezione PASS su Development respinta dal controllo automatico per autorizzazione remota specifica mancante e replay isolato incompleto al momento del rifiuto. Il replay Docker nativo ora passa; resta necessario il consenso specifico. Database Development invariato.",
+        "Implementare evidenze CI autenticate per singolo requisito, log immutabili e binding commit/schema; completare concorrenza nativa e restore dello schema corrente."
       ],
       "historical_checks": {
         "vanilla_typescript_strict": "PASSED",
@@ -805,7 +815,7 @@
         "supabase/tests/core_booking.live.sql"
       ],
       "open": [
-        "Completare CI, Edge/browser, installazione Supabase isolata e HTTP/JWT reali; Node 24, npm ci, test locali e build sono passati il 9 ottobre.",
+        "CI run 66: check completo, 245 test (quattro esclusi CORE), 13 Edge, 20 browser e installazione Supabase Docker nativa passati. Restano installazione hosted, sessioni utente/scope HTTP/JWT, Storage upload/download, Realtime e concorrenza.",
         "Enforcement SQL CORE applicato su Development con 10 test negativi e 3 permessi a rollback; completare test RPC con JWT autentici e verifica dell isolation per ruolo su staging prima di Production.",
         "Configurare staging HTTPS separato con domini, publishable key e isolamento delle credenziali; eseguire i collaudi su dispositivi reali.",
         "Registrare 3 revisioni integrali consecutive senza rilievi aperti e dossier di release completo; nessuna certificazione finche i gate non passano.",
@@ -815,13 +825,15 @@
       ]
     }
   ],
-  "note": "Specifica vigente §§0–157. I checkpoint storici non certificano la baseline corrente: Step 0 riaperto per installazione isolata e integrazione completa. CORE esclude soltanto 79, 80 e 90; tutte le altre sezioni rimangono obbligatorie. Nessuna release commerciale.",
+  "note": "Specifica vigente §§0–157. I checkpoint storici non certificano la baseline corrente: Step 0 resta aperto per installazione hosted e integrazione completa, pur con CI e replay Supabase Docker nativo passati. CORE esclude soltanto 79, 80 e 90; tutte le altre sezioni rimangono obbligatorie. Nessuna release commerciale.",
   "local_release_candidate": {
-    "status": "SOURCE_AND_GITHUB_CI_PASSED_ISOLATED_SUPABASE_RELEASE_ATTESTATIONS_PENDING",
+    "status": "SOURCE_GITHUB_CI_NATIVE_SUPABASE_PASSED_HOSTED_AND_RELEASE_ATTESTATIONS_PENDING",
     "source_gate_evidence": "docs/evidence/baseline-local-verification-2026-10-09.json",
     "setup": "docs/LOCAL_RELEASE.md",
     "manual_checklist": "docs/LOCAL_MANUAL_TEST_CHECKLIST.md",
-    "ci_evidence": "docs/evidence/baseline-ci-verification-2026-10-09.json"
+    "ci_evidence": "docs/evidence/baseline-native-ci-verification-2026-10-09.json",
+    "native_evidence": "docs/evidence/native-clean-install-2026-10-09.json",
+    "tested_source_commit": "139fb1b1e73f9af371389c32b24bef800fa8e279"
   },
   "current_baseline_evidence": "docs/BASELINE_RECOVERY_2026-10-09.md"
 }

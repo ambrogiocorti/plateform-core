@@ -13,6 +13,14 @@
 Molte funzionalità e verifiche richieste restano aperte. Questa versione identifica
 il lavoro in corso e non costituisce una release commerciale delle Release 1–3 del master.
 
+### Replay nativo e catalogo release — 9 ottobre 2026 (non rilasciato)
+
+- Installatore `psql` corretto per statement storici senza delimitatore finale, senza alterare SQL/digest nel ledger.
+- Recuperate 31 definizioni obbligatorie di test mancanti; dizionario versionato di 197 definizioni con digest canonico, senza risultati PASS copiati.
+- Job Supabase Docker isolato con PostgreSQL 17.11, Auth/Storage/PostgREST reali: installazione, cataloghi, ledger, guardie PASS, rifiuto reinstallazione e HTTP service-role/anon passano nella run 66.
+- Nella stessa run passano check completo, 245 test unit/database con quattro esclusi CORE, 13 test Edge, 20 contratti browser e build pubblico/staff.
+- Due regressioni di upgrade conservano i valori esatti precedenti. Hosted, sessioni utente, concorrenza, restore e attestazioni commerciali restano aperti; Development invariato.
+
 ### CI browser riallineata — 9 ottobre 2026 (non rilasciato)
 
 - Corrette sei fixture/azioni E2E obsolete senza cambiare i flussi applicativi; preservate verifiche finanziarie, step-up e scope. Aggiunto il caso di conferma cambio tavolo prima del comando versionato.

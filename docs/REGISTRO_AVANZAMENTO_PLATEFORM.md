@@ -247,3 +247,17 @@ Lo STEP 12 resta `IN_PROGRESS`: non viene dichiarato completo senza un backup re
 ### 2026-10-09 — CI GitHub dopo aggiornamento fixture browser
 
 Run 54 su `3f35d78a0bb6a2e80772393bcc01327980504dbf`: success. Check completo/Edge/build e 20 test browser con fixture passano. Aggiornati controlli cassa/Host e fixture navigation/continuity; mantenuti importi, step-up e scope, aggiunta conferma cambio tavolo prima dell’invio. Step 0 resta IN_PROGRESS per Supabase isolato, HTTP/JWT, restore e attestazioni CI commerciali. Migrazione Development non applicata. Dettaglio: `CI_BASELINE_VERIFICATION_2026-10-09.md`.
+
+### 2026-10-09 — replay nativo e definizioni release
+
+Run 66, commit `139fb1b1e73f9af371389c32b24bef800fa8e279`: job Supabase Docker
+nativo passato su PostgreSQL 17.11. Passano anche check completo, 245 test
+unit/database (quattro esclusi CORE), 13 test Edge, 20 contratti browser e le due build.
+Installatore/ledger/cataloghi, quattro
+rifiuti PASS, rifiuto reinstallazione, health Auth/Storage e gate PostgREST
+service-role/anon verificati. Corretto il delimitatore di trasporto degli SQL
+EOF senza modificare lo storico. Recuperate 31 definizioni obbligatorie:
+197 totali confrontate esattamente, nessun risultato Development copiato.
+Due fixture di upgrade verificano claim, autore e data precedenti. Step 0
+resta IN_PROGRESS: hosted, sessioni utente/scope, Realtime/concorrenza, restore,
+attestazioni commerciali e audit master ancora aperti. Development invariato.

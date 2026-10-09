@@ -8,12 +8,14 @@ test usano bootstrap/postlude versionati, senza DDL applicativo compensativo
 nascosto nel harness. `check:clean-install` verifica le impronte e confronta
 il catalogo PGlite con un'istantanea live acquisita in sola lettura.
 
-Verifica corrente: **242 test passati, 4 esclusi CORE**, 24 file test passati.
-`local:source-gates`, TypeScript strict, ESLint, Prettier e build pubblico/staff
-passano dopo `npm ci` su Node 24.19.0. I check/test Edge sono bloccati dal recupero
-delle dipendenze; il download Chromium è fallito e Playwright non è eseguito.
-L'installazione Supabase isolata e la concorrenza nativa rimangono aperte.
-`npm run check` complessivo non è dichiarato passato.
+Verifica corrente in GitHub CI: **245 test passati, 4 esclusi CORE**, 24 file
+test passati, **13 test Edge e 20 contratti browser**. `npm run check` completo,
+TypeScript strict, ESLint, Prettier e build pubblico/staff passano.
+Il replay Supabase Docker/PostgreSQL 17.11 verifica l'installatore reale,
+ledger, cataloghi e tutte le 197 definizioni obbligatorie del catalogo release.
+I limiti di recupero Deno/Chromium del runner locale restano osservazioni locali;
+quelle categorie sono state eseguite su GitHub. Hosted, sessioni utente/scope
+HTTP/JWT, Realtime, concorrenza e restore corrente rimangono aperti.
 
 Le prove negative dei gate non generano evidenze di successo. Le sezioni §§0–157
 sono vincolate al master tramite SHA-256; requisiti incompleti e dossier assente
@@ -23,13 +25,13 @@ Le sezioni datate di seguito sono checkpoint storici, non certificazioni corrent
 
 ## CI corrente su GitHub
 
-Run 54 sul commit `3f35d78a0bb6a2e80772393bcc01327980504dbf`: **success**,
-compresi `npm run check` completo, Edge, browser gate della build e **20 E2E
-con fixture**. Le sei fixture/azioni obsolete emerse nella prima run sono
-corrette, con verifica aggiuntiva della conferma cambio tavolo prima dell’invio.
-Vedere `docs/CI_BASELINE_VERIFICATION_2026-10-09.md`. I limiti di download descritti
-sopra si riferiscono al runner locale. Restano integrazione Supabase reale,
-restore corrente e attestazioni commerciali per ogni requisito obbligatorio.
+Run 66 sul commit `139fb1b1e73f9af371389c32b24bef800fa8e279`: **success**,
+job `verify` e `native-clean-install`. I browser usano fixture HTTP esplicite;
+il job nativo usa Auth/Storage/PostgREST reali su un server Docker sacrificabile.
+Verifica health e gate service-role/anon, senza certificare login/TOTP o scope
+di sessioni utente. Vedere `docs/CI_BASELINE_VERIFICATION_2026-10-09.md` per
+report, log, digest e limiti. Mancano attestazioni commerciali autenticate
+per ogni requisito obbligatorio.
 
 ## Comandi
 
@@ -322,5 +324,10 @@ reinstallazione e dei quattro tentativi PASS non attestati. Controlla health
 HTTP Auth/Storage e la RPC del gate via PostgREST: service-role locale consentito,
 JWT anonimo locale negato. Il report viene caricato come artefatto CI senza
 chiavi. Questo job non certifica sessioni utente, scenari di scope, Realtime,
-concorrenza, Supabase hosted o restore dello schema corrente. Il risultato
-resta PENDING fino a un'esecuzione CI osservata con esito success.
+concorrenza, Supabase hosted o restore dello schema corrente. La run 66 sul commit `139fb1b1e73f9af371389c32b24bef800fa8e279` ha
+completato il job nativo con esito success. Il confronto include tutte le
+197 definizioni del catalogo release: 31 erano state create fuori dallo storico.
+Nessun risultato Development viene copiato. Due fixture di upgrade verificano
+conservazione esatta di claim, autore e data; il replay nativo rifiuta quattro
+successi non attestati. Report e limiti in
+`docs/CI_BASELINE_VERIFICATION_2026-10-09.md`.
