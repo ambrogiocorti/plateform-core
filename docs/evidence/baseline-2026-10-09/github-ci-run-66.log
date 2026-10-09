@@ -1,0 +1,825 @@
+﻿2026-10-09T05:42:13.2955481Z Current runner version: '2.337.0'
+2026-10-09T05:42:13.2993354Z ##[group]Runner Image Provisioner
+2026-10-09T05:42:13.2994821Z Hosted Compute Agent
+2026-10-09T05:42:13.2995813Z Version: 20261002.596
+2026-10-09T05:42:13.2996943Z Commit: c3d12f3313a95f25162a1503be624f3b0617f8c0
+2026-10-09T05:42:13.2998268Z Build Date: 2026-10-02T22:28:27Z
+2026-10-09T05:42:13.2999421Z Worker ID: {d143f726-15a1-4d8f-8537-32402d716f30}
+2026-10-09T05:42:13.3001142Z Region: eastus2
+2026-10-09T05:42:13.3002097Z Cloud: Azure
+2026-10-09T05:42:13.3003144Z ##[endgroup]
+2026-10-09T05:42:13.3005559Z ##[group]Operating System
+2026-10-09T05:42:13.3006591Z Ubuntu
+2026-10-09T05:42:13.3007530Z 24.04.5
+2026-10-09T05:42:13.3008413Z LTS
+2026-10-09T05:42:13.3009377Z ##[endgroup]
+2026-10-09T05:42:13.3010610Z ##[group]Runner Image
+2026-10-09T05:42:13.3011815Z Image: ubuntu-24.04
+2026-10-09T05:42:13.3012835Z Version: 20261004.327.1
+2026-10-09T05:42:13.3014919Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261004.327/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-09T05:42:13.3017827Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261004.327
+2026-10-09T05:42:13.3019666Z ##[endgroup]
+2026-10-09T05:42:13.3021889Z ##[group]GITHUB_TOKEN Permissions
+2026-10-09T05:42:13.3024625Z Contents: read
+2026-10-09T05:42:13.3025632Z Metadata: read
+2026-10-09T05:42:13.3026530Z ##[endgroup]
+2026-10-09T05:42:13.3029611Z Secret source: Actions
+2026-10-09T05:42:13.3031574Z Cache mode: write
+2026-10-09T05:42:13.3033049Z Prepare workflow directory
+2026-10-09T05:42:13.3507869Z Prepare all required actions
+2026-10-09T05:42:13.3578748Z Getting action download info
+2026-10-09T05:42:13.5671110Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-10-09T05:42:13.6867749Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+2026-10-09T05:42:13.7927136Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-10-09T05:42:14.0204195Z Complete job name: verify
+2026-10-09T05:42:14.1232416Z ##[group]Run actions/checkout@v4
+2026-10-09T05:42:14.1233327Z with:
+2026-10-09T05:42:14.1233827Z   repository: ambrogiocorti/plateform-core
+2026-10-09T05:42:14.1237608Z   token: ***
+2026-10-09T05:42:14.1238054Z   ssh-strict: true
+2026-10-09T05:42:14.1238503Z   ssh-user: git
+2026-10-09T05:42:14.1238960Z   persist-credentials: true
+2026-10-09T05:42:14.1239459Z   clean: true
+2026-10-09T05:42:14.1240120Z   sparse-checkout-cone-mode: true
+2026-10-09T05:42:14.1240656Z   fetch-depth: 1
+2026-10-09T05:42:14.1241099Z   fetch-tags: false
+2026-10-09T05:42:14.1241561Z   show-progress: true
+2026-10-09T05:42:14.1242021Z   lfs: false
+2026-10-09T05:42:14.1242442Z   submodules: false
+2026-10-09T05:42:14.1242907Z   set-safe-directory: true
+2026-10-09T05:42:14.1243432Z   allow-unsafe-pr-checkout: false
+2026-10-09T05:42:14.1244225Z ##[endgroup]
+2026-10-09T05:42:14.2436611Z Syncing repository: ambrogiocorti/plateform-core
+2026-10-09T05:42:14.2440415Z ##[group]Getting Git version info
+2026-10-09T05:42:14.2451775Z Working directory is '/home/runner/work/plateform-core/plateform-core'
+2026-10-09T05:42:14.2461706Z [command]/usr/bin/git version
+2026-10-09T05:42:14.2637605Z git version 2.55.0
+2026-10-09T05:42:14.2837186Z ##[endgroup]
+2026-10-09T05:42:14.2843964Z Temporarily overriding HOME='/home/runner/work/_temp/4aa9c48f-efa0-47a9-8493-aaf62321e98f' before making global git config changes
+2026-10-09T05:42:14.2846265Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-09T05:42:14.2848359Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/plateform-core/plateform-core
+2026-10-09T05:42:14.2851499Z Deleting the contents of '/home/runner/work/plateform-core/plateform-core'
+2026-10-09T05:42:14.2853406Z ##[group]Initializing the repository
+2026-10-09T05:42:14.2854644Z [command]/usr/bin/git init /home/runner/work/plateform-core/plateform-core
+2026-10-09T05:42:14.4250831Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-09T05:42:14.4253742Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-09T05:42:14.4255521Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-09T05:42:14.4257854Z hint: call:
+2026-10-09T05:42:14.4259124Z hint:
+2026-10-09T05:42:14.4261026Z hint: 	git config --global init.defaultBranch <name>
+2026-10-09T05:42:14.4262365Z hint:
+2026-10-09T05:42:14.4263539Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-09T05:42:14.4265299Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-09T05:42:14.4266915Z hint:
+2026-10-09T05:42:14.4267612Z hint: 	git branch -m <name>
+2026-10-09T05:42:14.4268606Z hint:
+2026-10-09T05:42:14.4271612Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-09T05:42:14.4286818Z Initialized empty Git repository in /home/runner/work/plateform-core/plateform-core/.git/
+2026-10-09T05:42:14.4290260Z [command]/usr/bin/git remote add origin https://github.com/ambrogiocorti/plateform-core
+2026-10-09T05:42:14.4293003Z ##[endgroup]
+2026-10-09T05:42:14.4294204Z ##[group]Disabling automatic garbage collection
+2026-10-09T05:42:14.4295278Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-09T05:42:14.4297771Z ##[endgroup]
+2026-10-09T05:42:14.4298916Z ##[group]Setting up auth
+2026-10-09T05:42:14.4306373Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-09T05:42:14.4310499Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-09T05:42:14.4314759Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-09T05:42:14.4330796Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-09T05:42:14.4587729Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-09T05:42:14.4620349Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-09T05:42:14.5056567Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-09T05:42:14.5060865Z ##[endgroup]
+2026-10-09T05:42:14.5061902Z ##[group]Fetching the repository
+2026-10-09T05:42:14.5064561Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +ff8c93514613c4e04b871f7da0586d63d2c38372:refs/remotes/pull/5/merge
+2026-10-09T05:42:15.0771416Z From https://github.com/ambrogiocorti/plateform-core
+2026-10-09T05:42:15.0775574Z  * [new ref]         ff8c93514613c4e04b871f7da0586d63d2c38372 -> pull/5/merge
+2026-10-09T05:42:15.0784225Z ##[endgroup]
+2026-10-09T05:42:15.0786606Z ##[group]Determining the checkout info
+2026-10-09T05:42:15.0789325Z ##[endgroup]
+2026-10-09T05:42:15.0794559Z [command]/usr/bin/git sparse-checkout disable
+2026-10-09T05:42:15.0860292Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-09T05:42:15.0910507Z ##[group]Checking out the ref
+2026-10-09T05:42:15.0912983Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/5/merge
+2026-10-09T05:42:15.1786073Z Note: switching to 'refs/remotes/pull/5/merge'.
+2026-10-09T05:42:15.1787350Z 
+2026-10-09T05:42:15.1788351Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-09T05:42:15.1790957Z changes and commit them, and you can discard any commits you make in this
+2026-10-09T05:42:15.1793055Z state without impacting any branches by switching back to a branch.
+2026-10-09T05:42:15.1794663Z 
+2026-10-09T05:42:15.1795867Z If you want to create a new branch to retain commits you create, you may
+2026-10-09T05:42:15.1808681Z do so (now or later) by using -c with the switch command. Example:
+2026-10-09T05:42:15.1810291Z 
+2026-10-09T05:42:15.1810913Z   git switch -c <new-branch-name>
+2026-10-09T05:42:15.1817823Z 
+2026-10-09T05:42:15.1818784Z Or undo this operation with:
+2026-10-09T05:42:15.1820251Z 
+2026-10-09T05:42:15.1821132Z   git switch -
+2026-10-09T05:42:15.1822312Z 
+2026-10-09T05:42:15.1823544Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-09T05:42:15.1943665Z 
+2026-10-09T05:42:15.1946655Z HEAD is now at ff8c935 Merge 139fb1b1e73f9af371389c32b24bef800fa8e279 into bba9b44cc2af738aff0ad0c0cfd99b80a2c749c8
+2026-10-09T05:42:15.1956183Z ##[endgroup]
+2026-10-09T05:42:15.1963504Z [command]/usr/bin/git log -1 --format=%H
+2026-10-09T05:42:15.1965558Z ff8c93514613c4e04b871f7da0586d63d2c38372
+2026-10-09T05:42:15.2289502Z ##[group]Run actions/setup-node@v4
+2026-10-09T05:42:15.2290686Z with:
+2026-10-09T05:42:15.2291480Z   node-version: 24
+2026-10-09T05:42:15.2292283Z   cache: npm
+2026-10-09T05:42:15.2293095Z   always-auth: false
+2026-10-09T05:42:15.2293922Z   check-latest: false
+2026-10-09T05:42:15.2298298Z   token: ***
+2026-10-09T05:42:15.2299111Z ##[endgroup]
+2026-10-09T05:42:15.3920327Z (node:2066) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-09T05:42:15.3927105Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-09T05:42:15.3930886Z Found in cache @ /opt/hostedtoolcache/node/24.21.0/x64
+2026-10-09T05:42:15.4363557Z ##[group]Environment details
+2026-10-09T05:42:16.0452508Z node: v24.21.0
+2026-10-09T05:42:16.0461645Z npm: 11.19.0
+2026-10-09T05:42:16.0462513Z yarn: 1.22.22
+2026-10-09T05:42:16.0464163Z ##[endgroup]
+2026-10-09T05:42:16.0483023Z [command]/opt/hostedtoolcache/node/24.21.0/x64/bin/npm config get cache
+2026-10-09T05:42:16.1687667Z /home/runner/.npm
+2026-10-09T05:42:16.2830680Z Cache hit for: node-cache-Linux-x64-npm-a0e3ec2a2175e9ad6df7f6a7dc3a1d3e9c5d6aa24618e9a119e58bdc53790ae7
+2026-10-09T05:42:16.2992572Z (node:2066) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-09T05:42:17.0273722Z Received 94994439 of 94994439 (100.0%), 128.7 MBs/sec
+2026-10-09T05:42:17.0275207Z Cache Size: ~91 MB (94994439 B)
+2026-10-09T05:42:17.0348967Z [command]/usr/bin/tar -xf /home/runner/work/_temp/bc1237c1-232e-4abc-840b-58caf5a17c32/cache.tzst -P -C /home/runner/work/plateform-core/plateform-core --use-compress-program unzstd
+2026-10-09T05:42:17.2531217Z Cache restored successfully
+2026-10-09T05:42:17.5743458Z Cache restored from key: node-cache-Linux-x64-npm-a0e3ec2a2175e9ad6df7f6a7dc3a1d3e9c5d6aa24618e9a119e58bdc53790ae7
+2026-10-09T05:42:17.5971396Z ##[group]Run npm ci
+2026-10-09T05:42:17.5971733Z [36;1mnpm ci[0m
+2026-10-09T05:42:17.6262876Z shell: /usr/bin/bash -e {0}
+2026-10-09T05:42:17.6263256Z ##[endgroup]
+2026-10-09T05:42:21.7670642Z 
+2026-10-09T05:42:21.7697970Z npm warn install-scripts 1 package has install scripts not yet covered by allowScripts:
+2026-10-09T05:42:21.7699190Z added 183 packages, and audited 184 packages in 4s
+2026-10-09T05:42:21.7720935Z npm warn install-scripts   deno@2.9.6 (postinstall: node ./install.cjs)
+2026-10-09T05:42:21.7721538Z 
+2026-10-09T05:42:21.7740461Z npm warn install-scripts
+2026-10-09T05:42:21.7741086Z 45 packages are looking for funding
+2026-10-09T05:42:21.7761323Z npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+2026-10-09T05:42:21.7762373Z   run `npm fund` for details
+2026-10-09T05:42:21.7780221Z 
+2026-10-09T05:42:21.7800453Z 1 high severity vulnerability
+2026-10-09T05:42:21.7820143Z 
+2026-10-09T05:42:21.8040665Z To address all issues, run:
+2026-10-09T05:42:21.8221040Z   npm audit fix
+2026-10-09T05:42:21.8441182Z 
+2026-10-09T05:42:21.8571623Z Run `npm audit` for details.
+2026-10-09T05:42:21.8649190Z ##[group]Run npm run format:check
+2026-10-09T05:42:21.8650382Z [36;1mnpm run format:check[0m
+2026-10-09T05:42:21.8732370Z shell: /usr/bin/bash -e {0}
+2026-10-09T05:42:21.8732835Z ##[endgroup]
+2026-10-09T05:42:22.0427916Z 
+2026-10-09T05:42:22.0430690Z > plateform@0.1.0 format:check
+2026-10-09T05:42:22.0641305Z > node node_modules/prettier/bin/prettier.cjs --check .
+2026-10-09T05:42:22.0648162Z 
+2026-10-09T05:42:22.2110894Z Checking formatting...
+2026-10-09T05:42:31.7832999Z All matched files use Prettier code style!
+2026-10-09T05:42:31.8336374Z ##[group]Run npm run check
+2026-10-09T05:42:31.8336949Z [36;1mnpm run check[0m
+2026-10-09T05:42:31.8427725Z shell: /usr/bin/bash -e {0}
+2026-10-09T05:42:31.8428221Z ##[endgroup]
+2026-10-09T05:42:31.9607206Z 
+2026-10-09T05:42:31.9620971Z > plateform@0.1.0 check
+2026-10-09T05:42:31.9632993Z > npm run check:clean-install && npm run check:migrations && npm run check:core-edition && npm run check:core-server-policy && npm run check:core-edge-guards && npm run check:core-release-profile && npm run check:waiter-ux && npm run check:step11 && npm run typecheck && npm run lint && npm run check:edge && npm run test:edge && npm test && npm run build
+2026-10-09T05:42:31.9638145Z 
+2026-10-09T05:42:32.0746672Z 
+2026-10-09T05:42:32.0747682Z > plateform@0.1.0 check:clean-install
+2026-10-09T05:42:32.0749598Z > node scripts/install-database.mjs --check && node --experimental-strip-types scripts/check-clean-install-catalog.mjs
+2026-10-09T05:42:32.0751119Z 
+2026-10-09T05:42:32.2440213Z {"bootstrap_version":1,"bootstrap_sha256":"aaa20fba9a525bfd5f7017ee827d45cf342d8b3e6d97eefc19e50fb0a51de11e","postlude_sha256":"fe5f140c8f6d8ea306fcad7135c4b1d717f97281f865d05f3b804cb5c0e4eda9","migrations":458,"inventory_sha256":"29031e10f987a98882f5f811373abbaf59cb271f608221fbbe31961d0f2edd9e","database_accessed":false}
+2026-10-09T05:42:37.6460275Z {"substrate":"PGlite PostgreSQL WASM","application_fixtures":[],"hosted_supabase_certified":false,"missing":{"relations":[],"routines":[],"triggers":[],"columns":[],"indexes":[],"constraints":[],"policies":[]},"added":{"relations":[],"routines":[],"triggers":[],"columns":[],"indexes":[],"constraints":[],"policies":[]},"changed":{"relations":[],"routines":[],"triggers":[],"columns":[],"indexes":[],"constraints":[],"policies":[]},"counts":{"relations":{"reference":163,"replayed":163},"routines":{"reference":553,"replayed":552},"triggers":{"reference":311,"replayed":313},"columns":{"reference":1485,"replayed":1485},"indexes":{"reference":444,"replayed":444},"constraints":{"reference":903,"replayed":903},"policies":{"reference":110,"replayed":110}},"not_null_semantics":"Compared for every column; PG18-only contype=n catalog entries excluded","ok":true}
+2026-10-09T05:42:37.8080554Z 
+2026-10-09T05:42:37.8081416Z > plateform@0.1.0 check:migrations
+2026-10-09T05:42:37.8100668Z > node scripts/check-migrations.mjs
+2026-10-09T05:42:37.8101092Z 
+2026-10-09T05:42:37.9531550Z 458 versioned migrations verified against the applied manifest.
+2026-10-09T05:42:38.0670593Z 
+2026-10-09T05:42:38.0671569Z > plateform@0.1.0 check:core-edition
+2026-10-09T05:42:38.0672545Z > node --experimental-strip-types scripts/check-core-edition.mjs
+2026-10-09T05:42:38.0673107Z 
+2026-10-09T05:42:38.1771692Z CORE_EDITION_SOURCE_CONTRACT=PASS (50/50 checks; server configuration verified separately)
+2026-10-09T05:42:38.2955687Z 
+2026-10-09T05:42:38.2956564Z > plateform@0.1.0 check:core-server-policy
+2026-10-09T05:42:38.2957737Z > node scripts/check-core-server-policy.mjs
+2026-10-09T05:42:38.2958506Z 
+2026-10-09T05:42:38.3365695Z CORE_SERVER_POLICY_SOURCE=PASS (28/28 source checks; real JWT API authorization still required)
+2026-10-09T05:42:38.4479203Z 
+2026-10-09T05:42:38.4480472Z > plateform@0.1.0 check:core-edge-guards
+2026-10-09T05:42:38.4482034Z > node --experimental-strip-types scripts/check-core-edge-guards.mjs
+2026-10-09T05:42:38.4482869Z 
+2026-10-09T05:42:38.5334022Z CORE_EDGE_FUNCTION_GUARDS=PASS (12/12 checks; requires remote deploy and JWT HTTP verification)
+2026-10-09T05:42:38.6561508Z 
+2026-10-09T05:42:38.6562930Z > plateform@0.1.0 check:core-release-profile
+2026-10-09T05:42:38.6564179Z > node scripts/check-core-release-profile.mjs
+2026-10-09T05:42:38.6564949Z 
+2026-10-09T05:42:38.7019186Z CORE_RELEASE_GATE_CONTRACT=PASS (21/21 assertions; no release evidence issued)
+2026-10-09T05:42:38.8107702Z 
+2026-10-09T05:42:38.8108600Z > plateform@0.1.0 check:waiter-ux
+2026-10-09T05:42:38.8110518Z > node --experimental-strip-types scripts/check-waiter-service-ux.mjs
+2026-10-09T05:42:38.8111557Z 
+2026-10-09T05:42:38.8958044Z PASS waiter operational UX gate
+2026-10-09T05:42:39.0217848Z 
+2026-10-09T05:42:39.0218673Z > plateform@0.1.0 check:step11
+2026-10-09T05:42:39.0221748Z > npm run check:step11-static && npm run check:step11-runtime && npm run check:step11-booking && npm run check:step11-prerender && npm run check:step11-build-assembly && npm run check:step11-assets && npm run check:step11-deploy-config
+2026-10-09T05:42:39.0223698Z 
+2026-10-09T05:42:39.1270823Z 
+2026-10-09T05:42:39.1290942Z > plateform@0.1.0 check:step11-static
+2026-10-09T05:42:39.1291913Z > node scripts/check-step11-static.mjs
+2026-10-09T05:42:39.1292286Z 
+2026-10-09T05:42:39.1601298Z STEP11_STATIC_GATE=PASSED
+2026-10-09T05:42:39.2739172Z 
+2026-10-09T05:42:39.2740402Z > plateform@0.1.0 check:step11-runtime
+2026-10-09T05:42:39.2742531Z > node --experimental-strip-types scripts/check-step11-public-runtime.mjs && node --experimental-strip-types scripts/check-step11-telemetry-observers.mjs
+2026-10-09T05:42:39.2743989Z 
+2026-10-09T05:42:39.3611024Z STEP11_PUBLIC_RUNTIME_GATE=PASSED
+2026-10-09T05:42:39.4921533Z STEP11_TELEMETRY_LIFECYCLE=PASS (13 contract assertions)
+2026-10-09T05:42:39.6190841Z 
+2026-10-09T05:42:39.6191896Z > plateform@0.1.0 check:step11-booking
+2026-10-09T05:42:39.6193160Z > node --experimental-strip-types scripts/check-step11-booking-client.mjs
+2026-10-09T05:42:39.6194029Z 
+2026-10-09T05:42:39.7316224Z STEP11_RECOVERED_BOOKING_CONTRACT=PASS (33 assertions)
+2026-10-09T05:42:39.8459220Z 
+2026-10-09T05:42:39.8460544Z > plateform@0.1.0 check:step11-prerender
+2026-10-09T05:42:39.8461769Z > node scripts/check-step11-prerender.mjs
+2026-10-09T05:42:39.8462421Z 
+2026-10-09T05:42:39.8891362Z STEP11_RECOVERED_PRERENDER=PASS (15 assertions)
+2026-10-09T05:42:39.9950621Z 
+2026-10-09T05:42:39.9951750Z > plateform@0.1.0 check:step11-build-assembly
+2026-10-09T05:42:39.9952870Z > node scripts/check-step11-build-assembly.mjs
+2026-10-09T05:42:39.9953632Z 
+2026-10-09T05:42:40.1208245Z STEP11_INTEGRATED_BUILD_ASSEMBLY=PASS (16 assertions, real public index.html, isolated RPC transport)
+2026-10-09T05:42:40.2332399Z 
+2026-10-09T05:42:40.2333348Z > plateform@0.1.0 check:step11-assets
+2026-10-09T05:42:40.2334666Z > node --experimental-strip-types scripts/check-step11-assets.mjs
+2026-10-09T05:42:40.2335560Z 
+2026-10-09T05:42:45.5811059Z STEP11_ASSET_BOUNDARY_GATE=PASSED
+2026-10-09T05:42:45.7411384Z 
+2026-10-09T05:42:45.7412389Z > plateform@0.1.0 check:step11-deploy-config
+2026-10-09T05:42:45.7414120Z > node scripts/check-vercel-config.mjs && node scripts/check-migration-recovery.mjs && npm run check:staging-http-fixtures
+2026-10-09T05:42:45.7415282Z 
+2026-10-09T05:42:45.7807324Z STEP11_VERCEL_STAGING_CONFIG=PASS (33/33 assertions)
+2026-10-09T05:42:46.2991797Z STEP11_MIGRATION_RECOVERY=PASS (31/31 assertions; no SQL applied to database)
+2026-10-09T05:42:46.4075887Z 
+2026-10-09T05:42:46.4076978Z > plateform@0.1.0 check:staging-http-fixtures
+2026-10-09T05:42:46.4079603Z > node scripts/check-staging-http.mjs
+2026-10-09T05:42:46.4080977Z 
+2026-10-09T05:42:46.4791808Z STEP11_STAGING_HTTP_SMOKE=PASS (7/7 cases; no live deployment claimed)
+2026-10-09T05:42:46.6033474Z 
+2026-10-09T05:42:46.6050877Z > plateform@0.1.0 typecheck
+2026-10-09T05:42:46.6054808Z > node node_modules/typescript/bin/tsc --noEmit
+2026-10-09T05:42:46.6057088Z 
+2026-10-09T05:42:54.7873094Z 
+2026-10-09T05:42:54.7874048Z > plateform@0.1.0 lint
+2026-10-09T05:42:54.7875164Z > node node_modules/eslint/bin/eslint.js .
+2026-10-09T05:42:54.7875858Z 
+2026-10-09T05:43:00.0594163Z 
+2026-10-09T05:43:00.0594940Z > plateform@0.1.0 check:edge
+2026-10-09T05:43:00.0596252Z > node scripts/run-edge.mjs check
+2026-10-09T05:43:00.0596932Z 
+2026-10-09T05:43:00.1475976Z [0m[32mDownload[0m https://jsr.io/@supabase/functions-js/meta.json
+2026-10-09T05:43:00.1486866Z [0m[32mDownload[0m https://registry.npmjs.org/zod
+2026-10-09T05:43:00.1506920Z [0m[32mDownload[0m https://registry.npmjs.org/@supabase%2fsupabase-js
+2026-10-09T05:43:00.2552739Z [0m[32mDownload[0m https://jsr.io/@supabase/functions-js/2.117.3_meta.json
+2026-10-09T05:43:00.2740322Z [0m[32mDownload[0m https://jsr.io/@supabase/functions-js/2.117.3/src/edge-runtime.d.ts
+2026-10-09T05:43:00.2741458Z [0m[32mDownload[0m https://registry.npmjs.org/openai
+2026-10-09T05:43:00.3731587Z [0m[32mDownload[0m https://registry.npmjs.org/@types%2fnode
+2026-10-09T05:43:00.3733010Z [0m[32mDownload[0m https://registry.npmjs.org/@types%2fnode-fetch
+2026-10-09T05:43:00.3750586Z [0m[32mDownload[0m https://registry.npmjs.org/abort-controller
+2026-10-09T05:43:00.3776240Z [0m[32mDownload[0m https://registry.npmjs.org/agentkeepalive
+2026-10-09T05:43:00.3777613Z [0m[32mDownload[0m https://registry.npmjs.org/form-data-encoder
+2026-10-09T05:43:00.3800583Z [0m[32mDownload[0m https://registry.npmjs.org/formdata-node
+2026-10-09T05:43:00.3820593Z [0m[32mDownload[0m https://registry.npmjs.org/node-fetch
+2026-10-09T05:43:00.3840409Z [0m[32mDownload[0m https://registry.npmjs.org/ws
+2026-10-09T05:43:00.5851700Z [0m[32mDownload[0m https://registry.npmjs.org/undici-types
+2026-10-09T05:43:00.5853182Z [0m[32mDownload[0m https://registry.npmjs.org/form-data
+2026-10-09T05:43:00.5854391Z [0m[32mDownload[0m https://registry.npmjs.org/event-target-shim
+2026-10-09T05:43:00.5855510Z [0m[32mDownload[0m https://registry.npmjs.org/humanize-ms
+2026-10-09T05:43:00.5856703Z [0m[32mDownload[0m https://registry.npmjs.org/node-domexception
+2026-10-09T05:43:00.5857907Z [0m[32mDownload[0m https://registry.npmjs.org/web-streams-polyfill
+2026-10-09T05:43:00.5859072Z [0m[32mDownload[0m https://registry.npmjs.org/encoding
+2026-10-09T05:43:00.5860169Z [0m[32mDownload[0m https://registry.npmjs.org/whatwg-url
+2026-10-09T05:43:00.6099443Z [0m[32mDownload[0m https://registry.npmjs.org/asynckit
+2026-10-09T05:43:00.6101252Z [0m[32mDownload[0m https://registry.npmjs.org/combined-stream
+2026-10-09T05:43:00.6102396Z [0m[32mDownload[0m https://registry.npmjs.org/es-set-tostringtag
+2026-10-09T05:43:00.6103481Z [0m[32mDownload[0m https://registry.npmjs.org/hasown
+2026-10-09T05:43:00.6104560Z [0m[32mDownload[0m https://registry.npmjs.org/mime-types
+2026-10-09T05:43:00.6105589Z [0m[32mDownload[0m https://registry.npmjs.org/ms
+2026-10-09T05:43:00.6106594Z [0m[32mDownload[0m https://registry.npmjs.org/tr46
+2026-10-09T05:43:00.6107701Z [0m[32mDownload[0m https://registry.npmjs.org/webidl-conversions
+2026-10-09T05:43:00.6319948Z [0m[32mDownload[0m https://registry.npmjs.org/delayed-stream
+2026-10-09T05:43:00.6323324Z [0m[32mDownload[0m https://registry.npmjs.org/es-errors
+2026-10-09T05:43:00.6324518Z [0m[32mDownload[0m https://registry.npmjs.org/get-intrinsic
+2026-10-09T05:43:00.6325789Z [0m[32mDownload[0m https://registry.npmjs.org/has-tostringtag
+2026-10-09T05:43:00.6326783Z [0m[32mDownload[0m https://registry.npmjs.org/function-bind
+2026-10-09T05:43:00.6327448Z [0m[32mDownload[0m https://registry.npmjs.org/mime-db
+2026-10-09T05:43:00.6669216Z [0m[32mDownload[0m https://registry.npmjs.org/call-bind-apply-helpers
+2026-10-09T05:43:00.6671449Z [0m[32mDownload[0m https://registry.npmjs.org/es-define-property
+2026-10-09T05:43:00.6672370Z [0m[32mDownload[0m https://registry.npmjs.org/es-object-atoms
+2026-10-09T05:43:00.6673115Z [0m[32mDownload[0m https://registry.npmjs.org/get-proto
+2026-10-09T05:43:00.6673772Z [0m[32mDownload[0m https://registry.npmjs.org/gopd
+2026-10-09T05:43:00.6674431Z [0m[32mDownload[0m https://registry.npmjs.org/has-symbols
+2026-10-09T05:43:00.6675127Z [0m[32mDownload[0m https://registry.npmjs.org/math-intrinsics
+2026-10-09T05:43:00.6886038Z [0m[32mDownload[0m https://registry.npmjs.org/dunder-proto
+2026-10-09T05:43:00.7058667Z [0m[32mDownload[0m https://registry.npmjs.org/@supabase%2fauth-js
+2026-10-09T05:43:00.7061130Z [0m[32mDownload[0m https://registry.npmjs.org/@supabase%2ffunctions-js
+2026-10-09T05:43:00.7062729Z [0m[32mDownload[0m https://registry.npmjs.org/@supabase%2fpostgrest-js
+2026-10-09T05:43:00.7063895Z [0m[32mDownload[0m https://registry.npmjs.org/@supabase%2frealtime-js
+2026-10-09T05:43:00.7065422Z [0m[32mDownload[0m https://registry.npmjs.org/@supabase%2fstorage-js
+2026-10-09T05:43:00.7631261Z [0m[32mDownload[0m https://registry.npmjs.org/tslib
+2026-10-09T05:43:00.7861117Z [0m[32mDownload[0m https://registry.npmjs.org/@supabase%2fphoenix
+2026-10-09T05:43:00.7920875Z [0m[32mDownload[0m https://registry.npmjs.org/iceberg-js
+2026-10-09T05:43:00.8325526Z [0m[32mDownload[0m https://registry.npmjs.org/openai/-/openai-4.104.0.tgz
+2026-10-09T05:43:00.8327139Z [0m[32mDownload[0m https://registry.npmjs.org/@supabase/supabase-js/-/supabase-js-2.116.0.tgz
+2026-10-09T05:43:00.8340290Z [0m[32mDownload[0m https://registry.npmjs.org/zod/-/zod-4.6.5.tgz
+2026-10-09T05:43:00.8341634Z [0m[32mDownload[0m https://registry.npmjs.org/node-fetch/-/node-fetch-2.7.0.tgz
+2026-10-09T05:43:00.8343099Z [0m[32mDownload[0m https://registry.npmjs.org/form-data-encoder/-/form-data-encoder-1.7.2.tgz
+2026-10-09T05:43:00.8344896Z [0m[32mDownload[0m https://registry.npmjs.org/agentkeepalive/-/agentkeepalive-4.6.0.tgz
+2026-10-09T05:43:00.8369676Z [0m[32mDownload[0m https://registry.npmjs.org/@types/node/-/node-18.19.130.tgz
+2026-10-09T05:43:00.8371000Z [0m[32mDownload[0m https://registry.npmjs.org/abort-controller/-/abort-controller-3.0.0.tgz
+2026-10-09T05:43:00.8371883Z [0m[32mDownload[0m https://registry.npmjs.org/formdata-node/-/formdata-node-4.4.1.tgz
+2026-10-09T05:43:00.8372690Z [0m[32mDownload[0m https://registry.npmjs.org/@types/node-fetch/-/node-fetch-2.6.13.tgz
+2026-10-09T05:43:00.8373513Z [0m[32mDownload[0m https://registry.npmjs.org/@supabase/realtime-js/-/realtime-js-2.116.0.tgz
+2026-10-09T05:43:00.8374326Z [0m[32mDownload[0m https://registry.npmjs.org/@supabase/storage-js/-/storage-js-2.116.0.tgz
+2026-10-09T05:43:00.8375084Z [0m[32mDownload[0m https://registry.npmjs.org/@supabase/auth-js/-/auth-js-2.116.0.tgz
+2026-10-09T05:43:00.8375884Z [0m[32mDownload[0m https://registry.npmjs.org/@supabase/functions-js/-/functions-js-2.116.0.tgz
+2026-10-09T05:43:00.8376712Z [0m[32mDownload[0m https://registry.npmjs.org/@supabase/postgrest-js/-/postgrest-js-2.116.0.tgz
+2026-10-09T05:43:00.8377467Z [0m[32mDownload[0m https://registry.npmjs.org/whatwg-url/-/whatwg-url-5.0.0.tgz
+2026-10-09T05:43:00.8378195Z [0m[32mDownload[0m https://registry.npmjs.org/humanize-ms/-/humanize-ms-1.2.1.tgz
+2026-10-09T05:43:00.8378929Z [0m[32mDownload[0m https://registry.npmjs.org/undici-types/-/undici-types-5.26.5.tgz
+2026-10-09T05:43:00.8380354Z [0m[32mDownload[0m https://registry.npmjs.org/event-target-shim/-/event-target-shim-5.0.1.tgz
+2026-10-09T05:43:00.8382220Z [0m[32mDownload[0m https://registry.npmjs.org/web-streams-polyfill/-/web-streams-polyfill-4.0.0-beta.3.tgz
+2026-10-09T05:43:00.8383643Z [0m[32mDownload[0m https://registry.npmjs.org/node-domexception/-/node-domexception-1.0.0.tgz
+2026-10-09T05:43:00.8384441Z [0m[32mDownload[0m https://registry.npmjs.org/form-data/-/form-data-4.0.6.tgz
+2026-10-09T05:43:00.8385191Z [0m[32mDownload[0m https://registry.npmjs.org/@supabase/phoenix/-/phoenix-0.4.5.tgz
+2026-10-09T05:43:00.8385906Z [0m[32mDownload[0m https://registry.npmjs.org/tslib/-/tslib-2.8.1.tgz
+2026-10-09T05:43:00.8386597Z [0m[32mDownload[0m https://registry.npmjs.org/iceberg-js/-/iceberg-js-0.8.1.tgz
+2026-10-09T05:43:00.8387410Z [0m[32mDownload[0m https://registry.npmjs.org/webidl-conversions/-/webidl-conversions-3.0.1.tgz
+2026-10-09T05:43:00.8388135Z [0m[32mDownload[0m https://registry.npmjs.org/tr46/-/tr46-0.0.3.tgz
+2026-10-09T05:43:00.8388905Z [0m[32mDownload[0m https://registry.npmjs.org/ms/-/ms-2.1.3.tgz
+2026-10-09T05:43:00.8390212Z [0m[32mDownload[0m https://registry.npmjs.org/mime-types/-/mime-types-2.1.35.tgz
+2026-10-09T05:43:00.8391038Z [0m[32mDownload[0m https://registry.npmjs.org/combined-stream/-/combined-stream-1.0.8.tgz
+2026-10-09T05:43:00.8391763Z [0m[32mDownload[0m https://registry.npmjs.org/hasown/-/hasown-2.0.4.tgz
+2026-10-09T05:43:00.8392519Z [0m[32mDownload[0m https://registry.npmjs.org/es-set-tostringtag/-/es-set-tostringtag-2.1.0.tgz
+2026-10-09T05:43:00.8393411Z [0m[32mDownload[0m https://registry.npmjs.org/asynckit/-/asynckit-0.4.0.tgz
+2026-10-09T05:43:00.8394088Z [0m[32mDownload[0m https://registry.npmjs.org/mime-db/-/mime-db-1.52.0.tgz
+2026-10-09T05:43:00.8394807Z [0m[32mDownload[0m https://registry.npmjs.org/delayed-stream/-/delayed-stream-1.0.0.tgz
+2026-10-09T05:43:00.8395562Z [0m[32mDownload[0m https://registry.npmjs.org/function-bind/-/function-bind-1.1.2.tgz
+2026-10-09T05:43:00.8396278Z [0m[32mDownload[0m https://registry.npmjs.org/es-errors/-/es-errors-1.3.0.tgz
+2026-10-09T05:43:00.8396994Z [0m[32mDownload[0m https://registry.npmjs.org/get-intrinsic/-/get-intrinsic-1.3.0.tgz
+2026-10-09T05:43:00.8397756Z [0m[32mDownload[0m https://registry.npmjs.org/has-tostringtag/-/has-tostringtag-1.0.2.tgz
+2026-10-09T05:43:00.8398541Z [0m[32mDownload[0m https://registry.npmjs.org/es-object-atoms/-/es-object-atoms-1.1.2.tgz
+2026-10-09T05:43:00.8399277Z [0m[32mDownload[0m https://registry.npmjs.org/has-symbols/-/has-symbols-1.1.0.tgz
+2026-10-09T05:43:00.8400193Z [0m[32mDownload[0m https://registry.npmjs.org/math-intrinsics/-/math-intrinsics-1.1.0.tgz
+2026-10-09T05:43:00.8400925Z [0m[32mDownload[0m https://registry.npmjs.org/get-proto/-/get-proto-1.0.1.tgz
+2026-10-09T05:43:00.8401767Z [0m[32mDownload[0m https://registry.npmjs.org/call-bind-apply-helpers/-/call-bind-apply-helpers-1.0.2.tgz
+2026-10-09T05:43:00.8402654Z [0m[32mDownload[0m https://registry.npmjs.org/es-define-property/-/es-define-property-1.0.1.tgz
+2026-10-09T05:43:00.8403373Z [0m[32mDownload[0m https://registry.npmjs.org/gopd/-/gopd-1.2.0.tgz
+2026-10-09T05:43:00.8404053Z [0m[32mDownload[0m https://registry.npmjs.org/dunder-proto/-/dunder-proto-1.0.1.tgz
+2026-10-09T05:43:01.0063754Z [0m[32mCheck[0m supabase/functions/asset-upload/index.ts
+2026-10-09T05:43:01.0065110Z [0m[32mCheck[0m supabase/functions/customer-session/index.ts
+2026-10-09T05:43:01.0066388Z [0m[32mCheck[0m supabase/functions/health-probe/index.ts
+2026-10-09T05:43:01.0067695Z [0m[32mCheck[0m supabase/functions/maintenance/index.ts
+2026-10-09T05:43:01.0068962Z [0m[32mCheck[0m supabase/functions/offline-authorization/index.ts
+2026-10-09T05:43:01.0070404Z [0m[32mCheck[0m supabase/functions/payment-return/index.ts
+2026-10-09T05:43:01.0071516Z [0m[32mCheck[0m supabase/functions/payments/index.ts
+2026-10-09T05:43:01.0072637Z [0m[32mCheck[0m supabase/functions/print-authorization/index.ts
+2026-10-09T05:43:01.0073800Z [0m[32mCheck[0m supabase/functions/public-telemetry/index.ts
+2026-10-09T05:43:01.0074917Z [0m[32mCheck[0m supabase/functions/reservation/index.ts
+2026-10-09T05:43:01.0076024Z [0m[32mCheck[0m supabase/functions/satispay-callback/index.ts
+2026-10-09T05:43:01.0077105Z [0m[32mCheck[0m supabase/functions/staff-admin/index.ts
+2026-10-09T05:43:01.0078118Z [0m[32mCheck[0m supabase/functions/step-up/index.ts
+2026-10-09T05:43:01.0079170Z [0m[32mCheck[0m supabase/functions/stripe-webhook/index.ts
+2026-10-09T05:43:03.7708983Z 
+2026-10-09T05:43:03.7710087Z > plateform@0.1.0 test:edge
+2026-10-09T05:43:03.7711351Z > node scripts/run-edge.mjs test
+2026-10-09T05:43:03.7712050Z 
+2026-10-09T05:43:03.8451336Z [0m[32mCheck[0m supabase/functions/_tests/assets.test.ts
+2026-10-09T05:43:03.8470818Z [0m[32mCheck[0m supabase/functions/_tests/http.test.ts
+2026-10-09T05:43:03.8471821Z [0m[32mCheck[0m supabase/functions/_tests/providers.test.ts
+2026-10-09T05:43:06.0626984Z [0m[38;5;245mrunning 2 tests from ./supabase/functions/_tests/assets.test.ts[0m
+2026-10-09T05:43:06.0637764Z image and PDF uploads reject an HTML body even with an allowed declared MIME type ... [0m[32mok[0m [0m[38;5;245m(819µs)[0m
+2026-10-09T05:43:06.0641481Z asset checks require the complete format signature and restrict formats ... [0m[32mok[0m [0m[38;5;245m(323µs)[0m
+2026-10-09T05:43:06.1922022Z [0m[38;5;245mrunning 7 tests from ./supabase/functions/_tests/http.test.ts[0m
+2026-10-09T05:43:06.2035617Z Edge handlers preserve a distinct correlation ID and normalize invalid input ...
+2026-10-09T05:43:06.2052509Z [0m[38;5;245m------- post-test output -------[0m
+2026-10-09T05:43:06.2055235Z {"level":"info","request_id":"fae03a92-1d02-4899-b753-c62155d8f54e","correlation_id":"f41eb4e2-f7e8-489f-a740-f76545ad7a70","timestamp":"2026-10-09T05:43:06.202Z","environment":"development","release_version":"0.1.0","operation":"/action","result":"SUCCESS","latency_ms":3}
+2026-10-09T05:43:06.2066922Z {"level":"info","request_id":"526e692e-b805-440a-9194-e60fefcecee0","correlation_id":"526e692e-b805-440a-9194-e60fefcecee0","timestamp":"2026-10-09T05:43:06.206Z","environment":"development","release_version":"0.1.0","operation":"/action","result":"SUCCESS","latency_ms":0}
+2026-10-09T05:43:06.2228764Z [0m[38;5;245m----- post-test output end -----[0m
+2026-10-09T05:43:06.2231350Z Edge handlers preserve a distinct correlation ID and normalize invalid input ... [0m[32mok[0m [0m[38;5;245m(30ms)[0m
+2026-10-09T05:43:06.2295478Z server operations retain server credentials and forward only diagnostic context ... [0m[32mok[0m [0m[38;5;245m(6ms)[0m
+2026-10-09T05:43:06.2311825Z CORS accepts only the configured origin and exposes a correlation ID ...
+2026-10-09T05:43:06.2313383Z [0m[38;5;245m------- post-test output -------[0m
+2026-10-09T05:43:06.2316868Z {"level":"info","request_id":"1326da2b-2232-4e56-9b92-49b44ce958e2","correlation_id":"1326da2b-2232-4e56-9b92-49b44ce958e2","timestamp":"2026-10-09T05:43:06.230Z","environment":"development","release_version":"0.1.0","operation":"/action","result":"SUCCESS","latency_ms":1}
+2026-10-09T05:43:06.2321919Z [0m[38;5;245m----- post-test output end -----[0m
+2026-10-09T05:43:06.2345618Z CORS accepts only the configured origin and exposes a correlation ID ... [0m[32mok[0m [0m[38;5;245m(1ms)[0m
+2026-10-09T05:43:06.2350136Z invalid JSON, media type, schema and methods fail before executing the handler ...
+2026-10-09T05:43:06.2378424Z [0m[38;5;245m------- post-test output -------[0m
+2026-10-09T05:43:06.2381989Z {"level":"error","request_id":"d550eeee-1156-4701-833e-ee534ff5a967","correlation_id":"d550eeee-1156-4701-833e-ee534ff5a967","timestamp":"2026-10-09T05:43:06.231Z","environment":"development","release_version":"0.1.0","operation":"/action","result":"FAILURE","error_code":"INVALID_PAYLOAD","latency_ms":0}
+2026-10-09T05:43:06.2391377Z {"level":"error","request_id":"46067a02-6c98-41fe-995d-e3e40fab9ee7","correlation_id":"46067a02-6c98-41fe-995d-e3e40fab9ee7","timestamp":"2026-10-09T05:43:06.231Z","environment":"development","release_version":"0.1.0","operation":"/action","result":"FAILURE","error_code":"INVALID_PAYLOAD","latency_ms":0}
+2026-10-09T05:43:06.2396824Z {"level":"error","request_id":"3ee202d4-1fc2-448b-b53f-1f28751a33a5","correlation_id":"3ee202d4-1fc2-448b-b53f-1f28751a33a5","timestamp":"2026-10-09T05:43:06.233Z","environment":"development","release_version":"0.1.0","operation":"/action","result":"FAILURE","error_code":"INVALID_PAYLOAD","latency_ms":1}
+2026-10-09T05:43:06.2400568Z [0m[38;5;245m----- post-test output end -----[0m
+2026-10-09T05:43:06.2402654Z invalid JSON, media type, schema and methods fail before executing the handler ... [0m[32mok[0m [0m[38;5;245m(2ms)[0m
+2026-10-09T05:43:06.2404937Z body limit applies to streamed bytes even without a Content-Length header ...
+2026-10-09T05:43:06.2406482Z [0m[38;5;245m------- post-test output -------[0m
+2026-10-09T05:43:06.2410383Z {"level":"error","request_id":"fa06900d-4d3b-467b-8891-babbfa31046b","correlation_id":"fa06900d-4d3b-467b-8891-babbfa31046b","timestamp":"2026-10-09T05:43:06.234Z","environment":"development","release_version":"0.1.0","operation":"/action","result":"FAILURE","error_code":"PAYLOAD_TOO_LARGE","latency_ms":0}
+2026-10-09T05:43:06.2417935Z [0m[38;5;245m----- post-test output end -----[0m
+2026-10-09T05:43:06.2420571Z body limit applies to streamed bytes even without a Content-Length header ... [0m[32mok[0m [0m[38;5;245m(813µs)[0m
+2026-10-09T05:43:06.2427180Z unexpected errors never expose credentials or private error text in logs and response ... [0m[32mok[0m [0m[38;5;245m(1ms)[0m
+2026-10-09T05:43:06.2430691Z rate limit identity is a keyed digest and requires a gateway client address ... [0m[32mok[0m [0m[38;5;245m(6ms)[0m
+2026-10-09T05:43:06.3739022Z [0m[38;5;245mrunning 4 tests from ./supabase/functions/_tests/providers.test.ts[0m
+2026-10-09T05:43:06.3925786Z Stripe verifies exact bytes, timestamp and rotated v1 signatures ... [0m[32mok[0m [0m[38;5;245m(19ms)[0m
+2026-10-09T05:43:13.6572892Z Satispay signs the exact request target, host, date and body digest ... [0m[32mok[0m [0m[38;5;245m(7s)[0m
+2026-10-09T05:43:13.6582037Z Satispay callback token is operation-scoped and deterministic ... [0m[32mok[0m [0m[38;5;245m(1ms)[0m
+2026-10-09T05:43:13.6583602Z Satispay redirect allowlist is fail-closed ... [0m[32mok[0m [0m[38;5;245m(432µs)[0m
+2026-10-09T05:43:13.6605351Z 
+2026-10-09T05:43:13.6606209Z [0m[32mok[0m | 13 passed | 0 failed [0m[38;5;245m(7s)[0m
+2026-10-09T05:43:13.6606796Z 
+2026-10-09T05:43:13.8072903Z 
+2026-10-09T05:43:13.8073526Z > plateform@0.1.0 test
+2026-10-09T05:43:13.8074368Z > vitest run
+2026-10-09T05:43:13.8074917Z 
+2026-10-09T05:43:14.1605562Z 
+2026-10-09T05:43:14.1644136Z [1m[30m[46m RUN [49m[39m[22m [36mv5.0.0 [39m[90m/home/runner/work/plateform-core/plateform-core[39m
+2026-10-09T05:43:14.1670353Z 
+2026-10-09T05:43:26.9351746Z  [32m✓[39m tests/database/completion.test.ts [2m([22m[2m34 tests[22m[2m | [22m[33m4 skipped[39m[2m)[22m[33m 12378[2mms[22m[39m
+2026-10-09T05:43:26.9353677Z    [32m✓[39m completion: authoritative catalog, editor, planning and equal shares [2m(34)[22m
+2026-10-09T05:43:26.9374762Z      [33m[2m✓[22m[39m preserves exact cents and reserves each equal share once[33m 336[2mms[22m[39m
+2026-10-09T05:43:30.1311262Z  [32m✓[39m tests/database/service.test.ts [2m([22m[2m31 tests[22m[2m)[22m[33m 15578[2mms[22m[39m
+2026-10-09T05:43:30.1348718Z    [32m✓[39m Authoritative service workflows [2m(31)[22m
+2026-10-09T05:43:30.1356687Z      [33m[2m✓[22m[39m publishes only INSERT invalidations and protects account and station signals with RLS[33m 404[2mms[22m[39m
+2026-10-09T05:43:30.1358734Z      [33m[2m✓[22m[39m allows multiple isolated customer sessions on the same account[33m 305[2mms[22m[39m
+2026-10-09T05:43:30.1360836Z      [33m[2m✓[22m[39m isolates a customer account and invalidates the session when its code rotates[33m 715[2mms[22m[39m
+2026-10-09T05:43:30.1362979Z      [33m[2m✓[22m[39m records revenue and tips separately, closes only a fully settled account and invalidates the code[33m 481[2mms[22m[39m
+2026-10-09T05:43:38.2890292Z  [32m✓[39m tests/database/reconciliation.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 11044[2mms[22m[39m
+2026-10-09T05:43:40.0390271Z  [32m✓[39m tests/database/configuration-floor.test.ts [2m([22m[2m19 tests[22m[2m)[22m[33m 9595[2mms[22m[39m
+2026-10-09T05:43:50.3280237Z  [32m✓[39m tests/database/scope-host.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 9948[2mms[22m[39m
+2026-10-09T05:43:51.2397641Z [90mstdout[2m | tests/unit/print-bridge.test.ts[2m > [22m[2mlocal HTTPS print bridge
+2026-10-09T05:43:51.2407143Z [22m[39m{"event":"BRIDGE_READY","port":42791}
+2026-10-09T05:43:51.2415502Z 
+2026-10-09T05:43:51.2831607Z [90mstdout[2m | tests/unit/print-bridge.test.ts[2m > [22m[2mlocal HTTPS print bridge[2m > [22m[2msends one physical request and replays only its persisted positive result
+2026-10-09T05:43:51.2853599Z [22m[39m{"event":"PRINT_SUCCESS","job_id":"10000000-0000-4000-8000-000000000001","device_id":"10000000-0000-4000-8000-000000000002"}
+2026-10-09T05:43:51.2864962Z 
+2026-10-09T05:43:51.3025711Z  [32m✓[39m tests/unit/print-bridge.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 482[2mms[22m[39m
+2026-10-09T05:43:53.2433255Z  [32m✓[39m tests/database/billing.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 14695[2mms[22m[39m
+2026-10-09T05:43:53.2451225Z    [32m✓[39m Billing units, discounts and mixed settlement [2m(7)[22m
+2026-10-09T05:43:53.2517325Z      [33m[2m✓[22m[39m backfills existing product and amount payments without changing their historical selections[33m 4385[2mms[22m[39m
+2026-10-09T05:44:02.9643120Z  [32m✓[39m tests/database/privacy.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 9208[2mms[22m[39m
+2026-10-09T05:44:09.2420401Z  [32m✓[39m tests/database/clean-install.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 17680[2mms[22m[39m
+2026-10-09T05:44:13.1156103Z  [32m✓[39m tests/database/foundation.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 9903[2mms[22m[39m
+2026-10-09T05:44:19.2280591Z  [32m✓[39m tests/database/staff-access.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 9631[2mms[22m[39m
+2026-10-09T05:44:20.0829679Z  [32m✓[39m tests/unit/offline-queue.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 155[2mms[22m[39m
+2026-10-09T05:44:20.3299318Z  [32m✓[39m tests/unit/public-site.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+2026-10-09T05:44:20.5944139Z  [32m✓[39m tests/unit/release.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+2026-10-09T05:44:24.3475510Z  [32m✓[39m tests/database/reservations-auth.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 10993[2mms[22m[39m
+2026-10-09T05:44:24.3476974Z    [32m✓[39m Booking pacing and session security [2m(9)[22m
+2026-10-09T05:44:24.3511010Z      [33m[2m✓[22m[39m verifies a hashed PIN and persists wrong attempt counters[33m 1499[2mms[22m[39m
+2026-10-09T05:44:31.2048362Z  [32m✓[39m tests/database/devices.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 10375[2mms[22m[39m
+2026-10-09T05:44:31.2050533Z    [32m✓[39m Device registration and PIN boundaries [2m(6)[22m
+2026-10-09T05:44:31.2063515Z      [33m[2m✓[22m[39m never accepts a null PIN and requires password after five failed attempts[33m 534[2mms[22m[39m
+2026-10-09T05:44:31.2065770Z      [33m[2m✓[22m[39m requires full authentication again when the original password interval has expired[33m 382[2mms[22m[39m
+2026-10-09T05:44:31.5722158Z  [32m✓[39m tests/unit/foundation-config.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 65[2mms[22m[39m
+2026-10-09T05:44:31.9070392Z  [32m✓[39m tests/unit/offline-authorization.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 35[2mms[22m[39m
+2026-10-09T05:44:32.1797326Z  [32m✓[39m tests/unit/requirements-spec.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 35[2mms[22m[39m
+2026-10-09T05:44:32.6021757Z  [32m✓[39m tests/unit/printing.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 42[2mms[22m[39m
+2026-10-09T05:44:32.8335310Z  [32m✓[39m tests/unit/reconcile.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+2026-10-09T05:44:33.1011235Z  [32m✓[39m tests/unit/domain.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 40[2mms[22m[39m
+2026-10-09T05:44:33.2091891Z  [32m✓[39m tests/database/audit-search.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 8607[2mms[22m[39m
+2026-10-09T05:44:33.2997657Z  [32m✓[39m tests/unit/offline-queue-policy.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+2026-10-09T05:44:33.3043130Z 
+2026-10-09T05:44:33.3061174Z [2m Test Files [22m [1m[32m24 passed[39m[22m[90m (24)[39m
+2026-10-09T05:44:33.3074044Z [2m      Tests [22m [1m[32m245 passed[39m[22m[2m | [22m[33m4 skipped[39m[90m (249)[39m
+2026-10-09T05:44:33.3085304Z [2m   Start at [22m 05:43:14
+2026-10-09T05:44:33.3086529Z [2m   Duration [22m 79.13s[2m (tests 98%, import 1%, transform 1%)[22m
+2026-10-09T05:44:33.3088926Z 
+2026-10-09T05:44:33.4554454Z 
+2026-10-09T05:44:33.4555398Z > plateform@0.1.0 build
+2026-10-09T05:44:33.4556862Z > npm run typecheck && vite build --config vite.public.config.ts && vite build --config vite.staff.config.ts
+2026-10-09T05:44:33.4557864Z 
+2026-10-09T05:44:33.5591353Z 
+2026-10-09T05:44:33.5592214Z > plateform@0.1.0 typecheck
+2026-10-09T05:44:33.5593536Z > node node_modules/typescript/bin/tsc --noEmit
+2026-10-09T05:44:33.5594307Z 
+2026-10-09T05:44:41.7780845Z [36mvite v8.3.0 [32mbuilding client environment for production...[36m[39m
+2026-10-09T05:44:41.7862304Z transforming...
+2026-10-09T05:44:41.9497985Z ✓ 173 modules transformed.
+2026-10-09T05:44:41.9808722Z rendering chunks...
+2026-10-09T05:44:42.0438641Z computing gzip size...
+2026-10-09T05:44:42.0480391Z dist/public/DEPLOYMENT_UNCONFIGURED.txt          0.05 kB │ gzip:  0.07 kB
+2026-10-09T05:44:42.0481663Z dist/public/manifest.webmanifest                 0.25 kB
+2026-10-09T05:44:42.0482799Z dist/public/index.html                           0.76 kB │ gzip:  0.43 kB
+2026-10-09T05:44:42.0483760Z dist/public/sw.js                                1.17 kB
+2026-10-09T05:44:42.0484905Z dist/public/assets/index-HYRCAi-9.css           10.53 kB │ gzip:  3.09 kB
+2026-10-09T05:44:42.0486185Z dist/public/assets/public-menu-Dw14vsKD.js       2.28 kB │ gzip:  1.06 kB
+2026-10-09T05:44:42.0487465Z dist/public/assets/public-booking-B3s59TML.js    8.68 kB │ gzip:  3.47 kB
+2026-10-09T05:44:42.0488594Z dist/public/assets/customer-BXopumzr.js          9.48 kB │ gzip:  3.78 kB
+2026-10-09T05:44:42.0489632Z dist/public/assets/index-CPfwUfqX.js           358.32 kB │ gzip: 98.35 kB
+2026-10-09T05:44:42.0490413Z 
+2026-10-09T05:44:42.0491318Z [32m✓ built in 271ms[39m
+2026-10-09T05:44:42.3611675Z [36mvite v8.3.0 [32mbuilding client environment for production...[36m[39m
+2026-10-09T05:44:42.3759169Z transforming...
+2026-10-09T05:44:42.6178485Z ✓ 247 modules transformed.
+2026-10-09T05:44:42.6679160Z rendering chunks...
+2026-10-09T05:44:42.7383917Z computing gzip size...
+2026-10-09T05:44:42.7462378Z dist/staff/DEPLOYMENT_UNCONFIGURED.txt                0.05 kB │ gzip:  0.07 kB
+2026-10-09T05:44:42.7463657Z dist/staff/manifest.webmanifest                       0.26 kB
+2026-10-09T05:44:42.7465119Z dist/staff/index.html                                 0.75 kB │ gzip:  0.41 kB
+2026-10-09T05:44:42.7466418Z dist/staff/sw.js                                      1.98 kB
+2026-10-09T05:44:42.7467882Z dist/staff/assets/index-CWdTZCg4.css                 27.94 kB │ gzip:  6.38 kB
+2026-10-09T05:44:42.7469551Z dist/staff/assets/commercial-scope-CJ4Vpgp2.js        0.19 kB │ gzip:  0.13 kB
+2026-10-09T05:44:42.7471516Z dist/staff/assets/money-BWRGW0w6.js                   0.61 kB │ gzip:  0.41 kB
+2026-10-09T05:44:42.7473102Z dist/staff/assets/rolldown-runtime-hePW80VL.js        0.71 kB │ gzip:  0.42 kB
+2026-10-09T05:44:42.7474744Z dist/staff/assets/accounts-oYDPwzfR.js                0.74 kB │ gzip:  0.36 kB
+2026-10-09T05:44:42.7476388Z dist/staff/assets/account-create-9xEzo1zk.js          1.78 kB │ gzip:  0.97 kB
+2026-10-09T05:44:42.7477924Z dist/staff/assets/devices-DGMfzPs-.js                 2.51 kB │ gzip:  1.22 kB
+2026-10-09T05:44:42.7479208Z dist/staff/assets/floor-OkVXVeax.js                   2.73 kB │ gzip:  1.33 kB
+2026-10-09T05:44:42.7480949Z dist/staff/assets/account-payments-qaG0pjRg.js        3.04 kB │ gzip:  1.56 kB
+2026-10-09T05:44:42.7482387Z dist/staff/assets/audit-lPumoky8.js                   4.04 kB │ gzip:  1.72 kB
+2026-10-09T05:44:42.7483802Z dist/staff/assets/notifications-BRGSfkvo.js           4.28 kB │ gzip:  1.80 kB
+2026-10-09T05:44:42.7485150Z dist/staff/assets/admin-operations-CZgcmv_P.js        4.73 kB │ gzip:  1.84 kB
+2026-10-09T05:44:42.7486428Z dist/staff/assets/branding-BOypjPOC.js                5.82 kB │ gzip:  2.56 kB
+2026-10-09T05:44:42.7487706Z dist/staff/assets/privacy-YZ0fAwuY.js                 6.12 kB │ gzip:  2.58 kB
+2026-10-09T05:44:42.7488995Z dist/staff/assets/kitchen-DIvP0cYh.js                 6.99 kB │ gzip:  2.70 kB
+2026-10-09T05:44:42.7490831Z dist/staff/assets/planning-C4Ij5TTt.js                7.44 kB │ gzip:  2.92 kB
+2026-10-09T05:44:42.7492123Z dist/staff/assets/waiter-DtXbIhtv.js                  8.35 kB │ gzip:  3.21 kB
+2026-10-09T05:44:42.7493526Z dist/staff/assets/statistics-CXDqlYME.js              8.37 kB │ gzip:  3.06 kB
+2026-10-09T05:44:42.7494943Z dist/staff/assets/room-editor-DTej7l4P.js             9.79 kB │ gzip:  3.82 kB
+2026-10-09T05:44:42.7496665Z dist/staff/assets/staff-management-DnGJ7lLa.js        9.83 kB │ gzip:  3.42 kB
+2026-10-09T05:44:42.7498062Z dist/staff/assets/offline-n3IgVr_P.js                 9.94 kB │ gzip:  4.13 kB
+2026-10-09T05:44:42.7499441Z dist/staff/assets/operational-settings-DCmYEdth.js   11.07 kB │ gzip:  4.39 kB
+2026-10-09T05:44:42.7501194Z dist/staff/assets/configuration-B2pIi1eD.js          12.77 kB │ gzip:  4.35 kB
+2026-10-09T05:44:42.7502628Z dist/staff/assets/cash-G5g1tLtg.js                   13.25 kB │ gzip:  4.82 kB
+2026-10-09T05:44:42.7503784Z dist/staff/assets/host-X6GgU9WY.js                   14.86 kB │ gzip:  5.27 kB
+2026-10-09T05:44:42.7504933Z dist/staff/assets/browser-SVqs8N5c.js                23.47 kB │ gzip:  8.86 kB
+2026-10-09T05:44:42.7506061Z dist/staff/assets/accounts-Dxc0R-uh.js               26.88 kB │ gzip:  8.99 kB
+2026-10-09T05:44:42.7507187Z dist/staff/assets/technical-BTP17YCO.js              26.91 kB │ gzip:  8.27 kB
+2026-10-09T05:44:42.7508311Z dist/staff/assets/index-CjhhuLNb.js                  36.39 kB │ gzip: 12.48 kB
+2026-10-09T05:44:42.7509628Z dist/staff/assets/printing-Dlm0VpRk.js               38.51 kB │ gzip: 11.96 kB
+2026-10-09T05:44:42.7511315Z dist/staff/assets/dom-DoUiIdfN.js                   340.32 kB │ gzip: 92.59 kB
+2026-10-09T05:44:42.7512144Z 
+2026-10-09T05:44:42.7512629Z [32m✓ built in 387ms[39m
+2026-10-09T05:44:42.7790578Z ##[group]Run npx playwright install --with-deps chromium
+2026-10-09T05:44:42.7791114Z [36;1mnpx playwright install --with-deps chromium[0m
+2026-10-09T05:44:42.7852007Z shell: /usr/bin/bash -e {0}
+2026-10-09T05:44:42.7852308Z ##[endgroup]
+2026-10-09T05:44:43.7067095Z Installing dependencies...
+2026-10-09T05:44:43.7158112Z Switching to root user to install dependencies...
+2026-10-09T05:44:43.9253441Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+2026-10-09T05:44:43.9714760Z Get:6 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease [3600 B]
+2026-10-09T05:44:43.9951774Z Hit:2 http://azure.archive.ubuntu.com/ubuntu noble InRelease
+2026-10-09T05:44:43.9971509Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+2026-10-09T05:44:43.9989262Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
+2026-10-09T05:44:44.0019004Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble-security InRelease [126 kB]
+2026-10-09T05:44:44.1147697Z Get:7 https://packages.microsoft.com/ubuntu/24.04/prod noble/main amd64 Packages [531 kB]
+2026-10-09T05:44:44.1545943Z Get:8 https://packages.microsoft.com/ubuntu/24.04/prod noble/main all Packages [640 B]
+2026-10-09T05:44:44.1586843Z Get:9 https://packages.microsoft.com/ubuntu/24.04/prod noble/main armhf Packages [12.3 kB]
+2026-10-09T05:44:44.1628564Z Get:10 https://packages.microsoft.com/ubuntu/24.04/prod noble/main arm64 Packages [475 kB]
+2026-10-09T05:44:44.2552904Z Get:11 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1375 kB]
+2026-10-09T05:44:44.2676052Z Get:12 http://azure.archive.ubuntu.com/ubuntu noble-updates/main Translation-en [306 kB]
+2026-10-09T05:44:44.2721433Z Get:13 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1702 kB]
+2026-10-09T05:44:44.2837777Z Get:14 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe Translation-en [342 kB]
+2026-10-09T05:44:44.2891384Z Get:15 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [1761 kB]
+2026-10-09T05:44:44.3102550Z Get:16 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted Translation-en [401 kB]
+2026-10-09T05:44:44.3140911Z Get:17 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Packages [55.0 kB]
+2026-10-09T05:44:44.3161074Z Get:18 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse Translation-en [14.3 kB]
+2026-10-09T05:44:44.5003088Z Get:19 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Packages [1118 kB]
+2026-10-09T05:44:44.5067383Z Get:20 http://azure.archive.ubuntu.com/ubuntu noble-security/main Translation-en [228 kB]
+2026-10-09T05:44:44.5541251Z Get:21 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 Packages [1220 kB]
+2026-10-09T05:44:44.5658380Z Get:22 http://azure.archive.ubuntu.com/ubuntu noble-security/universe Translation-en [245 kB]
+2026-10-09T05:44:44.5722250Z Get:23 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [1667 kB]
+2026-10-09T05:44:44.5778151Z Get:24 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted Translation-en [383 kB]
+2026-10-09T05:44:44.5802706Z Get:25 http://azure.archive.ubuntu.com/ubuntu noble-security/multiverse amd64 Packages [49.8 kB]
+2026-10-09T05:44:44.5814511Z Get:26 http://azure.archive.ubuntu.com/ubuntu noble-security/multiverse Translation-en [12.4 kB]
+2026-10-09T05:44:47.6659304Z Fetched 12.3 MB in 2s (7918 kB/s)
+2026-10-09T05:44:48.5267813Z Reading package lists...
+2026-10-09T05:44:48.5513128Z Reading package lists...
+2026-10-09T05:44:48.7293534Z Building dependency tree...
+2026-10-09T05:44:48.7302451Z Reading state information...
+2026-10-09T05:44:48.8681336Z libasound2t64 is already the newest version (1.2.11-1ubuntu0.3).
+2026-10-09T05:44:48.8682530Z libasound2t64 set to manually installed.
+2026-10-09T05:44:48.8683767Z libatk-bridge2.0-0t64 is already the newest version (2.52.0-1build1).
+2026-10-09T05:44:48.8684906Z libatk-bridge2.0-0t64 set to manually installed.
+2026-10-09T05:44:48.8686437Z libatk1.0-0t64 is already the newest version (2.52.0-1build1).
+2026-10-09T05:44:48.8687377Z libatk1.0-0t64 set to manually installed.
+2026-10-09T05:44:48.8688136Z libatspi2.0-0t64 is already the newest version (2.52.0-1build1).
+2026-10-09T05:44:48.8688840Z libatspi2.0-0t64 set to manually installed.
+2026-10-09T05:44:48.8689513Z libcairo2 is already the newest version (1.18.0-3build1).
+2026-10-09T05:44:48.8690449Z libcairo2 set to manually installed.
+2026-10-09T05:44:48.8691146Z libcups2t64 is already the newest version (2.4.7-1.2ubuntu7.14).
+2026-10-09T05:44:48.8691847Z libcups2t64 set to manually installed.
+2026-10-09T05:44:48.8692591Z libdbus-1-3 is already the newest version (1.14.10-4ubuntu4.1).
+2026-10-09T05:44:48.8693310Z libdbus-1-3 set to manually installed.
+2026-10-09T05:44:48.8694073Z libdrm2 is already the newest version (2.4.125-1ubuntu0.1~24.04.2).
+2026-10-09T05:44:48.8694798Z libdrm2 set to manually installed.
+2026-10-09T05:44:48.8695460Z libgbm1 is already the newest version (25.2.8-0ubuntu0.24.04.4).
+2026-10-09T05:44:48.8695905Z libgbm1 set to manually installed.
+2026-10-09T05:44:48.8696341Z libglib2.0-0t64 is already the newest version (2.80.0-6ubuntu3.9).
+2026-10-09T05:44:48.8696792Z libglib2.0-0t64 set to manually installed.
+2026-10-09T05:44:48.8697239Z libnspr4 is already the newest version (2:4.35-1.1build1).
+2026-10-09T05:44:48.8697644Z libnspr4 set to manually installed.
+2026-10-09T05:44:48.8698056Z libnss3 is already the newest version (2:3.98-1ubuntu0.2).
+2026-10-09T05:44:48.8698453Z libnss3 set to manually installed.
+2026-10-09T05:44:48.8698891Z libpango-1.0-0 is already the newest version (1.52.1+ds-1build1).
+2026-10-09T05:44:48.8699329Z libpango-1.0-0 set to manually installed.
+2026-10-09T05:44:48.8700075Z libx11-6 is already the newest version (2:1.8.7-1build1).
+2026-10-09T05:44:48.8700792Z libx11-6 set to manually installed.
+2026-10-09T05:44:48.8701354Z libxcb1 is already the newest version (1.15-1ubuntu2).
+2026-10-09T05:44:48.8701751Z libxcb1 set to manually installed.
+2026-10-09T05:44:48.8702187Z libxcomposite1 is already the newest version (1:0.4.5-1build3).
+2026-10-09T05:44:48.8702624Z libxcomposite1 set to manually installed.
+2026-10-09T05:44:48.8703087Z libxdamage1 is already the newest version (1:1.1.6-1build1).
+2026-10-09T05:44:48.8703760Z libxdamage1 set to manually installed.
+2026-10-09T05:44:48.8704166Z libxext6 is already the newest version (2:1.3.4-1build2).
+2026-10-09T05:44:48.8704570Z libxext6 set to manually installed.
+2026-10-09T05:44:48.8704989Z libxfixes3 is already the newest version (1:6.0.0-2build1).
+2026-10-09T05:44:48.8705396Z libxfixes3 set to manually installed.
+2026-10-09T05:44:48.8705810Z libxkbcommon0 is already the newest version (1.6.0-1build1).
+2026-10-09T05:44:48.8706229Z libxkbcommon0 set to manually installed.
+2026-10-09T05:44:48.8706666Z libxrandr2 is already the newest version (2:1.5.2-2build1).
+2026-10-09T05:44:48.8707073Z libxrandr2 set to manually installed.
+2026-10-09T05:44:48.8707502Z xvfb is already the newest version (2:21.1.12-1ubuntu1.8).
+2026-10-09T05:44:48.8708067Z fonts-noto-color-emoji is already the newest version (2.047-0ubuntu0.24.04.1).
+2026-10-09T05:44:48.8708652Z libfontconfig1 is already the newest version (2.15.0-1.1ubuntu2).
+2026-10-09T05:44:48.8709099Z libfontconfig1 set to manually installed.
+2026-10-09T05:44:48.8709541Z fonts-liberation is already the newest version (1:2.1.5-3).
+2026-10-09T05:44:48.8710457Z fonts-liberation set to manually installed.
+2026-10-09T05:44:48.8710894Z The following additional packages will be installed:
+2026-10-09T05:44:48.8711269Z   xfonts-encodings xfonts-utils
+2026-10-09T05:44:48.8711561Z Recommended packages:
+2026-10-09T05:44:48.8711857Z   fonts-ipafont-mincho fonts-tlwg-loma
+2026-10-09T05:44:48.8985355Z The following NEW packages will be installed:
+2026-10-09T05:44:48.8986686Z   fonts-freefont-ttf fonts-ipafont-gothic fonts-tlwg-loma-otf fonts-unifont
+2026-10-09T05:44:48.8991690Z   fonts-wqy-zenhei xfonts-cyrillic xfonts-encodings xfonts-scalable
+2026-10-09T05:44:48.8992805Z   xfonts-utils
+2026-10-09T05:44:48.9000818Z The following packages will be upgraded:
+2026-10-09T05:44:48.9001579Z   libfreetype6
+2026-10-09T05:44:48.9166918Z 1 upgraded, 9 newly installed, 0 to remove and 22 not upgraded.
+2026-10-09T05:44:48.9167962Z Need to get 21.5 MB of archives.
+2026-10-09T05:44:48.9169104Z After this operation, 79.5 MB of additional disk space will be used.
+2026-10-09T05:44:48.9170645Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+2026-10-09T05:44:49.0186544Z Get:2 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-ipafont-gothic all 00303-21ubuntu1 [3513 kB]
+2026-10-09T05:44:49.2253534Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 fonts-freefont-ttf all 20211204+svn4273-2 [5641 kB]
+2026-10-09T05:44:49.4669501Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-tlwg-loma-otf all 1:0.7.3-1 [107 kB]
+2026-10-09T05:44:49.5569072Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-unifont all 1:15.1.01-1build1 [2993 kB]
+2026-10-09T05:44:49.7240006Z Get:6 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-wqy-zenhei all 0.9.45-8 [7472 kB]
+2026-10-09T05:44:50.0739526Z Get:7 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libfreetype6 amd64 2.13.2+dfsg-1ubuntu0.2 [403 kB]
+2026-10-09T05:44:50.1717170Z Get:8 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-encodings all 1:1.0.5-0ubuntu2 [578 kB]
+2026-10-09T05:44:50.2752650Z Get:9 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-utils amd64 1:7.7+6build3 [94.4 kB]
+2026-10-09T05:44:50.4878263Z Get:10 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 xfonts-cyrillic all 1:1.0.5+nmu1 [384 kB]
+2026-10-09T05:44:50.7568302Z Get:11 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-scalable all 1:1.0.3-1.3 [304 kB]
+2026-10-09T05:44:51.0552538Z Fetched 21.5 MB in 2s (11.4 MB/s)
+2026-10-09T05:44:51.0987883Z Selecting previously unselected package fonts-ipafont-gothic.
+2026-10-09T05:44:51.1357259Z (Reading database ... 
+2026-10-09T05:44:51.1358201Z (Reading database ... 5%
+2026-10-09T05:44:51.1358891Z (Reading database ... 10%
+2026-10-09T05:44:51.1359552Z (Reading database ... 15%
+2026-10-09T05:44:51.1360292Z (Reading database ... 20%
+2026-10-09T05:44:51.1361072Z (Reading database ... 25%
+2026-10-09T05:44:51.1361566Z (Reading database ... 30%
+2026-10-09T05:44:51.1362050Z (Reading database ... 35%
+2026-10-09T05:44:51.1362529Z (Reading database ... 40%
+2026-10-09T05:44:51.1363013Z (Reading database ... 45%
+2026-10-09T05:44:51.1363493Z (Reading database ... 50%
+2026-10-09T05:44:51.1739531Z (Reading database ... 55%
+2026-10-09T05:44:51.5596091Z (Reading database ... 60%
+2026-10-09T05:44:51.8461171Z (Reading database ... 65%
+2026-10-09T05:44:52.1408843Z (Reading database ... 70%
+2026-10-09T05:44:52.4985150Z (Reading database ... 75%
+2026-10-09T05:44:52.9128008Z (Reading database ... 80%
+2026-10-09T05:44:53.4336188Z (Reading database ... 85%
+2026-10-09T05:44:53.9686766Z (Reading database ... 90%
+2026-10-09T05:44:54.6171872Z (Reading database ... 95%
+2026-10-09T05:44:54.6172723Z (Reading database ... 100%
+2026-10-09T05:44:54.6173549Z (Reading database ... 203191 files and directories currently installed.)
+2026-10-09T05:44:54.6213151Z Preparing to unpack .../0-fonts-ipafont-gothic_00303-21ubuntu1_all.deb ...
+2026-10-09T05:44:54.6308333Z Unpacking fonts-ipafont-gothic (00303-21ubuntu1) ...
+2026-10-09T05:44:54.8638896Z Selecting previously unselected package fonts-freefont-ttf.
+2026-10-09T05:44:54.8765437Z Preparing to unpack .../1-fonts-freefont-ttf_20211204+svn4273-2_all.deb ...
+2026-10-09T05:44:54.8772711Z Unpacking fonts-freefont-ttf (20211204+svn4273-2) ...
+2026-10-09T05:44:54.9613624Z Selecting previously unselected package fonts-tlwg-loma-otf.
+2026-10-09T05:44:54.9741862Z Preparing to unpack .../2-fonts-tlwg-loma-otf_1%3a0.7.3-1_all.deb ...
+2026-10-09T05:44:54.9746957Z Unpacking fonts-tlwg-loma-otf (1:0.7.3-1) ...
+2026-10-09T05:44:54.9952378Z Selecting previously unselected package fonts-unifont.
+2026-10-09T05:44:55.0077721Z Preparing to unpack .../3-fonts-unifont_1%3a15.1.01-1build1_all.deb ...
+2026-10-09T05:44:55.0083729Z Unpacking fonts-unifont (1:15.1.01-1build1) ...
+2026-10-09T05:44:55.1233836Z Selecting previously unselected package fonts-wqy-zenhei.
+2026-10-09T05:44:55.1360718Z Preparing to unpack .../4-fonts-wqy-zenhei_0.9.45-8_all.deb ...
+2026-10-09T05:44:55.1458263Z Unpacking fonts-wqy-zenhei (0.9.45-8) ...
+2026-10-09T05:44:55.6338265Z Preparing to unpack .../5-libfreetype6_2.13.2+dfsg-1ubuntu0.2_amd64.deb ...
+2026-10-09T05:44:55.6371222Z Unpacking libfreetype6:amd64 (2.13.2+dfsg-1ubuntu0.2) over (2.13.2+dfsg-1ubuntu0.1) ...
+2026-10-09T05:44:55.6617741Z Selecting previously unselected package xfonts-encodings.
+2026-10-09T05:44:55.6747227Z Preparing to unpack .../6-xfonts-encodings_1%3a1.0.5-0ubuntu2_all.deb ...
+2026-10-09T05:44:55.6756787Z Unpacking xfonts-encodings (1:1.0.5-0ubuntu2) ...
+2026-10-09T05:44:55.7052261Z Selecting previously unselected package xfonts-utils.
+2026-10-09T05:44:55.7181125Z Preparing to unpack .../7-xfonts-utils_1%3a7.7+6build3_amd64.deb ...
+2026-10-09T05:44:55.7188208Z Unpacking xfonts-utils (1:7.7+6build3) ...
+2026-10-09T05:44:55.7655155Z Selecting previously unselected package xfonts-cyrillic.
+2026-10-09T05:44:55.7781063Z Preparing to unpack .../8-xfonts-cyrillic_1%3a1.0.5+nmu1_all.deb ...
+2026-10-09T05:44:55.7788146Z Unpacking xfonts-cyrillic (1:1.0.5+nmu1) ...
+2026-10-09T05:44:55.8139325Z Selecting previously unselected package xfonts-scalable.
+2026-10-09T05:44:55.8267741Z Preparing to unpack .../9-xfonts-scalable_1%3a1.0.3-1.3_all.deb ...
+2026-10-09T05:44:55.8274490Z Unpacking xfonts-scalable (1:1.0.3-1.3) ...
+2026-10-09T05:44:55.8712756Z Setting up fonts-wqy-zenhei (0.9.45-8) ...
+2026-10-09T05:44:55.8833169Z Setting up fonts-freefont-ttf (20211204+svn4273-2) ...
+2026-10-09T05:44:55.8852527Z Setting up fonts-tlwg-loma-otf (1:0.7.3-1) ...
+2026-10-09T05:44:55.8870931Z Setting up libfreetype6:amd64 (2.13.2+dfsg-1ubuntu0.2) ...
+2026-10-09T05:44:55.8890333Z Setting up xfonts-encodings (1:1.0.5-0ubuntu2) ...
+2026-10-09T05:44:55.8906647Z Setting up fonts-ipafont-gothic (00303-21ubuntu1) ...
+2026-10-09T05:44:55.8971166Z update-alternatives: using /usr/share/fonts/opentype/ipafont-gothic/ipag.ttf to provide /usr/share/fonts/truetype/fonts-japanese-gothic.ttf (fonts-japanese-gothic.ttf) in auto mode
+2026-10-09T05:44:55.8986009Z Setting up fonts-unifont (1:15.1.01-1build1) ...
+2026-10-09T05:44:55.9003998Z Setting up xfonts-utils (1:7.7+6build3) ...
+2026-10-09T05:44:55.9042699Z Setting up xfonts-cyrillic (1:1.0.5+nmu1) ...
+2026-10-09T05:44:55.9359359Z Setting up xfonts-scalable (1:1.0.3-1.3) ...
+2026-10-09T05:44:55.9631510Z Processing triggers for libc-bin (2.39-0ubuntu8.9) ...
+2026-10-09T05:44:56.0142280Z Processing triggers for man-db (2.12.0-4build2) ...
+2026-10-09T05:44:56.0162712Z Not building database; man-db/auto-update is not 'true'.
+2026-10-09T05:44:56.0174469Z Processing triggers for fontconfig (2.15.0-1.1ubuntu2) ...
+2026-10-09T05:44:57.4130947Z 
+2026-10-09T05:44:57.4131989Z Running kernel seems to be up-to-date.
+2026-10-09T05:44:57.4132793Z 
+2026-10-09T05:44:57.4133205Z Restarting services...
+2026-10-09T05:44:57.4226690Z  systemctl restart php8.3-fpm.service
+2026-10-09T05:44:57.5350582Z 
+2026-10-09T05:44:58.3828286Z No containers need to be restarted.
+2026-10-09T05:44:58.3828616Z 
+2026-10-09T05:44:58.3828827Z No user sessions are running outdated binaries.
+2026-10-09T05:44:58.3829078Z 
+2026-10-09T05:44:58.3829389Z No VM guests are running outdated hypervisor (qemu) binaries on this host.
+2026-10-09T05:44:58.3831431Z Downloading Chrome for Testing 153.0.8010.12 (playwright chromium v1243) from https://cdn.playwright.dev/builds/cft/153.0.8010.12/linux64/chrome-linux64.zip
+2026-10-09T05:44:58.7947524Z |                                                                                |   0% of 186.8 MiB
+2026-10-09T05:44:59.1890547Z |■■■■■■■■                                                                        |  10% of 186.8 MiB
+2026-10-09T05:44:59.3593596Z |■■■■■■■■■■■■■■■■                                                                |  20% of 186.8 MiB
+2026-10-09T05:44:59.5086618Z |■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 186.8 MiB
+2026-10-09T05:44:59.6043798Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 186.8 MiB
+2026-10-09T05:44:59.7130874Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 186.8 MiB
+2026-10-09T05:44:59.8616200Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 186.8 MiB
+2026-10-09T05:44:59.9748824Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 186.8 MiB
+2026-10-09T05:45:00.0972653Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 186.8 MiB
+2026-10-09T05:45:00.2220550Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 186.8 MiB
+2026-10-09T05:45:00.3367528Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 186.8 MiB
+2026-10-09T05:45:04.5405860Z Chrome for Testing 153.0.8010.12 (playwright chromium v1243) downloaded to /home/runner/.cache/ms-playwright/chromium-1243
+2026-10-09T05:45:04.5412490Z Downloading FFmpeg (playwright ffmpeg v1011) from https://cdn.playwright.dev/dbazure/download/playwright/builds/ffmpeg/1011/ffmpeg-linux.zip
+2026-10-09T05:45:04.9322636Z |                                                                                |   0% of 2.3 MiB
+2026-10-09T05:45:04.9429148Z |■■■■■■■■                                                                        |  10% of 2.3 MiB
+2026-10-09T05:45:04.9508332Z |■■■■■■■■■■■■■■■■                                                                |  20% of 2.3 MiB
+2026-10-09T05:45:04.9570629Z |■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 2.3 MiB
+2026-10-09T05:45:04.9614932Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 2.3 MiB
+2026-10-09T05:45:04.9627386Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 2.3 MiB
+2026-10-09T05:45:04.9663018Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 2.3 MiB
+2026-10-09T05:45:04.9687558Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 2.3 MiB
+2026-10-09T05:45:04.9725663Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 2.3 MiB
+2026-10-09T05:45:04.9747541Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 2.3 MiB
+2026-10-09T05:45:04.9760517Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 2.3 MiB
+2026-10-09T05:45:05.0482357Z FFmpeg (playwright ffmpeg v1011) downloaded to /home/runner/.cache/ms-playwright/ffmpeg-1011
+2026-10-09T05:45:05.0485546Z Downloading Chrome Headless Shell 153.0.8010.12 (playwright chromium-headless-shell v1243) from https://cdn.playwright.dev/builds/cft/153.0.8010.12/linux64/chrome-headless-shell-linux64.zip
+2026-10-09T05:45:05.4456676Z |                                                                                |   0% of 114.3 MiB
+2026-10-09T05:45:05.5795526Z |■■■■■■■■                                                                        |  10% of 114.3 MiB
+2026-10-09T05:45:05.6820161Z |■■■■■■■■■■■■■■■■                                                                |  20% of 114.3 MiB
+2026-10-09T05:45:05.7578998Z |■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 114.3 MiB
+2026-10-09T05:45:05.8330391Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 114.3 MiB
+2026-10-09T05:45:05.9261442Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 114.3 MiB
+2026-10-09T05:45:05.9784666Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 114.3 MiB
+2026-10-09T05:45:06.0316100Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 114.3 MiB
+2026-10-09T05:45:06.1155909Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 114.3 MiB
+2026-10-09T05:45:06.1772489Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 114.3 MiB
+2026-10-09T05:45:06.2611226Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 114.3 MiB
+2026-10-09T05:45:09.3908638Z Chrome Headless Shell 153.0.8010.12 (playwright chromium-headless-shell v1243) downloaded to /home/runner/.cache/ms-playwright/chromium_headless_shell-1243
+2026-10-09T05:45:09.4292662Z ##[group]Run node scripts/check-step11-build-assembly.mjs --browser-node
+2026-10-09T05:45:09.4293699Z [36;1mnode scripts/check-step11-build-assembly.mjs --browser-node[0m
+2026-10-09T05:45:09.4381814Z shell: /usr/bin/bash -e {0}
+2026-10-09T05:45:09.4382279Z ##[endgroup]
+2026-10-09T05:45:12.2551682Z STEP11_STATIC_SITE_NODE_CHROMIUM=PASS (19 checks; JS disabled)
+2026-10-09T05:45:12.2958208Z STEP11_INTEGRATED_BUILD_ASSEMBLY=PASS (17 assertions, real public index.html, isolated RPC transport)
+2026-10-09T05:45:12.3076392Z ##[group]Run npm run test:e2e
+2026-10-09T05:45:12.3076972Z [36;1mnpm run test:e2e[0m
+2026-10-09T05:45:12.3154854Z shell: /usr/bin/bash -e {0}
+2026-10-09T05:45:12.3155155Z ##[endgroup]
+2026-10-09T05:45:12.4215099Z 
+2026-10-09T05:45:12.4215863Z > plateform@0.1.0 test:e2e
+2026-10-09T05:45:12.4216627Z > playwright test
+2026-10-09T05:45:12.4217042Z 
+2026-10-09T05:45:15.6874204Z 
+2026-10-09T05:45:15.6875062Z Running 20 tests using 1 worker
+2026-10-09T05:45:41.9591385Z ····················
+2026-10-09T05:45:41.9596082Z   20 passed (28.9s)
+2026-10-09T05:45:41.9953817Z Post job cleanup.
+2026-10-09T05:45:42.1284341Z (node:4389) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-09T05:45:42.1286277Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-09T05:45:42.1288609Z Cache hit occurred on the primary key node-cache-Linux-x64-npm-a0e3ec2a2175e9ad6df7f6a7dc3a1d3e9c5d6aa24618e9a119e58bdc53790ae7, not saving cache.
+2026-10-09T05:45:42.1445950Z Post job cleanup.
+2026-10-09T05:45:42.2401566Z [command]/usr/bin/git version
+2026-10-09T05:45:42.2476253Z git version 2.55.0
+2026-10-09T05:45:42.2575624Z Temporarily overriding HOME='/home/runner/work/_temp/4077fe6f-77e1-4bcb-bab9-9fc29067858c' before making global git config changes
+2026-10-09T05:45:42.2577174Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-09T05:45:42.2578571Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/plateform-core/plateform-core
+2026-10-09T05:45:42.2581194Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-09T05:45:42.2631726Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-09T05:45:42.3021333Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-09T05:45:42.3040605Z http.https://github.com/.extraheader
+2026-10-09T05:45:42.3073402Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-09T05:45:42.3095924Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-09T05:45:42.3503313Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-09T05:45:42.3556105Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-09T05:45:42.4286861Z Cleaning up orphan processes
+2026-10-09T05:45:42.4694852Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-node@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

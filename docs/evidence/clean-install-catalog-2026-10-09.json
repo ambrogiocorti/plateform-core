@@ -1,0 +1,1039 @@
+{
+  "project": "abdxvlykasqmknexxhjo",
+  "access": "read_only_catalog",
+  "catalog": {
+    "tables": [
+      {
+        "schema": "private",
+        "table": "continuity_rehearsal_blob",
+        "rls": true,
+        "force_rls": false,
+        "owner": "postgres"
+      },
+      {
+        "schema": "private",
+        "table": "continuity_rehearsal_key",
+        "rls": true,
+        "force_rls": false,
+        "owner": "postgres"
+      },
+      {
+        "schema": "private",
+        "table": "continuity_rehearsal_snapshot_manifest",
+        "rls": true,
+        "force_rls": false,
+        "owner": "postgres"
+      },
+      {
+        "schema": "private",
+        "table": "continuity_rehearsal_snapshot_rows",
+        "rls": true,
+        "force_rls": false,
+        "owner": "postgres"
+      },
+      {
+        "schema": "private",
+        "table": "continuity_rehearsal_snapshot_tables",
+        "rls": true,
+        "force_rls": false,
+        "owner": "postgres"
+      },
+      {
+        "schema": "private",
+        "table": "continuity_rehearsal_transfer_chunks",
+        "rls": true,
+        "force_rls": false,
+        "owner": "postgres"
+      },
+      {
+        "schema": "private",
+        "table": "continuity_rehearsal_transfer_key",
+        "rls": true,
+        "force_rls": false,
+        "owner": "postgres"
+      }
+    ],
+    "columns": [
+      {
+        "table_name": "continuity_rehearsal_blob",
+        "column_name": "snapshot_id",
+        "data_type": "uuid",
+        "udt_schema": "pg_catalog",
+        "udt_name": "uuid",
+        "is_nullable": "NO",
+        "column_default": null,
+        "ordinal_position": 1
+      },
+      {
+        "table_name": "continuity_rehearsal_blob",
+        "column_name": "row_count",
+        "data_type": "bigint",
+        "udt_schema": "pg_catalog",
+        "udt_name": "int8",
+        "is_nullable": "NO",
+        "column_default": null,
+        "ordinal_position": 2
+      },
+      {
+        "table_name": "continuity_rehearsal_blob",
+        "column_name": "table_count",
+        "data_type": "integer",
+        "udt_schema": "pg_catalog",
+        "udt_name": "int4",
+        "is_nullable": "NO",
+        "column_default": null,
+        "ordinal_position": 3
+      },
+      {
+        "table_name": "continuity_rehearsal_blob",
+        "column_name": "plaintext_sha256",
+        "data_type": "text",
+        "udt_schema": "pg_catalog",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "ordinal_position": 4
+      },
+      {
+        "table_name": "continuity_rehearsal_blob",
+        "column_name": "cipher",
+        "data_type": "bytea",
+        "udt_schema": "pg_catalog",
+        "udt_name": "bytea",
+        "is_nullable": "NO",
+        "column_default": null,
+        "ordinal_position": 5
+      },
+      {
+        "table_name": "continuity_rehearsal_blob",
+        "column_name": "created_at",
+        "data_type": "timestamp with time zone",
+        "udt_schema": "pg_catalog",
+        "udt_name": "timestamptz",
+        "is_nullable": "NO",
+        "column_default": "now()",
+        "ordinal_position": 6
+      },
+      {
+        "table_name": "continuity_rehearsal_key",
+        "column_name": "id",
+        "data_type": "boolean",
+        "udt_schema": "pg_catalog",
+        "udt_name": "bool",
+        "is_nullable": "NO",
+        "column_default": "true",
+        "ordinal_position": 1
+      },
+      {
+        "table_name": "continuity_rehearsal_key",
+        "column_name": "key_material",
+        "data_type": "text",
+        "udt_schema": "pg_catalog",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": "encode(gen_random_bytes(32), 'hex'::text)",
+        "ordinal_position": 2
+      },
+      {
+        "table_name": "continuity_rehearsal_key",
+        "column_name": "created_at",
+        "data_type": "timestamp with time zone",
+        "udt_schema": "pg_catalog",
+        "udt_name": "timestamptz",
+        "is_nullable": "NO",
+        "column_default": "now()",
+        "ordinal_position": 3
+      },
+      {
+        "table_name": "continuity_rehearsal_snapshot_manifest",
+        "column_name": "snapshot_id",
+        "data_type": "uuid",
+        "udt_schema": "pg_catalog",
+        "udt_name": "uuid",
+        "is_nullable": "NO",
+        "column_default": null,
+        "ordinal_position": 1
+      },
+      {
+        "table_name": "continuity_rehearsal_snapshot_manifest",
+        "column_name": "created_at",
+        "data_type": "timestamp with time zone",
+        "udt_schema": "pg_catalog",
+        "udt_name": "timestamptz",
+        "is_nullable": "NO",
+        "column_default": "now()",
+        "ordinal_position": 2
+      },
+      {
+        "table_name": "continuity_rehearsal_snapshot_manifest",
+        "column_name": "migration_count",
+        "data_type": "integer",
+        "udt_schema": "pg_catalog",
+        "udt_name": "int4",
+        "is_nullable": "NO",
+        "column_default": null,
+        "ordinal_position": 3
+      },
+      {
+        "table_name": "continuity_rehearsal_snapshot_manifest",
+        "column_name": "migration_latest_version",
+        "data_type": "text",
+        "udt_schema": "pg_catalog",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "ordinal_position": 4
+      },
+      {
+        "table_name": "continuity_rehearsal_snapshot_manifest",
+        "column_name": "migration_aggregate_sha256",
+        "data_type": "text",
+        "udt_schema": "pg_catalog",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "ordinal_position": 5
+      },
+      {
+        "table_name": "continuity_rehearsal_snapshot_manifest",
+        "column_name": "auth_user_count",
+        "data_type": "bigint",
+        "udt_schema": "pg_catalog",
+        "udt_name": "int8",
+        "is_nullable": "NO",
+        "column_default": null,
+        "ordinal_position": 6
+      },
+      {
+        "table_name": "continuity_rehearsal_snapshot_manifest",
+        "column_name": "durable_private_row_count",
+        "data_type": "bigint",
+        "udt_schema": "pg_catalog",
+        "udt_name": "int8",
+        "is_nullable": "NO",
+        "column_default": null,
+        "ordinal_position": 7
+      },
+      {
+        "table_name": "continuity_rehearsal_snapshot_manifest",
+        "column_name": "durable_private_sha256",
+        "data_type": "text",
+        "udt_schema": "pg_catalog",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "ordinal_position": 8
+      },
+      {
+        "table_name": "continuity_rehearsal_snapshot_manifest",
+        "column_name": "table_count",
+        "data_type": "integer",
+        "udt_schema": "pg_catalog",
+        "udt_name": "int4",
+        "is_nullable": "NO",
+        "column_default": null,
+        "ordinal_position": 9
+      },
+      {
+        "table_name": "continuity_rehearsal_snapshot_manifest",
+        "column_name": "row_count",
+        "data_type": "bigint",
+        "udt_schema": "pg_catalog",
+        "udt_name": "int8",
+        "is_nullable": "NO",
+        "column_default": null,
+        "ordinal_position": 10
+      },
+      {
+        "table_name": "continuity_rehearsal_snapshot_manifest",
+        "column_name": "storage_bucket_count",
+        "data_type": "bigint",
+        "udt_schema": "pg_catalog",
+        "udt_name": "int8",
+        "is_nullable": "NO",
+        "column_default": null,
+        "ordinal_position": 11
+      },
+      {
+        "table_name": "continuity_rehearsal_snapshot_manifest",
+        "column_name": "storage_object_count",
+        "data_type": "bigint",
+        "udt_schema": "pg_catalog",
+        "udt_name": "int8",
+        "is_nullable": "NO",
+        "column_default": null,
+        "ordinal_position": 12
+      },
+      {
+        "table_name": "continuity_rehearsal_snapshot_manifest",
+        "column_name": "status",
+        "data_type": "text",
+        "udt_schema": "pg_catalog",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": "'FROZEN'::text",
+        "ordinal_position": 13
+      },
+      {
+        "table_name": "continuity_rehearsal_snapshot_rows",
+        "column_name": "snapshot_id",
+        "data_type": "uuid",
+        "udt_schema": "pg_catalog",
+        "udt_name": "uuid",
+        "is_nullable": "NO",
+        "column_default": null,
+        "ordinal_position": 1
+      },
+      {
+        "table_name": "continuity_rehearsal_snapshot_rows",
+        "column_name": "schema_name",
+        "data_type": "text",
+        "udt_schema": "pg_catalog",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "ordinal_position": 2
+      },
+      {
+        "table_name": "continuity_rehearsal_snapshot_rows",
+        "column_name": "table_name",
+        "data_type": "text",
+        "udt_schema": "pg_catalog",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "ordinal_position": 3
+      },
+      {
+        "table_name": "continuity_rehearsal_snapshot_rows",
+        "column_name": "row_no",
+        "data_type": "bigint",
+        "udt_schema": "pg_catalog",
+        "udt_name": "int8",
+        "is_nullable": "NO",
+        "column_default": null,
+        "ordinal_position": 4
+      },
+      {
+        "table_name": "continuity_rehearsal_snapshot_rows",
+        "column_name": "row_data",
+        "data_type": "jsonb",
+        "udt_schema": "pg_catalog",
+        "udt_name": "jsonb",
+        "is_nullable": "NO",
+        "column_default": null,
+        "ordinal_position": 5
+      },
+      {
+        "table_name": "continuity_rehearsal_snapshot_tables",
+        "column_name": "snapshot_id",
+        "data_type": "uuid",
+        "udt_schema": "pg_catalog",
+        "udt_name": "uuid",
+        "is_nullable": "NO",
+        "column_default": null,
+        "ordinal_position": 1
+      },
+      {
+        "table_name": "continuity_rehearsal_snapshot_tables",
+        "column_name": "schema_name",
+        "data_type": "text",
+        "udt_schema": "pg_catalog",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "ordinal_position": 2
+      },
+      {
+        "table_name": "continuity_rehearsal_snapshot_tables",
+        "column_name": "table_name",
+        "data_type": "text",
+        "udt_schema": "pg_catalog",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "ordinal_position": 3
+      },
+      {
+        "table_name": "continuity_rehearsal_snapshot_tables",
+        "column_name": "row_count",
+        "data_type": "bigint",
+        "udt_schema": "pg_catalog",
+        "udt_name": "int8",
+        "is_nullable": "NO",
+        "column_default": null,
+        "ordinal_position": 4
+      },
+      {
+        "table_name": "continuity_rehearsal_snapshot_tables",
+        "column_name": "data_sha256",
+        "data_type": "text",
+        "udt_schema": "pg_catalog",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "ordinal_position": 5
+      },
+      {
+        "table_name": "continuity_rehearsal_snapshot_tables",
+        "column_name": "insert_columns",
+        "data_type": "ARRAY",
+        "udt_schema": "pg_catalog",
+        "udt_name": "_text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "ordinal_position": 6
+      },
+      {
+        "table_name": "continuity_rehearsal_snapshot_tables",
+        "column_name": "has_identity_always",
+        "data_type": "boolean",
+        "udt_schema": "pg_catalog",
+        "udt_name": "bool",
+        "is_nullable": "NO",
+        "column_default": null,
+        "ordinal_position": 7
+      },
+      {
+        "table_name": "continuity_rehearsal_snapshot_tables",
+        "column_name": "generated_columns",
+        "data_type": "ARRAY",
+        "udt_schema": "pg_catalog",
+        "udt_name": "_text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "ordinal_position": 8
+      },
+      {
+        "table_name": "continuity_rehearsal_transfer_chunks",
+        "column_name": "snapshot_id",
+        "data_type": "uuid",
+        "udt_schema": "pg_catalog",
+        "udt_name": "uuid",
+        "is_nullable": "NO",
+        "column_default": null,
+        "ordinal_position": 1
+      },
+      {
+        "table_name": "continuity_rehearsal_transfer_chunks",
+        "column_name": "chunk_no",
+        "data_type": "integer",
+        "udt_schema": "pg_catalog",
+        "udt_name": "int4",
+        "is_nullable": "NO",
+        "column_default": null,
+        "ordinal_position": 2
+      },
+      {
+        "table_name": "continuity_rehearsal_transfer_chunks",
+        "column_name": "row_count",
+        "data_type": "integer",
+        "udt_schema": "pg_catalog",
+        "udt_name": "int4",
+        "is_nullable": "NO",
+        "column_default": null,
+        "ordinal_position": 3
+      },
+      {
+        "table_name": "continuity_rehearsal_transfer_chunks",
+        "column_name": "plaintext_sha256",
+        "data_type": "text",
+        "udt_schema": "pg_catalog",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "ordinal_position": 4
+      },
+      {
+        "table_name": "continuity_rehearsal_transfer_chunks",
+        "column_name": "ciphertext",
+        "data_type": "bytea",
+        "udt_schema": "pg_catalog",
+        "udt_name": "bytea",
+        "is_nullable": "NO",
+        "column_default": null,
+        "ordinal_position": 5
+      },
+      {
+        "table_name": "continuity_rehearsal_transfer_chunks",
+        "column_name": "created_at",
+        "data_type": "timestamp with time zone",
+        "udt_schema": "pg_catalog",
+        "udt_name": "timestamptz",
+        "is_nullable": "NO",
+        "column_default": "now()",
+        "ordinal_position": 6
+      },
+      {
+        "table_name": "continuity_rehearsal_transfer_key",
+        "column_name": "snapshot_id",
+        "data_type": "uuid",
+        "udt_schema": "pg_catalog",
+        "udt_name": "uuid",
+        "is_nullable": "NO",
+        "column_default": null,
+        "ordinal_position": 1
+      },
+      {
+        "table_name": "continuity_rehearsal_transfer_key",
+        "column_name": "encryption_key",
+        "data_type": "text",
+        "udt_schema": "pg_catalog",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "ordinal_position": 2
+      },
+      {
+        "table_name": "continuity_rehearsal_transfer_key",
+        "column_name": "created_at",
+        "data_type": "timestamp with time zone",
+        "udt_schema": "pg_catalog",
+        "udt_name": "timestamptz",
+        "is_nullable": "NO",
+        "column_default": "now()",
+        "ordinal_position": 3
+      }
+    ],
+    "constraints": [
+      {
+        "table_name": "continuity_rehearsal_blob",
+        "conname": "continuity_rehearsal_blob_pkey",
+        "definition": "PRIMARY KEY (snapshot_id)"
+      },
+      {
+        "table_name": "continuity_rehearsal_key",
+        "conname": "continuity_rehearsal_key_id_check",
+        "definition": "CHECK (id)"
+      },
+      {
+        "table_name": "continuity_rehearsal_key",
+        "conname": "continuity_rehearsal_key_pkey",
+        "definition": "PRIMARY KEY (id)"
+      },
+      {
+        "table_name": "continuity_rehearsal_snapshot_manifest",
+        "conname": "continuity_rehearsal_snapshot_manifest_pkey",
+        "definition": "PRIMARY KEY (snapshot_id)"
+      },
+      {
+        "table_name": "continuity_rehearsal_snapshot_rows",
+        "conname": "continuity_rehearsal_snapshot_rows_pkey",
+        "definition": "PRIMARY KEY (snapshot_id, schema_name, table_name, row_no)"
+      },
+      {
+        "table_name": "continuity_rehearsal_snapshot_rows",
+        "conname": "continuity_rehearsal_snapshot_rows_snapshot_id_fkey",
+        "definition": "FOREIGN KEY (snapshot_id) REFERENCES private.continuity_rehearsal_snapshot_manifest(snapshot_id) ON DELETE CASCADE"
+      },
+      {
+        "table_name": "continuity_rehearsal_snapshot_tables",
+        "conname": "continuity_rehearsal_snapshot_tables_pkey",
+        "definition": "PRIMARY KEY (snapshot_id, schema_name, table_name)"
+      },
+      {
+        "table_name": "continuity_rehearsal_transfer_chunks",
+        "conname": "continuity_rehearsal_transfer_chunks_pkey",
+        "definition": "PRIMARY KEY (snapshot_id, chunk_no)"
+      },
+      {
+        "table_name": "continuity_rehearsal_transfer_key",
+        "conname": "continuity_rehearsal_transfer_key_pkey",
+        "definition": "PRIMARY KEY (snapshot_id)"
+      }
+    ],
+    "policies": null,
+    "grants": [
+      {
+        "grantor": "postgres",
+        "grantee": "postgres",
+        "table_catalog": "postgres",
+        "table_schema": "private",
+        "table_name": "continuity_rehearsal_blob",
+        "privilege_type": "INSERT",
+        "is_grantable": "YES",
+        "with_hierarchy": "NO"
+      },
+      {
+        "grantor": "postgres",
+        "grantee": "postgres",
+        "table_catalog": "postgres",
+        "table_schema": "private",
+        "table_name": "continuity_rehearsal_blob",
+        "privilege_type": "SELECT",
+        "is_grantable": "YES",
+        "with_hierarchy": "YES"
+      },
+      {
+        "grantor": "postgres",
+        "grantee": "postgres",
+        "table_catalog": "postgres",
+        "table_schema": "private",
+        "table_name": "continuity_rehearsal_blob",
+        "privilege_type": "UPDATE",
+        "is_grantable": "YES",
+        "with_hierarchy": "NO"
+      },
+      {
+        "grantor": "postgres",
+        "grantee": "postgres",
+        "table_catalog": "postgres",
+        "table_schema": "private",
+        "table_name": "continuity_rehearsal_blob",
+        "privilege_type": "DELETE",
+        "is_grantable": "YES",
+        "with_hierarchy": "NO"
+      },
+      {
+        "grantor": "postgres",
+        "grantee": "postgres",
+        "table_catalog": "postgres",
+        "table_schema": "private",
+        "table_name": "continuity_rehearsal_blob",
+        "privilege_type": "TRUNCATE",
+        "is_grantable": "YES",
+        "with_hierarchy": "NO"
+      },
+      {
+        "grantor": "postgres",
+        "grantee": "postgres",
+        "table_catalog": "postgres",
+        "table_schema": "private",
+        "table_name": "continuity_rehearsal_blob",
+        "privilege_type": "REFERENCES",
+        "is_grantable": "YES",
+        "with_hierarchy": "NO"
+      },
+      {
+        "grantor": "postgres",
+        "grantee": "postgres",
+        "table_catalog": "postgres",
+        "table_schema": "private",
+        "table_name": "continuity_rehearsal_blob",
+        "privilege_type": "TRIGGER",
+        "is_grantable": "YES",
+        "with_hierarchy": "NO"
+      },
+      {
+        "grantor": "postgres",
+        "grantee": "postgres",
+        "table_catalog": "postgres",
+        "table_schema": "private",
+        "table_name": "continuity_rehearsal_key",
+        "privilege_type": "INSERT",
+        "is_grantable": "YES",
+        "with_hierarchy": "NO"
+      },
+      {
+        "grantor": "postgres",
+        "grantee": "postgres",
+        "table_catalog": "postgres",
+        "table_schema": "private",
+        "table_name": "continuity_rehearsal_key",
+        "privilege_type": "SELECT",
+        "is_grantable": "YES",
+        "with_hierarchy": "YES"
+      },
+      {
+        "grantor": "postgres",
+        "grantee": "postgres",
+        "table_catalog": "postgres",
+        "table_schema": "private",
+        "table_name": "continuity_rehearsal_key",
+        "privilege_type": "UPDATE",
+        "is_grantable": "YES",
+        "with_hierarchy": "NO"
+      },
+      {
+        "grantor": "postgres",
+        "grantee": "postgres",
+        "table_catalog": "postgres",
+        "table_schema": "private",
+        "table_name": "continuity_rehearsal_key",
+        "privilege_type": "DELETE",
+        "is_grantable": "YES",
+        "with_hierarchy": "NO"
+      },
+      {
+        "grantor": "postgres",
+        "grantee": "postgres",
+        "table_catalog": "postgres",
+        "table_schema": "private",
+        "table_name": "continuity_rehearsal_key",
+        "privilege_type": "TRUNCATE",
+        "is_grantable": "YES",
+        "with_hierarchy": "NO"
+      },
+      {
+        "grantor": "postgres",
+        "grantee": "postgres",
+        "table_catalog": "postgres",
+        "table_schema": "private",
+        "table_name": "continuity_rehearsal_key",
+        "privilege_type": "REFERENCES",
+        "is_grantable": "YES",
+        "with_hierarchy": "NO"
+      },
+      {
+        "grantor": "postgres",
+        "grantee": "postgres",
+        "table_catalog": "postgres",
+        "table_schema": "private",
+        "table_name": "continuity_rehearsal_key",
+        "privilege_type": "TRIGGER",
+        "is_grantable": "YES",
+        "with_hierarchy": "NO"
+      },
+      {
+        "grantor": "postgres",
+        "grantee": "postgres",
+        "table_catalog": "postgres",
+        "table_schema": "private",
+        "table_name": "continuity_rehearsal_snapshot_manifest",
+        "privilege_type": "INSERT",
+        "is_grantable": "YES",
+        "with_hierarchy": "NO"
+      },
+      {
+        "grantor": "postgres",
+        "grantee": "postgres",
+        "table_catalog": "postgres",
+        "table_schema": "private",
+        "table_name": "continuity_rehearsal_snapshot_manifest",
+        "privilege_type": "SELECT",
+        "is_grantable": "YES",
+        "with_hierarchy": "YES"
+      },
+      {
+        "grantor": "postgres",
+        "grantee": "postgres",
+        "table_catalog": "postgres",
+        "table_schema": "private",
+        "table_name": "continuity_rehearsal_snapshot_manifest",
+        "privilege_type": "UPDATE",
+        "is_grantable": "YES",
+        "with_hierarchy": "NO"
+      },
+      {
+        "grantor": "postgres",
+        "grantee": "postgres",
+        "table_catalog": "postgres",
+        "table_schema": "private",
+        "table_name": "continuity_rehearsal_snapshot_manifest",
+        "privilege_type": "DELETE",
+        "is_grantable": "YES",
+        "with_hierarchy": "NO"
+      },
+      {
+        "grantor": "postgres",
+        "grantee": "postgres",
+        "table_catalog": "postgres",
+        "table_schema": "private",
+        "table_name": "continuity_rehearsal_snapshot_manifest",
+        "privilege_type": "TRUNCATE",
+        "is_grantable": "YES",
+        "with_hierarchy": "NO"
+      },
+      {
+        "grantor": "postgres",
+        "grantee": "postgres",
+        "table_catalog": "postgres",
+        "table_schema": "private",
+        "table_name": "continuity_rehearsal_snapshot_manifest",
+        "privilege_type": "REFERENCES",
+        "is_grantable": "YES",
+        "with_hierarchy": "NO"
+      },
+      {
+        "grantor": "postgres",
+        "grantee": "postgres",
+        "table_catalog": "postgres",
+        "table_schema": "private",
+        "table_name": "continuity_rehearsal_snapshot_manifest",
+        "privilege_type": "TRIGGER",
+        "is_grantable": "YES",
+        "with_hierarchy": "NO"
+      },
+      {
+        "grantor": "postgres",
+        "grantee": "postgres",
+        "table_catalog": "postgres",
+        "table_schema": "private",
+        "table_name": "continuity_rehearsal_snapshot_rows",
+        "privilege_type": "INSERT",
+        "is_grantable": "YES",
+        "with_hierarchy": "NO"
+      },
+      {
+        "grantor": "postgres",
+        "grantee": "postgres",
+        "table_catalog": "postgres",
+        "table_schema": "private",
+        "table_name": "continuity_rehearsal_snapshot_rows",
+        "privilege_type": "SELECT",
+        "is_grantable": "YES",
+        "with_hierarchy": "YES"
+      },
+      {
+        "grantor": "postgres",
+        "grantee": "postgres",
+        "table_catalog": "postgres",
+        "table_schema": "private",
+        "table_name": "continuity_rehearsal_snapshot_rows",
+        "privilege_type": "UPDATE",
+        "is_grantable": "YES",
+        "with_hierarchy": "NO"
+      },
+      {
+        "grantor": "postgres",
+        "grantee": "postgres",
+        "table_catalog": "postgres",
+        "table_schema": "private",
+        "table_name": "continuity_rehearsal_snapshot_rows",
+        "privilege_type": "DELETE",
+        "is_grantable": "YES",
+        "with_hierarchy": "NO"
+      },
+      {
+        "grantor": "postgres",
+        "grantee": "postgres",
+        "table_catalog": "postgres",
+        "table_schema": "private",
+        "table_name": "continuity_rehearsal_snapshot_rows",
+        "privilege_type": "TRUNCATE",
+        "is_grantable": "YES",
+        "with_hierarchy": "NO"
+      },
+      {
+        "grantor": "postgres",
+        "grantee": "postgres",
+        "table_catalog": "postgres",
+        "table_schema": "private",
+        "table_name": "continuity_rehearsal_snapshot_rows",
+        "privilege_type": "REFERENCES",
+        "is_grantable": "YES",
+        "with_hierarchy": "NO"
+      },
+      {
+        "grantor": "postgres",
+        "grantee": "postgres",
+        "table_catalog": "postgres",
+        "table_schema": "private",
+        "table_name": "continuity_rehearsal_snapshot_rows",
+        "privilege_type": "TRIGGER",
+        "is_grantable": "YES",
+        "with_hierarchy": "NO"
+      },
+      {
+        "grantor": "postgres",
+        "grantee": "postgres",
+        "table_catalog": "postgres",
+        "table_schema": "private",
+        "table_name": "continuity_rehearsal_snapshot_tables",
+        "privilege_type": "INSERT",
+        "is_grantable": "YES",
+        "with_hierarchy": "NO"
+      },
+      {
+        "grantor": "postgres",
+        "grantee": "postgres",
+        "table_catalog": "postgres",
+        "table_schema": "private",
+        "table_name": "continuity_rehearsal_snapshot_tables",
+        "privilege_type": "SELECT",
+        "is_grantable": "YES",
+        "with_hierarchy": "YES"
+      },
+      {
+        "grantor": "postgres",
+        "grantee": "postgres",
+        "table_catalog": "postgres",
+        "table_schema": "private",
+        "table_name": "continuity_rehearsal_snapshot_tables",
+        "privilege_type": "UPDATE",
+        "is_grantable": "YES",
+        "with_hierarchy": "NO"
+      },
+      {
+        "grantor": "postgres",
+        "grantee": "postgres",
+        "table_catalog": "postgres",
+        "table_schema": "private",
+        "table_name": "continuity_rehearsal_snapshot_tables",
+        "privilege_type": "DELETE",
+        "is_grantable": "YES",
+        "with_hierarchy": "NO"
+      },
+      {
+        "grantor": "postgres",
+        "grantee": "postgres",
+        "table_catalog": "postgres",
+        "table_schema": "private",
+        "table_name": "continuity_rehearsal_snapshot_tables",
+        "privilege_type": "TRUNCATE",
+        "is_grantable": "YES",
+        "with_hierarchy": "NO"
+      },
+      {
+        "grantor": "postgres",
+        "grantee": "postgres",
+        "table_catalog": "postgres",
+        "table_schema": "private",
+        "table_name": "continuity_rehearsal_snapshot_tables",
+        "privilege_type": "REFERENCES",
+        "is_grantable": "YES",
+        "with_hierarchy": "NO"
+      },
+      {
+        "grantor": "postgres",
+        "grantee": "postgres",
+        "table_catalog": "postgres",
+        "table_schema": "private",
+        "table_name": "continuity_rehearsal_snapshot_tables",
+        "privilege_type": "TRIGGER",
+        "is_grantable": "YES",
+        "with_hierarchy": "NO"
+      },
+      {
+        "grantor": "postgres",
+        "grantee": "postgres",
+        "table_catalog": "postgres",
+        "table_schema": "private",
+        "table_name": "continuity_rehearsal_transfer_chunks",
+        "privilege_type": "INSERT",
+        "is_grantable": "YES",
+        "with_hierarchy": "NO"
+      },
+      {
+        "grantor": "postgres",
+        "grantee": "postgres",
+        "table_catalog": "postgres",
+        "table_schema": "private",
+        "table_name": "continuity_rehearsal_transfer_chunks",
+        "privilege_type": "SELECT",
+        "is_grantable": "YES",
+        "with_hierarchy": "YES"
+      },
+      {
+        "grantor": "postgres",
+        "grantee": "postgres",
+        "table_catalog": "postgres",
+        "table_schema": "private",
+        "table_name": "continuity_rehearsal_transfer_chunks",
+        "privilege_type": "UPDATE",
+        "is_grantable": "YES",
+        "with_hierarchy": "NO"
+      },
+      {
+        "grantor": "postgres",
+        "grantee": "postgres",
+        "table_catalog": "postgres",
+        "table_schema": "private",
+        "table_name": "continuity_rehearsal_transfer_chunks",
+        "privilege_type": "DELETE",
+        "is_grantable": "YES",
+        "with_hierarchy": "NO"
+      },
+      {
+        "grantor": "postgres",
+        "grantee": "postgres",
+        "table_catalog": "postgres",
+        "table_schema": "private",
+        "table_name": "continuity_rehearsal_transfer_chunks",
+        "privilege_type": "TRUNCATE",
+        "is_grantable": "YES",
+        "with_hierarchy": "NO"
+      },
+      {
+        "grantor": "postgres",
+        "grantee": "postgres",
+        "table_catalog": "postgres",
+        "table_schema": "private",
+        "table_name": "continuity_rehearsal_transfer_chunks",
+        "privilege_type": "REFERENCES",
+        "is_grantable": "YES",
+        "with_hierarchy": "NO"
+      },
+      {
+        "grantor": "postgres",
+        "grantee": "postgres",
+        "table_catalog": "postgres",
+        "table_schema": "private",
+        "table_name": "continuity_rehearsal_transfer_chunks",
+        "privilege_type": "TRIGGER",
+        "is_grantable": "YES",
+        "with_hierarchy": "NO"
+      },
+      {
+        "grantor": "postgres",
+        "grantee": "postgres",
+        "table_catalog": "postgres",
+        "table_schema": "private",
+        "table_name": "continuity_rehearsal_transfer_key",
+        "privilege_type": "INSERT",
+        "is_grantable": "YES",
+        "with_hierarchy": "NO"
+      },
+      {
+        "grantor": "postgres",
+        "grantee": "postgres",
+        "table_catalog": "postgres",
+        "table_schema": "private",
+        "table_name": "continuity_rehearsal_transfer_key",
+        "privilege_type": "SELECT",
+        "is_grantable": "YES",
+        "with_hierarchy": "YES"
+      },
+      {
+        "grantor": "postgres",
+        "grantee": "postgres",
+        "table_catalog": "postgres",
+        "table_schema": "private",
+        "table_name": "continuity_rehearsal_transfer_key",
+        "privilege_type": "UPDATE",
+        "is_grantable": "YES",
+        "with_hierarchy": "NO"
+      },
+      {
+        "grantor": "postgres",
+        "grantee": "postgres",
+        "table_catalog": "postgres",
+        "table_schema": "private",
+        "table_name": "continuity_rehearsal_transfer_key",
+        "privilege_type": "DELETE",
+        "is_grantable": "YES",
+        "with_hierarchy": "NO"
+      },
+      {
+        "grantor": "postgres",
+        "grantee": "postgres",
+        "table_catalog": "postgres",
+        "table_schema": "private",
+        "table_name": "continuity_rehearsal_transfer_key",
+        "privilege_type": "TRUNCATE",
+        "is_grantable": "YES",
+        "with_hierarchy": "NO"
+      },
+      {
+        "grantor": "postgres",
+        "grantee": "postgres",
+        "table_catalog": "postgres",
+        "table_schema": "private",
+        "table_name": "continuity_rehearsal_transfer_key",
+        "privilege_type": "REFERENCES",
+        "is_grantable": "YES",
+        "with_hierarchy": "NO"
+      },
+      {
+        "grantor": "postgres",
+        "grantee": "postgres",
+        "table_catalog": "postgres",
+        "table_schema": "private",
+        "table_name": "continuity_rehearsal_transfer_key",
+        "privilege_type": "TRIGGER",
+        "is_grantable": "YES",
+        "with_hierarchy": "NO"
+      }
+    ]
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "version": 1,
+  "bootstrap_file": "supabase/clean-install/bootstrap.sql",
+  "bootstrap_sha256": "aaa20fba9a525bfd5f7017ee827d45cf342d8b3e6d97eefc19e50fb0a51de11e",
+  "tables": [
+    "private.continuity_rehearsal_blob",
+    "private.continuity_rehearsal_key",
+    "private.continuity_rehearsal_snapshot_manifest",
+    "private.continuity_rehearsal_snapshot_rows",
+    "private.continuity_rehearsal_snapshot_tables",
+    "private.continuity_rehearsal_transfer_chunks",
+    "private.continuity_rehearsal_transfer_key"
+  ],
+  "historical_count": 457,
+  "historical_inventory_sha256": "ae79b608e86dfe6c7ca8dd93c88170cdd4dc38dd6324ccb3391342b135a59f41",
+  "first_historical_dependency": "20261006100248",
+  "catalog_evidence": "docs/evidence/clean-install-catalog-2026-10-09.json",
+  "postlude_file": "supabase/clean-install/postlude.sql",
+  "postlude_sha256": "fe5f140c8f6d8ea306fcad7135c4b1d717f97281f865d05f3b804cb5c0e4eda9",
+  "routines": ["public.get_account_transfer_targets(uuid)", "public.get_order_change_center(uuid)"],
+  "excluded_development_diagnostics": [
+    {
+      "signature": "private.debug_menu_experience_e2e()",
+      "definition_sha256": "2a12b33cb435df4f9d6fb323e5039dd87c5f61536c6160977bccb1a39fc99965",
+      "disposition": "DEVELOPMENT_DIAGNOSTIC_EXCLUDED_FROM_CLIENT_INSTALL",
+      "reason": "Uses fixed Development fixture IDs; never authoritative test evidence and never a customer workflow."
+    },
+    {
+      "signature": "public.continuity_rehearsal_export_chunk(uuid, integer, integer, text)",
+      "definition_sha256": "194cb6aa495baef18565328888050537c3e802ee7b79b88c139b4a22a7c920a0",
+      "disposition": "DEVELOPMENT_DIAGNOSTIC_EXCLUDED_FROM_CLIENT_INSTALL",
+      "reason": "Uses fixed Development fixture IDs; never authoritative test evidence and never a customer workflow."
+    }
+  ],
+  "forward_catalog_objects": {
+    "routines": ["private.reject_unattested_release_pass()"],
+    "triggers": [
+      "private.release_gate_checks.reject_unattested_release_gate_pass",
+      "private.release_test_results.reject_unattested_release_test_pass"
+    ]
+  },
+  "release_test_catalog_evidence": "docs/evidence/clean-install-release-catalog-2026-10-09.json",
+  "release_test_catalog_count": 197,
+  "release_test_catalog_sha256": "57ac6d0ffb46e9603879c66409e39d336b7d51fe2455b0a9ca51cb11d071db1b",
+  "recovered_release_test_keys": [
+    "MENU_ENGINEERING_CLASSIFICATION",
+    "STEP11_BOOKING_AVAILABILITY_CLIENT_CONTRACT",
+    "STEP11_BOOKING_CHROMIUM_DOM_MOCK",
+    "STEP11_BOOKING_DST_GAP_CONTRACT",
+    "STEP11_BOOKING_FIELDS_CLIENT_CONTRACT",
+    "STEP11_BOOKING_VISIBILITY_DATABASE",
+    "STEP11_BRANDING_COLOR_CONTRAST",
+    "STEP11_DARK_THEME_CSS_CHROMIUM",
+    "STEP11_DEPOSIT_CHECKOUT_EXACT_HOST_CLIENT",
+    "STEP11_DEPOSIT_CLIENT_CONTRACT",
+    "STEP11_DEPOSIT_CONTINUATION_CLIENT",
+    "STEP11_INTEGRATED_BUILD_ASSEMBLY",
+    "STEP11_INTEGRATED_SOURCE_BOOKING_CONTRACT",
+    "STEP11_INTEGRATED_SOURCE_MOBILE_DOM",
+    "STEP11_INTEGRATED_SOURCE_SEO_PRERENDER",
+    "STEP11_INTEGRATED_STATIC_CHROMIUM",
+    "STEP11_MIGRATION_RECOVERY_DRYRUN",
+    "STEP11_PUBLIC_BOOKING_CTA_SCOPING",
+    "STEP11_PUBLIC_BOOKING_PRIVACY_READY",
+    "STEP11_PUBLIC_BOOKING_TRANSACTION_ROLLBACK",
+    "STEP11_PUBLIC_KEY_CLIENT_GUARD",
+    "STEP11_PUBLIC_METADATA_BACKEND",
+    "STEP11_PUBLIC_MOBILE_NAVIGATION_DOM",
+    "STEP11_PUBLIC_SITEMAP_BACKEND",
+    "STEP11_REAL_HTML_ENTRY_PRERENDER",
+    "STEP11_STAGING_FULL_CI_WORKFLOW_STATIC",
+    "STEP11_STAGING_HTTP_SMOKE_FIXTURES",
+    "STEP11_STATIC_EDITORIAL_HTML_OFFLINE",
+    "STEP11_STATIC_EDITORIAL_NO_JS_CHROMIUM",
+    "STEP11_STATIC_SEO_GENERATOR_OFFLINE",
+    "STEP11_VERCEL_STAGING_CONFIG_OFFLINE"
+  ],
+  "release_test_catalog_file": "supabase/clean-install/release-test-catalog.json"
+}

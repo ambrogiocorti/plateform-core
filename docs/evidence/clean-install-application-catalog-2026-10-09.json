@@ -1,0 +1,2872 @@
+{
+  "relations": [
+    { "identity": "private.api_permission_manifest", "relkind": "r", "rls": true },
+    { "identity": "private.ci_runs", "relkind": "r", "rls": true },
+    { "identity": "private.ci_stage_catalog", "relkind": "r", "rls": true },
+    { "identity": "private.ci_stage_results", "relkind": "r", "rls": true },
+    { "identity": "private.continuity_rehearsal_blob", "relkind": "r", "rls": true },
+    { "identity": "private.continuity_rehearsal_key", "relkind": "r", "rls": true },
+    { "identity": "private.continuity_rehearsal_snapshot_manifest", "relkind": "r", "rls": true },
+    { "identity": "private.continuity_rehearsal_snapshot_rows", "relkind": "r", "rls": true },
+    { "identity": "private.continuity_rehearsal_snapshot_tables", "relkind": "r", "rls": true },
+    { "identity": "private.continuity_rehearsal_transfer_chunks", "relkind": "r", "rls": true },
+    { "identity": "private.continuity_rehearsal_transfer_key", "relkind": "r", "rls": true },
+    { "identity": "private.continuity_settings", "relkind": "r", "rls": true },
+    { "identity": "private.continuity_worker_heartbeats", "relkind": "r", "rls": true },
+    { "identity": "private.continuity_worker_runtime_config", "relkind": "r", "rls": true },
+    { "identity": "private.customer_access_backoff", "relkind": "r", "rls": true },
+    { "identity": "private.customer_access_codes", "relkind": "r", "rls": true },
+    { "identity": "private.customer_identity_retention", "relkind": "r", "rls": true },
+    { "identity": "private.customer_sessions", "relkind": "r", "rls": true },
+    { "identity": "private.database_chaos_probe", "relkind": "r", "rls": true },
+    { "identity": "private.device_heartbeats", "relkind": "r", "rls": true },
+    { "identity": "private.device_registration_secrets", "relkind": "r", "rls": true },
+    { "identity": "private.dish_price_history", "relkind": "r", "rls": true },
+    { "identity": "private.idempotency_keys", "relkind": "r", "rls": true },
+    { "identity": "private.impersonation_sessions", "relkind": "r", "rls": true },
+    { "identity": "private.master_acceptance_requirements", "relkind": "r", "rls": true },
+    { "identity": "private.message_job_payloads", "relkind": "r", "rls": true },
+    { "identity": "private.message_provider_events", "relkind": "r", "rls": true },
+    { "identity": "private.offline_challenges", "relkind": "r", "rls": true },
+    { "identity": "private.provider_events", "relkind": "r", "rls": true },
+    { "identity": "private.provider_operation_events", "relkind": "r", "rls": true },
+    { "identity": "private.public_requests", "relkind": "r", "rls": true },
+    { "identity": "private.rate_limits", "relkind": "r", "rls": true },
+    { "identity": "private.release_documentation_requirements", "relkind": "r", "rls": true },
+    { "identity": "private.release_gate_checks", "relkind": "r", "rls": true },
+    { "identity": "private.release_test_catalog", "relkind": "r", "rls": true },
+    { "identity": "private.release_test_results", "relkind": "r", "rls": true },
+    { "identity": "private.reservation_deposit_access", "relkind": "r", "rls": true },
+    { "identity": "private.reservation_deposit_no_show_actions", "relkind": "r", "rls": true },
+    {
+      "identity": "private.reservation_deposit_no_show_provider_events",
+      "relkind": "r",
+      "rls": true
+    },
+    { "identity": "private.reservation_deposit_provider_events", "relkind": "r", "rls": true },
+    { "identity": "private.reservation_message_contacts", "relkind": "r", "rls": true },
+    { "identity": "private.reservation_message_outbox", "relkind": "r", "rls": true },
+    { "identity": "private.staff_access_change_reasons", "relkind": "r", "rls": true },
+    { "identity": "private.staff_command_secret_fingerprints", "relkind": "r", "rls": true },
+    { "identity": "private.staff_pins", "relkind": "r", "rls": true },
+    { "identity": "private.staff_sessions", "relkind": "r", "rls": true },
+    { "identity": "private.step_up_grants", "relkind": "r", "rls": true },
+    { "identity": "private.waitlist_offer_access", "relkind": "r", "rls": true },
+    { "identity": "public.account_splits", "relkind": "r", "rls": true },
+    { "identity": "public.accounts", "relkind": "r", "rls": true },
+    { "identity": "public.allergens", "relkind": "r", "rls": true },
+    { "identity": "public.application_releases", "relkind": "r", "rls": true },
+    { "identity": "public.asset_uploads", "relkind": "r", "rls": true },
+    { "identity": "public.audit_log_default", "relkind": "r", "rls": true },
+    { "identity": "public.backup_metadata", "relkind": "r", "rls": true },
+    { "identity": "public.billing_units", "relkind": "r", "rls": true },
+    { "identity": "public.booking_time_slots", "relkind": "r", "rls": true },
+    { "identity": "public.cash_journal", "relkind": "r", "rls": true },
+    { "identity": "public.cash_reconciliation_requests", "relkind": "r", "rls": true },
+    { "identity": "public.cash_reconciliations", "relkind": "r", "rls": true },
+    { "identity": "public.cash_register_sessions", "relkind": "r", "rls": true },
+    { "identity": "public.cash_registers", "relkind": "r", "rls": true },
+    { "identity": "public.cashier_assignments", "relkind": "r", "rls": true },
+    { "identity": "public.categories", "relkind": "r", "rls": true },
+    { "identity": "public.customer_order_requests", "relkind": "r", "rls": true },
+    { "identity": "public.database_migrations_metadata", "relkind": "r", "rls": true },
+    { "identity": "public.dietary_tags", "relkind": "r", "rls": true },
+    { "identity": "public.discount_requests", "relkind": "r", "rls": true },
+    { "identity": "public.discount_unit_allocations", "relkind": "r", "rls": true },
+    { "identity": "public.discounts", "relkind": "r", "rls": true },
+    { "identity": "public.dish_dietary_tags", "relkind": "r", "rls": true },
+    { "identity": "public.dish_food_cost_snapshots", "relkind": "r", "rls": true },
+    { "identity": "public.dish_ingredients", "relkind": "r", "rls": true },
+    { "identity": "public.dish_station_assignments", "relkind": "r", "rls": true },
+    { "identity": "public.dishes", "relkind": "r", "rls": true },
+    { "identity": "public.equal_split_attempts", "relkind": "r", "rls": true },
+    { "identity": "public.equal_split_plans", "relkind": "r", "rls": true },
+    { "identity": "public.equal_split_shares", "relkind": "r", "rls": true },
+    { "identity": "public.feature_flags", "relkind": "r", "rls": true },
+    { "identity": "public.health_checks", "relkind": "r", "rls": true },
+    { "identity": "public.incident_events", "relkind": "r", "rls": true },
+    { "identity": "public.incidents", "relkind": "r", "rls": true },
+    { "identity": "public.ingredient_allergens", "relkind": "r", "rls": true },
+    { "identity": "public.ingredient_cost_history", "relkind": "r", "rls": true },
+    { "identity": "public.ingredients", "relkind": "r", "rls": true },
+    { "identity": "public.layout_revisions", "relkind": "r", "rls": true },
+    { "identity": "public.menu_categories", "relkind": "r", "rls": true },
+    { "identity": "public.menu_dishes", "relkind": "r", "rls": true },
+    { "identity": "public.menu_promotions", "relkind": "r", "rls": true },
+    { "identity": "public.menu_services", "relkind": "r", "rls": true },
+    { "identity": "public.menu_venues", "relkind": "r", "rls": true },
+    { "identity": "public.menus", "relkind": "r", "rls": true },
+    { "identity": "public.message_jobs", "relkind": "r", "rls": true },
+    { "identity": "public.message_provider_settings", "relkind": "r", "rls": true },
+    { "identity": "public.message_templates", "relkind": "r", "rls": true },
+    { "identity": "public.notifications", "relkind": "r", "rls": true },
+    { "identity": "public.offline_authorization_snapshots", "relkind": "r", "rls": true },
+    { "identity": "public.offline_sync_events", "relkind": "r", "rls": true },
+    { "identity": "public.order_change_requests", "relkind": "r", "rls": true },
+    { "identity": "public.order_item_removed_ingredients", "relkind": "r", "rls": true },
+    { "identity": "public.order_item_variants", "relkind": "r", "rls": true },
+    { "identity": "public.order_items", "relkind": "r", "rls": true },
+    { "identity": "public.order_steps", "relkind": "r", "rls": true },
+    { "identity": "public.orders", "relkind": "r", "rls": true },
+    { "identity": "public.payment_allocations", "relkind": "r", "rls": true },
+    { "identity": "public.payment_reversals", "relkind": "r", "rls": true },
+    { "identity": "public.payment_unit_allocations", "relkind": "r", "rls": true },
+    { "identity": "public.payments", "relkind": "r", "rls": true },
+    { "identity": "public.print_devices", "relkind": "r", "rls": true },
+    { "identity": "public.print_jobs", "relkind": "r", "rls": true },
+    { "identity": "public.provider_operations", "relkind": "r", "rls": true },
+    { "identity": "public.realtime_signals", "relkind": "r", "rls": true },
+    { "identity": "public.refunds", "relkind": "r", "rls": true },
+    { "identity": "public.registered_devices", "relkind": "r", "rls": true },
+    { "identity": "public.reservation_answers", "relkind": "r", "rls": true },
+    { "identity": "public.reservation_deposits", "relkind": "r", "rls": true },
+    { "identity": "public.reservation_form_definitions", "relkind": "r", "rls": true },
+    { "identity": "public.reservation_form_fields", "relkind": "r", "rls": true },
+    { "identity": "public.reservation_reminder_rules", "relkind": "r", "rls": true },
+    { "identity": "public.reservations", "relkind": "r", "rls": true },
+    { "identity": "public.restaurant_profile", "relkind": "r", "rls": true },
+    { "identity": "public.restaurant_settings", "relkind": "r", "rls": true },
+    { "identity": "public.restore_jobs", "relkind": "r", "rls": true },
+    { "identity": "public.returned_items", "relkind": "r", "rls": true },
+    { "identity": "public.room_layouts", "relkind": "r", "rls": true },
+    { "identity": "public.rooms", "relkind": "r", "rls": true },
+    { "identity": "public.service_booking_rules", "relkind": "r", "rls": true },
+    { "identity": "public.service_sessions", "relkind": "r", "rls": true },
+    { "identity": "public.services", "relkind": "r", "rls": true },
+    { "identity": "public.shifts", "relkind": "r", "rls": true },
+    { "identity": "public.staff_admin_jobs", "relkind": "r", "rls": true },
+    { "identity": "public.staff_profiles", "relkind": "r", "rls": true },
+    { "identity": "public.staff_venue_assignments", "relkind": "r", "rls": true },
+    { "identity": "public.station_staff_assignments", "relkind": "r", "rls": true },
+    { "identity": "public.stations", "relkind": "r", "rls": true },
+    { "identity": "public.step_deliveries", "relkind": "r", "rls": true },
+    { "identity": "public.step_delivery_history", "relkind": "r", "rls": true },
+    { "identity": "public.sync_conflicts", "relkind": "r", "rls": true },
+    { "identity": "public.system_errors", "relkind": "r", "rls": true },
+    { "identity": "public.system_limits", "relkind": "r", "rls": true },
+    { "identity": "public.system_metrics", "relkind": "r", "rls": true },
+    { "identity": "public.system_metrics_id_seq", "relkind": "S", "rls": false },
+    { "identity": "public.table_assignments", "relkind": "r", "rls": true },
+    { "identity": "public.table_join_rules", "relkind": "r", "rls": true },
+    { "identity": "public.table_merges", "relkind": "r", "rls": true },
+    { "identity": "public.table_status_definitions", "relkind": "r", "rls": true },
+    { "identity": "public.tables", "relkind": "r", "rls": true },
+    { "identity": "public.takeaway_orders", "relkind": "r", "rls": true },
+    { "identity": "public.takeaway_pickup_slots", "relkind": "r", "rls": true },
+    { "identity": "public.takeaway_requests", "relkind": "r", "rls": true },
+    { "identity": "public.telemetry_events", "relkind": "r", "rls": true },
+    { "identity": "public.telemetry_events_id_seq", "relkind": "S", "rls": false },
+    { "identity": "public.tips", "relkind": "r", "rls": true },
+    { "identity": "public.variant_groups", "relkind": "r", "rls": true },
+    { "identity": "public.variant_options", "relkind": "r", "rls": true },
+    { "identity": "public.venue_dish_settings", "relkind": "r", "rls": true },
+    { "identity": "public.venue_features", "relkind": "r", "rls": true },
+    { "identity": "public.venue_settings", "relkind": "r", "rls": true },
+    { "identity": "public.venues", "relkind": "r", "rls": true },
+    { "identity": "public.waiter_calls", "relkind": "r", "rls": true },
+    { "identity": "public.waitlist_entries", "relkind": "r", "rls": true },
+    { "identity": "public.waitlist_settings", "relkind": "r", "rls": true },
+    { "identity": "public.zones", "relkind": "r", "rls": true }
+  ],
+  "routines": [
+    {
+      "identity": "private.abort_restore_cutover_impl(p_restore uuid, p_step_up uuid, p_reason text, p_key uuid)",
+      "security_definer": true
+    },
+    { "identity": "private.account_admission_snapshot()", "security_definer": false },
+    { "identity": "private.account_balance(p_account uuid)", "security_definer": true },
+    {
+      "identity": "private.administrative_staff_job_authorized(p_job staff_admin_jobs)",
+      "security_definer": true
+    },
+    {
+      "identity": "private.allocate_billing_discount(p_discount uuid, p_units uuid[])",
+      "security_definer": true
+    },
+    {
+      "identity": "private.analytics_step8_base(p_venue uuid, p_start date, p_end date)",
+      "security_definer": true
+    },
+    { "identity": "private.api_permission_manifest_report()", "security_definer": true },
+    {
+      "identity": "private.apply_discount_request(p_request uuid, p_quote jsonb)",
+      "security_definer": true
+    },
+    {
+      "identity": "private.apply_order_correction(p_order uuid, p_version bigint, p_item_ids uuid[], p_replacements jsonb, p_reason text)",
+      "security_definer": true
+    },
+    { "identity": "private.archive_delivery()", "security_definer": true },
+    { "identity": "private.assert_payment_units()", "security_definer": true },
+    {
+      "identity": "private.audit(p_action text, p_resource text, p_id uuid, p_venue uuid, p_old jsonb, p_new jsonb, p_result text)",
+      "security_definer": true
+    },
+    { "identity": "private.audit_row()", "security_definer": true },
+    { "identity": "private.audit_values(p_value jsonb)", "security_definer": false },
+    { "identity": "private.authenticated_role()", "security_definer": true },
+    {
+      "identity": "private.authorize(p_venue uuid, p_roles user_role[], p_write boolean)",
+      "security_definer": true
+    },
+    {
+      "identity": "private.authorize_sensitive_action_base(p_action text, p_resource uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "private.authorize_sensitive_action_step0(p_action text, p_resource uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "private.begin_continuity_backup_snapshot(p_backup uuid, p_lease uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "private.begin_staff_admin_job_step0(p_action text, p_values jsonb, p_key uuid, p_grant uuid)",
+      "security_definer": true
+    },
+    { "identity": "private.billing_balance(p_account uuid)", "security_definer": true },
+    {
+      "identity": "private.billing_workspace_without_shares(p_account uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "private.booking_capacity_snapshot(p_service uuid, p_date date, p_time time without time zone)",
+      "security_definer": true
+    },
+    {
+      "identity": "private.booking_deposit_policy_decision(p_service uuid, p_date date, p_time time without time zone, p_party integer)",
+      "security_definer": true
+    },
+    { "identity": "private.bootstrap_waitlist_settings()", "security_definer": true },
+    { "identity": "private.brand_color_luminance(p_hex text)", "security_definer": false },
+    {
+      "identity": "private.brand_contrast_ratio(p_first text, p_second text)",
+      "security_definer": false
+    },
+    { "identity": "private.branding_contrast_valid(p_branding jsonb)", "security_definer": false },
+    { "identity": "private.can_manage_shared_catalog()", "security_definer": true },
+    { "identity": "private.can_manage_staff(p_user uuid)", "security_definer": true },
+    { "identity": "private.can_read_account(p_account uuid)", "security_definer": true },
+    { "identity": "private.can_read_item(p_item uuid)", "security_definer": true },
+    { "identity": "private.can_read_menu(p_menu uuid)", "security_definer": true },
+    { "identity": "private.can_read_order(p_order uuid)", "security_definer": true },
+    { "identity": "private.can_read_signal(p_signal realtime_signals)", "security_definer": true },
+    { "identity": "private.can_use_register(p_register uuid)", "security_definer": true },
+    {
+      "identity": "private.can_work_station(p_venue uuid, p_station uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "private.capture_continuity_snapshot_table(p_snapshot uuid, p_schema text, p_table text, p_filter text)",
+      "security_definer": true
+    },
+    {
+      "identity": "private.capture_durable_continuity_snapshot(p_backup uuid, p_lease uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "private.capture_migration_history_snapshot(p_backup uuid, p_lease uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "private.capture_public_continuity_snapshot(p_backup uuid, p_lease uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "private.check_rate_limit(p_bucket text, p_limit integer, p_seconds integer)",
+      "security_definer": true
+    },
+    { "identity": "private.check_unit_allocation()", "security_definer": true },
+    {
+      "identity": "private.classify_menu_engineering(p_popularity numeric, p_margin numeric, p_popularity_threshold numeric, p_margin_threshold numeric)",
+      "security_definer": false
+    },
+    { "identity": "private.cleanup_database_chaos_probe()", "security_definer": true },
+    {
+      "identity": "private.configure_continuity_targets_impl(p_version bigint, p_rpo_target_minutes integer, p_rto_target_minutes integer, p_backup_retention_days integer, p_restore_test_interval_days integer, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "private.confirm_restore_cutover_impl(p_restore uuid, p_step_up uuid, p_target_reference text, p_note text, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "private.consume_step_up(p_id uuid, p_action text, p_resource uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "private.convert_recipe_quantity(p_quantity numeric, p_from_unit text, p_to_unit text)",
+      "security_definer": false
+    },
+    { "identity": "private.core_edition_license_guard()", "security_definer": false },
+    {
+      "identity": "private.core_edition_new_provider_operation_guard()",
+      "security_definer": false
+    },
+    { "identity": "private.core_edition_payment_guard()", "security_definer": false },
+    { "identity": "private.core_edition_print_driver_guard()", "security_definer": false },
+    { "identity": "private.core_edition_print_job_guard()", "security_definer": false },
+    { "identity": "private.core_edition_register_methods_guard()", "security_definer": false },
+    {
+      "identity": "private.create_unassigned_payment(p_account uuid, p_register uuid, p_amount bigint, p_tip bigint, p_method payment_method, p_key uuid, p_items jsonb)",
+      "security_definer": true
+    },
+    { "identity": "private.critical_client_write_privilege_report()", "security_definer": true },
+    { "identity": "private.current_role()", "security_definer": true },
+    { "identity": "private.current_scope()", "security_definer": true },
+    { "identity": "private.debug_menu_experience_e2e()", "security_definer": true },
+    { "identity": "private.deposit_access_token_hash(p_token text)", "security_definer": false },
+    {
+      "identity": "private.device_assignment_label(p_user uuid, p_venue uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "private.discount_quote(p_account uuid, p_kind text, p_value bigint, p_items jsonb)",
+      "security_definer": true
+    },
+    { "identity": "private.dispatch_continuity_backup_worker()", "security_definer": true },
+    { "identity": "private.dispatch_continuity_retention_worker()", "security_definer": true },
+    {
+      "identity": "private.effective_payment_allocation(p_allocation uuid)",
+      "security_definer": true
+    },
+    { "identity": "private.effective_user_id()", "security_definer": true },
+    {
+      "identity": "private.emit_signal(p_topic text, p_venue uuid, p_resource uuid, p_account uuid, p_user uuid)",
+      "security_definer": true
+    },
+    { "identity": "private.enforce_continuity_bucket_private()", "security_definer": true },
+    { "identity": "private.enforce_venue_invariant()", "security_definer": true },
+    {
+      "identity": "private.enqueue_reservation_message(p_reservation uuid, p_event_type text, p_channel text, p_scheduled_for timestamp with time zone, p_dedupe_key text, p_template_override text)",
+      "security_definer": true
+    },
+    {
+      "identity": "private.enqueue_reservation_message(p_reservation uuid, p_event_type text, p_channel text, p_scheduled_for timestamp with time zone, p_dedupe_key text, p_template_override text, p_reminder_rule uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "private.enqueue_reservation_no_show_deposit_action(p_reservation uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "private.enqueue_waitlist_offer_messages(p_entry uuid, p_access_token text, p_offered_time time without time zone, p_expires_at timestamp with time zone)",
+      "security_definer": true
+    },
+    { "identity": "private.ensure_pdf_print_device()", "security_definer": true },
+    { "identity": "private.equal_plan_view(p_plan uuid)", "security_definer": true },
+    {
+      "identity": "private.expire_notification_inbox(p_venue uuid, p_actor uuid, p_role user_role)",
+      "security_definer": true
+    },
+    { "identity": "private.feature_licensed(p_name text)", "security_definer": true },
+    { "identity": "private.fill_registered_device_assignment()", "security_definer": true },
+    {
+      "identity": "private.finalize_continuity_backup_snapshot(p_backup uuid, p_lease uuid, p_chunk_size integer)",
+      "security_definer": true
+    },
+    {
+      "identity": "private.finish_service_reconciliation(p_session uuid, p_actuals jsonb, p_snapshot jsonb, p_created_by uuid, p_authorized_by uuid)",
+      "security_definer": true
+    },
+    { "identity": "private.guard_account_floor_release()", "security_definer": false },
+    { "identity": "private.guard_active_register()", "security_definer": true },
+    { "identity": "private.guard_backup_manifest_auth()", "security_definer": true },
+    { "identity": "private.guard_backup_private_state()", "security_definer": true },
+    { "identity": "private.guard_backup_release_metadata()", "security_definer": true },
+    { "identity": "private.guard_backup_replica_durability()", "security_definer": true },
+    { "identity": "private.guard_backup_schema_snapshot()", "security_definer": true },
+    { "identity": "private.guard_billing_unit()", "security_definer": true },
+    { "identity": "private.guard_discount_request()", "security_definer": false },
+    { "identity": "private.guard_equal_plan()", "security_definer": false },
+    { "identity": "private.guard_message_job()", "security_definer": false },
+    { "identity": "private.guard_payment_amounts()", "security_definer": false },
+    { "identity": "private.guard_provider_operation()", "security_definer": false },
+    { "identity": "private.guard_reconciliation_request()", "security_definer": false },
+    { "identity": "private.guard_reservation_deposit()", "security_definer": false },
+    { "identity": "private.guard_restore_manifest_auth()", "security_definer": true },
+    { "identity": "private.guard_restore_migration_version()", "security_definer": true },
+    { "identity": "private.guard_restore_private_state()", "security_definer": true },
+    { "identity": "private.guard_single_active_restore()", "security_definer": true },
+    { "identity": "private.guard_takeaway_order()", "security_definer": false },
+    { "identity": "private.guard_waitlist_entry()", "security_definer": false },
+    { "identity": "private.has_venue(p_venue uuid)", "security_definer": true },
+    {
+      "identity": "private.idempotency_begin(p_operation text, p_key uuid, p_payload jsonb)",
+      "security_definer": true
+    },
+    {
+      "identity": "private.idempotency_finish(p_operation text, p_key uuid, p_result jsonb)",
+      "security_definer": true
+    },
+    { "identity": "private.immutable_record()", "security_definer": false },
+    { "identity": "private.impersonation_id()", "security_definer": false },
+    { "identity": "private.installation_active()", "security_definer": true },
+    {
+      "identity": "private.invalidate_staff_access(p_user uuid, p_revoke_devices boolean)",
+      "security_definer": true
+    },
+    { "identity": "private.is_role(p_roles user_role[])", "security_definer": false },
+    { "identity": "private.jwt_session_id()", "security_definer": false },
+    { "identity": "private.layout_editable(p_layout uuid)", "security_definer": true },
+    { "identity": "private.lock_floor(p_venue uuid)", "security_definer": true },
+    {
+      "identity": "private.menu_available_at(p_menu uuid, p_venue uuid, p_at timestamp with time zone)",
+      "security_definer": true
+    },
+    {
+      "identity": "private.message_backoff_seconds(p_attempts integer, p_base integer, p_max integer)",
+      "security_definer": false
+    },
+    {
+      "identity": "private.message_channel_enabled(p_venue uuid, p_channel text)",
+      "security_definer": true
+    },
+    {
+      "identity": "private.message_retry_delay_seconds(p_venue uuid, p_channel text, p_attempts integer)",
+      "security_definer": true
+    },
+    {
+      "identity": "private.message_template_variables_valid(p_body text)",
+      "security_definer": false
+    },
+    { "identity": "private.normalize_api_permission_manifest_entry()", "security_definer": true },
+    { "identity": "private.notification_priority()", "security_definer": true },
+    {
+      "identity": "private.notification_rule(p_venue uuid, p_category text, p_recipient_role user_role, p_recipient_user uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "private.original_account_workspace(p_account uuid, p_before_at timestamp with time zone, p_before_id uuid, p_limit integer)",
+      "security_definer": true
+    },
+    { "identity": "private.owns_customer_account(p_account uuid)", "security_definer": true },
+    { "identity": "private.password_authenticated_at()", "security_definer": false },
+    {
+      "identity": "private.place_order(p_account uuid, p_items jsonb, p_origin text)",
+      "security_definer": true
+    },
+    { "identity": "private.post_payment_journal()", "security_definer": true },
+    { "identity": "private.preserve_public_table_id()", "security_definer": false },
+    { "identity": "private.prevent_duplicate_reservation()", "security_definer": false },
+    { "identity": "private.prevent_duplicate_return_cancel_request()", "security_definer": false },
+    { "identity": "private.print_authorize(p_device uuid)", "security_definer": true },
+    { "identity": "private.public_booking_ready(p_venue uuid)", "security_definer": true },
+    {
+      "identity": "private.public_menu_payload(p_menu uuid, p_venue uuid, p_at timestamp with time zone)",
+      "security_definer": true
+    },
+    { "identity": "private.queue_kitchen_print()", "security_definer": true },
+    { "identity": "private.queue_kitchen_remake_print()", "security_definer": true },
+    { "identity": "private.random_account_code()", "security_definer": true },
+    { "identity": "private.real_role()", "security_definer": true },
+    { "identity": "private.receipt_snapshot(p_account uuid)", "security_definer": true },
+    { "identity": "private.recipe_unit_dimension(p_unit text)", "security_definer": false },
+    { "identity": "private.recipe_unit_factor_to_base(p_unit text)", "security_definer": false },
+    { "identity": "private.reconcile_backup_retention_alert()", "security_definer": true },
+    {
+      "identity": "private.reconcile_continuity_incident(p_key text, p_active boolean, p_severity incident_severity, p_title text, p_impact text, p_detail text)",
+      "security_definer": true
+    },
+    { "identity": "private.reconcile_restore_cutover_alert()", "security_definer": true },
+    {
+      "identity": "private.refresh_account_payment_status(p_account uuid)",
+      "security_definer": true
+    },
+    { "identity": "private.refresh_internal_health_checks()", "security_definer": true },
+    { "identity": "private.refresh_order_status(p_order uuid)", "security_definer": true },
+    {
+      "identity": "private.release_account_floor(p_account uuid, p_table uuid)",
+      "security_definer": true
+    },
+    { "identity": "private.release_fulfilled_account()", "security_definer": true },
+    { "identity": "private.request_correlation_id(p_fallback uuid)", "security_definer": false },
+    { "identity": "private.require_booking_enabled(p_venue uuid)", "security_definer": true },
+    {
+      "identity": "private.require_message_channel(p_venue uuid, p_channel text)",
+      "security_definer": true
+    },
+    {
+      "identity": "private.require_reservation_message_channel(p_venue uuid, p_channel text)",
+      "security_definer": true
+    },
+    {
+      "identity": "private.require_venue_feature(p_venue uuid, p_name text)",
+      "security_definer": true
+    },
+    {
+      "identity": "private.reservation_deposit_amount(p_service uuid, p_date date, p_time time without time zone, p_party integer)",
+      "security_definer": true
+    },
+    {
+      "identity": "private.reservation_message_destination(p_reservation uuid, p_channel text)",
+      "security_definer": true
+    },
+    { "identity": "private.reservation_message_event()", "security_definer": true },
+    {
+      "identity": "private.reservation_no_show_deposit_policy_trigger()",
+      "security_definer": true
+    },
+    {
+      "identity": "private.reserve_billing_units(p_payment uuid, p_items jsonb)",
+      "security_definer": true
+    },
+    { "identity": "private.resource_quota_guard()", "security_definer": true },
+    { "identity": "private.responsible_waiter(p_table uuid)", "security_definer": true },
+    {
+      "identity": "private.resume_staff_admin_job_step0(p_job uuid, p_grant uuid)",
+      "security_definer": true
+    },
+    { "identity": "private.room_editable(p_room uuid)", "security_definer": true },
+    { "identity": "private.rotate_code(p_account uuid)", "security_definer": true },
+    {
+      "identity": "private.save_configuration_unchecked(p_entity text, p_venue uuid, p_id uuid, p_values jsonb, p_version bigint)",
+      "security_definer": true
+    },
+    {
+      "identity": "private.service_available_at(p_service uuid, p_at timestamp with time zone)",
+      "security_definer": true
+    },
+    { "identity": "private.service_snapshot(p_session uuid)", "security_definer": true },
+    { "identity": "private.signal_billing_insert()", "security_definer": true },
+    { "identity": "private.signal_billing_update()", "security_definer": true },
+    { "identity": "private.signal_change()", "security_definer": true },
+    { "identity": "private.signal_station_configuration()", "security_definer": true },
+    {
+      "identity": "private.staff_full_auth_expiry(p_user uuid, p_authenticated_at timestamp with time zone)",
+      "security_definer": true
+    },
+    { "identity": "private.staff_has_venue(p_user uuid, p_venue uuid)", "security_definer": true },
+    {
+      "identity": "private.staff_job_authorized(p_job staff_admin_jobs)",
+      "security_definer": true
+    },
+    {
+      "identity": "private.statistics_base(p_venue uuid, p_start date, p_end date)",
+      "security_definer": true
+    },
+    { "identity": "private.step7_print_job_notifications()", "security_definer": true },
+    { "identity": "private.step7_provider_failure_notifications()", "security_definer": true },
+    { "identity": "private.step8_sync_conflict_notifications()", "security_definer": true },
+    { "identity": "private.sync_item_billing()", "security_definer": true },
+    { "identity": "private.sync_standard_reservation_answer()", "security_definer": true },
+    { "identity": "private.table_group(p_table uuid)", "security_definer": true },
+    { "identity": "private.takeaway_item_count(p_items jsonb)", "security_definer": false },
+    {
+      "identity": "private.takeaway_request_preview(p_venue uuid, p_pickup_date date, p_items jsonb)",
+      "security_definer": true
+    },
+    { "identity": "private.takeaway_slot_reserved_items(p_slot uuid)", "security_definer": true },
+    { "identity": "private.takeaway_slot_reserved_orders(p_slot uuid)", "security_definer": true },
+    { "identity": "private.technical_workspace_base()", "security_definer": true },
+    { "identity": "private.test_advanced_order_account_contract()", "security_definer": true },
+    { "identity": "private.test_beta_documentation_requirement()", "security_definer": true },
+    { "identity": "private.test_beta_readiness_separation()", "security_definer": true },
+    { "identity": "private.test_catalog_authoritative_crud()", "security_definer": true },
+    { "identity": "private.test_command_palette_authorization_e2e()", "security_definer": true },
+    { "identity": "private.test_conflict_center_e2e()", "security_definer": true },
+    { "identity": "private.test_enable_multi_venue_e2e()", "security_definer": true },
+    { "identity": "private.test_full_auth_shift_mode_contract()", "security_definer": true },
+    { "identity": "private.test_initial_setup_recovery_state()", "security_definer": true },
+    { "identity": "private.test_menu_experience_e2e()", "security_definer": true },
+    { "identity": "private.test_menu_service_assignment_contract()", "security_definer": true },
+    { "identity": "private.test_menu_venue_override_e2e()", "security_definer": true },
+    { "identity": "private.test_notification_center_e2e()", "security_definer": true },
+    { "identity": "private.test_offline_authorization_issuance()", "security_definer": true },
+    { "identity": "private.test_print_claimable_jobs()", "security_definer": true },
+    {
+      "identity": "private.test_public_booking_availability_server_authority()",
+      "security_definer": true
+    },
+    { "identity": "private.test_public_site_storytelling_contract()", "security_definer": true },
+    { "identity": "private.test_reservation_no_show_deposit_policy()", "security_definer": true },
+    {
+      "identity": "private.test_reservation_no_show_deposit_provider_state_machine()",
+      "security_definer": true
+    },
+    { "identity": "private.test_reservation_no_show_grace_period()", "security_definer": true },
+    { "identity": "private.test_room_editor_advanced_contract()", "security_definer": true },
+    { "identity": "private.test_service_configuration_contract()", "security_definer": true },
+    { "identity": "private.test_shift_planning_only_contract()", "security_definer": true },
+    { "identity": "private.test_staff_identifier_contract()", "security_definer": true },
+    { "identity": "private.test_staff_logout_session_revocation()", "security_definer": true },
+    { "identity": "private.test_staff_venue_context_e2e()", "security_definer": true },
+    { "identity": "private.test_step11_booking_visibility_contract()", "security_definer": false },
+    { "identity": "private.test_step11_public_booking_transaction()", "security_definer": true },
+    { "identity": "private.test_step11_public_metadata_contract()", "security_definer": false },
+    { "identity": "private.test_step11_public_sitemap_contract()", "security_definer": false },
+    { "identity": "private.test_waitlist_offer_message_bridge()", "security_definer": true },
+    { "identity": "private.touch_device_offline_sync()", "security_definer": true },
+    { "identity": "private.touch_version()", "security_definer": false },
+    {
+      "identity": "private.validate_booking_answers(p_venue uuid, p_answers jsonb, p_existing uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "private.validate_booking_edit(p_venue uuid, p_service uuid, p_date date, p_time time without time zone, p_party integer, p_exclude uuid)",
+      "security_definer": true
+    },
+    { "identity": "private.validate_limit_change()", "security_definer": true },
+    { "identity": "private.validate_menu_dish()", "security_definer": true },
+    { "identity": "private.validate_menu_promotion()", "security_definer": true },
+    { "identity": "private.validate_notification_rules()", "security_definer": false },
+    { "identity": "private.validate_print_device()", "security_definer": true },
+    { "identity": "private.validate_venue()", "security_definer": false },
+    {
+      "identity": "private.venue_feature_enabled(p_venue uuid, p_name text)",
+      "security_definer": true
+    },
+    {
+      "identity": "private.verify_reservation_deposit_access(p_deposit uuid, p_token text)",
+      "security_definer": true
+    },
+    {
+      "identity": "private.verify_waitlist_offer_access(p_entry uuid, p_token text)",
+      "security_definer": true
+    },
+    {
+      "identity": "private.waitlist_time_distance_minutes(p_start time without time zone, p_end time without time zone, p_target time without time zone)",
+      "security_definer": false
+    },
+    { "identity": "private.waitlist_token_hash(p_token text)", "security_definer": false },
+    {
+      "identity": "public.abort_restore_cutover(p_restore uuid, p_step_up uuid, p_reason text, p_key uuid)",
+      "security_definer": false
+    },
+    {
+      "identity": "public.accept_waitlist_offer(p_entry uuid, p_access_token text, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.activate_room_layout(p_layout uuid, p_version bigint, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.apply_message_delivery_event(p_job uuid, p_adapter text, p_event_id text, p_provider_message_id text, p_state text)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.apply_reservation_deposit_callback(p_provider text, p_event_id text, p_provider_reference text, p_state text)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.approve_takeaway_order(p_request uuid, p_version bigint, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.archive_room_layout(p_layout uuid, p_version bigint, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.assign_operational_staff(p_venue uuid, p_user uuid, p_kind text, p_resource uuid, p_active boolean)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.assign_table(p_reservation uuid, p_table uuid, p_confirm_change boolean)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.assign_table_group(p_reservation uuid, p_tables uuid[], p_confirm_change boolean, p_version bigint)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.assign_waiter(p_venue uuid, p_waiter uuid, p_mode text, p_table uuid, p_zone uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.attach_customer_session(p_user uuid, p_account uuid, p_table uuid, p_epoch integer)",
+      "security_definer": true
+    },
+    { "identity": "public.authorize_health_probe()", "security_definer": true },
+    {
+      "identity": "public.authorize_sensitive_action(p_action text, p_resource uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.begin_ci_run(p_version text, p_git_commit text, p_build_id text, p_target_environment text)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.begin_impersonation(p_subject uuid, p_reason text, p_grant uuid, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.begin_own_password_job(p_key uuid, p_grant uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.begin_reservation_deposit(p_deposit uuid, p_access_token text, p_provider text, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.begin_staff_admin_job(p_action text, p_values jsonb, p_key uuid, p_grant uuid)",
+      "security_definer": true
+    },
+    { "identity": "public.beta_readiness_report()", "security_definer": true },
+    {
+      "identity": "public.bind_reservation_deposit_provider_reference(p_deposit uuid, p_provider text, p_provider_reference text)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.bind_staff_job_secret(p_job uuid, p_lease uuid, p_fingerprint text)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.bootstrap_technical_user(p_user uuid, p_name text)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.build_continuity_backup_artifact_meta(p_backup uuid, p_lease uuid, p_primary_reference text, p_replica_reference text)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.build_continuity_backup_artifact_meta_v2(p_backup uuid, p_lease uuid, p_primary_reference text, p_replica_reference text)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.build_continuity_backup_artifact_meta_v3(p_backup uuid, p_lease uuid, p_primary_reference text, p_replica_reference text, p_storage_object_count integer, p_storage_plain_bytes bigint, p_storage_aggregate_sha256 text)",
+      "security_definer": true
+    },
+    { "identity": "public.call_waiter(p_account uuid, p_kind text)", "security_definer": true },
+    {
+      "identity": "public.cancel_manual_payment(p_payment uuid, p_reason text, p_step_up uuid)",
+      "security_definer": true
+    },
+    { "identity": "public.cancel_print_job(p_job uuid)", "security_definer": true },
+    {
+      "identity": "public.change_installation_status(p_status installation_status, p_version bigint, p_reason text, p_grant uuid, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.change_reservation_privacy(p_reservation uuid, p_version bigint, p_action text, p_changes jsonb, p_reason text, p_grant uuid, p_key uuid)",
+      "security_definer": true
+    },
+    { "identity": "public.check_customer_access_backoff(p_bucket text)", "security_definer": true },
+    { "identity": "public.claim_backup_job(p_lease_seconds integer)", "security_definer": true },
+    {
+      "identity": "public.claim_backup_retention_job(p_lease_seconds integer)",
+      "security_definer": true
+    },
+    { "identity": "public.claim_customer_identity_cleanup()", "security_definer": true },
+    { "identity": "public.claim_message_job(p_lease_seconds integer)", "security_definer": true },
+    { "identity": "public.claim_print_job(p_job uuid)", "security_definer": true },
+    { "identity": "public.claim_provider_operation(p_operation uuid)", "security_definer": true },
+    {
+      "identity": "public.claim_reservation_deposit_no_show_action(p_lease_seconds integer)",
+      "security_definer": true
+    },
+    { "identity": "public.claim_restore_job(p_lease_seconds integer)", "security_definer": true },
+    {
+      "identity": "public.claim_restore_test_job(p_lease_seconds integer)",
+      "security_definer": true
+    },
+    { "identity": "public.claim_staff_admin_job(p_job uuid)", "security_definer": true },
+    { "identity": "public.clear_customer_access_backoff(p_bucket text)", "security_definer": true },
+    { "identity": "public.close_account(p_account uuid)", "security_definer": true },
+    {
+      "identity": "public.complete_staff_login(p_device_name text, p_platform text, p_app_version text, p_device uuid, p_device_token text)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.configure_authentication(p_version bigint, p_admin_mfa boolean, p_cashier_mfa boolean, p_full_auth integer, p_offline_ttl integer, p_grant uuid, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.configure_authentication_v2(p_version bigint, p_admin_mfa boolean, p_cashier_mfa boolean, p_full_auth_mode text, p_full_auth integer, p_offline_ttl integer, p_grant uuid, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.configure_booking_commercial_policy(p_venue uuid, p_service uuid, p_version bigint, p_deposit_policy text, p_deposit_amount_cents bigint, p_deposit_percentage_bps integer, p_deposit_expiry_minutes integer, p_condition_mode text, p_min_party_size integer, p_weekdays integer[], p_dates date[], p_start_time time without time zone, p_end_time time without time zone, p_no_show_mode text, p_no_show_grace_minutes integer, p_no_show_deposit_action text, p_no_show_refund_bps integer, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.configure_booking_rules(p_venue uuid, p_service uuid, p_service_covers integer, p_interval integer, p_arrivals integer, p_slot_covers integer, p_auto_party integer, p_large_party text)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.configure_cash_register_printer(p_register uuid, p_printer uuid, p_version bigint)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.configure_continuity_targets(p_version bigint, p_rpo_target_minutes integer, p_rto_target_minutes integer, p_backup_retention_days integer, p_restore_test_interval_days integer, p_key uuid)",
+      "security_definer": false
+    },
+    {
+      "identity": "public.configure_data_retention(p_version bigint, p_settings jsonb, p_grant uuid, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.configure_dish(p_dish uuid, p_ingredients jsonb, p_tags uuid[])",
+      "security_definer": true
+    },
+    {
+      "identity": "public.configure_feature(p_name text, p_licensed boolean, p_step_up uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.configure_ingredient_allergens(p_ingredient uuid, p_allergens uuid[])",
+      "security_definer": true
+    },
+    {
+      "identity": "public.configure_station_printer(p_station uuid, p_printer uuid, p_auto boolean, p_version bigint)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.configure_station_printing(p_station uuid, p_printer uuid, p_auto boolean, p_events text[], p_version bigint)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.configure_system_limits(p_limits jsonb, p_grant uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.configure_table_join(p_first uuid, p_second uuid, p_enabled boolean)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.configure_table_label(p_venue uuid, p_status table_status, p_label text, p_color text, p_icon text, p_order integer, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.configure_venue_dish(p_venue uuid, p_dish uuid, p_enabled boolean, p_price bigint, p_availability integer, p_primary_station uuid, p_observer_stations uuid[])",
+      "security_definer": true
+    },
+    {
+      "identity": "public.configure_venue_operations(p_venue uuid, p_values jsonb)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.configure_waitlist_messaging(p_venue uuid, p_enabled boolean, p_version bigint, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.confirm_manual_payment(p_payment uuid, p_success boolean)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.confirm_restore(p_restore uuid, p_step_up uuid, p_reason text, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.confirm_restore_cutover(p_restore uuid, p_step_up uuid, p_target_reference text, p_note text, p_key uuid)",
+      "security_definer": false
+    },
+    {
+      "identity": "public.consume_edge_rate_limit(p_bucket text, p_limit integer, p_seconds integer)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.continuity_rehearsal_export_chunk(p_snapshot_id uuid, p_chunk_no integer, p_chunk_size integer, p_backup_key text)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.correct_reservation_no_show(p_reservation uuid, p_target_status reservation_status, p_version bigint, p_reason text, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.create_account(p_table uuid, p_name text, p_covers integer, p_note text, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.create_backup(p_purpose text, p_retention_days integer, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.create_customer_order_request(p_account uuid, p_items jsonb, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.create_equal_split(p_account uuid, p_parts integer, p_version bigint, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.create_order(p_account uuid, p_items jsonb, p_key uuid, p_version bigint)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.create_payment(p_account uuid, p_register uuid, p_amount bigint, p_tip bigint, p_method payment_method, p_key uuid, p_items jsonb, p_share uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.create_public_reservation(p_venue uuid, p_service uuid, p_date date, p_time time without time zone, p_first_name text, p_last_name text, p_phone text, p_party integer, p_answers jsonb, p_key uuid, p_rate_key text)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.create_refund(p_payment uuid, p_amount bigint, p_tip bigint, p_reason text, p_step_up uuid, p_key uuid, p_register uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.create_room_layout(p_room uuid, p_name text, p_width integer, p_height integer, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.create_takeaway_order(p_venue uuid, p_pickup_slot uuid, p_customer_name text, p_customer_phone text, p_customer_note text, p_items jsonb, p_key uuid, p_rate_key text)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.create_venue(p_name text, p_slug text, p_code text, p_address text, p_phone text, p_email text, p_timezone text, p_currency text, p_locale text, p_grant uuid, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.create_waitlist_entry(p_venue uuid, p_service uuid, p_date date, p_preferred_start time without time zone, p_preferred_end time without time zone, p_party integer, p_customer_name text, p_customer_phone text, p_notes text, p_key uuid, p_rate_key text)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.create_walk_in(p_venue uuid, p_service uuid, p_party integer, p_name text, p_key uuid)",
+      "security_definer": true
+    },
+    { "identity": "public.delete_database_chaos_probe(p_id uuid)", "security_definer": true },
+    { "identity": "public.deliver_step(p_step uuid, p_served boolean)", "security_definer": true },
+    {
+      "identity": "public.enable_impersonation_write(p_id uuid, p_confirm boolean, p_grant uuid)",
+      "security_definer": true
+    },
+    { "identity": "public.end_impersonation(p_id uuid)", "security_definer": true },
+    { "identity": "public.end_staff_session()", "security_definer": true },
+    { "identity": "public.enqueue_backup_worker_probe()", "security_definer": true },
+    { "identity": "public.enqueue_due_backup()", "security_definer": true },
+    { "identity": "public.enqueue_restore_test_job(p_backup uuid)", "security_definer": true },
+    {
+      "identity": "public.enqueue_scheduled_backup(p_retention_days integer)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.export_continuity_backup_chunk(p_backup uuid, p_lease uuid, p_chunk_no integer)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.export_continuity_migration_bundle(p_backup uuid, p_lease uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.export_reservation_personal_data(p_reservation uuid, p_grant uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.finish_asset_upload(p_id uuid, p_success boolean, p_checksum text)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.finish_backup_job(p_id uuid, p_lease uuid, p_success boolean, p_database_reference text, p_auth_reference text, p_storage_reference text, p_manifest jsonb, p_verification jsonb, p_checksum text, p_size_bytes bigint, p_object_count bigint, p_encryption_key_id text, p_error_code text)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.finish_backup_retention_job(p_id uuid, p_lease uuid, p_success boolean, p_error_code text)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.finish_customer_identity_cleanup(p_user uuid, p_lease uuid, p_success boolean)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.finish_message_job(p_job uuid, p_lease uuid, p_provider_message_id text, p_state text, p_event_id text, p_retryable boolean, p_error_code text)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.finish_message_job(p_job uuid, p_lease uuid, p_state text, p_provider_message_id text, p_event_id text, p_error_code text)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.finish_print_job(p_job uuid, p_lease uuid, p_success boolean, p_error text)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.finish_provider_operation(p_operation uuid, p_lease uuid, p_provider_id text, p_state text, p_amount bigint, p_currency text, p_event text, p_checkout_url text)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.finish_reservation_deposit_no_show_action(p_action uuid, p_lease uuid, p_provider_refund_id text, p_state text, p_amount bigint, p_currency text, p_event text, p_error_code text)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.finish_restore_job(p_id uuid, p_lease uuid, p_success boolean, p_verification jsonb, p_error_code text)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.finish_staff_admin_job(p_job uuid, p_lease uuid, p_success boolean)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.force_close_account(p_account uuid, p_reason text, p_step_up uuid, p_key uuid)",
+      "security_definer": true
+    },
+    { "identity": "public.get_account_balance(p_account uuid)", "security_definer": true },
+    {
+      "identity": "public.get_account_payments(p_account uuid, p_before_at timestamp with time zone, p_before_id uuid, p_limit integer)",
+      "security_definer": true
+    },
+    { "identity": "public.get_account_print_options(p_account uuid)", "security_definer": true },
+    { "identity": "public.get_account_transfer_targets(p_account uuid)", "security_definer": true },
+    {
+      "identity": "public.get_account_workspace(p_account uuid, p_before_at timestamp with time zone, p_before_id uuid, p_limit integer)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.get_accounts_center(p_venue uuid, p_limit integer)",
+      "security_definer": true
+    },
+    { "identity": "public.get_admin_authentication_settings()", "security_definer": true },
+    { "identity": "public.get_admin_operational_overview(p_venue uuid)", "security_definer": true },
+    { "identity": "public.get_auth_requirements()", "security_definer": true },
+    { "identity": "public.get_billing_workspace(p_account uuid)", "security_definer": true },
+    { "identity": "public.get_booking_configuration(p_venue uuid)", "security_definer": true },
+    { "identity": "public.get_cash_workspace(p_venue uuid)", "security_definer": true },
+    { "identity": "public.get_ci_run(p_run uuid)", "security_definer": true },
+    {
+      "identity": "public.get_claimable_print_jobs(p_venue uuid, p_limit integer)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.get_conflict_center(p_venue uuid, p_status text, p_limit integer)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.get_continuity_backup_snapshot_summary(p_backup uuid, p_lease uuid)",
+      "security_definer": true
+    },
+    { "identity": "public.get_continuity_replica_runtime_config()", "security_definer": true },
+    { "identity": "public.get_customer_account(p_public_table uuid)", "security_definer": true },
+    {
+      "identity": "public.get_customer_order_approval_workspace(p_venue uuid)",
+      "security_definer": true
+    },
+    { "identity": "public.get_device_management(p_venue uuid)", "security_definer": true },
+    { "identity": "public.get_dish_admin_detail(p_dish uuid)", "security_definer": true },
+    {
+      "identity": "public.get_dish_food_cost(p_dish uuid, p_venue uuid, p_at timestamp with time zone)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.get_dish_price_history(p_dish uuid, p_venue uuid)",
+      "security_definer": true
+    },
+    { "identity": "public.get_floor_workspace(p_venue uuid)", "security_definer": true },
+    {
+      "identity": "public.get_host_reservations(p_venue uuid, p_date date, p_service uuid, p_status reservation_status, p_search text, p_after_time time without time zone, p_after_id uuid, p_limit integer)",
+      "security_definer": true
+    },
+    { "identity": "public.get_host_services(p_venue uuid)", "security_definer": true },
+    { "identity": "public.get_impersonation_context(p_id uuid)", "security_definer": true },
+    { "identity": "public.get_initial_setup_state()", "security_definer": true },
+    { "identity": "public.get_kitchen_admin_overview(p_venue uuid)", "security_definer": true },
+    { "identity": "public.get_kitchen_board(p_venue uuid)", "security_definer": true },
+    { "identity": "public.get_menu_admin_workspace(p_venue uuid)", "security_definer": true },
+    {
+      "identity": "public.get_menu_engineering(p_venue uuid, p_start date, p_end date, p_category uuid)",
+      "security_definer": true
+    },
+    { "identity": "public.get_menu_experience_workspace(p_venue uuid)", "security_definer": true },
+    {
+      "identity": "public.get_menu_experience_workspace_v2(p_venue uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.get_notification_center(p_venue uuid, p_limit integer)",
+      "security_definer": true
+    },
+    { "identity": "public.get_notification_summary(p_venue uuid)", "security_definer": true },
+    {
+      "identity": "public.get_offline_operational_workspace(p_venue uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.get_offline_sync_statuses(p_venue uuid, p_client_events uuid[])",
+      "security_definer": true
+    },
+    { "identity": "public.get_operational_staff_workspace(p_user uuid)", "security_definer": true },
+    {
+      "identity": "public.get_operational_statistics(p_venue uuid, p_start date, p_end date)",
+      "security_definer": true
+    },
+    { "identity": "public.get_order_change_center(p_venue uuid)", "security_definer": true },
+    { "identity": "public.get_own_access_sessions()", "security_definer": true },
+    { "identity": "public.get_own_password_jobs()", "security_definer": true },
+    { "identity": "public.get_payment_registers(p_venue uuid)", "security_definer": true },
+    { "identity": "public.get_print_admin_workspace(p_venue uuid)", "security_definer": true },
+    {
+      "identity": "public.get_print_bridge_authorization(p_job uuid, p_lease uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.get_print_jobs(p_venue uuid, p_after_at timestamp with time zone, p_after_id uuid, p_status text, p_limit integer)",
+      "security_definer": false
+    },
+    { "identity": "public.get_privacy_configuration()", "security_definer": true },
+    {
+      "identity": "public.get_public_booking_availability(p_venue uuid, p_service uuid, p_date date, p_party integer)",
+      "security_definer": true
+    },
+    { "identity": "public.get_public_menu(p_venue uuid)", "security_definer": true },
+    {
+      "identity": "public.get_public_menu_by_id(p_public_menu uuid, p_venue uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.get_public_menu_by_slug(p_slug text, p_venue uuid)",
+      "security_definer": true
+    },
+    { "identity": "public.get_public_menu_index(p_venue uuid)", "security_definer": true },
+    { "identity": "public.get_public_navigation(p_venue uuid)", "security_definer": true },
+    {
+      "identity": "public.get_public_page_metadata(p_path text, p_venue uuid)",
+      "security_definer": true
+    },
+    { "identity": "public.get_public_site()", "security_definer": true },
+    { "identity": "public.get_public_sitemap_entries()", "security_definer": true },
+    { "identity": "public.get_reservation_details(p_reservation uuid)", "security_definer": true },
+    { "identity": "public.get_restore_preview(p_backup uuid)", "security_definer": true },
+    { "identity": "public.get_returnable_order_items(p_venue uuid)", "security_definer": true },
+    { "identity": "public.get_room_editor_workspace(p_venue uuid)", "security_definer": true },
+    { "identity": "public.get_service_reconciliation(p_session uuid)", "security_definer": true },
+    { "identity": "public.get_staff_management_workspace()", "security_definer": true },
+    { "identity": "public.get_staff_venue_context()", "security_definer": true },
+    { "identity": "public.get_technical_workspace()", "security_definer": true },
+    {
+      "identity": "public.get_waitlist_candidates(p_venue uuid, p_service uuid, p_date date, p_time time without time zone, p_limit integer)",
+      "security_definer": true
+    },
+    { "identity": "public.heartbeat_device()", "security_definer": true },
+    {
+      "identity": "public.ingest_edge_telemetry(p_event text, p_environment text, p_release text, p_operation text, p_duration integer, p_code text, p_status integer, p_request uuid)",
+      "security_definer": true
+    },
+    { "identity": "public.invoke_continuity_backup_worker()", "security_definer": true },
+    { "identity": "public.invoke_database_unavailable_chaos_probe()", "security_definer": true },
+    {
+      "identity": "public.invoke_reservation_deposit_no_show_worker(p_max_jobs integer)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.invoke_reservation_message_worker(p_max_jobs integer)",
+      "security_definer": true
+    },
+    { "identity": "public.issue_offline_authorization()", "security_definer": true },
+    {
+      "identity": "public.issue_step_up_grant(p_user uuid, p_session uuid, p_action text, p_resource uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.list_continuity_storage_object_snapshot(p_backup uuid, p_lease uuid)",
+      "security_definer": true
+    },
+    { "identity": "public.lock_staff_session()", "security_definer": true },
+    { "identity": "public.logout_staff_session()", "security_definer": true },
+    {
+      "identity": "public.mark_restore_verifying(p_id uuid, p_lease uuid, p_target_reference text)",
+      "security_definer": true
+    },
+    { "identity": "public.mark_step_ready(p_step uuid)", "security_definer": true },
+    { "identity": "public.master_acceptance_coverage_report()", "security_definer": true },
+    {
+      "identity": "public.merge_accounts(p_source uuid, p_target uuid, p_source_version bigint, p_target_version bigint, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.merge_tables(p_primary uuid, p_secondary uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.modify_order(p_order uuid, p_version bigint, p_item_ids uuid[], p_replacements jsonb, p_reason text, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.move_account_items(p_source uuid, p_target uuid, p_name text, p_items jsonb, p_source_version bigint, p_target_version bigint, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.move_table(p_from uuid, p_to uuid, p_confirm boolean)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.offer_waitlist_slot(p_entry uuid, p_time time without time zone, p_offer_minutes integer, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.open_service_session(p_venue uuid, p_service uuid, p_register uuid, p_float bigint, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.prepare_continuity_backup_snapshot(p_backup uuid, p_lease uuid, p_chunk_size integer)",
+      "security_definer": true
+    },
+    { "identity": "public.prepare_offline_authorization()", "security_definer": true },
+    {
+      "identity": "public.prepare_provider_operation(p_payment uuid, p_refund uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.prepare_staff_job_profile(p_job uuid, p_lease uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.preview_discount(p_account uuid, p_kind text, p_value bigint, p_items jsonb)",
+      "security_definer": true
+    },
+    { "identity": "public.preview_discount_request(p_request uuid)", "security_definer": true },
+    {
+      "identity": "public.purge_customer_access_backoff(p_limit integer)",
+      "security_definer": true
+    },
+    { "identity": "public.purge_realtime_signals()", "security_definer": true },
+    { "identity": "public.read_database_chaos_probe(p_id uuid)", "security_definer": true },
+    { "identity": "public.reconcile_all_continuity_alerts()", "security_definer": false },
+    { "identity": "public.reconcile_continuity_alerts()", "security_definer": true },
+    {
+      "identity": "public.reconcile_message_job(p_job uuid, p_provider_message_id text, p_state text, p_event_id text, p_error_code text)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.record_ci_stage(p_run uuid, p_stage text, p_status text, p_evidence jsonb)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.record_continuity_worker_heartbeat(p_worker text, p_status text, p_details jsonb)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.record_customer_access_failure(p_bucket text)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.record_health_probe(p_component text, p_status text, p_latency integer, p_code text, p_request uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.record_navigation_telemetry(p_event text, p_surface text, p_route text, p_venue uuid, p_environment text, p_release text, p_request uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.record_release_test_result(p_key text, p_status text, p_evidence jsonb, p_executed_by text)",
+      "security_definer": true
+    },
+    { "identity": "public.regenerate_account_code(p_account uuid)", "security_definer": true },
+    {
+      "identity": "public.register_customer_identity_retention(p_user uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.reject_takeaway_order(p_request uuid, p_version bigint, p_reason text, p_key uuid)",
+      "security_definer": true
+    },
+    { "identity": "public.release_database_regression_gate()", "security_definer": true },
+    { "identity": "public.release_documentation_report()", "security_definer": true },
+    {
+      "identity": "public.release_message_job_unknown(p_job uuid, p_lease uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.release_provider_lease(p_operation uuid, p_lease uuid)",
+      "security_definer": true
+    },
+    { "identity": "public.release_readiness_report()", "security_definer": true },
+    {
+      "identity": "public.release_reservation_deposit_no_show_action_unknown(p_action uuid, p_lease uuid, p_error_code text)",
+      "security_definer": true
+    },
+    { "identity": "public.release_security_gate()", "security_definer": true },
+    { "identity": "public.release_test_gate()", "security_definer": true },
+    {
+      "identity": "public.reopen_account(p_account uuid, p_reason text, p_step_up uuid, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.request_account_print(p_account uuid, p_device uuid, p_kind text, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.request_discount(p_account uuid, p_kind text, p_value bigint, p_items jsonb, p_reason text, p_version bigint, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.request_order_change(p_order uuid, p_kind text, p_payload jsonb, p_reason text, p_version bigint, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.request_register_account_print(p_account uuid, p_register uuid, p_kind text, p_key uuid)",
+      "security_definer": true
+    },
+    { "identity": "public.request_restore(p_backup uuid, p_key uuid)", "security_definer": true },
+    {
+      "identity": "public.request_restore_test(p_backup uuid, p_step_up uuid, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.request_service_close(p_session uuid, p_actuals jsonb, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.request_station_order_print(p_order uuid, p_station uuid, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.reserve_asset_upload(p_bucket text, p_resource uuid, p_venue uuid, p_size bigint, p_mime text)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.reserve_asset_upload_command(p_bucket text, p_resource uuid, p_venue uuid, p_size bigint, p_mime text, p_checksum text, p_key uuid)",
+      "security_definer": true
+    },
+    { "identity": "public.reset_staff_pin(p_user uuid, p_grant uuid)", "security_definer": true },
+    {
+      "identity": "public.resolve_customer_order(p_request uuid, p_approve boolean, p_reason text)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.resolve_discount_request(p_request uuid, p_approve boolean, p_reason text, p_version bigint, p_amount bigint, p_grant uuid, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.resolve_order_change(p_request uuid, p_approve boolean, p_reason text, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.resolve_service_reconciliation(p_request uuid, p_approve boolean, p_reason text, p_grant uuid, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.resolve_sync_conflict(p_conflict uuid, p_action text, p_reason text, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.resume_staff_admin_job(p_job uuid, p_grant uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.retry_print_job(p_job uuid, p_confirm_duplicate_risk boolean, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.return_order_item(p_item uuid, p_action text, p_version bigint, p_key uuid)",
+      "security_definer": true
+    },
+    { "identity": "public.revoke_device(p_device uuid, p_grant uuid)", "security_definer": true },
+    {
+      "identity": "public.revoke_staff_for_reset(p_user uuid, p_step_up uuid, p_disable boolean)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.revoke_staff_session(p_session uuid, p_grant uuid)",
+      "security_definer": true
+    },
+    { "identity": "public.run_data_retention(p_limit integer)", "security_definer": true },
+    {
+      "identity": "public.run_reservation_deposit_expiry(p_limit integer)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.run_reservation_message_outbox(p_limit integer)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.run_reservation_messaging_tick(p_outbox_limit integer, p_reminder_horizon_minutes integer, p_reminder_limit integer, p_worker_jobs integer)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.run_reservation_no_show_scheduler(p_now timestamp with time zone, p_limit integer)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.run_reservation_reminder_scheduler(p_now timestamp with time zone, p_horizon_minutes integer, p_limit integer)",
+      "security_definer": true
+    },
+    { "identity": "public.run_takeaway_request_expiry(p_limit integer)", "security_definer": true },
+    { "identity": "public.run_waitlist_offer_expiry(p_limit integer)", "security_definer": true },
+    {
+      "identity": "public.save_booking_slot(p_venue uuid, p_service uuid, p_date date, p_time time without time zone, p_closed boolean, p_covers integer, p_arrivals integer, p_reason text, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.save_brand_content(p_version bigint, p_branding jsonb, p_content jsonb, p_contact jsonb, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.save_category(p_id uuid, p_version bigint, p_name text, p_description text, p_sort_order integer, p_active boolean, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.save_configuration(p_entity text, p_venue uuid, p_id uuid, p_values jsonb, p_version bigint)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.save_configuration_command(p_entity text, p_venue uuid, p_id uuid, p_values jsonb, p_version bigint, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.save_dish(p_id uuid, p_version bigint, p_category uuid, p_name text, p_description text, p_image_path text, p_beverage boolean, p_price_cents bigint, p_active boolean, p_sort_order integer, p_schedule_mode text, p_available_from date, p_available_until date, p_weekdays integer[], p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.save_dish_composition(p_dish uuid, p_version bigint, p_ingredients jsonb, p_tags uuid[], p_variants jsonb, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.save_feature_license(p_name text, p_licensed boolean, p_version bigint, p_grant uuid, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.save_financial_settings(p_venue uuid, p_version bigint, p_methods payment_method[], p_discount text, p_complimentary text, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.save_ingredient(p_id uuid, p_version bigint, p_name text, p_active boolean, p_allergens uuid[], p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.save_menu(p_id uuid, p_version bigint, p_name text, p_slug text, p_active boolean, p_published boolean, p_weekdays integer[], p_starts_at time without time zone, p_ends_at time without time zone, p_available_from date, p_available_until date, p_sort_order integer, p_venues uuid[], p_categories uuid[], p_dishes uuid[], p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.save_menu_promotion(p_id uuid, p_version bigint, p_venue uuid, p_menu uuid, p_display_mode text, p_title text, p_body text, p_image_path text, p_cta_label text, p_target_category uuid, p_target_dish uuid, p_target_menu uuid, p_start_at timestamp with time zone, p_end_at timestamp with time zone, p_priority integer, p_max_impressions integer, p_active boolean, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.save_menu_v2(p_id uuid, p_version bigint, p_name text, p_slug text, p_active boolean, p_published boolean, p_weekdays integer[], p_starts_at time without time zone, p_ends_at time without time zone, p_available_from date, p_available_until date, p_sort_order integer, p_venues uuid[], p_categories uuid[], p_dishes uuid[], p_services uuid[], p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.save_message_provider_setting(p_venue uuid, p_channel text, p_adapter text, p_enabled boolean, p_sender_ref text, p_confirmation_template text, p_reminder_template text, p_max_attempts integer, p_base_backoff_seconds integer, p_max_backoff_seconds integer, p_version bigint, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.save_message_template(p_id uuid, p_venue uuid, p_channel text, p_template_key text, p_locale text, p_body_template text, p_provider_template_ref text, p_active boolean, p_version bigint, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.save_operational_settings(p_venue uuid, p_version bigint, p_values jsonb, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.save_print_device(p_id uuid, p_venue uuid, p_version bigint, p_name text, p_driver text, p_endpoint text, p_roles user_role[], p_active boolean, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.save_register_finance(p_register uuid, p_version bigint, p_methods payment_method[], p_printer uuid, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.save_reservation_form(p_venue uuid, p_id uuid, p_version bigint, p_name text, p_fields jsonb, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.save_reservation_message_contact(p_reservation uuid, p_channel text, p_destination text, p_preference text, p_verified boolean, p_verification_source text, p_version bigint, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.save_reservation_reminder_rule(p_id uuid, p_venue uuid, p_channel text, p_offset_minutes integer, p_template_key text, p_active boolean, p_version bigint, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.save_room(p_venue uuid, p_id uuid, p_version bigint, p_name text, p_active boolean, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.save_room_layout(p_layout uuid, p_version bigint, p_elements jsonb, p_tables jsonb, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.save_shift(p_venue uuid, p_id uuid, p_staff uuid, p_start timestamp with time zone, p_end timestamp with time zone, p_version bigint, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.save_shift_local(p_venue uuid, p_id uuid, p_staff uuid, p_start timestamp without time zone, p_end timestamp without time zone, p_version bigint, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.save_staff_reservation(p_venue uuid, p_id uuid, p_version bigint, p_values jsonb, p_answers jsonb, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.save_station(p_venue uuid, p_id uuid, p_version bigint, p_name text, p_active boolean, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.save_takeaway_pickup_slot(p_id uuid, p_venue uuid, p_date date, p_time time without time zone, p_capacity_orders integer, p_closed boolean, p_version bigint, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.save_venue_details(p_venue uuid, p_version bigint, p_values jsonb, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.save_venue_dish(p_venue uuid, p_dish uuid, p_version bigint, p_enabled boolean, p_price bigint, p_availability integer, p_primary_station uuid, p_observers uuid[], p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.save_venue_feature(p_venue uuid, p_name text, p_enabled boolean, p_version bigint, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.save_venue_menu(p_venue uuid, p_id uuid, p_version bigint, p_name text, p_slug text, p_active boolean, p_published boolean, p_weekdays integer[], p_starts_at time without time zone, p_ends_at time without time zone, p_available_from date, p_available_until date, p_sort_order integer, p_categories uuid[], p_dishes uuid[], p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.save_venue_menu_v2(p_venue uuid, p_id uuid, p_version bigint, p_name text, p_slug text, p_active boolean, p_published boolean, p_weekdays integer[], p_starts_at time without time zone, p_ends_at time without time zone, p_available_from date, p_available_until date, p_sort_order integer, p_categories uuid[], p_dishes uuid[], p_services uuid[], p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.save_zone(p_room uuid, p_id uuid, p_version bigint, p_name text, p_color text, p_active boolean, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.search_accounts(p_venue uuid, p_search text, p_status text, p_table uuid, p_from timestamp with time zone, p_to timestamp with time zone, p_before_at timestamp with time zone, p_before_id uuid, p_limit integer)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.search_audit(p_venue uuid, p_actor uuid, p_resource uuid, p_request uuid, p_action text, p_result text, p_from timestamp with time zone, p_to timestamp with time zone, p_before_at timestamp with time zone, p_before_id uuid, p_limit integer, p_correlation uuid, p_role user_role, p_impersonated boolean, p_resource_type text)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.search_operational_resources(p_query text, p_venue uuid)",
+      "security_definer": false
+    },
+    {
+      "identity": "public.search_privacy_reservations(p_venue uuid, p_phone text, p_after uuid)",
+      "security_definer": true
+    },
+    { "identity": "public.service_database_probe()", "security_definer": true },
+    {
+      "identity": "public.set_cash_register_open(p_register uuid, p_open boolean)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.set_ingredient_cost(p_ingredient uuid, p_venue uuid, p_cost_micros bigint, p_purchase_unit text, p_effective_from timestamp with time zone, p_source text, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.set_installation_status(p_status installation_status, p_step_up uuid, p_reason text)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.set_master_acceptance_result(p_key text, p_status text, p_mapped_test_key text, p_evidence jsonb, p_verified_by text)",
+      "security_definer": true
+    },
+    { "identity": "public.set_operational_venue(p_venue uuid)", "security_definer": true },
+    {
+      "identity": "public.set_release_documentation_item(p_key text, p_status text, p_source_ref text, p_evidence text, p_verified_by text)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.set_release_gate_check(p_key text, p_status text, p_evidence text, p_checked_by text)",
+      "security_definer": true
+    },
+    { "identity": "public.set_staff_pin(p_pin text)", "security_definer": true },
+    { "identity": "public.set_table_available(p_table uuid)", "security_definer": true },
+    {
+      "identity": "public.setup_installation(p_name text, p_public_url text, p_staff_url text, p_identity_domain text, p_venue jsonb)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.snapshot_dish_food_cost(p_dish uuid, p_venue uuid, p_key uuid)",
+      "security_definer": true
+    },
+    { "identity": "public.split_tables(p_primary uuid)", "security_definer": true },
+    { "identity": "public.start_order_step(p_step uuid)", "security_definer": true },
+    {
+      "identity": "public.store_offline_authorization(p_challenge uuid, p_claims text, p_signature text)",
+      "security_definer": true
+    },
+    { "identity": "public.suggest_staff_identifier(p_name text)", "security_definer": true },
+    { "identity": "public.suggest_tables(p_reservation uuid)", "security_definer": true },
+    {
+      "identity": "public.sync_offline_event(p_authorization uuid, p_client_event uuid, p_key uuid, p_venue uuid, p_resource uuid, p_operation text, p_version bigint, p_payload jsonb, p_created_at timestamp with time zone, p_predecessor uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.transition_notification(p_notification uuid, p_status notification_status)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.transition_order_item(p_item uuid, p_status order_status, p_version bigint)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.transition_reservation(p_reservation uuid, p_status reservation_status, p_version bigint)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.transition_waiter_call(p_call uuid, p_complete boolean)",
+      "security_definer": true
+    },
+    { "identity": "public.unlock_staff_session(p_pin text)", "security_definer": true },
+    {
+      "identity": "public.update_incident(p_id uuid, p_venue uuid, p_component text, p_severity incident_severity, p_title text, p_impact text, p_status text, p_detail text, p_version bigint, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.update_reservation_notes(p_reservation uuid, p_note text, p_allergies text, p_version bigint)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.update_staff_access(p_user uuid, p_name text, p_role user_role, p_scope user_scope, p_venues uuid[], p_version bigint, p_reason text, p_grant uuid, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.update_takeaway_status(p_order uuid, p_status text, p_version bigint, p_key uuid)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.update_venue(p_venue uuid, p_version bigint, p_values jsonb, p_grant uuid, p_key uuid)",
+      "security_definer": true
+    },
+    { "identity": "public.verify_continuity_worker_token(p_token text)", "security_definer": true },
+    {
+      "identity": "public.verify_customer_code(p_public_table uuid, p_code text)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.verify_staff_job_secret(p_job uuid, p_fingerprint text)",
+      "security_definer": true
+    },
+    {
+      "identity": "public.write_database_chaos_probe(p_id uuid, p_marker text)",
+      "security_definer": true
+    }
+  ],
+  "triggers": [
+    {
+      "identity": "private.api_permission_manifest.api_permission_manifest_normalize",
+      "definition": "CREATE TRIGGER api_permission_manifest_normalize BEFORE INSERT OR UPDATE OF function_identity ON private.api_permission_manifest FOR EACH ROW EXECUTE FUNCTION private.normalize_api_permission_manifest_entry()"
+    },
+    {
+      "identity": "private.continuity_settings.touch_version",
+      "definition": "CREATE TRIGGER touch_version BEFORE UPDATE ON private.continuity_settings FOR EACH ROW EXECUTE FUNCTION private.touch_version()"
+    },
+    {
+      "identity": "private.customer_sessions.realtime_access",
+      "definition": "CREATE TRIGGER realtime_access AFTER INSERT OR DELETE OR UPDATE ON private.customer_sessions FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "private.dish_price_history.immutable_no_truncate",
+      "definition": "CREATE TRIGGER immutable_no_truncate BEFORE TRUNCATE ON private.dish_price_history FOR EACH STATEMENT EXECUTE FUNCTION private.immutable_record()"
+    },
+    {
+      "identity": "private.dish_price_history.immutable_record",
+      "definition": "CREATE TRIGGER immutable_record BEFORE DELETE OR UPDATE ON private.dish_price_history FOR EACH ROW EXECUTE FUNCTION private.immutable_record()"
+    },
+    {
+      "identity": "private.message_provider_events.immutable_event",
+      "definition": "CREATE TRIGGER immutable_event BEFORE DELETE OR UPDATE ON private.message_provider_events FOR EACH ROW EXECUTE FUNCTION private.immutable_record()"
+    },
+    {
+      "identity": "private.provider_operation_events.immutable_events",
+      "definition": "CREATE TRIGGER immutable_events BEFORE DELETE OR UPDATE ON private.provider_operation_events FOR EACH ROW EXECUTE FUNCTION private.immutable_record()"
+    },
+    {
+      "identity": "private.provider_operation_events.immutable_events_truncate",
+      "definition": "CREATE TRIGGER immutable_events_truncate BEFORE TRUNCATE ON private.provider_operation_events FOR EACH STATEMENT EXECUTE FUNCTION private.immutable_record()"
+    },
+    {
+      "identity": "private.reservation_message_contacts.touch_version",
+      "definition": "CREATE TRIGGER touch_version BEFORE UPDATE ON private.reservation_message_contacts FOR EACH ROW EXECUTE FUNCTION private.touch_version()"
+    },
+    {
+      "identity": "private.staff_access_change_reasons.access_reason_immutable",
+      "definition": "CREATE TRIGGER access_reason_immutable BEFORE DELETE OR UPDATE ON private.staff_access_change_reasons FOR EACH ROW EXECUTE FUNCTION private.immutable_record()"
+    },
+    {
+      "identity": "private.staff_access_change_reasons.access_reason_no_truncate",
+      "definition": "CREATE TRIGGER access_reason_no_truncate BEFORE TRUNCATE ON private.staff_access_change_reasons FOR EACH STATEMENT EXECUTE FUNCTION private.immutable_record()"
+    },
+    {
+      "identity": "private.staff_sessions.realtime_access",
+      "definition": "CREATE TRIGGER realtime_access AFTER INSERT OR DELETE OR UPDATE ON private.staff_sessions FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.account_splits.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.account_splits FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.accounts.admission_snapshot",
+      "definition": "CREATE TRIGGER admission_snapshot BEFORE INSERT OR UPDATE ON public.accounts FOR EACH ROW EXECUTE FUNCTION private.account_admission_snapshot()"
+    },
+    {
+      "identity": "public.accounts.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.accounts FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.accounts.guard_account_floor_release",
+      "definition": "CREATE TRIGGER guard_account_floor_release BEFORE INSERT OR UPDATE ON public.accounts FOR EACH ROW EXECUTE FUNCTION private.guard_account_floor_release()"
+    },
+    {
+      "identity": "public.accounts.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE ON public.accounts FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.accounts.touch_version",
+      "definition": "CREATE TRIGGER touch_version BEFORE UPDATE ON public.accounts FOR EACH ROW EXECUTE FUNCTION private.touch_version()"
+    },
+    {
+      "identity": "public.allergens.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.allergens FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.allergens.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE ON public.allergens FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.application_releases.application_releases_immutable",
+      "definition": "CREATE TRIGGER application_releases_immutable BEFORE DELETE OR UPDATE ON public.application_releases FOR EACH ROW EXECUTE FUNCTION private.immutable_record()"
+    },
+    {
+      "identity": "public.application_releases.application_releases_no_truncate",
+      "definition": "CREATE TRIGGER application_releases_no_truncate BEFORE TRUNCATE ON public.application_releases FOR EACH STATEMENT EXECUTE FUNCTION private.immutable_record()"
+    },
+    {
+      "identity": "public.application_releases.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.application_releases FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.audit_log.audit_immutable",
+      "definition": "CREATE TRIGGER audit_immutable BEFORE DELETE OR UPDATE ON public.audit_log FOR EACH ROW EXECUTE FUNCTION private.immutable_record()"
+    },
+    {
+      "identity": "public.audit_log.audit_no_truncate",
+      "definition": "CREATE TRIGGER audit_no_truncate BEFORE TRUNCATE ON public.audit_log FOR EACH STATEMENT EXECUTE FUNCTION private.immutable_record()"
+    },
+    {
+      "identity": "public.audit_log_default.audit_immutable",
+      "definition": "CREATE TRIGGER audit_immutable BEFORE DELETE OR UPDATE ON public.audit_log_default FOR EACH ROW EXECUTE FUNCTION private.immutable_record()"
+    },
+    {
+      "identity": "public.audit_log_default.audit_no_truncate",
+      "definition": "CREATE TRIGGER audit_no_truncate BEFORE TRUNCATE ON public.audit_log_default FOR EACH STATEMENT EXECUTE FUNCTION private.immutable_record()"
+    },
+    {
+      "identity": "public.backup_metadata.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.backup_metadata FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.backup_metadata.guard_backup_manifest_auth",
+      "definition": "CREATE TRIGGER guard_backup_manifest_auth BEFORE INSERT OR UPDATE OF status, manifest, verification, integrity_verified ON public.backup_metadata FOR EACH ROW EXECUTE FUNCTION private.guard_backup_manifest_auth()"
+    },
+    {
+      "identity": "public.backup_metadata.guard_backup_private_state",
+      "definition": "CREATE TRIGGER guard_backup_private_state BEFORE INSERT OR UPDATE OF status, manifest, verification, integrity_verified ON public.backup_metadata FOR EACH ROW EXECUTE FUNCTION private.guard_backup_private_state()"
+    },
+    {
+      "identity": "public.backup_metadata.guard_backup_release_metadata",
+      "definition": "CREATE TRIGGER guard_backup_release_metadata BEFORE INSERT OR UPDATE OF status, release_version, integrity_verified ON public.backup_metadata FOR EACH ROW EXECUTE FUNCTION private.guard_backup_release_metadata()"
+    },
+    {
+      "identity": "public.backup_metadata.guard_backup_replica_durability",
+      "definition": "CREATE TRIGGER guard_backup_replica_durability BEFORE INSERT OR UPDATE OF status, manifest, verification, integrity_verified ON public.backup_metadata FOR EACH ROW EXECUTE FUNCTION private.guard_backup_replica_durability()"
+    },
+    {
+      "identity": "public.backup_metadata.guard_backup_schema_snapshot",
+      "definition": "CREATE TRIGGER guard_backup_schema_snapshot BEFORE INSERT OR UPDATE OF status, manifest, schema_version ON public.backup_metadata FOR EACH ROW EXECUTE FUNCTION private.guard_backup_schema_snapshot()"
+    },
+    {
+      "identity": "public.billing_units.billing_no_truncate",
+      "definition": "CREATE TRIGGER billing_no_truncate BEFORE TRUNCATE ON public.billing_units FOR EACH STATEMENT EXECUTE FUNCTION private.immutable_record()"
+    },
+    {
+      "identity": "public.billing_units.guard_billing_unit",
+      "definition": "CREATE TRIGGER guard_billing_unit BEFORE DELETE OR UPDATE ON public.billing_units FOR EACH ROW EXECUTE FUNCTION private.guard_billing_unit()"
+    },
+    {
+      "identity": "public.billing_units.signal_billing_insert",
+      "definition": "CREATE TRIGGER signal_billing_insert AFTER INSERT ON public.billing_units REFERENCING NEW TABLE AS new_units FOR EACH STATEMENT EXECUTE FUNCTION private.signal_billing_insert()"
+    },
+    {
+      "identity": "public.billing_units.signal_billing_update",
+      "definition": "CREATE TRIGGER signal_billing_update AFTER UPDATE ON public.billing_units REFERENCING OLD TABLE AS old_units NEW TABLE AS new_units FOR EACH STATEMENT EXECUTE FUNCTION private.signal_billing_update()"
+    },
+    {
+      "identity": "public.booking_time_slots.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.booking_time_slots FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.booking_time_slots.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE ON public.booking_time_slots FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.cash_journal.audit_change",
+      "definition": "CREATE TRIGGER audit_change AFTER INSERT ON public.cash_journal FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.cash_journal.immutable",
+      "definition": "CREATE TRIGGER immutable BEFORE DELETE OR UPDATE ON public.cash_journal FOR EACH ROW EXECUTE FUNCTION private.immutable_record()"
+    },
+    {
+      "identity": "public.cash_journal.immutable_truncate",
+      "definition": "CREATE TRIGGER immutable_truncate BEFORE TRUNCATE ON public.cash_journal FOR EACH STATEMENT EXECUTE FUNCTION private.immutable_record()"
+    },
+    {
+      "identity": "public.cash_reconciliation_requests.audit_change",
+      "definition": "CREATE TRIGGER audit_change AFTER INSERT OR UPDATE ON public.cash_reconciliation_requests FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.cash_reconciliation_requests.guard_reconciliation_request",
+      "definition": "CREATE TRIGGER guard_reconciliation_request BEFORE DELETE OR UPDATE ON public.cash_reconciliation_requests FOR EACH ROW EXECUTE FUNCTION private.guard_reconciliation_request()"
+    },
+    {
+      "identity": "public.cash_reconciliation_requests.immutable_reconciliation_requests_truncate",
+      "definition": "CREATE TRIGGER immutable_reconciliation_requests_truncate BEFORE TRUNCATE ON public.cash_reconciliation_requests FOR EACH STATEMENT EXECUTE FUNCTION private.immutable_record()"
+    },
+    {
+      "identity": "public.cash_reconciliation_requests.touch_version",
+      "definition": "CREATE TRIGGER touch_version BEFORE UPDATE ON public.cash_reconciliation_requests FOR EACH ROW EXECUTE FUNCTION private.touch_version()"
+    },
+    {
+      "identity": "public.cash_reconciliations.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.cash_reconciliations FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.cash_reconciliations.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE ON public.cash_reconciliations FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.cash_reconciliations.reconciliation_immutable",
+      "definition": "CREATE TRIGGER reconciliation_immutable BEFORE DELETE OR UPDATE ON public.cash_reconciliations FOR EACH ROW EXECUTE FUNCTION private.immutable_record()"
+    },
+    {
+      "identity": "public.cash_reconciliations.reconciliation_no_truncate",
+      "definition": "CREATE TRIGGER reconciliation_no_truncate BEFORE TRUNCATE ON public.cash_reconciliations FOR EACH STATEMENT EXECUTE FUNCTION private.immutable_record()"
+    },
+    {
+      "identity": "public.cash_register_sessions.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.cash_register_sessions FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.cash_register_sessions.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE ON public.cash_register_sessions FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.cash_registers.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.cash_registers FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.cash_registers.core_edition_cash_register_payment_methods",
+      "definition": "CREATE TRIGGER core_edition_cash_register_payment_methods BEFORE INSERT OR UPDATE OF payment_methods ON public.cash_registers FOR EACH ROW EXECUTE FUNCTION private.core_edition_register_methods_guard()"
+    },
+    {
+      "identity": "public.cash_registers.guard_active_register",
+      "definition": "CREATE TRIGGER guard_active_register BEFORE DELETE OR UPDATE ON public.cash_registers FOR EACH ROW EXECUTE FUNCTION private.guard_active_register()"
+    },
+    {
+      "identity": "public.cash_registers.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE ON public.cash_registers FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.cash_registers.touch_version",
+      "definition": "CREATE TRIGGER touch_version BEFORE UPDATE ON public.cash_registers FOR EACH ROW EXECUTE FUNCTION private.touch_version()"
+    },
+    {
+      "identity": "public.cashier_assignments.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.cashier_assignments FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.cashier_assignments.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE ON public.cashier_assignments FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.categories.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.categories FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.categories.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE ON public.categories FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.categories.touch_version",
+      "definition": "CREATE TRIGGER touch_version BEFORE UPDATE ON public.categories FOR EACH ROW EXECUTE FUNCTION private.touch_version()"
+    },
+    {
+      "identity": "public.customer_order_requests.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.customer_order_requests FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.customer_order_requests.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE ON public.customer_order_requests FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.database_migrations_metadata.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.database_migrations_metadata FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.dietary_tags.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.dietary_tags FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.dietary_tags.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE ON public.dietary_tags FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.discount_requests.audit_change",
+      "definition": "CREATE TRIGGER audit_change AFTER INSERT OR UPDATE ON public.discount_requests FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.discount_requests.guard_discount_request",
+      "definition": "CREATE TRIGGER guard_discount_request BEFORE DELETE OR UPDATE ON public.discount_requests FOR EACH ROW EXECUTE FUNCTION private.guard_discount_request()"
+    },
+    {
+      "identity": "public.discount_requests.immutable_discount_requests_truncate",
+      "definition": "CREATE TRIGGER immutable_discount_requests_truncate BEFORE TRUNCATE ON public.discount_requests FOR EACH STATEMENT EXECUTE FUNCTION private.immutable_record()"
+    },
+    {
+      "identity": "public.discount_unit_allocations.immutable",
+      "definition": "CREATE TRIGGER immutable BEFORE DELETE OR UPDATE ON public.discount_unit_allocations FOR EACH ROW EXECUTE FUNCTION private.immutable_record()"
+    },
+    {
+      "identity": "public.discount_unit_allocations.immutable_truncate",
+      "definition": "CREATE TRIGGER immutable_truncate BEFORE TRUNCATE ON public.discount_unit_allocations FOR EACH STATEMENT EXECUTE FUNCTION private.immutable_record()"
+    },
+    {
+      "identity": "public.discounts.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.discounts FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.discounts.immutable_discount",
+      "definition": "CREATE TRIGGER immutable_discount BEFORE DELETE OR UPDATE ON public.discounts FOR EACH ROW EXECUTE FUNCTION private.immutable_record()"
+    },
+    {
+      "identity": "public.discounts.immutable_discount_truncate",
+      "definition": "CREATE TRIGGER immutable_discount_truncate BEFORE TRUNCATE ON public.discounts FOR EACH STATEMENT EXECUTE FUNCTION private.immutable_record()"
+    },
+    {
+      "identity": "public.discounts.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE ON public.discounts FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.dish_dietary_tags.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.dish_dietary_tags FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.dish_dietary_tags.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE ON public.dish_dietary_tags FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.dish_food_cost_snapshots.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT ON public.dish_food_cost_snapshots FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.dish_food_cost_snapshots.immutable_snapshot",
+      "definition": "CREATE TRIGGER immutable_snapshot BEFORE DELETE OR UPDATE ON public.dish_food_cost_snapshots FOR EACH ROW EXECUTE FUNCTION private.immutable_record()"
+    },
+    {
+      "identity": "public.dish_ingredients.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.dish_ingredients FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.dish_ingredients.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE ON public.dish_ingredients FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.dish_station_assignments.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.dish_station_assignments FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.dish_station_assignments.realtime_dish_station_configuration",
+      "definition": "CREATE TRIGGER realtime_dish_station_configuration AFTER INSERT OR DELETE OR UPDATE ON public.dish_station_assignments FOR EACH ROW EXECUTE FUNCTION private.signal_station_configuration()"
+    },
+    {
+      "identity": "public.dishes.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.dishes FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.dishes.quota_guard",
+      "definition": "CREATE TRIGGER quota_guard BEFORE INSERT OR UPDATE OF active ON public.dishes FOR EACH ROW EXECUTE FUNCTION private.resource_quota_guard()"
+    },
+    {
+      "identity": "public.dishes.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE ON public.dishes FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.dishes.touch_version",
+      "definition": "CREATE TRIGGER touch_version BEFORE UPDATE ON public.dishes FOR EACH ROW EXECUTE FUNCTION private.touch_version()"
+    },
+    {
+      "identity": "public.equal_split_attempts.audit_change",
+      "definition": "CREATE TRIGGER audit_change AFTER INSERT ON public.equal_split_attempts FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.equal_split_attempts.immutable",
+      "definition": "CREATE TRIGGER immutable BEFORE DELETE OR UPDATE ON public.equal_split_attempts FOR EACH ROW EXECUTE FUNCTION private.immutable_record()"
+    },
+    {
+      "identity": "public.equal_split_attempts.immutable_truncate",
+      "definition": "CREATE TRIGGER immutable_truncate BEFORE TRUNCATE ON public.equal_split_attempts FOR EACH STATEMENT EXECUTE FUNCTION private.immutable_record()"
+    },
+    {
+      "identity": "public.equal_split_plans.audit_change",
+      "definition": "CREATE TRIGGER audit_change AFTER INSERT OR UPDATE ON public.equal_split_plans FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.equal_split_plans.guard_equal_plan",
+      "definition": "CREATE TRIGGER guard_equal_plan BEFORE DELETE OR UPDATE ON public.equal_split_plans FOR EACH ROW EXECUTE FUNCTION private.guard_equal_plan()"
+    },
+    {
+      "identity": "public.equal_split_plans.immutable_truncate",
+      "definition": "CREATE TRIGGER immutable_truncate BEFORE TRUNCATE ON public.equal_split_plans FOR EACH STATEMENT EXECUTE FUNCTION private.immutable_record()"
+    },
+    {
+      "identity": "public.equal_split_shares.immutable",
+      "definition": "CREATE TRIGGER immutable BEFORE DELETE OR UPDATE ON public.equal_split_shares FOR EACH ROW EXECUTE FUNCTION private.immutable_record()"
+    },
+    {
+      "identity": "public.equal_split_shares.immutable_truncate",
+      "definition": "CREATE TRIGGER immutable_truncate BEFORE TRUNCATE ON public.equal_split_shares FOR EACH STATEMENT EXECUTE FUNCTION private.immutable_record()"
+    },
+    {
+      "identity": "public.feature_flags.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.feature_flags FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.feature_flags.core_edition_license",
+      "definition": "CREATE TRIGGER core_edition_license BEFORE INSERT OR UPDATE OF licensed ON public.feature_flags FOR EACH ROW EXECUTE FUNCTION private.core_edition_license_guard()"
+    },
+    {
+      "identity": "public.feature_flags.feature_venue_invariant",
+      "definition": "CREATE CONSTRAINT TRIGGER feature_venue_invariant AFTER UPDATE ON public.feature_flags DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION private.enforce_venue_invariant()"
+    },
+    {
+      "identity": "public.feature_flags.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE ON public.feature_flags FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.feature_flags.touch_version",
+      "definition": "CREATE TRIGGER touch_version BEFORE UPDATE ON public.feature_flags FOR EACH ROW EXECUTE FUNCTION private.touch_version()"
+    },
+    {
+      "identity": "public.incident_events.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.incident_events FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.incident_events.incident_events_immutable",
+      "definition": "CREATE TRIGGER incident_events_immutable BEFORE DELETE OR UPDATE ON public.incident_events FOR EACH ROW EXECUTE FUNCTION private.immutable_record()"
+    },
+    {
+      "identity": "public.incident_events.incident_events_no_truncate",
+      "definition": "CREATE TRIGGER incident_events_no_truncate BEFORE TRUNCATE ON public.incident_events FOR EACH STATEMENT EXECUTE FUNCTION private.immutable_record()"
+    },
+    {
+      "identity": "public.incidents.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.incidents FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.incidents.touch_version",
+      "definition": "CREATE TRIGGER touch_version BEFORE UPDATE ON public.incidents FOR EACH ROW EXECUTE FUNCTION private.touch_version()"
+    },
+    {
+      "identity": "public.ingredient_allergens.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.ingredient_allergens FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.ingredient_allergens.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE ON public.ingredient_allergens FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.ingredient_cost_history.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.ingredient_cost_history FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.ingredients.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.ingredients FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.ingredients.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE ON public.ingredients FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.ingredients.touch_version",
+      "definition": "CREATE TRIGGER touch_version BEFORE UPDATE ON public.ingredients FOR EACH ROW EXECUTE FUNCTION private.touch_version()"
+    },
+    {
+      "identity": "public.layout_revisions.revision_immutable",
+      "definition": "CREATE TRIGGER revision_immutable BEFORE DELETE OR UPDATE ON public.layout_revisions FOR EACH ROW EXECUTE FUNCTION private.immutable_record()"
+    },
+    {
+      "identity": "public.layout_revisions.revision_no_truncate",
+      "definition": "CREATE TRIGGER revision_no_truncate BEFORE TRUNCATE ON public.layout_revisions FOR EACH STATEMENT EXECUTE FUNCTION private.immutable_record()"
+    },
+    {
+      "identity": "public.menu_categories.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.menu_categories FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.menu_dishes.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.menu_dishes FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.menu_dishes.menu_dish_valid",
+      "definition": "CREATE TRIGGER menu_dish_valid BEFORE INSERT OR UPDATE ON public.menu_dishes FOR EACH ROW EXECUTE FUNCTION private.validate_menu_dish()"
+    },
+    {
+      "identity": "public.menu_promotions.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.menu_promotions FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.menu_promotions.menu_promotion_valid",
+      "definition": "CREATE TRIGGER menu_promotion_valid BEFORE INSERT OR UPDATE ON public.menu_promotions FOR EACH ROW EXECUTE FUNCTION private.validate_menu_promotion()"
+    },
+    {
+      "identity": "public.menu_promotions.touch_version",
+      "definition": "CREATE TRIGGER touch_version BEFORE UPDATE ON public.menu_promotions FOR EACH ROW EXECUTE FUNCTION private.touch_version()"
+    },
+    {
+      "identity": "public.menu_venues.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.menu_venues FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.menus.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.menus FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.menus.touch_version",
+      "definition": "CREATE TRIGGER touch_version BEFORE UPDATE ON public.menus FOR EACH ROW EXECUTE FUNCTION private.touch_version()"
+    },
+    {
+      "identity": "public.message_jobs.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR UPDATE ON public.message_jobs FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.message_jobs.message_job_guard",
+      "definition": "CREATE TRIGGER message_job_guard BEFORE DELETE OR UPDATE ON public.message_jobs FOR EACH ROW EXECUTE FUNCTION private.guard_message_job()"
+    },
+    {
+      "identity": "public.message_jobs.touch_version",
+      "definition": "CREATE TRIGGER touch_version BEFORE UPDATE ON public.message_jobs FOR EACH ROW EXECUTE FUNCTION private.touch_version()"
+    },
+    {
+      "identity": "public.message_provider_settings.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.message_provider_settings FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.message_provider_settings.touch_version",
+      "definition": "CREATE TRIGGER touch_version BEFORE UPDATE ON public.message_provider_settings FOR EACH ROW EXECUTE FUNCTION private.touch_version()"
+    },
+    {
+      "identity": "public.message_templates.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.message_templates FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.message_templates.touch_version",
+      "definition": "CREATE TRIGGER touch_version BEFORE UPDATE ON public.message_templates FOR EACH ROW EXECUTE FUNCTION private.touch_version()"
+    },
+    {
+      "identity": "public.notifications.apply_notification_priority",
+      "definition": "CREATE TRIGGER apply_notification_priority BEFORE INSERT ON public.notifications FOR EACH ROW EXECUTE FUNCTION private.notification_priority()"
+    },
+    {
+      "identity": "public.notifications.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.notifications FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.notifications.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE ON public.notifications FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.notifications.touch_version",
+      "definition": "CREATE TRIGGER touch_version BEFORE UPDATE ON public.notifications FOR EACH ROW EXECUTE FUNCTION private.touch_version()"
+    },
+    {
+      "identity": "public.offline_authorization_snapshots.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.offline_authorization_snapshots FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.offline_sync_events.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.offline_sync_events FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.offline_sync_events.touch_device_offline_sync",
+      "definition": "CREATE TRIGGER touch_device_offline_sync AFTER INSERT OR UPDATE OF sync_status, synced_at ON public.offline_sync_events FOR EACH ROW EXECUTE FUNCTION private.touch_device_offline_sync()"
+    },
+    {
+      "identity": "public.order_change_requests.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.order_change_requests FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.order_change_requests.prevent_duplicate_return_cancel_request",
+      "definition": "CREATE TRIGGER prevent_duplicate_return_cancel_request BEFORE INSERT ON public.order_change_requests FOR EACH ROW EXECUTE FUNCTION private.prevent_duplicate_return_cancel_request()"
+    },
+    {
+      "identity": "public.order_change_requests.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE ON public.order_change_requests FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.order_item_removed_ingredients.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.order_item_removed_ingredients FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.order_item_variants.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.order_item_variants FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.order_items.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.order_items FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.order_items.kitchen_print",
+      "definition": "CREATE CONSTRAINT TRIGGER kitchen_print AFTER INSERT ON public.order_items DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION private.queue_kitchen_print()"
+    },
+    {
+      "identity": "public.order_items.kitchen_remake_print",
+      "definition": "CREATE TRIGGER kitchen_remake_print AFTER UPDATE OF status ON public.order_items FOR EACH ROW EXECUTE FUNCTION private.queue_kitchen_remake_print()"
+    },
+    {
+      "identity": "public.order_items.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE ON public.order_items FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.order_items.release_fulfilled_account",
+      "definition": "CREATE TRIGGER release_fulfilled_account AFTER UPDATE OF status ON public.order_items FOR EACH ROW EXECUTE FUNCTION private.release_fulfilled_account()"
+    },
+    {
+      "identity": "public.order_items.sync_item_billing",
+      "definition": "CREATE TRIGGER sync_item_billing AFTER INSERT OR UPDATE ON public.order_items FOR EACH ROW EXECUTE FUNCTION private.sync_item_billing()"
+    },
+    {
+      "identity": "public.order_items.touch_version",
+      "definition": "CREATE TRIGGER touch_version BEFORE UPDATE ON public.order_items FOR EACH ROW EXECUTE FUNCTION private.touch_version()"
+    },
+    {
+      "identity": "public.order_steps.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.order_steps FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.order_steps.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE ON public.order_steps FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.order_steps.touch_version",
+      "definition": "CREATE TRIGGER touch_version BEFORE UPDATE ON public.order_steps FOR EACH ROW EXECUTE FUNCTION private.touch_version()"
+    },
+    {
+      "identity": "public.orders.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.orders FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.orders.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE ON public.orders FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.orders.touch_version",
+      "definition": "CREATE TRIGGER touch_version BEFORE UPDATE ON public.orders FOR EACH ROW EXECUTE FUNCTION private.touch_version()"
+    },
+    {
+      "identity": "public.payment_allocations.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.payment_allocations FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.payment_reversals.audit_change",
+      "definition": "CREATE TRIGGER audit_change AFTER INSERT ON public.payment_reversals FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.payment_reversals.immutable",
+      "definition": "CREATE TRIGGER immutable BEFORE DELETE OR UPDATE ON public.payment_reversals FOR EACH ROW EXECUTE FUNCTION private.immutable_record()"
+    },
+    {
+      "identity": "public.payment_reversals.immutable_truncate",
+      "definition": "CREATE TRIGGER immutable_truncate BEFORE TRUNCATE ON public.payment_reversals FOR EACH STATEMENT EXECUTE FUNCTION private.immutable_record()"
+    },
+    {
+      "identity": "public.payment_unit_allocations.check_unit_allocation",
+      "definition": "CREATE TRIGGER check_unit_allocation BEFORE INSERT ON public.payment_unit_allocations FOR EACH ROW EXECUTE FUNCTION private.check_unit_allocation()"
+    },
+    {
+      "identity": "public.payment_unit_allocations.immutable",
+      "definition": "CREATE TRIGGER immutable BEFORE DELETE OR UPDATE ON public.payment_unit_allocations FOR EACH ROW EXECUTE FUNCTION private.immutable_record()"
+    },
+    {
+      "identity": "public.payment_unit_allocations.immutable_truncate",
+      "definition": "CREATE TRIGGER immutable_truncate BEFORE TRUNCATE ON public.payment_unit_allocations FOR EACH STATEMENT EXECUTE FUNCTION private.immutable_record()"
+    },
+    {
+      "identity": "public.payments.assert_payment_units",
+      "definition": "CREATE CONSTRAINT TRIGGER assert_payment_units AFTER INSERT OR UPDATE ON public.payments DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION private.assert_payment_units()"
+    },
+    {
+      "identity": "public.payments.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.payments FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.payments.core_edition_payment_methods",
+      "definition": "CREATE TRIGGER core_edition_payment_methods BEFORE INSERT OR UPDATE OF method ON public.payments FOR EACH ROW EXECUTE FUNCTION private.core_edition_payment_guard()"
+    },
+    {
+      "identity": "public.payments.immutable_payment_details",
+      "definition": "CREATE TRIGGER immutable_payment_details BEFORE UPDATE ON public.payments FOR EACH ROW EXECUTE FUNCTION private.guard_payment_amounts()"
+    },
+    {
+      "identity": "public.payments.post_journal",
+      "definition": "CREATE TRIGGER post_journal AFTER INSERT OR UPDATE ON public.payments FOR EACH ROW EXECUTE FUNCTION private.post_payment_journal()"
+    },
+    {
+      "identity": "public.payments.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE ON public.payments FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.payments.touch_version",
+      "definition": "CREATE TRIGGER touch_version BEFORE UPDATE ON public.payments FOR EACH ROW EXECUTE FUNCTION private.touch_version()"
+    },
+    {
+      "identity": "public.print_devices.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.print_devices FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.print_devices.core_edition_print_drivers",
+      "definition": "CREATE TRIGGER core_edition_print_drivers BEFORE INSERT OR UPDATE OF driver, active ON public.print_devices FOR EACH ROW EXECUTE FUNCTION private.core_edition_print_driver_guard()"
+    },
+    {
+      "identity": "public.print_devices.print_device_valid",
+      "definition": "CREATE TRIGGER print_device_valid BEFORE INSERT OR UPDATE ON public.print_devices FOR EACH ROW EXECUTE FUNCTION private.validate_print_device()"
+    },
+    {
+      "identity": "public.print_devices.quota_guard",
+      "definition": "CREATE TRIGGER quota_guard BEFORE INSERT OR UPDATE OF active ON public.print_devices FOR EACH ROW EXECUTE FUNCTION private.resource_quota_guard()"
+    },
+    {
+      "identity": "public.print_devices.touch_version",
+      "definition": "CREATE TRIGGER touch_version BEFORE UPDATE ON public.print_devices FOR EACH ROW EXECUTE FUNCTION private.touch_version()"
+    },
+    {
+      "identity": "public.print_jobs.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.print_jobs FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.print_jobs.core_edition_print_jobs",
+      "definition": "CREATE TRIGGER core_edition_print_jobs BEFORE INSERT OR UPDATE OF print_device_id ON public.print_jobs FOR EACH ROW EXECUTE FUNCTION private.core_edition_print_job_guard()"
+    },
+    {
+      "identity": "public.print_jobs.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE ON public.print_jobs FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.print_jobs.step7_print_job_notifications",
+      "definition": "CREATE TRIGGER step7_print_job_notifications AFTER UPDATE OF status ON public.print_jobs FOR EACH ROW EXECUTE FUNCTION private.step7_print_job_notifications()"
+    },
+    {
+      "identity": "public.print_jobs.touch_version",
+      "definition": "CREATE TRIGGER touch_version BEFORE UPDATE ON public.print_jobs FOR EACH ROW EXECUTE FUNCTION private.touch_version()"
+    },
+    {
+      "identity": "public.provider_operations.core_edition_new_provider_operation",
+      "definition": "CREATE TRIGGER core_edition_new_provider_operation BEFORE INSERT ON public.provider_operations FOR EACH ROW EXECUTE FUNCTION private.core_edition_new_provider_operation_guard()"
+    },
+    {
+      "identity": "public.provider_operations.immutable_provider",
+      "definition": "CREATE TRIGGER immutable_provider BEFORE DELETE OR UPDATE ON public.provider_operations FOR EACH ROW EXECUTE FUNCTION private.guard_provider_operation()"
+    },
+    {
+      "identity": "public.provider_operations.immutable_provider_truncate",
+      "definition": "CREATE TRIGGER immutable_provider_truncate BEFORE TRUNCATE ON public.provider_operations FOR EACH STATEMENT EXECUTE FUNCTION private.guard_provider_operation()"
+    },
+    {
+      "identity": "public.provider_operations.step7_provider_failure_notifications",
+      "definition": "CREATE TRIGGER step7_provider_failure_notifications AFTER UPDATE OF state ON public.provider_operations FOR EACH ROW EXECUTE FUNCTION private.step7_provider_failure_notifications()"
+    },
+    {
+      "identity": "public.refunds.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.refunds FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.refunds.core_edition_refund_methods",
+      "definition": "CREATE TRIGGER core_edition_refund_methods BEFORE INSERT OR UPDATE OF method ON public.refunds FOR EACH ROW EXECUTE FUNCTION private.core_edition_payment_guard()"
+    },
+    {
+      "identity": "public.refunds.immutable_refund_details",
+      "definition": "CREATE TRIGGER immutable_refund_details BEFORE UPDATE ON public.refunds FOR EACH ROW EXECUTE FUNCTION private.guard_payment_amounts()"
+    },
+    {
+      "identity": "public.refunds.post_journal",
+      "definition": "CREATE TRIGGER post_journal AFTER INSERT OR UPDATE ON public.refunds FOR EACH ROW EXECUTE FUNCTION private.post_payment_journal()"
+    },
+    {
+      "identity": "public.refunds.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE ON public.refunds FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.refunds.touch_version",
+      "definition": "CREATE TRIGGER touch_version BEFORE UPDATE ON public.refunds FOR EACH ROW EXECUTE FUNCTION private.touch_version()"
+    },
+    {
+      "identity": "public.registered_devices.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.registered_devices FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.registered_devices.fill_registered_device_assignment",
+      "definition": "CREATE TRIGGER fill_registered_device_assignment BEFORE INSERT OR UPDATE OF user_id, venue_id ON public.registered_devices FOR EACH ROW EXECUTE FUNCTION private.fill_registered_device_assignment()"
+    },
+    {
+      "identity": "public.registered_devices.quota_guard",
+      "definition": "CREATE TRIGGER quota_guard BEFORE INSERT OR UPDATE OF revoked_at ON public.registered_devices FOR EACH ROW EXECUTE FUNCTION private.resource_quota_guard()"
+    },
+    {
+      "identity": "public.registered_devices.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE OF user_id, venue_id, revoked_at ON public.registered_devices FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.reservation_answers.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.reservation_answers FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.reservation_answers.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE ON public.reservation_answers FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.reservation_answers.sync_standard_reservation_answer",
+      "definition": "CREATE TRIGGER sync_standard_reservation_answer AFTER INSERT OR UPDATE OF answer, field_id ON public.reservation_answers FOR EACH ROW EXECUTE FUNCTION private.sync_standard_reservation_answer()"
+    },
+    {
+      "identity": "public.reservation_deposits.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR UPDATE ON public.reservation_deposits FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.reservation_deposits.reservation_deposit_guard",
+      "definition": "CREATE TRIGGER reservation_deposit_guard BEFORE DELETE OR UPDATE ON public.reservation_deposits FOR EACH ROW EXECUTE FUNCTION private.guard_reservation_deposit()"
+    },
+    {
+      "identity": "public.reservation_deposits.touch_version",
+      "definition": "CREATE TRIGGER touch_version BEFORE UPDATE ON public.reservation_deposits FOR EACH ROW EXECUTE FUNCTION private.touch_version()"
+    },
+    {
+      "identity": "public.reservation_form_definitions.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.reservation_form_definitions FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.reservation_form_definitions.touch_version",
+      "definition": "CREATE TRIGGER touch_version BEFORE UPDATE ON public.reservation_form_definitions FOR EACH ROW EXECUTE FUNCTION private.touch_version()"
+    },
+    {
+      "identity": "public.reservation_form_fields.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.reservation_form_fields FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.reservation_reminder_rules.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.reservation_reminder_rules FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.reservation_reminder_rules.touch_version",
+      "definition": "CREATE TRIGGER touch_version BEFORE UPDATE ON public.reservation_reminder_rules FOR EACH ROW EXECUTE FUNCTION private.touch_version()"
+    },
+    {
+      "identity": "public.reservations.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.reservations FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.reservations.prevent_duplicate_reservation",
+      "definition": "CREATE TRIGGER prevent_duplicate_reservation BEFORE INSERT OR UPDATE OF venue_id, service_id, service_date, slot_time, phone, status, walk_in ON public.reservations FOR EACH ROW EXECUTE FUNCTION private.prevent_duplicate_reservation()"
+    },
+    {
+      "identity": "public.reservations.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE ON public.reservations FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.reservations.reservation_message_event",
+      "definition": "CREATE TRIGGER reservation_message_event AFTER INSERT OR UPDATE OF status ON public.reservations FOR EACH ROW EXECUTE FUNCTION private.reservation_message_event()"
+    },
+    {
+      "identity": "public.reservations.reservation_no_show_deposit_policy",
+      "definition": "CREATE TRIGGER reservation_no_show_deposit_policy AFTER UPDATE OF status ON public.reservations FOR EACH ROW EXECUTE FUNCTION private.reservation_no_show_deposit_policy_trigger()"
+    },
+    {
+      "identity": "public.reservations.touch_version",
+      "definition": "CREATE TRIGGER touch_version BEFORE UPDATE ON public.reservations FOR EACH ROW EXECUTE FUNCTION private.touch_version()"
+    },
+    {
+      "identity": "public.restaurant_profile.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.restaurant_profile FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.restaurant_profile.profile_venue_invariant",
+      "definition": "CREATE CONSTRAINT TRIGGER profile_venue_invariant AFTER INSERT OR UPDATE ON public.restaurant_profile DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION private.enforce_venue_invariant()"
+    },
+    {
+      "identity": "public.restaurant_profile.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE ON public.restaurant_profile FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.restaurant_profile.touch_version",
+      "definition": "CREATE TRIGGER touch_version BEFORE UPDATE ON public.restaurant_profile FOR EACH ROW EXECUTE FUNCTION private.touch_version()"
+    },
+    {
+      "identity": "public.restaurant_settings.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.restaurant_settings FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.restaurant_settings.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE ON public.restaurant_settings FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.restaurant_settings.touch_version",
+      "definition": "CREATE TRIGGER touch_version BEFORE UPDATE ON public.restaurant_settings FOR EACH ROW EXECUTE FUNCTION private.touch_version()"
+    },
+    {
+      "identity": "public.restore_jobs.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.restore_jobs FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.restore_jobs.guard_restore_manifest_auth",
+      "definition": "CREATE TRIGGER guard_restore_manifest_auth BEFORE UPDATE OF status, verification ON public.restore_jobs FOR EACH ROW EXECUTE FUNCTION private.guard_restore_manifest_auth()"
+    },
+    {
+      "identity": "public.restore_jobs.guard_restore_migration_version",
+      "definition": "CREATE TRIGGER guard_restore_migration_version BEFORE UPDATE OF status, verification ON public.restore_jobs FOR EACH ROW EXECUTE FUNCTION private.guard_restore_migration_version()"
+    },
+    {
+      "identity": "public.restore_jobs.guard_restore_private_state",
+      "definition": "CREATE TRIGGER guard_restore_private_state BEFORE UPDATE OF status, verification ON public.restore_jobs FOR EACH ROW EXECUTE FUNCTION private.guard_restore_private_state()"
+    },
+    {
+      "identity": "public.restore_jobs.guard_single_active_restore",
+      "definition": "CREATE TRIGGER guard_single_active_restore BEFORE INSERT OR UPDATE OF status ON public.restore_jobs FOR EACH ROW EXECUTE FUNCTION private.guard_single_active_restore()"
+    },
+    {
+      "identity": "public.returned_items.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.returned_items FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.room_layouts.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.room_layouts FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.room_layouts.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE ON public.room_layouts FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.room_layouts.touch_version",
+      "definition": "CREATE TRIGGER touch_version BEFORE UPDATE ON public.room_layouts FOR EACH ROW EXECUTE FUNCTION private.touch_version()"
+    },
+    {
+      "identity": "public.rooms.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.rooms FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.rooms.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE ON public.rooms FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.rooms.touch_version",
+      "definition": "CREATE TRIGGER touch_version BEFORE UPDATE ON public.rooms FOR EACH ROW EXECUTE FUNCTION private.touch_version()"
+    },
+    {
+      "identity": "public.service_booking_rules.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.service_booking_rules FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.service_booking_rules.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE ON public.service_booking_rules FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.service_booking_rules.touch_version",
+      "definition": "CREATE TRIGGER touch_version BEFORE UPDATE ON public.service_booking_rules FOR EACH ROW EXECUTE FUNCTION private.touch_version()"
+    },
+    {
+      "identity": "public.service_sessions.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.service_sessions FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.service_sessions.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE ON public.service_sessions FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.service_sessions.touch_version",
+      "definition": "CREATE TRIGGER touch_version BEFORE UPDATE ON public.service_sessions FOR EACH ROW EXECUTE FUNCTION private.touch_version()"
+    },
+    {
+      "identity": "public.services.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.services FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.services.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE ON public.services FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.services.touch_version",
+      "definition": "CREATE TRIGGER touch_version BEFORE UPDATE ON public.services FOR EACH ROW EXECUTE FUNCTION private.touch_version()"
+    },
+    {
+      "identity": "public.shifts.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.shifts FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.shifts.touch_version",
+      "definition": "CREATE TRIGGER touch_version BEFORE UPDATE ON public.shifts FOR EACH ROW EXECUTE FUNCTION private.touch_version()"
+    },
+    {
+      "identity": "public.staff_profiles.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.staff_profiles FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.staff_profiles.quota_guard",
+      "definition": "CREATE TRIGGER quota_guard BEFORE INSERT OR UPDATE OF active ON public.staff_profiles FOR EACH ROW EXECUTE FUNCTION private.resource_quota_guard()"
+    },
+    {
+      "identity": "public.staff_profiles.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE ON public.staff_profiles FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.staff_profiles.touch_version",
+      "definition": "CREATE TRIGGER touch_version BEFORE UPDATE ON public.staff_profiles FOR EACH ROW EXECUTE FUNCTION private.touch_version()"
+    },
+    {
+      "identity": "public.staff_venue_assignments.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.staff_venue_assignments FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.staff_venue_assignments.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE ON public.staff_venue_assignments FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.station_staff_assignments.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.station_staff_assignments FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.station_staff_assignments.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE ON public.station_staff_assignments FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.stations.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.stations FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.stations.realtime_station_configuration",
+      "definition": "CREATE TRIGGER realtime_station_configuration AFTER INSERT OR DELETE OR UPDATE ON public.stations FOR EACH ROW EXECUTE FUNCTION private.signal_station_configuration()"
+    },
+    {
+      "identity": "public.stations.touch_version",
+      "definition": "CREATE TRIGGER touch_version BEFORE UPDATE ON public.stations FOR EACH ROW EXECUTE FUNCTION private.touch_version()"
+    },
+    {
+      "identity": "public.step_deliveries.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.step_deliveries FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.step_deliveries.delivery_archive",
+      "definition": "CREATE TRIGGER delivery_archive BEFORE DELETE ON public.step_deliveries FOR EACH ROW EXECUTE FUNCTION private.archive_delivery()"
+    },
+    {
+      "identity": "public.step_deliveries.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE ON public.step_deliveries FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.step_delivery_history.immutable_history",
+      "definition": "CREATE TRIGGER immutable_history BEFORE DELETE OR UPDATE ON public.step_delivery_history FOR EACH ROW EXECUTE FUNCTION private.immutable_record()"
+    },
+    {
+      "identity": "public.step_delivery_history.immutable_history_truncate",
+      "definition": "CREATE TRIGGER immutable_history_truncate BEFORE TRUNCATE ON public.step_delivery_history FOR EACH STATEMENT EXECUTE FUNCTION private.immutable_record()"
+    },
+    {
+      "identity": "public.sync_conflicts.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.sync_conflicts FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.sync_conflicts.step8_sync_conflict_notifications",
+      "definition": "CREATE TRIGGER step8_sync_conflict_notifications AFTER UPDATE OF status ON public.sync_conflicts FOR EACH ROW EXECUTE FUNCTION private.step8_sync_conflict_notifications()"
+    },
+    {
+      "identity": "public.system_limits.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.system_limits FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.system_limits.limit_usage_guard",
+      "definition": "CREATE TRIGGER limit_usage_guard BEFORE INSERT OR UPDATE ON public.system_limits FOR EACH ROW EXECUTE FUNCTION private.validate_limit_change()"
+    },
+    {
+      "identity": "public.table_assignments.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.table_assignments FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.table_assignments.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE ON public.table_assignments FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.table_join_rules.audit_change",
+      "definition": "CREATE TRIGGER audit_change AFTER INSERT OR DELETE OR UPDATE ON public.table_join_rules FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.table_merges.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.table_merges FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.table_merges.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE ON public.table_merges FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.table_status_definitions.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.table_status_definitions FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.table_status_definitions.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE ON public.table_status_definitions FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.tables.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.tables FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.tables.preserve_public_table_id",
+      "definition": "CREATE TRIGGER preserve_public_table_id BEFORE UPDATE OF public_table_id ON public.tables FOR EACH ROW EXECUTE FUNCTION private.preserve_public_table_id()"
+    },
+    {
+      "identity": "public.tables.quota_guard",
+      "definition": "CREATE TRIGGER quota_guard BEFORE INSERT OR UPDATE OF active, venue_id ON public.tables FOR EACH ROW EXECUTE FUNCTION private.resource_quota_guard()"
+    },
+    {
+      "identity": "public.tables.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE ON public.tables FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.tables.touch_version",
+      "definition": "CREATE TRIGGER touch_version BEFORE UPDATE ON public.tables FOR EACH ROW EXECUTE FUNCTION private.touch_version()"
+    },
+    {
+      "identity": "public.takeaway_orders.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR UPDATE ON public.takeaway_orders FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.takeaway_orders.takeaway_order_guard",
+      "definition": "CREATE TRIGGER takeaway_order_guard BEFORE DELETE OR UPDATE ON public.takeaway_orders FOR EACH ROW EXECUTE FUNCTION private.guard_takeaway_order()"
+    },
+    {
+      "identity": "public.takeaway_orders.touch_version",
+      "definition": "CREATE TRIGGER touch_version BEFORE UPDATE ON public.takeaway_orders FOR EACH ROW EXECUTE FUNCTION private.touch_version()"
+    },
+    {
+      "identity": "public.takeaway_pickup_slots.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.takeaway_pickup_slots FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.takeaway_pickup_slots.touch_version",
+      "definition": "CREATE TRIGGER touch_version BEFORE UPDATE ON public.takeaway_pickup_slots FOR EACH ROW EXECUTE FUNCTION private.touch_version()"
+    },
+    {
+      "identity": "public.takeaway_requests.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR UPDATE ON public.takeaway_requests FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.takeaway_requests.touch_version",
+      "definition": "CREATE TRIGGER touch_version BEFORE UPDATE ON public.takeaway_requests FOR EACH ROW EXECUTE FUNCTION private.touch_version()"
+    },
+    {
+      "identity": "public.tips.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.tips FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.variant_groups.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.variant_groups FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.variant_groups.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE ON public.variant_groups FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.variant_options.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.variant_options FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.variant_options.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE ON public.variant_options FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.venue_dish_settings.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.venue_dish_settings FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.venue_dish_settings.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE ON public.venue_dish_settings FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.venue_dish_settings.touch_version",
+      "definition": "CREATE TRIGGER touch_version BEFORE UPDATE ON public.venue_dish_settings FOR EACH ROW EXECUTE FUNCTION private.touch_version()"
+    },
+    {
+      "identity": "public.venue_features.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.venue_features FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.venue_features.touch_version",
+      "definition": "CREATE TRIGGER touch_version BEFORE UPDATE ON public.venue_features FOR EACH ROW EXECUTE FUNCTION private.touch_version()"
+    },
+    {
+      "identity": "public.venue_settings.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.venue_settings FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.venue_settings.core_edition_venue_payment_methods",
+      "definition": "CREATE TRIGGER core_edition_venue_payment_methods BEFORE INSERT OR UPDATE OF payment_methods ON public.venue_settings FOR EACH ROW EXECUTE FUNCTION private.core_edition_register_methods_guard()"
+    },
+    {
+      "identity": "public.venue_settings.notification_rules_valid",
+      "definition": "CREATE TRIGGER notification_rules_valid BEFORE INSERT OR UPDATE OF sounds ON public.venue_settings FOR EACH ROW EXECUTE FUNCTION private.validate_notification_rules()"
+    },
+    {
+      "identity": "public.venue_settings.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE ON public.venue_settings FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.venue_settings.touch_version",
+      "definition": "CREATE TRIGGER touch_version BEFORE UPDATE ON public.venue_settings FOR EACH ROW EXECUTE FUNCTION private.touch_version()"
+    },
+    {
+      "identity": "public.venues.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.venues FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.venues.ensure_pdf_print_device",
+      "definition": "CREATE TRIGGER ensure_pdf_print_device AFTER INSERT ON public.venues FOR EACH ROW EXECUTE FUNCTION private.ensure_pdf_print_device()"
+    },
+    {
+      "identity": "public.venues.quota_guard",
+      "definition": "CREATE TRIGGER quota_guard BEFORE INSERT OR UPDATE OF active ON public.venues FOR EACH ROW EXECUTE FUNCTION private.resource_quota_guard()"
+    },
+    {
+      "identity": "public.venues.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE ON public.venues FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.venues.touch_version",
+      "definition": "CREATE TRIGGER touch_version BEFORE UPDATE ON public.venues FOR EACH ROW EXECUTE FUNCTION private.touch_version()"
+    },
+    {
+      "identity": "public.venues.venue_bootstrap_waitlist_settings",
+      "definition": "CREATE TRIGGER venue_bootstrap_waitlist_settings AFTER INSERT ON public.venues FOR EACH ROW EXECUTE FUNCTION private.bootstrap_waitlist_settings()"
+    },
+    {
+      "identity": "public.venues.venue_invariant",
+      "definition": "CREATE CONSTRAINT TRIGGER venue_invariant AFTER INSERT OR DELETE OR UPDATE ON public.venues DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION private.enforce_venue_invariant()"
+    },
+    {
+      "identity": "public.venues.venue_timezone",
+      "definition": "CREATE TRIGGER venue_timezone BEFORE INSERT OR UPDATE ON public.venues FOR EACH ROW EXECUTE FUNCTION private.validate_venue()"
+    },
+    {
+      "identity": "public.waiter_calls.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.waiter_calls FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.waiter_calls.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE ON public.waiter_calls FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.waitlist_entries.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR UPDATE ON public.waitlist_entries FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.waitlist_entries.touch_version",
+      "definition": "CREATE TRIGGER touch_version BEFORE UPDATE ON public.waitlist_entries FOR EACH ROW EXECUTE FUNCTION private.touch_version()"
+    },
+    {
+      "identity": "public.waitlist_entries.waitlist_entry_guard",
+      "definition": "CREATE TRIGGER waitlist_entry_guard BEFORE DELETE OR UPDATE ON public.waitlist_entries FOR EACH ROW EXECUTE FUNCTION private.guard_waitlist_entry()"
+    },
+    {
+      "identity": "public.waitlist_settings.waitlist_settings_touch_version",
+      "definition": "CREATE TRIGGER waitlist_settings_touch_version BEFORE UPDATE ON public.waitlist_settings FOR EACH ROW EXECUTE FUNCTION private.touch_version()"
+    },
+    {
+      "identity": "public.zones.audit_mutation",
+      "definition": "CREATE TRIGGER audit_mutation AFTER INSERT OR DELETE OR UPDATE ON public.zones FOR EACH ROW EXECUTE FUNCTION private.audit_row()"
+    },
+    {
+      "identity": "public.zones.realtime_invalidation",
+      "definition": "CREATE TRIGGER realtime_invalidation AFTER INSERT OR DELETE OR UPDATE ON public.zones FOR EACH ROW EXECUTE FUNCTION private.signal_change()"
+    },
+    {
+      "identity": "public.zones.touch_version",
+      "definition": "CREATE TRIGGER touch_version BEFORE UPDATE ON public.zones FOR EACH ROW EXECUTE FUNCTION private.touch_version()"
+    }
+  ]
+}

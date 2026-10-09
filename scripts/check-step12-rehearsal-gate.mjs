@@ -13,7 +13,8 @@ const historicalRows = currentManifest.migrations.slice(0, baseline.migration_co
 if (
   historicalRows.length !== baseline.migration_count ||
   historicalRows.at(-1)?.version !== baseline.latest_version
-) throw new Error('HISTORICAL_REHEARSAL_BASELINE_NOT_IN_CURRENT_SOURCE');
+)
+  throw new Error('HISTORICAL_REHEARSAL_BASELINE_NOT_IN_CURRENT_SOURCE');
 const expectedCount = baseline.migration_count;
 const expectedLatest = baseline.latest_version;
 const expectedHash = baseline.aggregate_sha256;

@@ -2,11 +2,36 @@
 
 ## Stato attuale
 
-Al 6 ottobre 2026 il repository contiene **130 migrations** allineate al Supabase development. I gate sorgente ripetibili `local:source-gates` coprono migrations, resi STEP 7, vault/causalità/reconnect/PWA STEP 8, Room Editor STEP 9, isolamento cross-venue STEP 10, sito pubblico/asset boundary STEP 11, continuity STEP 12, TypeScript, ESLint e Prettier.
+Al **9 ottobre 2026** sono recuperate 457 migrazioni canoniche da Development;
+una nuova migrazione preparata porta l'inventario locale a 458. Installazione e
+test usano bootstrap/postlude versionati, senza DDL applicativo compensativo
+nascosto nel harness. `check:clean-install` verifica le impronte e confronta
+il catalogo PGlite con un'istantanea live acquisita in sola lettura.
 
-Nella sandbox corrente questi gate sono verdi. Vitest/Vite/Playwright release restano da rieseguire su installazione pulita Node >=24.13 perché la `node_modules` recuperata qui contiene binding nativi Windows mentre il container è Linux. Questo è classificato `BLOCKED_ENVIRONMENT`, non PASS né FAIL del prodotto.
+Verifica corrente in GitHub CI: **245 test passati, 4 esclusi CORE**, 24 file
+test passati, **13 test Edge e 20 contratti browser**. `npm run check` completo,
+TypeScript strict, ESLint, Prettier e build pubblico/staff passano.
+Il replay Supabase Docker/PostgreSQL 17.11 verifica l'installatore reale,
+ledger, cataloghi e tutte le 197 definizioni obbligatorie del catalogo release.
+I limiti di recupero Deno/Chromium del runner locale restano osservazioni locali;
+quelle categorie sono state eseguite su GitHub. Hosted, sessioni utente/scope
+HTTP/JWT, Realtime, concorrenza e restore corrente rimangono aperti.
 
-La procedura pre-GitHub è in `docs/LOCAL_RELEASE.md`; i collaudi manuali richiesti sono in `docs/LOCAL_MANUAL_TEST_CHECKLIST.md`. Revisioni complete pulite per il release gate commerciale: **0/3**.
+Le prove negative dei gate non generano evidenze di successo. Le sezioni §§0–157
+sono vincolate al master tramite SHA-256; requisiti incompleti e dossier assente
+bloccano i comandi requirements/release. Revisioni integrali pulite: **0/3**.
+Dettagli e limiti: `docs/BASELINE_RECOVERY_2026-10-09.md`.
+Le sezioni datate di seguito sono checkpoint storici, non certificazioni correnti.
+
+## CI corrente su GitHub
+
+Run 66 sul commit `139fb1b1e73f9af371389c32b24bef800fa8e279`: **success**,
+job `verify` e `native-clean-install`. I browser usano fixture HTTP esplicite;
+il job nativo usa Auth/Storage/PostgREST reali su un server Docker sacrificabile.
+Verifica health e gate service-role/anon, senza certificare login/TOTP o scope
+di sessioni utente. Vedere `docs/CI_BASELINE_VERIFICATION_2026-10-09.md` per
+report, log, digest e limiti. Mancano attestazioni commerciali autenticate
+per ogni requisito obbligatorio.
 
 ## Comandi
 
@@ -25,7 +50,9 @@ La procedura pre-GitHub è in `docs/LOCAL_RELEASE.md`; i collaudi manuali richie
 ## PostgreSQL locale incorporato
 
 `tests/database/harness.ts` crea un database PGlite nuovo, ruoli anon/authenticated/service_role
-e uno schema Auth di test. Applica in ordine tutti i file SQL di `supabase/migrations`.
+e adattatori espliciti Auth/Storage/Vault/cron di piattaforma. Applica bootstrap,
+tutti i SQL di `supabase/migrations` in ordine e postlude dal medesimo piano
+versionato utilizzato dall'installatore reale.
 I test eseguono davvero policy, PL/pgSQL, vincoli e transazioni PostgreSQL.
 
 Copertura corrente: singleton e sedi, grant delle funzioni, RLS, MFA claim, sessioni revocate,
@@ -74,7 +101,7 @@ stampa indisponibile, ripristino backup e riconciliazione realtime.
 Nessun test deve essere marcato passato soltanto perché manca la configurazione esterna.
 Il gate production deve fallire se mancano credenziali/configurazione per un test obbligatorio.
 
-Ogni revisione integrale rilegge i §§0–150, confronta UX/API/database/permessi/tests/docs,
+Ogni revisione integrale rilegge i §§0–157, confronta UX/API/database/permessi/tests/docs,
 registra difetti ed evidenze, corregge e riparte. Tre test run verdi non sono tre revisioni.
 
 ## Completamento locale aggiunto
@@ -102,7 +129,7 @@ registra difetti ed evidenze, corregge e riparte. Tre test run verdi non sono tr
 - Release: gate negativo con requisiti incompleti, integrazioni mancanti, digest modificato
   o review con difetti. Nessun dossier reale compilato, nessuno ZIP commerciale generato.
 
-## Ambiente di esecuzione di questa verifica
+## Ambiente del checkpoint storico precedente
 
 Node 24.19.0, Deno 2.9.6, Chromium headless shell locale. Il download del browser atteso
 non era disponibile nell’ambiente: Playwright 1.63.0 resta fissato nel progetto e può usare
@@ -125,7 +152,6 @@ Vedere `docs/REMOTE_CONFIGURATION.md` per preparazione, ripristino e limiti dell
 `scripts/check-waiter-service-ux.mjs` è un gate sorgente/runtime puro della Local RC e viene eseguito da `npm run check:waiter-ux` e da `local:source-gates`. Verifica priorità dei tavoli, distinzione RUNNER-only rispetto alle assegnazioni miste, raggruppamento degli step cucina, presenza delle sorgenti authoritative parallele e dei comandi contestuali `transition_waiter_call` / `deliver_step`, oltre ai marker responsive/touch della vista Servizio.
 
 Il gate **non** sostituisce il collaudo browser: tempi reali del flusso tavolo→ordine, persistenza del contesto durante Realtime, touch/scroll su smartphone, accessibilità e resa visuale devono essere misurati nella checklist `docs/LOCAL_MANUAL_TEST_CHECKLIST.md`. Nessuna RLS, grant o state machine economica è stata semplificata per ottenere il percorso rapido.
-
 
 ## STEP 8 — live deterministic offline sync (2026-10-05)
 
@@ -230,7 +256,6 @@ Il gate avanzato ha rilevato che `get_operational_statistics` restituiva già ca
 
 Questo non sostituisce il collaudo fisico Epson/EPOS/print-bridge/offline-printer, che resta l'ultimo gate esterno dello Step 7.
 
-
 ## STEP 12 — gate rehearsal reale
 
 `npm run continuity:rehearsal` è il runner operativo: non crea grant o richieste restore-test al posto del Super Admin; se il job TEST non è presente termina con `RESTORE_TEST_REQUEST_REQUIRED` e può essere rilanciato dopo la richiesta autorizzata.
@@ -250,6 +275,7 @@ Ulteriore hardening live del 6 ottobre: restore reference/actor FK indexes allin
 Ulteriori gate transazionali live sul development: alert worker recovery **7/7**, scheduler RPO idempotente **5/5**, lease/reclaim backup **8/8**, restore su backup non eleggibile fail-closed **6/6**, finish backup failure/audit **8/8**, API permission manifest client **5/5**. La migration `20261006044128_step12_audit_error_code_visibility.sql` conserva ora `error_code` e `purpose` negli audit tecnici senza ampliare il payload a campi non whitelisted. La riconciliazione post-restore del runbook passa **11/11**.
 
 ### Step 12 control-plane hardening — 2026-10-06
+
 - Restore-test su backup non verificato: **5/5 PASS**, fail-closed senza job/audit/idempotency residui.
 - Retention/restore race guard: **5/5 PASS**; restore attivo blocca il claim retention, restore terminale lo rende reclamabile.
 - Priorità coda backup: **7/7 PASS** (`PRE_RESTORE → RESTORE_TEST → MANUAL → SCHEDULED`) e un solo RUNNING.
@@ -262,8 +288,8 @@ Ulteriori gate transazionali live sul development: alert worker recovery **7/7**
 - Performance hardening restore references: migration `20261006045641`, Advisor ripulito per `backup_id/pre_restore_backup_id`.
 - Stato corrente: **130/130 migration**, Step 12 static **34/34**.
 
-
 ### Step 12 control-plane extended live gates — 2026-10-06
+
 - Restore-test backup non eligible: **5/5 PASS**.
 - Retention/restore race guard: **5/5 PASS**.
 - Backup queue priority: **7/7 PASS** (`PRE_RESTORE → RESTORE_TEST → MANUAL → SCHEDULED`).
@@ -278,3 +304,30 @@ Ulteriori gate transazionali live sul development: alert worker recovery **7/7**
 - Stato: **130/130 migration**, Step 12 static **34/34**.
 
 - Restore verification `mode=RESTORE` → `CUTOVER_REQUIRED`: **8/8 PASS**; nessun cutover/successo automatico.
+
+## Replay nativo isolato in CI
+
+Il job `native-clean-install` prepara uno stack Supabase Docker temporaneo con
+CLI 2.120.0, PostgreSQL 17, Auth, Storage e PostgREST reali. La cartella CLI
+contiene solo la configurazione di piattaforma: lo storico applicativo viene
+eseguito da `npm run db:install`, con bootstrap/postlude versionati e ledger
+contenente ogni SQL originale. Le porte sono sul loopback; dopo l'inizializzazione
+della piattaforma vuota una regola `DOCKER-USER` blocca l'egress del bridge
+dedicato. La presenza della regola e `cron.launch_active_jobs=off` vengono
+verificati prima del replay. Il primo tentativo con rete Docker interna non
+esponeva la porta database alla CLI e si è fermato prima delle migrazioni.
+Non vengono copiate chiavi o dati Development.
+
+Il controllo nativo confronta gli stessi sette cataloghi del replay WASM,
+verifica digest del ledger, RLS/permessi delle tabelle recuperate, rifiuto della
+reinstallazione e dei quattro tentativi PASS non attestati. Controlla health
+HTTP Auth/Storage e la RPC del gate via PostgREST: service-role locale consentito,
+JWT anonimo locale negato. Il report viene caricato come artefatto CI senza
+chiavi. Questo job non certifica sessioni utente, scenari di scope, Realtime,
+concorrenza, Supabase hosted o restore dello schema corrente. La run 66 sul commit `139fb1b1e73f9af371389c32b24bef800fa8e279` ha
+completato il job nativo con esito success. Il confronto include tutte le
+197 definizioni del catalogo release: 31 erano state create fuori dallo storico.
+Nessun risultato Development viene copiato. Due fixture di upgrade verificano
+conservazione esatta di claim, autore e data; il replay nativo rifiuta quattro
+successi non attestati. Report e limiti in
+`docs/CI_BASELINE_VERIFICATION_2026-10-09.md`.

@@ -2,6 +2,13 @@
 
 Revisioni complete consecutive senza modifiche: **0 / 3**.
 
+## Specifica vigente — 9 ottobre 2026
+
+Il master corrente comprende §§0–157, con matrice e digest di ogni sezione.
+I checkpoint sotto conservano il perimetro della specifica vigente alla loro data;
+non costituiscono revisioni integrali pulite della versione corrente.
+Il recupero baseline e i 242 test locali non incrementano il conteggio: **0/3**.
+
 ## Baseline — 2026-09-14
 
 - Letta integralmente la specifica (§0–150).

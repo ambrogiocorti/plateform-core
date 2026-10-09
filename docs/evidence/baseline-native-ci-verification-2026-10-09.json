@@ -1,0 +1,90 @@
+{
+  "classification": "OBSERVED_GITHUB_CI_RUN_NOT_COMMERCIAL_RELEASE_ATTESTATION",
+  "repository": "ambrogiocorti/plateform-core",
+  "pull_request": 5,
+  "commit": "139fb1b1e73f9af371389c32b24bef800fa8e279",
+  "workflow_run_id": 37889836463,
+  "workflow_run_number": 66,
+  "status": "completed",
+  "conclusion": "success",
+  "url": "https://github.com/ambrogiocorti/plateform-core/actions/runs/37889836463",
+  "jobs": [
+    {
+      "id": 113688025854,
+      "name": "verify",
+      "conclusion": "success"
+    },
+    {
+      "id": 113688025999,
+      "name": "native-clean-install",
+      "conclusion": "success"
+    }
+  ],
+  "unit_database": {
+    "passed": 245,
+    "skipped_core": 4,
+    "files_passed": 24
+  },
+  "edge": {
+    "passed": 13,
+    "failed": 0
+  },
+  "browser_contracts": {
+    "passed": 20,
+    "skipped": 0
+  },
+  "logs": [
+    "docs/evidence/baseline-2026-10-09/github-ci-run-66.log",
+    "docs/evidence/baseline-2026-10-09/github-native-ci-run-66.log"
+  ],
+  "native_report": "docs/evidence/native-clean-install-2026-10-09.json",
+  "native_report_sha256": "60071bc90286da18736b047fb71f9cf6199c67cec7cab668c1413d4dd35dc720",
+  "native_checkout_commit": "ff8c93514613c4e04b871f7da0586d63d2c38372",
+  "artifact": {
+    "id": 11598391003,
+    "name": "native-clean-install-verification",
+    "size_in_bytes": 1431,
+    "url": "https://api.github.com/repos/ambrogiocorti/plateform-core/actions/artifacts/11598391003",
+    "archive_download_url": "https://api.github.com/repos/ambrogiocorti/plateform-core/actions/artifacts/11598391003/zip",
+    "expired": false,
+    "created_at": "2026-10-09T05:44:06Z",
+    "expires_at": "2026-10-23T05:44:05Z",
+    "updated_at": "2026-10-09T05:44:06Z",
+    "digest": "sha256:7cccc4f9d693e23b121bfb31812c85d1f47d15afa68e7bd7bfcbb9b4e8241c95",
+    "workflow_run": {
+      "id": 37889836463,
+      "repository_id": 1410942079,
+      "head_repository_id": 1410942079,
+      "head_branch": "codex/plateform-baseline-recovery",
+      "head_sha": "139fb1b1e73f9af371389c32b24bef800fa8e279"
+    }
+  },
+  "release_test_catalog": {
+    "definitions": 197,
+    "recovered_definitions": 31,
+    "definitions_sha256": "57ac6d0ffb46e9603879c66409e39d336b7d51fe2455b0a9ca51cb11d071db1b"
+  },
+  "prior_native_report": "docs/evidence/baseline-native-ci-verification-run-64-2026-10-09.json",
+  "development_read_only_checkpoint": {
+    "migrations": 457,
+    "latest_version": "20261009001127",
+    "test_pass": 197,
+    "gate_pass": 7,
+    "provenance_gate_present": false,
+    "release_catalog_total": 197,
+    "release_catalog_required": 197
+  },
+  "hosted_supabase_certified": false,
+  "commercial_release_ready": false,
+  "remaining": [
+    "Hosted installation/restore",
+    "Authenticated user sessions and scope HTTP scenarios",
+    "Realtime and native concurrency",
+    "Current-schema restore",
+    "Immutable CI evidence ingestion"
+  ],
+  "captured_logs_sha256": {
+    "docs/evidence/baseline-2026-10-09/github-ci-run-66.log": "c63ee702257cc5c16cbbef00db7dcfa50af4aeb93ca07584d0f723ead13c148d",
+    "docs/evidence/baseline-2026-10-09/github-native-ci-run-66.log": "fd915a9c601bb037d400a6b6c26027c621e00c6c12944e5d2e01517165dbb611"
+  }
+}

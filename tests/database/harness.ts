@@ -1,8 +1,10 @@
 import { PGlite } from '@electric-sql/pglite';
 import { pgcrypto } from '@electric-sql/pglite/contrib/pgcrypto';
 import { readFile, readdir } from 'node:fs/promises';
+import { cleanInstallPlan } from '../../scripts/clean-install-plan.mjs';
 
-// Real PostgreSQL engine in WASM. Only the Supabase-owned Auth schema is a test fixture.
+// Real PostgreSQL engine in WASM. Auth/Storage/Vault/cron are explicit platform
+// adapters; application DDL comes only from the shared versioned install plan.
 // These tests do not claim to exercise GoTrue, PostgREST, Storage, or Realtime.
 export async function database(through = Number.POSITIVE_INFINITY) {
   const db = new PGlite({ extensions: { pgcrypto } });
@@ -134,6 +136,8 @@ export async function database(through = Number.POSITIVE_INFINITY) {
     grant usage on schema auth to anon,authenticated,service_role;
     grant execute on all functions in schema auth to anon,authenticated,service_role;
   `);
+  const plan = await cleanInstallPlan();
+  await db.exec(plan.bootstrap);
   const names = (await readdir('supabase/migrations'))
     .filter((name) => name.endsWith('.sql'))
     .sort()
@@ -141,93 +145,22 @@ export async function database(through = Number.POSITIVE_INFINITY) {
   for (const name of names) {
     try {
       let sql = await readFile(`supabase/migrations/${name}`, 'utf8');
+      const recordedSql = sql;
       // pg_cron itself is host-provided on Supabase; the contract above is used in PGlite.
       sql = sql.replace(/^create extension if not exists pg_cron;\s*$/gim, '');
-      // Historical drift, verified against the live Development catalog:
-      // these seven private tables exist on the hosted database, but none of
-      // the 456 recorded migrations contains their CREATE TABLE statements.
-      // Provide the actual hosted table shapes only to the isolated PGlite
-      // replay, immediately before their first recorded reference.
-      // This is NOT a migration-history repair: clean-environment deployment
-      // remains blocked until the out-of-band schema is properly reconciled.
-      if (name === '20261006100248_step13_rehearsal_private_rls_hardening.sql') {
-        await db.exec(`
-          create table private.continuity_rehearsal_blob (
-            snapshot_id uuid primary key,
-            row_count bigint not null,
-            table_count integer not null,
-            plaintext_sha256 text not null,
-            cipher bytea not null,
-            created_at timestamptz not null default now()
-          );
-          create table private.continuity_rehearsal_key (
-            id boolean primary key default true check (id),
-            key_material text not null default encode(extensions.gen_random_bytes(32), 'hex'),
-            created_at timestamptz not null default now()
-          );
-          create table private.continuity_rehearsal_snapshot_manifest (
-            snapshot_id uuid primary key,
-            created_at timestamptz not null default now(),
-            migration_count integer not null,
-            migration_latest_version text not null,
-            migration_aggregate_sha256 text not null,
-            auth_user_count bigint not null,
-            durable_private_row_count bigint not null,
-            durable_private_sha256 text not null,
-            table_count integer not null,
-            row_count bigint not null,
-            storage_bucket_count bigint not null,
-            storage_object_count bigint not null,
-            status text not null default 'FROZEN'
-          );
-          create table private.continuity_rehearsal_snapshot_rows (
-            snapshot_id uuid not null references
-              private.continuity_rehearsal_snapshot_manifest(snapshot_id) on delete cascade,
-            schema_name text not null,
-            table_name text not null,
-            row_no bigint not null,
-            row_data jsonb not null,
-            primary key (snapshot_id, schema_name, table_name, row_no)
-          );
-          create table private.continuity_rehearsal_snapshot_tables (
-            snapshot_id uuid not null,
-            schema_name text not null,
-            table_name text not null,
-            row_count bigint not null,
-            data_sha256 text not null,
-            insert_columns text[] not null,
-            has_identity_always boolean not null,
-            generated_columns text[] not null,
-            primary key (snapshot_id, schema_name, table_name)
-          );
-          create table private.continuity_rehearsal_transfer_chunks (
-            snapshot_id uuid not null,
-            chunk_no integer not null,
-            row_count integer not null,
-            plaintext_sha256 text not null,
-            ciphertext bytea not null,
-            created_at timestamptz not null default now(),
-            primary key (snapshot_id, chunk_no)
-          );
-          create table private.continuity_rehearsal_transfer_key (
-            snapshot_id uuid primary key,
-            encryption_key text not null,
-            created_at timestamptz not null default now()
-          );
-        `);
-      }
       await db.exec(sql);
       const match = /^(\d+)_([^.]*)\.sql$/.exec(name);
       if (match)
         await db.query(
           `insert into supabase_migrations.schema_migrations(version,name,statements) values($1,$2,$3)`,
-          [match[1], match[2], [sql]],
+          [match[1], match[2], [recordedSql]],
         );
     } catch (error) {
       await db.close();
       throw new Error(`Migration ${name} failed`, { cause: error });
     }
   }
+  if (names.length === plan.migrations.length) await db.exec(plan.postlude);
   return db;
 }
 

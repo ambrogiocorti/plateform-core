@@ -52,7 +52,8 @@
         "test;",
         "observability;",
         "strategia di rollout e rollback."
-      ]
+      ],
+      "source_sha256": "967449bd4abfd39f32446011dc16e73927957ac38107763500a6d5248d30f996"
     },
     {
       "section": 1,
@@ -74,7 +75,8 @@
         "Site Reliability / Observability Engineer;",
         "Product Engineer;",
         "Technical Product Manager."
-      ]
+      ],
+      "source_sha256": "da406e38fd9de3e9245476d15b0ccd5f96a7552568730a82e6aa58c86cf01edb"
     },
     {
       "section": 2,
@@ -96,17 +98,14 @@
         "informazioni delle sedi;",
         "dominio pubblico e sottodominio staff;",
         "identità visiva."
-      ]
+      ],
+      "source_sha256": "40cab19d989928c9f4ea35675383a70e330e2607d5c1e5416700a110ac3f3596"
     },
     {
       "section": 3,
       "title": "Stack tecnologico obbligatorio",
       "status": "partial",
-      "implementation": [
-        "package.json",
-        "tsconfig.json",
-        "src/types/domain.ts"
-      ],
+      "implementation": ["package.json", "tsconfig.json", "src/types/domain.ts"],
       "tests": [],
       "external_verification": [],
       "requirements": [
@@ -143,15 +142,14 @@
         "validazione runtime degli input non fidati;",
         "source map gestite in modo sicuro in produzione;",
         "test automatici per servizi e state machine."
-      ]
+      ],
+      "source_sha256": "8ba9cfba9f70f8c08612ae1d9a78b90ca440940dbc70886e23c2ac93403d7081"
     },
     {
       "section": 4,
       "title": "Backend e Supabase",
       "status": "partial",
-      "implementation": [
-        "supabase/migrations"
-      ],
+      "implementation": ["supabase/migrations"],
       "tests": [],
       "external_verification": [],
       "requirements": [
@@ -173,15 +171,14 @@
         "inserita nell'HTML;",
         "inviata al frontend;",
         "inserita in repository pubblici."
-      ]
+      ],
+      "source_sha256": "390d4015415b031146854949ff6b14e463e54daedd13f645767ab2be40d1a918"
     },
     {
       "section": 5,
       "title": "Architettura commerciale: una catena per installazione, multi-sede opzionale",
       "status": "partial",
-      "implementation": [
-        "supabase/migrations/202609140001_foundation.sql"
-      ],
+      "implementation": ["supabase/migrations/202609140001_foundation.sql"],
       "tests": [],
       "external_verification": [],
       "requirements": [
@@ -226,7 +223,8 @@
         "assegnazione operativa;",
         "relazione con la risorsa;",
         "eventuale customer session."
-      ]
+      ],
+      "source_sha256": "d24d1872fdf23d875575df2c653c5afb725e1dd574b5c3d70aba9f14b94c7ed4"
     },
     {
       "section": 6,
@@ -237,9 +235,7 @@
         "src/pages/branding.ts",
         "supabase/migrations/202610030041_governance.sql"
       ],
-      "tests": [
-        "tests/database/configuration-floor.test.ts"
-      ],
+      "tests": ["tests/database/configuration-floor.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -257,34 +253,28 @@
         "`CHAIN_LEVEL` se devono essere condivise;",
         "`VENUE_LEVEL` se appartengono alla singola sede;",
         "`CHAIN_DEFAULT_WITH_VENUE_OVERRIDE` solo nei casi esplicitamente previsti."
-      ]
+      ],
+      "source_sha256": "97d147b133a8a8da180f7ebdc5b37cb3fe103e2468589919d4bea82b98ef20eb"
     },
     {
       "section": 7,
       "title": "Ruoli e scope",
       "status": "partial",
-      "implementation": [
-        "supabase/migrations/202609140004_authorization.sql"
-      ],
+      "implementation": ["supabase/migrations/202609140004_authorization.sql"],
       "tests": [],
       "external_verification": [],
       "requirements": [
         "`CHAIN` consente le operazioni previste dal ruolo su tutte le sedi autorizzate della catena;",
         "`VENUE` limita l'utente a una o più sedi assegnate."
-      ]
+      ],
+      "source_sha256": "a4fc3babb48f10437ec85d91c417a10d5364de104dd31b6d824677ea9b2b5e66"
     },
     {
       "section": 8,
       "title": "SUPER_ADMIN",
       "status": "partial",
-      "implementation": [
-        "src/pages/technical.ts",
-        "src/pages/staff-management.ts"
-      ],
-      "tests": [
-        "tests/database/configuration-floor.test.ts",
-        "tests/e2e/configuration.spec.ts"
-      ],
+      "implementation": ["src/pages/technical.ts", "src/pages/staff-management.ts"],
+      "tests": ["tests/database/configuration-floor.test.ts", "tests/e2e/configuration.spec.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -304,19 +294,15 @@
         "impersonare utenti secondo la sezione dedicata;",
         "consultare audit tecnico completo;",
         "gestire incidenti tecnici."
-      ]
+      ],
+      "source_sha256": "1bb180c5f631378f239787782ccf9ed144be1c2ef88ff85518dabb8b6c137948"
     },
     {
       "section": 9,
       "title": "ADMIN del ristorante/catena",
-      "status": "partial",
-      "implementation": [
-        "src/pages/operational-settings.ts",
-        "src/pages/privacy.ts"
-      ],
-      "tests": [
-        "tests/e2e/configuration.spec.ts"
-      ],
+      "status": "pending",
+      "implementation": ["src/pages/operational-settings.ts", "src/pages/privacy.ts"],
+      "tests": ["tests/e2e/configuration.spec.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -325,9 +311,12 @@
         "turni;",
         "ruoli e assegnazioni;",
         "menu;",
+        "menu multipli e relativi QR;",
         "categorie;",
         "piatti;",
+        "promozioni e contenuti in evidenza nel menu digitale;",
         "ingredienti;",
+        "ricette e food cost;",
         "allergeni;",
         "disponibilità;",
         "varianti;",
@@ -340,6 +329,10 @@
         "zone;",
         "layout;",
         "prenotazioni;",
+        "promemoria e comunicazioni prenotazione;",
+        "configurazione WhatsApp/Telegram/SMS/messaggistica transazionale;",
+        "policy caparra/deposito prenotazione;",
+        "lista d’attesa;",
         "moduli;",
         "Host;",
         "casse;",
@@ -351,6 +344,7 @@
         "impostazioni;",
         "feature consentite;",
         "ordini;",
+        "ordini da asporto / takeaway;",
         "richieste modifica;",
         "chiusure forzate;",
         "rimborsi;",
@@ -358,18 +352,16 @@
         "conflitti offline;",
         "notification center operativo;",
         "incidenti applicativi consentiti."
-      ]
+      ],
+      "source_text": "# 9. ADMIN del ristorante/catena\n\nIl cliente può avere più Admin.\n\nOgni Admin possiede scope esplicito:\n\n```text\nCHAIN\nVENUE\n```\n\nUn `ADMIN CHAIN` può, secondo permessi, gestire tutte le sedi della catena.\n\nUn `ADMIN VENUE` può gestire soltanto le sedi assegnate e non deve poter elevare il proprio scope.\n\nPuò gestire, nello scope autorizzato:\n\n- staff;\n- turni;\n- ruoli e assegnazioni;\n- menu;\n- menu multipli e relativi QR;\n- categorie;\n- piatti;\n- promozioni e contenuti in evidenza nel menu digitale;\n- ingredienti;\n- ricette e food cost;\n- allergeni;\n- disponibilità;\n- varianti;\n- ingredienti rimovibili;\n- stazioni;\n- cucina;\n- Pass;\n- sala;\n- tavoli;\n- zone;\n- layout;\n- prenotazioni;\n- promemoria e comunicazioni prenotazione;\n- configurazione WhatsApp/Telegram/SMS/messaggistica transazionale;\n- policy caparra/deposito prenotazione;\n- lista d’attesa;\n- moduli;\n- Host;\n- casse;\n- stampanti;\n- pagamenti;\n- Stripe;\n- Satispay;\n- sito e branding;\n- impostazioni;\n- feature consentite;\n- ordini;\n- ordini da asporto / takeaway;\n- richieste modifica;\n- chiusure forzate;\n- rimborsi;\n- riapertura conti;\n- conflitti offline;\n- notification center operativo;\n- incidenti applicativi consentiti.\n\nUn Admin non deve vedere dati economici o operativi di una sede non compresa nel proprio scope.\n\n---\n\n",
+      "source_sha256": "898e6d13656aa51cc8a23e5b5db804baba159c3284bee9f7eb117da1495d2ec9"
     },
     {
       "section": 10,
       "title": "Staff del ristorante",
       "status": "partial",
-      "implementation": [
-        "src/pages/staff-management.ts"
-      ],
-      "tests": [
-        "tests/database/devices.test.ts"
-      ],
+      "implementation": ["src/pages/staff-management.ts"],
+      "tests": ["tests/database/devices.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -383,36 +375,27 @@
         "se è assegnato a più sedi, mostrare un selettore compatto e chiaro;",
         "memorizzare la sede operativa corrente senza considerarla una fonte di autorizzazione;",
         "il server deve validare comunque lo scope ad ogni operazione."
-      ]
+      ],
+      "source_sha256": "9f1b366afe350cabfab0a9cfec09c170718dada3e8f135a9af6e2bffd0240c09"
     },
     {
       "section": 11,
       "title": "Camerieri",
       "status": "partial",
-      "implementation": [
-        "src/pages/floor.ts",
-        "src/pages/accounts.ts"
-      ],
-      "tests": [
-        "tests/database/service.test.ts"
-      ],
+      "implementation": ["src/pages/floor.ts", "src/pages/accounts.ts"],
+      "tests": ["tests/database/service.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
-      "requirements": []
+      "requirements": [],
+      "source_sha256": "87c41f95f677de1e8bffd0dbfa707fd5a2e4aea42498e81742518e8fde63874e"
     },
     {
       "section": 12,
       "title": "HOST",
       "status": "partial",
-      "implementation": [
-        "src/pages/host.ts",
-        "src/components/floor-view.ts"
-      ],
-      "tests": [
-        "tests/e2e/staff-operations.spec.ts",
-        "tests/database/configuration-floor.test.ts"
-      ],
+      "implementation": ["src/pages/host.ts", "src/components/floor-view.ts"],
+      "tests": ["tests/e2e/staff-operations.spec.ts", "tests/database/configuration-floor.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -437,15 +420,14 @@
         "modificare menu;",
         "modificare disponibilità;",
         "cambiare configurazioni amministrative."
-      ]
+      ],
+      "source_sha256": "10e678b03611a29ee0ac6127a43f7a44dddad8842f9a57b7ce2d3607f237cc64"
     },
     {
       "section": 13,
       "title": "Sito pubblico",
       "status": "partial",
-      "implementation": [
-        "apps/public/main.ts"
-      ],
+      "implementation": ["apps/public/main.ts"],
       "tests": [],
       "external_verification": [],
       "requirements": [
@@ -463,16 +445,14 @@
         "social;",
         "prenotazioni;",
         "footer."
-      ]
+      ],
+      "source_sha256": "d326543c06e94a1cfa613a80f782a3660ff655fa10abb830535733c71da26734"
     },
     {
       "section": 14,
       "title": "Personalizzazione sito",
       "status": "partial",
-      "implementation": [
-        "src/pages/branding.ts",
-        "supabase/functions/asset-upload/index.ts"
-      ],
+      "implementation": ["src/pages/branding.ts", "supabase/functions/asset-upload/index.ts"],
       "tests": [
         "tests/database/configuration-floor.test.ts",
         "supabase/functions/_tests/assets.test.ts"
@@ -496,16 +476,14 @@
         "footer;",
         "dark mode;",
         "layout base."
-      ]
+      ],
+      "source_sha256": "cb0ebd87dc7f1a07dc0850391a7e36ebdc2e28c2ed5654028aa2f77e1d05eede"
     },
     {
       "section": 15,
       "title": "Dominio pubblico e sottodominio staff",
       "status": "partial",
-      "implementation": [
-        "vite.public.config.ts",
-        "vite.staff.config.ts"
-      ],
+      "implementation": ["vite.public.config.ts", "vite.staff.config.ts"],
       "tests": [],
       "external_verification": [],
       "requirements": [
@@ -519,7 +497,8 @@
         "se non autenticato → login;",
         "se autenticato con una sola sede operativa → dashboard;",
         "se autenticato con più sedi e il ruolo lo richiede → selezione/contesto sede oppure dashboard chain-level."
-      ]
+      ],
+      "source_sha256": "9be1a8634ac475510f791bdd6c9ab7dae88a92f4f3d2fab4c0751f94b58ed70b"
     },
     {
       "section": 16,
@@ -528,16 +507,14 @@
       "implementation": [],
       "tests": [],
       "external_verification": [],
-      "requirements": []
+      "requirements": [],
+      "source_sha256": "c4d209a02e1c351d07e4e6af9269da074243812c960ae1159366c7b6cd5db60e"
     },
     {
       "section": 17,
       "title": "Password, MFA e recovery",
       "status": "partial",
-      "implementation": [
-        "src/auth/staff.ts",
-        "supabase/migrations/202609140008_staff_auth.sql"
-      ],
+      "implementation": ["src/auth/staff.ts", "supabase/migrations/202609140008_staff_auth.sql"],
       "tests": [],
       "external_verification": [],
       "requirements": [
@@ -558,7 +535,8 @@
         "MFA/step-up del soggetto autorizzante;",
         "audit;",
         "invalidazione sessioni precedenti."
-      ]
+      ],
+      "source_sha256": "5998a80f4c3211b0f5db8ca4a499a21162233cb066cc100f42d1ad33cdc878f2"
     },
     {
       "section": 18,
@@ -570,10 +548,7 @@
         "supabase/migrations/202609140008_staff_auth.sql",
         "supabase/migrations/202609150017_session_devices.sql"
       ],
-      "tests": [
-        "tests/database/devices.test.ts",
-        "tests/e2e/staff-operations.spec.ts"
-      ],
+      "tests": ["tests/database/devices.test.ts", "tests/e2e/staff-operations.spec.ts"],
       "external_verification": [
         "Full Supabase integration and concurrent PostgreSQL connections remain unverified."
       ],
@@ -591,18 +566,15 @@
         "resettabile dall'Admin;",
         "protetto da brute force;",
         "dopo troppi errori richiede password completa."
-      ]
+      ],
+      "source_sha256": "28e2827187e5b0bd43fddd7fe4ed2fd39b895b4259bb2eeb6ee2203e0eb9899d"
     },
     {
       "section": 19,
       "title": "Turni",
       "status": "partial",
-      "implementation": [
-        "src/pages/planning.ts"
-      ],
-      "tests": [
-        "tests/database/completion.test.ts"
-      ],
+      "implementation": ["src/pages/planning.ts"],
+      "tests": ["tests/database/completion.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -612,19 +584,15 @@
         "ritardi;",
         "pause;",
         "rilevamento entrata/uscita."
-      ]
+      ],
+      "source_sha256": "befda93a50f11c5dda53770547a29057124d3752aa157916e9836491c497bd22"
     },
     {
       "section": 20,
       "title": "Servizi del ristorante",
       "status": "partial",
-      "implementation": [
-        "src/pages/planning.ts",
-        "src/pages/configuration.ts"
-      ],
-      "tests": [
-        "tests/database/completion.test.ts"
-      ],
+      "implementation": ["src/pages/planning.ts", "src/pages/configuration.ts"],
+      "tests": ["tests/database/completion.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -635,12 +603,13 @@
         "giorni;",
         "limite prenotazioni/coperti;",
         "stato attivo/inattivo."
-      ]
+      ],
+      "source_sha256": "e350715512d928f29dd652532c44a36e88de50ca4c5baea9fea080040244cf31"
     },
     {
       "section": 21,
       "title": "Menu",
-      "status": "partial",
+      "status": "pending",
       "implementation": [
         "src/pages/configuration.ts",
         "supabase/migrations/202609140005_setup_catalog.sql"
@@ -661,53 +630,55 @@
         "varianti;",
         "ingredienti rimovibili;",
         "stazioni;",
-        "disponibilità temporale."
-      ]
+        "disponibilità temporale;",
+        "menu multipli o viste menu differenti, ad esempio colazione, pranzo, cena, aperitivo, carta vini, evento;",
+        "associazione di menu a servizi, fasce orarie, giorni o periodi;",
+        "QR pubblici differenti per menu differenti;",
+        "piatti/categorie messi in evidenza;",
+        "promozioni e popup informativi/promozionali configurabili nel menu digitale.",
+        "menu;",
+        "sede;",
+        "periodo di validità;",
+        "servizio/fascia oraria dove pertinente;",
+        "priorità;",
+        "frequenza di visualizzazione;",
+        "call to action opzionale;",
+        "stato attivo/inattivo."
+      ],
+      "source_text": "# 21. Menu\n\nGestire:\n\n- categorie;\n- piatti;\n- bevande;\n- immagini;\n- descrizione;\n- prezzo;\n- disponibilità;\n- ingredienti;\n- allergeni;\n- informazioni dietetiche;\n- varianti;\n- ingredienti rimovibili;\n- stazioni;\n- disponibilità temporale;\n- menu multipli o viste menu differenti, ad esempio colazione, pranzo, cena, aperitivo, carta vini, evento;\n- associazione di menu a servizi, fasce orarie, giorni o periodi;\n- QR pubblici differenti per menu differenti;\n- piatti/categorie messi in evidenza;\n- promozioni e popup informativi/promozionali configurabili nel menu digitale.\n\nI menu multipli non devono duplicare inutilmente le entità `dish`: devono riutilizzare il catalogo e definire appartenenza, ordinamento, visibilità e configurazioni contestuali.\n\nI popup/promozioni devono essere configurabili per:\n\n- menu;\n- sede;\n- periodo di validità;\n- servizio/fascia oraria dove pertinente;\n- priorità;\n- frequenza di visualizzazione;\n- call to action opzionale;\n- stato attivo/inattivo.\n\nNon utilizzare popup invasivi ripetuti ad ogni navigazione. Rispettare accessibilità, sessione utente e preferenze essenziali.\n\n---\n\n",
+      "source_sha256": "d0fc8bf6f4ac56c9264c20ad4b21359ebbb4d55cfb02b9330c3231e120e78bcd"
     },
     {
       "section": 22,
       "title": "Ingredienti",
-      "status": "partial",
-      "implementation": [
-        "src/pages/catalog.ts",
-        "src/pages/configuration.ts"
-      ],
-      "tests": [
-        "tests/unit/domain.test.ts",
-        "tests/database/service.test.ts"
-      ],
+      "status": "pending",
+      "implementation": ["src/pages/catalog.ts", "src/pages/configuration.ts"],
+      "tests": ["tests/unit/domain.test.ts", "tests/database/service.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
-      "requirements": []
+      "requirements": [],
+      "source_text": "# 22. Ingredienti\n\nOgni piatto, tranne le bevande, deve mostrare tutti gli ingredienti.\n\nGli ingredienti devono essere entità strutturate.\n\nNon salvarli solo come testo concatenato.\n\nPer il modulo ricette/food cost, ogni ingrediente può inoltre possedere, dove applicabile:\n\n```text\npurchase_unit\nbase_unit\nconversion_factor\ncurrent_cost\ncost_currency\ncost_updated_at\nwaste_percentage_optional\n```\n\nI costi devono essere storicizzabili: il ricalcolo del food cost non deve modificare retroattivamente snapshot economici già registrati.\n\nIl food cost **non equivale a un inventario quantitativo di magazzino**. Plateform può conoscere quantità di ingrediente necessarie a una ricetta e relativo costo senza introdurre giacenze, lotti, carichi/scarichi o riordino automatico.\n\n---\n\n",
+      "source_sha256": "fa7961d0c7a0f2e43a044cbfd32e43da143319538900f0468d7642c888001eab"
     },
     {
       "section": 23,
       "title": "Allergeni",
       "status": "partial",
-      "implementation": [
-        "src/pages/catalog.ts"
-      ],
-      "tests": [
-        "tests/unit/domain.test.ts",
-        "tests/database/service.test.ts"
-      ],
+      "implementation": ["src/pages/catalog.ts"],
+      "tests": ["tests/unit/domain.test.ts", "tests/database/service.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
-      "requirements": []
+      "requirements": [],
+      "source_sha256": "85f7c73def304abd14c6102214799bd07c1a65f988dde5ef3f8aa574a92fdf04"
     },
     {
       "section": 24,
       "title": "Informazioni dietetiche",
       "status": "partial",
-      "implementation": [
-        "src/pages/catalog.ts",
-        "src/types/domain.ts"
-      ],
-      "tests": [
-        "tests/unit/domain.test.ts"
-      ],
+      "implementation": ["src/pages/catalog.ts", "src/types/domain.ts"],
+      "tests": ["tests/unit/domain.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -716,34 +687,26 @@
         "vegano;",
         "senza glutine;",
         "altre caratteristiche configurabili."
-      ]
+      ],
+      "source_sha256": "fa5da8ab4df94bf6e1fef697d0aa0012d228a6d26629aced814a288a633e3917"
     },
     {
       "section": 25,
       "title": "Disponibilità giornaliera",
-      "status": "partial",
-      "implementation": [
-        "supabase/migrations/202609140006_accounts_orders.sql"
-      ],
+      "status": "pending",
+      "implementation": ["supabase/migrations/202609140006_accounts_orders.sql"],
       "tests": [],
       "external_verification": [],
-      "requirements": [
-        "server-side;",
-        "atomico;",
-        "transazionale;",
-        "realtime."
-      ]
+      "requirements": ["server-side;", "atomico;", "transazionale;", "realtime."],
+      "source_text": "# 25. Disponibilità giornaliera\n\nLa disponibilità è gestita per piatto.\n\nNon creare inventario quantitativo ingredienti. Il modulo food cost/ricette usa quantità teoriche per porzione e costi unitari, ma non trasforma automaticamente Plateform in un sistema di magazzino.\n\nEsempio:\n\n```text\nCarbonara = 10\n```\n\nOrdine:\n\n```text\n2 × Carbonara\n```\n\nNuovo valore:\n\n```text\n8\n```\n\nAggiornamento:\n\n- server-side;\n- atomico;\n- transazionale;\n- realtime.\n\nMai permettere disponibilità negativa.\n\n---\n\n",
+      "source_sha256": "d4f967fcb08667bd2e6539ecb7c2d57a8946f5e317c6daef0e61c37d0e62d481"
     },
     {
       "section": 26,
       "title": "Badge disponibilità",
       "status": "partial",
-      "implementation": [
-        "src/services/menu.ts"
-      ],
-      "tests": [
-        "tests/unit/domain.test.ts"
-      ],
+      "implementation": ["src/services/menu.ts"],
+      "tests": ["tests/unit/domain.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -752,100 +715,73 @@
         "mostra badge Esaurito;",
         "non è ordinabile;",
         "controlli di ordinazione disabilitati."
-      ]
+      ],
+      "source_sha256": "b8668bb6680dd35fcae9d9f280f36de7364646ce9a5275cf937e6d43a118ff33"
     },
     {
       "section": 27,
       "title": "Prezzo storico",
       "status": "partial",
-      "implementation": [
-        "supabase/migrations/202609140006_accounts_orders.sql"
-      ],
+      "implementation": ["supabase/migrations/202609140006_accounts_orders.sql"],
       "tests": [],
       "external_verification": [],
-      "requirements": [
-        "ordine precedente resta €18;",
-        "nuovi ordini usano €20."
-      ]
+      "requirements": ["ordine precedente resta €18;", "nuovi ordini usano €20."],
+      "source_sha256": "b6a15f9dfb44ef19f3b5be32dbbc5c8f348b02f76207c3d4deb7954300af125a"
     },
     {
       "section": 28,
       "title": "Archiviazione entità",
       "status": "partial",
-      "implementation": [
-        "src/pages/configuration.ts"
-      ],
-      "tests": [
-        "tests/database/completion.test.ts"
-      ],
+      "implementation": ["src/pages/configuration.ts"],
+      "tests": ["tests/database/completion.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
-      "requirements": []
+      "requirements": [],
+      "source_sha256": "4b0eea8c893ed306e78e6bb54b61f345245e36b37c58b55235481bf06d9dc8a2"
     },
     {
       "section": 29,
       "title": "Ingredienti rimovibili",
       "status": "partial",
-      "implementation": [
-        "src/pages/catalog.ts",
-        "src/pages/accounts.ts"
-      ],
-      "tests": [
-        "tests/unit/domain.test.ts",
-        "tests/database/service.test.ts"
-      ],
+      "implementation": ["src/pages/catalog.ts", "src/pages/accounts.ts"],
+      "tests": ["tests/unit/domain.test.ts", "tests/database/service.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
-      "requirements": []
+      "requirements": [],
+      "source_sha256": "b223f7ca243f4030214e6547cadbecc607e3f3f409d5aad6784fae6cdd53080d"
     },
     {
       "section": 30,
       "title": "Varianti",
       "status": "partial",
-      "implementation": [
-        "src/pages/catalog.ts"
-      ],
-      "tests": [
-        "tests/database/completion.test.ts"
-      ],
+      "implementation": ["src/pages/catalog.ts"],
+      "tests": ["tests/database/completion.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
-      "requirements": []
+      "requirements": [],
+      "source_sha256": "897db409065283c6fabe9f31f9ab344c12fa9bfedfe027d083d7da7741992d18"
     },
     {
       "section": 31,
       "title": "Piatti del giorno / temporanei",
       "status": "partial",
-      "implementation": [
-        "src/pages/catalog.ts"
-      ],
-      "tests": [
-        "tests/database/completion.test.ts"
-      ],
+      "implementation": ["src/pages/catalog.ts"],
+      "tests": ["tests/database/completion.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
-      "requirements": [
-        "sempre;",
-        "data specifica;",
-        "giorni specifici;",
-        "intervallo date."
-      ]
+      "requirements": ["sempre;", "data specifica;", "giorni specifici;", "intervallo date."],
+      "source_sha256": "83487e102767881c3b092aba908ebcc8c304e9735ec255f5ecfe614057ffa4d8"
     },
     {
       "section": 32,
       "title": "Menu dell'unico ristorante",
       "status": "partial",
-      "implementation": [
-        "src/pages/configuration.ts",
-        "src/pages/catalog.ts"
-      ],
-      "tests": [
-        "tests/database/scope-host.test.ts"
-      ],
+      "implementation": ["src/pages/configuration.ts", "src/pages/catalog.ts"],
+      "tests": ["tests/database/scope-host.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -856,7 +792,8 @@
         "stazione principale e stazioni osservatrici;",
         "periodo di disponibilità;",
         "configurazioni operative."
-      ]
+      ],
+      "source_sha256": "14ff5dd57024b78fe947ae24b084ea790c7aff1dbd09e7af98e8df6c62ee938a"
     },
     {
       "section": 33,
@@ -867,9 +804,7 @@
         "src/room-editor/model.ts",
         "src/pages/room-editor.ts"
       ],
-      "tests": [
-        "tests/database/completion.test.ts"
-      ],
+      "tests": ["tests/database/completion.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -898,50 +833,39 @@
         "quadrati;",
         "rettangolari;",
         "altre forme sensate."
-      ]
+      ],
+      "source_sha256": "c904dd566e196693e20f4688dcc30bec624749541dac97794d7a116139e39863"
     },
     {
       "section": 34,
       "title": "Tavoli",
       "status": "partial",
-      "implementation": [
-        "src/pages/floor.ts",
-        "src/components/floor-view.ts"
-      ],
-      "tests": [
-        "tests/database/configuration-floor.test.ts"
-      ],
+      "implementation": ["src/pages/floor.ts", "src/components/floor-view.ts"],
+      "tests": ["tests/database/configuration-floor.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
-      "requirements": []
+      "requirements": [],
+      "source_sha256": "84043cc640fa79a7d6e50b9c84e74295ba26835859f7026d56cdbc14dd6c9950"
     },
     {
       "section": 35,
       "title": "Layout sala",
       "status": "partial",
-      "implementation": [
-        "src/pages/room-editor.ts"
-      ],
-      "tests": [
-        "tests/database/completion.test.ts"
-      ],
+      "implementation": ["src/pages/room-editor.ts"],
+      "tests": ["tests/database/completion.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
-      "requirements": []
+      "requirements": [],
+      "source_sha256": "87d43246b5ae69c3255933c35f4611db9e105c4fead10f64abe3ad1c3802f9bd"
     },
     {
       "section": 36,
       "title": "Stati tavolo",
       "status": "partial",
-      "implementation": [
-        "src/components/floor-view.ts",
-        "src/pages/operational-settings.ts"
-      ],
-      "tests": [
-        "tests/e2e/staff-operations.spec.ts"
-      ],
+      "implementation": ["src/components/floor-view.ts", "src/pages/operational-settings.ts"],
+      "tests": ["tests/e2e/staff-operations.spec.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -951,7 +875,8 @@
         "icona;",
         "ordine;",
         "eventuali stati aggiuntivi."
-      ]
+      ],
+      "source_sha256": "e2e518852eaecc4513f76f42edbc47a796b1f80c8896005352c65e1608fd4b07"
     },
     {
       "section": 37,
@@ -961,13 +886,12 @@
         "src/pages/floor.ts",
         "supabase/migrations/202609150019_table_group_operations.sql"
       ],
-      "tests": [
-        "tests/database/scope-host.test.ts"
-      ],
+      "tests": ["tests/database/scope-host.test.ts"],
       "external_verification": [
         "Full Supabase integration and concurrent PostgreSQL connections remain unverified."
       ],
-      "requirements": []
+      "requirements": [],
+      "source_sha256": "a17c416048ae176a161708142e825831ebd154aa97b6a64b2d62d71469546704"
     },
     {
       "section": 38,
@@ -977,9 +901,7 @@
         "src/pages/floor.ts",
         "supabase/migrations/202609150019_table_group_operations.sql"
       ],
-      "tests": [
-        "tests/database/service.test.ts"
-      ],
+      "tests": ["tests/database/service.test.ts"],
       "external_verification": [
         "Full Supabase integration and concurrent PostgreSQL connections remain unverified."
       ],
@@ -992,18 +914,15 @@
         "chiamate;",
         "stato;",
         "storico operativo."
-      ]
+      ],
+      "source_sha256": "ac16fcc39a5097965bae4eb9c539e4f7d72ab558b2d704d322a6c5865d053af2"
     },
     {
       "section": 39,
       "title": "Prenotazioni ON/OFF",
-      "status": "partial",
-      "implementation": [
-        "src/pages/operational-settings.ts"
-      ],
-      "tests": [
-        "tests/e2e/configuration.spec.ts"
-      ],
+      "status": "pending",
+      "implementation": ["src/pages/operational-settings.ts"],
+      "tests": ["tests/e2e/configuration.spec.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -1012,20 +931,18 @@
         "pagina prenotazioni non utilizzabile;",
         "API operative prenotazione disabilitate.",
         "link Prenota visibile;",
-        "modulo interno disponibile."
-      ]
+        "modulo interno disponibile;",
+        "possono essere attivati reminder, messaggistica, caparra e lista d’attesa secondo feature flag e configurazione della sede."
+      ],
+      "source_text": "# 39. Prenotazioni ON/OFF\n\nL'Admin può configurare:\n\n```text\nreservations_enabled = true/false\n```\n\nQuando OFF:\n\n- link Prenota nascosto;\n- pagina prenotazioni non utilizzabile;\n- API operative prenotazione disabilitate.\n\nQuando ON:\n\n- link Prenota visibile;\n- modulo interno disponibile;\n- possono essere attivati reminder, messaggistica, caparra e lista d’attesa secondo feature flag e configurazione della sede.\n\n---\n\n",
+      "source_sha256": "19ad442f67ee50442041c20679e4c9ad5f8052c6b16cf19a9f98c7ee6028003c"
     },
     {
       "section": 40,
       "title": "Modulo prenotazioni interno",
       "status": "partial",
-      "implementation": [
-        "src/pages/planning.ts",
-        "src/components/booking-fields.ts"
-      ],
-      "tests": [
-        "tests/database/completion.test.ts"
-      ],
+      "implementation": ["src/pages/planning.ts", "src/components/booking-fields.ts"],
+      "tests": ["tests/database/completion.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -1048,15 +965,14 @@
         "note;",
         "allergie;",
         "occasione speciale."
-      ]
+      ],
+      "source_sha256": "7737fffba19edb63a24287d54abbae89fe7d97b6355b982f684332e935c6de55"
     },
     {
       "section": 41,
       "title": "Prenotazione automatica e booking pacing",
-      "status": "partial",
-      "implementation": [
-        "supabase/migrations/202609140009_reservations.sql"
-      ],
+      "status": "pending",
+      "implementation": ["supabase/migrations/202609140009_reservations.sql"],
       "tests": [],
       "external_verification": [],
       "requirements": [
@@ -1068,53 +984,60 @@
         "pacing della fascia;",
         "eventuali chiusure/blocchi;",
         "dimensione gruppo."
-      ]
+      ],
+      "source_text": "# 41. Prenotazione automatica e booking pacing\n\nLa prenotazione automatica non deve basarsi soltanto sul massimo coperti totale del servizio.\n\nOgni servizio può configurare:\n\n```text\nmax_covers_service\nslot_interval_minutes\nmax_arrivals_per_slot\nmax_covers_per_slot\nmax_party_size_auto_confirm\nlarge_party_mode\ndeposit_policy\ndeposit_amount_or_percentage_optional\ndeposit_expiry_minutes_optional\n```\n\nEsempio:\n\n```text\nCena\nmax_covers_service = 120\nslot_interval_minutes = 30\n19:00 max_covers_per_slot = 20\n19:30 max_covers_per_slot = 30\n20:00 max_covers_per_slot = 25\n```\n\nPlateform deve verificare atomicamente:\n\n- sede;\n- servizio;\n- data;\n- fascia oraria;\n- coperti totali servizio;\n- pacing della fascia;\n- eventuali chiusure/blocchi;\n- dimensione gruppo.\n\nPer gruppi oltre `max_party_size_auto_confirm` usare, se configurato:\n\n```text\nREQUESTED\n```\n\ninvece di confermare automaticamente.\n\nL'Host/Admin può approvare o rifiutare richieste grandi.\n\nQuando la policy caparra è attiva, l'esito della prenotazione deve dipendere da un pagamento server-authoritative. Il browser non può impostare autonomamente la caparra come pagata.\n\nPolicy minime supportate:\n\n```text\nDISABLED\nOPTIONAL\nREQUIRED\nCONDITIONAL\n```\n\n`CONDITIONAL` può dipendere da condizioni configurabili come dimensione gruppo, servizio, giorno/data speciale o fascia oraria. Le condizioni devono essere deterministiche e auditate.\n\nNon utilizzare una stima automatica della durata del tavolo per promettere rotazioni future salvo feature futura specifica.\n\n---\n\n",
+      "source_sha256": "28c52e253bd8f7c33cd10d46da4c6f28d177bf2ed7de99d83841b755f4d1a1f1"
     },
     {
       "section": 42,
       "title": "Duplicati prenotazione",
       "status": "partial",
-      "implementation": [
-        "src/pages/public-booking.ts"
-      ],
-      "tests": [
-        "tests/database/reservations-auth.test.ts"
-      ],
+      "implementation": ["src/pages/public-booking.ts"],
+      "tests": ["tests/database/reservations-auth.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
-      "requirements": [
-        "telefono;",
-        "data;",
-        "servizio;",
-        "orario;"
-      ]
+      "requirements": ["telefono;", "data;", "servizio;", "orario;"],
+      "source_sha256": "e7756a6723310abcf01f0a3b8effcbb163cfc182b6f6d8f6fd5c22ef0aaa4d6d"
     },
     {
       "section": 43,
       "title": "Cancellazione prenotazione",
-      "status": "partial",
-      "implementation": [
-        "src/pages/reservation-editor.ts"
-      ],
-      "tests": [
-        "tests/database/reservations-auth.test.ts"
-      ],
+      "status": "pending",
+      "implementation": ["src/pages/reservation-editor.ts"],
+      "tests": ["tests/database/reservations-auth.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
-      "requirements": []
+      "requirements": [
+        "prenotazione ricevuta;",
+        "prenotazione confermata;",
+        "richiesta grande gruppo ricevuta;",
+        "caparra richiesta;",
+        "caparra ricevuta;",
+        "reminder prima della prenotazione;",
+        "modifica prenotazione;",
+        "cancellazione;",
+        "offerta posto da lista d’attesa.",
+        "reminder automatici;",
+        "conferme prenotazione;",
+        "eventuale caparra;",
+        "stato di arrivo;",
+        "regole configurabili per ritardo/grace period."
+      ],
+      "source_text": "# 43. Cancellazione prenotazione\n\nIl cliente non cancella autonomamente dalla piattaforma.\n\nMostrare istruzione:\n\n> Per modificare o cancellare la prenotazione, contatta il ristorante.\n\n---\n\n# 43A. Conferme e promemoria prenotazione\n\nPlateform deve supportare comunicazioni transazionali automatiche collegate al ciclo di vita della prenotazione.\n\nCanali supportabili tramite provider configurabile:\n\n```text\nWhatsApp/Telegram\nSMS\nEMAIL\n```\n\nWhatsApp/Telegram/SMS è il canale prioritario quando il cliente lo configura e il provider scelto lo consente.\n\nEventi minimi configurabili:\n\n- prenotazione ricevuta;\n- prenotazione confermata;\n- richiesta grande gruppo ricevuta;\n- caparra richiesta;\n- caparra ricevuta;\n- reminder prima della prenotazione;\n- modifica prenotazione;\n- cancellazione;\n- offerta posto da lista d’attesa.\n\nL'Admin può definire uno o più reminder, ad esempio 24 ore e 3 ore prima. Il sistema deve impedire invii duplicati mediante idempotenza e registrare stato di consegna quando il provider lo rende disponibile.\n\nCreare un sistema di template con variabili controllate, per esempio:\n\n```text\ncustomer_name\nvenue_name\nreservation_date\nreservation_time\nparty_size\nservice_name\ndeposit_amount\n```\n\nNon consentire template che espongano dati di altri clienti o informazioni interne.\n\nSegreti/API key dei provider di messaggistica devono restare server-side. Gestire retry, rate limit, provider error, opt-out/consensi dove richiesti e retention coerente con la privacy.\n\n---\n\n# 43B. Gestione no-show assistita da reminder e caparra\n\nPlateform deve ridurre i no-show combinando:\n\n- reminder automatici;\n- conferme prenotazione;\n- eventuale caparra;\n- stato di arrivo;\n- regole configurabili per ritardo/grace period.\n\nIl sistema non deve dichiarare automaticamente `NO_SHOW` prima che sia trascorso il grace period configurato.\n\nL'Admin può scegliere:\n\n```text\nNO_SHOW_MANUAL\nNO_SHOW_SUGGESTED\nNO_SHOW_AUTOMATIC_AFTER_GRACE_PERIOD\n```\n\nIn modalità automatica il passaggio a `NO_SHOW` deve essere eseguito server-side, auditato e annullabile/correggibile solo secondo permessi espliciti.\n\nL'eventuale trattamento economico della caparra in caso di no-show deve seguire una policy configurata dal ristorante e non deve essere dedotto o inventato da Plateform.\n\n---\n\n# 43C. Lista d'attesa\n\nImplementare una lista d'attesa per sede, data e servizio.\n\nOgni voce contiene almeno:\n\n```text\nid\nvenue_id\nservice_id\ndate\npreferred_time_or_window\nparty_size\ncustomer_name\ncustomer_phone\nnotes_optional\nstatus\ncreated_at\noffered_at\noffer_expires_at\nconfirmed_at\n```\n\nStati minimi:\n\n```text\nWAITING\nOFFERED\nCONFIRMED\nEXPIRED\nCANCELLED\nCONVERTED_TO_RESERVATION\n```\n\nQuando si libera capacità, Plateform può suggerire al personale i candidati compatibili. L'Admin può configurare un'offerta automatica tramite messaggistica, ma la creazione definitiva della prenotazione deve verificare nuovamente la capacità in modo atomico.\n\nL'ordine di priorità deve essere deterministico e trasparente, normalmente basato su compatibilità e ora di inserimento; evitare algoritmi opachi che discriminino clienti.\n\nLa lista d'attesa non deve promettere disponibilità futura finché il posto non viene effettivamente confermato.\n\n---\n\n",
+      "source_sha256": "cb00808cd36da424ebcee9deaa00af864a248795509fc1f87ec7a39680ef838a"
     },
     {
       "section": 44,
       "title": "Stati prenotazione",
-      "status": "partial",
-      "implementation": [
-        "supabase/migrations/202609140016_host_operations.sql"
-      ],
+      "status": "pending",
+      "implementation": ["supabase/migrations/202609140016_host_operations.sql"],
       "tests": [],
       "external_verification": [],
-      "requirements": []
+      "requirements": [],
+      "source_text": "# 44. Stati prenotazione\n\nImplementare:\n\n```text\nREQUESTED\nPENDING_DEPOSIT\nRESERVED\nARRIVED\nSEATED\nCOMPLETED\nNO_SHOW\nCANCELLED\nEXPIRED\n```\n\nL'Host gestisce operativamente questi stati.\n\nUn tavolo preassegnato torna realmente libero quando l'Host lo imposta su stato disponibile/libero secondo il workflow.\n\n---\n\n",
+      "source_sha256": "b122862ebc1cfac4da90d4915457fdaa6a1cb7f6b32c59626741d1ebc8f3685d"
     },
     {
       "section": 45,
@@ -1124,10 +1047,7 @@
         "src/pages/host.ts",
         "supabase/migrations/202609150018_host_workspace.sql"
       ],
-      "tests": [
-        "tests/database/scope-host.test.ts",
-        "tests/e2e/staff-operations.spec.ts"
-      ],
+      "tests": ["tests/database/scope-host.test.ts", "tests/e2e/staff-operations.spec.ts"],
       "external_verification": [
         "Full Supabase integration and concurrent PostgreSQL connections remain unverified."
       ],
@@ -1141,7 +1061,8 @@
         "disponibilità;",
         "tavoli unibili;",
         "altre prenotazioni."
-      ]
+      ],
+      "source_sha256": "67e6ddf5a7b80778cdbf78f290c5fa4a0931009834553b71c71c2711bf05a504"
     },
     {
       "section": 46,
@@ -1151,59 +1072,51 @@
         "src/pages/host.ts",
         "supabase/migrations/202609140016_host_operations.sql"
       ],
-      "tests": [
-        "tests/database/scope-host.test.ts"
-      ],
+      "tests": ["tests/database/scope-host.test.ts"],
       "external_verification": [
         "Full Supabase integration and concurrent PostgreSQL connections remain unverified."
       ],
-      "requirements": []
+      "requirements": [],
+      "source_sha256": "9bc2f89d384b8471d6694db5764bb439732e5d3322a5155755ccb08e682a0251"
     },
     {
       "section": 47,
       "title": "QR Code",
-      "status": "partial",
-      "implementation": [
-        "src/pages/floor.ts"
-      ],
+      "status": "pending",
+      "implementation": ["src/pages/floor.ts"],
       "tests": [],
       "external_verification": [],
-      "requirements": []
+      "requirements": [],
+      "source_text": "# 47. QR Code\n\nOgni tavolo possiede un QR permanente.\n\nIl QR contiene un URL dell'area cliente e identifica il tavolo dell'unica installazione tramite un identificatore pubblico stabile, ad esempio `public_table_id`.\n\nNon includere selettori o identificatori di ristorante e sede nel routing del QR. Il QR deve puntare al dominio pubblico con il percorso `https://dominio.it/tavolo/{public_table_id}`, usando l'indirizzo base configurato nella sezione 15, anche quando viene generato dal gestionale su `staff.dominio.it`.\n\nIl QR non identifica direttamente il conto e non autorizza da solo l'accesso ai suoi dati. Il codice conto e la customer session restano obbligatori.\n\nSeparatamente dai QR tavolo, Plateform deve poter generare **QR pubblici per menu specifici**. Esempi:\n\n```text\n/menu/colazione\n/menu/pranzo\n/menu/aperitivo\n/menu/carta-vini\n```\n\nOgni QR menu deve essere revocabile/rigenerabile senza modificare i dati del tavolo e può puntare a un menu, a una sede o a una combinazione configurata. I QR menu sono pubblici e non autorizzano l'accesso a conti o customer session.\n\n---\n\n",
+      "source_sha256": "f9a2c73bae6c4557a475767e2f9bd31f97a55175e4435d0866f694d41dc3634f"
     },
     {
       "section": 48,
       "title": "Creazione conto",
       "status": "partial",
-      "implementation": [
-        "supabase/migrations/202609140006_accounts_orders.sql"
-      ],
+      "implementation": ["supabase/migrations/202609140006_accounts_orders.sql"],
       "tests": [],
       "external_verification": [],
-      "requirements": []
+      "requirements": [],
+      "source_sha256": "d23ada8d942e4a478323ab1e14548b71615c2034dad265781522045600ad5e85"
     },
     {
       "section": 49,
       "title": "Più conti per tavolo",
       "status": "partial",
-      "implementation": [
-        "src/pages/floor.ts",
-        "src/pages/accounts.ts"
-      ],
-      "tests": [
-        "tests/database/service.test.ts"
-      ],
+      "implementation": ["src/pages/floor.ts", "src/pages/accounts.ts"],
+      "tests": ["tests/database/service.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
-      "requirements": []
+      "requirements": [],
+      "source_sha256": "99f03c931dc51e5f6881d7327a215955b04ac6a3f2cda96eb4a93b9a652c53d4"
     },
     {
       "section": 50,
       "title": "Codice conto",
       "status": "partial",
-      "implementation": [
-        "supabase/migrations/202609140006_accounts_orders.sql"
-      ],
+      "implementation": ["supabase/migrations/202609140006_accounts_orders.sql"],
       "tests": [],
       "external_verification": [],
       "requirements": [
@@ -1219,26 +1132,24 @@
         "vecchio codice invalidato;",
         "customer session esistenti invalidate;",
         "cliente deve autenticarsi nuovamente."
-      ]
+      ],
+      "source_sha256": "7843361b3e3b65795ef8ef3807db22c8a8674b7826e2ff245e9763caef40893d"
     },
     {
       "section": 51,
       "title": "Accesso cliente",
       "status": "partial",
-      "implementation": [
-        "supabase/functions/customer-session/index.ts"
-      ],
+      "implementation": ["supabase/functions/customer-session/index.ts"],
       "tests": [],
       "external_verification": [],
-      "requirements": []
+      "requirements": [],
+      "source_sha256": "a58d110c9d2027f5ade4b0c93aff2f835d7a1c46ed749eb22387f913e110c227"
     },
     {
       "section": 52,
       "title": "Funzioni cliente",
       "status": "partial",
-      "implementation": [
-        "src/pages/customer.ts"
-      ],
+      "implementation": ["src/pages/customer.ts"],
       "tests": [],
       "external_verification": [],
       "requirements": [
@@ -1260,29 +1171,25 @@
         "workflow cucina;",
         "dati staff;",
         "dati di altri clienti."
-      ]
+      ],
+      "source_sha256": "3240cbfeb50902f91e7e71936ba50ad67546f2a48e286a0a853d87f0590a55ca"
     },
     {
       "section": 53,
       "title": "Ordinazione cliente",
       "status": "partial",
-      "implementation": [
-        "src/pages/customer.ts"
-      ],
+      "implementation": ["src/pages/customer.ts"],
       "tests": [],
       "external_verification": [],
-      "requirements": []
+      "requirements": [],
+      "source_sha256": "fcff6e62e3b04032d3986472c08c7a1542c1cf3350bfc48465a2baab50d56fd7"
     },
     {
       "section": 54,
       "title": "Carrello cliente",
-      "status": "partial",
-      "implementation": [
-        "src/pages/customer.ts"
-      ],
-      "tests": [
-        "tests/e2e/customer.spec.ts"
-      ],
+      "status": "pending",
+      "implementation": ["src/pages/customer.ts"],
+      "tests": ["tests/e2e/customer.spec.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -1294,18 +1201,19 @@
         "non può modificare;",
         "non può cancellare;",
         "deve contattare staff."
-      ]
+      ],
+      "source_text": "# 54. Carrello cliente\n\nPrima di inviare può:\n\n- cambiare quantità;\n- rimuovere prodotti;\n- scegliere ingredienti rimovibili;\n- scegliere varianti.\n\nDopo invio:\n\n- non può modificare;\n- non può cancellare;\n- deve contattare staff.\n\n---\n\n# 54A. Ordini da asporto / takeaway\n\nPlateform deve supportare ordini da asporto con ritiro presso il ristorante. Questa funzione è distinta dagli ordini al tavolo e **non introduce automaticamente delivery a domicilio o gestione fattorini**.\n\nL'Admin può configurare:\n\n```text\ntakeaway_enabled\npickup_services_or_windows\nslot_interval_minutes\nmax_orders_per_slot_optional\nmax_items_per_slot_optional\nminimum_order_optional\nadvance_order_limit_days\npreparation_buffer_minutes\npayment_modes_allowed\n```\n\nIl cliente può:\n\n1. aprire la pagina takeaway pubblica;\n2. scegliere sede se necessario;\n3. selezionare fascia di ritiro disponibile;\n4. aggiungere prodotti, varianti e ingredienti rimovibili;\n5. inserire i dati minimi richiesti;\n6. scegliere il metodo di pagamento consentito;\n7. inviare l'ordine;\n8. ricevere conferma e aggiornamenti.\n\nStati minimi:\n\n```text\nDRAFT\nPENDING_CONFIRMATION\nCONFIRMED\nIN_PREPARATION\nREADY_FOR_PICKUP\nCOLLECTED\nCANCELLED\nREJECTED\n```\n\nL'ordine takeaway deve riutilizzare il catalogo, disponibilità, snapshot prezzo, varianti, ingredienti rimovibili, stazioni e cucina di Plateform.\n\nLa disponibilità deve essere scalata server-side con le stesse garanzie transazionali degli ordini al tavolo.\n\nL'Admin configura se l'ordine takeaway è:\n\n```text\nSTAFF_APPROVAL\nDIRECT\n```\n\nIn `STAFF_APPROVAL`, la richiesta non entra in produzione finché un ruolo autorizzato non la conferma. In `DIRECT`, l'ordine entra automaticamente solo se tutti i controlli server-side e l'eventuale pagamento richiesto sono validi.\n\nGli ordini takeaway devono essere chiaramente distinguibili nei KDS/ticket e nel Pass, senza richiedere un tavolo.\n\nIl ritiro deve essere associato a una sede e a una fascia oraria. In multi-sede non è consentito ritirare in una sede diversa da quella dell'ordine.\n\nCreazione pubblica dell'ordine, prenotazione slot e pagamento online richiedono connessione al server; non simulare successo offline.\n\n---\n\n",
+      "source_sha256": "7c9e540643ffb4704b7f12a87a2fc6fd2ed9e612084c3623516accbfe5700a5c"
     },
     {
       "section": 55,
       "title": "Chiamata cameriere",
       "status": "partial",
-      "implementation": [
-        "supabase/migrations/202609140012_kitchen_calls.sql"
-      ],
+      "implementation": ["supabase/migrations/202609140012_kitchen_calls.sql"],
       "tests": [],
       "external_verification": [],
-      "requirements": []
+      "requirements": [],
+      "source_sha256": "25006edbd1f7c220874a6f6bd02bc969e3977f31477bb96e31ea47d12e459e2e"
     },
     {
       "section": 56,
@@ -1317,9 +1225,7 @@
         "src/services/notification-sound.ts",
         "src/pages/operational-settings.ts"
       ],
-      "tests": [
-        "tests/database/configuration-floor.test.ts"
-      ],
+      "tests": ["tests/database/configuration-floor.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -1338,15 +1244,14 @@
         "conflitto offline;",
         "stampante guasta;",
         "pagamento in stato anomalo."
-      ]
+      ],
+      "source_sha256": "4cb7f674e271ac3aba8e7bffe42583a1b94871d7062b180eb7b58c72308ed7bc"
     },
     {
       "section": 57,
       "title": "Ordine cameriere",
       "status": "partial",
-      "implementation": [
-        "src/pages/accounts.ts"
-      ],
+      "implementation": ["src/pages/accounts.ts"],
       "tests": [],
       "external_verification": [],
       "requirements": [
@@ -1356,54 +1261,37 @@
         "ingredienti rimossi;",
         "varianti;",
         "step."
-      ]
+      ],
+      "source_sha256": "f3566ecaae725e1b16af7ceeb2f04e24912085c38c3936cf38d09b2c9948b2a1"
     },
     {
       "section": 58,
       "title": "Step",
       "status": "partial",
-      "implementation": [
-        "src/pages/kitchen.ts",
-        "src/pages/offline.ts"
-      ],
-      "tests": [
-        "tests/database/completion.test.ts",
-        "tests/database/service.test.ts"
-      ],
+      "implementation": ["src/pages/kitchen.ts", "src/pages/offline.ts"],
+      "tests": ["tests/database/completion.test.ts", "tests/database/service.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
-      "requirements": [
-        "WAITER;",
-        "PASS;",
-        "KITCHEN_ADMIN."
-      ]
+      "requirements": ["WAITER;", "PASS;", "KITCHEN_ADMIN."],
+      "source_sha256": "bf20bfc56fd073f035ff64c7f8a2dfec8a70229c2508e2bb0c99d74b4a8c9014"
     },
     {
       "section": 59,
       "title": "Stati ordine",
       "status": "partial",
-      "implementation": [
-        "src/services/state-machine.ts"
-      ],
+      "implementation": ["src/services/state-machine.ts"],
       "tests": [],
       "external_verification": [],
-      "requirements": [
-        "ordine;",
-        "item;",
-        "step."
-      ]
+      "requirements": ["ordine;", "item;", "step."],
+      "source_sha256": "f6c2f53b1e679c2911cee55c4389b1f90f6c8ea4b85c4b71582aea8868c4c02d"
     },
     {
       "section": 60,
       "title": "Modifiche ordine",
       "status": "partial",
-      "implementation": [
-        "src/pages/order-changes.ts"
-      ],
-      "tests": [
-        "tests/database/completion.test.ts"
-      ],
+      "implementation": ["src/pages/order-changes.ts"],
+      "tests": ["tests/database/completion.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -1416,15 +1304,14 @@
         "stazioni;",
         "audit;",
         "realtime."
-      ]
+      ],
+      "source_sha256": "4b89bb4266bce0c08d5b9298a049ae4d53b4a9d2c1208304943c1a27942effa8"
     },
     {
       "section": 61,
       "title": "Stazioni",
       "status": "partial",
-      "implementation": [
-        "supabase/migrations/202609140012_kitchen_calls.sql"
-      ],
+      "implementation": ["supabase/migrations/202609140012_kitchen_calls.sql"],
       "tests": [],
       "external_verification": [],
       "requirements": [
@@ -1435,19 +1322,15 @@
         "Pasticceria;",
         "Bar;",
         "Pizzeria."
-      ]
+      ],
+      "source_sha256": "a45d0e42694f094a6463eaf03ee82f5f9c77fb4ae6f0c6153cf1e81caf14c3bd"
     },
     {
       "section": 62,
       "title": "KITCHEN_ADMIN",
       "status": "partial",
-      "implementation": [
-        "src/pages/kitchen.ts",
-        "src/pages/catalog.ts"
-      ],
-      "tests": [
-        "tests/database/service.test.ts"
-      ],
+      "implementation": ["src/pages/kitchen.ts", "src/pages/catalog.ts"],
+      "tests": ["tests/database/service.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -1458,7 +1341,8 @@
         "cambiare stati consentiti;",
         "coordinare step;",
         "gestire piatti tornati indietro se funzione attiva."
-      ]
+      ],
+      "source_sha256": "90401b0fda3b583a4d919b5833ffcbf75e16d09ed5a19f6789544c6dad5bf8e9"
     },
     {
       "section": 63,
@@ -1468,10 +1352,7 @@
         "supabase/migrations/202609150030_prepaid_fulfillment.sql",
         "src/pages/accounts.ts"
       ],
-      "tests": [
-        "tests/database/reconciliation.test.ts",
-        "tests/e2e/accounts.spec.ts"
-      ],
+      "tests": ["tests/database/reconciliation.test.ts", "tests/e2e/accounts.spec.ts"],
       "external_verification": [],
       "requirements": [
         "vedere propria stazione;",
@@ -1481,7 +1362,8 @@
         "modificare prezzi;",
         "effettuare modifiche economiche;",
         "cambiare configurazioni."
-      ]
+      ],
+      "source_sha256": "13cde13dcac5d91a44124bc47df42a19a8485f4423def24f895959ef076de8e6"
     },
     {
       "section": 64,
@@ -1492,48 +1374,29 @@
         "supabase/migrations/202609150030_prepaid_fulfillment.sql",
         "src/pages/accounts.ts"
       ],
-      "tests": [
-        "tests/database/reconciliation.test.ts",
-        "tests/e2e/accounts.spec.ts"
-      ],
+      "tests": ["tests/database/reconciliation.test.ts", "tests/e2e/accounts.spec.ts"],
       "external_verification": [],
-      "requirements": [
-        "Runner;",
-        "waiter table;",
-        "waiter zone;",
-        "combinazioni."
-      ]
+      "requirements": ["Runner;", "waiter table;", "waiter zone;", "combinazioni."],
+      "source_sha256": "b6315b1452accc48dc4771e59add86179e769cfaa60ee21174cd4da70537c106"
     },
     {
       "section": 65,
       "title": "Piatti tornati indietro",
       "status": "partial",
-      "implementation": [
-        "src/pages/order-changes.ts",
-        "src/pages/kitchen.ts"
-      ],
-      "tests": [
-        "tests/database/completion.test.ts"
-      ],
+      "implementation": ["src/pages/order-changes.ts", "src/pages/kitchen.ts"],
+      "tests": ["tests/database/completion.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
-      "requirements": [
-        "PASS;",
-        "KITCHEN_ADMIN."
-      ]
+      "requirements": ["PASS;", "KITCHEN_ADMIN."],
+      "source_sha256": "224d339b14b2b04486274fec65d6b124b461f80013e9630b8f60602631ad2bbf"
     },
     {
       "section": 66,
       "title": "Stampanti stazioni",
       "status": "partial",
-      "implementation": [
-        "src/pages/operational-settings.ts",
-        "src/pages/printing.ts"
-      ],
-      "tests": [
-        "tests/database/completion.test.ts"
-      ],
+      "implementation": ["src/pages/operational-settings.ts", "src/pages/printing.ts"],
+      "tests": ["tests/database/completion.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -1542,7 +1405,8 @@
         "quali eventi stampano;",
         "quale stampante;",
         "stampa automatica/manuale."
-      ]
+      ],
+      "source_sha256": "716838b2ea0a43014a021daf52df33600e8f58dc7eb27ebc429d9901592cbe74"
     },
     {
       "section": 67,
@@ -1557,32 +1421,22 @@
         "src/pages/account-list.ts",
         "supabase/migrations/202609150030_prepaid_fulfillment.sql"
       ],
-      "tests": [
-        "tests/database/reconciliation.test.ts",
-        "tests/e2e/accounts.spec.ts"
-      ],
+      "tests": ["tests/database/reconciliation.test.ts", "tests/e2e/accounts.spec.ts"],
       "external_verification": [],
-      "requirements": []
+      "requirements": [],
+      "source_sha256": "43a04688a8d4d86bfa1a022494e9cf4d95b8dce6f68b044f39cf80fbf08196c5"
     },
     {
       "section": 68,
       "title": "Richiesta conto",
       "status": "partial",
-      "implementation": [
-        "src/pages/customer.ts",
-        "src/pages/notifications.ts"
-      ],
-      "tests": [
-        "tests/database/service.test.ts",
-        "tests/e2e/customer.spec.ts"
-      ],
+      "implementation": ["src/pages/customer.ts", "src/pages/notifications.ts"],
+      "tests": ["tests/database/service.test.ts", "tests/e2e/customer.spec.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
-      "requirements": [
-        "cameriere responsabile;",
-        "Cassa."
-      ]
+      "requirements": ["cameriere responsabile;", "Cassa."],
+      "source_sha256": "cba53b23849080c04253969412cb7456ef14f0ac9c0b5b744529ae4669ddfceb"
     },
     {
       "section": 69,
@@ -1597,10 +1451,7 @@
         "src/pages/account-finance.ts",
         "src/pages/account-list.ts"
       ],
-      "tests": [
-        "tests/database/reconciliation.test.ts",
-        "tests/e2e/accounts.spec.ts"
-      ],
+      "tests": ["tests/database/reconciliation.test.ts", "tests/e2e/accounts.spec.ts"],
       "external_verification": [],
       "requirements": [
         "nome;",
@@ -1610,7 +1461,8 @@
         "stampante;",
         "metodi pagamento;",
         "configurazione."
-      ]
+      ],
+      "source_sha256": "7a4e77ad4c18fca3c0057dffc86f0c4585ba82d18a9e2435dee3b2a97a7beea1"
     },
     {
       "section": 70,
@@ -1620,13 +1472,12 @@
         "supabase/migrations/202609150021_cash_journal.sql",
         "supabase/migrations/202609150023_cash_reconciliation.sql"
       ],
-      "tests": [
-        "tests/database/reconciliation.test.ts"
-      ],
+      "tests": ["tests/database/reconciliation.test.ts"],
       "external_verification": [
         "Supabase reale e verifiche end-to-end ancora da eseguire; stato non verificato integralmente."
       ],
-      "requirements": []
+      "requirements": [],
+      "source_sha256": "7721b7bb4c51db26599b38d466ea173337098ad6ad9e1687069907aef9e70fa7"
     },
     {
       "section": 71,
@@ -1636,16 +1487,12 @@
         "supabase/migrations/202609150021_cash_journal.sql",
         "supabase/migrations/202609150023_cash_reconciliation.sql"
       ],
-      "tests": [
-        "tests/database/reconciliation.test.ts"
-      ],
+      "tests": ["tests/database/reconciliation.test.ts"],
       "external_verification": [
         "Supabase reale e verifiche end-to-end ancora da eseguire; stato non verificato integralmente."
       ],
-      "requirements": [
-        "attivare;",
-        "disattivare;"
-      ]
+      "requirements": ["attivare;", "disattivare;"],
+      "source_sha256": "0bc07cfdd20f937bdb91a89ef9d9edb12dbd9313d537369503faedbcca2be7f9"
     },
     {
       "section": 72,
@@ -1656,14 +1503,12 @@
         "supabase/migrations/202609150023_cash_reconciliation.sql",
         "src/pages/reconciliation.ts"
       ],
-      "tests": [
-        "tests/database/reconciliation.test.ts",
-        "tests/e2e/cash.spec.ts"
-      ],
+      "tests": ["tests/database/reconciliation.test.ts", "tests/e2e/cash.spec.ts"],
       "external_verification": [
         "Supabase reale e verifiche end-to-end ancora da eseguire; stato non verificato integralmente."
       ],
-      "requirements": []
+      "requirements": [],
+      "source_sha256": "76ca84eba65434fa25005adaca95afd917cf9202727d3f7d2f40670ab0cd558d"
     },
     {
       "section": 73,
@@ -1674,10 +1519,7 @@
         "supabase/migrations/202609150023_cash_reconciliation.sql",
         "src/pages/reconciliation.ts"
       ],
-      "tests": [
-        "tests/database/reconciliation.test.ts",
-        "tests/e2e/cash.spec.ts"
-      ],
+      "tests": ["tests/database/reconciliation.test.ts", "tests/e2e/cash.spec.ts"],
       "external_verification": [
         "Supabase reale e verifiche end-to-end ancora da eseguire; stato non verificato integralmente."
       ],
@@ -1695,7 +1537,8 @@
         "serve approvazione Admin;",
         "Admin deve inserire la propria password;",
         "differenza e autorizzazione devono essere auditati."
-      ]
+      ],
+      "source_sha256": "0f6bd019f50b27114327a0e7148eec58473b4bbfeac501bb69a6450862b3c769"
     },
     {
       "section": 74,
@@ -1708,10 +1551,7 @@
         "src/pages/billing.ts",
         "src/pages/account-payments.ts"
       ],
-      "tests": [
-        "tests/database/billing.test.ts",
-        "tests/e2e/accounts.spec.ts"
-      ],
+      "tests": ["tests/database/billing.test.ts", "tests/e2e/accounts.spec.ts"],
       "external_verification": [],
       "requirements": [
         "doppio pagamento;",
@@ -1723,7 +1563,8 @@
         "idempotency key;",
         "constraints;",
         "Realtime."
-      ]
+      ],
+      "source_sha256": "18933e8ab74bf744d0dbe1920888a3843f130c65b2de9c5cc63c42e87d6fb8d2"
     },
     {
       "section": 75,
@@ -1756,7 +1597,8 @@
         "creare nuovo conto durante divisione;",
         "unire conti;",
         "gestire pagamenti misti."
-      ]
+      ],
+      "source_sha256": "d98745d9b51ccc9f6a1c9325e6321621e20d667453412e943ce62d17a0ded820"
     },
     {
       "section": 76,
@@ -1768,35 +1610,27 @@
         "src/pages/billing.ts",
         "src/pages/account-payments.ts"
       ],
-      "tests": [
-        "tests/database/billing.test.ts",
-        "tests/e2e/accounts.spec.ts"
-      ],
+      "tests": ["tests/database/billing.test.ts", "tests/e2e/accounts.spec.ts"],
       "external_verification": [],
-      "requirements": []
+      "requirements": [],
+      "source_sha256": "91c6a9fc6c72eba4d5d37e8a8c8109d75aefa6deceffe518fd97c0dd79b55469"
     },
     {
       "section": 77,
       "title": "Metodi pagamento",
       "status": "partial",
-      "implementation": [
-        "supabase/migrations/202609140007_cash_payments.sql"
-      ],
+      "implementation": ["supabase/migrations/202609140007_cash_payments.sql"],
       "tests": [],
       "external_verification": [],
-      "requirements": []
+      "requirements": [],
+      "source_sha256": "820c29c8a9e3a07d3468624bc8382eb6f373b0f118eff4cddbff4fa7e75123fc"
     },
     {
       "section": 78,
       "title": "POS tradizionale",
       "status": "partial",
-      "implementation": [
-        "src/pages/account-payments.ts"
-      ],
-      "tests": [
-        "tests/database/billing.test.ts",
-        "tests/e2e/cash.spec.ts"
-      ],
+      "implementation": ["src/pages/account-payments.ts"],
+      "tests": ["tests/database/billing.test.ts", "tests/e2e/cash.spec.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -1804,7 +1638,8 @@
         "Plateform mostra importo;",
         "cassiere usa POS esterno;",
         "conferma manualmente esito."
-      ]
+      ],
+      "source_sha256": "a114c6f9c55d956c6034b5970a73ce2e019a84214253c357ec5125d5519d0aad"
     },
     {
       "section": 79,
@@ -1815,21 +1650,12 @@
         "supabase/functions/stripe-webhook/index.ts",
         "supabase/functions/_shared/providers.ts"
       ],
-      "tests": [
-        "supabase/functions/_tests/providers.test.ts",
-        "tests/database/completion.test.ts"
-      ],
+      "tests": ["supabase/functions/_tests/providers.test.ts", "tests/database/completion.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
-      "requirements": [
-        "pagamento;",
-        "stato;",
-        "webhook;",
-        "idempotenza;",
-        "errore;",
-        "conferma."
-      ]
+      "requirements": ["pagamento;", "stato;", "webhook;", "idempotenza;", "errore;", "conferma."],
+      "source_sha256": "c7181457ae428bfea418adb6bbc2ef18f3747a48e6edf6db075f4fd81d9053cb"
     },
     {
       "section": 80,
@@ -1840,19 +1666,12 @@
         "supabase/functions/satispay-callback/index.ts",
         "supabase/functions/_shared/providers.ts"
       ],
-      "tests": [
-        "supabase/functions/_tests/providers.test.ts"
-      ],
+      "tests": ["supabase/functions/_tests/providers.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
-      "requirements": [
-        "richieste;",
-        "stato;",
-        "callback/webhook;",
-        "errori;",
-        "idempotenza."
-      ]
+      "requirements": ["richieste;", "stato;", "callback/webhook;", "errori;", "idempotenza."],
+      "source_sha256": "c2a55fc2616f06971788a999b337bfb41f5dde4156610ca71f50b469b652b131"
     },
     {
       "section": 81,
@@ -1863,30 +1682,22 @@
         "src/pages/provider-payments.ts",
         "supabase/functions/payments/index.ts"
       ],
-      "tests": [
-        "tests/database/billing.test.ts"
-      ],
+      "tests": ["tests/database/billing.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
-      "requirements": []
+      "requirements": [],
+      "source_sha256": "0c80d77eb85221102e7dab92ad58611e53aaa09e7d96fe103d9230e05b364360"
     },
     {
       "section": 82,
       "title": "Mance",
       "status": "partial",
-      "implementation": [
-        "supabase/migrations/202609140007_cash_payments.sql"
-      ],
+      "implementation": ["supabase/migrations/202609140007_cash_payments.sql"],
       "tests": [],
       "external_verification": [],
-      "requirements": [
-        "contanti;",
-        "carta/POS;",
-        "Stripe;",
-        "Satispay;",
-        "metodo compatibile."
-      ]
+      "requirements": ["contanti;", "carta/POS;", "Stripe;", "Satispay;", "metodo compatibile."],
+      "source_sha256": "09a4ea14b7edd58dc6ad042a37c77b9567a58f584ccf9a450be47dd24c267bbb"
     },
     {
       "section": 83,
@@ -1898,17 +1709,10 @@
         "src/pages/billing.ts",
         "src/pages/account-payments.ts"
       ],
-      "tests": [
-        "tests/database/billing.test.ts",
-        "tests/e2e/accounts.spec.ts"
-      ],
+      "tests": ["tests/database/billing.test.ts", "tests/e2e/accounts.spec.ts"],
       "external_verification": [],
-      "requirements": [
-        "sconto percentuale;",
-        "sconto fisso;",
-        "piatto offerto;",
-        "conto offerto."
-      ]
+      "requirements": ["sconto percentuale;", "sconto fisso;", "piatto offerto;", "conto offerto."],
+      "source_sha256": "4f65249801049e15944b9713e80b13ade2e9fabcc117931c5539bed578bd0cde"
     },
     {
       "section": 84,
@@ -1924,17 +1728,12 @@
         "src/pages/account-finance.ts",
         "src/pages/account-list.ts"
       ],
-      "tests": [
-        "tests/database/reconciliation.test.ts",
-        "tests/e2e/accounts.spec.ts"
-      ],
+      "tests": ["tests/database/reconciliation.test.ts", "tests/e2e/accounts.spec.ts"],
       "external_verification": [
         "Supabase reale e verifiche end-to-end ancora da eseguire; stato non verificato integralmente."
       ],
-      "requirements": [
-        "interviene Admin;",
-        "operazione auditata."
-      ]
+      "requirements": ["interviene Admin;", "operazione auditata."],
+      "source_sha256": "3bf0d212e06012e02eec063e683af8499faf04deabcc2b2640c3f1277d82891e"
     },
     {
       "section": 85,
@@ -1951,10 +1750,7 @@
         "src/pages/account-finance.ts",
         "src/pages/account-list.ts"
       ],
-      "tests": [
-        "tests/database/reconciliation.test.ts",
-        "tests/e2e/accounts.spec.ts"
-      ],
+      "tests": ["tests/database/reconciliation.test.ts", "tests/e2e/accounts.spec.ts"],
       "external_verification": [
         "Supabase reale e verifiche end-to-end ancora da eseguire; stato non verificato integralmente."
       ],
@@ -1967,7 +1763,8 @@
         "Satispay API;",
         "cash;",
         "POS;"
-      ]
+      ],
+      "source_sha256": "1565c8c7d10cd3b8b41fc41e8589d96cfa042b7ad258c37de032d52eb4057132"
     },
     {
       "section": 86,
@@ -1983,19 +1780,12 @@
         "src/pages/account-list.ts",
         "supabase/migrations/202609150030_prepaid_fulfillment.sql"
       ],
-      "tests": [
-        "tests/database/reconciliation.test.ts",
-        "tests/e2e/accounts.spec.ts"
-      ],
+      "tests": ["tests/database/reconciliation.test.ts", "tests/e2e/accounts.spec.ts"],
       "external_verification": [
         "Supabase reale e verifiche end-to-end ancora da eseguire; stato non verificato integralmente."
       ],
-      "requirements": [
-        "password Admin;",
-        "conferma;",
-        "motivo;",
-        "audit."
-      ]
+      "requirements": ["password Admin;", "conferma;", "motivo;", "audit."],
+      "source_sha256": "31b0cb8ca44fc92af93b185e8c0216e9bae1058c496d525ceec7a5ee345ae507"
     },
     {
       "section": 87,
@@ -2011,31 +1801,19 @@
         "src/pages/account-list.ts",
         "supabase/migrations/202609150030_prepaid_fulfillment.sql"
       ],
-      "tests": [
-        "tests/database/reconciliation.test.ts",
-        "tests/e2e/accounts.spec.ts"
-      ],
+      "tests": ["tests/database/reconciliation.test.ts", "tests/e2e/accounts.spec.ts"],
       "external_verification": [
         "Supabase reale e verifiche end-to-end ancora da eseguire; stato non verificato integralmente."
       ],
-      "requirements": [
-        "password/autorizzazione;",
-        "motivo;",
-        "audit."
-      ]
+      "requirements": ["password/autorizzazione;", "motivo;", "audit."],
+      "source_sha256": "35e379dd9f69de30d483080ac5917a3d0a88685ba0b0dd3b460f1640dcc6fc89"
     },
     {
       "section": 88,
       "title": "Conto di cortesia",
       "status": "partial",
-      "implementation": [
-        "src/pages/printing.ts",
-        "shared/print-document.ts"
-      ],
-      "tests": [
-        "tests/unit/printing.test.ts",
-        "tests/database/completion.test.ts"
-      ],
+      "implementation": ["src/pages/printing.ts", "shared/print-document.ts"],
+      "tests": ["tests/unit/printing.test.ts", "tests/database/completion.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -2049,20 +1827,15 @@
         "quantità;",
         "prezzi;",
         "totale."
-      ]
+      ],
+      "source_sha256": "7017aca4d58b158f259fc9dcd3cb8893e209fcbbd1be2d1026d578c51297079a"
     },
     {
       "section": 89,
       "title": "Ricevuta finale",
       "status": "partial",
-      "implementation": [
-        "src/pages/printing.ts",
-        "shared/print-document.ts"
-      ],
-      "tests": [
-        "tests/unit/printing.test.ts",
-        "tests/database/completion.test.ts"
-      ],
+      "implementation": ["src/pages/printing.ts", "shared/print-document.ts"],
+      "tests": ["tests/unit/printing.test.ts", "tests/database/completion.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -2080,7 +1853,8 @@
         "totale;",
         "metodi pagamento;",
         "mance separate."
-      ]
+      ],
+      "source_sha256": "dee85a59a3ce7d53807bb75dbbbb7ee99f4d6578da963c910a7957a8af7b0a4b"
     },
     {
       "section": 90,
@@ -2091,9 +1865,7 @@
         "shared/print-authorization.ts",
         "supabase/functions/print-authorization/index.ts"
       ],
-      "tests": [
-        "tests/unit/print-bridge.test.ts"
-      ],
+      "tests": ["tests/unit/print-bridge.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -2106,7 +1878,8 @@
         "stazione;",
         "tipo stampa;",
         "permessi."
-      ]
+      ],
+      "source_sha256": "fce8641ff3ba95408237c3d83e9ab708f61da2672114f7ccb30f3654b7c83a4b"
     },
     {
       "section": 91,
@@ -2116,26 +1889,22 @@
         "src/pages/printing.ts",
         "supabase/migrations/202610030038_print_queue.sql"
       ],
-      "tests": [
-        "tests/database/completion.test.ts",
-        "tests/unit/print-bridge.test.ts"
-      ],
+      "tests": ["tests/database/completion.test.ts", "tests/unit/print-bridge.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
-      "requirements": []
+      "requirements": [],
+      "source_sha256": "a88193802c736b26a6c89edcc621e169a333867e3f7ccb1e04296b1a43099293"
     },
     {
       "section": 92,
       "title": "Statistiche",
-      "status": "partial",
+      "status": "pending",
       "implementation": [
         "src/pages/statistics.ts",
         "supabase/migrations/202610030049_analytics_details.sql"
       ],
-      "tests": [
-        "tests/database/configuration-floor.test.ts"
-      ],
+      "tests": ["tests/database/configuration-floor.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -2153,9 +1922,18 @@
         "tempo medio risposta chiamate;",
         "categorie più vendute;",
         "prenotazioni/no-show;",
+        "reminder inviati/consegnati/falliti;",
+        "conversione lista d'attesa → prenotazione;",
+        "ordini takeaway e valore medio takeaway;",
         "utilizzo capacità per servizio;",
+        "food cost teorico per piatto;",
+        "margine lordo teorico per piatto;",
+        "food cost percentage;",
+        "contributo vendite/margine per menu engineering;",
         "errori/incidenti operativi rilevanti."
-      ]
+      ],
+      "source_text": "# 92. Statistiche\n\nVisibili secondo scope almeno a:\n\n```text\nADMIN\nCASHIER\n```\n\nIn modalità multi-sede:\n\n- utenti `VENUE` vedono solo la propria sede;\n- utenti `CHAIN` autorizzati possono vedere aggregati e confronto sintetico tra sedi.\n\nMetriche:\n\n- fatturato;\n- piatti più venduti;\n- scontrino medio;\n- tempo medio permanenza;\n- tempo medio preparazione piatto;\n- piatti annullati;\n- piatti tornati indietro;\n- chiamate cameriere;\n- tempo medio risposta chiamate;\n- categorie più vendute;\n- prenotazioni/no-show;\n- reminder inviati/consegnati/falliti;\n- conversione lista d'attesa → prenotazione;\n- ordini takeaway e valore medio takeaway;\n- utilizzo capacità per servizio;\n- food cost teorico per piatto;\n- margine lordo teorico per piatto;\n- food cost percentage;\n- contributo vendite/margine per menu engineering;\n- errori/incidenti operativi rilevanti.\n\nNON implementare classifiche o performance individuali dei camerieri.\n\nDefault: dashboard semplice e leggibile. Filtri avanzati possono essere aggiunti solo se non degradano la UX.\n\n---\n\n",
+      "source_sha256": "dce6821369c7871bca1ac498b4edec42232a99c826a56680729d0f425a9f4e73"
     },
     {
       "section": 93,
@@ -2165,33 +1943,25 @@
         "src/pages/technical.ts",
         "supabase/migrations/202610030050_technical_health.sql"
       ],
-      "tests": [
-        "tests/database/configuration-floor.test.ts",
-        "tests/e2e/configuration.spec.ts"
-      ],
+      "tests": ["tests/database/configuration-floor.test.ts", "tests/e2e/configuration.spec.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
-      "requirements": [
-        "Admin;",
-        "Cashier."
-      ]
+      "requirements": ["Admin;", "Cashier."],
+      "source_sha256": "736c10f823b5712292564c1937fd5d3324b18507e7a347ab5bbb0bc5f6387815"
     },
     {
       "section": 94,
       "title": "Feature flags",
-      "status": "partial",
-      "implementation": [
-        "src/pages/technical.ts",
-        "src/pages/operational-settings.ts"
-      ],
-      "tests": [
-        "tests/database/configuration-floor.test.ts"
-      ],
+      "status": "pending",
+      "implementation": ["src/pages/technical.ts", "src/pages/operational-settings.ts"],
+      "tests": ["tests/database/configuration-floor.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
-      "requirements": []
+      "requirements": [],
+      "source_text": "# 94. Feature flags\n\nDue livelli.\n\n## Super Admin / licenza installazione\n\nPuò autorizzare funzionalità per l'installazione:\n\n```text\nMULTI_VENUE\nCLIENT_ORDERING\nSTRIPE\nSATISPAY_API\nOFFLINE\nADVANCED_ROOM_EDITOR\nADVANCED_ANALYTICS\nRESERVATION_MESSAGING\nWhatsApp/Telegram/SMS_MESSAGING\nBOOKING_DEPOSITS\nWAITLIST\nTAKEAWAY\nFOOD_COST\nMENU_PROMOTIONS\nMULTI_MENU_QR\n```\n\n## Admin\n\nPuò attivare/disattivare soltanto feature consentite dal Super Admin e compatibili con il proprio scope.\n\nLe feature flag devono essere server-authoritative e auditabili.\n\n---\n\n",
+      "source_sha256": "5cf3b867ffe7b3eec1561ae978d5301e59d68f8630e7bce2c32c086217456238"
     },
     {
       "section": 95,
@@ -2201,10 +1971,7 @@
         "src/pages/technical.ts",
         "supabase/migrations/202610030051_resource_quotas.sql"
       ],
-      "tests": [
-        "tests/database/configuration-floor.test.ts",
-        "tests/database/completion.test.ts"
-      ],
+      "tests": ["tests/database/configuration-floor.test.ts", "tests/database/completion.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -2216,7 +1983,8 @@
         "storage massimo;",
         "dispositivi registrati;",
         "retention tecnica dove previsto."
-      ]
+      ],
+      "source_sha256": "9d42548552388800efb5a4c572137f7948c99b965a057e9c811955f2b60b4f0b"
     },
     {
       "section": 96,
@@ -2226,9 +1994,7 @@
         "src/pages/technical.ts",
         "supabase/migrations/202610030050_technical_health.sql"
       ],
-      "tests": [
-        "tests/database/foundation.test.ts"
-      ],
+      "tests": ["tests/database/foundation.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -2244,7 +2010,8 @@
         "prenotazioni;",
         "pagamenti;",
         "realtime operativo."
-      ]
+      ],
+      "source_sha256": "bd64e620a486d2ef8001228f2f5714ee340c6cdfe986c6b7e97f4242f3d291aa"
     },
     {
       "section": 97,
@@ -2258,7 +2025,8 @@
         "digitazione del nome del ristorante;",
         "conferma;",
         "backup."
-      ]
+      ],
+      "source_sha256": "d4a576be7326f8d48a2d6c4cf07aa911371ab2c0a149400fbc14c923391ee8fa"
     },
     {
       "section": 98,
@@ -2344,26 +2112,20 @@
       ],
       "verification_notes": [
         "Rehearsal storico del 4 ottobre: 106/106 migration allora sincronizzate, schema/public/Auth/Storage esatto, private-state duraturo fingerprintato e runtime security-state invalidato. Build corrente: 130/130 migration; il rehearsal deve essere rieseguito sulla baseline corrente. Certificazione finale ancora bloccata dal backup cifrato reale + restore-test worker + RPO/RTO osservati + cutover rehearsal."
-      ]
+      ],
+      "source_sha256": "573d5f898b605f1e58908f15119cd53bf02c2c6935ce0a8de5ee18a14c1fd132"
     },
     {
       "section": 99,
       "title": "Impersonazione",
       "status": "partial",
-      "implementation": [
-        "apps/staff/main.ts",
-        "supabase/migrations/202610030041_governance.sql"
-      ],
-      "tests": [
-        "tests/database/foundation.test.ts"
-      ],
+      "implementation": ["apps/staff/main.ts", "supabase/migrations/202610030041_governance.sql"],
+      "tests": ["tests/database/foundation.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
-      "requirements": [
-        "utente impersonato;",
-        "Super Admin reale."
-      ]
+      "requirements": ["utente impersonato;", "Super Admin reale."],
+      "source_sha256": "f0aac7eb4d482d1435cc0748dbe23efb0455b6729f85a52d56e04915d8df2160"
     },
     {
       "section": 100,
@@ -2409,7 +2171,8 @@
         "System;",
         "Edge Functions;",
         "processi automatici."
-      ]
+      ],
+      "source_sha256": "1cc17895a1b93b74e4bdec01662e042129265c905773538155bfc807bdd7cde5"
     },
     {
       "section": 101,
@@ -2420,9 +2183,7 @@
         "OBSERVABILITY.md",
         "supabase/migrations/202610030052_observability.sql"
       ],
-      "tests": [
-        "tests/database/configuration-floor.test.ts"
-      ],
+      "tests": ["tests/database/configuration-floor.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -2433,20 +2194,20 @@
         "errori UI;",
         "funnel e utilizzo feature;",
         "metriche tecniche aggregate."
-      ]
+      ],
+      "source_sha256": "1652eaad1c31df273a330911a06beba5c447547d23071baa99c95dbd90e3d8d1"
     },
     {
       "section": 102,
       "title": "Struttura audit",
       "status": "partial",
-      "implementation": [
-        "supabase/migrations/202609150022_audit_context.sql"
-      ],
+      "implementation": ["supabase/migrations/202609150022_audit_context.sql"],
       "tests": [],
       "external_verification": [
         "Supabase reale e verifiche end-to-end ancora da eseguire; stato non verificato integralmente."
       ],
-      "requirements": []
+      "requirements": [],
+      "source_sha256": "6e0906e444ee8379a3ff92a559e23cdb9f3ae546864f17467b47feb327b51c7b"
     },
     {
       "section": 103,
@@ -2456,29 +2217,19 @@
         "supabase/migrations/202609140003_finance_audit.sql",
         "supabase/migrations/202609150024_audit_search.sql"
       ],
-      "tests": [
-        "tests/database/audit-search.test.ts"
-      ],
+      "tests": ["tests/database/audit-search.test.ts"],
       "external_verification": [
         "Supabase reale e verifiche end-to-end ancora da eseguire; stato non verificato integralmente."
       ],
-      "requirements": [
-        "modificare;",
-        "cancellare;",
-        "sovrascrivere;"
-      ]
+      "requirements": ["modificare;", "cancellare;", "sovrascrivere;"],
+      "source_sha256": "ee394d2016c0f8f2afae76d821edeae45777e3217a251d28c22348c8de42e7f0"
     },
     {
       "section": 104,
       "title": "Dashboard Audit",
       "status": "partial",
-      "implementation": [
-        "supabase/migrations/202609150024_audit_search.sql",
-        "src/pages/audit.ts"
-      ],
-      "tests": [
-        "tests/database/audit-search.test.ts"
-      ],
+      "implementation": ["supabase/migrations/202609150024_audit_search.sql", "src/pages/audit.ts"],
+      "tests": ["tests/database/audit-search.test.ts"],
       "external_verification": [
         "Supabase reale e verifiche end-to-end ancora da eseguire; stato non verificato integralmente."
       ],
@@ -2495,19 +2246,15 @@
         "dettaglio old/new;",
         "impersonazione;",
         "pagination."
-      ]
+      ],
+      "source_sha256": "057695157c09e890a137866e7322ac6a0b395b46ccc1f4221116e41bc443ab2e"
     },
     {
       "section": 105,
       "title": "Dati sensibili audit",
       "status": "partial",
-      "implementation": [
-        "AUDIT.md",
-        "supabase/migrations/202609140003_finance_audit.sql"
-      ],
-      "tests": [
-        "tests/database/reconciliation.test.ts"
-      ],
+      "implementation": ["AUDIT.md", "supabase/migrations/202609140003_finance_audit.sql"],
+      "tests": ["tests/database/reconciliation.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -2522,18 +2269,15 @@
         "Satispay secrets;",
         "CVV;",
         "dati completi carta."
-      ]
+      ],
+      "source_sha256": "61a6a922a23c466f7fd14d79d6e43aaa83b4dc4cfa449237b7d36f843bbdb762"
     },
     {
       "section": 106,
       "title": "Audit automatico",
       "status": "partial",
-      "implementation": [
-        "supabase/migrations/202609140003_finance_audit.sql"
-      ],
-      "tests": [
-        "tests/database/foundation.test.ts"
-      ],
+      "implementation": ["supabase/migrations/202609140003_finance_audit.sql"],
+      "tests": ["tests/database/foundation.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -2551,18 +2295,15 @@
         "restore;",
         "processi automatici;",
         "errori importanti."
-      ]
+      ],
+      "source_sha256": "f1afcdf3fe9b629f0efccf52ea309eb63e89162433829ce6893825897fe8ad0a"
     },
     {
       "section": 107,
       "title": "Scalabilità audit",
       "status": "partial",
-      "implementation": [
-        "supabase/migrations/202609150024_audit_search.sql"
-      ],
-      "tests": [
-        "tests/database/audit-search.test.ts"
-      ],
+      "implementation": ["supabase/migrations/202609150024_audit_search.sql"],
+      "tests": ["tests/database/audit-search.test.ts"],
       "external_verification": [
         "Supabase reale e verifiche end-to-end ancora da eseguire; stato non verificato integralmente."
       ],
@@ -2574,12 +2315,13 @@
         "archiviazione storica;",
         "hot storage;",
         "historical storage."
-      ]
+      ],
+      "source_sha256": "52f84eddfe1d3714d437fe94958998b5e567a7e1b0be5d95f34e10067ab3720d"
     },
     {
       "section": 108,
       "title": "Realtime",
-      "status": "partial",
+      "status": "pending",
       "implementation": [
         "REALTIME.md",
         "src/realtime/live.ts",
@@ -2607,25 +2349,24 @@
         "pagamenti;",
         "casse;",
         "prenotazioni;",
+        "lista d'attesa;",
+        "takeaway;",
         "notifications.",
         "ruolo;",
         "scope sede;",
         "assegnazione;",
         "conto/customer session;",
         "feature attive."
-      ]
+      ],
+      "source_text": "# 108. Realtime\n\nUtilizzare Supabase Realtime per aggiornamenti pertinenti a:\n\n- menu;\n- disponibilità;\n- ordini;\n- cucina;\n- Pass;\n- tavoli;\n- assegnazioni;\n- chiamate;\n- conti;\n- pagamenti;\n- casse;\n- prenotazioni;\n- lista d'attesa;\n- takeaway;\n- notifications.\n\n**PostgreSQL è sempre la fonte autoritativa dello stato. Realtime è un meccanismo di propagazione, non la source of truth.**\n\nOgni risorsa concorrente importante deve avere almeno `updated_at` e, dove utile, `version`/revision.\n\nOgni subscription deve essere autorizzata secondo:\n\n- ruolo;\n- scope sede;\n- assegnazione;\n- conto/customer session;\n- feature attive.\n\nNon creare subscription globali inutili.\n\nDopo reconnect o sospetta perdita eventi:\n\n```text\nreconnect\n→ fetch authoritative snapshot\n→ reconcile local state\n→ resume subscription\n```\n\nNon assumere che un evento Realtime venga sempre ricevuto una sola volta o nell'ordine desiderato.\n\n---\n\n",
+      "source_sha256": "50c901534b91eb6afaa4855d22c889994ff04df3a63d808c26dabbb79ac41e33"
     },
     {
       "section": 109,
       "title": "PWA",
       "status": "partial",
-      "implementation": [
-        "vite.pwa.ts",
-        "src/services/pwa.ts"
-      ],
-      "tests": [
-        "tests/e2e/interface.spec.ts"
-      ],
+      "implementation": ["vite.pwa.ts", "src/services/pwa.ts"],
+      "tests": ["tests/e2e/interface.spec.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -2637,7 +2378,8 @@
         "cache;",
         "gestione aggiornamenti;",
         "stato connessione."
-      ]
+      ],
+      "source_sha256": "04c20ced4929b56200e5db08f567e6ff63d230be77cabf0b620c5dd8f2036327"
     },
     {
       "section": 110,
@@ -2664,7 +2406,8 @@
         "ordini già sincronizzati;",
         "creazione ordini in coda;",
         "operazioni non finanziarie autorizzate."
-      ]
+      ],
+      "source_sha256": "cf2d0951a23651edf7aed72bb2f8925e8241b971bb7b66e1a1f6c4b3135edb22"
     },
     {
       "section": 111,
@@ -2674,10 +2417,7 @@
         "src/pages/offline.ts",
         "supabase/migrations/202610030055_offline_workspace.sql"
       ],
-      "tests": [
-        "tests/database/completion.test.ts",
-        "tests/unit/offline-queue.test.ts"
-      ],
+      "tests": ["tests/database/completion.test.ts", "tests/unit/offline-queue.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -2691,7 +2431,8 @@
         "confrontare revision/version;",
         "gestire conflitti esplicitamente;",
         "non scartare silenziosamente operazioni."
-      ]
+      ],
+      "source_sha256": "059e876a296ccfbe150523521c0f92949e96e2a585015706e98684c1066bd272"
     },
     {
       "section": 112,
@@ -2701,9 +2442,7 @@
         "src/pages/offline.ts",
         "supabase/migrations/202610030039_offline_commands.sql"
       ],
-      "tests": [
-        "tests/database/completion.test.ts"
-      ],
+      "tests": ["tests/database/completion.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -2721,7 +2460,8 @@
         "stato server corrente;",
         "operazione richiesta;",
         "possibili azioni sicure."
-      ]
+      ],
+      "source_sha256": "0d7c8a43e73d746a5cf2bf4a70e15a884dfd4b30d47e0abba9aeb3a135b6f163"
     },
     {
       "section": 113,
@@ -2731,10 +2471,7 @@
         "src/offline/store.ts",
         "supabase/migrations/202610030055_offline_workspace.sql"
       ],
-      "tests": [
-        "tests/database/completion.test.ts",
-        "tests/unit/offline-queue.test.ts"
-      ],
+      "tests": ["tests/database/completion.test.ts", "tests/unit/offline-queue.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -2749,16 +2486,14 @@
         "modifiche amministrative sensibili;",
         "operazioni dopo scadenza authorization snapshot;",
         "operazioni che richiedono server immediato."
-      ]
+      ],
+      "source_sha256": "89c651e274f1abf7732f1a7f9f07cf24e6f638e1aaf574de3f8e6cbed72b85e9"
     },
     {
       "section": 114,
       "title": "Storage",
       "status": "partial",
-      "implementation": [
-        "supabase/functions/asset-upload/index.ts",
-        "src/pages/branding.ts"
-      ],
+      "implementation": ["supabase/functions/asset-upload/index.ts", "src/pages/branding.ts"],
       "tests": [
         "supabase/functions/_tests/assets.test.ts",
         "tests/database/configuration-floor.test.ts"
@@ -2766,7 +2501,8 @@
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
-      "requirements": []
+      "requirements": [],
+      "source_sha256": "74b950a53ce58d144747858c3aa0f7ea646a08ac1caa3d634fec4fde798f61d8"
     },
     {
       "section": 115,
@@ -2869,7 +2605,8 @@
       "verification_notes": [
         "Rehearsal storico del 4 ottobre: 106/106 migration allora sincronizzate, schema/public/Auth/Storage esatto, private-state duraturo fingerprintato e runtime security-state invalidato. Build corrente: 130/130 migration; il rehearsal deve essere rieseguito sulla baseline corrente. Certificazione finale ancora bloccata dal backup cifrato reale + restore-test worker + RPO/RTO osservati + cutover rehearsal.",
         "Il gate `npm run check:step12-rehearsal` è fail-closed sulla baseline corrente 130 / 20261006051256 / 7cb63618015f92a81eac5871e82904a845546f64cf0114d25958a8c09a668e9c e resta bloccato finché backup reale, restore-test, RPO/RTO e cutover rehearsal non sono tutti documentati."
-      ]
+      ],
+      "source_sha256": "0ad97765b9b86d77ad56d3004759d486c4953493477cabb75f157ac21d071b6b"
     },
     {
       "section": 116,
@@ -2950,7 +2687,8 @@
       "verification_notes": [
         "Rehearsal storico del 4 ottobre: 106/106 migration allora sincronizzate, schema/public/Auth/Storage esatto, private-state duraturo fingerprintato e runtime security-state invalidato. Build corrente: 130/130 migration; il rehearsal deve essere rieseguito sulla baseline corrente. Certificazione finale ancora bloccata dal backup cifrato reale + restore-test worker + RPO/RTO osservati + cutover rehearsal.",
         "Il gate `npm run check:step12-rehearsal` è fail-closed sulla baseline corrente 130 / 20261006051256 / 7cb63618015f92a81eac5871e82904a845546f64cf0114d25958a8c09a668e9c e resta bloccato finché backup reale, restore-test, RPO/RTO e cutover rehearsal non sono tutti documentati."
-      ]
+      ],
+      "source_sha256": "5dfc9872888e2c6ee58dfe3c4f3e46731612ce6036e8a9633c66fd9e28edd9fd"
     },
     {
       "section": 117,
@@ -2993,7 +2731,8 @@
         "separazione ambienti;",
         "secret rotation procedure;",
         "security tests automatizzati."
-      ]
+      ],
+      "source_sha256": "1b6ffeb8b943b6c1c3e7cd690b03ccfc8b82c780330a64256f7111e164d8ec58"
     },
     {
       "section": 118,
@@ -3003,13 +2742,12 @@
         "src/api/client.ts",
         "supabase/migrations/202609140006_accounts_orders.sql"
       ],
-      "tests": [
-        "tests/database/service.test.ts"
-      ],
+      "tests": ["tests/database/service.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
-      "requirements": []
+      "requirements": [],
+      "source_sha256": "6fd74feed462f84997001d96d09ff0fb0ff1831ade55de77b595f400e48e44e6"
     },
     {
       "section": 119,
@@ -3030,18 +2768,14 @@
       "external_verification": [
         "Supabase reale e verifiche end-to-end ancora da eseguire; stato non verificato integralmente."
       ],
-      "requirements": [
-        "integer cents;",
-        "PostgreSQL numeric appropriato."
-      ]
+      "requirements": ["integer cents;", "PostgreSQL numeric appropriato."],
+      "source_sha256": "9422f33a6a584b1c46a4482c39fd55d7c2ac43f2940dd8a836804433fe515f2f"
     },
     {
       "section": 120,
       "title": "Database",
-      "status": "partial",
-      "implementation": [
-        "supabase/migrations"
-      ],
+      "status": "pending",
+      "implementation": ["supabase/migrations"],
       "tests": [],
       "external_verification": [],
       "requirements": [
@@ -3050,15 +2784,15 @@
         "availability;",
         "local_station;",
         "temporal availability."
-      ]
+      ],
+      "source_text": "# 120. Database\n\nCreare schema PostgreSQL professionale, normalizzato e versionato tramite migration.\n\nPrevedere almeno tabelle equivalenti a:\n\n```text\nrestaurant_profile\nrestaurant_settings\nvenues\nvenue_settings\nfeature_flags\nsystem_limits\n\nusers\nstaff_profiles\nstaff_venue_assignments\nstaff_pins\nshifts\nmfa_metadata_if_needed\nregistered_devices\n\nservices\nservice_booking_rules\nbooking_time_slots\n\nrooms\nroom_layouts\nzones\ntables\ntable_status_definitions\ntable_assignments\ntable_merges\n\nreservations\nreservation_form_definitions\nreservation_form_fields\nreservation_answers\nreservation_reminder_rules\nreservation_message_templates\nreservation_message_jobs\nreservation_message_deliveries\nreservation_deposit_policies\nreservation_deposits\nwaitlist_entries\nwaitlist_offers\n\ncategories\ndishes\ningredients\nallergens\ningredient_allergens\ndish_ingredients\nrecipe_items\ningredient_cost_history\ndish_cost_snapshots\nremovable_ingredients\ndietary_tags\ndish_dietary_tags\nvariant_groups\nvariant_options\nvenue_dish_settings\nmenus\nmenu_categories\nmenu_dishes\nmenu_public_qr_codes\nmenu_promotions\nmenu_promotion_targets\n\nstations\ndish_station_assignments\n\naccounts\ncustomer_access_codes\ncustomer_sessions\n\norders\norder_steps\norder_items\ntakeaway_orders_or_order_context\ntakeaway_pickup_slots\norder_item_removed_ingredients\norder_item_variants\norder_change_requests\n\nwaiter_calls\nnotifications\n\ncash_registers\ncash_register_sessions\nservice_sessions\ncash_reconciliations\n\npayments\npayment_allocations\ntips\nrefunds\ndiscounts\naccount_splits\n\nprint_devices\nprint_jobs\n\naudit_log\ntelemetry_events_or_external_sink\n\noffline_sync_events\noffline_authorization_snapshots\nsync_conflicts\n\nsystem_errors\nsystem_metrics_if_persisted\nincidents\nincident_events\n\nbackup_metadata\nrestore_jobs\n\napplication_releases\ndatabase_migrations_metadata\n```\n\n`restaurant_profile` rappresenta la singola catena/brand dell'installazione ed è singleton.\n\n`venues` contiene una o più sedi della stessa catena.\n\n`restaurant_settings` e `system_limits` sono singleton a livello installazione.\n\n`feature_flags` contiene feature dell'installazione, inclusa `MULTI_VENUE`.\n\nQuando `MULTI_VENUE = false`, vincoli server/database devono impedire una seconda sede attiva.\n\nLe entità location-scoped devono avere `venue_id` direttamente quando utile per sicurezza, performance e chiarezza, oppure derivarlo tramite una relazione forte e non ambigua.\n\nMenu: mantenere catalogo condiviso e usare `venue_dish_settings` soltanto per override realmente necessari, come:\n\n- enabled;\n- local_price;\n- availability;\n- local_station;\n- temporal availability.\n\nNon duplicare l'intero piatto per sede senza necessità.\n\nFood cost: mantenere separati costo corrente dell'ingrediente, storico dei costi e snapshot calcolati del piatto. Le quantità di ricetta devono usare unità normalizzate e conversioni esplicite.\n\nMenu multipli: `menus` e relative tabelle di relazione organizzano lo stesso catalogo in viste differenti senza clonare `dishes`.\n\nTakeaway: preferire, se coerente con lo schema finale, un unico modello `orders` con contesto/source esplicito anziché duplicare tutta la logica ordine; una tabella dedicata può contenere solo i dati specifici del ritiro.\n\n---\n\n",
+      "source_sha256": "59c0f1d993e7bb9d742c09400d1eff587f2f3fe0b938de9039a0decde09d9ce0"
     },
     {
       "section": 121,
       "title": "RLS",
       "status": "partial",
-      "implementation": [
-        "supabase/migrations/202609140004_authorization.sql"
-      ],
+      "implementation": ["supabase/migrations/202609140004_authorization.sql"],
       "tests": [],
       "external_verification": [],
       "requirements": [
@@ -3078,36 +2812,28 @@
         "Customer → esclusivamente proprio conto/sessione;",
         "Super Admin → privilegi tecnici controllati;",
         "Audit → append-only tramite percorsi autorizzati, update/delete vietati."
-      ]
+      ],
+      "source_sha256": "2d4cfdf2c0fc8c9b9cd952e53552159000973aae6f7e02ae8962d874e0672b04"
     },
     {
       "section": 122,
       "title": "RPC / Edge Functions critiche",
-      "status": "partial",
-      "implementation": [
-        "supabase/functions",
-        "supabase/migrations"
-      ],
-      "tests": [
-        "tests/database/completion.test.ts",
-        "supabase/functions/_tests/http.test.ts"
-      ],
+      "status": "pending",
+      "implementation": ["supabase/functions", "supabase/migrations"],
+      "tests": ["tests/database/completion.test.ts", "supabase/functions/_tests/http.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
-      "requirements": []
+      "requirements": [],
+      "source_text": "# 122. RPC / Edge Functions critiche\n\nCreare operazioni authoritative per:\n\n```text\ncreate_staff_user\nreset_staff_password\n\ncreate_account\nregenerate_account_code\n\ncreate_order\ncreate_customer_order_request\napprove_customer_order\nreject_customer_order\n\ncreate_takeaway_order\napprove_takeaway_order\nreject_takeaway_order\nreserve_takeaway_pickup_slot\nupdate_takeaway_status\n\nmodify_order\nrequest_order_change\napprove_order_change\n\ndecrement_availability\n\ncreate_reservation_with_policy\ncreate_reservation_deposit\nconfirm_reservation_deposit\nqueue_reservation_reminder\nprocess_reservation_reminder\ncreate_waitlist_entry\noffer_waitlist_slot\naccept_waitlist_offer\nexpire_waitlist_offer\n\nrecalculate_dish_food_cost\ncreate_dish_cost_snapshot\n\ncreate_menu_public_qr\ncreate_menu_promotion\n\nassign_table\nmove_table\nmerge_tables\nsplit_tables\n\ncall_waiter\n\nopen_cash_register\nclose_cash_register\n\nopen_service_session\nclose_service_session\napprove_cash_difference\n\nsplit_account\nmerge_accounts\nmove_account_items\n\ncreate_payment\nconfirm_payment\ncancel_manual_payment\n\ncreate_refund\napprove_refund\n\nforce_close_account\nreopen_account\n\ncreate_print_job\n\ncreate_backup\nrestore_backup\n```\n\nOperazioni composte devono essere atomiche.\n\n---\n\n",
+      "source_sha256": "ddf8c2863d67f6e4a4e943569db3bf8fe949b9f29931443f955c2a3d6158d01d"
     },
     {
       "section": 123,
       "title": "State machine",
-      "status": "partial",
-      "implementation": [
-        "src/services/state-machine.ts"
-      ],
-      "tests": [
-        "tests/unit/domain.test.ts",
-        "tests/database/service.test.ts"
-      ],
+      "status": "pending",
+      "implementation": ["src/services/state-machine.ts"],
+      "tests": ["tests/unit/domain.test.ts", "tests/database/service.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -3115,6 +2841,10 @@
         "installazione, inclusi sospensione e ciclo di vita;",
         "configurazione di pubblicazione dei due host, se il provider scelto richiede un workflow applicativo;",
         "prenotazione;",
+        "caparra prenotazione;",
+        "reminder/messaggio prenotazione;",
+        "lista d'attesa/offerta lista d'attesa;",
+        "takeaway;",
         "tavolo;",
         "conto;",
         "ordine;",
@@ -3128,20 +2858,16 @@
         "stampa;",
         "backup;",
         "restore."
-      ]
+      ],
+      "source_text": "# 123. State machine\n\nDefinire state machine esplicite per:\n\n- installazione, inclusi sospensione e ciclo di vita;\n- configurazione di pubblicazione dei due host, se il provider scelto richiede un workflow applicativo;\n- prenotazione;\n- caparra prenotazione;\n- reminder/messaggio prenotazione;\n- lista d'attesa/offerta lista d'attesa;\n- takeaway;\n- tavolo;\n- conto;\n- ordine;\n- item;\n- step;\n- chiamata;\n- pagamento;\n- rimborso;\n- cassa;\n- servizio;\n- stampa;\n- backup;\n- restore.\n\nNon consentire transizioni arbitrarie.\n\n---\n\n",
+      "source_sha256": "959ca77f8341ea042be129d49802baeccef4af94af3413062f26e23741f3e5c0"
     },
     {
       "section": 124,
       "title": "UX per ruolo e performance operativa",
       "status": "partial",
-      "implementation": [
-        "apps/staff/main.ts",
-        "src/components/floor-view.ts"
-      ],
-      "tests": [
-        "tests/e2e/staff-operations.spec.ts",
-        "tests/e2e/configuration.spec.ts"
-      ],
+      "implementation": ["apps/staff/main.ts", "src/components/floor-view.ts"],
+      "tests": ["tests/e2e/staff-operations.spec.ts", "tests/e2e/configuration.spec.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -3183,15 +2909,14 @@
         "operazioni lente devono avere request/correlation id recuperabile;",
         "touch target almeno adeguati a dispositivi operativi;",
         "niente dipendenza esclusiva dal colore per gli stati."
-      ]
+      ],
+      "source_sha256": "7c3d01e55c25269af0a757930cf5d6ab3da789bb16a28cef00a348b92e6cb2ad"
     },
     {
       "section": 125,
       "title": "Design system Plateform",
       "status": "partial",
-      "implementation": [
-        "styles"
-      ],
+      "implementation": ["styles"],
       "tests": [],
       "external_verification": [],
       "requirements": [
@@ -3238,20 +2963,15 @@
         "120–220 ms per transizioni comuni;",
         "niente animazioni decorative durante flussi operativi;",
         "rispettare `prefers-reduced-motion`."
-      ]
+      ],
+      "source_sha256": "c3e329f8ca528a539fdc2108584fa458e7b3d5580254579cfd57266dd98830e1"
     },
     {
       "section": 126,
       "title": "Accessibilità",
       "status": "partial",
-      "implementation": [
-        "src/components/dom.ts",
-        "src/components/floor-view.ts"
-      ],
-      "tests": [
-        "tests/e2e/staff-operations.spec.ts",
-        "tests/e2e/interface.spec.ts"
-      ],
+      "implementation": ["src/components/dom.ts", "src/components/floor-view.ts"],
+      "tests": ["tests/e2e/staff-operations.spec.ts", "tests/e2e/interface.spec.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -3263,7 +2983,8 @@
         "label corrette;",
         "target touch grandi;",
         "messaggi errore chiari."
-      ]
+      ],
+      "source_sha256": "4bcac6d2443712c2f701f955fbce8d5a02a40845cfc3c78356259f2f7e716b97"
     },
     {
       "section": 127,
@@ -3292,32 +3013,24 @@
         "queue offline;",
         "web vital del sito pubblico;",
         "performance dei flussi staff principali."
-      ]
+      ],
+      "source_sha256": "e271234b9f6be61f1116f0ce5150331f1608b7f379bd3dc5a34af9177f818433"
     },
     {
       "section": 128,
       "title": "Error handling",
       "status": "partial",
-      "implementation": [
-        "src/api/client.ts"
-      ],
+      "implementation": ["src/api/client.ts"],
       "tests": [],
       "external_verification": [],
-      "requirements": [
-        "SQL;",
-        "stack trace;",
-        "segreti;",
-        "dettagli infrastrutturali sensibili."
-      ]
+      "requirements": ["SQL;", "stack trace;", "segreti;", "dettagli infrastrutturali sensibili."],
+      "source_sha256": "eb860435a070fbc135964c8b37dec62eb6f35e3c84d4d04b5cb3a1ec1c7dd946"
     },
     {
       "section": 129,
       "title": "Testing",
-      "status": "partial",
-      "implementation": [
-        "TESTING.md",
-        "tests"
-      ],
+      "status": "pending",
+      "implementation": ["TESTING.md", "tests"],
       "tests": [],
       "external_verification": [],
       "requirements": [
@@ -3331,6 +3044,13 @@
         "codici conto;",
         "sconti;",
         "booking pacing;",
+        "calcolo food cost e conversioni unità;",
+        "margine piatto;",
+        "classificazione menu engineering;",
+        "regole reminder;",
+        "policy caparra;",
+        "priorità lista d'attesa;",
+        "capacità slot takeaway;",
         "scope chain/venue;",
         "conflict resolution pure logic.",
         "RLS;",
@@ -3344,7 +3064,11 @@
         "realtime;",
         "multi-venue isolation;",
         "idempotenza;",
-        "migrations.",
+        "migrations;",
+        "provider messaggistica tramite adapter/mock affidabili;",
+        "webhook/callback caparra;",
+        "calcolo food cost con storico costi;",
+        "takeaway + disponibilità atomica.",
         "mono-sede senza selettore;",
         "attivazione multi-sede;",
         "utente assegnato a una sola sede;",
@@ -3353,11 +3077,22 @@
         "menu con override per sede;",
         "booking pacing;",
         "grande gruppo in REQUESTED;",
+        "reminder prenotazione senza duplicati;",
+        "conferma WhatsApp/Telegram/SMS/messaggistica;",
+        "caparra prenotazione;",
+        "no-show dopo grace period;",
+        "lista d'attesa → offerta → prenotazione;",
+        "takeaway → cucina → READY_FOR_PICKUP → COLLECTED;",
+        "food cost e menu engineering con dataset controllato;",
+        "popup/promozione menu con periodo di validità;",
+        "QR menu differenti;",
         "Notification Center;",
         "Conflict Center;",
         "MFA Super Admin;",
         "command palette e scorciatoie critiche dove automatizzabili."
-      ]
+      ],
+      "source_text": "# 129. Testing\n\nCreare test reali automatici.\n\n## Unit\n\n- disponibilità;\n- allergeni;\n- totali;\n- mance;\n- rimborsi;\n- varianti;\n- state machine;\n- codici conto;\n- sconti;\n- booking pacing;\n- calcolo food cost e conversioni unità;\n- margine piatto;\n- classificazione menu engineering;\n- regole reminder;\n- policy caparra;\n- priorità lista d'attesa;\n- capacità slot takeaway;\n- scope chain/venue;\n- conflict resolution pure logic.\n\n## Integration\n\n- RLS;\n- Supabase;\n- RPC;\n- Edge Functions;\n- audit;\n- storage;\n- auth;\n- MFA paths;\n- realtime;\n- multi-venue isolation;\n- idempotenza;\n- migrations;\n- provider messaggistica tramite adapter/mock affidabili;\n- webhook/callback caparra;\n- calcolo food cost con storico costi;\n- takeaway + disponibilità atomica.\n\n## E2E\n\nTestare tutti i flussi principali già definiti nel master prompt e aggiungere:\n\n- mono-sede senza selettore;\n- attivazione multi-sede;\n- utente assegnato a una sola sede;\n- utente multi-sede;\n- accesso cross-venue negato;\n- menu con override per sede;\n- booking pacing;\n- grande gruppo in REQUESTED;\n- reminder prenotazione senza duplicati;\n- conferma WhatsApp/Telegram/SMS/messaggistica;\n- caparra prenotazione;\n- no-show dopo grace period;\n- lista d'attesa → offerta → prenotazione;\n- takeaway → cucina → READY_FOR_PICKUP → COLLECTED;\n- food cost e menu engineering con dataset controllato;\n- popup/promozione menu con periodo di validità;\n- QR menu differenti;\n- Notification Center;\n- Conflict Center;\n- MFA Super Admin;\n- command palette e scorciatoie critiche dove automatizzabili.\n\n## Chaos / failure tests\n\nSimulare almeno:\n\n```text\ndatabase indisponibile durante operazione\nRealtime disconnesso durante servizio\nbrowser chiuso dopo create_payment ma prima della risposta\nwebhook pagamento duplicato\nwebhook pagamento fuori ordine\ndue casse tentano stesso pagamento\ndue device ordinano ultima porzione\nstampante offline dopo enqueue\nutente revocato mentre dispositivo è offline\nretry Edge Function\nnetwork timeout dopo commit server\nprovider WhatsApp/Telegram/SMS indisponibile durante reminder\ncallback caparra duplicata o fuori ordine\ndue clienti accettano l'ultimo slot di lista d'attesa\ndue clienti tentano l'ultimo slot takeaway\ncosto ingrediente aggiornato durante calcolo analytics\n```\n\nIl sistema deve privilegiare integrità e riconciliazione rispetto a una falsa sensazione di successo.\n\n---\n\n",
+      "source_sha256": "849c933d1551321c9dfed33a136b2fb7bdc76e56d5880461e006f152cef0059d"
     },
     {
       "section": 130,
@@ -3379,15 +3114,14 @@
         "nessuno può modificare o cancellare audit;",
         "eventi di pura navigazione vanno in telemetry, non nell'audit di sicurezza;",
         "dati sensibili sono redatti/minimizzati."
-      ]
+      ],
+      "source_sha256": "4e9add8dc4e5206ea419884d606a78867b1641eaf4e1f56e6f38e07eb7cdc3fb"
     },
     {
       "section": 131,
       "title": "Security test",
       "status": "partial",
-      "implementation": [
-        "tests/database"
-      ],
+      "implementation": ["tests/database"],
       "tests": [],
       "external_verification": [],
       "requirements": [
@@ -3414,22 +3148,21 @@
         "replay idempotency key;",
         "escalation di scope;",
         "venue_id manipolato dal client."
-      ]
+      ],
+      "source_sha256": "e6c676ade04d28314e0dc54fb2f6ab78964168d9f9d219744bac2e6968fe1216"
     },
     {
       "section": 132,
       "title": "Struttura progetto suggerita",
-      "status": "partial",
-      "implementation": [
-        "README.md",
-        "ARCHITECTURE.md",
-        "tools/print-bridge/README.md"
-      ],
+      "status": "pending",
+      "implementation": ["README.md", "ARCHITECTURE.md", "tools/print-bridge/README.md"],
       "tests": [],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
-      "requirements": []
+      "requirements": [],
+      "source_text": "# 132. Struttura progetto suggerita\n\n```text\nplateform/\n│\n├── apps/\n│   ├── public/\n│   └── staff/\n│\n├── src/\n│   ├── config/\n│   ├── types/\n│   ├── api/\n│   ├── auth/\n│   ├── mfa/\n│   ├── permissions/\n│   ├── venues/\n│   ├── audit/\n│   ├── telemetry/\n│   ├── observability/\n│   ├── notifications/\n│   ├── incidents/\n│   ├── components/\n│   ├── services/\n│   ├── realtime/\n│   ├── offline/\n│   ├── conflicts/\n│   ├── room-editor/\n│   ├── payments/\n│   ├── printing/\n│   ├── reservations/\n│   ├── messaging/\n│   ├── waitlist/\n│   ├── takeaway/\n│   ├── food-cost/\n│   ├── menu-promotions/\n│   ├── utils/\n│   └── pages/\n│\n├── styles/\n│   ├── tokens.css\n│   ├── reset.css\n│   ├── base.css\n│   ├── components.css\n│   ├── layouts.css\n│   ├── utilities.css\n│   └── responsive.css\n│\n├── assets/\n│\n├── supabase/\n│   ├── migrations/\n│   ├── seed/\n│   ├── functions/\n│   ├── policies/\n│   └── tests/\n│\n├── tests/\n│   ├── unit/\n│   ├── integration/\n│   ├── e2e/\n│   ├── security/\n│   └── chaos/\n│\n├── scripts/\n│   ├── deploy/\n│   ├── backup/\n│   └── restore-test/\n│\n├── .github/workflows/  # se GitHub Actions è il CI scelto\n├── .env.example\n├── package.json\n├── tsconfig.json\n├── eslint.config.*\n├── README.md\n├── ARCHITECTURE.md\n├── DATABASE.md\n├── SECURITY.md\n├── PRIVACY.md\n├── AUDIT.md\n├── OBSERVABILITY.md\n├── OFFLINE.md\n├── DEPLOYMENT.md\n├── OPERATIONS.md\n├── RUNBOOK.md\n├── BACKUP_RESTORE.md\n├── INCIDENT_RESPONSE.md\n├── TESTING.md\n└── CHANGELOG.md\n```\n\nLa struttura può essere migliorata senza perdere modularità.\n\nServire l'ingresso pubblico su `dominio.it` e l'ingresso staff sulla radice di `staff.dominio.it`.\n\n---\n\n",
+      "source_sha256": "d57c36f4c6415dbaabd4b7285440a00a54604165ac187bf8e5dae2c8259113bb"
     },
     {
       "section": 133,
@@ -3546,18 +3279,18 @@
         "security;",
         "chaos;",
         "release gates."
-      ]
+      ],
+      "source_sha256": "9a1ec0e1f90989ed47aa464ecdb436c9f96e7cc62c48e169009ede2070cfdf86"
     },
     {
       "section": 134,
       "title": "Prima del codice",
       "status": "partial",
-      "implementation": [
-        "ARCHITECTURE.md"
-      ],
+      "implementation": ["ARCHITECTURE.md"],
       "tests": [],
       "external_verification": [],
-      "requirements": []
+      "requirements": [],
+      "source_sha256": "429298740b6f060e94b22aed382a4bc48818a2a854273f2c30c1705a3addf95b"
     },
     {
       "section": 135,
@@ -3566,7 +3299,9 @@
       "implementation": [],
       "tests": [],
       "external_verification": [],
-      "requirements": []
+      "requirements": [],
+      "source_text": "# 135. Ordine di sviluppo obbligatorio\n\nLa sicurezza e l'observability devono essere trasversali, non fasi finali.\n\nProcedere indicativamente:\n\n1. architettura + threat model;\n2. ambienti development/staging/production;\n3. schema PostgreSQL + migration framework;\n4. RLS baseline + security tests;\n5. Auth + MFA + scope catena/sede;\n6. setup catena + prima sede;\n7. audit + telemetry separation;\n8. observability baseline;\n9. Super Admin;\n10. Admin;\n11. dominio pubblico/staff;\n12. menu/catalogo + venue overrides;\n13. sala;\n14. servizi;\n15. prenotazioni + pacing;\n16. Host;\n17. tavoli;\n18. waiter assignments;\n19. conti + codici;\n20. cliente;\n21. ordini;\n22. disponibilità;\n23. cucina;\n24. stazioni;\n25. Pass;\n26. Realtime + reconciliation;\n27. Notification Center;\n28. casse;\n29. quadrature;\n30. pagamenti;\n31. mance;\n32. Stripe;\n33. Satispay;\n34. rimborsi;\n35. stampa;\n36. statistiche;\n37. reminder e messaggistica prenotazioni;\n38. caparre prenotazione + gestione no-show;\n39. lista d'attesa;\n40. menu multipli + QR menu + promozioni;\n41. ricettario + food cost + menu engineering;\n42. takeaway;\n43. PWA;\n44. offline authorization;\n45. queue/sync;\n46. Conflict Center;\n47. backup + restore test;\n48. sito pubblico;\n49. CI/CD e release gates definitivi;\n50. E2E/security/chaos testing;\n51. operational runbook e incident response;\n52. documentazione commerciale/tecnica finale.\n\nAd ogni fase:\n\n```text\nimplementazione\n→ test\n→ security review\n→ observability\n→ documentazione minima\n→ merge\n```\n\nNon costruire prima l'interfaccia per poi aggiungere sicurezza alla fine.\n\n---\n\n",
+      "source_sha256": "97fd0c3cf630275b05298c7ca5b0ec5620f2ed07ebbef9bc7fdac5d833d24c05"
     },
     {
       "section": 136,
@@ -3575,7 +3310,9 @@
       "implementation": [],
       "tests": [],
       "external_verification": [],
-      "requirements": []
+      "requirements": [],
+      "source_text": "# 136. Funzionalità complete obbligatorie\n\nIl prodotto finale deve supportare realmente questi flussi:\n\n```text\nVISITATORE\n→ HOME PUBBLICA DEL RISTORANTE\n→ MENU / CONTENUTI / CONTATTI / PRENOTAZIONI SE ABILITATE\n```\n\n```text\nSUPER ADMIN\n→ CONFIGURA L'UNICO RISTORANTE E I DATI DELLA SUA SEDE\n→ CONFIGURA DOMINIO.IT E STAFF.DOMINIO.IT\n→ CREA ADMIN\n```\n\n```text\nADMIN\n→ CONFIGURA SALA\n→ CONFIGURA STAFF\n→ CONFIGURA SERVIZI\n→ CONFIGURA MENU\n```\n\n```text\nCLIENTE\n→ PRENOTA\n→ HOST\n→ ASSEGNA TAVOLO\n```\n\n```text\nCAMERIERE\n→ CREA CONTO\n→ CODICE CONTO\n```\n\n```text\nQR\n→ CODICE\n→ SESSIONE CLIENTE\n```\n\n```text\nCAMERIERE/CLIENTE\n→ ORDINE\n→ DISPONIBILITÀ\n→ STAZIONE\n```\n\n```text\nCUCINA\n→ PASS\n→ RUNNER/WAITER\n→ SERVIZIO\n```\n\n```text\nCLIENTE\n→ CHIAMA CAMERIERE\n→ WAITER CORRETTO\n```\n\n```text\nCONTO\n→ CASSA\n→ DIVISIONE\n→ PAGAMENTO\n→ MANCIA\n```\n\n```text\nPAGAMENTO\n→ RICEVUTA\n→ CHIUSURA\n```\n\n```text\nSERVIZIO\n→ QUADRATURA\n→ DIFFERENZA\n→ APPROVAZIONE ADMIN\n→ CHIUSURA\n```\n\n```text\nPAGAMENTO\n→ RIMBORSO\n→ PASSWORD ADMIN\n```\n\n```text\nPRENOTAZIONE\n→ CONFERMA / REMINDER\n→ EVENTUALE CAPARRA\n→ ARRIVO O NO_SHOW\n```\n\n```text\nLISTA D'ATTESA\n→ DISPONIBILITÀ LIBERATA\n→ OFFERTA\n→ CONFERMA ATOMICA\n→ PRENOTAZIONE\n```\n\n```text\nTAKEAWAY\n→ SLOT RITIRO\n→ ORDINE\n→ DISPONIBILITÀ\n→ CUCINA\n→ READY_FOR_PICKUP\n→ RITIRO\n```\n\n```text\nRICETTA\n→ COSTI INGREDIENTI\n→ FOOD COST PIATTO\n→ MARGINE\n→ MENU ENGINEERING\n```\n\n```text\nMENU DIGITALE\n→ MENU SPECIFICO / QR SPECIFICO\n→ PIATTI IN EVIDENZA / PROMOZIONI\n```\n\n```text\nQUALSIASI OPERAZIONE\n→ AUDIT LOG\n```\n\n```text\nSUPER ADMIN\n→ IMPERSONAZIONE READ ONLY\n→ ABILITA INTERVENTO\n```\n\n```text\nOFFLINE\n→ QUEUE\n→ RECONNECT\n→ SYNC\n```\n\n```text\nBACKUP\n→ RESTORE\n→ AUDIT\n```\n\n---\n\n",
+      "source_sha256": "4eebbaf091792d139ee3aa416d15b11042be481613348c1cc433899a0a24914d"
     },
     {
       "section": 137,
@@ -3608,17 +3345,14 @@
         "non esiste un secondo cliente/catena nello stesso database production;",
         "home pubblica e staff host funzionano correttamente;",
         "documentazione operativa e runbook sono utilizzabili."
-      ]
+      ],
+      "source_sha256": "9865c9a386928ecd97547c7f8609fa271a7bdb4f16e590ffe862c85b28d1b4e0"
     },
     {
       "section": 138,
       "title": "Ambienti: Development, Staging, Production",
       "status": "partial",
-      "implementation": [
-        "DEPLOYMENT.md",
-        ".env.example",
-        "src/config/environment.ts"
-      ],
+      "implementation": ["DEPLOYMENT.md", ".env.example", "src/config/environment.ts"],
       "tests": [],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
@@ -3630,7 +3364,8 @@
         "Storage separato;",
         "dataset di test non contenente copie indiscriminate di dati personali production;",
         "configurazioni provider pagamenti coerenti con sandbox/live."
-      ]
+      ],
+      "source_sha256": "7fd5e909d16de5a48398f80afd01249fddad33919b828a8347b2c76cf55ef03a"
     },
     {
       "section": 139,
@@ -3642,9 +3377,7 @@
         "scripts/package-release.mjs",
         "scripts/release-archive.py"
       ],
-      "tests": [
-        "tests/unit/release.test.ts"
-      ],
+      "tests": ["tests/unit/release.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -3654,21 +3387,15 @@
         "schema migration;",
         "payment change;",
         "security change."
-      ]
+      ],
+      "source_sha256": "10ad3bc90e58c90e0115a50c05579ebc23a7d5e7f756197c92df4c4af3aeb844"
     },
     {
       "section": 140,
       "title": "Migrazioni database e rollback",
       "status": "partial",
-      "implementation": [
-        "DATABASE.md",
-        "DEPLOYMENT.md",
-        "supabase/migrations"
-      ],
-      "tests": [
-        "tests/database/harness.ts",
-        "tests/database/billing.test.ts"
-      ],
+      "implementation": ["DATABASE.md", "DEPLOYMENT.md", "supabase/migrations"],
+      "tests": ["tests/database/harness.ts", "tests/database/billing.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -3678,7 +3405,8 @@
         "staging rehearsal;",
         "piano rollback/roll-forward;",
         "finestra operativa appropriata."
-      ]
+      ],
+      "source_sha256": "5a26f81de0adc6a1df5d15c2053cc04114fb2fbf63389ab4e9edab492d797b52"
     },
     {
       "section": 141,
@@ -3690,10 +3418,7 @@
         "supabase/functions/maintenance/index.ts",
         "supabase/migrations/202610030054_privacy_retention.sql"
       ],
-      "tests": [
-        "tests/database/privacy.test.ts",
-        "tests/e2e/configuration.spec.ts"
-      ],
+      "tests": ["tests/database/privacy.test.ts", "tests/e2e/configuration.spec.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -3716,7 +3441,8 @@
         "customer sessions scadute;",
         "IP/user-agent nei log;",
         "telemetry."
-      ]
+      ],
+      "source_sha256": "de14bcbe24d7c9b5ca9c6f85f46cd1d779a1db6f0eed8703f9721c08570a8444"
     },
     {
       "section": 142,
@@ -3778,7 +3504,8 @@
         "sync conflicts;",
         "auth failure;",
         "active sessions."
-      ]
+      ],
+      "source_sha256": "233b0f449b2d18ac84bb4f7ea963e94b2e14bec436561f0fb2321adb1332fb30"
     },
     {
       "section": 143,
@@ -3838,7 +3565,8 @@
         "azioni;",
         "risoluzione;",
         "postmortem quando necessario."
-      ]
+      ],
+      "source_sha256": "213617bbfd617577ad990f85fb2de041d69f2baa6288c777a2f717a7a2d817d7"
     },
     {
       "section": 144,
@@ -3848,24 +3576,19 @@
         "src/pages/staff-management.ts",
         "supabase/migrations/202610030052_observability.sql"
       ],
-      "tests": [
-        "tests/database/devices.test.ts"
-      ],
+      "tests": ["tests/database/devices.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
-      "requirements": []
+      "requirements": [],
+      "source_sha256": "2b2c8ffd0d6c52a77326d6e27d95cf2cc78d58be31c33e6147b8bf3c99779afb"
     },
     {
       "section": 145,
       "title": "Command Palette e ricerca globale",
       "status": "partial",
-      "implementation": [
-        "apps/staff/main.ts"
-      ],
-      "tests": [
-        "tests/database/configuration-floor.test.ts"
-      ],
+      "implementation": ["apps/staff/main.ts"],
+      "tests": ["tests/database/configuration-floor.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -3879,19 +3602,15 @@
         "casse;",
         "sedi;",
         "impostazioni."
-      ]
+      ],
+      "source_sha256": "b35bf35e264b8170bf075e5a877f6e7471cd8efc220369c0acfc9ddf1594c494"
     },
     {
       "section": 146,
       "title": "Reservation Operations avanzate",
       "status": "partial",
-      "implementation": [
-        "src/pages/reservation-editor.ts",
-        "src/pages/host.ts"
-      ],
-      "tests": [
-        "tests/e2e/staff-operations.spec.ts"
-      ],
+      "implementation": ["src/pages/reservation-editor.ts", "src/pages/host.ts"],
+      "tests": ["tests/e2e/staff-operations.spec.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -3904,33 +3623,27 @@
         "no-show;",
         "walk-in;",
         "preassegnazione tavolo."
-      ]
+      ],
+      "source_sha256": "5d4224976a82f21a2287c7373709e6c113fa94528ff4c9046142e7fb18dc826c"
     },
     {
       "section": 147,
       "title": "Commercial Deployment Model",
       "status": "partial",
-      "implementation": [
-        "DEPLOYMENT.md",
-        "BACKUP_RESTORE.md"
-      ],
+      "implementation": ["DEPLOYMENT.md", "BACKUP_RESTORE.md"],
       "tests": [],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
-      "requirements": []
+      "requirements": [],
+      "source_sha256": "a7f689c09a75f6ed69c9bf688ff0cc366c918ee3fc3e27ff4de7b5c90ee2ca20"
     },
     {
       "section": 148,
       "title": "Release Strategy",
-      "status": "partial",
-      "implementation": [
-        "CHANGELOG.md",
-        "scripts/check-release.mjs"
-      ],
-      "tests": [
-        "tests/unit/release.test.ts"
-      ],
+      "status": "pending",
+      "implementation": ["CHANGELOG.md", "scripts/check-release.mjs"],
+      "tests": ["tests/unit/release.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -3963,8 +3676,24 @@
         "advanced room editor;",
         "print bridge avanzato;",
         "analytics avanzate;",
-        "multi-sede commerciale se non già abilitata."
-      ]
+        "multi-sede commerciale se non già abilitata.",
+        "reminder automatici prenotazioni;",
+        "conferme prenotazione tramite WhatsApp/Telegram/SMS/messaggistica;",
+        "caparra/deposito e gestione no-show;",
+        "lista d'attesa;",
+        "ordini takeaway;",
+        "ricettario quantitativo;",
+        "storico costi ingredienti;",
+        "food cost;",
+        "costo reale/teorico del piatto;",
+        "margine piatto;",
+        "menu engineering;",
+        "popup/promozioni menu digitale;",
+        "piatti/promozioni in evidenza;",
+        "menu multipli e QR differenti per menu."
+      ],
+      "source_text": "# 148. Release Strategy\n\nDividere lo sviluppo commerciale in release.\n\n## Release 1 — Core Operations\n\n- Auth/MFA;\n- staff;\n- sede;\n- menu;\n- sala;\n- tavoli;\n- conti;\n- ordini;\n- cucina;\n- Pass;\n- cassa;\n- cash/card manuale;\n- audit;\n- observability base.\n\n## Release 2 — Customer Experience\n\n- QR;\n- customer session;\n- menu cliente;\n- chiamata cameriere;\n- customer ordering;\n- prenotazioni/pacing;\n- notification center.\n\n## Release 3 — Advanced\n\n- Stripe;\n- Satispay API;\n- offline completo;\n- Conflict Center;\n- advanced room editor;\n- print bridge avanzato;\n- analytics avanzate;\n- multi-sede commerciale se non già abilitata.\n\n## Release 4 — Revenue, Booking & Menu Optimization\n\n- reminder automatici prenotazioni;\n- conferme prenotazione tramite WhatsApp/Telegram/SMS/messaggistica;\n- caparra/deposito e gestione no-show;\n- lista d'attesa;\n- ordini takeaway;\n- ricettario quantitativo;\n- storico costi ingredienti;\n- food cost;\n- costo reale/teorico del piatto;\n- margine piatto;\n- menu engineering;\n- popup/promozioni menu digitale;\n- piatti/promozioni in evidenza;\n- menu multipli e QR differenti per menu.\n\nQueste funzionalità devono essere implementate soltanto dopo la stabilizzazione del core operativo da cui dipendono, ma fanno parte dello scope commerciale finale di Plateform.\n\nUna release non deve includere feature incomplete soltanto per rispettare il numero di funzionalità del master prompt.\n\n---\n\n",
+      "source_sha256": "f0b776d98b9fb7e77d6c80a00c96b7d01ebe90f1e6e8ae175af9fdb69d880f4c"
     },
     {
       "section": 149,
@@ -3990,7 +3719,8 @@
         "documentazione;",
         "comportamento multi-sede definito;",
         "rollback/compatibilità quando pertinente."
-      ]
+      ],
+      "source_sha256": "ffa29e850ee7dca13e303a0b7ba6d67cde31b308cc03175251d5a599d26e3753"
     },
     {
       "section": 150,
@@ -3999,10 +3729,140 @@
       "implementation": [],
       "tests": [],
       "external_verification": [],
-      "requirements": []
+      "requirements": [],
+      "source_text": "# 150. Principio prodotto\n\nPlateform non deve massimizzare il numero di feature.\n\nDeve massimizzare:\n\n```text\nAFFIDABILITÀ DURANTE IL SERVIZIO\nVELOCITÀ OPERATIVA\nINTEGRITÀ ECONOMICA\nSICUREZZA\nCHIAREZZA UX\nMANUTENIBILITÀ\n```\n\nPrima di aggiungere ulteriori moduli fuori scope come magazzino quantitativo completo, HR/payroll, CRM avanzato, loyalty, delivery a domicilio con fattorini, marketing automation generalista o altre aree ERP, rendere eccellente e stabile il ciclo centrale.\n\nLe funzionalità esplicitamente incluse in questo Master Prompt — tra cui takeaway, food cost, ricettario, menu engineering, reminder/caparra/lista d'attesa e promozioni menu — restano parte dello scope, ma devono essere implementate nell'ordine previsto senza indebolire il core:\n\n```text\nPRENOTAZIONE\n→ SALA\n→ CONTO\n→ ORDINE\n→ CUCINA\n→ PASS\n→ SERVIZIO\n→ CASSA\n→ PAGAMENTO\n→ CHIUSURA\n```\n---\n\n",
+      "source_sha256": "fbe0bf323cb32788dd47f65cdf06e5d3f3672318a492469b0fa4799ba7e5109a"
+    },
+    {
+      "section": 151,
+      "status": "pending",
+      "implementation": [],
+      "tests": [],
+      "external_verification": [],
+      "requirements": [],
+      "source_text": "# 151. Ricettario e food cost\n\nIl ricettario Plateform deve rappresentare la composizione economica teorica di un piatto.\n\nPer ogni ricetta gestire almeno:\n\n```text\ndish_id\ningredient_id\nquantity\nunit\nyield_factor_optional\nwaste_percentage_optional\n```\n\nLe unità devono essere normalizzate e convertibili in modo deterministico, per esempio `kg ↔ g`, `l ↔ ml`, `piece`. Non consentire conversioni implicite impossibili tra unità incompatibili.\n\nIl costo ingrediente può variare nel tempo. Conservare storico almeno di:\n\n```text\ningredient_id\ncost_per_purchase_unit\npurchase_unit\neffective_from\neffective_to_optional\nsource_optional\ncreated_by\n```\n\nIl costo teorico del piatto deve essere calcolato server-side:\n\n```text\nfood_cost = Σ costo quantità ricetta\n```\n\nconsiderando conversioni unità e, se configurati, resa/scarto.\n\nNon usare floating point JavaScript come fonte economica autoritativa.\n\nIl sistema deve poter creare snapshot del food cost per analisi storica.\n\n---\n\n",
+      "title": "Ricettario e food cost",
+      "source_sha256": "c42e6243b4bd8e347923377c0e0c2e2d978635158f1166dd32164b9cf7224c1b"
+    },
+    {
+      "section": 152,
+      "status": "pending",
+      "implementation": [],
+      "tests": [],
+      "external_verification": [],
+      "requirements": [
+        "volume di vendita;",
+        "fatturato generato;",
+        "food cost;",
+        "margine/contribution margin teorico;",
+        "periodo selezionato;",
+        "sede;",
+        "menu/categoria."
+      ],
+      "source_text": "# 152. Margine piatto e menu engineering\n\nCalcolare almeno:\n\n```text\nfood_cost_amount\nfood_cost_percentage\ngross_margin_amount\ngross_margin_percentage\n```\n\nDove:\n\n```text\ngross_margin_amount = selling_price - food_cost_amount\n```\n\nGli indicatori devono essere chiaramente definiti come **teorici** se Plateform non dispone di costi reali consuntivi completi, scarti effettivi e altri costi operativi. Non chiamare automaticamente il margine lordo del piatto “utile netto”.\n\nIl menu engineering deve combinare almeno:\n\n- volume di vendita;\n- fatturato generato;\n- food cost;\n- margine/contribution margin teorico;\n- periodo selezionato;\n- sede;\n- menu/categoria.\n\nÈ consentita una classificazione configurabile dei piatti, per esempio alta/bassa popolarità e alto/basso margine, ma Plateform deve mostrare i valori sottostanti e non affidarsi esclusivamente a etichette.\n\nGli ordini annullati/rimborsati devono essere trattati correttamente nelle metriche.\n\n---\n\n",
+      "title": "Margine piatto e menu engineering",
+      "source_sha256": "f9d1c2dad774712ac279533887b834270e628a6e85ce978286b60888ee69e82f"
+    },
+    {
+      "section": 153,
+      "status": "pending",
+      "implementation": [],
+      "tests": [],
+      "external_verification": [],
+      "requirements": [
+        "slug pubblico;",
+        "sede/sedi autorizzate;",
+        "categorie incluse;",
+        "piatti inclusi;",
+        "ordinamento;",
+        "giorni;",
+        "fasce orarie;",
+        "intervallo date;",
+        "stato pubblicato/non pubblicato;",
+        "QR dedicato.",
+        "banner;",
+        "card evidenziata;",
+        "badge;",
+        "popup controllato;",
+        "call to action verso categoria/piatto/menu."
+      ],
+      "source_text": "# 153. Menu multipli, QR dedicati e promozioni\n\nUn ristorante può pubblicare più menu usando lo stesso catalogo.\n\nEsempi:\n\n```text\nColazione\nPranzo\nCena\nAperitivo\nCarta vini\nMenu evento\n```\n\nOgni menu può avere:\n\n- slug pubblico;\n- sede/sedi autorizzate;\n- categorie incluse;\n- piatti inclusi;\n- ordinamento;\n- giorni;\n- fasce orarie;\n- intervallo date;\n- stato pubblicato/non pubblicato;\n- QR dedicato.\n\nIl QR dedicato non deve contenere dati sensibili e deve puntare a una risorsa pubblica stabile.\n\nLe promozioni/menu highlights possono mostrare:\n\n- banner;\n- card evidenziata;\n- badge;\n- popup controllato;\n- call to action verso categoria/piatto/menu.\n\nConfigurazioni minime:\n\n```text\nstart_at\nend_at\nvenue_id_optional\nmenu_id_optional\npriority\nmax_impressions_per_session_optional\nactive\n```\n\nLe promozioni non devono alterare in modo nascosto il prezzo authoritative del piatto. Eventuali sconti economici devono usare il sistema sconti/omaggi e relative autorizzazioni.\n\n---\n\n",
+      "title": "Menu multipli, QR dedicati e promozioni",
+      "source_sha256": "99168ed75cad7567cf0a1d003b3fcd1f83f66465c58fba648cfd391e47ad1879"
+    },
+    {
+      "section": 154,
+      "status": "pending",
+      "implementation": [],
+      "tests": [],
+      "external_verification": [],
+      "requirements": [],
+      "source_text": "# 154. Messaggistica prenotazioni\n\nImplementare un abstraction layer per provider di comunicazione.\n\nIl dominio applicativo deve produrre eventi, mentre un adapter provider gestisce il trasporto.\n\nEsempio:\n\n```text\nRESERVATION_CONFIRMED\n→ Message Job\n→ WhatsApp/Telegram/SMS provider\n→ SENT / DELIVERED / FAILED\n```\n\nStati minimi messaggio:\n\n```text\nQUEUED\nSENDING\nSENT\nDELIVERED\nFAILED\nCANCELLED\n```\n\nSupportare idempotency key per evitare duplicati.\n\nI retry devono avere backoff e limite massimo.\n\nIl fallimento del provider di messaggistica non deve corrompere lo stato della prenotazione. La prenotazione resta source of truth indipendente dalla consegna del messaggio.\n\n---\n\n",
+      "title": "Messaggistica prenotazioni",
+      "source_sha256": "435b69f81177a29939b64a7cf15b5a072cb0d23e2fa9cd7ce217a47a80815b7e"
+    },
+    {
+      "section": 155,
+      "status": "pending",
+      "implementation": [],
+      "tests": [],
+      "external_verification": [],
+      "requirements": [],
+      "source_text": "# 155. Caparra prenotazione\n\nLa caparra/deposito è distinta dai pagamenti del conto al tavolo pur riutilizzando l'astrazione provider dove opportuno.\n\nOgni deposito deve registrare almeno:\n\n```text\nreservation_id\namount\ncurrency\nprovider\nprovider_reference\nstatus\ncreated_at\ncompleted_at\nrefunded_amount\n```\n\nStati minimi:\n\n```text\nPENDING\nCOMPLETED\nFAILED\nEXPIRED\nREFUNDED\nPARTIALLY_REFUNDED\n```\n\nStripe/Satispay, quando usati, devono essere confermati da callback/webhook server-side con idempotenza.\n\nLa scadenza di una richiesta caparra può far passare la prenotazione a `EXPIRED` e liberare la capacità secondo policy configurata, con transazione atomica e audit.\n\nEventuali rimborsi o trattenimenti devono rispettare policy esplicite configurate dal ristorante.\n\n---\n\n",
+      "title": "Caparra prenotazione",
+      "source_sha256": "3d6635844abc8c6f8a51723918bbf4b71dbb705bb9fd18ee0d6fbc39ce38a202"
+    },
+    {
+      "section": 156,
+      "status": "pending",
+      "implementation": [],
+      "tests": [],
+      "external_verification": [],
+      "requirements": [
+        "prezzi;",
+        "disponibilità;",
+        "varianti;",
+        "ricette;",
+        "stazioni;",
+        "cucina;",
+        "pagamenti;",
+        "audit."
+      ],
+      "source_text": "# 156. Takeaway\n\nIl takeaway è un canale ordine aggiuntivo con `order_source = TAKEAWAY` o modello equivalente.\n\nNon duplicare la logica di:\n\n- prezzi;\n- disponibilità;\n- varianti;\n- ricette;\n- stazioni;\n- cucina;\n- pagamenti;\n- audit.\n\nRiutilizzare gli stessi servizi authoritative del core quando possibile.\n\nDati specifici takeaway almeno:\n\n```text\npickup_venue_id\npickup_slot_id\npickup_at\ncustomer_name\ncustomer_phone\ncustomer_note_optional\norder_source = TAKEAWAY\n```\n\nIl numero di ordini accettabili per slot deve essere verificato server-side e protetto da race condition.\n\nNel KDS il ticket deve mostrare chiaramente:\n\n> TAKEAWAY — ritiro 20:15\n\nIl personale deve poter segnare `READY_FOR_PICKUP`; se la messaggistica è attiva, Plateform può inviare automaticamente “ordine pronto”.\n\nNon implementare automaticamente indirizzo di consegna, delivery fee, rider/fattorini o routing: appartengono a un eventuale modulo delivery futuro separato.\n\n---\n\n",
+      "title": "Takeaway",
+      "source_sha256": "62c99bb0f11039e32299bc3ea13c7bec04d4b1f7ad15baf46fa5222631708398"
+    },
+    {
+      "section": 157,
+      "status": "pending",
+      "implementation": [],
+      "tests": [],
+      "external_verification": [],
+      "requirements": [
+        "schema/migration;",
+        "RLS e scope sede;",
+        "API/RPC/Edge Functions server-authoritative;",
+        "validazione input;",
+        "idempotenza;",
+        "transazioni e protezione concorrenza;",
+        "audit;",
+        "telemetry;",
+        "observability;",
+        "gestione errori/provider failure;",
+        "privacy e retention;",
+        "UX responsive;",
+        "test unit/integration/E2E/security;",
+        "comportamento multi-sede;",
+        "documentazione;",
+        "rollback/migration strategy."
+      ],
+      "source_text": "# 157. Definition of Done delle nuove funzionalità\n\nLe funzionalità introdotte nelle sezioni 151–156 sono soggette integralmente alla Definition of Done generale.\n\nIn particolare non possono essere considerate complete finché non esistono, dove pertinenti:\n\n- schema/migration;\n- RLS e scope sede;\n- API/RPC/Edge Functions server-authoritative;\n- validazione input;\n- idempotenza;\n- transazioni e protezione concorrenza;\n- audit;\n- telemetry;\n- observability;\n- gestione errori/provider failure;\n- privacy e retention;\n- UX responsive;\n- test unit/integration/E2E/security;\n- comportamento multi-sede;\n- documentazione;\n- rollback/migration strategy.\n\nTest di accettazione minimi aggiuntivi:\n\n```text\nreminder inviato una sola volta anche con retry\nWhatsApp/Telegram/SMS fallisce senza perdere la prenotazione\ncaparra confermata solo server-side\ndue utenti non possono ottenere lo stesso ultimo slot di waitlist\ndue utenti non possono ottenere lo stesso ultimo slot takeaway\nfood cost ricalcolato dopo variazione costo ingrediente senza alterare snapshot storico\nQR colazione non espone menu non autorizzati o dati privati\npromozione scaduta scompare automaticamente\ntakeaway scala disponibilità senza renderla negativa\n```\n\n",
+      "title": "Definition of Done delle nuove funzionalità",
+      "source_sha256": "958cc5b47e65e7e7c9b914336324d14880a2d9e3a09d6a3d8f144b575b7afe0c"
     }
   ],
   "last_updated": "2026-10-04",
   "commercial_release_ready": false,
-  "clean_full_reviews": 0
+  "clean_full_reviews": 0,
+  "specification_sha256": "5b86a52405d51cbd93b991b372b5bc9807294968a5703fa10122d16eb6976464"
 }

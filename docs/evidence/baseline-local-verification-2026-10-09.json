@@ -1,0 +1,179 @@
+{
+  "classification": "LOCAL_WORKSPACE_OBSERVATION_NOT_CI_RELEASE_ATTESTATION",
+  "date": "2026-10-09",
+  "base_commit": "bba9b44cc2af738aff0ad0c0cfd99b80a2c749c8",
+  "runtime": "Node 24.19.0",
+  "plan": {
+    "bootstrap_version": 1,
+    "bootstrap_sha256": "aaa20fba9a525bfd5f7017ee827d45cf342d8b3e6d97eefc19e50fb0a51de11e",
+    "postlude_sha256": "c6491065864f8675665b19a6e30402b4bbfaad4d28d503ab0cb162985a0a024f",
+    "migrations": 458,
+    "inventory_sha256": "29031e10f987a98882f5f811373abbaf59cb271f608221fbbe31961d0f2edd9e",
+    "database_accessed": false
+  },
+  "historical_applied_migrations": 457,
+  "historical_inventory_sha256": "ae79b608e86dfe6c7ca8dd93c88170cdd4dc38dd6324ccb3391342b135a59f41",
+  "pending_remote_migration": "20261009003541_release_evidence_fail_closed",
+  "remote_database_modified": false,
+  "remote_apply_status": "REJECTED_BY_AUTO_REVIEW_SPECIFIC_AUTHORIZATION_MISSING_ISOLATED_REPLAY_UNFINISHED",
+  "tests": {
+    "passed": 242,
+    "skipped_core": 4,
+    "files_passed": 24
+  },
+  "catalog": {
+    "substrate": "PGlite PostgreSQL WASM",
+    "application_fixtures": [],
+    "hosted_supabase_certified": false,
+    "missing": {
+      "relations": [],
+      "routines": [],
+      "triggers": [],
+      "columns": [],
+      "indexes": [],
+      "constraints": [],
+      "policies": []
+    },
+    "added": {
+      "relations": [],
+      "routines": [],
+      "triggers": [],
+      "columns": [],
+      "indexes": [],
+      "constraints": [],
+      "policies": []
+    },
+    "changed": {
+      "relations": [],
+      "routines": [],
+      "triggers": [],
+      "columns": [],
+      "indexes": [],
+      "constraints": [],
+      "policies": []
+    },
+    "counts": {
+      "relations": {
+        "reference": 163,
+        "replayed": 163
+      },
+      "routines": {
+        "reference": 553,
+        "replayed": 552
+      },
+      "triggers": {
+        "reference": 311,
+        "replayed": 313
+      },
+      "columns": {
+        "reference": 1485,
+        "replayed": 1485
+      },
+      "indexes": {
+        "reference": 444,
+        "replayed": 444
+      },
+      "constraints": {
+        "reference": 903,
+        "replayed": 903
+      },
+      "policies": {
+        "reference": 110,
+        "replayed": 110
+      }
+    },
+    "not_null_semantics": "Compared for every column; PG18-only contype=n catalog entries excluded"
+  },
+  "formatting_review": {
+    "checked": 78,
+    "normalization": [
+      "ignore redundant parentheses",
+      "normalize quoted versus unquoted property names",
+      "ignore comments/source positions"
+    ],
+    "unchanged": 73,
+    "ast_differences": [
+      "scripts/check-core-release-profile.mjs",
+      "scripts/check-release.mjs",
+      "scripts/check-requirements.mjs",
+      "tests/database/harness.ts",
+      "tests/unit/release.test.ts"
+    ]
+  },
+  "commands": [
+    {
+      "command": "npm run local:source-gates",
+      "exit_code": 0,
+      "status": "PASSED_LOCAL",
+      "log": "docs/evidence/baseline-2026-10-09/final-source-gates.log",
+      "log_sha256": "38949da30f73b8235320eb9af4bc694b21cdd19b3b59ed52cb94aa7c5cce32f4"
+    },
+    {
+      "command": "npm test",
+      "exit_code": 0,
+      "status": "PASSED_LOCAL_242_4_CORE_SKIPPED",
+      "log": "docs/evidence/baseline-2026-10-09/final-tests.log",
+      "log_sha256": "25cd313cfdf671259dfaf7a0bc3d73d2cf2c21c06b01659668b60fa6ed19f3e6"
+    },
+    {
+      "command": "npm run build",
+      "exit_code": 0,
+      "status": "PASSED_LOCAL",
+      "log": "docs/evidence/baseline-2026-10-09/final-build.log",
+      "log_sha256": "7d23add9f15342ad1dd5e94e74b5e7b1db4bc4d28226fb551f4e7e9c55492892"
+    },
+    {
+      "command": "npm run requirements",
+      "exit_code": 1,
+      "status": "EXPECTED_BLOCKED_INCOMPLETE_REQUIREMENTS",
+      "log": "docs/evidence/baseline-2026-10-09/final-requirements.log",
+      "log_sha256": "c46e1793bdf70c4cce16c6a5a5328fa0ca568c2143a5edec4701f34adc2984ff"
+    },
+    {
+      "command": "npm run release:check",
+      "exit_code": 1,
+      "status": "EXPECTED_BLOCKED_MISSING_RELEASE_DOSSIER",
+      "log": "docs/evidence/baseline-2026-10-09/final-release-check.log",
+      "log_sha256": "64418019c79385b40c8d5f7ea57e658736b3f64a93d87f921202db21d25ce8b7"
+    },
+    {
+      "command": "npm run release:zip",
+      "exit_code": 1,
+      "status": "EXPECTED_BLOCKED_NO_COMMERCIAL_ARCHIVE",
+      "log": "docs/evidence/baseline-2026-10-09/final-release-zip.log",
+      "log_sha256": "d5791157272307566ac4427eb5ee79f9af79ed8395b1b3487182d2281747395b"
+    },
+    {
+      "command": "npm run check",
+      "exit_code": 1,
+      "status": "BLOCKED_EDGE_DEPENDENCY_DOWNLOAD",
+      "log": "docs/evidence/baseline-2026-10-09/baseline-full-check.log",
+      "log_sha256": "6de578e893f4e66bfc3437204ebe6a002d04408ffdfeef8a051a333ffd618916"
+    },
+    {
+      "command": "npm run test:edge",
+      "exit_code": 1,
+      "status": "BLOCKED_EDGE_DEPENDENCY_DOWNLOAD",
+      "log": "docs/evidence/baseline-2026-10-09/baseline-edge-tests.log",
+      "log_sha256": "35af43a0a590de9000d9e4f0e6f9684ca13745f8273ab9bb9fbfe77274086b54"
+    },
+    {
+      "command": "npm exec playwright -- install chromium",
+      "exit_code": 1,
+      "status": "BLOCKED_BROWSER_DOWNLOAD",
+      "log": "docs/evidence/baseline-2026-10-09/playwright-install.log",
+      "log_sha256": "8903ac0f921ee45ed99a195af18045c3c114cdb55192d00275458a4d22b3d9d3"
+    }
+  ],
+  "hosted_supabase_certified": false,
+  "browser_e2e_executed": false,
+  "native_concurrency_certified": false,
+  "commercial_release_ready": false,
+  "open": [
+    "Isolated Supabase install and current-version restore",
+    "Authenticated CI evidence ingestion with immutable logs and commit/schema binding",
+    "Edge/browser full checks",
+    "HTTP/JWT/Auth/Storage/Realtime and concurrent native connections",
+    "Full updated specification audit and three clean reviews"
+  ]
+}

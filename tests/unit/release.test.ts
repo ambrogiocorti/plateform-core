@@ -8,7 +8,7 @@ import {
 } from '../../scripts/check-release.mjs';
 const digest = 'a'.repeat(64);
 const matrix = {
-  sections: Array.from({ length: 151 }, (_, section) => ({ section, status: 'verified' })),
+  sections: Array.from({ length: 158 }, (_, section) => ({ section, status: 'verified' })),
 };
 function evidence() {
   return {
@@ -39,12 +39,15 @@ function evidence() {
 describe('commercial release gate', () => {
   it('permits only explicitly excluded provider/driver sections for CORE', () => {
     const reduced = structuredClone(matrix);
-    for (const section of excludedCoreSections) reduced.sections[section]!.status = 'out_of_scope_core';
+    for (const section of excludedCoreSections)
+      reduced.sections[section]!.status = 'out_of_scope_core';
     const record = evidence();
     Object.assign(record, { edition: 'CORE' });
     Object.assign(record.local_checks, {
-      core_edition_contract: 'passed', core_server_policy_source: 'passed',
-      core_edge_guard_source: 'passed', core_release_profile: 'passed',
+      core_edition_contract: 'passed',
+      core_server_policy_source: 'passed',
+      core_edge_guard_source: 'passed',
+      core_release_profile: 'passed',
     });
     record.integration_checks = Object.fromEntries(
       requiredCoreIntegrationChecks.map((name) => [
@@ -64,7 +67,7 @@ describe('commercial release gate', () => {
     );
     reduced.sections[91]!.status = 'out_of_scope_core';
     expect(releaseProblems(reduced, record, digest)).toContain(
-      'Le 151 sezioni del master devono risultare verificate con evidenze.',
+      'Le 158 sezioni del master devono risultare verificate con evidenze.',
     );
   });
   it('requires all roadmap steps, including unresolved integration checks', () => {
@@ -92,7 +95,7 @@ describe('commercial release gate', () => {
     const incomplete = structuredClone(matrix);
     incomplete.sections[71]!.status = 'partial';
     expect(releaseProblems(incomplete, evidence(), digest)).toContain(
-      'Le 151 sezioni del master devono risultare verificate con evidenze.',
+      'Le 158 sezioni del master devono risultare verificate con evidenze.',
     );
   });
   it('blocks packaging after source changes despite previously passing reviews', () => {

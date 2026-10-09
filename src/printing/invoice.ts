@@ -115,10 +115,25 @@ export function invoiceDocument(payload: PrintPayload, logo?: string | null): HT
     ? el(
         'section',
         { class: 'invoice-totals' },
-        el('div', {}, el('span', {}, 'Riduzioni'), el('strong', {}, money(payload.balance.discount_cents))),
-        el('div', {}, el('span', {}, 'Totale'), el('strong', {}, money(payload.balance.total_cents))),
+        el(
+          'div',
+          {},
+          el('span', {}, 'Riduzioni'),
+          el('strong', {}, money(payload.balance.discount_cents)),
+        ),
+        el(
+          'div',
+          {},
+          el('span', {}, 'Totale'),
+          el('strong', {}, money(payload.balance.total_cents)),
+        ),
         payload.balance.paid_cents !== undefined
-          ? el('div', {}, el('span', {}, 'Pagato'), el('strong', {}, money(payload.balance.paid_cents)))
+          ? el(
+              'div',
+              {},
+              el('span', {}, 'Pagato'),
+              el('strong', {}, money(payload.balance.paid_cents)),
+            )
           : null,
         payload.balance.remaining_cents !== undefined
           ? el(

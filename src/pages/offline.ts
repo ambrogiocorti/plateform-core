@@ -85,7 +85,6 @@ export async function syncQueue(): Promise<void> {
         },
         async () => await vaultPut('queue', events),
       );
-
     });
   } finally {
     syncing = false;
@@ -109,7 +108,9 @@ export async function reconcileAfterReconnect(context: StaffContext): Promise<vo
 export async function prepareOffline(context: StaffContext, notify = true): Promise<void> {
   if (!offlineVerificationKeys().length) throw new Error('OFFLINE_VERIFICATION_KEY_REQUIRED');
   const pending = await queuedEvents();
-  if (pending.some((e) => !isTerminalOfflineStatus(e.sync_status) && e.user_id !== context.profile.id))
+  if (
+    pending.some((e) => !isTerminalOfflineStatus(e.sync_status) && e.user_id !== context.profile.id)
+  )
     throw new Error('OFFLINE_OTHER_USER_QUEUE');
   const { data, error } = await client().functions.invoke('offline-authorization', { body: {} });
   if (error) throw safeError(error);

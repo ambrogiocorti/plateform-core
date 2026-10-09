@@ -8,6 +8,9 @@ Vite e Supabase. Una sola catena per installazione, mono-sede di default.
 La Roadmap e il registro degli step sono in `docs/ROADMAP.txt` e `docs/ROADMAP_STATUS.json`.
 Le verifiche reali delle fondamenta sono documentate in `docs/STEP_0_VERIFICATION.md`.
 La specifica completa resta [MASTER_PROMPT_PLATEFORM_COMMERCIALE.md](MASTER_PROMPT_PLATEFORM_COMMERCIALE.md).
+La [CI corrente](docs/CI_BASELINE_VERIFICATION_2026-10-09.md), run 66,
+verifica 245 test, 20 contratti browser e l'installatore su Supabase Docker/PostgreSQL 17.11.
+Il collaudo hosted, le sessioni utente, il restore e le attestazioni commerciali restano aperti.
 
 ## Prerequisiti
 
@@ -35,12 +38,23 @@ non esistono account dimostrativi o dati simulati nell'applicazione.
 
 ## Database e setup
 
-Le migrazioni ordinate sono in `supabase/migrations`; applicarle soltanto a un ambiente
-di sviluppo durante l'implementazione. Le migrazioni applicate sono immutabili;
-le correzioni richiedono nuovi file e l'aggiornamento del manifest delle versioni.
+La baseline contiene 457 migrazioni canoniche recuperate da Development e una
+migrazione successiva preparata, non applicata. Le migrazioni applicate sono
+immutabili; le correzioni richiedono nuovi file e un manifest aggiornato.
 
-Con Supabase CLI e Docker: `supabase start` e `supabase db reset` per un database locale
-**sacrificabile**. Non eseguire reset su database contenenti dati da conservare.
+Per un **nuovo database Supabase vuoto e isolato**, predisporre `psql` e
+`SUPABASE_DB_URL` nell'ambiente del processo, quindi eseguire `npm run db:install`.
+La pipeline usa bootstrap versionato, SQL originali e postlude: il solo
+`supabase db reset` non ricostruisce gli oggetti mancanti dallo storico legacy.
+L'installatore rifiuta schemi applicativi/storico già presenti e non esegue reset.
+La procedura passa su Supabase Docker nativo con tutte le 197 definizioni
+obbligatorie del catalogo release, senza copiare risultati PASS.
+Il collaudo su Supabase ospitato è ancora aperto.
+
+Per controllare impronte e replay locale senza accesso remoto:
+`npm run check:clean-install`. Le installazioni esistenti usano soltanto
+migrazioni successive collaudate. Dettagli e limiti:
+[docs/BASELINE_RECOVERY_2026-10-09.md](docs/BASELINE_RECOVERY_2026-10-09.md).
 
 Per il primo account tecnico imposta nell'ambiente del processo:
 `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `BOOTSTRAP_EMAIL`, `BOOTSTRAP_PASSWORD`,
@@ -77,14 +91,15 @@ Questo fallimento è intenzionale durante lo sviluppo e impedisce una dichiarazi
 ## Build
 
 `dist/public` e `dist/staff` sono artefatti separati per i due host, senza source map
-pubbliche. Le due PWA e un workflow CI sono presenti. Il progetto non è stato pubblicato né il
-workflow eseguito su GitHub. Configurazione di hosting, integrazioni reali e procedure
+pubbliche. Le due PWA sono presenti e il workflow completo passa su GitHub.
+Il progetto resta in sviluppo.
+Configurazione di hosting, integrazioni reali e procedure
 di recovery restano gate aperti; vedere il registro di implementazione.
 
 ## Progettazione e revisioni
 
 - [ARCHITECTURE.md](ARCHITECTURE.md): 18 elaborati preliminari.
-- [docs/REQUIREMENTS.json](docs/REQUIREMENTS.json): tracciabilità §§0–150.
+- [docs/REQUIREMENTS.json](docs/REQUIREMENTS.json): tracciabilità §§0–157 con binding SHA-256 al master.
 - [docs/REVIEWS.md](docs/REVIEWS.md): registro revisioni complete; attualmente 0/3.
 - [docs/IMPLEMENTATION_STATUS.md](docs/IMPLEMENTATION_STATUS.md): evidenze e attività aperte.
 
@@ -96,8 +111,9 @@ notifiche persistenti con badge/audio, offline cifrato e firmato, conflitti, imp
 licenze/limiti, salute/incidenti, analytics aggregate, branding/Storage e privacy prenotazioni.
 Le funzioni presenti richiedono ancora verifica puntuale contro tutti i requisiti del master.
 
-Backup/restore eseguibili e dismissione protetta restano incompleti. Non sono offerti
-come funzionalità già operative. `BACKUP_RESTORE.md` descrive le dipendenze mancanti.
+I worker backup/restore sono presenti; backup verificato e restore della versione
+corrente su target isolato restano aperti. La dismissione protetta dipende da questi
+collaudi. `BACKUP_RESTORE.md` descrive procedure e gate ancora obbligatori.
 
 `npm run release:zip` crea l’archivio commerciale soltanto dopo il controllo dei requisiti,
 collaudi reali e tre revisioni integrali sullo stesso digest. Attualmente fallisce intenzionalmente.

@@ -26,5 +26,51 @@ jobs:
           name: failed-browser-checks
           path: test-results/
           retention-days: 7
+  native-clean-install:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      SUPABASE_DB_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+      PLATEFORM_INSTALL_LOCAL: '1'
+      PLATEFORM_NATIVE_CI: '1'
+      PLATEFORM_LOCAL_STATUS_FILE: .local/native-ci/status.json
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.120.0
+      - name: Start isolated native Supabase platform
+        run: |
+          mkdir -p .local/native-ci/supabase
+          cp supabase/clean-install/ci-config.toml .local/native-ci/supabase/config.toml
+          docker network create --opt com.docker.network.bridge.host_binding_ipv4=127.0.0.1 --opt com.docker.network.bridge.name=pf_native_ci plateform-clean-install-ci
+          supabase start --workdir .local/native-ci --network-id plateform-clean-install-ci --exclude realtime,imgproxy,mailpit,postgres-meta,studio,edge-runtime,logflare,vector,supavisor > .local/native-ci/start.log
+          supabase status --workdir .local/native-ci --output json > .local/native-ci/status.json
+          sudo iptables -I DOCKER-USER 1 -i pf_native_ci ! -o pf_native_ci -j DROP
+          sudo iptables -C DOCKER-USER -i pf_native_ci ! -o pf_native_ci -j DROP
+          printf 'PLATEFORM_NATIVE_EGRESS_BLOCKED=1\n' >> "$GITHUB_ENV"
+      - name: Disable automatic cron before historical replay
+        run: node scripts/check-native-clean-install.mjs --prepare
+      - name: Run shared guarded installer through psql
+        run: npm run db:install
+      - name: Verify native catalog, provenance guards and platform HTTP
+        run: node scripts/check-native-clean-install.mjs
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: native-clean-install-verification
+          path: .local/native-ci/verification.json
+          retention-days: 14
+      - name: Stop disposable CI stack
+        if: always()
+        run: |
+          supabase stop --workdir .local/native-ci --no-backup
+          docker network rm plateform-clean-install-ci
+
 # Commercial packaging is a separate gate: npm run release:check / release:zip.
 # Passing fixture tests never authorizes a production deployment or a sale-ready ZIP.

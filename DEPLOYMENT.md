@@ -1,18 +1,21 @@
 # Deployment e release
 
-Versione corrente 0.1.0 di sviluppo. Il progetto Supabase development
-`abdxvlykasqmknexxhjo` è attivo; le verifiche database di sicurezza e
-regressione passano. **Lo storico SQL non è allineato** (456 migrazioni remote,
-133 locali, sette divergenze non spiegabili soltanto con spazi ai margini):
-vedere `docs/evidence/remote-migration-audit-2026-10-08.json`.
-Auth e secrets development configurati e verificati nella dashboard autorizzata;
-CORS, errori, diagnostica, telemetry e gateway/rate limiting collaudati via HTTP reale.
-Vedere `docs/REMOTE_CONFIGURATION.md`.
-Nessun host o ambiente production è stato distribuito. Release commerciale bloccata.
-All'8 ottobre 2026 non risulta un progetto Vercel collegato. Node 24,
-`npm ci`, l'ambiente staging HTTPS, i test JWT/browser reali e un restore della
-versione corrente non sono ancora certificati. Il target restore-test esistente
-non è vuoto; non deve essere azzerato senza esplicita autorizzazione e verifica.
+Versione corrente 0.1.0 di sviluppo; nessuna release commerciale autorizzata.
+Al 9 ottobre 2026 lo storico di `plateform-development` è recuperato: 457
+migrazioni canoniche e una nuova migrazione preparata, non applicata.
+La run GitHub 66 passa formato, check completo, 245 test unit/database,
+13 test Edge, 20 contratti browser e build pubblico/staff; quattro test sono
+esclusi CORE. Il replay Supabase Docker/PostgreSQL 17.11 verifica installatore,
+ledger, cataloghi e tutte le 197 definizioni obbligatorie senza risultati PASS.
+Installazione hosted, sessioni utente/scope HTTP/JWT, Realtime, concorrenza,
+Storage upload/download e restore corrente restano gate aperti.
+Il target restore-test esistente contiene dati e non deve essere azzerato.
+
+L'applicazione remota della protezione contro PASS non attestati è stata
+respinta dal controllo automatico per autorizzazione specifica mancante e replay
+isolato incompleto al momento del rifiuto. Il replay Docker nativo ora passa;
+il database Development è rimasto invariato e l'applicazione richiede consenso specifico.
+Vedere `docs/BASELINE_RECOVERY_2026-10-09.md` per proposta e limiti delle prove.
 
 ## Ambienti
 
@@ -23,7 +26,7 @@ Nel browser: URL Supabase e publishable/anon key, domini pubblico/staff, ambient
 ## Sequenza per staging
 
 1. Identificare progetto, regione, piano, domini e proprietari. Verificare che non contenga dati production.
-2. Applicare le migrazioni SQL in ordine. Con CLI già autenticata, `supabase link --project-ref PROJECT_REF` e `supabase db push` agiscono sul progetto collegato: ricontrollare il riferimento prima di eseguirli. Il reset locale è ammesso soltanto su database sacrificabili.
+2. Per un progetto nuovo con schemi applicativi e storico vuoti, usare `npm run db:install` con `psql` e `SUPABASE_DB_URL` nel processo: bootstrap versionato, migrazioni originali e postlude. Il replay CLI del solo storico non ricostruisce gli oggetti legacy mancanti. Collaudare su target isolato prima di qualsiasi installazione cliente. Per gli upgrade, applicare soltanto le migrazioni successive dopo confronto della versione di partenza e backup verificato.
 3. Configurare segreti e distribuire le dodici Edge Functions con CLI/deployment dell’ambiente. `verify_jwt=false` è intenzionale per consentire i confini pubblici/webhook; gli handler privati verificano identità e RPC, non accettano richieste anonime per operazioni staff.
 4. Eseguire bootstrap tecnico server, TOTP, setup installazione, Admin e configurazioni. Non creare account dimostrativi in production.
 5. Eseguire build pubblico/staff con configurazione staging. Servire pubblico su `/` e staff su `/staff/` in HTTPS; sono supportate anche origini distinte configurate. I domini devono corrispondere a profilo, CORS e webhook configurati.
@@ -33,9 +36,9 @@ Nel browser: URL Supabase e publishable/anon key, domini pubblico/staff, ambient
 
 ## Gate e pacchetto
 
-`npm run local:source-gates` verifica i gate sorgente STEP 7–12 senza richiedere GitHub. `npm run local:verify` aggiunge Edge, Vitest e build Vite; `npm run local:browser` esegue Playwright; `npm run local:full` li concatena. `npm run check` resta il gate tecnico generale. GitHub/CI non sono richiesti per la fase di collaudo locale pre-GitHub.
+`npm run local:source-gates` verifica i gate sorgente STEP 7–12 senza richiedere GitHub. `npm run local:verify` aggiunge Edge, Vitest e build Vite; `npm run local:browser` esegue Playwright; `npm run local:full` li concatena. `npm run check` resta il gate tecnico generale. Il collaudo locale può precedere GitHub; la certificazione commerciale richiede poi CI autenticata con artefatti immutabili e binding commit/schema.
 
-`npm run release:check` richiede tutti gli step 0–13 DONE con evidenze e controlli passati, 151 sezioni VERIFIED, sei controlli locali passati, sette categorie di integrazione con evidenze e tre revisioni integrali pulite sullo stesso digest dei sorgenti. `npm run release:zip` chiama il gate anche nell’archiviatore, esclude segreti/cache/stato locale e crea un manifest SHA-256. Senza dossier `.local/release/evidence.json` valido non viene creato uno ZIP commerciale. Le evidenze devono essere reali; compilarle a mano non sostituisce i collaudi.
+`npm run release:check` richiede tutti gli step 0–13 DONE con evidenze e controlli passati, 158 sezioni verificate (CORE: esclusioni consentite soltanto per 79, 80 e 90), sei controlli locali passati, sette categorie di integrazione con evidenze e tre revisioni integrali pulite sullo stesso digest dei sorgenti. `npm run release:zip` chiama il gate anche nell’archiviatore, esclude segreti/cache/stato locale e crea un manifest SHA-256. Senza dossier `.local/release/evidence.json` valido non viene creato uno ZIP commerciale. Le evidenze devono essere reali; compilarle a mano non sostituisce i collaudi.
 
 ## Upgrade e rollback
 

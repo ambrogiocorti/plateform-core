@@ -1,0 +1,1190 @@
+{
+  "project": "abdxvlykasqmknexxhjo",
+  "access": "read_only_release_test_catalog_definitions",
+  "captured_at": "2026-10-09",
+  "release_results_copied": false,
+  "definitions": [
+    {
+      "key": "ACCOUNT_TOTALS_UNIT_CALCULATION",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Billing-unit account totals deterministically compute gross, discounts, net total, paid, pending, remaining and available amounts."
+    },
+    {
+      "key": "ADVANCED_ORDER_ACCOUNT_CONTRACT",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Advanced order/account frontend contract exposes order item versions, a PASS/KITCHEN_ADMIN returnable-item RPC, pending cancellation state and a database trigger that blocks duplicate return cancellation requests."
+    },
+    {
+      "key": "ALLERGEN_SNAPSHOT_REMOVAL",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Order allergen snapshot is derived from non-removed ingredients; removing an authorized removable ingredient removes its allergens from the immutable order snapshot."
+    },
+    {
+      "key": "AUDIT_IMMUTABILITY",
+      "category": "SECURITY",
+      "required": true,
+      "description": "Audit rows cannot be updated/deleted."
+    },
+    {
+      "key": "AUDIT_ROLE_ACCESS_E2E",
+      "category": "SECURITY",
+      "required": true,
+      "description": "Verify Super Admin can read the full audit search while Admin and lower roles cannot access the technical audit view."
+    },
+    {
+      "key": "AUDIT_SECRET_SCAN",
+      "category": "SECURITY",
+      "required": true,
+      "description": "Audit JSON contains no known sensitive secret-key fields."
+    },
+    {
+      "key": "AUTHENTICATED_DEFINER_DML_GUARD_REVIEW",
+      "category": "SECURITY",
+      "required": true,
+      "description": "Authenticated SECURITY DEFINER routines that mutate data must contain or delegate an explicit authorization guard."
+    },
+    {
+      "key": "AUTHENTICATED_DML_RPC_AUTHORIZATION_REVIEW",
+      "category": "SECURITY",
+      "required": true,
+      "description": "Authenticated SECURITY DEFINER RPCs that mutate data have an application authorization guard; heuristic exceptions are manually reviewed."
+    },
+    {
+      "key": "AVAILABILITY_TAMPERING",
+      "category": "SECURITY",
+      "required": true,
+      "description": "Authenticated clients cannot directly mutate dish availability."
+    },
+    {
+      "key": "BACKUP_REPLICA_RATE_LIMIT_RECOVERY",
+      "category": "CHAOS",
+      "required": true,
+      "description": "Backup replication retries platform rate limits using provider retry timing and still completes with verified primary/replica integrity."
+    },
+    {
+      "key": "BETA_DOCUMENTATION_REQUIREMENT",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Beta documentation gate requires BETA_STATUS.md in addition to the mandatory technical documentation set and fails closed until source-backed verification exists."
+    },
+    {
+      "key": "BETA_READINESS_SEPARATION",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Beta readiness is separated from Production go-live; real Stripe/Satispay and Epson hardware remain visible non-blocking Beta external gates while software/source/PWA blockers fail closed."
+    },
+    {
+      "key": "BOOKING_PACING_UNIT",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Booking pacing enforces service covers, per-slot arrivals and per-slot covers while excluding cancelled/no-show capacity."
+    },
+    {
+      "key": "CATALOG_AUTHORITATIVE_CRUD",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Authoritative category/ingredient/station/dish CRUD supports draft→composition→activation, venue override, immutable base/local price history and in-use archive guards."
+    },
+    {
+      "key": "CHAIN_ADMIN_PRIVACY_CONFIG_REACHABILITY",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Chain-level privacy/retention configuration is reachable by an authorized ADMIN CHAIN without granting restaurant-admin settings to SUPER_ADMIN."
+    },
+    {
+      "key": "CI_ENVIRONMENT_PREFLIGHT",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "CI cannot start staging or production runs until the corresponding environment release gates are explicitly PASS."
+    },
+    {
+      "key": "CI_PIPELINE_STATE_MACHINE",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "CI stages enforce ordering, terminal failure and release gate before production."
+    },
+    {
+      "key": "CI_RELEASE_STATUS_ALIGNMENT",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Successful PRODUCTION CI stage records application release using the schema-valid RELEASED status."
+    },
+    {
+      "key": "CI_RELEASE_WRITE_BOUNDARY",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "service_role can drive the CI state machine but cannot insert a production release directly."
+    },
+    {
+      "key": "COMMAND_PALETTE_AUTHORIZATION_E2E",
+      "category": "E2E",
+      "required": true,
+      "description": "Command Palette searches operational resources only for an unlocked authorized staff session, enforces venue scope for non-global roles, includes Admin settings, preserves invoker/RLS semantics and returns no data for unauthorized venues."
+    },
+    {
+      "key": "COMMAND_PALETTE_STAFF_PATH_NAMESPACE",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "All operational Command Palette navigation paths are internal /staff paths; clients reject any returned path outside the staff namespace."
+    },
+    {
+      "key": "CONFLICT_CENTER_E2E",
+      "category": "E2E",
+      "required": true,
+      "description": "Admin-only Conflict Center exposes venue/resource/user/device/local+sync times/reason/server snapshot/requested operation/safe actions and resolution rejects the original offline event with audit."
+    },
+    {
+      "key": "CONTINUITY_READINESS",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Backup/restore/cron continuity requirements pass."
+    },
+    {
+      "key": "CRON_TOPOLOGY_REVIEW",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "All Plateform cron jobs are unique, active and their operational schedules/results are reviewed; newly introduced retention cron remains fail-safe until configured."
+    },
+    {
+      "key": "CROSS_ROLE",
+      "category": "SECURITY",
+      "required": true,
+      "description": "Lower operational role cannot execute administrative action."
+    },
+    {
+      "key": "CROSS_VENUE",
+      "category": "SECURITY",
+      "required": true,
+      "description": "VENUE-scoped user cannot read or invoke another venue."
+    },
+    {
+      "key": "CUSTOMER_ACTION_AUDIT_ATTRIBUTION",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Public customer mutations are audited as CUSTOMER while preserving null staff identity and avoiding sensitive customer fields."
+    },
+    {
+      "key": "CUSTOMER_CODE_BACKOFF",
+      "category": "SECURITY",
+      "required": true,
+      "description": "Customer access code has persistent backoff/rate limiting."
+    },
+    {
+      "key": "DATA_API_EXPLICIT_EXPOSURE",
+      "category": "SECURITY",
+      "required": true,
+      "description": "Public Data API exposure is explicit: migration-owner defaults do not grant clients automatically, authenticated table grants are read-only, and anon table exposure is narrowly RLS-scoped."
+    },
+    {
+      "key": "DATA_RETENTION_ENGINE",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Technical privacy retention engine is fail-safe while unconfigured, uses explicit retention settings, protected configuration, scheduled execution and auditable anonymization/deletion."
+    },
+    {
+      "key": "DATABASE_REGRESSION_GATE",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Database regression gate passes."
+    },
+    {
+      "key": "DATABASE_UNAVAILABLE_CONTROLLED_CHAOS",
+      "category": "CHAOS",
+      "required": true,
+      "description": "Internal Edge chaos harness forces the database transport to fail before a service-role mutation request, verifies explicit failure and zero mutation, then proves the same mutation succeeds with healthy transport and cleans the sentinel."
+    },
+    {
+      "key": "DISCOUNT_QUOTE_UNIT_LOGIC",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Discount quote correctly computes fixed, percentage, item complimentary and account complimentary amounts and rejects discounts beyond unpaid balance."
+    },
+    {
+      "key": "DOCUMENTATION_DRAFT_INTEGRITY",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "All required documentation working drafts exist, are non-empty, explicitly marked DRAFT and contain no obvious hardcoded secrets/tokens before source-control versioning."
+    },
+    {
+      "key": "DOCUMENTATION_GATE_ENFORCEMENT",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "The final documentation set is tracked item-by-item and can only be verified by service-role automation; release gate remains pending until all required documents pass."
+    },
+    {
+      "key": "DOCUMENTATION_VERSIONED_SOURCE_GATE",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Required documentation cannot pass the release gate unless it references a versioned Git Markdown source and has verification evidence."
+    },
+    {
+      "key": "DUPLICATE_PROVIDER_EVENT",
+      "category": "CHAOS",
+      "required": true,
+      "description": "Duplicate provider event is idempotent."
+    },
+    {
+      "key": "EDGE_FUNCTION_OBSERVABILITY_24H",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Edge Function logs are reviewed for current-version 5xx regressions and continuity worker health."
+    },
+    {
+      "key": "EDGE_FUNCTION_SECRET_HYGIENE",
+      "category": "SECURITY",
+      "required": true,
+      "description": "Edge Function source and runtime logs contain no hardcoded provider keys, bearer tokens or JWTs; provider secrets are read from environment."
+    },
+    {
+      "key": "EDGE_FUNCTION_SECURITY_REVIEW",
+      "category": "SECURITY",
+      "required": true,
+      "description": "All live Edge Functions have reviewed authentication/public exposure, bounded input, server-side authorization or retired tombstone behavior."
+    },
+    {
+      "key": "ENABLE_MULTI_VENUE_E2E",
+      "category": "E2E",
+      "required": true,
+      "description": "Synthetic rollback-only Super Admin AAL2 session uses the real save_feature_license and create_venue RPCs with one-time FEATURE_CHANGE grants; second venue is created idempotently/audited and unsafe disable with two active venues is rejected."
+    },
+    {
+      "key": "FOOD_COST_CALCULATION",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Server-side food cost selects venue cost over chain fallback and computes theoretical margin deterministically."
+    },
+    {
+      "key": "FOOD_COST_CONCURRENT_ANALYTICS",
+      "category": "CHAOS",
+      "required": true,
+      "description": "A concurrent ingredient-cost update does not alter an in-flight analytics statement; subsequent analytics sees the committed new cost."
+    },
+    {
+      "key": "FOOD_COST_SNAPSHOT_HISTORY",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Food-cost snapshots preserve historical values across cost changes and are immutable."
+    },
+    {
+      "key": "FORCE_CLOSE_PATH_ISOLATION",
+      "category": "SECURITY",
+      "required": true,
+      "description": "Exceptional account closure cannot bypass force-close controls: normal close requires settled balance, while force-close requires ADMIN and a resource-bound FORCE_CLOSE step-up grant."
+    },
+    {
+      "key": "FORCE_CLOSE_REOPEN_STEP_UP_E2E",
+      "category": "SECURITY",
+      "required": true,
+      "description": "Verify force-close and reopen account end-to-end with ADMIN authorization, one-time step-up grants, customer-session revocation and audit."
+    },
+    {
+      "key": "FULL_AUTH_SHIFT_MODE_CONTRACT",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Full-auth duration supports fixed minutes or planned-shift end, persists the computed expiry in the staff session, keeps PIN unlock bounded by that expiry, and is configured only by CHAIN Admin with step-up."
+    },
+    {
+      "key": "IDEMPOTENCY_REPLAY",
+      "category": "SECURITY",
+      "required": true,
+      "description": "Same idempotency key and payload replays the stored response; mismatched payload is rejected."
+    },
+    {
+      "key": "IMPERSONATION_READ_ONLY",
+      "category": "SECURITY",
+      "required": true,
+      "description": "Super Admin impersonation is read-only until explicit write enablement, and impersonated writes are audited."
+    },
+    {
+      "key": "INGREDIENT_COST_IDEMPOTENCY_AUDIT",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Ingredient cost writes are ADMIN-authorized, idempotent and audited with economic fields."
+    },
+    {
+      "key": "INITIAL_SETUP_RECOVERY_STATE",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Initial setup remains required until restaurant profile, first active venue and at least one active ADMIN exist; Super Admin can read the resumable setup phase without exposing secrets."
+    },
+    {
+      "key": "INTERNAL_HEALTH_SNAPSHOT",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Operational Health records fresh, truthful component states and never marks unverified external integrations healthy."
+    },
+    {
+      "key": "LAST_PORTION_TWO_DEVICES",
+      "category": "CHAOS",
+      "required": true,
+      "description": "Only one device can consume the last available portion."
+    },
+    {
+      "key": "MASTER_ACCEPTANCE_COVERAGE",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "All explicit Master Prompt acceptance requirements across Unit, Integration, E2E, Chaos, Audit, Security and additional acceptance cases are individually tracked and evidenced."
+    },
+    {
+      "key": "MENU_EDITOR_IDEMPOTENCY_VERSIONING",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Menu editor is idempotent, versioned, keeps public QR identity stable and atomically rewrites venue/category/dish assignments."
+    },
+    {
+      "key": "MENU_ENGINEERING_CLASSIFICATION",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Menu engineering classification deterministically maps popularity/margin quadrants while retaining numeric metrics."
+    },
+    {
+      "key": "MENU_ENGINEERING_REPORT",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Menu engineering reuses billing-unit semantics, excludes voided units and returns period sales plus theoretical food cost, margin and classification."
+    },
+    {
+      "key": "MENU_EXPERIENCE_E2E",
+      "category": "E2E",
+      "required": true,
+      "description": "Venue Admin can configure and publish a single-venue menu with stable public_menu_id and venue-scoped promotion; public payload resolves categories/promotions and admin workspace exposes the permanent public URL."
+    },
+    {
+      "key": "MENU_PROMOTION_EXPIRY",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Expired promotions are excluded server-side and promotions cannot alter authoritative dish pricing."
+    },
+    {
+      "key": "MENU_SCHEDULE_ENGINE",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Menu scheduling supports date/day/time windows including overnight service ranges."
+    },
+    {
+      "key": "MENU_SERVICE_ASSIGNMENT_CONTRACT",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Menus can be associated with restaurant services through a normalized join table; public availability requires an active matching service schedule when associations exist, and v2 Admin RPCs save associations atomically."
+    },
+    {
+      "key": "MENU_VENUE_OVERRIDE_E2E",
+      "category": "E2E",
+      "required": true,
+      "description": "The same shared catalog dish is rendered with venue-specific local price and availability, while venue-specific enabled=false hides a dish without cloning the catalog."
+    },
+    {
+      "key": "MESSAGE_CONTACT_PREFERENCE_OPT_OUT",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Verified reservation messaging contacts are channel-scoped; EMAIL can operate under RESERVATION_MESSAGING alone and explicit opt-out suppresses destination resolution."
+    },
+    {
+      "key": "MESSAGE_DELIVERY_EVENT_IDEMPOTENCY",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Provider delivery callbacks transition SENT to DELIVERED idempotently and do not duplicate provider events."
+    },
+    {
+      "key": "MESSAGE_DELIVERY_LEASE_RETRY_IDEMPOTENCY",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Message delivery claim/lease lifecycle retries transient failures with backoff and deduplicates provider events."
+    },
+    {
+      "key": "MESSAGE_DELIVERY_RETRY_DEDUP",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Message worker leases jobs, retries only known failures with backoff, deduplicates provider events and reaches DELIVERED without duplicate state transitions."
+    },
+    {
+      "key": "MESSAGE_DELIVERY_RETRY_IDEMPOTENCY",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Message delivery uses leased retries, exponential backoff and idempotent provider delivery events."
+    },
+    {
+      "key": "MESSAGE_FAILURE_PRESERVES_RESERVATION",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "A terminal messaging failure does not modify or lose the authoritative reservation state."
+    },
+    {
+      "key": "MESSAGE_OUTBOX_EXACT_ONCE",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Reservation confirmation outbox enqueues exactly one message job per enabled channel and repeat processors do not duplicate it."
+    },
+    {
+      "key": "MESSAGE_OUTBOX_NO_CHANNEL_FAIL_CLOSED",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Reservation message outbox remains pending with explicit error when no licensed operational channel is available."
+    },
+    {
+      "key": "MESSAGE_PROVIDER_MOCK_INTEGRATION",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Mock provider integration exercises claim, retry/backoff, provider idempotency and delivery callback processing."
+    },
+    {
+      "key": "MESSAGE_RECONCILIATION_NO_RESEND",
+      "category": "SECURITY",
+      "required": true,
+      "description": "Expired/unknown send outcomes require reconciliation and cannot be automatically reclaimed for resend."
+    },
+    {
+      "key": "MESSAGE_RETRY_DELIVERY_IDEMPOTENT",
+      "category": "CHAOS",
+      "required": true,
+      "description": "Certain provider failure retries the same message job with backoff; successful delivery and duplicate provider events are idempotent."
+    },
+    {
+      "key": "MESSAGE_TEMPLATE_SNAPSHOT",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Queued message jobs freeze the selected template so later template edits do not alter already queued communication."
+    },
+    {
+      "key": "MESSAGE_TEMPLATE_VARIABLE_WHITELIST",
+      "category": "SECURITY",
+      "required": true,
+      "description": "Reservation message templates accept only approved customer-facing variables and reject internal/arbitrary placeholders."
+    },
+    {
+      "key": "MESSAGE_UNKNOWN_OUTCOME_NO_AUTO_RETRY",
+      "category": "SECURITY",
+      "required": true,
+      "description": "Unknown remote messaging outcomes enter UNKNOWN and are not automatically resent, preventing duplicate delivery risk."
+    },
+    {
+      "key": "MESSAGE_UNKNOWN_OUTCOME_RECONCILIATION",
+      "category": "CHAOS",
+      "required": true,
+      "description": "Unknown remote messaging outcome is never retried blindly and requires reconciliation without altering the reservation."
+    },
+    {
+      "key": "MESSAGE_WORKER_INTERNAL_AUTH",
+      "category": "SECURITY",
+      "required": true,
+      "description": "Reservation message worker accepts the internal Vault-backed worker token, is scheduled server-side and returns HTTP 200 without exposing raw secrets."
+    },
+    {
+      "key": "MESSAGE_WORKER_RETRY_RECONCILIATION",
+      "category": "CHAOS",
+      "required": true,
+      "description": "Messaging worker deduplicates provider events, retries known temporary failures, and reconciles unknown outcomes without blind resend."
+    },
+    {
+      "key": "MESSAGING_PROVIDER_FAILURE_PRESERVES_RESERVATION",
+      "category": "CHAOS",
+      "required": true,
+      "description": "Messaging provider failure schedules retry or terminal failure without mutating or losing the reservation."
+    },
+    {
+      "key": "MIGRATION_HISTORY_DUPLICATE_NAME_TRIAGE",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Duplicate migration names are reviewed: versions must remain unique and differently named-history entries must not be rewritten."
+    },
+    {
+      "key": "MONO_VENUE_INVARIANT",
+      "category": "SECURITY",
+      "required": true,
+      "description": "Second active venue rejected while MULTI_VENUE is disabled."
+    },
+    {
+      "key": "NAVIGATION_TELEMETRY_SEPARATION",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Pure page/route navigation is recorded in telemetry without creating a security audit event."
+    },
+    {
+      "key": "NOTIFICATION_CENTER_E2E",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Notification Center uses real staff authorization, filters by venue/role/user, expires stale notifications, transitions NEW to ACKNOWLEDGED to RESOLVED, keeps active inbox clean and audits acknowledgement/resolution."
+    },
+    {
+      "key": "OFFLINE_AUTHORIZATION_ISSUANCE",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Authenticated staff can obtain a server-issued HMAC-signed offline authorization snapshot bound to the active device/session/venues without exposing service_role or signing secrets to the client."
+    },
+    {
+      "key": "OFFLINE_EXPIRED_AUTH",
+      "category": "OFFLINE",
+      "required": true,
+      "description": "Expired offline authorization rejects operation as conflict."
+    },
+    {
+      "key": "OFFLINE_REVOKED_DEVICE",
+      "category": "OFFLINE",
+      "required": true,
+      "description": "Revoked offline device is rejected on reconnect."
+    },
+    {
+      "key": "OFFLINE_USER_REVOKED_DURING_SYNC",
+      "category": "CHAOS",
+      "required": true,
+      "description": "A valid offline snapshot is rejected as a conflict if the user is revoked before synchronization, with no domain mutation applied."
+    },
+    {
+      "key": "OPERATIONAL_ASSIGNMENT_BYPASS",
+      "category": "SECURITY",
+      "required": true,
+      "description": "A staff user cannot perform assignment-scoped operations on an unassigned table/station/resource."
+    },
+    {
+      "key": "PAYMENT_PROVIDER_MANUAL_CONFIRM",
+      "category": "SECURITY",
+      "required": true,
+      "description": "Provider payments cannot be manually confirmed by staff RPC."
+    },
+    {
+      "key": "PAYMENT_STATUS_TAMPERING",
+      "category": "SECURITY",
+      "required": true,
+      "description": "Authenticated clients cannot directly mutate payment status."
+    },
+    {
+      "key": "PAYMENT_WEBHOOK_OUT_OF_ORDER",
+      "category": "CHAOS",
+      "required": true,
+      "description": "Completed provider operations ignore late WAITING callbacks and reject contradictory terminal callbacks without regressing state."
+    },
+    {
+      "key": "PERFORMANCE_HOT_PATH_INDEX_REVIEW",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Critical operational tables have no uncovered foreign-key indexes and no known duplicate indexes remain."
+    },
+    {
+      "key": "PERMISSION_MANIFEST",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "API grants match the permission manifest."
+    },
+    {
+      "key": "POSTGRES_17_11_COMPATIBILITY",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Plateform is checked against Supabase PostgreSQL 17.11 breaking-change conditions for pgcrypto, ltree, btree_gist and custom operators."
+    },
+    {
+      "key": "PRICE_TAMPERING",
+      "category": "SECURITY",
+      "required": true,
+      "description": "Client-supplied price fields are rejected and order pricing remains server-authoritative."
+    },
+    {
+      "key": "PRINT_CLAIMABLE_QUEUE_AUTHORIZATION",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Automatic staff print consumer only sees queued EPOS/BRIDGE jobs for active devices allowed to the current role; BROWSER jobs remain manual and role-forbidden devices are hidden."
+    },
+    {
+      "key": "PRINTER_OFFLINE_RETRY",
+      "category": "CHAOS",
+      "required": true,
+      "description": "Printer failure is retained and retry requires duplicate-risk confirmation."
+    },
+    {
+      "key": "PRIVACY_DATA_RIGHTS_AUTHORIZATION_REVIEW",
+      "category": "SECURITY",
+      "required": true,
+      "description": "Privacy search/export/rectification/anonymization routines are reviewed for venue authorization, role boundaries, step-up protection, idempotency and audit."
+    },
+    {
+      "key": "PRIVACY_RETENTION_FAIL_SAFE",
+      "category": "SECURITY",
+      "required": true,
+      "description": "Data retention is disabled by default, scheduled safely, service-role executed, and cannot purge data until an explicit customer policy is configured."
+    },
+    {
+      "key": "PRIVILEGE_ESCALATION",
+      "category": "SECURITY",
+      "required": true,
+      "description": "Venue admin cannot escalate role or CHAIN scope."
+    },
+    {
+      "key": "PROMOTION_EDITOR_IDEMPOTENCY_VERSIONING",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Promotion editor is idempotent and versioned; expiry removes the promotion from public payload without altering authoritative dish price."
+    },
+    {
+      "key": "PROVIDER_TIMEOUT_RETRY",
+      "category": "CHAOS",
+      "required": true,
+      "description": "Unknown remote outcome reuses same provider operation on retry."
+    },
+    {
+      "key": "PUBLIC_BOOKING_AVAILABILITY_SERVER_AUTHORITY",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Anonymous booking availability is computed server-side from service schedule, pacing, closures, large-party policy and deposit policy without exposing internal reservation counts."
+    },
+    {
+      "key": "PUBLIC_MENU_QR_ISOLATION",
+      "category": "SECURITY",
+      "required": true,
+      "description": "Anonymous menu access by stable QR id or slug exposes only categories/dishes authorized for that menu and venue."
+    },
+    {
+      "key": "PUBLIC_RESERVATION_EDGE_DEPOSIT_CONTRACT",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Public reservation Edge accepts RESERVED, REQUESTED and PENDING_DEPOSIT responses; reservation-deposit returns to /prenota; both public Edge endpoints are reachable and reject invalid payloads with application-level 400 responses."
+    },
+    {
+      "key": "PUBLIC_SITE_STORYTELLING_CONTRACT",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Public site branding contract supports philosophy and chef content with bounded text, HTTPS-only chef imagery, accessible alt text and explicit section visibility controls."
+    },
+    {
+      "key": "PUBLIC_WAITLIST_EDGE_RATE_LIMIT_HARDENING",
+      "category": "SECURITY",
+      "required": true,
+      "description": "Public waitlist Edge derives join and acceptance rate-limit identity server-side from the trusted client IP, does not accept a browser-supplied rate key, validates bounded JSON input and remains reachable without JWT while preserving application-level validation."
+    },
+    {
+      "key": "READINESS_CORE_HEALTH_FAIL_CLOSED",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Release readiness becomes false when any core health component is degraded or stale."
+    },
+    {
+      "key": "REALTIME_EVENT_LOSS_RECONCILE",
+      "category": "CHAOS",
+      "required": true,
+      "description": "Authoritative snapshot repairs state after lost Realtime event."
+    },
+    {
+      "key": "RECIPE_UNIT_CONVERSION",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Recipe units convert deterministically and incompatible dimensions fail closed."
+    },
+    {
+      "key": "REFUND_STEP_UP_E2E",
+      "category": "SECURITY",
+      "required": true,
+      "description": "Verify refund end-to-end with ADMIN authorization, one-time step-up grant, idempotency, ledger update and audit."
+    },
+    {
+      "key": "RELEASE4_FEATURE_GATE_DEFAULT_DENY",
+      "category": "SECURITY",
+      "required": true,
+      "description": "Release 4 commercial modules are globally licensed and venue-enabled server-side; unlicensed modules fail closed and public payloads hide disabled features."
+    },
+    {
+      "key": "REMINDER_EXACTLY_ONCE_WITH_RETRY",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Reservation reminder scheduler reuses the same dedupe-key job across retries and repeated scheduler runs."
+    },
+    {
+      "key": "REMINDER_SCHEDULER_DEDUPE",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Reminder scheduler deduplicates retries, replaces stale schedules after booking-time changes and cancels pending reminders when the reservation leaves RESERVED."
+    },
+    {
+      "key": "RESERVATION_CONFIRMATION_OUTBOX_EXACTLY_ONCE",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "A RESERVED reservation creates one transactional outbox event and one deduplicated message job; repeated outbox processing does not duplicate the job."
+    },
+    {
+      "key": "RESERVATION_DEPOSIT_CALLBACK_EDGE_SECURITY",
+      "category": "SECURITY",
+      "required": true,
+      "description": "Reservation deposit provider callbacks verify provider authenticity and server-side payment facts before applying authoritative deposit state."
+    },
+    {
+      "key": "RESERVATION_DEPOSIT_CALLBACK_IDEMPOTENCY",
+      "category": "CHAOS",
+      "required": true,
+      "description": "Deposit provider callback deduplicates provider events and rejects contradictory/out-of-order callbacks after completion."
+    },
+    {
+      "key": "RESERVATION_DEPOSIT_EDGE_REACHABILITY",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Public reservation-deposit Edge Function is deployed and returns controlled validation errors instead of runtime failures."
+    },
+    {
+      "key": "RESERVATION_DEPOSIT_EXPIRY_CAPACITY",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Expired pending deposits atomically expire their reservation, revoke access and release booking capacity."
+    },
+    {
+      "key": "RESERVATION_DEPOSIT_POLICY_FLOW",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Booking deposit policy is evaluated server-side; required fixed deposits enter PENDING_DEPOSIT with opaque access token, feature-gate fail closed and large-group precedence."
+    },
+    {
+      "key": "RESERVATION_DEPOSIT_SERVER_AUTHORITY",
+      "category": "SECURITY",
+      "required": true,
+      "description": "Reservation deposit completion is service-role-only and atomically confirms the reservation; client roles cannot mark deposits paid."
+    },
+    {
+      "key": "RESERVATION_DEPOSIT_STATE_MACHINE",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Reservation deposit lifecycle enforces valid transitions, immutability and audit."
+    },
+    {
+      "key": "RESERVATION_MESSAGE_OUTBOX_EXACTLY_ONCE",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Reservation confirmation outbox creates exactly one delivery job per enabled channel and repeated processors do not duplicate it."
+    },
+    {
+      "key": "RESERVATION_MESSAGE_PII_ISOLATION",
+      "category": "SECURITY",
+      "required": true,
+      "description": "Message destination and template payload PII remain in private schema and are not exposed through public message job rows."
+    },
+    {
+      "key": "RESERVATION_MESSAGE_WORKER_EDGE_REACHABILITY",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Internal worker token reaches reservation-message-worker Edge Function and the worker can call the service-role-only claim RPC without exposing a public execution path."
+    },
+    {
+      "key": "RESERVATION_MESSAGING_ORCHESTRATION",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Unified reservation messaging cron executes outbox, reminder scheduling and worker dispatch without duplicate cron topology."
+    },
+    {
+      "key": "RESERVATION_MESSAGING_TICK_CRON",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Reservation messaging cron is active, no-ops safely when no work exists, and invokes the worker only for due jobs."
+    },
+    {
+      "key": "RESERVATION_NO_SHOW_DEPOSIT_POLICY",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "A NO_SHOW snapshots the configured deposit action; MANUAL and RETAIN never call a provider, while FULL/PARTIAL create an idempotent queued refund amount without changing deposit refund state before provider confirmation."
+    },
+    {
+      "key": "RESERVATION_NO_SHOW_DEPOSIT_PROVIDER_STATE_MACHINE",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "No-show deposit refunds are leased to a service-only provider worker, only mutate deposit refunded state after verified provider completion, poll known remote refund ids safely and require reconciliation for unknown outcomes."
+    },
+    {
+      "key": "RESERVATION_NO_SHOW_GRACE_PERIOD",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "No-show engine never marks before grace; SUGGESTED creates one Host notification after grace; AUTOMATIC transitions RESERVED to NO_SHOW server-side with audit and correction path."
+    },
+    {
+      "key": "RESERVATION_REMINDER_DEDUPE_RESCHEDULE",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Reminder scheduler reuses the same dedupe key on repeated runs and cancels stale reminders when the reservation schedule changes."
+    },
+    {
+      "key": "RESERVATION_REMINDER_DEDUPLICATION",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Reminder scheduler enqueues once, reuses an existing dedupe key on repeat runs and keeps reservation state unchanged."
+    },
+    {
+      "key": "RESERVATION_REMINDER_EXACTLY_ONCE_RETRY",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Reminder scheduler and delivery worker keep one logical reminder across retries, with stable dedupe and no duplicate scheduler enqueue."
+    },
+    {
+      "key": "RLS_GLOBAL",
+      "category": "SECURITY",
+      "required": true,
+      "description": "All application public/private tables have RLS enabled."
+    },
+    {
+      "key": "ROOM_EDITOR_ADVANCED_CONTRACT",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Advanced room editor can create room/zone/layout, save versioned elements and tables, activate layout and enforces in-use/archive guards with rollback-only fixtures."
+    },
+    {
+      "key": "SECURITY_DEFINER_SEARCH_PATH",
+      "category": "SECURITY",
+      "required": true,
+      "description": "Every application SECURITY DEFINER function has an explicit search_path configuration."
+    },
+    {
+      "key": "SERVICE_CONFIGURATION_CONTRACT",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Restaurant services are arbitrary ADMIN-managed records with name, start/end time, weekdays, active state and booking/covers capacity; no lunch/dinner-only assumption exists."
+    },
+    {
+      "key": "SESSION_REVOCATION",
+      "category": "SECURITY",
+      "required": true,
+      "description": "Revoked/mismatched sessions fail closed."
+    },
+    {
+      "key": "SHIFT_PLANNING_ONLY_CONTRACT",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Shift management is ADMIN-only planning with staff/start/end/version, overlap and timezone guards, and contains no attendance, clock-in/out, lateness or break tracking."
+    },
+    {
+      "key": "SINGLE_INSTALLATION_INVARIANT",
+      "category": "SECURITY",
+      "required": true,
+      "description": "A second restaurant/customer profile cannot be created in the same installation."
+    },
+    {
+      "key": "STAFF_IDENTIFIER_STABLE_DOMAIN_CONTRACT",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Staff identifiers use the dedicated stable identity domain, normalize display names, resolve collisions as base2/base3 without coupling to public/staff URL changes, and check both Auth users and pending create jobs."
+    },
+    {
+      "key": "STAFF_LOGOUT_SESSION_REVOCATION",
+      "category": "SECURITY",
+      "required": true,
+      "description": "Staff logout explicitly revokes the current operational staff_session and writes AUTH_LOGOUT audit evidence; repeated calls are idempotent."
+    },
+    {
+      "key": "STAFF_PIN_LOCKOUT",
+      "category": "SECURITY",
+      "required": true,
+      "description": "Staff PIN requires password after lockout threshold."
+    },
+    {
+      "key": "STEP_UP_GRANT_BINDING",
+      "category": "SECURITY",
+      "required": true,
+      "description": "Step-up grants are bound to user/session/action/resource, expire, and are single-use."
+    },
+    {
+      "key": "STEP11_BOOKING_AVAILABILITY_CLIENT_CONTRACT",
+      "category": "PUBLIC_SITE",
+      "required": true,
+      "description": "Validate venue/service/date/party association and all bookable slot invariants"
+    },
+    {
+      "key": "STEP11_BOOKING_CHROMIUM_DOM_MOCK",
+      "category": "PUBLIC_SITE",
+      "required": true,
+      "description": "Verify real booking DOM with Chromium and isolated mock transport for filter invalidation, out-of-order response and payload submission"
+    },
+    {
+      "key": "STEP11_BOOKING_DST_GAP_CONTRACT",
+      "category": "PUBLIC_SITE",
+      "required": true,
+      "description": "PostgreSQL Europe/Rome spring-forward non-existent local slot suppression; adjacent valid slots and ordinary-day availability stay intact"
+    },
+    {
+      "key": "STEP11_BOOKING_FIELDS_CLIENT_CONTRACT",
+      "category": "PUBLIC_SITE",
+      "required": true,
+      "description": "Isolated TypeScript client: dynamic booking field UUID IDs, JSONB-compatible select/radio/checkbox payloads, required field and numeric validation"
+    },
+    {
+      "key": "STEP11_BOOKING_VISIBILITY_DATABASE",
+      "category": "PUBLIC_SITE",
+      "required": true,
+      "description": "Ensure booking readiness, navigation, public site and SEO booking page agree for every active venue"
+    },
+    {
+      "key": "STEP11_BRANDING_COLOR_CONTRAST",
+      "category": "PUBLIC_SITE",
+      "required": true,
+      "description": "Pure TypeScript contrast tests for ten representative administrator-defined accents, fallback background contrast, text and visible focus"
+    },
+    {
+      "key": "STEP11_DARK_THEME_CSS_CHROMIUM",
+      "category": "PUBLIC_SITE",
+      "required": true,
+      "description": "Chromium CSS checks for light/dark button contrast, mobile touch target, keyboard focus, reduced motion and form input readability"
+    },
+    {
+      "key": "STEP11_DEPOSIT_CHECKOUT_EXACT_HOST_CLIENT",
+      "category": "PUBLIC_SITE",
+      "required": true,
+      "description": "Integrated frontend payment redirects accept only exact provider checkout hosts, never arbitrary brand subdomains"
+    },
+    {
+      "key": "STEP11_DEPOSIT_CLIENT_CONTRACT",
+      "category": "PUBLIC_SITE",
+      "required": true,
+      "description": "Isolated TypeScript client: reservation/deposit response validation and constrained Stripe/Satispay HTTPS redirects"
+    },
+    {
+      "key": "STEP11_DEPOSIT_CONTINUATION_CLIENT",
+      "category": "PUBLIC_SITE",
+      "required": true,
+      "description": "Pure client contract for deposits: redirect HTTPS provider allowlist, id/provider context, completed/failed/processing states"
+    },
+    {
+      "key": "STEP11_INTEGRATED_BUILD_ASSEMBLY",
+      "category": "PUBLIC_SITE",
+      "required": true,
+      "description": "Rebuild deployed public tree from real Vite HTML template with controlled anonymous RPC, stale-route cleanup and noindex mode"
+    },
+    {
+      "key": "STEP11_INTEGRATED_SOURCE_BOOKING_CONTRACT",
+      "category": "PUBLIC_SITE",
+      "required": true,
+      "description": "Source recovered from authorized full Plateform checkpoint; public booking uses authoritative server availability, dates, idempotency and deposit Edge Function; offline unit assertions"
+    },
+    {
+      "key": "STEP11_INTEGRATED_SOURCE_MOBILE_DOM",
+      "category": "PUBLIC_SITE",
+      "required": true,
+      "description": "Recovered full application public menu mobile navigation tested in actual Chromium DOM without backend"
+    },
+    {
+      "key": "STEP11_INTEGRATED_SOURCE_SEO_PRERENDER",
+      "category": "PUBLIC_SITE",
+      "required": true,
+      "description": "Recovered full application static public HTML SEO renderer tested with mocked public RPC data, escaping, origin and key checks"
+    },
+    {
+      "key": "STEP11_INTEGRATED_STATIC_CHROMIUM",
+      "category": "PUBLIC_SITE",
+      "required": true,
+      "description": "Actual assembled prerendered HTML in Chromium with JavaScript disabled: home, menu, contacts, keyboard and CSS responsive/contrast"
+    },
+    {
+      "key": "STEP11_MIGRATION_RECOVERY_DRYRUN",
+      "category": "PUBLIC_SITE",
+      "required": true,
+      "description": "Read-only PostgreSQL migration inventory recovery with strict SHA-256, dry-run, mismatch and malicious input guards"
+    },
+    {
+      "key": "STEP11_PUBLIC_BOOKING_CTA_SCOPING",
+      "category": "PUBLIC_SITE",
+      "required": true,
+      "description": "Client side booking CTA and multi-venue selection respect authoritative selected venue booking readiness"
+    },
+    {
+      "key": "STEP11_PUBLIC_BOOKING_PRIVACY_READY",
+      "category": "PUBLIC_SITE",
+      "required": true,
+      "description": "Booking readiness requires HTTPS privacy notice and active configured service; all public booking RPCs obey same backend policy"
+    },
+    {
+      "key": "STEP11_PUBLIC_BOOKING_TRANSACTION_ROLLBACK",
+      "category": "PUBLIC_SITE",
+      "required": true,
+      "description": "Real development PostgreSQL booking writes for RESERVED, REQUESTED, PENDING_DEPOSIT, idempotent replay, deposit row and full rollback"
+    },
+    {
+      "key": "STEP11_PUBLIC_KEY_CLIENT_GUARD",
+      "category": "SECURITY",
+      "required": true,
+      "description": "Reject browser credentials with service_role or sb_secret while accepting supported publishable and legacy anon keys"
+    },
+    {
+      "key": "STEP11_PUBLIC_METADATA_BACKEND",
+      "category": "PUBLIC_SITE",
+      "required": true,
+      "description": "Check public page metadata, anonymous scope, forbidden routes, SEO noindex behavior"
+    },
+    {
+      "key": "STEP11_PUBLIC_MOBILE_NAVIGATION_DOM",
+      "category": "PUBLIC_SITE",
+      "required": true,
+      "description": "Chromium DOM test for aria-expanded, Escape focus restoration, outside clicks, link close, responsive desktop transition and handler cleanup"
+    },
+    {
+      "key": "STEP11_PUBLIC_SITEMAP_BACKEND",
+      "category": "PUBLIC_SITE",
+      "required": true,
+      "description": "Check sitemap candidate URLs, private route exclusion and indexability consistency"
+    },
+    {
+      "key": "STEP11_REAL_HTML_ENTRY_PRERENDER",
+      "category": "PUBLIC_SITE",
+      "required": true,
+      "description": "Local release compiler recognizes the actual index.html Vite entry with its boot paragraph and produces accessible static HTML; rejects multiple or injected app mounts"
+    },
+    {
+      "key": "STEP11_STAGING_FULL_CI_WORKFLOW_STATIC",
+      "category": "PUBLIC_SITE",
+      "required": true,
+      "description": "Staging workflow requires Node 24 npm ci, formatting, full app checks, Chromium E2E, migration dry run, real build and hosted HTTPS smoke"
+    },
+    {
+      "key": "STEP11_STAGING_HTTP_SMOKE_FIXTURES",
+      "category": "PUBLIC_SITE",
+      "required": true,
+      "description": "Staging HTTPS read-only smoke contract on controlled HTTP fixtures with explicit negative tests"
+    },
+    {
+      "key": "STEP11_STATIC_EDITORIAL_HTML_OFFLINE",
+      "category": "PUBLIC_SITE",
+      "required": true,
+      "description": "Public HTML editorial fallback built from authorized read-only RPC payloads: home/story, menu published vs legacy, gallery, contacts, venues, strict escaping and build consistency"
+    },
+    {
+      "key": "STEP11_STATIC_EDITORIAL_NO_JS_CHROMIUM",
+      "category": "PUBLIC_SITE",
+      "required": true,
+      "description": "Chromium with JavaScript disabled renders SSR editorial markup, menu/allergens and contact links without running injected HTML"
+    },
+    {
+      "key": "STEP11_STATIC_SEO_GENERATOR_OFFLINE",
+      "category": "PUBLIC_SITE",
+      "required": true,
+      "description": "Pre-render indexable public route HTML metadata, sitemap.xml and robots.txt from authoritative read-only Supabase RPCs; fail closed on malformed URLs or mismatched domains"
+    },
+    {
+      "key": "STEP11_VERCEL_STAGING_CONFIG_OFFLINE",
+      "category": "PUBLIC_SITE",
+      "required": true,
+      "description": "Vercel staging headers, noindex, staff route segregation, and no-asset-fallback tests on the integrated source"
+    },
+    {
+      "key": "STORAGE_WRITE_RLS",
+      "category": "SECURITY",
+      "required": true,
+      "description": "Client roles cannot directly write Storage objects."
+    },
+    {
+      "key": "SUPABASE_AUTHORIZATION_PATTERN_AUDIT",
+      "category": "SECURITY",
+      "required": true,
+      "description": "Application policies and routines do not use deprecated auth.role() or user-editable user_metadata for authorization."
+    },
+    {
+      "key": "SUPABASE_SECURITY_ADVISOR_TRIAGE",
+      "category": "SECURITY",
+      "required": true,
+      "description": "Supabase security advisor findings are reviewed and either remediated, documented as intentional deny-all/public API, or tracked as an external go-live gate."
+    },
+    {
+      "key": "SUPER_ADMIN_MFA",
+      "category": "SECURITY",
+      "required": true,
+      "description": "Super Admin privileged authorization requires AAL2."
+    },
+    {
+      "key": "TAKEAWAY_CORE_AVAILABILITY_REUSE",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Takeaway ordering reuses the core place_order stock lock and never permits availability to go negative."
+    },
+    {
+      "key": "TAKEAWAY_KDS_VISIBILITY",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Takeaway tickets are visible in KDS without a table and show the pickup-time service label."
+    },
+    {
+      "key": "TAKEAWAY_SLOT_CAPACITY_ATOMICITY",
+      "category": "CHAOS",
+      "required": true,
+      "description": "Takeaway pickup slot is locked server-side; only capacity_orders non-cancelled orders can occupy the slot."
+    },
+    {
+      "key": "TAKEAWAY_STATUS_LIFECYCLE",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Takeaway operational status follows kitchen truth: preparation requires started items, ready requires all active items READY/SERVED, and collection serves items/steps and removes the ticket from active KDS."
+    },
+    {
+      "key": "TECHNICAL_INCIDENT_ROLE_ISOLATION",
+      "category": "SECURITY",
+      "required": true,
+      "description": "Incident and incident-event visibility is limited to SUPER_ADMIN and venue ADMIN scope; operational roles cannot read technical incident data."
+    },
+    {
+      "key": "TIPS_UNIT",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Tip validation rejects negative tips; a completed manual payment persists the tip exactly once without increasing account debt."
+    },
+    {
+      "key": "TWO_REGISTERS_SAME_BALANCE",
+      "category": "CHAOS",
+      "required": true,
+      "description": "Two registers cannot reserve the same outstanding balance."
+    },
+    {
+      "key": "VARIANT_SELECTION_RULES",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Required variant groups, max selection limits and valid variant snapshots are enforced transactionally without leaking failed orders."
+    },
+    {
+      "key": "VENUE_CONTEXT_MONO_E2E",
+      "category": "E2E",
+      "required": true,
+      "description": "With MULTI_VENUE disabled and exactly one active venue, staff venue context auto-opens the sole authorized venue and never shows a selector."
+    },
+    {
+      "key": "VENUE_CONTEXT_MULTI_ASSIGNMENT_E2E",
+      "category": "E2E",
+      "required": true,
+      "description": "With MULTI_VENUE enabled, a user assigned to multiple active venues sees a selector, can persist an authorized operational venue and cannot select a venue after authorization is removed."
+    },
+    {
+      "key": "VENUE_CONTEXT_SINGLE_ASSIGNMENT_E2E",
+      "category": "E2E",
+      "required": true,
+      "description": "With MULTI_VENUE enabled, a VENUE-scoped user assigned to exactly one active venue auto-opens it without a selector."
+    },
+    {
+      "key": "VENUE_ID_TAMPERING",
+      "category": "SECURITY",
+      "required": true,
+      "description": "Supplying a foreign venue_id to an authorized RPC does not bypass CHAIN/VENUE scope enforcement."
+    },
+    {
+      "key": "WAITLIST_EDGE_REACHABILITY",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Public waitlist Edge Function is deployed and returns controlled validation errors without exposing privileged DB APIs."
+    },
+    {
+      "key": "WAITLIST_LAST_SLOT_ATOMICITY",
+      "category": "CHAOS",
+      "required": true,
+      "description": "Two accepted waitlist offers competing for the final capacity are serialized on the service lock; only one converts to a reservation."
+    },
+    {
+      "key": "WAITLIST_OFFER_EXPIRY",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Expired waitlist offers transition to EXPIRED, revoke the offer token and are processed by scheduled expiry runner."
+    },
+    {
+      "key": "WAITLIST_OFFER_MESSAGE_BRIDGE",
+      "category": "INTEGRATION",
+      "required": true,
+      "description": "When Admin enables waitlist offer messaging, offering a compatible waitlist entry atomically queues phone-based WAITLIST_OFFER message jobs using private token payloads; no reservation row is fabricated and expired offers are cancelled before provider delivery."
+    },
+    {
+      "key": "WAITLIST_PRIORITY_ORDERING",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Waitlist candidates are ordered deterministically by temporal compatibility, then insertion time, then id; non-top compatible candidates cannot be offered first."
+    },
+    {
+      "key": "WAITLIST_PUBLIC_ENTRY_IDEMPOTENCY",
+      "category": "REGRESSION",
+      "required": true,
+      "description": "Public waitlist entry is feature-gated, rate-limited and idempotent without creating a reservation."
+    }
+  ]
+}
