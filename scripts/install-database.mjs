@@ -63,9 +63,12 @@ if (process.argv.includes('--check')) {
       // The ledger stores the exact historical SQL, including explicit
       // transactions. No bootstrap bytes are merged into an applied migration.
       locations.push({ line, phase: row.filename });
+      // Applied ledger statements may omit the final delimiter. A standalone
+      // query accepts that EOF, but a psql script needs a boundary before the
+      // ledger INSERT. Add transport punctuation without rewriting stored SQL.
       const migrationSql =
         row.sql +
-        '\n' +
+        '\n;\n' +
         `insert into supabase_migrations.schema_migrations(version,name,statements)
         values(${sqlLiteral(row.version)},${sqlLiteral(row.name)},
           array[convert_from(decode('${Buffer.from(row.sql).toString('hex')}','hex'),'UTF8')]);\n`;
