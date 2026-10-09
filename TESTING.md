@@ -309,8 +309,11 @@ Il job `native-clean-install` prepara uno stack Supabase Docker temporaneo con
 CLI 2.120.0, PostgreSQL 17, Auth, Storage e PostgREST reali. La cartella CLI
 contiene solo la configurazione di piattaforma: lo storico applicativo viene
 eseguito da `npm run db:install`, con bootstrap/postlude versionati e ledger
-contenente ogni SQL originale. La rete Docker è interna, le porte sono sul
-loopback e `cron.launch_active_jobs=off` viene verificato prima del replay.
+contenente ogni SQL originale. Le porte sono sul loopback; dopo l'inizializzazione
+della piattaforma vuota una regola `DOCKER-USER` blocca l'egress del bridge
+dedicato. La presenza della regola e `cron.launch_active_jobs=off` vengono
+verificati prima del replay. Il primo tentativo con rete Docker interna non
+esponeva la porta database alla CLI e si è fermato prima delle migrazioni.
 Non vengono copiate chiavi o dati Development.
 
 Il controllo nativo confronta gli stessi sette cataloghi del replay WASM,

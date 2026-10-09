@@ -13,6 +13,7 @@ const conn = new URL(process.env.SUPABASE_DB_URL || 'invalid:');
 if (
   process.env.PLATEFORM_NATIVE_CI !== '1' ||
   process.env.PLATEFORM_INSTALL_LOCAL !== '1' ||
+  process.env.PLATEFORM_NATIVE_EGRESS_BLOCKED !== '1' ||
   !['postgres:', 'postgresql:'].includes(conn.protocol) ||
   conn.hostname !== '127.0.0.1' ||
   conn.port !== '54322' ||
@@ -33,6 +34,31 @@ Object.assign(env, {
   PGCONNECT_TIMEOUT: '15',
 });
 const run = promisify(execFile);
+const networkName = 'plateform-clean-install-ci';
+const bridge = 'pf_native_ci';
+const network = JSON.parse((await run('docker', ['network', 'inspect', networkName])).stdout)[0];
+if (
+  network.EnableIPv6 !== false ||
+  network.Options['com.docker.network.bridge.name'] !== bridge ||
+  network.Options['com.docker.network.bridge.host_binding_ipv4'] !== '127.0.0.1' ||
+  Object.keys(network.Containers).length < 5
+) {
+  throw new Error('NATIVE_CI_NETWORK_ISOLATION_INCOMPLETE');
+}
+await run('sudo', ['iptables', '-C', 'DOCKER-USER', '-i', bridge, '!', '-o', bridge, '-j', 'DROP']);
+for (const id of Object.keys(network.Containers)) {
+  const settings = JSON.parse(
+    (await run('docker', ['inspect', '--format', '{{json .NetworkSettings}}', id])).stdout,
+  );
+  if (JSON.stringify(Object.keys(settings.Networks)) !== JSON.stringify([networkName]))
+    throw new Error('NATIVE_CI_UNRESTRICTED_EXTRA_CONTAINER_NETWORK');
+  if (
+    Object.values(settings.Ports)
+      .flatMap((bindings) => bindings || [])
+      .some((binding) => binding.HostIp !== '127.0.0.1' && binding.HostIp !== '::1')
+  )
+    throw new Error('NATIVE_CI_PUBLIC_CONTAINER_PORT');
+}
 const psql = async (sql) => {
   try {
     return (
@@ -237,7 +263,12 @@ if (process.argv.includes('--prepare')) {
     rejected_pass_writes: attempts.length,
     repeat_install_blocked: repeatBlocked,
     cron_disabled: true,
-    external_container_network: 'internal',
+    external_container_network: 'bridge_with_verified_egress_drop_rule',
+    network: {
+      containers: Object.keys(network.Containers).length,
+      ipv6_disabled: true,
+      loopback_ports: true,
+    },
     http: {
       auth_health: true,
       storage_health: true,

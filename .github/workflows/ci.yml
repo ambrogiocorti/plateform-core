@@ -48,10 +48,12 @@ jobs:
         run: |
           mkdir -p .local/native-ci/supabase
           cp supabase/clean-install/ci-config.toml .local/native-ci/supabase/config.toml
-          docker network create --internal --opt com.docker.network.bridge.host_binding_ipv4=127.0.0.1 plateform-clean-install-ci
-          test "$(docker network inspect --format '{{.Internal}}' plateform-clean-install-ci)" = true
+          docker network create --opt com.docker.network.bridge.host_binding_ipv4=127.0.0.1 --opt com.docker.network.bridge.name=pf_native_ci plateform-clean-install-ci
           supabase start --workdir .local/native-ci --network-id plateform-clean-install-ci --exclude realtime,imgproxy,mailpit,postgres-meta,studio,edge-runtime,logflare,vector,supavisor > .local/native-ci/start.log
           supabase status --workdir .local/native-ci --output json > .local/native-ci/status.json
+          sudo iptables -I DOCKER-USER 1 -i pf_native_ci ! -o pf_native_ci -j DROP
+          sudo iptables -C DOCKER-USER -i pf_native_ci ! -o pf_native_ci -j DROP
+          printf 'PLATEFORM_NATIVE_EGRESS_BLOCKED=1\n' >> "$GITHUB_ENV"
       - name: Disable automatic cron before historical replay
         run: node scripts/check-native-clean-install.mjs --prepare
       - name: Run shared guarded installer through psql
