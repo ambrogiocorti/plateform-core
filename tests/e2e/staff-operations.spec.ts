@@ -7,8 +7,9 @@ const venue = '10000000-0000-4000-8000-000000000001';
 const booking = '80000000-0000-4000-8000-000000000006';
 const service = '80000000-0000-4000-8000-000000000005';
 const table = '80000000-0000-4000-8000-000000000003';
+const previousTable = '80000000-0000-4000-8000-000000000014';
 
-async function hostFixture(page: Page, locked = false) {
+async function hostFixture(page: Page, locked = false, initiallyAssigned = false) {
   await page.addInitScript(
     ({ id }) => {
       const token = `${btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }))}.${btoa(JSON.stringify({ sub: id, exp: Math.floor(Date.now() / 1000) + 3600, role: 'authenticated' }))}.fixture`;
@@ -34,7 +35,8 @@ async function hostFixture(page: Page, locked = false) {
     { id: user },
   );
   const commands: { name: string; body: Record<string, unknown> }[] = [];
-  let tableAssigned = false;
+  let assignedTable: string | null = initiallyAssigned ? previousTable : null;
+  let reservationVersion = initiallyAssigned ? 2 : 1;
   await page.route('**/rest/v1/**', async (route) => {
     const url = new URL(route.request().url());
     const name = url.pathname.split('/').at(-1)!;
@@ -119,7 +121,7 @@ async function hostFixture(page: Page, locked = false) {
             width: 100,
             height: 100,
             rotation: 0,
-            technical_status: tableAssigned ? 'RESERVED' : 'AVAILABLE',
+            technical_status: assignedTable === table ? 'RESERVED' : 'AVAILABLE',
             public_table_id: '80000000-0000-4000-8000-000000000009',
             covers: 0,
             open_accounts: 0,
@@ -137,15 +139,15 @@ async function hostFixture(page: Page, locked = false) {
         items: [
           {
             id: booking,
-            version: tableAssigned ? 2 : 1,
+            version: reservationVersion,
             first_name: 'Marta',
             last_name: 'Rossi',
             phone: '+390000000002',
             party_size: 2,
             slot_time: '20:00:00',
             status: 'RESERVED',
-            table_id: tableAssigned ? table : null,
-            table_name: tableAssigned ? 'Tavolo 4' : null,
+            table_id: assignedTable,
+            table_name: assignedTable === table ? 'Tavolo 4' : assignedTable ? 'Tavolo 3' : null,
             service_name: 'Cena',
             internal_note: null,
             customer_note: null,
@@ -171,7 +173,8 @@ async function hostFixture(page: Page, locked = false) {
         },
       ];
     else if (name === 'assign_table_group') {
-      tableAssigned = true;
+      assignedTable = table;
+      reservationVersion += 1;
       data = null;
     } else if (name === 'lock_staff_session') {
       locked = true;
@@ -185,25 +188,43 @@ async function hostFixture(page: Page, locked = false) {
   return commands;
 }
 
-test('Host assigns a table with confirmation and has no financial navigation', async ({ page }) => {
+test('Host assigns a selected available table and has no financial navigation', async ({
+  page,
+}) => {
   const commands = await hostFixture(page);
   await page.goto('http://localhost:5174/accoglienza');
   await expect(page.getByRole('heading', { name: 'Marta Rossi' })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Conti', exact: true })).toHaveCount(0);
   await expect(page.getByRole('link', { name: 'Cassa', exact: true })).toHaveCount(0);
-  await page.getByRole('button', { name: 'Gestisci', exact: true }).click();
-  await page.getByRole('button', { name: 'Scegli tavolo', exact: true }).click();
+  await page.getByRole('button', { name: 'Dettagli', exact: true }).click();
+  await page.getByRole('button', { name: 'Assegna tavolo', exact: true }).click();
   await page.getByRole('button', { name: 'Tavolo 4 · 4 posti' }).click();
-  await page
-    .getByRole('dialog', { name: 'Conferma assegnazione' })
-    .getByRole('button', { name: 'Conferma', exact: true })
-    .click();
   await expect(page.getByText('2 persone · Tavolo 4')).toBeVisible();
   expect(commands.find((command) => command.name === 'assign_table_group')?.body).toEqual({
     p_reservation: booking,
     p_tables: [table],
     p_confirm_change: false,
     p_version: 1,
+  });
+});
+
+test('Host confirms a table change before submitting the versioned command', async ({ page }) => {
+  const commands = await hostFixture(page, false, true);
+  await page.goto('http://localhost:5174/accoglienza');
+  await expect(page.getByText('2 persone · Tavolo 3')).toBeVisible();
+  await page.getByRole('button', { name: 'Dettagli', exact: true }).click();
+  await page.getByRole('button', { name: 'Cambia tavolo', exact: true }).click();
+  await page.getByRole('button', { name: 'Tavolo 4 · 4 posti' }).click();
+  const confirmation = page.getByRole('dialog', { name: 'Conferma cambio tavolo' });
+  await expect(confirmation).toBeVisible();
+  expect(commands.some((entry) => entry.name === 'assign_table_group')).toBe(false);
+  await confirmation.getByRole('button', { name: 'CONFERMA CAMBIO', exact: true }).click();
+  await expect(page.getByText('2 persone · Tavolo 4')).toBeVisible();
+  expect(commands.find((entry) => entry.name === 'assign_table_group')?.body).toEqual({
+    p_reservation: booking,
+    p_tables: [table],
+    p_confirm_change: true,
+    p_version: 2,
   });
 });
 
@@ -249,7 +270,7 @@ test('Host workspace fits a mobile screen and sends its filters to the server', 
   const commands = await hostFixture(page);
   await page.goto('http://localhost:5174/accoglienza');
   await page.getByLabel('Nome o telefono').fill('Rossi');
-  await page.getByRole('button', { name: 'Applica filtri' }).click();
+  await page.getByRole('button', { name: 'FILTRA', exact: true }).click();
   await expect
     .poll(
       () =>
