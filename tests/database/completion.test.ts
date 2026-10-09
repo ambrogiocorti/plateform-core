@@ -275,7 +275,7 @@ describe('completion: authoritative catalog, editor, planning and equal shares',
       ),
     ).rejects.toThrow('NONEXISTENT_LOCAL_TIME');
   });
-  it('saves a layout atomically and retains permanent table QR identity', async () => {
+  it('rejects the excluded advanced layout editor while retaining permanent QR identity', async () => {
     const before = (
       await db.query<{ public_table_id: string; version: number }>(
         'select public_table_id,version from public.tables where id=$1',
@@ -301,22 +301,26 @@ describe('completion: authoritative catalog, editor, planning and equal shares',
     const key = crypto.randomUUID(),
       args = [layout, await version('room_layouts', layout), JSON.stringify(data), key];
     const save = () => db.query("select public.save_room_layout($1,$2,'[]',$3,$4)", args);
-    await save();
-    await save();
+    const revisions = (
+      await db.query<{ count: number }>('select count(*)::int count from public.layout_revisions')
+    ).rows[0]!.count;
+    await db.exec('savepoint before_excluded_editor');
+    await expect(save()).rejects.toThrow('FEATURE_NOT_LICENSED');
+    await db.exec('rollback to savepoint before_excluded_editor');
     expect(
       (
-        await db.query<{ public_table_id: string }>(
-          'select public_table_id from public.tables where id=$1',
+        await db.query<{ public_table_id: string; version: number }>(
+          'select public_table_id,version from public.tables where id=$1',
           [table],
         )
-      ).rows[0]!.public_table_id,
-    ).toBe(before.public_table_id);
+      ).rows[0],
+    ).toEqual(before);
     expect(
       (await db.query<{ count: number }>('select count(*)::int count from public.layout_revisions'))
         .rows[0]!.count,
-    ).toBe(1);
+    ).toBe(revisions);
   });
-  it('blocks editor changes while a prepaid service still owns the table', async () => {
+  it('keeps the excluded advanced editor blocked during active service', async () => {
     await createOrder();
     await identity(db, ids.admin);
     await expect(
@@ -325,7 +329,7 @@ describe('completion: authoritative catalog, editor, planning and equal shares',
         await version('room_layouts', layout),
         crypto.randomUUID(),
       ]),
-    ).rejects.toThrow('LAYOUT_IN_SERVICE');
+    ).rejects.toThrow('FEATURE_NOT_LICENSED');
   });
   it('cannot delete or mutate layout history through the application role', async () => {
     await expect(db.exec('delete from public.layout_revisions')).rejects.toThrow();
