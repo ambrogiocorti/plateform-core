@@ -426,123 +426,123 @@ describe('completion: authoritative catalog, editor, planning and equal shares',
   describe.runIf(process.env.PLATEFORM_TEST_EDITION === 'FULL')(
     'FULL-only provider state transitions (requires non-CORE database profile)',
     () => {
-    async function onlinePayment() {
-      const account = await createOrder();
-      await db.exec("reset role; update public.feature_flags set licensed=true where name='STRIPE'");
-      await db.query(
-        "update public.venue_settings set payment_methods=array['CASH','STRIPE']::public.payment_method[] where venue_id=$1",
-        [ids.venue],
-      );
-      await db.query(
-        "update public.cash_registers set payment_methods=array['CASH','STRIPE']::public.payment_method[] where id=$1",
-        [register],
-      );
-      await identity(db, ids.cashier);
-      await db.query('select public.set_cash_register_open($1,true)', [register]);
-      await db.query('select public.open_service_session($1,null,$2,0,$3)', [
-        ids.venue,
-        register,
-        crypto.randomUUID(),
-      ]);
-      const payment = (
-        await db.query<{ r: { id: string } }>(
-          "select public.create_payment($1,$2,3003,100,'STRIPE',$3,'[]',null) r",
-          [account, register, crypto.randomUUID()],
-        )
-      ).rows[0]!.r.id;
-      const operation = (
-        await db.query<{ r: { id: string } }>('select public.prepare_provider_operation($1,null) r', [
-          payment,
-        ])
-      ).rows[0]!.r.id;
-      return { account, payment, operation };
-    }
-    it('allows only the server to claim and confirm online charges', async () => {
-      const { operation } = await onlinePayment();
-      await expect(
-        db.query('select public.claim_provider_operation($1)', [operation]),
-      ).rejects.toThrow('permission denied');
-    });
-    it('keeps unknown outcomes reserved and reuses the provider command', async () => {
-      const { payment, operation, account } = await onlinePayment();
-      await db.exec('reset role; set role service_role');
-      const op = (
-        await db.query<{ r: { lease_token: string; amount_cents: number } }>(
-          'select public.claim_provider_operation($1) r',
-          [operation],
-        )
-      ).rows[0]!.r;
-      expect(op.amount_cents).toBe(3103);
-      await db.query('select public.release_provider_lease($1,$2)', [operation, op.lease_token]);
-      await identity(db, ids.cashier);
-      expect(
-        (
-          await db.query<{ r: { id: string } }>(
-            'select public.prepare_provider_operation($1,null) r',
-            [payment],
-          )
-        ).rows[0]!.r.id,
-      ).toBe(operation);
-      expect(
-        (
-          await db.query<{ r: { pending_cents: number } }>(
-            'select public.get_account_balance($1) r',
-            [account],
-          )
-        ).rows[0]!.r.pending_cents,
-      ).toBe(3003);
-    });
-    it('deduplicates verified receipts and never downgrades completed payments', async () => {
-      const { operation, payment } = await onlinePayment();
-      await db.exec('reset role; set role service_role');
-      const lease = (
-        await db.query<{ r: { lease_token: string } }>(
-          'select public.claim_provider_operation($1) r',
-          [operation],
-        )
-      ).rows[0]!.r.lease_token;
-      const finish = () =>
-        db.query(
-          "select public.finish_provider_operation($1,null,'cs_test_123','COMPLETED',3103,'EUR','event-paid',null)",
-          [operation],
+      async function onlinePayment() {
+        const account = await createOrder();
+        await db.exec("reset role; update public.feature_flags set licensed=true where name='STRIPE'");
+        await db.query(
+          "update public.venue_settings set payment_methods=array['CASH','STRIPE']::public.payment_method[] where venue_id=$1",
+          [ids.venue],
         );
-      await db.query(
-        "select public.finish_provider_operation($1,$2,'cs_test_123','WAITING',3103,'EUR','event-wait',null)",
-        [operation, lease],
-      );
-      await finish();
-      await finish();
-      await db.query(
-        "select public.finish_provider_operation($1,null,'cs_test_123','WAITING',3103,'EUR','late-wait',null)",
-        [operation],
-      );
-      await identity(db, ids.cashier);
-      expect(
-        (
-          await db.query<{ status: string }>('select status from public.payments where id=$1', [
+        await db.query(
+          "update public.cash_registers set payment_methods=array['CASH','STRIPE']::public.payment_method[] where id=$1",
+          [register],
+        );
+        await identity(db, ids.cashier);
+        await db.query('select public.set_cash_register_open($1,true)', [register]);
+        await db.query('select public.open_service_session($1,null,$2,0,$3)', [
+          ids.venue,
+          register,
+          crypto.randomUUID(),
+        ]);
+        const payment = (
+          await db.query<{ r: { id: string } }>(
+            "select public.create_payment($1,$2,3003,100,'STRIPE',$3,'[]',null) r",
+            [account, register, crypto.randomUUID()],
+          )
+        ).rows[0]!.r.id;
+        const operation = (
+          await db.query<{ r: { id: string } }>('select public.prepare_provider_operation($1,null) r', [
             payment,
           ])
-        ).rows[0]!.status,
-      ).toBe('COMPLETED');
-      expect(
-        (
-          await db.query<{ n: number }>(
-            'select count(*)::int n from public.cash_journal where payment_id=$1',
-            [payment],
+        ).rows[0]!.r.id;
+        return { account, payment, operation };
+      }
+      it('allows only the server to claim and confirm online charges', async () => {
+        const { operation } = await onlinePayment();
+        await expect(
+          db.query('select public.claim_provider_operation($1)', [operation]),
+        ).rejects.toThrow('permission denied');
+      });
+      it('keeps unknown outcomes reserved and reuses the provider command', async () => {
+        const { payment, operation, account } = await onlinePayment();
+        await db.exec('reset role; set role service_role');
+        const op = (
+          await db.query<{ r: { lease_token: string; amount_cents: number } }>(
+            'select public.claim_provider_operation($1) r',
+            [operation],
           )
-        ).rows[0]!.n,
-      ).toBe(1);
-    });
-    it('rejects a provider result with a different amount', async () => {
-      const { operation } = await onlinePayment();
-      await db.exec('reset role; set role service_role');
-      await expect(
-        db.query(
-          "select public.finish_provider_operation($1,null,'cs_wrong','COMPLETED',1,'EUR','wrong-amount',null)",
+        ).rows[0]!.r;
+        expect(op.amount_cents).toBe(3103);
+        await db.query('select public.release_provider_lease($1,$2)', [operation, op.lease_token]);
+        await identity(db, ids.cashier);
+        expect(
+          (
+            await db.query<{ r: { id: string } }>(
+              'select public.prepare_provider_operation($1,null) r',
+              [payment],
+            )
+          ).rows[0]!.r.id,
+        ).toBe(operation);
+        expect(
+          (
+            await db.query<{ r: { pending_cents: number } }>(
+              'select public.get_account_balance($1) r',
+              [account],
+            )
+          ).rows[0]!.r.pending_cents,
+        ).toBe(3003);
+      });
+      it('deduplicates verified receipts and never downgrades completed payments', async () => {
+        const { operation, payment } = await onlinePayment();
+        await db.exec('reset role; set role service_role');
+        const lease = (
+          await db.query<{ r: { lease_token: string } }>(
+            'select public.claim_provider_operation($1) r',
+            [operation],
+          )
+        ).rows[0]!.r.lease_token;
+        const finish = () =>
+          db.query(
+            "select public.finish_provider_operation($1,null,'cs_test_123','COMPLETED',3103,'EUR','event-paid',null)",
+            [operation],
+          );
+        await db.query(
+          "select public.finish_provider_operation($1,$2,'cs_test_123','WAITING',3103,'EUR','event-wait',null)",
+          [operation, lease],
+        );
+        await finish();
+        await finish();
+        await db.query(
+          "select public.finish_provider_operation($1,null,'cs_test_123','WAITING',3103,'EUR','late-wait',null)",
           [operation],
-        ),
-      ).rejects.toThrow('PROVIDER_VERIFICATION_FAILED');
-    });
+        );
+        await identity(db, ids.cashier);
+        expect(
+          (
+            await db.query<{ status: string }>('select status from public.payments where id=$1', [
+              payment,
+            ])
+          ).rows[0]!.status,
+        ).toBe('COMPLETED');
+        expect(
+          (
+            await db.query<{ n: number }>(
+              'select count(*)::int n from public.cash_journal where payment_id=$1',
+              [payment],
+            )
+          ).rows[0]!.n,
+        ).toBe(1);
+      });
+      it('rejects a provider result with a different amount', async () => {
+        const { operation } = await onlinePayment();
+        await db.exec('reset role; set role service_role');
+        await expect(
+          db.query(
+            "select public.finish_provider_operation($1,null,'cs_wrong','COMPLETED',1,'EUR','wrong-amount',null)",
+            [operation],
+          ),
+        ).rejects.toThrow('PROVIDER_VERIFICATION_FAILED');
+      });
 
     },
   );
