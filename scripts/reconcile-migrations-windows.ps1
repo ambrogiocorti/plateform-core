@@ -1,5 +1,6 @@
 # Plateform Development migration history recovery.
-# Default: read-only diagnosis. -Apply writes local SQL files after backup.
+# Default: read-only diagnosis. -Apply adds only missing remote migrations.
+# Refuse historic SQL divergence: never replace previously recovered local files.
 param([switch]$Apply)
 
 $ErrorActionPreference = 'Stop'
@@ -48,10 +49,6 @@ try {
         '--expected-remote-count', '457',
         '--expected-inventory-sha256', $fingerprint
     )
-    if ($Apply) {
-        $arguments += '--adopt-remote-with-backup'
-    }
-
     & node @arguments
     $exitCode = $LASTEXITCODE
     # Dry run exits 2 for expected local/remote SQL discrepancies.
