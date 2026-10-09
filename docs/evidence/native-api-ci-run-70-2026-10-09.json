@@ -1,0 +1,98 @@
+{
+  "classification": "OBSERVED_NATIVE_API_CI_NOT_COMMERCIAL_RELEASE_ATTESTATION",
+  "ok": true,
+  "checks": [
+    {
+      "key": "fresh_target_and_real_gotrue_identities",
+      "status": "PASSED"
+    },
+    {
+      "key": "mfa_required_aal1_denied_and_real_totp_aal2",
+      "status": "PASSED"
+    },
+    {
+      "key": "concurrent_login_registers_one_device_per_session",
+      "status": "PASSED"
+    },
+    {
+      "key": "jwt_rls_scope_and_rpc_cross_venue_boundaries",
+      "status": "PASSED"
+    },
+    {
+      "key": "editable_user_metadata_cannot_escalate_role_or_scope",
+      "status": "PASSED"
+    },
+    {
+      "key": "private_storage_upload_download_and_venue_isolation",
+      "status": "PASSED"
+    },
+    {
+      "key": "storage_writes_require_server_and_bucket_mime_rules",
+      "status": "PASSED"
+    },
+    {
+      "key": "refresh_preserves_identity_and_operational_session",
+      "status": "PASSED"
+    },
+    {
+      "key": "pin_lock_cannot_be_bypassed_by_login_or_refresh",
+      "status": "PASSED"
+    },
+    {
+      "key": "operational_logout_revokes_old_and_refreshed_jwt",
+      "status": "PASSED"
+    },
+    {
+      "key": "gotrue_logout_invalidates_refresh_and_stale_jwt_access",
+      "status": "PASSED"
+    },
+    {
+      "key": "live_assignment_removal_immediately_denies_http_and_storage",
+      "status": "PASSED"
+    },
+    {
+      "key": "live_device_revocation_denies_http_storage_and_relogin",
+      "status": "PASSED"
+    },
+    {
+      "key": "live_staff_deactivation_immediately_denies_old_jwt",
+      "status": "PASSED"
+    },
+    {
+      "key": "probes_leave_schema_ledger_and_release_certification_unchanged",
+      "status": "PASSED"
+    }
+  ],
+  "source_commit": "d80e1e387b6d3a037a6a61ca51dec25486abbebc",
+  "workflow_run_id": "37895715117",
+  "hosted_supabase_certified": false,
+  "commercial_release_ready": false,
+  "remaining": [
+    "Hosted Auth/JWT/Storage and real browser/device flows",
+    "Password recovery/email delivery",
+    "Realtime, stock/payment concurrency and Edge HTTP",
+    "Current-schema encrypted backup/restore",
+    "Authenticated immutable release attestation ingestion"
+  ],
+  "platform": {
+    "server_version": "17.11",
+    "server_version_num": 170011,
+    "auth_users": true,
+    "storage_objects": true
+  },
+  "source_digest": "1c4edd68763082fe4a0ec285ce81a97cdea07ae1bf46cd4b85cb9f16db98ccf6",
+  "inventory_sha256": "29031e10f987a98882f5f811373abbaf59cb271f608221fbbe31961d0f2edd9e",
+  "bootstrap_sha256": "aaa20fba9a525bfd5f7017ee827d45cf342d8b3e6d97eefc19e50fb0a51de11e",
+  "postlude_sha256": "fe5f140c8f6d8ea306fcad7135c4b1d717f97281f865d05f3b804cb5c0e4eda9",
+  "checks_passed": 15,
+  "fixture": {
+    "gotrue_identities": 7,
+    "active_venues": 2,
+    "forged_auth_sessions": 0
+  },
+  "network": {
+    "loopback_only": true,
+    "verified_egress_block": true,
+    "redirects_denied": true
+  }
+}

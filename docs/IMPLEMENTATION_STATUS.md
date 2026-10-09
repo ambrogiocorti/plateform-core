@@ -16,7 +16,8 @@ Revisioni integrali consecutive pulite: **0/3**.
   versionati e condivisi dall'installatore reale e dai test. Il postlude recupera
   anche 31 definizioni obbligatorie di test: 197 totali, senza copiare risultati.
 - CI corrente, inclusi test PGlite senza DDL applicativo nascosto:
-  **245 test passati, 4 esclusi CORE**, 13 test Edge e 20 contratti browser.
+  **255 test passati, 4 esclusi CORE**, 13 test Edge e 20 contratti browser.
+  La run GitHub 70 include anche 15 scenari Auth/JWT/MFA/RLS/Storage nativi.
   TypeScript strict, ESLint, gate sorgente, formattazione e build pubblico/staff passano.
 - Confronto del catalogo: 163 relazioni, 1.485 colonne, 444 indici, 903 vincoli e
   110 policy RLS corrispondono. Due strumenti diagnostici specifici di Development
@@ -34,6 +35,39 @@ espliciti Auth/Storage/Vault/cron e serializza le richieste: non prova contesa
 tra connessioni separate. I risultati storici
 nei documenti precedenti non certificano la versione attuale.
 
+## Collaudo API nativo verificato
+
+Aggiunto un runner che crea identità e sessioni GoTrue reali e prova TOTP, JWT,
+RLS/scope HTTP, revoca/refresh, login concorrente e Storage privato. La run
+GitHub 70 sul commit `7f2244e7cef49e5f77f87e585b8d4652082706ba` passa entrambi
+i job: 15 scenari nativi, 255 test unit/database, 13 Edge e 20 contratti browser.
+Dieci nuove regressioni mirate passano anche localmente. Nessuna certificazione
+commerciale viene scritta dal runner; il collaudo hosted rimane aperto.
+Dettagli: [NATIVE_API_VERIFICATION_2026-10-09.md](NATIVE_API_VERIFICATION_2026-10-09.md).
+
+## Preparazione staging hosted
+
+Su autorizzazione esplicita dell’utente, `plateform-restore-test` è stato messo
+in pausa tramite API; lo stato remoto è **INACTIVE**. Development resta
+**ACTIVE_HEALTHY**. Non sono stati eseguiti reset/drop o SQL applicativi sui
+progetti esistenti. Il posto Free è ora disponibile.
+
+Il progetto `plateform-staging-clean` è ora **ACTIVE_HEALTHY**, ref
+`kghactswtabakkkbojmo`, Free, Irlanda `eu-west-1`, PostgreSQL 17.11.
+Il preflight API conferma zero utenti/sessioni Auth, oggetti/bucket Storage,
+relazioni applicative public/private e migrazioni. La password è stata inserita
+manualmente dall’utente. Lo schema non è ancora installato.
+
+Preparato un installer Edge temporaneo, autenticato, con scadenza entro un’ora,
+legato solo a questo ref e al payload canonico da 458 migrazioni. Le credenziali
+interne restano in Supabase. Una barriera versionata forza i nuovi job Cron
+inattivi prima del replay, conservando i SQL originali. Otto regressioni locali,
+TypeScript e lint passano; il collaudo CI della barriera precede la distribuzione.
+
+Dettagli: [HOSTED_INSTALLATION_2026-10-09.md](HOSTED_INSTALLATION_2026-10-09.md).
+Evidenza attuale: [hosted-staging-created-2026-10-09.json](evidence/hosted-staging-created-2026-10-09.json).
+Il checkpoint precedente del modulo pronto resta conservato.
+
 ## Gate aperti
 
 1. **Step 0, IN_PROGRESS:** installazione su un nuovo Supabase hosted isolato,
@@ -47,8 +81,8 @@ nei documenti precedenti non certificano la versione attuale.
 3. **Attestazioni CI:** la run GitHub 66 passa check completi, 245 test,
    13 test Edge, 20 contratti browser e replay nativo
    sul commit `139fb1b1e73f9af371389c32b24bef800fa8e279`. I limiti di download
-   dell’ambiente locale restano documentati. Mancano sessioni utente e scenari di scope HTTP/JWT reali
-   e ingestione di attestazioni per singolo requisito commerciale.
+   dell’ambiente locale restano documentati. La run 70 verifica sessioni e scope HTTP/JWT nativi; rimangono i flussi hosted
+   e l’ingestione di attestazioni per singolo requisito commerciale.
 4. **Backup/restore:** i worker e il control plane sono presenti; rimangono un
    backup verificato della versione corrente, un restore da artefatto cifrato
    su target isolato e RPO/RTO misurati. Le prove storiche non chiudono questo gate.

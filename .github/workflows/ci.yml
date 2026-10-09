@@ -15,6 +15,10 @@ jobs:
           node-version: '24'
           cache: npm
       - run: npm ci
+      - name: Check fixed-plan staging installer and pinned Postgres driver
+        run: |
+          node scripts/build-hosted-installer.mjs
+          node node_modules/deno/bin.cjs check --config .local/hosted-installer/deno.json .local/hosted-installer/index.ts
       - run: npm run format:check
       - run: npm run check
       - run: npx playwright install --with-deps chromium
@@ -60,11 +64,15 @@ jobs:
         run: npm run db:install
       - name: Verify native catalog, provenance guards and platform HTTP
         run: node scripts/check-native-clean-install.mjs
+      - name: Verify real user JWT, MFA, RLS and private Storage
+        run: node scripts/check-native-api.mjs
       - uses: actions/upload-artifact@v4
-        if: success()
+        if: always()
         with:
           name: native-clean-install-verification
-          path: .local/native-ci/verification.json
+          path: |
+            .local/native-ci/verification.json
+            .local/native-ci/api-verification.json
           retention-days: 14
       - name: Stop disposable CI stack
         if: always()

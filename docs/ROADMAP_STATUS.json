@@ -13,18 +13,24 @@
         "local_inventory_458": "PASSED_457_APPLIED_1_PREPARED",
         "versioned_clean_install_pglite": "PASSED_NO_HIDDEN_APPLICATION_DDL",
         "catalog_columns_indexes_constraints_policies": "PASSED_2026_10_09",
-        "unit_database_tests": "PASSED_245_4_CORE_SKIPPED_GITHUB_CI_RUN_66",
-        "source_gates_typecheck_lint_format": "PASSED_2026_10_09",
+        "unit_database_tests": "PASSED_255_4_CORE_SKIPPED_GITHUB_CI_RUN_70",
+        "source_gates_typecheck_lint_format": "PASSED_GITHUB_CI_RUN_70_COMMIT_7F2244E",
         "public_staff_build": "PASSED_2026_10_09",
-        "edge_checks_tests": "PASSED_13_GITHUB_CI_RUN_66_COMMIT_139FB1B",
-        "browser_e2e": "PASSED_20_GITHUB_CI_RUN_66_FIXTURES_NOT_HOSTED_INTEGRATION",
+        "edge_checks_tests": "PASSED_13_GITHUB_CI_RUN_70",
+        "browser_e2e": "PASSED_20_GITHUB_CI_RUN_70_FIXTURES_NOT_HOSTED_INTEGRATION",
         "release_evidence_migration_development": "BLOCKED_AUTO_REVIEW_REQUIRES_SPECIFIC_AUTHORIZATION",
         "authenticated_ci_immutable_evidence": "PENDING_IMPLEMENTATION",
         "built_site_browser_gate": "PASSED_GITHUB_CI_RUN_66",
         "native_supabase_clean_install": "PASSED_PG17_11_GITHUB_CI_RUN_66",
         "native_release_test_catalog": "PASSED_ALL_197_DEFINITIONS_NO_PASS_RESULTS",
-        "native_service_role_anon_http": "PASSED_GATE_DENIALS_NOT_USER_SESSIONS_OR_SCOPE",
-        "hosted_supabase_clean_install": "PENDING_NEW_ISOLATED_TARGET"
+        "native_service_role_anon_http": "PASSED_GATE_DENIALS_AND_SEPARATE_REAL_USER_API_SUITE_RUN_70",
+        "hosted_supabase_clean_install": "PENDING_NATIVE_BARRIER_CI_THEN_FIXED_PLAN_REPLAY",
+        "native_user_jwt_mfa_rls_storage": "PASSED_15_REAL_API_SCENARIOS_GITHUB_CI_RUN_70_PG17_11",
+        "native_ci_boundary_and_fixture_regression": "PASSED_10_LOCAL_TESTS",
+        "native_auth_login_concurrency": "PASSED_ONE_DEVICE_PER_SESSION_REAL_HTTP_RACE_RUN_70_NOT_STOCK_OR_PAYMENTS",
+        "hosted_staging_preparation": "CREATED_API_VERIFIED_ACTIVE_EMPTY_FREE_EU_WEST_1",
+        "temporary_restore_test_pause": "USER_AUTHORIZED_API_CONFIRMED_INACTIVE_2026_10_09",
+        "hosted_installer_boundary": "PASSED_8_LOCAL_REGRESSIONS_NOT_HOSTED_EXECUTION"
       },
       "evidence": [
         "docs/STEP_0_VERIFICATION.md",
@@ -54,10 +60,27 @@
         "scripts/check-native-clean-install.mjs",
         "scripts/clean-install-catalog.mjs",
         "supabase/clean-install/ci-config.toml",
-        "supabase/clean-install/release-test-catalog.json"
+        "supabase/clean-install/release-test-catalog.json",
+        "scripts/check-native-api.mjs",
+        "scripts/native-ci-context.mjs",
+        "tests/unit/native-ci.test.ts",
+        "tests/database/native-ci-fixtures.test.ts",
+        "docs/NATIVE_API_VERIFICATION_2026-10-09.md",
+        "docs/evidence/native-api-ci-run-70-2026-10-09.json",
+        "docs/evidence/native-api-ci-run-70-provenance-2026-10-09.json",
+        "docs/evidence/native-api-ci-run-70-native.log",
+        "docs/evidence/native-api-ci-run-70-verify.log",
+        "docs/evidence/hosted-staging-preparation-2026-10-09.json",
+        "docs/HOSTED_INSTALLATION_2026-10-09.md",
+        "docs/evidence/hosted-staging-created-2026-10-09.json",
+        "supabase/clean-install/disarm-cron.sql",
+        "scripts/hosted-installer/handler.mjs",
+        "tests/unit/hosted-installer.test.ts"
       ],
       "open": [
+        "plateform-staging-clean creato e verificato ACTIVE_HEALTHY, Free/Irlanda/Pg17.11, zero utenti/sessioni Auth, oggetti/bucket Storage, relazioni applicative e migrazioni. Installazione in attesa del collaudo CI della barriera Cron; nessun SQL applicativo eseguito sui progetti esistenti.",
         "Collaudare installazione su un nuovo Supabase hosted isolato e i flussi login/TOTP/sessioni, scope HTTP/JWT, Storage upload/download, Realtime ed Edge. Replay Supabase Docker nativo e cataloghi passati; non azzerare il restore-test esistente.",
+        "Run GitHub 70: 15 scenari Auth/JWT/MFA/RLS/Storage passati su Supabase Docker/Pg17.11. Rimangono prove hosted/browser, recovery/email, Realtime, Edge HTTP e concorrenza stock/incassi.",
         "Applicazione della protezione PASS su Development respinta dal controllo automatico per autorizzazione remota specifica mancante e replay isolato incompleto al momento del rifiuto. Il replay Docker nativo ora passa; resta necessario il consenso specifico. Database Development invariato.",
         "Implementare evidenze CI autenticate per singolo requisito, log immutabili e binding commit/schema; completare concorrenza nativa e restore dello schema corrente."
       ],
@@ -77,6 +100,17 @@
         "11_edge_tests_and_12_edge_typechecks": "PASSED",
         "13_http_and_10_gateway_checks_live": "PASSED",
         "post_fix_regression_suite": "PASSED"
+      },
+      "staging_preparation": {
+        "organization": "AmbrogioCorti",
+        "plan": "free",
+        "planned_project_name": "plateform-staging-clean",
+        "region": "eu-west-1",
+        "project_created": true,
+        "project_id": "kghactswtabakkkbojmo",
+        "restore_test_temporarily_paused": true,
+        "hosted_schema_installed": false,
+        "blocker": "NATIVE_CRON_BARRIER_CI_BEFORE_HOSTED_REPLAY"
       }
     },
     {

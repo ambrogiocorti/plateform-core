@@ -331,3 +331,15 @@ Nessun risultato Development viene copiato. Due fixture di upgrade verificano
 conservazione esatta di claim, autore e data; il replay nativo rifiuta quattro
 successi non attestati. Report e limiti in
 `docs/CI_BASELINE_VERIFICATION_2026-10-09.md`.
+
+## Utenti/JWT e Storage nativi in CI
+
+Dopo la baseline, `node scripts/check-native-api.mjs` usa GoTrue, PostgREST e
+Storage reali sullo stesso stack temporaneo. Crea identità via admin Auth e
+sessioni tramite login password/TOTP: nessun JWT o sessione Auth viene forgiato.
+Prova ruoli/sedi, lock/PIN, logout/revoche con JWT precedenti, login concorrente
+e download di documenti privati con dati presenti in entrambe le sedi. Il client
+server esegue gli upload reali; Edge upload, hosted, recovery email e Realtime
+restano verifiche separate. Il report non crea risultati release PASS e viene
+caricato anche su fallimento, senza segreti. Vedere
+`docs/NATIVE_API_VERIFICATION_2026-10-09.md` per perimetro e limiti.

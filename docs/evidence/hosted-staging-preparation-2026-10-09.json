@@ -1,0 +1,58 @@
+{
+  "classification": "OBSERVED_STAGING_PREPARATION_NOT_HOSTED_INSTALL_OR_RELEASE_ATTESTATION",
+  "observed_at": "2026-10-09T08:58:35.389Z",
+  "source_commit": "dd57233999f75056a27cf4ed5179ccac253d8259",
+  "organization": {
+    "id": "fsgsuekqdhoswaddirwi",
+    "name": "AmbrogioCorti",
+    "plan": "free"
+  },
+  "authorization": {
+    "temporary_pause_of_existing_restore_test": true,
+    "new_isolated_free_staging": true
+  },
+  "development": {
+    "id": "abdxvlykasqmknexxhjo",
+    "name": "plateform-development",
+    "status": "ACTIVE_HEALTHY",
+    "application_sql_executed": false
+  },
+  "restore_test": {
+    "id": "dkbjgvovxgglqhqxmuyb",
+    "name": "plateform-restore-test",
+    "status": "INACTIVE",
+    "pause_api_success": true,
+    "reset_or_drop_executed": false,
+    "application_sql_executed": false
+  },
+  "staging_form": {
+    "name": "plateform-staging-clean",
+    "region": "eu-west-1",
+    "postgres_type": "Postgres Default",
+    "data_api_enabled": true,
+    "automatically_expose_new_tables": false,
+    "automatic_rls_event_trigger": false,
+    "explicit_grants_and_rls_from_versioned_migrations": true,
+    "password_entered_by_agent": false,
+    "submitted": false,
+    "project_id": null
+  },
+  "creation": {
+    "project_created": false,
+    "blocked_by": "MANUAL_DATABASE_PASSWORD_ENTRY_REQUIRED",
+    "get_cost_api": "UNAVAILABLE_TOOL_NOT_LISTED",
+    "free_quota_warning_cleared_in_dashboard": true,
+    "subscription_changed": false
+  },
+  "install_plan": {
+    "bootstrap_version": 1,
+    "bootstrap_sha256": "aaa20fba9a525bfd5f7017ee827d45cf342d8b3e6d97eefc19e50fb0a51de11e",
+    "postlude_sha256": "fe5f140c8f6d8ea306fcad7135c4b1d717f97281f865d05f3b804cb5c0e4eda9",
+    "migrations": 458,
+    "inventory_sha256": "29031e10f987a98882f5f811373abbaf59cb271f608221fbbe31961d0f2edd9e",
+    "database_accessed": false
+  },
+  "hosted_schema_installed": false,
+  "hosted_api_verified": false,
+  "commercial_release_ready": false
+}
