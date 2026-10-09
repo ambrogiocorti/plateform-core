@@ -38,7 +38,7 @@ job già popolata. Tutti i cron.schedule storici restano identici; gli indirizzi
 Development presenti in vecchi worker non vengono invocati automaticamente.
 
 La barriera è un controllo della piattaforma staging nel namespace
-supabase_migrations, fuori dal catalogo applicativo public/private. Rimane
+plateform_installation, fuori dal catalogo applicativo public/private. Rimane
 attiva dopo il replay. L'attivazione futura dei worker richiede configurazione
 degli endpoint/segreti per il singolo ambiente e una modifica esplicita del
 controllo; l'installazione non certifica operatività di backup/messaggistica.

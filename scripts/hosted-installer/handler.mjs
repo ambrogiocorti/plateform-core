@@ -109,7 +109,7 @@ async function requireBarrier(connection) {
   const [row] = await connection.query(`select
     exists(select 1 from pg_trigger where tgrelid='cron.job'::regclass
       and tgname='plateform_staging_cron_disarmed' and tgenabled='O'
-      and tgfoid='supabase_migrations.plateform_disarm_cron_job()'::regprocedure)
+      and tgfoid='plateform_installation.plateform_disarm_cron_job()'::regprocedure)
       as barrier,
     (select count(*)::int from cron.job where active) as active_jobs,
     (select count(*)::int from cron.job_run_details) as runs`);

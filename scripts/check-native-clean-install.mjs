@@ -60,7 +60,30 @@ if (process.argv.includes('--prepare')) {
   assert(disabled, 'NATIVE_CI_CRON_NOT_DISABLED');
   // Exercise the same owner-level barrier required on managed Supabase. The
   // system-wide Docker switch remains an independent layer of CI isolation.
-  await psql(await readFile('supabase/clean-install/disarm-cron.sql', 'utf8'));
+  try {
+    await run(
+      process.env.PSQL_BIN || 'psql',
+      [
+        '-X',
+        '-w',
+        '-q',
+        '--set',
+        'ON_ERROR_STOP=1',
+        '--set',
+        'VERBOSITY=sqlstate',
+        '--file',
+        'supabase/clean-install/disarm-cron.sql',
+      ],
+      { env },
+    );
+  } catch (error) {
+    const stderr = String(error.stderr || '');
+    const state = stderr.match(/ERROR:\s+([A-Z0-9]{5})\b/)?.[1];
+    const line = stderr.match(/disarm-cron\.sql:(\d+):/)?.[1];
+    throw new Error(
+      `NATIVE_CI_CRON_BARRIER_FAILED:${state || 'PSQL_ERROR'}:line_${line || 'unknown'}`,
+    );
+  }
   await psql(`select cron.schedule('plateform-barrier-regression','* * * * *','select 1');
     update cron.job set active=true where jobname='plateform-barrier-regression';`);
   assert(
