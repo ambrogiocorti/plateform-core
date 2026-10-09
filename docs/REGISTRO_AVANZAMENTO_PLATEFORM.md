@@ -2,22 +2,22 @@
 
 Aggiornamento: 5 ottobre 2026. **Versione commerciale non ancora pronta.** Fonte primaria: checkpoint corrente + Supabase development `abdxvlykasqmknexxhjo` + Definition of Done della Roadmap.
 
-| Step                               | Stato       | Nota corrente                                                                                                                                                      |
-| ---------------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 0 — Fondamenta                     | COMPLETE    | gate già chiuso                                                                                                                                                    |
-| 1 — Accesso/configurazione         | COMPLETE    | gate già chiuso                                                                                                                                                    |
-| 2 — Core operativo                 | COMPLETE    | gate già chiuso                                                                                                                                                    |
-| 3 — Cassa/pagamenti base           | COMPLETE    | gate già chiuso                                                                                                                                                    |
-| 4 — Cliente/QR                     | COMPLETE    | gate già chiuso                                                                                                                                                    |
-| 5 — Prenotazioni/Host              | COMPLETE    | gate già chiuso                                                                                                                                                    |
-| 6 — Finanza/provider               | COMPLETE    | Stripe e Satispay sandbox E2E chiusi; payment/refund, callback/webhook, idempotenza, retry/reconciliation e regressione rimborsi verificati                          |
-| 7 — Notification Center/stampa     | IN PROGRESS | Notification Center, print queue/retry e resi autenticati PASS/KITCHEN_ADMIN verificati live; PDF A4 non fiscale verificato in Chromium reale; resta hardware Epson/bridge reale                                      |
-| 8 — PWA/offline/sync               | IN PROGRESS | sync/Conflict Center/snapshot verificati live 21/21; vault core AES-GCM, causalità, reconnect e PWA runtime verificati; resta solo browser reale del build online→offline→online/install/update                                |
-| 9 — Editor/analytics/search/device | IN PROGRESS | backend, matematica KPI, scope ricerca, revoca device e Room Editor verificati live; static gate 16/16; resta regression browser/build reale                       |
-| 10 — Multi-sede                    | IN PROGRESS | creazione/lifecycle, idempotenza, scope VENUE/CHAIN, override menu e isolamento RPC verificati live; restano REST/Realtime/Storage e browser E2E cross-venue       |
+| Step                               | Stato       | Nota corrente                                                                                                                                                                                                              |
+| ---------------------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 0 — Fondamenta                     | COMPLETE    | gate già chiuso                                                                                                                                                                                                            |
+| 1 — Accesso/configurazione         | COMPLETE    | gate già chiuso                                                                                                                                                                                                            |
+| 2 — Core operativo                 | COMPLETE    | gate già chiuso                                                                                                                                                                                                            |
+| 3 — Cassa/pagamenti base           | COMPLETE    | gate già chiuso                                                                                                                                                                                                            |
+| 4 — Cliente/QR                     | COMPLETE    | gate già chiuso                                                                                                                                                                                                            |
+| 5 — Prenotazioni/Host              | COMPLETE    | gate già chiuso                                                                                                                                                                                                            |
+| 6 — Finanza/provider               | COMPLETE    | Stripe e Satispay sandbox E2E chiusi; payment/refund, callback/webhook, idempotenza, retry/reconciliation e regressione rimborsi verificati                                                                                |
+| 7 — Notification Center/stampa     | IN PROGRESS | Notification Center, print queue/retry e resi autenticati PASS/KITCHEN_ADMIN verificati live; PDF A4 non fiscale verificato in Chromium reale; resta hardware Epson/bridge reale                                           |
+| 8 — PWA/offline/sync               | IN PROGRESS | sync/Conflict Center/snapshot verificati live 21/21; vault core AES-GCM, causalità, reconnect e PWA runtime verificati; resta solo browser reale del build online→offline→online/install/update                            |
+| 9 — Editor/analytics/search/device | IN PROGRESS | backend, matematica KPI, scope ricerca, revoca device e Room Editor verificati live; static gate 16/16; resta regression browser/build reale                                                                               |
+| 10 — Multi-sede                    | IN PROGRESS | creazione/lifecycle, idempotenza, scope VENUE/CHAIN, override menu e isolamento RPC verificati live; restano REST/Realtime/Storage e browser E2E cross-venue                                                               |
 | 11 — Sito pubblico/branding        | IN PROGRESS | hardening pubblico avanzato, telemetry live, contrasto/server renderer e smoke browser mobile PASS; asset boundary server-side live 15/15; restano Edge HTTP upload reale, audit WCAG/performance e deployment HTTPS reale |
-| 12 — Backup/restore/continuità     | IN PROGRESS | repository/live riallineati a 130 migrations e gate statico completo 33/33 PASS; manca backup+restore reale sul runtime di continuità Plateform in infrastruttura indipendente con RPO/RTO misurati   |
-| 13 — Hardening/go-live             | TODO        | da eseguire solo per ultimo                                                                                                                                        |
+| 12 — Backup/restore/continuità     | IN PROGRESS | repository/live riallineati a 130 migrations e gate statico completo 33/33 PASS; manca backup+restore reale sul runtime di continuità Plateform in infrastruttura indipendente con RPO/RTO misurati                        |
+| 13 — Hardening/go-live             | TODO        | da eseguire solo per ultimo                                                                                                                                                                                                |
 
 ## Consolidamento 5 ottobre 2026
 
@@ -61,7 +61,6 @@ Vault core micro-gate (5 ottobre 2026): **PASS** sul codice reale `src/offline/v
 PWA runtime: `STEP8_STATIC_GATE=PASSED 16/16`, `STEP8_CAUSALITY_GATE=PASSED`, `STEP8_RECONNECT_GATE=PASSED`, `STEP8_PWA_RUNTIME_GATE=PASSED`. Il runtime verifica versionamento cache per contenuto, rimozione cache obsolete, fallback offline, cache-first asset, separazione scope public/staff e `ACTIVATE_UPDATE`.
 
 Probe deterministico live aggiuntivo (5 ottobre 2026): **21/21 PASS** su fixture transazionale rollbackata. Verificati replay esatto senza duplicazione, predecessor causale terminale, `CAUSAL_PREDECESSOR_REQUIRED`, `VERSION_CONFLICT`, assenza di mutazioni sugli eventi rifiutati, risoluzione Admin `DISCARD → REJECTED`, reconciliation degli stati, revoca device/session/snapshot e rifiuto del comando successivo con `OFFLINE_AUTHORIZATION_CHANGED`. Evidenza: `docs/evidence/step8-live-offline-sync-2026-10-05.json`.
-
 
 Verificati live: authorization snapshot, workspace offline, sync riuscita, replay idempotente, status reconciliation, `VERSION_CONFLICT`, causal ordering, Conflict Center con `DISCARD`, revoca device al reconnect, notifiche e audit. Static gate: **16/16 PASS**. Il client ora assegna un predecessore causale all’ultimo evento non terminale della stessa coppia utente/sede, riconcilia gli stati server prima del replay, considera `SYNCED`/`REJECTED`/`RESOLVED` terminali e rinnova authorization snapshot + workspace dopo il reconnect. Un fallimento del refresh invalida cache/autorizzazione sensibile senza cancellare la queue. Il live SQL conferma che `sync_offline_event` accetta gli stessi stati terminali e che `resolve_sync_conflict` porta l’evento sorgente a `REJECTED`.
 
@@ -159,7 +158,6 @@ Prima del redesign sono stati riconciliati i due checkpoint correnti: la Local R
 
 Gli stati degli Step restano quelli del registro sopra: il redesign UX non sostituisce la Definition of Done e non promuove automaticamente Step ancora `IN PROGRESS`.
 
-
 ## 2026-10-05 — UX STAFF SLICE 2: KITCHEN_STAFF + PASS
 
 ### Modificato
@@ -184,7 +182,6 @@ Gli stati degli Step restano quelli del registro sopra: il redesign UX non sosti
 - Il container corrente usa Node 22 mentre il progetto richiede Node >=24.13.0 e non contiene `node_modules` completo: typecheck/lint/build completi non vengono dichiarati PASS in questo slice.
 - Prossimo slice UX operativo: **HOST**, poi **CASHIER**, seguendo l'ordine del requisito prioritario.
 
-
 ### Evidence aggiuntive 2026-10-05 — Step 11 asset / Step 12 continuity live
 
 - **Step 11 asset-upload**: Edge deployato `ACTIVE` v5 con `verify_jwt=true`; probe transazionale autorizzazione/RLS **11/11 PASS** (idempotenza, venue isolation, ruolo, MIME, quota, Storage write RLS, documenti privati). Resta aperto l'E2E HTTPS reale di upload byte da browser autenticato.
@@ -193,6 +190,7 @@ Gli stati degli Step restano quelli del registro sopra: il redesign UX non sosti
 - **Step 10 Realtime/Storage live contract**: `realtime_signals` è pubblicata in `supabase_realtime` con RLS attiva e policy `private.can_read_signal`; il bucket `documents` è privato e l’accesso passa da `asset_uploads` RLS. Il probe live conferma own/foreign/WAITER isolation. Resta aperto il vero E2E client WebSocket/Storage HTTP.
 
 ### 2026-10-06 — STEP 12 control-plane hardening
+
 - runbook riconciliazione post-restore: **11/11 PASS**;
 - worker alert recovery: **7/7 PASS** transazionale;
 - scheduler RPO idempotente: **5/5 PASS**;
@@ -206,6 +204,7 @@ Gli stati degli Step restano quelli del registro sopra: il redesign UX non sosti
 Lo STEP 12 resta `IN_PROGRESS`: non viene dichiarato completo senza un backup reale verificato e un restore test reale da artifact cifrato.
 
 ### Step 12 control-plane hardening — 2026-10-06
+
 - Restore-test su backup non verificato: **5/5 PASS**, fail-closed senza job/audit/idempotency residui.
 - Retention/restore race guard: **5/5 PASS**; restore attivo blocca il claim retention, restore terminale lo rende reclamabile.
 - Priorità coda backup: **7/7 PASS** (`PRE_RESTORE → RESTORE_TEST → MANUAL → SCHEDULED`) e un solo RUNNING.
@@ -218,8 +217,8 @@ Lo STEP 12 resta `IN_PROGRESS`: non viene dichiarato completo senza un backup re
 - Performance hardening restore references: migration `20261006045641`, Advisor ripulito per `backup_id/pre_restore_backup_id`.
 - Stato corrente: **130/130 migration**, Step 12 static **33/33**.
 
-
 ### Step 12 control-plane extended live gates — 2026-10-06
+
 - Restore-test backup non eligible: **5/5 PASS**.
 - Retention/restore race guard: **5/5 PASS**.
 - Backup queue priority: **7/7 PASS** (`PRE_RESTORE → RESTORE_TEST → MANUAL → SCHEDULED`).
@@ -234,3 +233,13 @@ Lo STEP 12 resta `IN_PROGRESS`: non viene dichiarato completo senza un backup re
 - Stato: **130/130 migration**, Step 12 static **33/33**.
 
 - Restore verification `mode=RESTORE` → `CUTOVER_REQUIRED`: **8/8 PASS**; nessun cutover/successo automatico.
+
+### 2026-10-09 — recupero baseline, Step 0 riaperto
+
+- Recuperato lo storico canonico Development: 457 migrazioni, 324 file aggiunti e 24 SQL riconciliati; originali preservati. Una migrazione successiva preparata, non applicata: 458 file locali.
+- Bootstrap versionato di sette tabelle private e postlude di due RPC operative; nessun DDL applicativo nascosto nel harness. Due diagnostiche legate a fixture Development escluse dall'installazione cliente.
+- Confronto catalogo senza differenze inattese: 163 relazioni, 1.485 colonne, 444 indici, 903 vincoli, 110 policy. Routine/trigger: sole differenze deliberate documentate nel manifest.
+- Master e requisiti allineati a §§0–157 con SHA-256; sezioni nuove/modificate pending.
+- 242 test locali passati, 4 esclusi CORE; source gates, TypeScript, ESLint, Prettier e build pubblico/staff passano.
+- Preparata protezione contro PASS non attestati, con conservazione dei claim precedenti. Applicazione Development respinta dal controllo automatico per autorizzazione remota specifica mancante e replay isolato incompleto; nessuna modifica remota.
+- Restano Supabase isolato, HTTP/JWT, CI autenticata, Edge/browser, backup/restore corrente e tre revisioni integrali. Step 0 IN_PROGRESS, release commerciale bloccata. Evidenze e limiti in `BASELINE_RECOVERY_2026-10-09.md`.

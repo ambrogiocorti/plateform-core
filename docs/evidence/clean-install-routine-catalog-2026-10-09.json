@@ -1,0 +1,52 @@
+{
+  "project": "abdxvlykasqmknexxhjo",
+  "access": "read_only_catalog",
+  "routines": [
+    {
+      "schema": "private",
+      "name": "debug_menu_experience_e2e",
+      "signature": "private.debug_menu_experience_e2e()",
+      "security_definer": true,
+      "api_roles": "{service_role}",
+      "acl": "{postgres=X/postgres,service_role=X/postgres}"
+    },
+    {
+      "schema": "public",
+      "name": "continuity_rehearsal_export_chunk",
+      "signature": "public.continuity_rehearsal_export_chunk(uuid, integer, integer, text)",
+      "security_definer": true,
+      "api_roles": "{service_role}",
+      "acl": "{postgres=X/postgres,service_role=X/postgres}"
+    },
+    {
+      "schema": "public",
+      "name": "get_account_transfer_targets",
+      "signature": "public.get_account_transfer_targets(uuid)",
+      "security_definer": true,
+      "api_roles": "{authenticated,service_role}",
+      "acl": "{postgres=X/postgres,service_role=X/postgres,authenticated=X/postgres}"
+    },
+    {
+      "schema": "public",
+      "name": "get_order_change_center",
+      "signature": "public.get_order_change_center(uuid)",
+      "security_definer": true,
+      "api_roles": "{authenticated,service_role}",
+      "acl": "{postgres=X/postgres,service_role=X/postgres,authenticated=X/postgres}"
+    }
+  ],
+  "excluded_development_diagnostics": [
+    {
+      "signature": "private.debug_menu_experience_e2e()",
+      "definition_sha256": "2a12b33cb435df4f9d6fb323e5039dd87c5f61536c6160977bccb1a39fc99965",
+      "disposition": "DEVELOPMENT_DIAGNOSTIC_EXCLUDED_FROM_CLIENT_INSTALL",
+      "reason": "Uses fixed Development fixture IDs; never authoritative test evidence and never a customer workflow."
+    },
+    {
+      "signature": "public.continuity_rehearsal_export_chunk(uuid, integer, integer, text)",
+      "definition_sha256": "194cb6aa495baef18565328888050537c3e802ee7b79b88c139b4a22a7c920a0",
+      "disposition": "DEVELOPMENT_DIAGNOSTIC_EXCLUDED_FROM_CLIENT_INSTALL",
+      "reason": "Uses fixed Development fixture IDs; never authoritative test evidence and never a customer workflow."
+    }
+  ]
+}

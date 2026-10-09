@@ -493,9 +493,12 @@ Può gestire, nello scope autorizzato:
 - turni;
 - ruoli e assegnazioni;
 - menu;
+- menu multipli e relativi QR;
 - categorie;
 - piatti;
+- promozioni e contenuti in evidenza nel menu digitale;
 - ingredienti;
+- ricette e food cost;
 - allergeni;
 - disponibilità;
 - varianti;
@@ -508,6 +511,10 @@ Può gestire, nello scope autorizzato:
 - zone;
 - layout;
 - prenotazioni;
+- promemoria e comunicazioni prenotazione;
+- configurazione WhatsApp/Telegram/SMS/messaggistica transazionale;
+- policy caparra/deposito prenotazione;
+- lista d’attesa;
 - moduli;
 - Host;
 - casse;
@@ -519,6 +526,7 @@ Può gestire, nello scope autorizzato:
 - impostazioni;
 - feature consentite;
 - ordini;
+- ordini da asporto / takeaway;
 - richieste modifica;
 - chiusure forzate;
 - rimborsi;
@@ -983,7 +991,27 @@ Gestire:
 - varianti;
 - ingredienti rimovibili;
 - stazioni;
-- disponibilità temporale.
+- disponibilità temporale;
+- menu multipli o viste menu differenti, ad esempio colazione, pranzo, cena, aperitivo, carta vini, evento;
+- associazione di menu a servizi, fasce orarie, giorni o periodi;
+- QR pubblici differenti per menu differenti;
+- piatti/categorie messi in evidenza;
+- promozioni e popup informativi/promozionali configurabili nel menu digitale.
+
+I menu multipli non devono duplicare inutilmente le entità `dish`: devono riutilizzare il catalogo e definire appartenenza, ordinamento, visibilità e configurazioni contestuali.
+
+I popup/promozioni devono essere configurabili per:
+
+- menu;
+- sede;
+- periodo di validità;
+- servizio/fascia oraria dove pertinente;
+- priorità;
+- frequenza di visualizzazione;
+- call to action opzionale;
+- stato attivo/inattivo.
+
+Non utilizzare popup invasivi ripetuti ad ogni navigazione. Rispettare accessibilità, sessione utente e preferenze essenziali.
 
 ---
 
@@ -994,6 +1022,22 @@ Ogni piatto, tranne le bevande, deve mostrare tutti gli ingredienti.
 Gli ingredienti devono essere entità strutturate.
 
 Non salvarli solo come testo concatenato.
+
+Per il modulo ricette/food cost, ogni ingrediente può inoltre possedere, dove applicabile:
+
+```text
+purchase_unit
+base_unit
+conversion_factor
+current_cost
+cost_currency
+cost_updated_at
+waste_percentage_optional
+```
+
+I costi devono essere storicizzabili: il ricalcolo del food cost non deve modificare retroattivamente snapshot economici già registrati.
+
+Il food cost **non equivale a un inventario quantitativo di magazzino**. Plateform può conoscere quantità di ingrediente necessarie a una ricetta e relativo costo senza introdurre giacenze, lotti, carichi/scarichi o riordino automatico.
 
 ---
 
@@ -1050,7 +1094,7 @@ Supportare badge strutturati:
 
 La disponibilità è gestita per piatto.
 
-Non creare inventario quantitativo ingredienti.
+Non creare inventario quantitativo ingredienti. Il modulo food cost/ricette usa quantità teoriche per porzione e costi unitari, ma non trasforma automaticamente Plateform in un sistema di magazzino.
 
 Esempio:
 
@@ -1412,7 +1456,8 @@ Quando OFF:
 Quando ON:
 
 - link Prenota visibile;
-- modulo interno disponibile.
+- modulo interno disponibile;
+- possono essere attivati reminder, messaggistica, caparra e lista d’attesa secondo feature flag e configurazione della sede.
 
 ---
 
@@ -1474,6 +1519,9 @@ max_arrivals_per_slot
 max_covers_per_slot
 max_party_size_auto_confirm
 large_party_mode
+deposit_policy
+deposit_amount_or_percentage_optional
+deposit_expiry_minutes_optional
 ```
 
 Esempio:
@@ -1508,6 +1556,19 @@ invece di confermare automaticamente.
 
 L'Host/Admin può approvare o rifiutare richieste grandi.
 
+Quando la policy caparra è attiva, l'esito della prenotazione deve dipendere da un pagamento server-authoritative. Il browser non può impostare autonomamente la caparra come pagata.
+
+Policy minime supportate:
+
+```text
+DISABLED
+OPTIONAL
+REQUIRED
+CONDITIONAL
+```
+
+`CONDITIONAL` può dipendere da condizioni configurabili come dimensione gruppo, servizio, giorno/data speciale o fascia oraria. Le condizioni devono essere deterministiche e auditate.
+
 Non utilizzare una stima automatica della durata del tavolo per promettere rotazioni future salvo feature futura specifica.
 
 ---
@@ -1539,17 +1600,134 @@ Mostrare istruzione:
 
 ---
 
+# 43A. Conferme e promemoria prenotazione
+
+Plateform deve supportare comunicazioni transazionali automatiche collegate al ciclo di vita della prenotazione.
+
+Canali supportabili tramite provider configurabile:
+
+```text
+WhatsApp/Telegram
+SMS
+EMAIL
+```
+
+WhatsApp/Telegram/SMS è il canale prioritario quando il cliente lo configura e il provider scelto lo consente.
+
+Eventi minimi configurabili:
+
+- prenotazione ricevuta;
+- prenotazione confermata;
+- richiesta grande gruppo ricevuta;
+- caparra richiesta;
+- caparra ricevuta;
+- reminder prima della prenotazione;
+- modifica prenotazione;
+- cancellazione;
+- offerta posto da lista d’attesa.
+
+L'Admin può definire uno o più reminder, ad esempio 24 ore e 3 ore prima. Il sistema deve impedire invii duplicati mediante idempotenza e registrare stato di consegna quando il provider lo rende disponibile.
+
+Creare un sistema di template con variabili controllate, per esempio:
+
+```text
+customer_name
+venue_name
+reservation_date
+reservation_time
+party_size
+service_name
+deposit_amount
+```
+
+Non consentire template che espongano dati di altri clienti o informazioni interne.
+
+Segreti/API key dei provider di messaggistica devono restare server-side. Gestire retry, rate limit, provider error, opt-out/consensi dove richiesti e retention coerente con la privacy.
+
+---
+
+# 43B. Gestione no-show assistita da reminder e caparra
+
+Plateform deve ridurre i no-show combinando:
+
+- reminder automatici;
+- conferme prenotazione;
+- eventuale caparra;
+- stato di arrivo;
+- regole configurabili per ritardo/grace period.
+
+Il sistema non deve dichiarare automaticamente `NO_SHOW` prima che sia trascorso il grace period configurato.
+
+L'Admin può scegliere:
+
+```text
+NO_SHOW_MANUAL
+NO_SHOW_SUGGESTED
+NO_SHOW_AUTOMATIC_AFTER_GRACE_PERIOD
+```
+
+In modalità automatica il passaggio a `NO_SHOW` deve essere eseguito server-side, auditato e annullabile/correggibile solo secondo permessi espliciti.
+
+L'eventuale trattamento economico della caparra in caso di no-show deve seguire una policy configurata dal ristorante e non deve essere dedotto o inventato da Plateform.
+
+---
+
+# 43C. Lista d'attesa
+
+Implementare una lista d'attesa per sede, data e servizio.
+
+Ogni voce contiene almeno:
+
+```text
+id
+venue_id
+service_id
+date
+preferred_time_or_window
+party_size
+customer_name
+customer_phone
+notes_optional
+status
+created_at
+offered_at
+offer_expires_at
+confirmed_at
+```
+
+Stati minimi:
+
+```text
+WAITING
+OFFERED
+CONFIRMED
+EXPIRED
+CANCELLED
+CONVERTED_TO_RESERVATION
+```
+
+Quando si libera capacità, Plateform può suggerire al personale i candidati compatibili. L'Admin può configurare un'offerta automatica tramite messaggistica, ma la creazione definitiva della prenotazione deve verificare nuovamente la capacità in modo atomico.
+
+L'ordine di priorità deve essere deterministico e trasparente, normalmente basato su compatibilità e ora di inserimento; evitare algoritmi opachi che discriminino clienti.
+
+La lista d'attesa non deve promettere disponibilità futura finché il posto non viene effettivamente confermato.
+
+---
+
 # 44. Stati prenotazione
 
 Implementare:
 
 ```text
+REQUESTED
+PENDING_DEPOSIT
 RESERVED
 ARRIVED
 SEATED
 COMPLETED
 NO_SHOW
 CANCELLED
+EXPIRED
 ```
 
 L'Host gestisce operativamente questi stati.
@@ -1615,6 +1793,17 @@ Il QR contiene un URL dell'area cliente e identifica il tavolo dell'unica instal
 Non includere selettori o identificatori di ristorante e sede nel routing del QR. Il QR deve puntare al dominio pubblico con il percorso `https://dominio.it/tavolo/{public_table_id}`, usando l'indirizzo base configurato nella sezione 15, anche quando viene generato dal gestionale su `staff.dominio.it`.
 
 Il QR non identifica direttamente il conto e non autorizza da solo l'accesso ai suoi dati. Il codice conto e la customer session restano obbligatori.
+
+Separatamente dai QR tavolo, Plateform deve poter generare **QR pubblici per menu specifici**. Esempi:
+
+```text
+/menu/colazione
+/menu/pranzo
+/menu/aperitivo
+/menu/carta-vini
+```
+
+Ogni QR menu deve essere revocabile/rigenerabile senza modificare i dati del tavolo e può puntare a un menu, a una sede o a una combinazione configurata. I QR menu sono pubblici e non autorizzano l'accesso a conti o customer session.
 
 ---
 
@@ -1800,6 +1989,69 @@ Dopo invio:
 - non può modificare;
 - non può cancellare;
 - deve contattare staff.
+
+---
+
+# 54A. Ordini da asporto / takeaway
+
+Plateform deve supportare ordini da asporto con ritiro presso il ristorante. Questa funzione è distinta dagli ordini al tavolo e **non introduce automaticamente delivery a domicilio o gestione fattorini**.
+
+L'Admin può configurare:
+
+```text
+takeaway_enabled
+pickup_services_or_windows
+slot_interval_minutes
+max_orders_per_slot_optional
+max_items_per_slot_optional
+minimum_order_optional
+advance_order_limit_days
+preparation_buffer_minutes
+payment_modes_allowed
+```
+
+Il cliente può:
+
+1. aprire la pagina takeaway pubblica;
+2. scegliere sede se necessario;
+3. selezionare fascia di ritiro disponibile;
+4. aggiungere prodotti, varianti e ingredienti rimovibili;
+5. inserire i dati minimi richiesti;
+6. scegliere il metodo di pagamento consentito;
+7. inviare l'ordine;
+8. ricevere conferma e aggiornamenti.
+
+Stati minimi:
+
+```text
+DRAFT
+PENDING_CONFIRMATION
+CONFIRMED
+IN_PREPARATION
+READY_FOR_PICKUP
+COLLECTED
+CANCELLED
+REJECTED
+```
+
+L'ordine takeaway deve riutilizzare il catalogo, disponibilità, snapshot prezzo, varianti, ingredienti rimovibili, stazioni e cucina di Plateform.
+
+La disponibilità deve essere scalata server-side con le stesse garanzie transazionali degli ordini al tavolo.
+
+L'Admin configura se l'ordine takeaway è:
+
+```text
+STAFF_APPROVAL
+DIRECT
+```
+
+In `STAFF_APPROVAL`, la richiesta non entra in produzione finché un ruolo autorizzato non la conferma. In `DIRECT`, l'ordine entra automaticamente solo se tutti i controlli server-side e l'eventuale pagamento richiesto sono validi.
+
+Gli ordini takeaway devono essere chiaramente distinguibili nei KDS/ticket e nel Pass, senza richiedere un tavolo.
+
+Il ritiro deve essere associato a una sede e a una fascia oraria. In multi-sede non è consentito ritirare in una sede diversa da quella dell'ordine.
+
+Creazione pubblica dell'ordine, prenotazione slot e pagamento online richiedono connessione al server; non simulare successo offline.
 
 ---
 
@@ -2672,7 +2924,14 @@ Metriche:
 - tempo medio risposta chiamate;
 - categorie più vendute;
 - prenotazioni/no-show;
+- reminder inviati/consegnati/falliti;
+- conversione lista d'attesa → prenotazione;
+- ordini takeaway e valore medio takeaway;
 - utilizzo capacità per servizio;
+- food cost teorico per piatto;
+- margine lordo teorico per piatto;
+- food cost percentage;
+- contributo vendite/margine per menu engineering;
 - errori/incidenti operativi rilevanti.
 
 NON implementare classifiche o performance individuali dei camerieri.
@@ -2708,6 +2967,14 @@ SATISPAY_API
 OFFLINE
 ADVANCED_ROOM_EDITOR
 ADVANCED_ANALYTICS
+RESERVATION_MESSAGING
+WhatsApp/Telegram/SMS_MESSAGING
+BOOKING_DEPOSITS
+WAITLIST
+TAKEAWAY
+FOOD_COST
+MENU_PROMOTIONS
+MULTI_MENU_QR
 ```
 
 ## Admin
@@ -3116,6 +3383,8 @@ Utilizzare Supabase Realtime per aggiornamenti pertinenti a:
 - pagamenti;
 - casse;
 - prenotazioni;
+- lista d'attesa;
+- takeaway;
 - notifications.
 
 **PostgreSQL è sempre la fonte autoritativa dello stato. Realtime è un meccanismo di propagazione, non la source of truth.**
@@ -3493,6 +3762,14 @@ reservations
 reservation_form_definitions
 reservation_form_fields
 reservation_answers
+reservation_reminder_rules
+reservation_message_templates
+reservation_message_jobs
+reservation_message_deliveries
+reservation_deposit_policies
+reservation_deposits
+waitlist_entries
+waitlist_offers
 
 categories
 dishes
@@ -3500,12 +3777,21 @@ ingredients
 allergens
 ingredient_allergens
 dish_ingredients
+recipe_items
+ingredient_cost_history
+dish_cost_snapshots
 removable_ingredients
 dietary_tags
 dish_dietary_tags
 variant_groups
 variant_options
 venue_dish_settings
+menus
+menu_categories
+menu_dishes
+menu_public_qr_codes
+menu_promotions
+menu_promotion_targets
 
 stations
 dish_station_assignments
@@ -3517,6 +3803,8 @@ customer_sessions
 orders
 order_steps
 order_items
+takeaway_orders_or_order_context
+takeaway_pickup_slots
 order_item_removed_ingredients
 order_item_variants
 order_change_requests
@@ -3580,6 +3868,12 @@ Menu: mantenere catalogo condiviso e usare `venue_dish_settings` soltanto per ov
 
 Non duplicare l'intero piatto per sede senza necessità.
 
+Food cost: mantenere separati costo corrente dell'ingrediente, storico dei costi e snapshot calcolati del piatto. Le quantità di ricetta devono usare unità normalizzate e conversioni esplicite.
+
+Menu multipli: `menus` e relative tabelle di relazione organizzano lo stesso catalogo in viste differenti senza clonare `dishes`.
+
+Takeaway: preferire, se coerente con lo schema finale, un unico modello `orders` con contesto/source esplicito anziché duplicare tutta la logica ordine; una tabella dedicata può contenere solo i dati specifici del ritiro.
+
 ---
 
 # 121. RLS
@@ -3630,11 +3924,33 @@ create_customer_order_request
 approve_customer_order
 reject_customer_order
 
+create_takeaway_order
+approve_takeaway_order
+reject_takeaway_order
+reserve_takeaway_pickup_slot
+update_takeaway_status
+
 modify_order
 request_order_change
 approve_order_change
 
 decrement_availability
+
+create_reservation_with_policy
+create_reservation_deposit
+confirm_reservation_deposit
+queue_reservation_reminder
+process_reservation_reminder
+create_waitlist_entry
+offer_waitlist_slot
+accept_waitlist_offer
+expire_waitlist_offer
+
+recalculate_dish_food_cost
+create_dish_cost_snapshot
+
+create_menu_public_qr
+create_menu_promotion
 
 assign_table
 move_table
@@ -3681,6 +3997,10 @@ Definire state machine esplicite per:
 - installazione, inclusi sospensione e ciclo di vita;
 - configurazione di pubblicazione dei due host, se il provider scelto richiede un workflow applicativo;
 - prenotazione;
+- caparra prenotazione;
+- reminder/messaggio prenotazione;
+- lista d'attesa/offerta lista d'attesa;
+- takeaway;
 - tavolo;
 - conto;
 - ordine;
@@ -3981,6 +4301,13 @@ Creare test reali automatici.
 - codici conto;
 - sconti;
 - booking pacing;
+- calcolo food cost e conversioni unità;
+- margine piatto;
+- classificazione menu engineering;
+- regole reminder;
+- policy caparra;
+- priorità lista d'attesa;
+- capacità slot takeaway;
 - scope chain/venue;
 - conflict resolution pure logic.
 
@@ -3997,7 +4324,11 @@ Creare test reali automatici.
 - realtime;
 - multi-venue isolation;
 - idempotenza;
-- migrations.
+- migrations;
+- provider messaggistica tramite adapter/mock affidabili;
+- webhook/callback caparra;
+- calcolo food cost con storico costi;
+- takeaway + disponibilità atomica.
 
 ## E2E
 
@@ -4011,6 +4342,15 @@ Testare tutti i flussi principali già definiti nel master prompt e aggiungere:
 - menu con override per sede;
 - booking pacing;
 - grande gruppo in REQUESTED;
+- reminder prenotazione senza duplicati;
+- conferma WhatsApp/Telegram/SMS/messaggistica;
+- caparra prenotazione;
+- no-show dopo grace period;
+- lista d'attesa → offerta → prenotazione;
+- takeaway → cucina → READY_FOR_PICKUP → COLLECTED;
+- food cost e menu engineering con dataset controllato;
+- popup/promozione menu con periodo di validità;
+- QR menu differenti;
 - Notification Center;
 - Conflict Center;
 - MFA Super Admin;
@@ -4032,6 +4372,11 @@ stampante offline dopo enqueue
 utente revocato mentre dispositivo è offline
 retry Edge Function
 network timeout dopo commit server
+provider WhatsApp/Telegram/SMS indisponibile durante reminder
+callback caparra duplicata o fuori ordine
+due clienti accettano l'ultimo slot di lista d'attesa
+due clienti tentano l'ultimo slot takeaway
+costo ingrediente aggiornato durante calcolo analytics
 ```
 
 Il sistema deve privilegiare integrità e riconciliazione rispetto a una falsa sensazione di successo.
@@ -4118,6 +4463,11 @@ plateform/
 │   ├── payments/
 │   ├── printing/
 │   ├── reservations/
+│   ├── messaging/
+│   ├── waitlist/
+│   ├── takeaway/
+│   ├── food-cost/
+│   ├── menu-promotions/
 │   ├── utils/
 │   └── pages/
 │
@@ -4386,16 +4736,22 @@ Procedere indicativamente:
 34. rimborsi;
 35. stampa;
 36. statistiche;
-37. PWA;
-38. offline authorization;
-39. queue/sync;
-40. Conflict Center;
-41. backup + restore test;
-42. sito pubblico;
-43. CI/CD e release gates definitivi;
-44. E2E/security/chaos testing;
-45. operational runbook e incident response;
-46. documentazione commerciale/tecnica finale.
+37. reminder e messaggistica prenotazioni;
+38. caparre prenotazione + gestione no-show;
+39. lista d'attesa;
+40. menu multipli + QR menu + promozioni;
+41. ricettario + food cost + menu engineering;
+42. takeaway;
+43. PWA;
+44. offline authorization;
+45. queue/sync;
+46. Conflict Center;
+47. backup + restore test;
+48. sito pubblico;
+49. CI/CD e release gates definitivi;
+50. E2E/security/chaos testing;
+51. operational runbook e incident response;
+52. documentazione commerciale/tecnica finale.
 
 Ad ogni fase:
 
@@ -4502,6 +4858,45 @@ SERVIZIO
 PAGAMENTO
 → RIMBORSO
 → PASSWORD ADMIN
+```
+
+```text
+PRENOTAZIONE
+→ CONFERMA / REMINDER
+→ EVENTUALE CAPARRA
+→ ARRIVO O NO_SHOW
+```
+
+```text
+LISTA D'ATTESA
+→ DISPONIBILITÀ LIBERATA
+→ OFFERTA
+→ CONFERMA ATOMICA
+→ PRENOTAZIONE
+```
+
+```text
+TAKEAWAY
+→ SLOT RITIRO
+→ ORDINE
+→ DISPONIBILITÀ
+→ CUCINA
+→ READY_FOR_PICKUP
+→ RITIRO
+```
+
+```text
+RICETTA
+→ COSTI INGREDIENTI
+→ FOOD COST PIATTO
+→ MARGINE
+→ MENU ENGINEERING
+```
+
+```text
+MENU DIGITALE
+→ MENU SPECIFICO / QR SPECIFICO
+→ PIATTI IN EVIDENZA / PROMOZIONI
 ```
 
 ```text
@@ -4943,6 +5338,25 @@ Dividere lo sviluppo commerciale in release.
 - analytics avanzate;
 - multi-sede commerciale se non già abilitata.
 
+## Release 4 — Revenue, Booking & Menu Optimization
+
+- reminder automatici prenotazioni;
+- conferme prenotazione tramite WhatsApp/Telegram/SMS/messaggistica;
+- caparra/deposito e gestione no-show;
+- lista d'attesa;
+- ordini takeaway;
+- ricettario quantitativo;
+- storico costi ingredienti;
+- food cost;
+- costo reale/teorico del piatto;
+- margine piatto;
+- menu engineering;
+- popup/promozioni menu digitale;
+- piatti/promozioni in evidenza;
+- menu multipli e QR differenti per menu.
+
+Queste funzionalità devono essere implementate soltanto dopo la stabilizzazione del core operativo da cui dipendono, ma fanno parte dello scope commerciale finale di Plateform.
+
 Una release non deve includere feature incomplete soltanto per rispettare il numero di funzionalità del master prompt.
 
 ---
@@ -4985,7 +5399,9 @@ CHIAREZZA UX
 MANUTENIBILITÀ
 ```
 
-Prima di aggiungere moduli come magazzino, HR, CRM, loyalty, delivery, marketing o altre aree ERP, rendere eccellente e stabile il ciclo centrale:
+Prima di aggiungere ulteriori moduli fuori scope come magazzino quantitativo completo, HR/payroll, CRM avanzato, loyalty, delivery a domicilio con fattorini, marketing automation generalista o altre aree ERP, rendere eccellente e stabile il ciclo centrale.
+
+Le funzionalità esplicitamente incluse in questo Master Prompt — tra cui takeaway, food cost, ricettario, menu engineering, reminder/caparra/lista d'attesa e promozioni menu — restano parte dello scope, ma devono essere implementate nell'ordine previsto senza indebolire il core:
 
 ```text
 PRENOTAZIONE
@@ -4998,5 +5414,287 @@ PRENOTAZIONE
 → CASSA
 → PAGAMENTO
 → CHIUSURA
+```
+---
+
+# 151. Ricettario e food cost
+
+Il ricettario Plateform deve rappresentare la composizione economica teorica di un piatto.
+
+Per ogni ricetta gestire almeno:
+
+```text
+dish_id
+ingredient_id
+quantity
+unit
+yield_factor_optional
+waste_percentage_optional
+```
+
+Le unità devono essere normalizzate e convertibili in modo deterministico, per esempio `kg ↔ g`, `l ↔ ml`, `piece`. Non consentire conversioni implicite impossibili tra unità incompatibili.
+
+Il costo ingrediente può variare nel tempo. Conservare storico almeno di:
+
+```text
+ingredient_id
+cost_per_purchase_unit
+purchase_unit
+effective_from
+effective_to_optional
+source_optional
+created_by
+```
+
+Il costo teorico del piatto deve essere calcolato server-side:
+
+```text
+food_cost = Σ costo quantità ricetta
+```
+
+considerando conversioni unità e, se configurati, resa/scarto.
+
+Non usare floating point JavaScript come fonte economica autoritativa.
+
+Il sistema deve poter creare snapshot del food cost per analisi storica.
+
+---
+
+# 152. Margine piatto e menu engineering
+
+Calcolare almeno:
+
+```text
+food_cost_amount
+food_cost_percentage
+gross_margin_amount
+gross_margin_percentage
+```
+
+Dove:
+
+```text
+gross_margin_amount = selling_price - food_cost_amount
+```
+
+Gli indicatori devono essere chiaramente definiti come **teorici** se Plateform non dispone di costi reali consuntivi completi, scarti effettivi e altri costi operativi. Non chiamare automaticamente il margine lordo del piatto “utile netto”.
+
+Il menu engineering deve combinare almeno:
+
+- volume di vendita;
+- fatturato generato;
+- food cost;
+- margine/contribution margin teorico;
+- periodo selezionato;
+- sede;
+- menu/categoria.
+
+È consentita una classificazione configurabile dei piatti, per esempio alta/bassa popolarità e alto/basso margine, ma Plateform deve mostrare i valori sottostanti e non affidarsi esclusivamente a etichette.
+
+Gli ordini annullati/rimborsati devono essere trattati correttamente nelle metriche.
+
+---
+
+# 153. Menu multipli, QR dedicati e promozioni
+
+Un ristorante può pubblicare più menu usando lo stesso catalogo.
+
+Esempi:
+
+```text
+Colazione
+Pranzo
+Cena
+Aperitivo
+Carta vini
+Menu evento
+```
+
+Ogni menu può avere:
+
+- slug pubblico;
+- sede/sedi autorizzate;
+- categorie incluse;
+- piatti inclusi;
+- ordinamento;
+- giorni;
+- fasce orarie;
+- intervallo date;
+- stato pubblicato/non pubblicato;
+- QR dedicato.
+
+Il QR dedicato non deve contenere dati sensibili e deve puntare a una risorsa pubblica stabile.
+
+Le promozioni/menu highlights possono mostrare:
+
+- banner;
+- card evidenziata;
+- badge;
+- popup controllato;
+- call to action verso categoria/piatto/menu.
+
+Configurazioni minime:
+
+```text
+start_at
+end_at
+venue_id_optional
+menu_id_optional
+priority
+max_impressions_per_session_optional
+active
+```
+
+Le promozioni non devono alterare in modo nascosto il prezzo authoritative del piatto. Eventuali sconti economici devono usare il sistema sconti/omaggi e relative autorizzazioni.
+
+---
+
+# 154. Messaggistica prenotazioni
+
+Implementare un abstraction layer per provider di comunicazione.
+
+Il dominio applicativo deve produrre eventi, mentre un adapter provider gestisce il trasporto.
+
+Esempio:
+
+```text
+RESERVATION_CONFIRMED
+→ Message Job
+→ WhatsApp/Telegram/SMS provider
+→ SENT / DELIVERED / FAILED
+```
+
+Stati minimi messaggio:
+
+```text
+QUEUED
+SENDING
+SENT
+DELIVERED
+FAILED
+CANCELLED
+```
+
+Supportare idempotency key per evitare duplicati.
+
+I retry devono avere backoff e limite massimo.
+
+Il fallimento del provider di messaggistica non deve corrompere lo stato della prenotazione. La prenotazione resta source of truth indipendente dalla consegna del messaggio.
+
+---
+
+# 155. Caparra prenotazione
+
+La caparra/deposito è distinta dai pagamenti del conto al tavolo pur riutilizzando l'astrazione provider dove opportuno.
+
+Ogni deposito deve registrare almeno:
+
+```text
+reservation_id
+amount
+currency
+provider
+provider_reference
+status
+created_at
+completed_at
+refunded_amount
+```
+
+Stati minimi:
+
+```text
+PENDING
+COMPLETED
+FAILED
+EXPIRED
+REFUNDED
+PARTIALLY_REFUNDED
+```
+
+Stripe/Satispay, quando usati, devono essere confermati da callback/webhook server-side con idempotenza.
+
+La scadenza di una richiesta caparra può far passare la prenotazione a `EXPIRED` e liberare la capacità secondo policy configurata, con transazione atomica e audit.
+
+Eventuali rimborsi o trattenimenti devono rispettare policy esplicite configurate dal ristorante.
+
+---
+
+# 156. Takeaway
+
+Il takeaway è un canale ordine aggiuntivo con `order_source = TAKEAWAY` o modello equivalente.
+
+Non duplicare la logica di:
+
+- prezzi;
+- disponibilità;
+- varianti;
+- ricette;
+- stazioni;
+- cucina;
+- pagamenti;
+- audit.
+
+Riutilizzare gli stessi servizi authoritative del core quando possibile.
+
+Dati specifici takeaway almeno:
+
+```text
+pickup_venue_id
+pickup_slot_id
+pickup_at
+customer_name
+customer_phone
+customer_note_optional
+order_source = TAKEAWAY
+```
+
+Il numero di ordini accettabili per slot deve essere verificato server-side e protetto da race condition.
+
+Nel KDS il ticket deve mostrare chiaramente:
+
+> TAKEAWAY — ritiro 20:15
+
+Il personale deve poter segnare `READY_FOR_PICKUP`; se la messaggistica è attiva, Plateform può inviare automaticamente “ordine pronto”.
+
+Non implementare automaticamente indirizzo di consegna, delivery fee, rider/fattorini o routing: appartengono a un eventuale modulo delivery futuro separato.
+
+---
+
+# 157. Definition of Done delle nuove funzionalità
+
+Le funzionalità introdotte nelle sezioni 151–156 sono soggette integralmente alla Definition of Done generale.
+
+In particolare non possono essere considerate complete finché non esistono, dove pertinenti:
+
+- schema/migration;
+- RLS e scope sede;
+- API/RPC/Edge Functions server-authoritative;
+- validazione input;
+- idempotenza;
+- transazioni e protezione concorrenza;
+- audit;
+- telemetry;
+- observability;
+- gestione errori/provider failure;
+- privacy e retention;
+- UX responsive;
+- test unit/integration/E2E/security;
+- comportamento multi-sede;
+- documentazione;
+- rollback/migration strategy.
+
+Test di accettazione minimi aggiuntivi:
+
+```text
+reminder inviato una sola volta anche con retry
+WhatsApp/Telegram/SMS fallisce senza perdere la prenotazione
+caparra confermata solo server-side
+due utenti non possono ottenere lo stesso ultimo slot di waitlist
+due utenti non possono ottenere lo stesso ultimo slot takeaway
+food cost ricalcolato dopo variazione costo ingrediente senza alterare snapshot storico
+QR colazione non espone menu non autorizzati o dati privati
+promozione scaduta scompare automaticamente
+takeaway scala disponibilità senza renderla negativa
 ```
 

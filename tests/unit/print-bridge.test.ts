@@ -198,8 +198,7 @@ describe('local HTTPS print bridge', () => {
     if (bridge?.server.listening)
       await new Promise<void>((resolve) => bridge.server.close(() => resolve()));
     bridge?.store.close();
-    if (printer?.listening)
-      await new Promise<void>((resolve) => printer.close(() => resolve()));
+    if (printer?.listening) await new Promise<void>((resolve) => printer.close(() => resolve()));
     if (directory) rmSync(directory, { recursive: true, force: true });
   });
   async function post(

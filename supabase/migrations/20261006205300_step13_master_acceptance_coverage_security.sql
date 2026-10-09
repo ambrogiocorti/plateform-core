@@ -1,0 +1,26 @@
+
+insert into private.master_acceptance_requirements(key,section,requirement) values
+  ('SEC_CROSS_ROLE','SECURITY','attempt unauthorized cross-role access'),
+  ('SEC_CROSS_VENUE','SECURITY','attempt cross-venue access'),
+  ('SEC_SCOPE_CHAIN_VENUE_BYPASS','SECURITY','attempt chain/venue scope bypass'),
+  ('SEC_ASSIGNMENT_BYPASS','SECURITY','attempt operational-assignment bypass'),
+  ('SEC_SECOND_VENUE_WHEN_DISABLED','SECURITY','attempt second venue while MULTI_VENUE=false'),
+  ('SEC_SECOND_CHAIN','SECURITY','attempt second chain/customer in same installation'),
+  ('SEC_ACCOUNT_CODE_BRUTE_FORCE','SECURITY','brute force account access code'),
+  ('SEC_PIN_BRUTE_FORCE','SECURITY','brute force staff PIN'),
+  ('SEC_MFA_BYPASS','SECURITY','attempt MFA bypass'),
+  ('SEC_SESSION_FIXATION_REVOCATION','SECURITY','session fixation/revocation behavior'),
+  ('SEC_PRICE_TAMPERING','SECURITY','price tampering'),
+  ('SEC_AVAILABILITY_TAMPERING','SECURITY','availability tampering'),
+  ('SEC_PAYMENT_STATUS_TAMPERING','SECURITY','payment status tampering'),
+  ('SEC_STORAGE_ACCESS','SECURITY','unauthorized Storage access'),
+  ('SEC_AUDIT_ACCESS','SECURITY','audit access boundaries'),
+  ('SEC_ADMIN_ENDPOINTS','SECURITY','administrative endpoint authorization'),
+  ('SEC_IMPERSONATION','SECURITY','impersonation security'),
+  ('SEC_FORCE_CLOSE','SECURITY','force-close authorization and step-up'),
+  ('SEC_REFUND','SECURITY','refund authorization and step-up'),
+  ('SEC_OFFLINE_AUTH_EXPIRED','SECURITY','expired offline authorization'),
+  ('SEC_IDEMPOTENCY_REPLAY','SECURITY','idempotency-key replay'),
+  ('SEC_SCOPE_ESCALATION','SECURITY','scope escalation attempt'),
+  ('SEC_VENUE_ID_TAMPERING','SECURITY','venue_id tampered by client')
+on conflict(key) do nothing;

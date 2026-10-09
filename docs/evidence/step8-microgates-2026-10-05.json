@@ -23,7 +23,5 @@
     "https_virtual_origin": "ERR_BLOCKED_BY_ADMINISTRATOR",
     "file_origin": "ERR_BLOCKED_BY_ADMINISTRATOR"
   },
-  "remaining": [
-    "release-build browser install/offline/online/update with real IndexedDB"
-  ]
+  "remaining": ["release-build browser install/offline/online/update with real IndexedDB"]
 }

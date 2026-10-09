@@ -6,7 +6,7 @@
   "css": "styles/staff.css",
   "browser": "/usr/bin/chromium",
   "pages": 1,
-  "page_mm": {"width": 210.23, "height": 297.35},
+  "page_mm": { "width": 210.23, "height": 297.35 },
   "checks": {
     "single_page": true,
     "a4_width": true,

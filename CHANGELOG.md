@@ -13,6 +13,14 @@
 Molte funzionalità e verifiche richieste restano aperte. Questa versione identifica
 il lavoro in corso e non costituisce una release commerciale delle Release 1–3 del master.
 
+### Recupero baseline e gate evidenze — 9 ottobre 2026 (non rilasciato)
+
+- Recuperate tutte le 457 migrazioni applicate da Development: 324 file mancanti e 24 SQL divergenti riconciliati con lo storico canonico, preservando gli originali. Nessuna modifica del database remoto.
+- Installatore esplicito per database vuoti: sette tabelle private nel bootstrap, storico immutabile e due RPC operative nel postlude. Confronto ripetibile di catalogo, colonne, indici, vincoli e policy; escluse due diagnostiche specifiche di Development.
+- Preparata una migrazione che ritira i PASS legacy senza attestazione e ne conserva autore/data/evidenza; blocca nuovi PASS tramite RPC e trigger. Applicazione Development respinta dal controllo automatico, CI autenticata ancora da realizzare.
+- Allineati master e matrice a 158 sezioni (§§0–157), con binding SHA-256; nuovi requisiti pending e sole esclusioni CORE 79/80/90.
+- Gate sorgente, TypeScript, lint, formato, 242 test e due build passano; quattro test esclusi CORE. Edge/browser e Supabase isolato restano aperti. Step 0 riaperto, nessuna release commerciale.
+
 ### Edizione CORE ridotta — 8 ottobre 2026 (non rilasciata)
 
 - Formalizzato il perimetro richiesto per la vendita senza Stripe, Satispay (incluso POS Satispay) ed Epson/ePOS/bridge. Restano contanti, POS carta esterno con conferma operatore e stampa browser/PDF.

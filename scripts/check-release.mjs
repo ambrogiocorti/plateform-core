@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { readFile, readdir } from 'node:fs/promises';
 import { relative, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { masterSectionCount, specificationProblems } from './requirements-spec.mjs';
 export const requiredIntegrationChecks = [
   'supabase_auth_rls_realtime_storage',
   'concurrent_booking_stock_payments',
@@ -131,23 +132,36 @@ export function releaseProblems(matrix, evidence, digest, now = Date.now()) {
   const errors = [];
   const coreEdition = evidence.edition === 'CORE';
   const expectedSections = coreEdition
-    ? (row) => row.status === 'verified' ||
+    ? (row) =>
+        row.status === 'verified' ||
         (excludedCoreSections.includes(row.section) && row.status === 'out_of_scope_core')
     : (row) => row.status === 'verified';
   if (
     !Array.isArray(matrix.sections) ||
-    matrix.sections.length !== 151 ||
-    new Set(matrix.sections.map((row) => row.section)).size !== 151 ||
-    Array.from({ length: 151 }, (_, i) => i).some(
+    matrix.sections.length !== masterSectionCount ||
+    new Set(matrix.sections.map((row) => row.section)).size !== masterSectionCount ||
+    Array.from({ length: masterSectionCount }, (_, i) => i).some(
       (i) => !matrix.sections.some((row) => row.section === i && expectedSections(row)),
     )
   )
-    errors.push('Le 151 sezioni del master devono risultare verificate con evidenze.');
+    errors.push('Le 158 sezioni del master devono risultare verificate con evidenze.');
   if (evidence.source_digest !== digest)
     errors.push('Le evidenze non corrispondono ai sorgenti attuali.');
   const requiredLocalSuites = [
-    'typecheck', 'lint', 'edge', 'unit_database', 'browser', 'build',
-    ...(coreEdition ? ['core_edition_contract', 'core_server_policy_source', 'core_edge_guard_source', 'core_release_profile'] : []),
+    'typecheck',
+    'lint',
+    'edge',
+    'unit_database',
+    'browser',
+    'build',
+    ...(coreEdition
+      ? [
+          'core_edition_contract',
+          'core_server_policy_source',
+          'core_edge_guard_source',
+          'core_release_profile',
+        ]
+      : []),
   ];
   for (const suite of requiredLocalSuites)
     if (evidence.local_checks?.[suite] !== 'passed')
@@ -194,6 +208,9 @@ export async function checkRelease(
   evidencePath = '.local/release/evidence.json',
 ) {
   const matrix = JSON.parse(await readFile(resolve(root, 'docs/REQUIREMENTS.json'), 'utf8'));
+  const master = await readFile(resolve(root, 'MASTER_PROMPT_PLATEFORM_COMMERCIALE.md'), 'utf8');
+  const specificationErrors = specificationProblems(matrix, master);
+  if (specificationErrors.length) throw new Error(specificationErrors.join('\n'));
   const roadmap = JSON.parse(await readFile(resolve(root, 'docs/ROADMAP_STATUS.json'), 'utf8'));
   let evidence;
   try {

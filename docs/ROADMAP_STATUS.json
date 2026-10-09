@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-08T20:00:00+02:00",
+  "updated_at": "2026-10-09",
   "source": "docs/ROADMAP.txt",
   "development_project": "abdxvlykasqmknexxhjo",
   "commercial_release_ready": false,
@@ -7,23 +7,20 @@
     {
       "step": 0,
       "name": "Fondamenta tecniche",
-      "status": "DONE",
+      "status": "IN_PROGRESS",
       "checks": {
-        "vanilla_typescript_strict": "PASSED",
-        "lint_and_format": "PASSED",
-        "environment_schema_and_security_headers": "PASSED",
-        "58_migration_versions_and_digests": "PASSED",
-        "database_rls_scope_and_session_baseline_live": "PASSED",
-        "public_rest_and_anonymous_rpc_denials_live": "PASSED",
-        "196_unit_database_tests": "PASSED",
-        "19_browser_fixture_tests": "PASSED",
-        "public_staff_build": "PASSED",
-        "remote_auth_configuration": "PASSED",
-        "remote_edge_secrets_and_http_observability": "PASSED",
-        "gateway_client_ip_and_http_rate_limit": "PASSED",
-        "11_edge_tests_and_12_edge_typechecks": "PASSED",
-        "13_http_and_10_gateway_checks_live": "PASSED",
-        "post_fix_regression_suite": "PASSED"
+        "canonical_history_457": "PASSED_SHA256_2026_10_09",
+        "local_inventory_458": "PASSED_457_APPLIED_1_PREPARED",
+        "versioned_clean_install_pglite": "PASSED_NO_HIDDEN_APPLICATION_DDL",
+        "catalog_columns_indexes_constraints_policies": "PASSED_2026_10_09",
+        "unit_database_tests": "PASSED_242_4_CORE_SKIPPED",
+        "source_gates_typecheck_lint_format": "PASSED_2026_10_09",
+        "public_staff_build": "PASSED_2026_10_09",
+        "edge_checks_tests": "BLOCKED_DEPENDENCY_DOWNLOAD",
+        "browser_e2e": "BLOCKED_CHROMIUM_DOWNLOAD",
+        "isolated_supabase_clean_install": "BLOCKED_ISOLATED_TARGET_NOT_AVAILABLE",
+        "release_evidence_migration_development": "BLOCKED_AUTO_REVIEW_REQUIRES_SPECIFIC_AUTHORIZATION",
+        "authenticated_ci_immutable_evidence": "PENDING_IMPLEMENTATION"
       },
       "evidence": [
         "docs/STEP_0_VERIFICATION.md",
@@ -40,9 +37,35 @@
         "docs/evidence/step0-edge-http-2026-10-03.json",
         "docs/evidence/step0-gateway-rate-limit-2026-10-03.json",
         "scripts/check-edge-http.mjs",
-        "scripts/check-gateway-rate-limit.mjs"
+        "scripts/check-gateway-rate-limit.mjs",
+        "docs/BASELINE_RECOVERY_2026-10-09.md",
+        "docs/evidence/baseline-local-verification-2026-10-09.json",
+        "supabase/clean-install/manifest.json",
+        "tests/database/clean-install.test.ts"
       ],
-      "open": []
+      "open": [
+        "Collaudare bootstrap, storico e postlude su un nuovo Supabase isolato con Auth/Storage/cron/Vault reali; non azzerare il restore-test esistente.",
+        "Completare Edge e browser E2E: download dipendenze Deno e Chromium bloccati nell ambiente corrente.",
+        "Applicazione della protezione PASS su Development respinta dal controllo automatico: autorizzazione remota specifica mancante e replay isolato incompleto. Database remoto invariato.",
+        "Implementare evidenze CI autenticate con log immutabili e binding commit/schema, poi prove HTTP/JWT e concorrenza reale."
+      ],
+      "historical_checks": {
+        "vanilla_typescript_strict": "PASSED",
+        "lint_and_format": "PASSED",
+        "environment_schema_and_security_headers": "PASSED",
+        "58_migration_versions_and_digests": "PASSED",
+        "database_rls_scope_and_session_baseline_live": "PASSED",
+        "public_rest_and_anonymous_rpc_denials_live": "PASSED",
+        "196_unit_database_tests": "PASSED",
+        "19_browser_fixture_tests": "PASSED",
+        "public_staff_build": "PASSED",
+        "remote_auth_configuration": "PASSED",
+        "remote_edge_secrets_and_http_observability": "PASSED",
+        "gateway_client_ip_and_http_rate_limit": "PASSED",
+        "11_edge_tests_and_12_edge_typechecks": "PASSED",
+        "13_http_and_10_gateway_checks_live": "PASSED",
+        "post_fix_regression_suite": "PASSED"
+      }
     },
     {
       "step": 1,
@@ -637,7 +660,7 @@
         "restore_ineligible_backup_fail_closed_live": "PASSED_6_OF_6_ROLLBACK_2026_10_06",
         "backup_failure_audit_error_code_live": "PASSED_8_OF_8_ROLLBACK_2026_10_06",
         "client_api_permission_manifest_live": "PASSED_5_OF_5_2026_10_06",
-        "migration_inventory": "PASSED_130_MANIFEST_ALIGNED",
+        "migration_inventory": "PASSED_458_LOCAL_457_APPLIED_1_PREPARED_2026_10_09",
         "continuity_worker_health_static": "PASSED_12_OF_12_2026_10_06",
         "backup_audit_observability_static": "PASSED_7_OF_7_2026_10_06",
         "api_permission_manifest_static": "PASSED_14_OF_14_2026_10_06",
@@ -762,7 +785,6 @@
         "docs/evidence/step12-rehearsal-gate-2026-10-06.json"
       ],
       "open": [
-        "Recuperare in sorgente le 323 migrazioni SQL applicate su Supabase Development ma mancanti localmente (133 file locali, 456 remote al controllo 2026-10-08), verificando ogni SHA-256.",
         "Generare un nuovo backup coerente con il database corrente e testarne il restore su target Supabase nuovo, isolato e temporaneo, compresi Auth e Storage.",
         "Rieseguire npm run check:step12-rehearsal con attestazione completa di restore corrente: le precedenti prove storiche non certificano la versione attuale."
       ]
@@ -781,20 +803,22 @@
         "supabase/tests/core_booking.live.sql"
       ],
       "open": [
-        "Installare Node >=24.13, eseguire npm ci su ambiente raggiungibile e ottenere typecheck, lint, test PostgreSQL, browser E2E e build tutti PASS.",
+        "Completare CI, Edge/browser, installazione Supabase isolata e HTTP/JWT reali; Node 24, npm ci, test locali e build sono passati il 9 ottobre.",
         "Enforcement SQL CORE applicato su Development con 10 test negativi e 3 permessi a rollback; completare test RPC con JWT autentici e verifica dell isolation per ruolo su staging prima di Production.",
         "Configurare staging HTTPS separato con domini, publishable key e isolamento delle credenziali; eseguire i collaudi su dispositivi reali.",
         "Registrare 3 revisioni integrali consecutive senza rilievi aperti e dossier di release completo; nessuna certificazione finche i gate non passano.",
         "Eseguire `core_booking_without_deposit_sql_live` anche su staging con database isolato e sessioni HTTP/JWT vere; i vecchi FULL-edition test delle caparre risultano ora incompatibili con il blocco CORE.",
-        "CORE Edge Function guards deployed on Development (payments v10, print-authorization v3); run authenticated HTTP/JWT negative tests against both endpoints in isolated HTTPS staging before Production."
+        "CORE Edge Function guards deployed on Development (payments v10, print-authorization v3); run authenticated HTTP/JWT negative tests against both endpoints in isolated HTTPS staging before Production.",
+        "Verificare integralmente le 158 sezioni del master aggiornato e completare attestazioni CI autentiche; protezione PASS remota ancora non applicata."
       ]
     }
   ],
-  "note": "Il checkpoint contiene moduli di step successivi, ma la loro presenza non certifica il completamento. La verifica riparte dallo Step 0 e non modifica i progetti Supabase precedenti. Aggiornamento CORE 2026-10-08: Stripe/Satispay/Epson fuori scope, non interpretare test statici come verifica server-side o certificazione commerciale.",
+  "note": "Specifica vigente §§0–157. I checkpoint storici non certificano la baseline corrente: Step 0 riaperto per installazione isolata e integrazione completa. CORE esclude soltanto 79, 80 e 90; tutte le altre sezioni rimangono obbligatorie. Nessuna release commerciale.",
   "local_release_candidate": {
-    "status": "SOURCE_GATES_PASSED_BUILD_PENDING_LOCAL_PC",
-    "source_gate_evidence": "docs/evidence/local-rc-source-gates-2026-10-05.json",
+    "status": "LOCAL_TESTS_BUILD_PASSED_EDGE_BROWSER_ISOLATED_SUPABASE_BLOCKED",
+    "source_gate_evidence": "docs/evidence/baseline-local-verification-2026-10-09.json",
     "setup": "docs/LOCAL_RELEASE.md",
     "manual_checklist": "docs/LOCAL_MANUAL_TEST_CHECKLIST.md"
-  }
+  },
+  "current_baseline_evidence": "docs/BASELINE_RECOVERY_2026-10-09.md"
 }
