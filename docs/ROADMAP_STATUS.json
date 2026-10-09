@@ -27,7 +27,9 @@
         "hosted_supabase_clean_install": "PENDING_NEW_ISOLATED_TARGET",
         "native_user_jwt_mfa_rls_storage": "PASSED_15_REAL_API_SCENARIOS_GITHUB_CI_RUN_70_PG17_11",
         "native_ci_boundary_and_fixture_regression": "PASSED_10_LOCAL_TESTS",
-        "native_auth_login_concurrency": "PASSED_ONE_DEVICE_PER_SESSION_REAL_HTTP_RACE_RUN_70_NOT_STOCK_OR_PAYMENTS"
+        "native_auth_login_concurrency": "PASSED_ONE_DEVICE_PER_SESSION_REAL_HTTP_RACE_RUN_70_NOT_STOCK_OR_PAYMENTS",
+        "hosted_staging_preparation": "FORM_READY_FREE_EU_WEST_1_AWAITING_MANUAL_DATABASE_PASSWORD",
+        "temporary_restore_test_pause": "USER_AUTHORIZED_API_CONFIRMED_INACTIVE_2026_10_09"
       },
       "evidence": [
         "docs/STEP_0_VERIFICATION.md",
@@ -66,9 +68,11 @@
         "docs/evidence/native-api-ci-run-70-2026-10-09.json",
         "docs/evidence/native-api-ci-run-70-provenance-2026-10-09.json",
         "docs/evidence/native-api-ci-run-70-native.log",
-        "docs/evidence/native-api-ci-run-70-verify.log"
+        "docs/evidence/native-api-ci-run-70-verify.log",
+        "docs/evidence/hosted-staging-preparation-2026-10-09.json"
       ],
       "open": [
+        "Pausa temporanea di plateform-restore-test autorizzata dall’utente e verificata INACTIVE. Modulo di plateform-staging-clean pronto su Free/Irlanda; il progetto non è ancora creato. Rimane l’inserimento manuale della nuova password database. Nessun reset o SQL applicativo eseguito sui progetti esistenti.",
         "Collaudare installazione su un nuovo Supabase hosted isolato e i flussi login/TOTP/sessioni, scope HTTP/JWT, Storage upload/download, Realtime ed Edge. Replay Supabase Docker nativo e cataloghi passati; non azzerare il restore-test esistente.",
         "Run GitHub 70: 15 scenari Auth/JWT/MFA/RLS/Storage passati su Supabase Docker/Pg17.11. Rimangono prove hosted/browser, recovery/email, Realtime, Edge HTTP e concorrenza stock/incassi.",
         "Applicazione della protezione PASS su Development respinta dal controllo automatico per autorizzazione remota specifica mancante e replay isolato incompleto al momento del rifiuto. Il replay Docker nativo ora passa; resta necessario il consenso specifico. Database Development invariato.",
@@ -90,6 +94,17 @@
         "11_edge_tests_and_12_edge_typechecks": "PASSED",
         "13_http_and_10_gateway_checks_live": "PASSED",
         "post_fix_regression_suite": "PASSED"
+      },
+      "staging_preparation": {
+        "organization": "AmbrogioCorti",
+        "plan": "free",
+        "planned_project_name": "plateform-staging-clean",
+        "region": "eu-west-1",
+        "project_created": false,
+        "project_id": null,
+        "restore_test_temporarily_paused": true,
+        "hosted_schema_installed": false,
+        "blocker": "MANUAL_DATABASE_PASSWORD_ENTRY_REQUIRED"
       }
     },
     {

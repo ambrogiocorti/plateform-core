@@ -45,6 +45,24 @@ Dieci nuove regressioni mirate passano anche localmente. Nessuna certificazione
 commerciale viene scritta dal runner; il collaudo hosted rimane aperto.
 Dettagli: [NATIVE_API_VERIFICATION_2026-10-09.md](NATIVE_API_VERIFICATION_2026-10-09.md).
 
+## Preparazione staging hosted
+
+Su autorizzazione esplicita dell’utente, `plateform-restore-test` è stato messo
+in pausa tramite API; lo stato remoto è **INACTIVE**. Development resta
+**ACTIVE_HEALTHY**. Non sono stati eseguiti reset/drop o SQL applicativi sui
+progetti esistenti. Il posto Free è ora disponibile.
+
+Il modulo di `plateform-staging-clean` è pronto nell’organizzazione
+AmbrogioCorti, piano Free, regione Irlanda `eu-west-1`, Postgres standard.
+Data API abilitata, esposizione automatica delle nuove tabelle disabilitata;
+grant e RLS provengono dalle migrazioni versionate. Serve l’inserimento manuale
+della nuova password database. **Il progetto non è ancora creato**, lo schema
+non è installato e nessun collaudo hosted è certificato. Il controllo locale
+`install-database.mjs --check` conferma il piano da 458 migrazioni e le impronte
+bootstrap/postlude/inventario, senza accedere a un database.
+
+Evidenza: [hosted-staging-preparation-2026-10-09.json](evidence/hosted-staging-preparation-2026-10-09.json).
+
 ## Gate aperti
 
 1. **Step 0, IN_PROGRESS:** installazione su un nuovo Supabase hosted isolato,
@@ -58,8 +76,8 @@ Dettagli: [NATIVE_API_VERIFICATION_2026-10-09.md](NATIVE_API_VERIFICATION_2026-1
 3. **Attestazioni CI:** la run GitHub 66 passa check completi, 245 test,
    13 test Edge, 20 contratti browser e replay nativo
    sul commit `139fb1b1e73f9af371389c32b24bef800fa8e279`. I limiti di download
-   dell’ambiente locale restano documentati. Mancano sessioni utente e scenari di scope HTTP/JWT reali
-   e ingestione di attestazioni per singolo requisito commerciale.
+   dell’ambiente locale restano documentati. La run 70 verifica sessioni e scope HTTP/JWT nativi; rimangono i flussi hosted
+   e l’ingestione di attestazioni per singolo requisito commerciale.
 4. **Backup/restore:** i worker e il control plane sono presenti; rimangono un
    backup verificato della versione corrente, un restore da artefatto cifrato
    su target isolato e RPO/RTO misurati. Le prove storiche non chiudono questo gate.

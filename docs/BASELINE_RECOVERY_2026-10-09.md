@@ -168,8 +168,10 @@ riferimenti fissi Development richiedono verifica/configurazione prima di un
 installatore cliente; nel replay non sono eseguiti automaticamente.
 
 La capacità Supabase per ottenere costo/provisionare un nuovo target hosted
-isolato non è disponibile nella connessione corrente; restore-test esistente
-non è stato toccato. Nel solo ambiente locale i download Deno/Chromium restano
+isolato non era disponibile al checkpoint della baseline; a quel momento il
+restore-test esistente non era stato toccato. Il successivo provisioning è
+documentato nello stato di implementazione: pausa temporanea autorizzata,
+modulo Free pronto e nuova password da inserire manualmente. Nel solo ambiente locale i download Deno/Chromium restano
 limitati; le categorie Edge/browser passano su GitHub. La CI tecnica non popola
 le attestazioni commerciali: restano ingestione autenticata, log immutabili,
 binding commit/schema per singolo requisito, audit delle 158 sezioni e tre
