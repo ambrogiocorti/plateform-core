@@ -119,3 +119,79 @@ describe('empty installation and unverified release evidence', () => {
     ).rejects.toThrow('ATTESTED_CI_EVIDENCE_REQUIRED');
   });
 });
+
+describe('upgrade preserves manually recorded legacy release claims', () => {
+  let db: PGlite;
+  let previous: {
+    test: { evidence: Record<string, unknown>; executed_at: string; executed_by: string };
+    gate: { evidence: string; checked_at: string; checked_by: string };
+  };
+  beforeAll(async () => {
+    const plan = await cleanInstallPlan();
+    const forward = plan.migrations.findIndex((row) => row.version === '20261009003541');
+    expect(forward).toBeGreaterThan(0);
+    db = await database(forward);
+    // Explicit fixture DATA before the actual forward migration. No hidden
+    // application DDL, no claimed execution and no shared database writes.
+    await db.exec(`
+      update private.release_test_results set status='PASS',
+        evidence='{"fixture":"explicit upgrade regression","original":true}'::jsonb,
+        executed_at='2026-10-07T08:09:10Z',executed_by='upgrade-test-fixture'
+        where key='RLS_GLOBAL';
+      update private.release_gate_checks set status='PASS',
+        evidence='Explicit upgrade fixture, not a release attestation',
+        checked_at='2026-10-07T09:10:11Z',checked_by='upgrade-gate-fixture'
+        where key='AUTH_LEAKED_PASSWORD_PROTECTION';
+    `);
+    previous = (
+      await db.query<{ snapshot: typeof previous }>(`
+      select jsonb_build_object(
+        'test',(select to_jsonb(r) from private.release_test_results r where key='RLS_GLOBAL'),
+        'gate',(select to_jsonb(g) from private.release_gate_checks g
+          where key='AUTH_LEAKED_PASSWORD_PROTECTION')) as snapshot
+    `)
+    ).rows[0]!.snapshot;
+    await db.exec(plan.migrations[forward]!.sql);
+  });
+  afterAll(async () => {
+    await db?.close();
+  });
+
+  it('withdraws a test PASS while retaining the exact previous evidence, actor and timestamp', async () => {
+    const result = (
+      await db.query<{ row: Record<string, unknown> }>(`
+      select to_jsonb(r) as row from private.release_test_results r where key='RLS_GLOBAL'
+    `)
+    ).rows[0]!.row;
+    expect(result.status).toBe('PENDING');
+    expect(result.executed_at).toBeNull();
+    expect(result.executed_by).toBeNull();
+    expect(result.evidence).toEqual({
+      classification: 'UNVERIFIED_LEGACY_CLAIM',
+      previous_status: 'PASS',
+      previous_evidence: previous.test.evidence,
+      previous_executed_at: previous.test.executed_at,
+      previous_executed_by: previous.test.executed_by,
+    });
+  });
+
+  it('withdraws a manual gate PASS while retaining the exact previous evidence, actor and timestamp', async () => {
+    const result = (
+      await db.query<{ row: Record<string, unknown> }>(`
+      select to_jsonb(g) as row from private.release_gate_checks g
+        where key='AUTH_LEAKED_PASSWORD_PROTECTION'
+    `)
+    ).rows[0]!.row;
+    expect(result.status).toBe('PENDING');
+    expect(result.checked_at).toBeNull();
+    expect(result.checked_by).toBeNull();
+    const prefix = 'UNVERIFIED_LEGACY_CLAIM: ';
+    expect(String(result.evidence).startsWith(prefix)).toBe(true);
+    expect(JSON.parse(String(result.evidence).slice(prefix.length))).toEqual({
+      previous_status: 'PASS',
+      previous_evidence: previous.gate.evidence,
+      previous_checked_at: previous.gate.checked_at,
+      previous_checked_by: previous.gate.checked_by,
+    });
+  });
+});

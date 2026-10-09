@@ -211,6 +211,13 @@ if (process.argv.includes('--prepare')) {
       where status='PENDING' and evidence like 'UNVERIFIED_LEGACY_CLAIM: %'
         and substring(evidence from length('UNVERIFIED_LEGACY_CLAIM: ')+1)::jsonb
           ?& array['previous_status','previous_evidence','previous_checked_at','previous_checked_by']),
+    'legacy_test_claims_without_metadata',(select count(*) from private.release_test_results
+      where evidence->>'classification'='UNVERIFIED_LEGACY_CLAIM' and not
+        (evidence ?& array['previous_status','previous_evidence','previous_executed_at','previous_executed_by'])),
+    'legacy_gate_claims_without_metadata',(select count(*) from private.release_gate_checks
+      where evidence like 'UNVERIFIED_LEGACY_CLAIM: %' and not
+        (substring(evidence from length('UNVERIFIED_LEGACY_CLAIM: ')+1)::jsonb
+          ?& array['previous_status','previous_evidence','previous_checked_at','previous_checked_by'])),
     'provenance_pending',exists(select 1 from private.release_gate_checks
       where key='RELEASE_EVIDENCE_PROVENANCE' and required and status='PENDING'),
     'required_total',(public.release_test_gate()->>'required_total')::int,
@@ -220,7 +227,11 @@ if (process.argv.includes('--prepare')) {
     evidence.test_pass === 0 &&
       evidence.gate_pass === 0 &&
       evidence.preserved_test_claims > 0 &&
-      evidence.preserved_gate_claims > 0 &&
+      // Historic SQL seeds test claims, but manual Development gate claims
+      // are not copied into a fresh install. Explicit upgrade fixtures cover
+      // their preservation separately; every observed legacy claim is checked.
+      evidence.legacy_test_claims_without_metadata === 0 &&
+      evidence.legacy_gate_claims_without_metadata === 0 &&
       evidence.provenance_pending &&
       evidence.required_total > 0 &&
       evidence.required_passed === 0 &&
