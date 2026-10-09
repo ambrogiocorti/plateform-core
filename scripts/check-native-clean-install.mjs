@@ -64,13 +64,25 @@ const psql = async (sql) => {
     return (
       await run(
         process.env.PSQL_BIN || 'psql',
-        ['-X', '-w', '-q', '-A', '-t', '--set', 'ON_ERROR_STOP=1', '--command', sql],
+        [
+          '-X',
+          '-w',
+          '-q',
+          '-A',
+          '-t',
+          '--set',
+          'ON_ERROR_STOP=1',
+          '--set',
+          'VERBOSITY=sqlstate',
+          '--command',
+          sql,
+        ],
         { env, maxBuffer: 8 * 1024 * 1024 },
       )
     ).stdout.trim();
   } catch (error) {
     // Never print connection strings, runtime keys or raw SQL result rows.
-    const code = String(error.stderr || '').match(/ERROR:\s+([A-Z][A-Z0-9_]{5,})/)?.[1];
+    const code = String(error.stderr || '').match(/ERROR:\s+([A-Z0-9]{5})\b/)?.[1];
     // execFile causes contain raw SQL/output; this CLI intentionally redacts them.
     // eslint-disable-next-line preserve-caught-error
     throw new Error(`NATIVE_CI_PSQL_FAILED:${code || 'PSQL_ERROR'}`);
@@ -96,8 +108,35 @@ assert(
 if (process.argv.includes('--prepare')) {
   // Keep the exact cron.schedule statements in the history while preventing
   // automatic execution, including fixed Development URLs in legacy routines.
-  await psql("alter system set cron.launch_active_jobs = 'off'");
-  await psql('select pg_reload_conf()');
+  // Supabase's application owner is not a system superuser. Configure only
+  // this already-verified local container via its platform administrator.
+  for (const sql of [
+    "alter system set cron.launch_active_jobs = 'off'",
+    'select pg_reload_conf()',
+  ]) {
+    await run(
+      'docker',
+      [
+        'exec',
+        '-e',
+        'PGPASSWORD',
+        'supabase_db_plateform-clean-install-ci',
+        'psql',
+        '-X',
+        '-w',
+        '-q',
+        '-U',
+        'supabase_admin',
+        '-d',
+        'postgres',
+        '--set',
+        'ON_ERROR_STOP=1',
+        '--command',
+        sql,
+      ],
+      { env },
+    );
+  }
   let disabled = false;
   for (let attempt = 0; attempt < 10; attempt++) {
     disabled = (await psql('show cron.launch_active_jobs')) === 'off';
