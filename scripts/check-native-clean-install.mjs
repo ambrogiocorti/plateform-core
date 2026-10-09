@@ -58,6 +58,21 @@ if (process.argv.includes('--prepare')) {
     await delay(100);
   }
   assert(disabled, 'NATIVE_CI_CRON_NOT_DISABLED');
+  // Exercise the same owner-level barrier required on managed Supabase. The
+  // system-wide Docker switch remains an independent layer of CI isolation.
+  await psql(await readFile('supabase/clean-install/disarm-cron.sql', 'utf8'));
+  await psql(`select cron.schedule('plateform-barrier-regression','* * * * *','select 1');
+    update cron.job set active=true where jobname='plateform-barrier-regression';`);
+  assert(
+    (await psql(`select not active from cron.job where jobname='plateform-barrier-regression'`)) ===
+      't',
+    'NATIVE_CI_CRON_BARRIER_ALLOWED_ACTIVATION',
+  );
+  await psql("select cron.unschedule('plateform-barrier-regression')");
+  assert(
+    (await psql('select count(*) from cron.job')) === '0',
+    'NATIVE_CI_CRON_BARRIER_FIXTURE_REMAINED',
+  );
   console.log(JSON.stringify({ platform, cron_disabled: true, phase: 'platform_prepared' }));
 } else {
   const plan = await cleanInstallPlan();
@@ -186,6 +201,11 @@ if (process.argv.includes('--prepare')) {
     'NATIVE_CI_REPEAT_INSTALL_CHANGED_LEDGER',
   );
   assert((await psql('show cron.launch_active_jobs')) === 'off', 'NATIVE_CI_CRON_ENABLED');
+  assert(
+    (await psql(`select count(*) from cron.job where active`)) === '0' &&
+      (await psql(`select count(*) from cron.job_run_details`)) === '0',
+    'NATIVE_CI_CRON_BARRIER_EXECUTION_DETECTED',
+  );
   const request = (path, key, rpc = false) =>
     fetchNative(new URL(path, api), {
       method: rpc ? 'POST' : 'GET',

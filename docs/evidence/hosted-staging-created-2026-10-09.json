@@ -1,0 +1,115 @@
+{
+  "classification": "OBSERVED_EMPTY_HOSTED_STAGING_NOT_INSTALL_OR_RELEASE_ATTESTATION",
+  "observed_at": "2026-10-09T09:26:51.264Z",
+  "source_commit": "f39c383aad7d7cbce2c3a55b5946ee2d599bb0dd",
+  "project": {
+    "id": "kghactswtabakkkbojmo",
+    "ref": "kghactswtabakkkbojmo",
+    "organization_id": "fsgsuekqdhoswaddirwi",
+    "organization_slug": "fsgsuekqdhoswaddirwi",
+    "name": "plateform-staging-clean",
+    "region": "eu-west-1",
+    "status": "ACTIVE_HEALTHY",
+    "database": {
+      "host": "db.kghactswtabakkkbojmo.supabase.co",
+      "version": "17.11.0.003",
+      "postgres_engine": "17",
+      "release_channel": "ga"
+    },
+    "created_at": "2026-10-09T08:16:04.090692Z"
+  },
+  "preflight": {
+    "auth_users": 0,
+    "current_user": "postgres",
+    "auth_sessions": 0,
+    "cron_settings": [
+      {
+        "name": "cron.database_name",
+        "source": "configuration file",
+        "context": "postmaster",
+        "setting": "postgres"
+      },
+      {
+        "name": "cron.enable_superuser_jobs",
+        "source": "default",
+        "context": "postmaster",
+        "setting": "on"
+      },
+      {
+        "name": "cron.host",
+        "source": "default",
+        "context": "postmaster",
+        "setting": "localhost"
+      },
+      {
+        "name": "cron.launch_active_jobs",
+        "source": "default",
+        "context": "sighup",
+        "setting": "on"
+      },
+      {
+        "name": "cron.log_min_messages",
+        "source": "default",
+        "context": "sighup",
+        "setting": "warning"
+      },
+      {
+        "name": "cron.log_run",
+        "source": "default",
+        "context": "postmaster",
+        "setting": "on"
+      },
+      {
+        "name": "cron.log_statement",
+        "source": "default",
+        "context": "postmaster",
+        "setting": "on"
+      },
+      {
+        "name": "cron.max_running_jobs",
+        "source": "default",
+        "context": "postmaster",
+        "setting": "32"
+      },
+      {
+        "name": "cron.timezone",
+        "source": "default",
+        "context": "postmaster",
+        "setting": "GMT"
+      },
+      {
+        "name": "cron.use_background_workers",
+        "source": "default",
+        "context": "postmaster",
+        "setting": "off"
+      }
+    ],
+    "role_createdb": true,
+    "role_superuser": false,
+    "server_version": "17.11",
+    "storage_buckets": 0,
+    "storage_objects": 0,
+    "current_database": "postgres",
+    "public_relations": 0,
+    "plateform_relations": 0,
+    "parameter_privileges": [
+      {
+        "acl": ["supabase_admin=sA/supabase_admin", "supabase_realtime_admin=s/supabase_admin"],
+        "name": "log_min_messages"
+      }
+    ],
+    "private_objects": 0,
+    "history_schema_exists": false,
+    "migrations": 0
+  },
+  "authorized_scope": "Fresh plateform-staging-clean only. Existing restore-test temporarily paused by prior explicit authorization; no reset/drop or application SQL on existing projects.",
+  "install": {
+    "prepared_implementation": true,
+    "deployed": false,
+    "schema_installed": false,
+    "canonical_migrations": 458,
+    "transport": "Fixed-plan authenticated expiring Edge installer; default server credentials remain inside Supabase.",
+    "pending": "Native Postgres barrier and Edge driver validation in CI before deployment.",
+    "commercial_release_ready": false
+  }
+}

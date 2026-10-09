@@ -52,16 +52,21 @@ in pausa tramite API; lo stato remoto è **INACTIVE**. Development resta
 **ACTIVE_HEALTHY**. Non sono stati eseguiti reset/drop o SQL applicativi sui
 progetti esistenti. Il posto Free è ora disponibile.
 
-Il modulo di `plateform-staging-clean` è pronto nell’organizzazione
-AmbrogioCorti, piano Free, regione Irlanda `eu-west-1`, Postgres standard.
-Data API abilitata, esposizione automatica delle nuove tabelle disabilitata;
-grant e RLS provengono dalle migrazioni versionate. Serve l’inserimento manuale
-della nuova password database. **Il progetto non è ancora creato**, lo schema
-non è installato e nessun collaudo hosted è certificato. Il controllo locale
-`install-database.mjs --check` conferma il piano da 458 migrazioni e le impronte
-bootstrap/postlude/inventario, senza accedere a un database.
+Il progetto `plateform-staging-clean` è ora **ACTIVE_HEALTHY**, ref
+`kghactswtabakkkbojmo`, Free, Irlanda `eu-west-1`, PostgreSQL 17.11.
+Il preflight API conferma zero utenti/sessioni Auth, oggetti/bucket Storage,
+relazioni applicative public/private e migrazioni. La password è stata inserita
+manualmente dall’utente. Lo schema non è ancora installato.
 
-Evidenza: [hosted-staging-preparation-2026-10-09.json](evidence/hosted-staging-preparation-2026-10-09.json).
+Preparato un installer Edge temporaneo, autenticato, con scadenza entro un’ora,
+legato solo a questo ref e al payload canonico da 458 migrazioni. Le credenziali
+interne restano in Supabase. Una barriera versionata forza i nuovi job Cron
+inattivi prima del replay, conservando i SQL originali. Otto regressioni locali,
+TypeScript e lint passano; il collaudo CI della barriera precede la distribuzione.
+
+Dettagli: [HOSTED_INSTALLATION_2026-10-09.md](HOSTED_INSTALLATION_2026-10-09.md).
+Evidenza attuale: [hosted-staging-created-2026-10-09.json](evidence/hosted-staging-created-2026-10-09.json).
+Il checkpoint precedente del modulo pronto resta conservato.
 
 ## Gate aperti
 

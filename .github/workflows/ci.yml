@@ -15,6 +15,10 @@ jobs:
           node-version: '24'
           cache: npm
       - run: npm ci
+      - name: Check fixed-plan staging installer and pinned Postgres driver
+        run: |
+          node scripts/build-hosted-installer.mjs
+          node node_modules/deno/bin.cjs check --config .local/hosted-installer/deno.json .local/hosted-installer/index.ts
       - run: npm run format:check
       - run: npm run check
       - run: npx playwright install --with-deps chromium
