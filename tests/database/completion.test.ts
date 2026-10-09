@@ -138,7 +138,11 @@ describe('completion: authoritative catalog, editor, planning and equal shares',
       )`,
       [dish, current, crypto.randomUUID()],
     );
+    // A rejected SQL statement aborts the current transaction. Roll back
+    // to the savepoint before testing the independent SQL constraint below.
+    await db.exec('savepoint before_unavailable_order');
     await expect(createOrder()).rejects.toThrow('DISH_UNAVAILABLE');
+    await db.exec('rollback to savepoint before_unavailable_order');
 
     await db.exec('reset role');
     await expect(
