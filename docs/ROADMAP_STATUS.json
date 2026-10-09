@@ -24,7 +24,9 @@
         "native_supabase_clean_install": "PASSED_PG17_11_GITHUB_CI_RUN_66",
         "native_release_test_catalog": "PASSED_ALL_197_DEFINITIONS_NO_PASS_RESULTS",
         "native_service_role_anon_http": "PASSED_GATE_DENIALS_NOT_USER_SESSIONS_OR_SCOPE",
-        "hosted_supabase_clean_install": "PENDING_NEW_ISOLATED_TARGET"
+        "hosted_supabase_clean_install": "PENDING_NEW_ISOLATED_TARGET",
+        "native_user_jwt_mfa_rls_storage": "IMPLEMENTED_PENDING_OFFICIAL_NATIVE_CI",
+        "native_ci_boundary_and_fixture_regression": "PASSED_10_LOCAL_TESTS"
       },
       "evidence": [
         "docs/STEP_0_VERIFICATION.md",
@@ -54,10 +56,16 @@
         "scripts/check-native-clean-install.mjs",
         "scripts/clean-install-catalog.mjs",
         "supabase/clean-install/ci-config.toml",
-        "supabase/clean-install/release-test-catalog.json"
+        "supabase/clean-install/release-test-catalog.json",
+        "scripts/check-native-api.mjs",
+        "scripts/native-ci-context.mjs",
+        "tests/unit/native-ci.test.ts",
+        "tests/database/native-ci-fixtures.test.ts",
+        "docs/NATIVE_API_VERIFICATION_2026-10-09.md"
       ],
       "open": [
         "Collaudare installazione su un nuovo Supabase hosted isolato e i flussi login/TOTP/sessioni, scope HTTP/JWT, Storage upload/download, Realtime ed Edge. Replay Supabase Docker nativo e cataloghi passati; non azzerare il restore-test esistente.",
+        "Runner Auth/JWT/MFA/RLS/Storage nativo implementato; osservare la nuova CI e conservarne gli artefatti prima di aggiornare il risultato. Restano necessarie le prove hosted/browser e recovery email.",
         "Applicazione della protezione PASS su Development respinta dal controllo automatico per autorizzazione remota specifica mancante e replay isolato incompleto al momento del rifiuto. Il replay Docker nativo ora passa; resta necessario il consenso specifico. Database Development invariato.",
         "Implementare evidenze CI autenticate per singolo requisito, log immutabili e binding commit/schema; completare concorrenza nativa e restore dello schema corrente."
       ],

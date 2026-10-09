@@ -1,109 +1,23 @@
-import { execFile } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { readFile, writeFile } from 'node:fs/promises';
-import { promisify } from 'node:util';
 import { setTimeout as delay } from 'node:timers/promises';
 import { cleanInstallPlan } from './clean-install-plan.mjs';
 import { applicationCatalogQueries, compareCleanInstallCatalog } from './clean-install-catalog.mjs';
 import { extendedCatalogQuery } from './clean-install-extended-catalog-query.mjs';
 
-// This verifier may mutate only the disposable loopback CI stack. It cannot
-// connect to Development, restore-test or any customer/hosted database.
-const conn = new URL(process.env.SUPABASE_DB_URL || 'invalid:');
-if (
-  process.env.PLATEFORM_NATIVE_CI !== '1' ||
-  process.env.PLATEFORM_INSTALL_LOCAL !== '1' ||
-  process.env.PLATEFORM_NATIVE_EGRESS_BLOCKED !== '1' ||
-  !['postgres:', 'postgresql:'].includes(conn.protocol) ||
-  conn.hostname !== '127.0.0.1' ||
-  conn.port !== '54322' ||
-  conn.username !== 'postgres' ||
-  conn.pathname !== '/postgres'
-)
-  throw new Error('NATIVE_CI_REQUIRES_DISPOSABLE_LOOPBACK_STACK');
-const env = { ...process.env };
-for (const key of ['SUPABASE_DB_URL', 'PGSERVICE', 'PGSERVICEFILE', 'PGPASSFILE', 'PGHOSTADDR'])
-  delete env[key];
-Object.assign(env, {
-  PGHOST: conn.hostname,
-  PGPORT: conn.port,
-  PGUSER: conn.username,
-  PGPASSWORD: decodeURIComponent(conn.password),
-  PGDATABASE: 'postgres',
-  PGSSLMODE: 'disable',
-  PGCONNECT_TIMEOUT: '15',
-});
-const run = promisify(execFile);
-const networkName = 'plateform-clean-install-ci';
-const bridge = 'pf_native_ci';
-const network = JSON.parse((await run('docker', ['network', 'inspect', networkName])).stdout)[0];
-if (
-  network.EnableIPv6 !== false ||
-  network.Options['com.docker.network.bridge.name'] !== bridge ||
-  network.Options['com.docker.network.bridge.host_binding_ipv4'] !== '127.0.0.1' ||
-  Object.keys(network.Containers).length < 5
-) {
-  throw new Error('NATIVE_CI_NETWORK_ISOLATION_INCOMPLETE');
-}
-await run('sudo', ['iptables', '-C', 'DOCKER-USER', '-i', bridge, '!', '-o', bridge, '-j', 'DROP']);
-for (const id of Object.keys(network.Containers)) {
-  const settings = JSON.parse(
-    (await run('docker', ['inspect', '--format', '{{json .NetworkSettings}}', id])).stdout,
-  );
-  if (JSON.stringify(Object.keys(settings.Networks)) !== JSON.stringify([networkName]))
-    throw new Error('NATIVE_CI_UNRESTRICTED_EXTRA_CONTAINER_NETWORK');
-  if (
-    Object.values(settings.Ports)
-      .flatMap((bindings) => bindings || [])
-      .some((binding) => binding.HostIp !== '127.0.0.1' && binding.HostIp !== '::1')
-  )
-    throw new Error('NATIVE_CI_PUBLIC_CONTAINER_PORT');
-}
-const psql = async (sql) => {
-  try {
-    return (
-      await run(
-        process.env.PSQL_BIN || 'psql',
-        [
-          '-X',
-          '-w',
-          '-q',
-          '-A',
-          '-t',
-          '--set',
-          'ON_ERROR_STOP=1',
-          '--set',
-          'VERBOSITY=sqlstate',
-          '--command',
-          sql,
-        ],
-        { env, maxBuffer: 8 * 1024 * 1024 },
-      )
-    ).stdout.trim();
-  } catch (error) {
-    // Never print connection strings, runtime keys or raw SQL result rows.
-    const code = String(error.stderr || '').match(/ERROR:\s+([A-Z0-9]{5})\b/)?.[1];
-    // execFile causes contain raw SQL/output; this CLI intentionally redacts them.
-    // eslint-disable-next-line preserve-caught-error
-    throw new Error(`NATIVE_CI_PSQL_FAILED:${code || 'PSQL_ERROR'}`);
-  }
-};
-const json = async (sql) => JSON.parse(await psql(sql));
-const assert = (condition, code) => {
-  if (!condition) throw new Error(code);
-};
-const platform = await json(`select json_build_object(
-  'server_version',current_setting('server_version'),
-  'server_version_num',current_setting('server_version_num')::int,
-  'auth_users',to_regclass('auth.users') is not null,
-  'storage_objects',to_regclass('storage.objects') is not null) as result`);
-assert(
-  platform.server_version_num >= 170000 &&
-    platform.server_version_num < 180000 &&
-    platform.auth_users &&
-    platform.storage_objects,
-  'NATIVE_CI_PLATFORM_INCOMPLETE',
-);
+import { nativeCIContext, nativeAssert as assert } from './native-ci-context.mjs';
+
+const {
+  env,
+  run,
+  network,
+  psql,
+  json,
+  platform,
+  status,
+  api,
+  request: fetchNative,
+} = await nativeCIContext();
 
 if (process.argv.includes('--prepare')) {
   // Keep the exact cron.schedule statements in the history while preventing
@@ -272,18 +186,8 @@ if (process.argv.includes('--prepare')) {
     'NATIVE_CI_REPEAT_INSTALL_CHANGED_LEDGER',
   );
   assert((await psql('show cron.launch_active_jobs')) === 'off', 'NATIVE_CI_CRON_ENABLED');
-  const status = JSON.parse(await readFile(process.env.PLATEFORM_LOCAL_STATUS_FILE, 'utf8'));
-  const api = new URL(status.API_URL);
-  assert(
-    api.protocol === 'http:' &&
-      api.hostname === '127.0.0.1' &&
-      api.port === '54321' &&
-      typeof status.ANON_KEY === 'string' &&
-      typeof status.SERVICE_ROLE_KEY === 'string',
-    'NATIVE_CI_API_REQUIRES_DISPOSABLE_LOOPBACK_STACK',
-  );
   const request = (path, key, rpc = false) =>
-    fetch(new URL(path, api), {
+    fetchNative(new URL(path, api), {
       method: rpc ? 'POST' : 'GET',
       headers: { apikey: key, Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
       ...(rpc ? { body: '{}' } : {}),

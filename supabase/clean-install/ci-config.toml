@@ -24,6 +24,10 @@ enable_anonymous_sign_ins = false
 jwt_expiry = 900
 minimum_password_length = 12
 
+[auth.mfa.totp]
+enroll_enabled = true
+verify_enabled = true
+
 [storage]
 enabled = true
 

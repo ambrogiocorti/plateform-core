@@ -60,11 +60,15 @@ jobs:
         run: npm run db:install
       - name: Verify native catalog, provenance guards and platform HTTP
         run: node scripts/check-native-clean-install.mjs
+      - name: Verify real user JWT, MFA, RLS and private Storage
+        run: node scripts/check-native-api.mjs
       - uses: actions/upload-artifact@v4
-        if: success()
+        if: always()
         with:
           name: native-clean-install-verification
-          path: .local/native-ci/verification.json
+          path: |
+            .local/native-ci/verification.json
+            .local/native-ci/api-verification.json
           retention-days: 14
       - name: Stop disposable CI stack
         if: always()

@@ -34,6 +34,14 @@ espliciti Auth/Storage/Vault/cron e serializza le richieste: non prova contesa
 tra connessioni separate. I risultati storici
 nei documenti precedenti non certificano la versione attuale.
 
+## Collaudo API nativo in corso
+
+Aggiunto un runner che crea identità e sessioni GoTrue reali e prova TOTP, JWT,
+RLS/scope HTTP, revoca/refresh, login concorrente e Storage privato. Dieci
+regressioni mirate passano localmente; la nuova esecuzione nativa in CI va
+ancora osservata. Nessuna certificazione commerciale viene scritta dal runner.
+Dettagli: [NATIVE_API_VERIFICATION_2026-10-09.md](NATIVE_API_VERIFICATION_2026-10-09.md).
+
 ## Gate aperti
 
 1. **Step 0, IN_PROGRESS:** installazione su un nuovo Supabase hosted isolato,
