@@ -1,0 +1,51 @@
+{
+  "classification": "OBSERVED_GITHUB_CI_RUN_NOT_COMMERCIAL_RELEASE_ATTESTATION",
+  "repository": "ambrogiocorti/plateform-core",
+  "pull_request": 5,
+  "commit": "3f35d78a0bb6a2e80772393bcc01327980504dbf",
+  "workflow_run_id": 37885540456,
+  "workflow_run_number": 54,
+  "job_id": 113674600440,
+  "status": "completed",
+  "conclusion": "success",
+  "url": "https://github.com/ambrogiocorti/plateform-core/actions/runs/37885540456",
+  "checks": [
+    "npm ci",
+    "npm run format:check",
+    "npm run check",
+    "Chromium install",
+    "built-site browser gate",
+    "npm run test:e2e"
+  ],
+  "unit_database": {
+    "passed": 242,
+    "skipped_core": 4
+  },
+  "browser_contracts": {
+    "passed": 20,
+    "skipped": 0
+  },
+  "log": "docs/evidence/baseline-2026-10-09/github-ci-run-54.log",
+  "captured_log_sha256": "e6ea08a7dc15bd2e4ea31c85b1d4cf3b92784742e46316bfad8b1f24308c4c40",
+  "previous_run": {
+    "id": 37884607775,
+    "commit": "3a0b988ea855a50c4150d05533d672374d187197",
+    "browser_passed": 13,
+    "browser_failed": 6
+  },
+  "corrections": [
+    "Open collapsed cash operations before reconciliation",
+    "Use current Host detail/assignment/filter actions",
+    "Provide public navigation RPC fixture",
+    "Provide full technical continuity RPC contract",
+    "Verify table-change confirmation before the write with its optimistic version"
+  ],
+  "hosted_supabase_certified": false,
+  "commercial_release_ready": false,
+  "remaining": [
+    "Isolated hosted clean install and current-schema restore",
+    "Authenticated HTTP/JWT and native concurrency",
+    "Per-test authenticated CI evidence ingestion and immutable release attestations",
+    "Complete master audit and three clean reviews"
+  ]
+}

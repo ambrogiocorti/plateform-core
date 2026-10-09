@@ -243,3 +243,7 @@ Lo STEP 12 resta `IN_PROGRESS`: non viene dichiarato completo senza un backup re
 - 242 test locali passati, 4 esclusi CORE; source gates, TypeScript, ESLint, Prettier e build pubblico/staff passano.
 - Preparata protezione contro PASS non attestati, con conservazione dei claim precedenti. Applicazione Development respinta dal controllo automatico per autorizzazione remota specifica mancante e replay isolato incompleto; nessuna modifica remota.
 - Restano Supabase isolato, HTTP/JWT, CI autenticata, Edge/browser, backup/restore corrente e tre revisioni integrali. Step 0 IN_PROGRESS, release commerciale bloccata. Evidenze e limiti in `BASELINE_RECOVERY_2026-10-09.md`.
+
+### 2026-10-09 — CI GitHub dopo aggiornamento fixture browser
+
+Run 54 su `3f35d78a0bb6a2e80772393bcc01327980504dbf`: success. Check completo/Edge/build e 20 test browser con fixture passano. Aggiornati controlli cassa/Host e fixture navigation/continuity; mantenuti importi, step-up e scope, aggiunta conferma cambio tavolo prima dell’invio. Step 0 resta IN_PROGRESS per Supabase isolato, HTTP/JWT, restore e attestazioni CI commerciali. Migrazione Development non applicata. Dettaglio: `CI_BASELINE_VERIFICATION_2026-10-09.md`.

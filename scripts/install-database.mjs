@@ -48,6 +48,7 @@ if (process.argv.includes('--check')) {
     const file = join(dir, 'install.sql');
     const sqlLiteral = (value) => `'${value.replaceAll("'", "''")}'`;
     let sql = plan.bootstrap + '\n';
+    const locations = [{ line: 1, phase: 'bootstrap' }];
     sql += `create schema if not exists supabase_migrations;
       create table if not exists supabase_migrations.schema_migrations (
         version text primary key, name text, statements text[]
@@ -57,14 +58,21 @@ if (process.argv.includes('--check')) {
           raise exception 'CLEAN_INSTALL_REQUIRES_EMPTY_MIGRATION_HISTORY';
         end if;
       end $history$;\n`;
+    let line = sql.split('\n').length;
     for (const row of plan.migrations) {
       // The ledger stores the exact historical SQL, including explicit
       // transactions. No bootstrap bytes are merged into an applied migration.
-      sql += row.sql + '\n';
-      sql += `insert into supabase_migrations.schema_migrations(version,name,statements)
+      locations.push({ line, phase: row.filename });
+      const migrationSql =
+        row.sql +
+        '\n' +
+        `insert into supabase_migrations.schema_migrations(version,name,statements)
         values(${sqlLiteral(row.version)},${sqlLiteral(row.name)},
           array[convert_from(decode('${Buffer.from(row.sql).toString('hex')}','hex'),'UTF8')]);\n`;
+      sql += migrationSql;
+      line += migrationSql.split('\n').length - 1;
     }
+    locations.push({ line, phase: 'postlude' });
     sql += '\n' + plan.postlude;
     await writeFile(file, sql, { mode: 0o600 });
     await new Promise((resolve, reject) => {
@@ -83,7 +91,14 @@ if (process.argv.includes('--check')) {
         if (code === 0) resolve();
         else {
           const errorCode = stderr.match(/ERROR:\s+([A-Z][A-Z0-9_]{5,})/)?.[1];
-          reject(new Error(`CLEAN_INSTALL_FAILED:${errorCode || 'PSQL_ERROR'}:${code}`));
+          const errorLine = Number([...stderr.matchAll(/install\.sql:(\d+):/g)].at(-1)?.[1]);
+          const phase = locations.findLast((location) => location.line <= errorLine)?.phase;
+          // Safe location diagnostics, without SQL values or credentials.
+          reject(
+            new Error(
+              `CLEAN_INSTALL_FAILED:${errorCode || 'PSQL_ERROR'}:${code}:${phase || 'unknown'}:${errorLine || 0}`,
+            ),
+          );
         }
       });
     });

@@ -136,3 +136,13 @@ Il download Chromium è fallito; nessun Playwright E2E è stato eseguito.
 `npm run check` complessivo non passa finché tali dipendenze non sono disponibili.
 Restano CI con prove autentiche, installazione e restore Supabase isolati,
 integrazione HTTP/JWT, audit della specifica e tre revisioni complete pulite.
+
+## Aggiornamento CI successivo
+
+La run GitHub 54 sul commit `3f35d78a0bb6a2e80772393bcc01327980504dbf`
+passa check completo, Edge, browser gate della build e 20 test browser con fixture,
+dopo l’aggiornamento dei sei contratti obsoleti emersi nella prima run.
+Le limitazioni locali descritte sopra restano valide per quell’ambiente;
+le categorie Edge/browser sono ora eseguite in CI. Questa prova non chiude
+Supabase isolato, HTTP/JWT reale, restore o attestazioni commerciali.
+Vedere `CI_BASELINE_VERIFICATION_2026-10-09.md`.

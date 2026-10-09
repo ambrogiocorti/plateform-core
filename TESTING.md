@@ -21,6 +21,16 @@ bloccano i comandi requirements/release. Revisioni integrali pulite: **0/3**.
 Dettagli e limiti: `docs/BASELINE_RECOVERY_2026-10-09.md`.
 Le sezioni datate di seguito sono checkpoint storici, non certificazioni correnti.
 
+## CI corrente su GitHub
+
+Run 54 sul commit `3f35d78a0bb6a2e80772393bcc01327980504dbf`: **success**,
+compresi `npm run check` completo, Edge, browser gate della build e **20 E2E
+con fixture**. Le sei fixture/azioni obsolete emerse nella prima run sono
+corrette, con verifica aggiuntiva della conferma cambio tavolo prima dell’invio.
+Vedere `docs/CI_BASELINE_VERIFICATION_2026-10-09.md`. I limiti di download descritti
+sopra si riferiscono al runner locale. Restano integrazione Supabase reale,
+restore corrente e attestazioni commerciali per ogni requisito obbligatorio.
+
 ## Comandi
 
 | Comando                | Verifica                                                                |
@@ -292,3 +302,22 @@ Ulteriori gate transazionali live sul development: alert worker recovery **7/7**
 - Stato: **130/130 migration**, Step 12 static **34/34**.
 
 - Restore verification `mode=RESTORE` → `CUTOVER_REQUIRED`: **8/8 PASS**; nessun cutover/successo automatico.
+
+## Replay nativo isolato in CI
+
+Il job `native-clean-install` prepara uno stack Supabase Docker temporaneo con
+CLI 2.120.0, PostgreSQL 17, Auth, Storage e PostgREST reali. La cartella CLI
+contiene solo la configurazione di piattaforma: lo storico applicativo viene
+eseguito da `npm run db:install`, con bootstrap/postlude versionati e ledger
+contenente ogni SQL originale. La rete Docker è interna, le porte sono sul
+loopback e `cron.launch_active_jobs=off` viene verificato prima del replay.
+Non vengono copiate chiavi o dati Development.
+
+Il controllo nativo confronta gli stessi sette cataloghi del replay WASM,
+verifica digest del ledger, RLS/permessi delle tabelle recuperate, rifiuto della
+reinstallazione e dei quattro tentativi PASS non attestati. Controlla health
+HTTP Auth/Storage e la RPC del gate via PostgREST: service-role locale consentito,
+JWT anonimo locale negato. Il report viene caricato come artefatto CI senza
+chiavi. Questo job non certifica sessioni utente, scenari di scope, Realtime,
+concorrenza, Supabase hosted o restore dello schema corrente. Il risultato
+resta PENDING fino a un'esecuzione CI osservata con esito success.

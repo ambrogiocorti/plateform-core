@@ -13,6 +13,12 @@
 Molte funzionalità e verifiche richieste restano aperte. Questa versione identifica
 il lavoro in corso e non costituisce una release commerciale delle Release 1–3 del master.
 
+### CI browser riallineata — 9 ottobre 2026 (non rilasciato)
+
+- Corrette sei fixture/azioni E2E obsolete senza cambiare i flussi applicativi; preservate verifiche finanziarie, step-up e scope. Aggiunto il caso di conferma cambio tavolo prima del comando versionato.
+- Run GitHub 54 sul commit `3f35d78a0bb6a2e80772393bcc01327980504dbf` completata con successo: check completo/Edge/build, 242 test unit/database con quattro esclusi CORE, browser gate della build e 20 contratti Playwright.
+- Supabase isolato, HTTP/JWT reale, restore corrente e attestazioni commerciali rimangono aperti; migrazione fail-closed non applicata su Development.
+
 ### Recupero baseline e gate evidenze — 9 ottobre 2026 (non rilasciato)
 
 - Recuperate tutte le 457 migrazioni applicate da Development: 324 file mancanti e 24 SQL divergenti riconciliati con lo storico canonico, preservando gli originali. Nessuna modifica del database remoto.

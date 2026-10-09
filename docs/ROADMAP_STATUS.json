@@ -16,11 +16,12 @@
         "unit_database_tests": "PASSED_242_4_CORE_SKIPPED",
         "source_gates_typecheck_lint_format": "PASSED_2026_10_09",
         "public_staff_build": "PASSED_2026_10_09",
-        "edge_checks_tests": "BLOCKED_DEPENDENCY_DOWNLOAD",
-        "browser_e2e": "BLOCKED_CHROMIUM_DOWNLOAD",
+        "edge_checks_tests": "PASSED_GITHUB_CI_RUN_54_COMMIT_3F35D78",
+        "browser_e2e": "PASSED_20_GITHUB_CI_FIXTURES_NOT_HOSTED_INTEGRATION",
         "isolated_supabase_clean_install": "BLOCKED_ISOLATED_TARGET_NOT_AVAILABLE",
         "release_evidence_migration_development": "BLOCKED_AUTO_REVIEW_REQUIRES_SPECIFIC_AUTHORIZATION",
-        "authenticated_ci_immutable_evidence": "PENDING_IMPLEMENTATION"
+        "authenticated_ci_immutable_evidence": "PENDING_IMPLEMENTATION",
+        "built_site_browser_gate": "PASSED_GITHUB_CI_RUN_54"
       },
       "evidence": [
         "docs/STEP_0_VERIFICATION.md",
@@ -41,11 +42,12 @@
         "docs/BASELINE_RECOVERY_2026-10-09.md",
         "docs/evidence/baseline-local-verification-2026-10-09.json",
         "supabase/clean-install/manifest.json",
-        "tests/database/clean-install.test.ts"
+        "tests/database/clean-install.test.ts",
+        "docs/CI_BASELINE_VERIFICATION_2026-10-09.md",
+        "docs/evidence/baseline-ci-verification-2026-10-09.json"
       ],
       "open": [
         "Collaudare bootstrap, storico e postlude su un nuovo Supabase isolato con Auth/Storage/cron/Vault reali; non azzerare il restore-test esistente.",
-        "Completare Edge e browser E2E: download dipendenze Deno e Chromium bloccati nell ambiente corrente.",
         "Applicazione della protezione PASS su Development respinta dal controllo automatico: autorizzazione remota specifica mancante e replay isolato incompleto. Database remoto invariato.",
         "Implementare evidenze CI autenticate con log immutabili e binding commit/schema, poi prove HTTP/JWT e concorrenza reale."
       ],
@@ -815,10 +817,11 @@
   ],
   "note": "Specifica vigente §§0–157. I checkpoint storici non certificano la baseline corrente: Step 0 riaperto per installazione isolata e integrazione completa. CORE esclude soltanto 79, 80 e 90; tutte le altre sezioni rimangono obbligatorie. Nessuna release commerciale.",
   "local_release_candidate": {
-    "status": "LOCAL_TESTS_BUILD_PASSED_EDGE_BROWSER_ISOLATED_SUPABASE_BLOCKED",
+    "status": "SOURCE_AND_GITHUB_CI_PASSED_ISOLATED_SUPABASE_RELEASE_ATTESTATIONS_PENDING",
     "source_gate_evidence": "docs/evidence/baseline-local-verification-2026-10-09.json",
     "setup": "docs/LOCAL_RELEASE.md",
-    "manual_checklist": "docs/LOCAL_MANUAL_TEST_CHECKLIST.md"
+    "manual_checklist": "docs/LOCAL_MANUAL_TEST_CHECKLIST.md",
+    "ci_evidence": "docs/evidence/baseline-ci-verification-2026-10-09.json"
   },
   "current_baseline_evidence": "docs/BASELINE_RECOVERY_2026-10-09.md"
 }

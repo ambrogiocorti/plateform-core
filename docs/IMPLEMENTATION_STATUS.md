@@ -36,9 +36,10 @@ nei documenti precedenti non certificano la versione attuale.
 2. **Applicazione remota della protezione evidenze:** il controllo automatico
    ha respinto la modifica persistente su Development perché manca autorizzazione
    specifica e il replay isolato è incompleto. Il database remoto è rimasto invariato.
-3. **CI e browser:** i check/test Deno sono bloccati dal download delle dipendenze;
-   Chromium non è stato installato correttamente. Nessun browser E2E è dichiarato passato
-   per questa baseline. Serve una CI reale con artefatti verificabili.
+3. **CI e browser:** la run GitHub 54 passa check completi e 20 contratti browser
+   sul commit `3f35d78a0bb6a2e80772393bcc01327980504dbf`. I limiti di download
+   dell’ambiente locale restano documentati. Mancano integrazioni HTTP/JWT reali
+   e ingestione di attestazioni per singolo requisito commerciale.
 4. **Backup/restore:** i worker e il control plane sono presenti; rimangono un
    backup verificato della versione corrente, un restore da artefatto cifrato
    su target isolato e RPO/RTO misurati. Le prove storiche non chiudono questo gate.
@@ -51,3 +52,5 @@ nei documenti precedenti non certificano la versione attuale.
 Dettaglio riproducibile e limiti: [BASELINE_RECOVERY_2026-10-09.md](BASELINE_RECOVERY_2026-10-09.md).
 Ordine degli step: [ROADMAP_STATUS.json](ROADMAP_STATUS.json).
 Non è stata distribuita una release commerciale né modificato Production.
+
+CI verificata e relativi limiti: [CI_BASELINE_VERIFICATION_2026-10-09.md](CI_BASELINE_VERIFICATION_2026-10-09.md).
