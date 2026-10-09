@@ -16,7 +16,7 @@
   "first_historical_dependency": "20261006100248",
   "catalog_evidence": "docs/evidence/clean-install-catalog-2026-10-09.json",
   "postlude_file": "supabase/clean-install/postlude.sql",
-  "postlude_sha256": "c6491065864f8675665b19a6e30402b4bbfaad4d28d503ab0cb162985a0a024f",
+  "postlude_sha256": "fe5f140c8f6d8ea306fcad7135c4b1d717f97281f865d05f3b804cb5c0e4eda9",
   "routines": ["public.get_account_transfer_targets(uuid)", "public.get_order_change_center(uuid)"],
   "excluded_development_diagnostics": [
     {
@@ -38,5 +38,42 @@
       "private.release_gate_checks.reject_unattested_release_gate_pass",
       "private.release_test_results.reject_unattested_release_test_pass"
     ]
-  }
+  },
+  "release_test_catalog_evidence": "docs/evidence/clean-install-release-catalog-2026-10-09.json",
+  "release_test_catalog_count": 197,
+  "release_test_catalog_sha256": "57ac6d0ffb46e9603879c66409e39d336b7d51fe2455b0a9ca51cb11d071db1b",
+  "recovered_release_test_keys": [
+    "MENU_ENGINEERING_CLASSIFICATION",
+    "STEP11_BOOKING_AVAILABILITY_CLIENT_CONTRACT",
+    "STEP11_BOOKING_CHROMIUM_DOM_MOCK",
+    "STEP11_BOOKING_DST_GAP_CONTRACT",
+    "STEP11_BOOKING_FIELDS_CLIENT_CONTRACT",
+    "STEP11_BOOKING_VISIBILITY_DATABASE",
+    "STEP11_BRANDING_COLOR_CONTRAST",
+    "STEP11_DARK_THEME_CSS_CHROMIUM",
+    "STEP11_DEPOSIT_CHECKOUT_EXACT_HOST_CLIENT",
+    "STEP11_DEPOSIT_CLIENT_CONTRACT",
+    "STEP11_DEPOSIT_CONTINUATION_CLIENT",
+    "STEP11_INTEGRATED_BUILD_ASSEMBLY",
+    "STEP11_INTEGRATED_SOURCE_BOOKING_CONTRACT",
+    "STEP11_INTEGRATED_SOURCE_MOBILE_DOM",
+    "STEP11_INTEGRATED_SOURCE_SEO_PRERENDER",
+    "STEP11_INTEGRATED_STATIC_CHROMIUM",
+    "STEP11_MIGRATION_RECOVERY_DRYRUN",
+    "STEP11_PUBLIC_BOOKING_CTA_SCOPING",
+    "STEP11_PUBLIC_BOOKING_PRIVACY_READY",
+    "STEP11_PUBLIC_BOOKING_TRANSACTION_ROLLBACK",
+    "STEP11_PUBLIC_KEY_CLIENT_GUARD",
+    "STEP11_PUBLIC_METADATA_BACKEND",
+    "STEP11_PUBLIC_MOBILE_NAVIGATION_DOM",
+    "STEP11_PUBLIC_SITEMAP_BACKEND",
+    "STEP11_REAL_HTML_ENTRY_PRERENDER",
+    "STEP11_STAGING_FULL_CI_WORKFLOW_STATIC",
+    "STEP11_STAGING_HTTP_SMOKE_FIXTURES",
+    "STEP11_STATIC_EDITORIAL_HTML_OFFLINE",
+    "STEP11_STATIC_EDITORIAL_NO_JS_CHROMIUM",
+    "STEP11_STATIC_SEO_GENERATOR_OFFLINE",
+    "STEP11_VERCEL_STAGING_CONFIG_OFFLINE"
+  ],
+  "release_test_catalog_file": "supabase/clean-install/release-test-catalog.json"
 }

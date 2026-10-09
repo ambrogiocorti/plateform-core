@@ -169,6 +169,12 @@ if (process.argv.includes('--prepare')) {
   // Report only catalog object identities/metadata, never application data.
   console.log(JSON.stringify(catalog));
   assert(catalog.ok, 'NATIVE_CI_APPLICATION_CATALOG_DRIFT');
+  const releaseDefinitions = await json(`select json_agg(x order by x.key collate "C") from (
+    select key,category,required,description from private.release_test_catalog) x`);
+  assert(
+    JSON.stringify(releaseDefinitions) === JSON.stringify(plan.releaseTestCatalog),
+    'NATIVE_CI_RELEASE_CATALOG_DEFINITION_DRIFT',
+  );
   const ledgerSql = `select json_agg(x order by x.version) from (
     select version,name,encode(extensions.digest(array_to_string(statements,E'\\n'),'sha256'),'hex')
       as sha256 from supabase_migrations.schema_migrations) x`;
@@ -233,6 +239,7 @@ if (process.argv.includes('--prepare')) {
       evidence.legacy_test_claims_without_metadata === 0 &&
       evidence.legacy_gate_claims_without_metadata === 0 &&
       evidence.provenance_pending &&
+      evidence.required_total === plan.releaseTestCatalog.filter((row) => row.required).length &&
       evidence.required_total > 0 &&
       evidence.required_passed === 0 &&
       evidence.gate_ok === false,
@@ -305,6 +312,11 @@ if (process.argv.includes('--prepare')) {
     platform,
     catalog,
     migrations: ledger.length,
+    release_test_catalog: {
+      definitions: releaseDefinitions.length,
+      recovered_definitions: plan.bootstrapManifest.recovered_release_test_keys.length,
+      definitions_sha256: plan.bootstrapManifest.release_test_catalog_sha256,
+    },
     inventory_sha256: plan.inventorySha256,
     historical_inventory_sha256: plan.bootstrapManifest.historical_inventory_sha256,
     bootstrap_sha256: plan.bootstrapManifest.bootstrap_sha256,

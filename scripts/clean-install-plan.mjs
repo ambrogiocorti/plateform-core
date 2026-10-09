@@ -28,6 +28,28 @@ export async function cleanInstallPlan(root = process.cwd()) {
   const postlude = await readFile(resolve(root, bootstrapManifest.postlude_file), 'utf8');
   if (sha256(postlude) !== bootstrapManifest.postlude_sha256)
     throw new Error('CLEAN_INSTALL_POSTLUDE_DIGEST_MISMATCH');
+  if (
+    bootstrapManifest.release_test_catalog_file !==
+    'supabase/clean-install/release-test-catalog.json'
+  )
+    throw new Error('INVALID_CLEAN_INSTALL_RELEASE_CATALOG_REFERENCE');
+  const releaseTestCatalog = JSON.parse(
+    await readFile(resolve(root, bootstrapManifest.release_test_catalog_file), 'utf8'),
+  );
+  if (
+    !Array.isArray(releaseTestCatalog) ||
+    releaseTestCatalog.length !== bootstrapManifest.release_test_catalog_count ||
+    new Set(releaseTestCatalog.map((row) => row.key)).size !== releaseTestCatalog.length ||
+    releaseTestCatalog.some(
+      (row) =>
+        typeof row.key !== 'string' ||
+        typeof row.category !== 'string' ||
+        typeof row.required !== 'boolean' ||
+        typeof row.description !== 'string',
+    ) ||
+    sha256(JSON.stringify(releaseTestCatalog)) !== bootstrapManifest.release_test_catalog_sha256
+  )
+    throw new Error('CLEAN_INSTALL_RELEASE_CATALOG_DIGEST_MISMATCH');
   const manifest = JSON.parse(
     await readFile(resolve(root, 'supabase/migration-manifest.json'), 'utf8'),
   );
@@ -65,5 +87,12 @@ export async function cleanInstallPlan(root = process.cwd()) {
   const inventorySha256 = sha256(
     migrations.map((row) => `${row.version}:${row.name}:${row.sha256}`).join('\n'),
   );
-  return { bootstrap, postlude, bootstrapManifest, migrations, inventorySha256 };
+  return {
+    bootstrap,
+    postlude,
+    bootstrapManifest,
+    releaseTestCatalog,
+    migrations,
+    inventorySha256,
+  };
 }

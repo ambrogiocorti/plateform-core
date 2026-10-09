@@ -40,6 +40,18 @@ describe('empty installation and unverified release evidence', () => {
     expect(result.rows.every((row) => !row.sql.includes('Clean-install bootstrap v1'))).toBe(true);
   });
 
+  it('recovers every required release-test definition without copying Development results', async () => {
+    const plan = await cleanInstallPlan();
+    const result = await db.query<(typeof plan.releaseTestCatalog)[number]>(`
+      select key,category,required,description from private.release_test_catalog order by key collate "C"
+    `);
+    expect(result.rows).toEqual(plan.releaseTestCatalog);
+    const passed = await db.query<{ count: number }>(`
+      select count(*)::int as count from private.release_test_results where status='PASS'
+    `);
+    expect(passed.rows[0]!.count).toBe(0);
+  });
+
   it('recovers the missing routines with the exact API role restrictions', async () => {
     const plan = await cleanInstallPlan();
     for (const signature of plan.bootstrapManifest.routines) {
