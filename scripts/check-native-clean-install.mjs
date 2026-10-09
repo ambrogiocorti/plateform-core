@@ -80,6 +80,8 @@ if (process.argv.includes('--prepare')) {
     const stderr = String(error.stderr || '');
     const state = stderr.match(/ERROR:\s+([A-Z0-9]{5})\b/)?.[1];
     const line = stderr.match(/disarm-cron\.sql:(\d+):/)?.[1];
+    // execFile causes contain raw SQL/output. Keep only safe state/location.
+    // eslint-disable-next-line preserve-caught-error
     throw new Error(
       `NATIVE_CI_CRON_BARRIER_FAILED:${state || 'PSQL_ERROR'}:line_${line || 'unknown'}`,
     );
