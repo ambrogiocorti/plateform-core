@@ -4,7 +4,7 @@ param([switch]$Apply)
 
 $ErrorActionPreference = 'Stop'
 $projectRef = 'abdxvlykasqmknexxhjo'
-$fingerprint = '988224616fc43432904246360f87c7e637d4a64444dd2af2b0d60aa498f62b43'
+$fingerprint = 'ae79b608e86dfe6c7ca8dd93c88170cdd4dc38dd6324ccb3391342b135a59f41'
 $root = Split-Path -Parent $PSScriptRoot
 
 Push-Location $root
@@ -45,7 +45,7 @@ try {
     $mode = if ($Apply) { '--write' } else { '--dry-run' }
     $arguments = @(
         'scripts/reconcile-migrations.mjs', $mode,
-        '--expected-remote-count', '456',
+        '--expected-remote-count', '457',
         '--expected-inventory-sha256', $fingerprint
     )
     if ($Apply) {
