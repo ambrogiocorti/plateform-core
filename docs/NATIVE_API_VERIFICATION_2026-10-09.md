@@ -51,8 +51,30 @@ Dieci regressioni mirate passano localmente: sette per confini di connessione,
 trasporto, vettori TOTP RFC 6238 e interpolazione UUID, tre per la compatibilità
 delle fixture con l'intero schema canonico e il rifiuto di reinizializzazione.
 Il runner API nativo richiede Docker/psql, assenti in questa sessione locale;
-il collaudo completo viene eseguito nella CI ufficiale, senza sostituire i servizi
-con simulazioni. L'esito della nuova run va registrato dopo averlo osservato.
+il collaudo completo è stato eseguito nella CI ufficiale, senza sostituire i servizi
+con simulazioni.
+
+[Run GitHub 70](https://github.com/ambrogiocorti/plateform-core/actions/runs/37895715117):
+**success** per `verify` e `native-clean-install`. Sorgente PR
+`7f2244e7cef49e5f77f87e585b8d4652082706ba`, checkout merge
+`d80e1e387b6d3a037a6a61ca51dec25486abbebc`; entrambi puntano al medesimo tree
+`13570e9bdd5c99d592643ccfe2c7c27e2d32122d`.
+
+- **15/15 scenari API nativi** su PostgreSQL 17.11, sette identità GoTrue, due
+  sedi e nessuna sessione Auth forgiata.
+- **255 test unit/database passati**, quattro esclusi CORE, 26 file.
+- **13 test Edge e 20 contratti Playwright passati**. I browser usano fixture
+  HTTP; non sono un collaudo hosted end-to-end.
+- Formato, check completo, build pubblico/staff, catalogo, 458 migrazioni,
+  blocco PASS e rifiuto reinstallazione passati.
+- Report API e log originali conservati in `docs/evidence/native-api-ci-run-70-*`;
+  digest del report verificato: `910d90c8d545263c224909ba4817582d810484d02627ad275a68e464b55e0b97`.
+  Metadati artefatto, tree/commit e limiti nel file di provenienza.
+
+Il controllo Edge locale ha incontrato un errore di download JSR; la CI ufficiale
+ha eseguito e superato sia i typecheck sia i test Edge. Il commit che registra
+queste evidenze cambia soltanto documentazione/report, senza modificare il
+runner, le migrazioni o le fixture già collaudate.
 
 ## Evidenze e limiti
 

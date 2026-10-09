@@ -16,7 +16,8 @@ Revisioni integrali consecutive pulite: **0/3**.
   versionati e condivisi dall'installatore reale e dai test. Il postlude recupera
   anche 31 definizioni obbligatorie di test: 197 totali, senza copiare risultati.
 - CI corrente, inclusi test PGlite senza DDL applicativo nascosto:
-  **245 test passati, 4 esclusi CORE**, 13 test Edge e 20 contratti browser.
+  **255 test passati, 4 esclusi CORE**, 13 test Edge e 20 contratti browser.
+  La run GitHub 70 include anche 15 scenari Auth/JWT/MFA/RLS/Storage nativi.
   TypeScript strict, ESLint, gate sorgente, formattazione e build pubblico/staff passano.
 - Confronto del catalogo: 163 relazioni, 1.485 colonne, 444 indici, 903 vincoli e
   110 policy RLS corrispondono. Due strumenti diagnostici specifici di Development
@@ -34,12 +35,14 @@ espliciti Auth/Storage/Vault/cron e serializza le richieste: non prova contesa
 tra connessioni separate. I risultati storici
 nei documenti precedenti non certificano la versione attuale.
 
-## Collaudo API nativo in corso
+## Collaudo API nativo verificato
 
 Aggiunto un runner che crea identità e sessioni GoTrue reali e prova TOTP, JWT,
-RLS/scope HTTP, revoca/refresh, login concorrente e Storage privato. Dieci
-regressioni mirate passano localmente; la nuova esecuzione nativa in CI va
-ancora osservata. Nessuna certificazione commerciale viene scritta dal runner.
+RLS/scope HTTP, revoca/refresh, login concorrente e Storage privato. La run
+GitHub 70 sul commit `7f2244e7cef49e5f77f87e585b8d4652082706ba` passa entrambi
+i job: 15 scenari nativi, 255 test unit/database, 13 Edge e 20 contratti browser.
+Dieci nuove regressioni mirate passano anche localmente. Nessuna certificazione
+commerciale viene scritta dal runner; il collaudo hosted rimane aperto.
 Dettagli: [NATIVE_API_VERIFICATION_2026-10-09.md](NATIVE_API_VERIFICATION_2026-10-09.md).
 
 ## Gate aperti

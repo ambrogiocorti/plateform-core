@@ -13,20 +13,21 @@
         "local_inventory_458": "PASSED_457_APPLIED_1_PREPARED",
         "versioned_clean_install_pglite": "PASSED_NO_HIDDEN_APPLICATION_DDL",
         "catalog_columns_indexes_constraints_policies": "PASSED_2026_10_09",
-        "unit_database_tests": "PASSED_245_4_CORE_SKIPPED_GITHUB_CI_RUN_66",
-        "source_gates_typecheck_lint_format": "PASSED_2026_10_09",
+        "unit_database_tests": "PASSED_255_4_CORE_SKIPPED_GITHUB_CI_RUN_70",
+        "source_gates_typecheck_lint_format": "PASSED_GITHUB_CI_RUN_70_COMMIT_7F2244E",
         "public_staff_build": "PASSED_2026_10_09",
-        "edge_checks_tests": "PASSED_13_GITHUB_CI_RUN_66_COMMIT_139FB1B",
-        "browser_e2e": "PASSED_20_GITHUB_CI_RUN_66_FIXTURES_NOT_HOSTED_INTEGRATION",
+        "edge_checks_tests": "PASSED_13_GITHUB_CI_RUN_70",
+        "browser_e2e": "PASSED_20_GITHUB_CI_RUN_70_FIXTURES_NOT_HOSTED_INTEGRATION",
         "release_evidence_migration_development": "BLOCKED_AUTO_REVIEW_REQUIRES_SPECIFIC_AUTHORIZATION",
         "authenticated_ci_immutable_evidence": "PENDING_IMPLEMENTATION",
         "built_site_browser_gate": "PASSED_GITHUB_CI_RUN_66",
         "native_supabase_clean_install": "PASSED_PG17_11_GITHUB_CI_RUN_66",
         "native_release_test_catalog": "PASSED_ALL_197_DEFINITIONS_NO_PASS_RESULTS",
-        "native_service_role_anon_http": "PASSED_GATE_DENIALS_NOT_USER_SESSIONS_OR_SCOPE",
+        "native_service_role_anon_http": "PASSED_GATE_DENIALS_AND_SEPARATE_REAL_USER_API_SUITE_RUN_70",
         "hosted_supabase_clean_install": "PENDING_NEW_ISOLATED_TARGET",
-        "native_user_jwt_mfa_rls_storage": "IMPLEMENTED_PENDING_OFFICIAL_NATIVE_CI",
-        "native_ci_boundary_and_fixture_regression": "PASSED_10_LOCAL_TESTS"
+        "native_user_jwt_mfa_rls_storage": "PASSED_15_REAL_API_SCENARIOS_GITHUB_CI_RUN_70_PG17_11",
+        "native_ci_boundary_and_fixture_regression": "PASSED_10_LOCAL_TESTS",
+        "native_auth_login_concurrency": "PASSED_ONE_DEVICE_PER_SESSION_REAL_HTTP_RACE_RUN_70_NOT_STOCK_OR_PAYMENTS"
       },
       "evidence": [
         "docs/STEP_0_VERIFICATION.md",
@@ -61,11 +62,15 @@
         "scripts/native-ci-context.mjs",
         "tests/unit/native-ci.test.ts",
         "tests/database/native-ci-fixtures.test.ts",
-        "docs/NATIVE_API_VERIFICATION_2026-10-09.md"
+        "docs/NATIVE_API_VERIFICATION_2026-10-09.md",
+        "docs/evidence/native-api-ci-run-70-2026-10-09.json",
+        "docs/evidence/native-api-ci-run-70-provenance-2026-10-09.json",
+        "docs/evidence/native-api-ci-run-70-native.log",
+        "docs/evidence/native-api-ci-run-70-verify.log"
       ],
       "open": [
         "Collaudare installazione su un nuovo Supabase hosted isolato e i flussi login/TOTP/sessioni, scope HTTP/JWT, Storage upload/download, Realtime ed Edge. Replay Supabase Docker nativo e cataloghi passati; non azzerare il restore-test esistente.",
-        "Runner Auth/JWT/MFA/RLS/Storage nativo implementato; osservare la nuova CI e conservarne gli artefatti prima di aggiornare il risultato. Restano necessarie le prove hosted/browser e recovery email.",
+        "Run GitHub 70: 15 scenari Auth/JWT/MFA/RLS/Storage passati su Supabase Docker/Pg17.11. Rimangono prove hosted/browser, recovery/email, Realtime, Edge HTTP e concorrenza stock/incassi.",
         "Applicazione della protezione PASS su Development respinta dal controllo automatico per autorizzazione remota specifica mancante e replay isolato incompleto al momento del rifiuto. Il replay Docker nativo ora passa; resta necessario il consenso specifico. Database Development invariato.",
         "Implementare evidenze CI autenticate per singolo requisito, log immutabili e binding commit/schema; completare concorrenza nativa e restore dello schema corrente."
       ],
