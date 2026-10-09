@@ -254,13 +254,19 @@ describe('Cash journal and immutable service reconciliation', () => {
       await db.query<{
         result: {
           account: { id: string };
-          balance: { paid_cents: number };
+          balance: { total_cents: number; paid_cents: number; remaining_cents: number };
           orders: { items: { dish_name: string }[] }[];
         };
       }>('select public.get_account_workspace($1) as result', [account])
     ).rows[0]!.result;
     expect(result.account.id).toBe(account);
-    expect(result.balance.paid_cents).toBe(1000);
+    // A completed 300-cent refund reduces effective paid principal from
+    // 1,000 to 700. The original sale remains 1,000 and 300 becomes due again.
+    expect(result.balance).toMatchObject({
+      total_cents: 1000,
+      paid_cents: 700,
+      remaining_cents: 300,
+    });
     expect(result.orders[0]!.items[0]!.dish_name).toBe('Piatto');
     const history = (
       await db.query<{
@@ -276,6 +282,8 @@ describe('Cash journal and immutable service reconciliation', () => {
     ).rows[0]!.result;
     expect(history.items[0]).toMatchObject({
       id: payment,
+      amount_cents: 1000,
+      tip_cents: 100,
       refunded_cents: 300,
       refunded_tip_cents: 40,
     });
