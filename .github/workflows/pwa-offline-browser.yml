@@ -1,0 +1,37 @@
+name: P0 production PWA offline browser rehearsal
+on:
+  push:
+    branches:
+      - test/p0-pwa-browser-offline-20261010
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - name: Build actual public and staff production bundles
+        run: npm run build
+      - name: Prepare browser
+        run: npx playwright install --with-deps chromium
+      - name: Exercise real service workers and offline navigation
+        run: npx playwright test --config=playwright.pwa.config.ts
+      - name: Verify test and browser config formatting
+        run: >-
+          npx prettier --check
+          playwright.pwa.config.ts
+          tests/pwa-browser/shell.spec.ts
+          .github/workflows/pwa-offline-browser.yml
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: failed-pwa-browser-checks
+          path: test-results/
+          retention-days: 7
