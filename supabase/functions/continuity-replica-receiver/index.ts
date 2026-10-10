@@ -2,7 +2,6 @@ import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import { createClient } from 'npm:@supabase/supabase-js@2.116.0';
 
 const BUCKET = 'plateform-continuity-replica';
-const SOURCE_REF = 'abdxvlykasqmknexxhjo';
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 function b64ToBytes(value: string): Uint8Array {
@@ -56,7 +55,7 @@ Deno.serve(async (req: Request) => {
     'verify_continuity_replica_token',
     { p_source_project_ref: sourceRef, p_token: token },
   );
-  if (verifyError || allowed !== true || sourceRef !== SOURCE_REF) {
+  if (verifyError || allowed !== true || !/^[a-z0-9]{20}$/.test(sourceRef)) {
     return new Response('Not Found', { status: 404 });
   }
 
