@@ -11,17 +11,18 @@ test('replacement preflight actually executes a complete read-only occupancy que
   const root = await mkdtemp(join(tmpdir(), 'plateform-replacement-preflight-'));
   const stub = join(root, 'psql-fixture');
   const previous = process.env.PLATEFORM_MOCK_PSQL_ANSWER;
-  const program = [
-    '#!/usr/bin/env node',
-    "const args = process.argv.slice(2);",
-    "if (args.includes('--version')) { console.log('psql (PostgreSQL) 17'); process.exit(0); }",
-    "const i = args.indexOf('--command');",
-    "const sql = args[i + 1] || '';",
-    "for (const fragment of ['information_schema.tables','auth.users','auth.identities','storage.buckets','storage.objects']) {",
-    "  if (!sql.includes(fragment)) { console.error('MISSING_OCCUPANCY_PREDICATE'); process.exit(2); }",
-    '}',
-    'console.log(process.env.PLATEFORM_MOCK_PSQL_ANSWER ?? \'unexpected\');',
-  ].join('\n') + '\n';
+  const program =
+    [
+      '#!/usr/bin/env node',
+      'const args = process.argv.slice(2);',
+      "if (args.includes('--version')) { console.log('psql (PostgreSQL) 17'); process.exit(0); }",
+      "const i = args.indexOf('--command');",
+      "const sql = args[i + 1] || '';",
+      "for (const fragment of ['information_schema.tables','auth.users','auth.identities','storage.buckets','storage.objects']) {",
+      "  if (!sql.includes(fragment)) { console.error('MISSING_OCCUPANCY_PREDICATE'); process.exit(2); }",
+      '}',
+      "console.log(process.env.PLATEFORM_MOCK_PSQL_ANSWER ?? 'unexpected');",
+    ].join('\n') + '\n';
 
   try {
     await writeFile(stub, program, { mode: 0o700 });
@@ -46,10 +47,7 @@ test('replacement preflight actually executes a complete read-only occupancy que
     await rm(empty.temp, { recursive: true, force: true });
 
     process.env.PLATEFORM_MOCK_PSQL_ANSWER = 'garbage';
-    await assert.rejects(
-      () => checkPrerequisites(config),
-      /RESTORE_TARGET_PROBE_INVALID/,
-    );
+    await assert.rejects(() => checkPrerequisites(config), /RESTORE_TARGET_PROBE_INVALID/);
   } finally {
     if (previous === undefined) delete process.env.PLATEFORM_MOCK_PSQL_ANSWER;
     else process.env.PLATEFORM_MOCK_PSQL_ANSWER = previous;
@@ -61,15 +59,23 @@ test('replacement readiness and destructive actions are ordered safely', async (
   const source = await readFile(startFile, 'utf8');
   const check = source.indexOf("if (mode === '--check')");
   const ready = source.indexOf("status: 'READY'", check);
-  const deny = source.indexOf("if (prerequisite.targetOccupied)", check);
+  const deny = source.indexOf('if (prerequisite.targetOccupied)', check);
   const claim = source.indexOf('await claimRestore(config)');
   const restoring = source.indexOf("if (job.status === 'RESTORING')");
-  const occupiedBeforeRestore = source.indexOf("if (prerequisite.targetOccupied)", restoring);
+  const occupiedBeforeRestore = source.indexOf('if (prerequisite.targetOccupied)', restoring);
   const storageGuard = source.indexOf('await targetStorageEmpty(config, createClient)', restoring);
-  const restoreCall = source.indexOf('await restoreArtifacts(config, manifest, backupDir', restoring);
+  const restoreCall = source.indexOf(
+    'await restoreArtifacts(config, manifest, backupDir',
+    restoring,
+  );
   assert.ok(check >= 0 && deny > check && ready > deny, 'readiness must refuse occupied targets');
   assert.ok(claim > check, 'CLI prerequisites execute before the queue claim');
-  assert.ok(restoring >= 0 && occupiedBeforeRestore > restoring && storageGuard > occupiedBeforeRestore && restoreCall > storageGuard);
+  assert.ok(
+    restoring >= 0 &&
+      occupiedBeforeRestore > restoring &&
+      storageGuard > occupiedBeforeRestore &&
+      restoreCall > storageGuard,
+  );
   assert.ok(source.includes('RESTORE_TARGET_NOT_EMPTY'));
   assert.ok(source.includes("job.status === 'VERIFYING'"), 'verification-only resume preserved');
 });

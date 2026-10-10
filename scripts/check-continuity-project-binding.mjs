@@ -70,12 +70,18 @@ try {
   base();
   process.env.PLATEFORM_RESTORE_TARGET_DB_URL =
     'postgresql://postgres.replacementref:pw@attacker.example:5432/postgres';
-  expectError(loadRestoreConfig, 'CONFIG_DB_PROJECT_REF_UNDETECTABLE:PLATEFORM_RESTORE_TARGET_DB_URL');
+  expectError(
+    loadRestoreConfig,
+    'CONFIG_DB_PROJECT_REF_UNDETECTABLE:PLATEFORM_RESTORE_TARGET_DB_URL',
+  );
 
   base();
   process.env.PLATEFORM_RESTORE_TARGET_DB_URL =
     'postgresql://postgres.replacementref:pw@db.otherref.supabase.co:5432/postgres';
-  expectError(loadRestoreConfig, 'CONFIG_DB_PROJECT_REF_UNDETECTABLE:PLATEFORM_RESTORE_TARGET_DB_URL');
+  expectError(
+    loadRestoreConfig,
+    'CONFIG_DB_PROJECT_REF_UNDETECTABLE:PLATEFORM_RESTORE_TARGET_DB_URL',
+  );
 
   base();
   process.env.PLATEFORM_RESTORE_TARGET_DB_URL =
