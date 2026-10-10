@@ -63,10 +63,13 @@ test('replacement readiness and destructive actions are ordered safely', async (
   const ready = source.indexOf("status: 'READY'", check);
   const deny = source.indexOf("if (prerequisite.targetOccupied)", check);
   const claim = source.indexOf('await claimRestore(config)');
-  const restore = source.indexOf('await restoreDatabase(config, files)');
-  const occupiedBeforeRestore = source.indexOf("if (prerequisite.targetOccupied)", source.indexOf("if (job.status === 'RESTORING')"));
+  const restoring = source.indexOf("if (job.status === 'RESTORING')");
+  const occupiedBeforeRestore = source.indexOf("if (prerequisite.targetOccupied)", restoring);
+  const storageGuard = source.indexOf('await targetStorageEmpty(config, createClient)', restoring);
+  const restoreCall = source.indexOf('await restoreArtifacts(config, manifest, backupDir', restoring);
   assert.ok(check >= 0 && deny > check && ready > deny, 'readiness must refuse occupied targets');
-  assert.ok(claim > check && restore > claim && occupiedBeforeRestore < restore);
+  assert.ok(claim > check, 'CLI prerequisites execute before the queue claim');
+  assert.ok(restoring >= 0 && occupiedBeforeRestore > restoring && storageGuard > occupiedBeforeRestore && restoreCall > storageGuard);
   assert.ok(source.includes('RESTORE_TARGET_NOT_EMPTY'));
   assert.ok(source.includes("job.status === 'VERIFYING'"), 'verification-only resume preserved');
 });
