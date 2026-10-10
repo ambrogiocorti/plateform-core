@@ -191,58 +191,81 @@ async function rest(api, anonKey, token, path, method = 'GET', body = undefined)
   return { status: res.status, parsed };
 }
 
-
 async function assertPrivateStorageIsolation({ root, api, anonKey, userA, userB, tokenA, tokenB }) {
   const { data: bucket, error: bucketError } = await root.storage.getBucket('documents');
   if (bucketError || !bucket || bucket.public !== false)
     throw new Error('DOCUMENTS_PRIVATE_BUCKET_NOT_PROVISIONED');
   const files = [
-    { venue: VENUE_A, user: userA,
+    {
+      venue: VENUE_A,
+      user: userA,
       path: 'venues/' + VENUE_A + '/documents/local-auth-a.pdf',
       id: '53000000-0000-4000-8000-000000000001',
-      bytes: Buffer.from('%PDF-1.4\\nPLATEFORM LOCAL VENUE A\\n%%EOF') },
-    { venue: VENUE_B, user: userB,
+      bytes: Buffer.from('%PDF-1.4\\nPLATEFORM LOCAL VENUE A\\n%%EOF'),
+    },
+    {
+      venue: VENUE_B,
+      user: userB,
       path: 'venues/' + VENUE_B + '/documents/local-auth-b.pdf',
       id: '53000000-0000-4000-8000-000000000002',
-      bytes: Buffer.from('%PDF-1.4\\nPLATEFORM LOCAL VENUE B\\n%%EOF') },
+      bytes: Buffer.from('%PDF-1.4\\nPLATEFORM LOCAL VENUE B\\n%%EOF'),
+    },
   ];
   for (const file of files) {
-    const { error: uploadError } = await root.storage.from('documents').upload(
-      file.path, file.bytes, { contentType: 'application/pdf', upsert: false },
-    );
+    const { error: uploadError } = await root.storage
+      .from('documents')
+      .upload(file.path, file.bytes, { contentType: 'application/pdf', upsert: false });
     if (uploadError) throw new Error('LOCAL_STORAGE_SEED_UPLOAD_FAILED');
-    const insert = "insert into public.asset_uploads "+
-      "(id,actor_id,bucket,venue_id,path,size_bytes,mime,status,checksum,saved_at) "+
-      "values ('"+file.id+"','"+file.user+"','documents','"+file.venue+
-      "','"+file.path+"',"+file.bytes.length+",'application/pdf','SAVED','ci-fixture',now());";
+    const insert =
+      'insert into public.asset_uploads ' +
+      '(id,actor_id,bucket,venue_id,path,size_bytes,mime,status,checksum,saved_at) ' +
+      "values ('" +
+      file.id +
+      "','" +
+      file.user +
+      "','documents','" +
+      file.venue +
+      "','" +
+      file.path +
+      "'," +
+      file.bytes.length +
+      ",'application/pdf','SAVED','ci-fixture',now());";
     postgres(insert);
   }
-  const download = (token,path) => fetch(
-    api + '/storage/v1/object/authenticated/documents/' + path,
-    { headers: { apikey: anonKey, Authorization: 'Bearer ' + token }, redirect: 'error' },
-  );
+  const download = (token, path) =>
+    fetch(api + '/storage/v1/object/authenticated/documents/' + path, {
+      headers: { apikey: anonKey, Authorization: 'Bearer ' + token },
+      redirect: 'error',
+    });
   for (const [token, own, forbidden] of [
-    [tokenA, files[0], files[1]], [tokenB, files[1], files[0]],
+    [tokenA, files[0], files[1]],
+    [tokenB, files[1], files[0]],
   ]) {
     const ownResponse = await download(token, own.path);
     assert.equal(ownResponse.status, 200, 'own private document downloadable with AAL2 JWT');
     assert.deepEqual(Buffer.from(await ownResponse.arrayBuffer()), own.bytes);
     const crossResponse = await download(token, forbidden.path);
-    assert.ok([400, 401, 403, 404].includes(crossResponse.status),
-      'foreign private document must not be downloadable');
+    assert.ok(
+      [400, 401, 403, 404].includes(crossResponse.status),
+      'foreign private document must not be downloadable',
+    );
   }
   const unauthenticated = await download(anonKey, files[0].path);
-  assert.ok([400, 401, 403, 404].includes(unauthenticated.status),
-    'private document must not be downloaded by anon');
+  assert.ok(
+    [400, 401, 403, 404].includes(unauthenticated.status),
+    'private document must not be downloaded by anon',
+  );
   const client = createClient(api, anonKey, {
     global: { headers: { Authorization: 'Bearer ' + tokenA } },
     auth: { persistSession: false, autoRefreshToken: false },
   });
-  const { error: directUploadError } = await client.storage.from('documents').upload(
-    'venues/' + VENUE_B + '/documents/forged-upload.pdf',
-    Buffer.from('%PDF-1.4\\nNO DIRECT UPLOAD\\n%%EOF'),
-    { contentType: 'application/pdf' },
-  );
+  const { error: directUploadError } = await client.storage
+    .from('documents')
+    .upload(
+      'venues/' + VENUE_B + '/documents/forged-upload.pdf',
+      Buffer.from('%PDF-1.4\\nNO DIRECT UPLOAD\\n%%EOF'),
+      { contentType: 'application/pdf' },
+    );
   assert.ok(directUploadError, 'direct cross-venue Storage upload must fail');
   console.log('JWT_HTTP_STORAGE_PRIVATE_DOCUMENTS=PASSED');
   console.log('JWT_HTTP_STORAGE_CROSS_VENUE_DOWNLOAD_DENIED=PASSED');
@@ -351,8 +374,13 @@ async function run() {
   console.log('JWT_HTTP_CROSS_VENUE_RPC_DENIED=PASSED');
 
   const privateFiles = await assertPrivateStorageIsolation({
-    root, api, anonKey, userA, userB,
-    tokenA: sessionA.access_token, tokenB: sessionB.access_token,
+    root,
+    api,
+    anonKey,
+    userA,
+    userB,
+    tokenA: sessionA.access_token,
+    tokenB: sessionB.access_token,
   });
 
   postgres(`update public.staff_venue_assignments
@@ -364,8 +392,10 @@ async function run() {
     api + '/storage/v1/object/authenticated/documents/' + privateFiles[0].path,
     { headers: { apikey: anonKey, Authorization: 'Bearer ' + sessionA.access_token } },
   );
-  assert.ok([400, 401, 403, 404].includes(revokedDocument.status),
-    'revocation removes private document access using the old JWT');
+  assert.ok(
+    [400, 401, 403, 404].includes(revokedDocument.status),
+    'revocation removes private document access using the old JWT',
+  );
   console.log('JWT_HTTP_STORAGE_REVOCATION_SAME_TOKEN=PASSED');
   console.log('JWT_HTTP_ASSIGNMENT_REVOCATION_WITH_SAME_TOKEN=PASSED');
   console.log('LOCAL_AUTH_POSTGREST_CROSS_VENUE_GATE=PASSED');
