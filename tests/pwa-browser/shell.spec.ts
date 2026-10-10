@@ -1,4 +1,19 @@
 import { expect, test } from '@playwright/test';
+import type { Page } from '@playwright/test';
+
+async function waitForActiveWorker(page: Page) {
+  await expect
+    .poll(async () => {
+      try {
+        return await page.evaluate(() => navigator.serviceWorker.controller?.state ?? null);
+      } catch (error) {
+        // An unauthenticated page may redirect while the service worker activates.
+        if (String(error).includes('Execution context was destroyed')) return null;
+        throw error;
+      }
+    })
+    .toBe('activated');
+}
 
 const applications = [
   { label: 'public', origin: 'http://127.0.0.1:4173', offlineRoute: '/menu' },
@@ -11,9 +26,7 @@ for (const application of applications) {
     context,
   }) => {
     await page.goto(application.origin + '/', { waitUntil: 'domcontentloaded' });
-    await expect
-      .poll(() => page.evaluate(() => navigator.serviceWorker.controller?.state ?? null))
-      .toBe('activated');
+    await waitForActiveWorker(page);
 
     const details = await page.evaluate(async () => {
       const registration = await navigator.serviceWorker.ready;
@@ -47,9 +60,7 @@ test('staff offline shell does not emulate a successful financial POST', async (
   context,
 }) => {
   await page.goto('http://127.0.0.1:4174/', { waitUntil: 'domcontentloaded' });
-  await expect
-    .poll(() => page.evaluate(() => navigator.serviceWorker.controller?.state ?? null))
-    .toBe('activated');
+  await waitForActiveWorker(page);
   await context.setOffline(true);
   const executed = await page.evaluate(async () => {
     try {
