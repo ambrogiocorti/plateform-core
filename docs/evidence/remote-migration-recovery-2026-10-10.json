@@ -133,7 +133,7 @@
     }
   ],
   "rollback": "Restore prior migration directory and manifest from previous_commit. Do not rewrite remote history.",
-  "validation_status": "EPHEMERAL_CLEAN_REPLAY_PASSED_REMOTE_STAGING_AND_E2E_PENDING",
+  "validation_status": "458_MIGRATIONS_EPHEMERAL_REPLAY_AND_SOURCE_SUITE_PASSED_REMOTE_STAGING_PENDING",
   "not_yet_done": [
     "fresh isolated Supabase staging rebuild",
     "migration idempotency",
@@ -196,6 +196,9 @@
   "pglite_fixture_reconciliation": {
     "commit": "7e294d3bca106ee6ced6a42acdd3c29488ab69f4",
     "change": "Removed hidden seven-table continuity rehearsal creation from test harness, relying on versioned bridge migration instead",
-    "full_source_gate": "PENDING"
+    "full_source_gate": "PASSED",
+    "ci_run_id": 38043293635,
+    "ci_job": "run_full_source_suite",
+    "ci_url": "https://github.com/ambrogiocorti/plateform-core/actions/runs/38043293635"
   }
 }
