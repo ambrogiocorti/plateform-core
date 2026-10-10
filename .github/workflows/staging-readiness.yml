@@ -28,6 +28,13 @@ jobs:
         with:
           node-version: '24'
           cache: npm
+      - name: Reject wrong staging project, DB tenant and public-key leaks
+        env:
+          STAGING_SUPABASE_PROJECT_REF: ${{ vars.STAGING_SUPABASE_PROJECT_REF }}
+          STAGING_SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+        run: node scripts/verify-staging-project-binding.mjs
+      - name: Check staging binding negative cases
+        run: node --test scripts/check-staging-project-binding.mjs
       - name: Verify required environment
         run: |
           test -n "$VITE_SUPABASE_URL" || { echo 'STAGING_SUPABASE_URL missing'; exit 1; }
