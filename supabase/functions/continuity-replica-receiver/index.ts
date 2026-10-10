@@ -86,11 +86,8 @@ Deno.serve(async (req: Request) => {
     } catch {
       return Response.json({ status: 'TARGET_IDENTITY_INVALID' }, { status: 503 });
     }
-    const { error: storageError } = await supabase.storage.createBucket(BUCKET, {
-      public: false,
-      fileSizeLimit: 8 * 1024 * 1024,
-    });
-    if (storageError && !String(storageError.message).toLowerCase().includes('already exists')) {
+    const { data: bucket, error: storageError } = await supabase.storage.getBucket(BUCKET);
+    if (storageError || !bucket || bucket.id !== BUCKET || bucket.public !== false) {
       return Response.json({ status: 'REPLICA_STORAGE_UNAVAILABLE' }, { status: 503 });
     }
     return Response.json(
