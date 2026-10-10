@@ -30,7 +30,6 @@ Storage protetto. Lo staff riceve inoltre `X-Robots-Tag: noindex, nofollow`.
 Verificare prima del go-live: CSP effettiva, HTTPS/HSTS, fallback corretto, cache separate,
 Auth redirect esatti, origini CORS e contratti del gateway per l'indirizzo client.
 
-
 ## Step 11 — SEO con rendering pubblico statico
 
 Per distribuire anche il sito prerenderizzato, usare `npm run build:pages` con

@@ -52,8 +52,11 @@ for (const [needle, label] of [
   ["textValue(site.branding, 'layout', 'EDITORIAL')", 'public_layout'],
   ['safeImageUrl(site.branding.favicon_url)', 'public_favicon'],
   ["if (icon) icon.href = '/icon.svg'", 'public_removed_favicon_resets'],
-  ["document.documentElement.style.removeProperty(token)", 'public_brand_tokens_reset'],
-  ["else document.head.querySelector('meta[property=\"og:image\"]')?.remove()", 'public_og_image_clears'],
+  ['document.documentElement.style.removeProperty(token)', 'public_brand_tokens_reset'],
+  [
+    'else document.head.querySelector(\'meta[property="og:image"]\')?.remove()',
+    'public_og_image_clears',
+  ],
   ['safeImageUrl(site.content.hero_image_url)', 'public_hero_image'],
   ['applyMetadata(site, venue)', 'public_metadata'],
   ["sectionEnabled(site, 'gallery')", 'public_sections'],
@@ -85,14 +88,19 @@ for (const [needle, label] of [
   ['observePublicPerformance', 'public_performance_observability'],
   ['recordPublicPageView', 'public_page_telemetry'],
   ['!isClientSidePublicPath(target.pathname)', 'non_public_path_does_not_intercept_staff'],
-  ["safeRecoveredPublicRoute(storedRoute, location.origin)", 'static_404_recovery_is_public_only'],
+  ['safeRecoveredPublicRoute(storedRoute, location.origin)', 'static_404_recovery_is_public_only'],
   ['if (invalidVenueContext)', 'invalid_venue_context_is_not_indexed'],
   ['const entry = venue;', 'venue_details_respect_conflicting_selector_denial'],
   ['releasePublicObservers();', 'failed_site_closes_observers'],
   ['failClosedPublicMetadata();', 'failed_site_never_stays_indexable'],
-  ['if (expectedRevision === revision) failed(error)', 'stale_navigation_errors_do_not_replace_new_page'],
-  ["!location.pathname.startsWith('/tavolo/') && !invalidVenueContext", 'invalid_venue_skips_seo_rpc'],
-
+  [
+    'if (expectedRevision === revision) failed(error)',
+    'stale_navigation_errors_do_not_replace_new_page',
+  ],
+  [
+    "!location.pathname.startsWith('/tavolo/') && !invalidVenueContext",
+    'invalid_venue_skips_seo_rpc',
+  ],
 
   ['Il collegamento indica una sede non valida', 'stale_venue_menu_has_explicit_error'],
 ])

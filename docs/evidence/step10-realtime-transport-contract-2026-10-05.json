@@ -5,9 +5,7 @@
   "documentation": "Supabase Realtime Postgres Changes applies RLS per subscriber",
   "server_contract": {
     "publication": "supabase_realtime",
-    "published_tables": [
-      "public.realtime_signals"
-    ],
+    "published_tables": ["public.realtime_signals"],
     "rls_enabled": true,
     "authenticated_select_grant": true,
     "policies": [

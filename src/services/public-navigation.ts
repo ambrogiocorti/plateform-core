@@ -15,19 +15,36 @@ export function setupPublicNavigation(
     setOpen(false);
     if (focus && wasOpen) toggle.focus();
   };
-  toggle.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'), { signal });
-  region.addEventListener('keydown', (event: KeyboardEvent) => {
-    if (event.key === 'Escape' && mobile.matches) {
-      const open = toggle.getAttribute('aria-expanded') === 'true';
-      if (open) { event.preventDefault(); close(true); }
-    }
-  }, { signal });
-  menu.addEventListener('click', (event: MouseEvent) => {
-    if (event.target instanceof Element && event.target.closest('a')) close();
-  }, { signal });
-  document.addEventListener('pointerdown', (event: PointerEvent) => {
-    if (mobile.matches && !region.contains(event.target as Node)) close();
-  }, { signal });
+  toggle.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'), {
+    signal,
+  });
+  region.addEventListener(
+    'keydown',
+    (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && mobile.matches) {
+        const open = toggle.getAttribute('aria-expanded') === 'true';
+        if (open) {
+          event.preventDefault();
+          close(true);
+        }
+      }
+    },
+    { signal },
+  );
+  menu.addEventListener(
+    'click',
+    (event: MouseEvent) => {
+      if (event.target instanceof Element && event.target.closest('a')) close();
+    },
+    { signal },
+  );
+  document.addEventListener(
+    'pointerdown',
+    (event: PointerEvent) => {
+      if (mobile.matches && !region.contains(event.target as Node)) close();
+    },
+    { signal },
+  );
   mobile.addEventListener('change', () => close(), { signal });
   signal.addEventListener('abort', () => close(), { once: true });
 }

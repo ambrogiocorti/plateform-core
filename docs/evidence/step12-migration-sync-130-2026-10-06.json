@@ -9,9 +9,7 @@
   "performance_advisor": {
     "unindexed_restore_jobs_fk": "CLEARED",
     "unindexed_backup_metadata_requested_by": "CLEARED",
-    "remaining_related": [
-      "unused_index informational for newly-created indexes"
-    ]
+    "remaining_related": ["unused_index informational for newly-created indexes"]
   },
   "security_advisor": {
     "private_continuity_worker_heartbeats_no_policy": "INTENTIONAL_FAIL_CLOSED",
