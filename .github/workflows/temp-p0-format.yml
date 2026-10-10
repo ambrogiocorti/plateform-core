@@ -1,0 +1,33 @@
+name: P0 format remediation (temporary)
+on:
+  push:
+    branches:
+      - fix/p0-ci-format-baseline-20261010
+permissions:
+  contents: write
+jobs:
+  normalize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - name: Normalize project formatting
+        run: npm run format
+      - name: Verify formatting gate
+        run: npm run format:check
+      - name: Commit formatting-only changes
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -u
+          if ! git diff --cached --quiet; then
+            git commit -m "style: normalize existing source formatting for CI"
+            git push origin HEAD:fix/p0-ci-format-baseline-20261010
+          fi
