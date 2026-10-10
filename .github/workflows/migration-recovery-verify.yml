@@ -21,7 +21,7 @@ jobs:
       - name: Browser assembly and public/staff integration fixture
         run: node scripts/check-step11-build-assembly.mjs --browser-node
       - name: Playwright browser regression
-        run: npm run test:e2e
+        run: npm run test:e2e -- --workers=1
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
