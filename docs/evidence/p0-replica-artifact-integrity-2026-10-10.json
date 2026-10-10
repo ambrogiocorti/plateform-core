@@ -1,0 +1,50 @@
+{
+  "type": "REAL_REPLICA_ARTIFACT_INTEGRITY_EVIDENCE",
+  "date": "2026-10-10",
+  "source_project": "abdxvlykasqmknexxhjo",
+  "replica_project": "dkbjgvovxgglqhqxmuyb",
+  "replica_project_status": "ACTIVE_HEALTHY",
+  "receiver": {
+    "slug": "continuity-replica-receiver",
+    "version": 5,
+    "verify_jwt": true,
+    "preflight_http": 200,
+    "preflight_response": "READY",
+    "preflight_request_id": 10978
+  },
+  "preserved_state_after_resume": {
+    "public_tables": 95,
+    "auth_users": 12,
+    "storage_objects": 3114,
+    "replica_bucket": "plateform-continuity-replica"
+  },
+  "test_backup": {
+    "id": "656dcf01-ca49-4f85-9526-11f223d2b053",
+    "schema_version": "20261009001127",
+    "completed_at_utc": "2026-10-09T08:37:30.574579Z",
+    "expected_files": 68,
+    "expected_size_bytes": 3560226,
+    "expected_aggregate_sha256": "0f74a1dd683f04bb9647cf5dc8bab95ab713575960097ec209705c69190c5220",
+    "actual_files": 68,
+    "actual_size_bytes": 3560226,
+    "actual_aggregate_sha256": "0f74a1dd683f04bb9647cf5dc8bab95ab713575960097ec209705c69190c5220",
+    "receiver_finalize_request_id": 10981,
+    "receiver_http_status": 200,
+    "receiver_status": "VERIFIED",
+    "checksum_match": true
+  },
+  "source_after_test": {
+    "database_bytes": 1567782579,
+    "rehearsal_snapshots": 155,
+    "active_backup_jobs": 0,
+    "scheduled_backup_enabled": false
+  },
+  "limitations": [
+    "This is byte-level check of one historical backup on an independent Supabase project; it does not prove end-to-end restore.",
+    "Restore-test target is populated; must not be overwritten.",
+    "No verified fresh backup since replica outage, no current RPO/RTO measurement.",
+    "Database remains above Free storage quota; cleanup prohibited until validated isolated restore and retention rehearsal.",
+    "Staging-clean intentionally paused due to Free 2-active-project ceiling."
+  ],
+  "commercial_release": "NO_GO"
+}

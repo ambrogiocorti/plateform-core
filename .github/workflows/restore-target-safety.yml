@@ -1,0 +1,28 @@
+name: P0 restore target emptiness safety
+on:
+  push:
+    branches:
+      - fix/p0-continuity-capacity-20261010
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  empty_target_guard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - name: Verify restore target fail-closed contract
+        run: node --test scripts/check-restore-test-target-preflight.mjs
+      - name: Verify source and test formatting
+        run: >-
+          npx prettier --check
+          tools/restore-test-worker/config.mjs
+          tools/restore-test-worker/start.mjs
+          scripts/check-restore-test-target-preflight.mjs
+          .github/workflows/restore-target-safety.yml

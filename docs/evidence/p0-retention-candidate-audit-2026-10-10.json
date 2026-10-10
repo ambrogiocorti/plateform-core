@@ -1,0 +1,67 @@
+{
+  "type": "P0_RETENTION_READ_ONLY_CANDIDATE_AUDIT",
+  "observed_date": "2026-10-10",
+  "environment": "plateform-development",
+  "project_ref": "abdxvlykasqmknexxhjo",
+  "inventory": {
+    "manifests": 155,
+    "failed_scheduled": {
+      "snapshots": 90,
+      "logical_rows": 1188514,
+      "encrypted_transfer_chunks": 5988,
+      "encrypted_chunk_payload_bytes": 113873967,
+      "referenced_by_existing_restore_jobs": 0
+    },
+    "failed_restore_test": {
+      "snapshots": 1,
+      "logical_rows": 4236,
+      "encrypted_transfer_chunks": 22,
+      "referenced_by_existing_restore_jobs": 0
+    },
+    "missing_backup_metadata": {
+      "snapshots": 1,
+      "logical_rows": 4144,
+      "encrypted_transfer_chunks": 21,
+      "referenced_by_existing_restore_jobs": 0
+    },
+    "succeeded_scheduled": {
+      "snapshots": 59,
+      "logical_rows": 500910,
+      "encrypted_transfer_chunks": 2534
+    },
+    "succeeded_restore_test": {
+      "snapshots": 4,
+      "logical_rows": 19193,
+      "encrypted_transfer_chunks": 99
+    },
+    "existing_restore_jobs": {
+      "status": "SUCCEEDED",
+      "mode": "TEST",
+      "count": 2,
+      "last_completed_at_utc": "2026-10-06T12:09:11.99Z"
+    },
+    "relation_bytes": {
+      "continuity_rehearsal_snapshot_rows": 1318813696,
+      "continuity_rehearsal_transfer_chunks": 185524224
+    }
+  },
+  "cautions": [
+    "Zero references in current restore_jobs does not establish absence of references from external artifacts, audit reports, immutable copies or future DR obligations.",
+    "Only snapshot_rows has a foreign key ON DELETE CASCADE to snapshot_manifest. transfer_chunks and other dependent rehearsal tables require explicit audited cleanup.",
+    "Physical relation size is not a projected reclaim amount. DELETE does not directly reduce database file size.",
+    "Preserve successful backup references and at least the full diagnostic evidence of the failed-replica root cause.",
+    "Do not purge any snapshot until an independent current-schema DB/Auth/Storage restore has passed and exact allowlist has been reviewed."
+  ],
+  "actions": {
+    "sql_executed": "READ_ONLY_SELECT_ONLY",
+    "deleted_rows": 0,
+    "purged_storage_objects": 0,
+    "altered_backup_config": false
+  },
+  "gate": {
+    "cleanup_approved": false,
+    "current_schema_restore_verified": false,
+    "retention_rehearsal_verified": false,
+    "commercial_go_no_go": "NO_GO"
+  }
+}
