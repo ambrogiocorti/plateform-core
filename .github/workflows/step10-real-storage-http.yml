@@ -1,0 +1,36 @@
+name: P0 local Storage HTTP tenant isolation
+on:
+  push:
+    branches:
+      - test/p0-storage-realtime-http-20261011
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  storage_http:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - uses: supabase/setup-cli@v3
+        with:
+          version: 2.84.2
+      - name: Start disposable local Auth REST and Storage using 459 migrations
+        run: >-
+          supabase start --exclude
+          studio,mailpit,imgproxy,logflare,vector,supavisor,realtime,edge-runtime,postgres-meta
+      - name: Verify real JWT RLS and private Storage HTTP
+        run: node scripts/check-step10-auth-http.mjs
+      - name: Verify local Storage gate formatting
+        run: >-
+          npx prettier --check
+          scripts/check-step10-auth-http.mjs
+          .github/workflows/step10-real-storage-http.yml
+      - name: Remove local DB Auth and Storage fixtures
+        if: always()
+        run: supabase stop --no-backup || true
