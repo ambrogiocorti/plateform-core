@@ -1,0 +1,144 @@
+{
+  "kind": "P0_REMOTE_MIGRATION_SOURCE_RECOVERY",
+  "recovery_date": "2026-10-10",
+  "source_project": "plateform-development",
+  "source_project_ref": "abdxvlykasqmknexxhjo",
+  "source_schema_migration_count": 457,
+  "source_last_version": "20261009001127",
+  "source_inventory_sha256": "ae79b608e86dfe6c7ca8dd93c88170cdd4dc38dd6324ccb3391342b135a59f41",
+  "previous_local_count": 133,
+  "previous_commit": "bba9b44cc2af738aff0ad0c0cfd99b80a2c749c8",
+  "new_files": 324,
+  "changed_hashes": 24,
+  "divergences": [
+    {
+      "filename": "20261004224216_step11_branding_accessibility_contrast.sql",
+      "previous_sha256": "1bb74a2d2bc6eb3497350b6a03428b054bc98262f4f2a1abbdf017a82773ec4f",
+      "canonical_sha256": "1a9ad22de4bd3edd2679addab08b2fa43afc06399e6d9bbf910bd1cd312ed734"
+    },
+    {
+      "filename": "20261004224445_step11_branding_theme_default_contrast_fix.sql",
+      "previous_sha256": "1be6473da32fcab1a4988102dd9db19ebf64916bbd9e8b7980e4446d66e136c2",
+      "canonical_sha256": "e3053167e9e21746fd05e4c90216b30051102e4670b89d1f79995bc29c2ca15e"
+    },
+    {
+      "filename": "20261004231459_step9_analytics_station_throughput_fix.sql",
+      "previous_sha256": "74d1d9d9ca680a1fbffb2f380b64b162a879987183514443d8b9c2e2aee912b3",
+      "canonical_sha256": "18ab4dd76e9465a2f696b45c43fc5e332bc7cb7563681278a911cc62c1fd7c2f"
+    },
+    {
+      "filename": "20261004231739_step9_analytics_booking_semantics.sql",
+      "previous_sha256": "9fba56a4768b2a0fe57ff7ebd8fc5d6f0380a60978ee08bf70a99134b1f3f5e9",
+      "canonical_sha256": "029ad641696039bdc58f71cb158e46e67ab7b781751416d2a916bec24292af2e"
+    },
+    {
+      "filename": "20261005062508_step10_venue_lifecycle_management.sql",
+      "previous_sha256": "a3d9730ecf77e1ae01f78de206715de845a38077d2d858e40d442b33049afe50",
+      "canonical_sha256": "25010ec1bf085eef530626d96e865e65eab49b2d3fc423a1db4da31f8e1e0e0f"
+    },
+    {
+      "filename": "20261005062556_step10_venue_idempotent_step_up_retry.sql",
+      "previous_sha256": "125a54d17867bc5bea57d554ae46ded0b05e39f7b79ccaa5251d883f0ff89bae",
+      "canonical_sha256": "f346cd8abe2b6cf875fdc4c51a7c799cbe08e24ec1aabe102a77b11287b13d8c"
+    },
+    {
+      "filename": "20261005140800_step6_refund_reopens_balance.sql",
+      "previous_sha256": "4e898789f736d4035a8ac1c5619c6d8266e440f32626ae620d605143ac5b0e22",
+      "canonical_sha256": "ccc87f6b0ebd484f0262cdaf9e6e89ca934544a60a458e8fbb6a18e3c53f0df1"
+    },
+    {
+      "filename": "20261005142447_registered_device_heartbeat_realtime.sql",
+      "previous_sha256": "1b43b82044ce7b75c62fda7758102b1ba407524c291294bca5172c51c5856d91",
+      "canonical_sha256": "0e0005f4f9b26ae70593ac2f1383f40ffdb9de0802e1b612b5a3a8913873dff9"
+    },
+    {
+      "filename": "20261005144849_operational_settings_unrelated_feature_save_fix.sql",
+      "previous_sha256": "9e1ec11c690017e7bf13cc5572e1de074ef8374b07f692a2a001017634e82891",
+      "canonical_sha256": "0f111f4154666640d3979f12027619928866ce421b8470aafe8591244ec83a21"
+    },
+    {
+      "filename": "20261005152701_step7_return_approval_refund_and_notification_fix.sql",
+      "previous_sha256": "87af1d78b5343b3859c90af9d93869edf18bc393cf66dc101caa4c2437b73593",
+      "canonical_sha256": "55d80a370466c900a76cdc87c04b7cbdad11df3adebd0b12402febc3aa7deb3e"
+    },
+    {
+      "filename": "20261005155412_step7_pdf_invoice_output.sql",
+      "previous_sha256": "66aabddc8b511be98fdd3f5f9a5ee475fb7f9c4d80ba23e9a7bf6110f5b7ef4b",
+      "canonical_sha256": "7ddd832dc6113f29b49d5b2c04d160860c96b88630282462037fe816f60f3bef"
+    },
+    {
+      "filename": "20261005155543_step7_document_snapshot_refunds.sql",
+      "previous_sha256": "60635634bababcf5fff07cff5071ba0ea563384aee911aa1d773f2d27e65e431",
+      "canonical_sha256": "b446dfe128c0f5904076de751e8a9ab163df9267f0fce3a519c475f99b96c899"
+    },
+    {
+      "filename": "20261005163939_kitchen_board_allergen_snapshot.sql",
+      "previous_sha256": "4bc1a9b6bcc96cbad611d27506937005132aae1cfbf9d20767299554579a441e",
+      "canonical_sha256": "0f8a10510ae4d19f9333ef273535397ea75cf87656028083f6a106db3c7ef2dc"
+    },
+    {
+      "filename": "20261005165352_host_operational_summary.sql",
+      "previous_sha256": "9e32929076983f22b630a470b95860ea1549139decf5974cd19262f3e67fd1a2",
+      "canonical_sha256": "7f3871356afd371b351e9c853172b88d026eb5a8e68d63f6b78fef7db3e86647"
+    },
+    {
+      "filename": "20261005170110_kitchen_admin_operational_overview.sql",
+      "previous_sha256": "dfc8bb066c557b3ee5bf62dcdd97786a8237da28b1b2f6d0d60187d6d98af158",
+      "canonical_sha256": "da86fd61baded4cc349451e74504aefb28b53bd3d80ee90db6e796db4215f988"
+    },
+    {
+      "filename": "20261005170559_admin_operational_overview.sql",
+      "previous_sha256": "954feb34ffcfdbc7aaa067a2fd9b37454fc781b7573b661567b93023fc832b1e",
+      "canonical_sha256": "25b04c78de244493f246323a40ad8a2d5c3b5a3a67d8b0a81d812068db6605ea"
+    },
+    {
+      "filename": "20261005221652_step12_continuity_worker_heartbeat.sql",
+      "previous_sha256": "131d605c99aef9f1cb3c519425b649b43708015c12c9c0be446bad45e64a3fe7",
+      "canonical_sha256": "0d8e9008e0bafcca458b735f14c0f658e7c9e2d75e18f3c1c8f8b77a49db059a"
+    },
+    {
+      "filename": "20261005222521_api_permission_manifest_alignment.sql",
+      "previous_sha256": "4bacf6f501d5b4afee5156c316706f395e718a60da18596f0f30493f6ad893e3",
+      "canonical_sha256": "0d2272935a773ca6ecb093ca0bb52eef44a9d8fb48308720d0770cee43d92df6"
+    },
+    {
+      "filename": "20261005223140_step12_continuity_worker_health.sql",
+      "previous_sha256": "fbd61c87eb19993066008336faaaba65f804da999f16b58c09ed9f26eee7ae22",
+      "canonical_sha256": "1aeed048caa7f993b6c2c48087a05071522d692dce0887cd58b8c5dde052966d"
+    },
+    {
+      "filename": "20261005223814_api_permission_manifest_legacy_cleanup.sql",
+      "previous_sha256": "8dddc9055ffe2d0de4f8414ccb1dd179c7591a944871b9c32576b327e69feca2",
+      "canonical_sha256": "f26c03f34baf52d25490b33b630a127f06a28c6f0a0756ddf19d1f0a2f2575e0"
+    },
+    {
+      "filename": "20261006044128_step12_audit_error_code_visibility.sql",
+      "previous_sha256": "566d4e224da1f1bdfb22c62932166bd2dc38c8fb579b1746ac78666cf355f895",
+      "canonical_sha256": "a3a22e1e98dd9ab523f38505bb2a67a1826b8d2a861c1b9b3c37716d7535b746"
+    },
+    {
+      "filename": "20261006045641_step12_restore_reference_indexes.sql",
+      "previous_sha256": "b12471255e838495c9aa8f2334dccc73e88b081ba226a77d8e523682b450fa9d",
+      "canonical_sha256": "efa30e2f96bf8e4e5fbc6ca5ae71538c1ca92169614ef7bf9e662cb1cd0254c9"
+    },
+    {
+      "filename": "20261006050249_step12_restore_actor_indexes.sql",
+      "previous_sha256": "939a48932120b878b26149e030fe548410b8d5cf5358566d39b528e5612abc33",
+      "canonical_sha256": "7e1f317cfa4c7c602b907360da32885ce2868c77dd41d3adffda90460dada77d"
+    },
+    {
+      "filename": "20261006051256_step12_backup_requester_index.sql",
+      "previous_sha256": "18e1dd1db40797d03a0afa92ef07c8e305ba3f44c341dcad0609dd7987ec1bf1",
+      "canonical_sha256": "963347077cabc64d2e8ac8d02cd557572678349f3226c3bae25343a1accd858d"
+    }
+  ],
+  "rollback": "Restore prior migration directory and manifest from previous_commit. Do not rewrite remote history.",
+  "validation_status": "NOT_CERTIFIED",
+  "not_yet_done": [
+    "fresh isolated Supabase staging rebuild",
+    "migration idempotency",
+    "RLS/schema parity",
+    "edge deployment",
+    "backup plus restore on current schema"
+  ]
+}

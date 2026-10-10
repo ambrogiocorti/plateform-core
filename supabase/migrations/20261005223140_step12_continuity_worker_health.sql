@@ -22,7 +22,11 @@ begin
     details=excluded.details
   returning * into row;
   perform public.reconcile_all_continuity_alerts();
-  return jsonb_build_object('worker',row.worker,'status',row.status,'last_seen_at',row.last_seen_at);
+  return jsonb_build_object(
+    'worker',row.worker,
+    'status',row.status,
+    'last_seen_at',row.last_seen_at
+  );
 end $$;
 revoke all on function public.record_continuity_worker_heartbeat(text,text,jsonb) from public,anon,authenticated;
 grant execute on function public.record_continuity_worker_heartbeat(text,text,jsonb) to service_role;
