@@ -33,6 +33,16 @@ jobs:
           npx prettier --check
           scripts/check-step10-auth-http.mjs
           .github/workflows/step10-realtime-websocket.yml
+      - name: Diagnose local replication catalog on transport failure
+        if: failure()
+        run: |
+          set -euo pipefail
+          db="$(docker ps --filter 'name=supabase_db_' --format '{{.Names}}' | head -n 1)"
+          test -n "$db"
+          docker exec "$db" psql -U postgres -d postgres -X -c "show wal_level;"
+          docker exec "$db" psql -U postgres -d postgres -X -c "select pubname,schemaname,tablename from pg_publication_tables where pubname='supabase_realtime' order by schemaname,tablename;"
+          docker exec "$db" psql -U postgres -d postgres -X -c "select slot_name,plugin,active from pg_replication_slots order by slot_name;"
+          docker exec "$db" psql -U postgres -d postgres -X -c "select schemaname,tablename,policyname from pg_policies where schemaname='public' and tablename='realtime_signals';"
       - name: Stop disposable local services and remove test fixtures
         if: always()
         run: supabase stop --no-backup || true
