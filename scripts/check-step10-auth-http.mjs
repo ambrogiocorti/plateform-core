@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
+import { createHmac } from 'node:crypto';
 import { createClient } from '@supabase/supabase-js';
 
 const VENUE_A = '51000000-0000-4000-8000-000000000001';
@@ -70,6 +71,46 @@ async function createIdentity(supabase, email) {
   return created.user.id;
 }
 
+function base32Decode(secret) {
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+  let bits = 0;
+  let remaining = 0;
+  const bytes = [];
+  for (const letter of secret.toUpperCase().replaceAll(/[^A-Z2-7]/g, '')) {
+    const digit = alphabet.indexOf(letter);
+    if (digit < 0) throw new Error('LOCAL_TOTP_SECRET_INVALID');
+    bits = (bits << 5) | digit;
+    remaining += 5;
+    if (remaining >= 8) {
+      remaining -= 8;
+      bytes.push((bits >> remaining) & 255);
+      bits &= (1 << remaining) - 1;
+    }
+  }
+  if (bytes.length < 10) throw new Error('LOCAL_TOTP_SECRET_INVALID');
+  return Buffer.from(bytes);
+}
+
+function totp(secret) {
+  const counter = Buffer.alloc(8);
+  counter.writeBigUInt64BE(BigInt(Math.floor(Date.now() / 30_000)));
+  const digest = createHmac('sha1', base32Decode(secret)).update(counter).digest();
+  const offset = digest[digest.length - 1] & 15;
+  const value = ((digest[offset] & 127) << 24) |
+    ((digest[offset + 1] & 255) << 16) |
+    ((digest[offset + 2] & 255) << 8) |
+    (digest[offset + 3] & 255);
+  return String(value % 1_000_000).padStart(6, '0');
+}
+
+function jwtClaims(token) {
+  try {
+    return JSON.parse(Buffer.from(token.split('.')[1], 'base64url').toString('utf8'));
+  } catch {
+    throw new Error('LOCAL_JWT_CLAIMS_INVALID');
+  }
+}
+
 async function signIn(api, anonKey, email) {
   const client = createClient(api, anonKey, {
     auth: { persistSession: false, autoRefreshToken: false },
@@ -80,7 +121,31 @@ async function signIn(api, anonKey, email) {
   if (error || !data?.session?.access_token || !data.session.user) {
     throw new Error('LOCAL_AUTH_LOGIN_FAILED');
   }
-  return data.session;
+  const lowToken = data.session.access_token;
+  assert.equal(jwtClaims(lowToken).aal, 'aal1', 'password-only session is AAL1');
+  const enrolled = await client.auth.mfa.enroll({
+    factorType: 'totp',
+    friendlyName: 'Isolated CI TOTP',
+  });
+  if (enrolled.error || !enrolled.data?.id || !enrolled.data.totp?.secret) {
+    throw new Error('LOCAL_TOTP_ENROLL_FAILED');
+  }
+  const challenge = await client.auth.mfa.challenge({ factorId: enrolled.data.id });
+  if (challenge.error || !challenge.data?.id) {
+    throw new Error('LOCAL_TOTP_CHALLENGE_FAILED');
+  }
+  const verified = await client.auth.mfa.verify({
+    factorId: enrolled.data.id,
+    challengeId: challenge.data.id,
+    code: totp(enrolled.data.totp.secret),
+  });
+  if (verified.error) throw new Error('LOCAL_TOTP_VERIFY_FAILED');
+  const latest = await client.auth.getSession();
+  if (latest.error || !latest.data.session?.access_token) {
+    throw new Error('LOCAL_AAL2_SESSION_MISSING');
+  }
+  assert.equal(jwtClaims(latest.data.session.access_token).aal, 'aal2');
+  return { session: latest.data.session, lowToken };
 }
 
 async function rest(api, anonKey, token, path, method = 'GET', body = undefined) {
@@ -115,8 +180,10 @@ async function run() {
   });
   const userA = await createIdentity(root, 'isolated.admin.a@example.test');
   const userB = await createIdentity(root, 'isolated.admin.b@example.test');
-  const sessionA = await signIn(api, anonKey, 'isolated.admin.a@example.test');
-  const sessionB = await signIn(api, anonKey, 'isolated.admin.b@example.test');
+  const loginA = await signIn(api, anonKey, 'isolated.admin.a@example.test');
+  const loginB = await signIn(api, anonKey, 'isolated.admin.b@example.test');
+  const sessionA = loginA.session;
+  const sessionB = loginB.session;
   const sessionAId = uuid(sessionA.access_token ? JSON.parse(Buffer.from(
     sessionA.access_token.split('.')[1], 'base64url').toString('utf8'),
   ).session_id : '');
@@ -151,6 +218,11 @@ async function run() {
       ('${ROOM_B}', '${VENUE_B}', 'Room B');
     commit;
   `);
+
+  const passwordOnly = await rest(api, anonKey, loginA.lowToken, 'venues?select=id');
+  assert.ok([200, 401, 403].includes(passwordOnly.status));
+  if (passwordOnly.status === 200) exactly(passwordOnly.parsed, []);
+  console.log('JWT_HTTP_PASSWORD_ONLY_NOT_FULLY_AUTHORIZED=PASSED');
 
   // End-to-end: real GoTrue sessions -> Kong/PostgREST -> PostgreSQL RLS.
   for (const [token, ownVenue, ownRoom] of [
