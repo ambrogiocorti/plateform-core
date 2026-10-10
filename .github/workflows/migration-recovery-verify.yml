@@ -7,6 +7,27 @@ on:
 permissions:
   contents: read
 jobs:
+  browser_fixture_suite:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Browser assembly and public/staff integration fixture
+        run: node scripts/check-step11-build-assembly.mjs --browser-node
+      - name: Playwright browser regression
+        run: npm run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: migration-replay-browser-failures
+          path: test-results/
+          retention-days: 7
   run_full_source_suite:
     runs-on: ubuntu-latest
     timeout-minutes: 30
