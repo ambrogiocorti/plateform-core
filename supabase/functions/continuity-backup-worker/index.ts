@@ -128,9 +128,19 @@ Deno.serve(async (req: Request) => {
     .or(`status.eq.QUEUED,and(status.eq.RUNNING,lease_expires_at.lt.${leaseCutoff})`)
     .limit(1);
   if (pendingError) {
+    await supabase.rpc('record_continuity_worker_heartbeat', {
+      p_worker: 'BACKUP',
+      p_status: 'ERROR',
+      p_details: { phase: 'queue_precheck', code: 'BACKUP_QUEUE_CHECK_FAILED' },
+    });
     return Response.json({ status: 'BLOCKED', code: 'BACKUP_QUEUE_CHECK_FAILED' }, { status: 503 });
   }
   if (!pending?.length) {
+    await supabase.rpc('record_continuity_worker_heartbeat', {
+      p_worker: 'BACKUP',
+      p_status: 'IDLE',
+      p_details: { phase: 'idle', reason: 'NO_JOB' },
+    });
     return Response.json({ status: 'IDLE' });
   }
 
