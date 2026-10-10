@@ -29,7 +29,9 @@ for (const application of applications) {
     expect(details.scope).toBe(application.origin + '/');
     expect(details.manifest.scope).toBe('/');
     expect(details.manifest.start_url).toBe('/');
-    expect(details.caches.some((key: string) => key.startsWith(`plateform-${application.label}-`))).toBe(true);
+    expect(
+      details.caches.some((key: string) => key.startsWith(`plateform-${application.label}-`)),
+    ).toBe(true);
 
     await context.setOffline(true);
     const response = await page.goto(application.origin + application.offlineRoute, {
@@ -40,7 +42,10 @@ for (const application of applications) {
   });
 }
 
-test('staff offline shell does not emulate a successful financial POST', async ({ page, context }) => {
+test('staff offline shell does not emulate a successful financial POST', async ({
+  page,
+  context,
+}) => {
   await page.goto('http://127.0.0.1:4174/', { waitUntil: 'domcontentloaded' });
   await expect
     .poll(() => page.evaluate(() => navigator.serviceWorker.controller?.state ?? null))
