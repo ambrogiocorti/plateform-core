@@ -1,0 +1,38 @@
+name: P0 local Auth Storage and Realtime multi-venue gate
+on:
+  push:
+    branches:
+      - test/p0-realtime-ws-tenant-20261011
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  local_realtime:
+    runs-on: ubuntu-latest
+    timeout-minutes: 48
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - uses: supabase/setup-cli@v3
+        with:
+          version: 2.84.2
+      - name: Start disposable 459 migration local Auth REST Storage and Realtime
+        run: >-
+          supabase start --exclude
+          studio,mailpit,imgproxy,logflare,vector,supavisor,edge-runtime,postgres-meta
+      - name: Exercise MFA JWT API Storage and Postgres Changes WebSocket isolation
+        env:
+          PLATEFORM_TEST_REALTIME: '1'
+        run: node scripts/check-step10-auth-http.mjs
+      - name: Verify transport test and workflow formatting
+        run: >-
+          npx prettier --check
+          scripts/check-step10-auth-http.mjs
+          .github/workflows/step10-realtime-websocket.yml
+      - name: Stop disposable local services and remove test fixtures
+        if: always()
+        run: supabase stop --no-backup || true
