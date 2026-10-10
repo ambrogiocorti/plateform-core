@@ -3,6 +3,7 @@
 Status: BLOCKED until an independently recoverable, current-version backup and isolated restore have been verified.
 
 ## Live inventory
+
 - Project: `plateform-development`.
 - Snapshot manifests: **155**, total size remains above the Supabase Free database limit.
 - Of those manifests: 90 belong to FAILED scheduled backups, 59 to SUCCEEDED scheduled backups, 4 to SUCCEEDED restore-test-purpose backups, 1 to a FAILED restore-test-purpose backup, and 1 is not joined to `public.backup_metadata`.
@@ -13,6 +14,7 @@ Status: BLOCKED until an independently recoverable, current-version backup and i
 - A foreign key `continuity_rehearsal_snapshot_rows_snapshot_id_fkey` cascades on manifest deletion. Other snapshot-associated tables do **not** all share this FK: deleting a manifest is not a safe complete purge.
 
 ## Fail-closed retention sequence
+
 1. Keep the schedule disabled until the receiver is restored, authenticated readiness is demonstrated, and Edge version compatibility is verified.
 2. Verify actual backup bytes in **primary and independent replica**, migration-history SHA-256, Auth, Storage object bytes, encryption key escrow, and all ledger/audit data.
 3. Complete a fresh restore test on a **new isolated target** with the same schema version and actual DB/Auth/Storage content, then record RPO and RTO observed.
@@ -24,6 +26,7 @@ Status: BLOCKED until an independently recoverable, current-version backup and i
 9. Re-enable job 4 only after a successful backup and restore, rate-limited retention and quota alerts.
 
 ## Read-only candidate inspection
+
 ```sql
 select b.status, b.purpose, count(*) as snapshots, sum(m.row_count) as logical_rows
 from private.continuity_rehearsal_snapshot_manifest m
