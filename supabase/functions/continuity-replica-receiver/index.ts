@@ -13,32 +13,9 @@ function b64ToBytes(value: string): Uint8Array {
   return out;
 }
 async function sha256Hex(bytes: Uint8Array): Promise<string> {
-  const digest = await crypto.subtle.digest('SHA-256', bytes);
+  const digest = await crypto.subtle.digest('SHA-256', new Uint8Array(bytes));
   return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('');
 }
-async function aggregateFiles(supabase: ReturnType<typeof createClient>, backupId: string) {
-  const { data: listed, error: listError } = await supabase.storage
-    .from(BUCKET)
-    .list(backupId, { limit: 1000, sortBy: { column: 'name', order: 'asc' } });
-  if (listError) throw new Error('REPLICA_LIST_FAILED');
-
-  const files = (listed ?? []).filter((x) => x.name && !x.id?.endsWith('/'));
-  const parts: string[] = [];
-  let totalBytes = 0;
-
-  for (const file of files) {
-    const path = `${backupId}/${file.name}`;
-    const { data, error } = await supabase.storage.from(BUCKET).download(path);
-    if (error || !data) throw new Error('REPLICA_DOWNLOAD_FAILED');
-    const bytes = new Uint8Array(await data.arrayBuffer());
-    totalBytes += bytes.byteLength;
-    parts.push(`${file.name}:${await sha256Hex(bytes)}`);
-  }
-
-  const aggregate = await sha256Hex(new TextEncoder().encode(parts.join('|')));
-  return { file_count: files.length, total_bytes: totalBytes, aggregate_hash: aggregate };
-}
-
 Deno.serve(async (req: Request) => {
   if (req.method !== 'POST') return new Response('Method Not Allowed', { status: 405 });
 
@@ -50,6 +27,29 @@ Deno.serve(async (req: Request) => {
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
     { auth: { persistSession: false, autoRefreshToken: false } },
   );
+
+  async function aggregateFiles(backupId: string) {
+    const { data: listed, error: listError } = await supabase.storage
+      .from(BUCKET)
+      .list(backupId, { limit: 1000, sortBy: { column: 'name', order: 'asc' } });
+    if (listError) throw new Error('REPLICA_LIST_FAILED');
+
+    const files = (listed ?? []).filter((x) => x.name && !x.id?.endsWith('/'));
+    const parts: string[] = [];
+    let totalBytes = 0;
+
+    for (const file of files) {
+      const path = `${backupId}/${file.name}`;
+      const { data, error } = await supabase.storage.from(BUCKET).download(path);
+      if (error || !data) throw new Error('REPLICA_DOWNLOAD_FAILED');
+      const bytes = new Uint8Array(await data.arrayBuffer());
+      totalBytes += bytes.byteLength;
+      parts.push(`${file.name}:${await sha256Hex(bytes)}`);
+    }
+
+    const aggregate = await sha256Hex(new TextEncoder().encode(parts.join('|')));
+    return { file_count: files.length, total_bytes: totalBytes, aggregate_hash: aggregate };
+  }
 
   const { data: allowed, error: verifyError } = await supabase.rpc(
     'verify_continuity_replica_token',
@@ -77,11 +77,11 @@ Deno.serve(async (req: Request) => {
         parts.length !== 3 ||
         parts[1] !== 'supabase' ||
         parts[2] !== 'co' ||
-        !/^[a-z0-9]{20}$/.test(parts[0])
+        !/^[a-z0-9]{20}$/.test(parts[0] ?? '')
       ) {
         throw new Error('INVALID_TARGET_URL');
       }
-      projectRef = parts[0];
+      projectRef = parts[0] ?? '';
     } catch {
       return Response.json({ status: 'TARGET_IDENTITY_INVALID' }, { status: 503 });
     }
@@ -229,7 +229,7 @@ Deno.serve(async (req: Request) => {
     }
 
     if (body.action === 'finalize') {
-      const summary = await aggregateFiles(supabase, backupId);
+      const summary = await aggregateFiles(backupId);
       return Response.json({ status: 'VERIFIED', backup_id: backupId, ...summary });
     }
 
