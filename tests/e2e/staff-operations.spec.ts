@@ -191,9 +191,11 @@ test('Host assigns a table with confirmation and has no financial navigation', a
   await expect(page.getByRole('heading', { name: 'Marta Rossi' })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Conti', exact: true })).toHaveCount(0);
   await expect(page.getByRole('link', { name: 'Cassa', exact: true })).toHaveCount(0);
-  await page.getByRole('button', { name: 'Gestisci', exact: true }).click();
-  await page.getByRole('button', { name: 'Scegli tavolo', exact: true }).click();
-  await page.getByRole('button', { name: 'Tavolo 4 · 4 posti' }).click();
+  await page.getByRole('button', { name: 'Dettagli', exact: true }).click();
+  await page.getByRole('dialog', { name: 'Marta Rossi' })
+    .getByRole('button', { name: 'Assegna tavolo', exact: true }).click();
+  await page.getByRole('dialog', { name: 'Assegna tavolo' })
+    .getByRole('button', { name: 'Tavolo 4 · 4 posti' }).click();
   await page
     .getByRole('dialog', { name: 'Conferma assegnazione' })
     .getByRole('button', { name: 'Conferma', exact: true })
@@ -248,8 +250,8 @@ test('Host workspace fits a mobile screen and sends its filters to the server', 
   await page.setViewportSize({ width: 390, height: 844 });
   const commands = await hostFixture(page);
   await page.goto('http://localhost:5174/accoglienza');
-  await page.getByLabel('Nome o telefono').fill('Rossi');
-  await page.getByRole('button', { name: 'Applica filtri' }).click();
+  await page.getByLabel('Cerca nome o telefono').fill('Rossi');
+  await page.getByRole('button', { name: 'FILTRA', exact: true }).click();
   await expect
     .poll(
       () =>

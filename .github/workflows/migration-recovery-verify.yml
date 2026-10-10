@@ -1,0 +1,56 @@
+name: Verify canonical migration history recovery
+on:
+  push:
+    branches:
+      - recovery/p0-canonical-migrations-20261010
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  browser_fixture_suite:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Browser assembly and public/staff integration fixture
+        run: node scripts/check-step11-build-assembly.mjs --browser-node
+      - name: Playwright browser regression
+        run: npm run test:e2e -- --workers=1
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: migration-replay-browser-failures
+          path: test-results/
+          retention-days: 7
+  run_full_source_suite:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - name: Migration, permission, Edge, unit, typecheck, lint and build gates
+        run: npm run check
+  verify_migrations:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - name: SHA-256 migration manifest and file integrity
+        run: npm run check:migrations
+      - name: Migration history recovery contract
+        run: npm run check:migration-history-recovery
