@@ -196,6 +196,9 @@ const config = loadConfig();
 const prerequisite = await checkPrerequisites(config);
 if (mode === '--check') {
   await rm(prerequisite.temp, { recursive: true, force: true });
+  if (prerequisite.targetOccupied) {
+    throw new Error('RESTORE_TARGET_NOT_EMPTY');
+  }
   console.log(
     JSON.stringify({
       status: 'READY',
