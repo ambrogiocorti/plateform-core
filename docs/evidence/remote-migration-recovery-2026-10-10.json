@@ -133,7 +133,7 @@
     }
   ],
   "rollback": "Restore prior migration directory and manifest from previous_commit. Do not rewrite remote history.",
-  "validation_status": "SOURCE_CHECKS_PASSED_STAGING_UNVERIFIED",
+  "validation_status": "458_FILE_SOURCE_CHECK_PENDING_CLEAN_REPLAY",
   "not_yet_done": [
     "fresh isolated Supabase staging rebuild",
     "migration idempotency",
@@ -154,5 +154,26 @@
       "STEP12_MIGRATION_HISTORY_MISMATCH_FAIL_CLOSED=PASSED"
     ],
     "scope": "repository fixture/source checks only; not a staging database rebuild"
+  },
+  "first_clean_rebuild_attempt": {
+    "run_id": 38042773691,
+    "status": "FAILED",
+    "at_version": "20261006100248",
+    "sqlstate": "42P01",
+    "missing_relation": "private.continuity_rehearsal_blob",
+    "cause": "Migration attempts RLS on rehearsal tables created outside recorded remote migration history.",
+    "result": "Source canonical history was not sufficient for clean replay."
+  },
+  "replay_bridge": {
+    "version": "20261006100000",
+    "name": "recovery_unversioned_continuity_rehearsal_schema",
+    "sha256": "46bc540cbbf9dbe00e0dea32c93032098e5ac93c776596015bc0442f3b699182",
+    "added_files": 1,
+    "original_remote_versions_preserved": 457,
+    "previous_canonical_hashes_unchanged": true,
+    "registered_on_development": false,
+    "scope": "Rebuild the seven rehearsal private tables whose CREATE TABLE statements are absent from all 457 recorded migrations; RLS enabled and client grants revoked.",
+    "source": "live catalog schema definitions plus verified FK/PK checks",
+    "ordering_note": "Retro-ordered bridge authored 2026-10-10 to run before preexisting 20261006100248. Only validated in disposable CI until clean replay passes."
   }
 }
