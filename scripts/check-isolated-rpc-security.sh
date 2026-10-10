@@ -31,6 +31,27 @@ if [[ "$grant_result" != 'PASS' ]]; then
 fi
 echo 'RPC_GRANT_MATRIX=PASSED'
 
+# Explicit allowlist for intentionally public SECURITY DEFINER projections.
+# Any additional anonymous privileged RPC MUST fail CI until independently reviewed.
+allowlist_result="$(query "
+select case when
+  count(*) = 10
+  and count(*) filter (where p.provolatile = 's') = 10
+  and count(*) filter (where coalesce(array_to_string(p.proconfig, ';'), '') like '%search_path=%') = 10
+  and string_agg(p.proname, '|' order by p.proname) =
+    'get_booking_configuration|get_public_booking_availability|get_public_menu|get_public_menu_by_id|get_public_menu_by_slug|get_public_menu_index|get_public_navigation|get_public_page_metadata|get_public_site|get_public_sitemap_entries'
+then 'PASS' else 'FAIL' end
+from pg_proc p join pg_namespace n on n.oid=p.pronamespace
+where n.nspname = 'public'
+  and p.prosecdef
+  and has_function_privilege('anon', p.oid, 'EXECUTE');
+")"
+if [[ "$allowlist_result" != 'PASS' ]]; then
+  echo 'RPC_SECURITY_GATE=FAIL_PUBLIC_ANON_DEFINER_ALLOWLIST'
+  exit 1
+fi
+echo 'PUBLIC_ANON_DEFINER_ALLOWLIST=PASSED'
+
 expect_denied() {
   local case_name="$1"
   local sql="$2"
