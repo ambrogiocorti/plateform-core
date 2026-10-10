@@ -48,5 +48,28 @@
     "full_release_gate_pass": false
   },
   "state": "P0_CONTAINED_PARTIAL",
-  "go_no_go": "NO_GO"
+  "go_no_go": "NO_GO",
+  "post_deploy_live_verification": {
+    "checked_at_utc": "2026-10-10T09:39:42Z",
+    "live_edge_version": 10,
+    "cron_job_4_active": false,
+    "queued_running_backups": 0,
+    "snapshot_manifest_count": 155,
+    "latest_backup_heartbeat": {
+      "status": "IDLE",
+      "last_seen_at_utc": "2026-10-10T09:39:01.472397Z",
+      "details": {
+        "phase": "idle",
+        "reason": "NO_JOB"
+      }
+    },
+    "http_worker_response": {
+      "status_code": 200,
+      "body_status": "IDLE",
+      "at_utc": "2026-10-10T09:39:00Z"
+    },
+    "cron_worker_job_8_latest": "succeeded",
+    "db_bytes": 1567741619,
+    "note": "Proves idle behavior and heartbeat, not a completed backup or replica recovery."
+  }
 }
