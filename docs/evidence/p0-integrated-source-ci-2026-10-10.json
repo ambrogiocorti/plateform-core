@@ -1,0 +1,47 @@
+{
+  "evidence_type": "P0_INTEGRATED_SOURCE_CI_AND_SECURITY_BASELINE",
+  "checked_on": "2026-10-10",
+  "environment": "GitHub Actions isolated integration branch",
+  "branch": "integration/p0-migrations-format-20261010",
+  "tested_commit": "cec15e056298414421f7576084b1e89b50d93b28",
+  "workflow_run_id": 38044542840,
+  "workflow_url": "https://github.com/ambrogiocorti/plateform-core/actions/runs/38044542840",
+  "result": "SUCCESS",
+  "gates": {
+    "repository_prettier": "PASSED",
+    "npm_run_check": "PASSED",
+    "vitest": "233 passed, 4 skipped (as reported)",
+    "edge_tests": "13 passed",
+    "playwright": "19 passed, 0 failed",
+    "code_typecheck_lint_build": "PASSED"
+  },
+  "migration_source": {
+    "canonical_original": 457,
+    "recovery_bridge": 1,
+    "total": 458,
+    "disposable_pg17_replay_run": 38043566447,
+    "disposable_pg17_replay": "PASSED",
+    "structural_parity_counts": {
+      "public_tables": 114,
+      "private_tables": 48,
+      "public_tables_rls_disabled": 0
+    }
+  },
+  "live_dev_security_preliminary": {
+    "public_tables_rls_disabled": 0,
+    "private_tables_with_anon_or_authenticated_direct_select_grants": 0,
+    "anon_executable_public_security_definer_functions": 10,
+    "authenticated_executable_public_security_definer_functions": 219,
+    "anon_executable_private_functions": 1,
+    "anon_private_function_context": "private.can_read_signal(realtime_signals): dynamically scopes PUBLIC/ACCESS/ACCOUNT/FLOOR and other topics",
+    "caveat": "Counts are review findings, not confirmed exploitable vulnerabilities; no privileges or policies changed."
+  },
+  "notes": [
+    "All source checks executed on the single recovered-migrations+formatted integration tree. This does not include currently active Development backup worker v10 / receiver v5 sources from separate PR#7.",
+    "Only isolated PostgreSQL and HTTP/browser fixtures verified; no HTTPS remote staging deploy, no actual Auth/Storage/Edge provider E2E.",
+    "Live independent replica bytes validated separately; no fresh isolated full restore was executed.",
+    "Supabase Free two-active-project constraint: clean staging remains paused while replica target is active.",
+    "No branch merged to main, no release archive generated. Commercial go_no_go remains NO_GO."
+  ],
+  "release": "NO_GO"
+}
