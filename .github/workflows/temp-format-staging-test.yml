@@ -1,0 +1,29 @@
+name: Temporary stage guard test formatting
+on:
+  push:
+    branches:
+      - fix/p0-staging-target-guard-20261010
+permissions:
+  contents: write
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npx prettier --write scripts/check-staging-project-binding.mjs
+      - run: npx prettier --check scripts/check-staging-project-binding.mjs
+      - name: Commit only the normalized test
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add scripts/check-staging-project-binding.mjs
+          if ! git diff --cached --quiet; then
+            git commit -m "style: normalize extra staging-origin negative checks"
+            git push origin HEAD:fix/p0-staging-target-guard-20261010
+          fi
