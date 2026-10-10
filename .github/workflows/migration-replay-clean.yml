@@ -36,6 +36,14 @@ jobs:
           test "$(sql_count "select count(*) from pg_tables where schemaname='private'")" = "48"
           test "$(sql_count "select count(*) from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and c.relkind in ('r','p') and not c.relrowsecurity")" = "0"
           test "$(sql_count "select count(*) from pg_tables where schemaname='private' and tablename like 'continuity_rehearsal_%'")" = "7"
+          # Compare additional live Development catalog dimensions. These are
+          # independently observed counts, NOT a substitute for semantic parity.
+          test "$(sql_count "select count(*) from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname in ('public','private')")" = "553"
+          test "$(sql_count "select count(*) from pg_trigger t join pg_class c on c.oid=t.tgrelid join pg_namespace n on n.oid=c.relnamespace where not t.tgisinternal and n.nspname in ('public','private')")" = "311"
+          test "$(sql_count "select count(*) from pg_policies where schemaname in ('public','private')")" = "110"
+          test "$(sql_count "select count(*) from pg_indexes where schemaname in ('public','private')")" = "450"
+          test "$(sql_count "select count(*) from pg_constraint c join pg_namespace n on n.oid=c.connamespace where n.nspname in ('public','private')")" = "903"
+          echo 'CLEAN_REPLAY_CATALOG_COUNT_PARITY=PASSED'
           echo 'CLEAN_REPLAY_SCHEMA_BASELINE=PASSED'
       - name: Stop ephemeral database
         if: always()
