@@ -84,7 +84,10 @@ test('replacement readiness and destructive actions are ordered safely', async (
   );
   const freshProbe = source.indexOf('await probeTargetOccupied(config)');
   const destructiveSql = source.indexOf('await restoreDatabase(config, files)');
-  assert.ok(freshProbe > 0 && destructiveSql > freshProbe, 'repeat occupancy probe immediately before applying database dump');
+  assert.ok(
+    freshProbe > 0 && destructiveSql > freshProbe,
+    'repeat occupancy probe immediately before applying database dump',
+  );
   assert.ok(source.includes('RESTORE_TARGET_CHANGED_DURING_PREPARATION'));
   assert.ok(source.includes('RESTORE_TARGET_NOT_EMPTY'));
   assert.ok(source.includes("job.status === 'VERIFYING'"), 'verification-only resume preserved');
