@@ -27,10 +27,30 @@
     "restore_call": {
       "success": true
     },
-    "latest_status": "RESTORING",
+    "latest_status": "ACTIVE_HEALTHY",
     "original_edge_function": "continuity-replica-receiver",
     "original_edge_version": 4,
-    "rollback_source": "docs/recovery/continuity-replica-receiver-v4-2026-10-10.txt"
+    "rollback_source": "docs/recovery/continuity-replica-receiver-v4-2026-10-10.txt",
+    "preserved_after_recovery": {
+      "public_tables": 95,
+      "auth_users": 12,
+      "storage_objects": 3114,
+      "db_bytes": 32822963
+    },
+    "new_receiver_version": 5,
+    "jwt_verified": true,
+    "authenticated_preflight": {
+      "http_status": 200,
+      "body_status": "READY",
+      "request_id": 10978
+    },
+    "latest_verified_artifact": {
+      "backup_id": "656dcf01-ca49-4f85-9526-11f223d2b053",
+      "objects": 68,
+      "bytes": 3560226,
+      "matching_sha256": true,
+      "request_id": 10981
+    }
   },
   "restrictions": [
     "No new backup snapshots while receiver project is restoring",
@@ -40,5 +60,5 @@
     "Production must not use temporary slot rotation as the continuity solution"
   ],
   "scheduler_state": "PAUSED",
-  "release_gate": "NO_GO"
+  "release_gate": "NO_GO_RESTORE_NOT_TESTED"
 }
