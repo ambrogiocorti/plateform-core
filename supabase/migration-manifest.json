@@ -787,6 +787,12 @@
       "sha256": "c18f0a52c90e6106d1058c0c09d8b082d5a0832d816fba1cb9486f3d585d19c1"
     },
     {
+      "filename": "20261006100000_recovery_unversioned_continuity_rehearsal_schema.sql",
+      "version": "20261006100000",
+      "name": "recovery_unversioned_continuity_rehearsal_schema",
+      "sha256": "46bc540cbbf9dbe00e0dea32c93032098e5ac93c776596015bc0442f3b699182"
+    },
+    {
       "filename": "20261006100248_step13_rehearsal_private_rls_hardening.sql",
       "version": "20261006100248",
       "name": "step13_rehearsal_private_rls_hardening",
