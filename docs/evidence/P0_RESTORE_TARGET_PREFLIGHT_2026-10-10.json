@@ -1,0 +1,39 @@
+{
+  "type": "REAL_RESTORE_TARGET_NON_DESTRUCTIVE_PREFLIGHT",
+  "date": "2026-10-10",
+  "source": {
+    "name": "plateform-development",
+    "ref": "abdxvlykasqmknexxhjo",
+    "status": "ACTIVE_HEALTHY",
+    "current_migrations": 457
+  },
+  "candidate": {
+    "name": "plateform-restore-test",
+    "ref": "dkbjgvovxgglqhqxmuyb",
+    "status": "ACTIVE_HEALTHY",
+    "observed_public_tables": 95,
+    "observed_private_tables": 22,
+    "observed_auth_users": 12,
+    "observed_storage_objects": 3114,
+    "observed_storage_buckets": 5,
+    "observed_database_bytes": 32822963
+  },
+  "preflight_result": "BLOCKED_TARGET_NOT_EMPTY",
+  "risk": "Restore-test worker can overwrite existing logical DB/Auth/Storage. Target contains user accounts and thousands of Storage objects and is the independent continuity replica.",
+  "required_before_rehearsal": [
+    "Allocate a distinct empty disposable Supabase target or an explicitly approved empty isolated environment with authentic Supabase Auth/Storage/Edge.",
+    "Record source and target refs, DB-project binding and exact asset hash inventory.",
+    "Keep the existing replica and Development protected while establishing a third environment.",
+    "Obtain current-schema off-site backup and verify bytes/keys independently.",
+    "Only then run a restore test with measured RPO/RTO and 14 post-restore gates."
+  ],
+  "executed": {
+    "target_reset": false,
+    "target_restore": false,
+    "target_pause": false,
+    "users_deleted": 0,
+    "storage_deleted": 0,
+    "sql_operation": "SELECT_ONLY"
+  },
+  "commercial_decision": "NO_GO"
+}
