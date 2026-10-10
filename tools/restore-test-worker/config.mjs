@@ -139,9 +139,20 @@ export async function checkPrerequisites(config) {
       '--dbname',
       config.targetDatabaseUrl,
       '--command',
-      "select (to_regclass('public.restaurant_profile') is not null)::text;",
+      [
+        'select (',
+        "exists (select 1 from information_schema.tables where table_schema in ('public','private') and table_type = 'BASE TABLE')",
+        'or exists (select 1 from auth.users)',
+        'or exists (select 1 from auth.identities)',
+        'or exists (select 1 from storage.buckets)',
+        'or exists (select 1 from storage.objects)',
+        ")::text;",
+      ].join(' '),
     ])
   ).trim();
+  if (!['true', 'false', 't', 'f'].includes(occupied)) {
+    throw new Error('RESTORE_TARGET_PROBE_INVALID');
+  }
   const temp = await mkdtemp(`${tmpdir()}/plateform-restore-test-`);
   return {
     psql: config.psql,
