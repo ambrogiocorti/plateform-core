@@ -13,7 +13,7 @@ function b64ToBytes(value: string): Uint8Array {
 }
 
 async function sha256Hex(bytes: Uint8Array): Promise<string> {
-  const digest = await crypto.subtle.digest('SHA-256', bytes);
+  const digest = await crypto.subtle.digest('SHA-256', new Uint8Array(bytes));
   return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
@@ -153,7 +153,7 @@ Deno.serve(async (req: Request) => {
     if (
       endpoint.protocol !== 'https:' ||
       hostParts.length !== 3 ||
-      !/^[a-z0-9]{20}$/.test(hostParts[0]) ||
+      !/^[a-z0-9]{20}$/.test(hostParts[0] ?? '') ||
       hostParts[1] !== 'supabase' ||
       hostParts[2] !== 'co' ||
       hostParts[0] === SOURCE_REF ||
