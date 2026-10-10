@@ -250,6 +250,84 @@ async function assertPrivateStorageIsolation({ root, api, anonKey, userA, userB,
   return files;
 }
 
+
+async function assertRealtimeIsolation({ api, anonKey, tokenA, tokenB }) {
+  const clients = [
+    createClient(api, anonKey, { auth: { persistSession: false, autoRefreshToken: false } }),
+    createClient(api, anonKey, { auth: { persistSession: false, autoRefreshToken: false } }),
+  ];
+  const opened = [];
+  try {
+    await clients[0].realtime.setAuth(tokenA);
+    await clients[1].realtime.setAuth(tokenB);
+
+    async function subscribe(client, label, venueId, mustConnect) {
+      const events = [];
+      let resolveStatus;
+      let rejectStatus;
+      const ready = new Promise((resolve, reject) => {
+        resolveStatus = resolve;
+        rejectStatus = reject;
+      });
+      const channel = client.channel('ci-step10-' + label + '-' + crypto.randomUUID());
+      channel.on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'realtime_signals',
+        filter: 'venue_id=eq.' + venueId,
+      }, (payload) => events.push(payload.new));
+      channel.subscribe((status) => {
+        if (status === 'SUBSCRIBED') resolveStatus();
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          if (mustConnect) rejectStatus(new Error('REALTIME_SUBSCRIBE_FAILED:' + label));
+          else resolveStatus();
+        }
+      });
+      opened.push([client, channel]);
+      await Promise.race([
+        ready,
+        new Promise((_, reject) => setTimeout(
+          () => reject(new Error('REALTIME_SUBSCRIBE_TIMEOUT:' + label)), 18000,
+        )),
+      ]);
+      return events;
+    }
+
+    const [eventsAA, eventsAB, eventsBB] = await Promise.all([
+      subscribe(clients[0], 'adminA-own', VENUE_A, true),
+      subscribe(clients[0], 'adminA-foreign', VENUE_B, false),
+      subscribe(clients[1], 'adminB-own', VENUE_B, true),
+    ]);
+    await new Promise((resolve) => setTimeout(resolve, 750));
+    const signalA = '54000000-0000-4000-8000-000000000001';
+    const signalB = '54000000-0000-4000-8000-000000000002';
+    postgres(
+      "insert into public.realtime_signals(id,venue_id,topic,resource_id) values "+
+      "('"+signalA+"','"+VENUE_A+"','FLOOR','"+ROOM_A+"'),"+
+      "('"+signalB+"','"+VENUE_B+"','FLOOR','"+ROOM_B+"');",
+    );
+    const end = Date.now() + 14000;
+    while (Date.now() < end) {
+      if (
+        eventsAA.some((event) => event.id === signalA) &&
+        eventsBB.some((event) => event.id === signalB)
+      ) break;
+      await new Promise((resolve) => setTimeout(resolve, 250));
+    }
+    assert.ok(eventsAA.some((event) => event.id === signalA),
+      'own venue A signal must reach its authorized WebSocket');
+    assert.ok(eventsBB.some((event) => event.id === signalB),
+      'own venue B signal must reach its authorized WebSocket');
+    assert.equal(eventsAB.filter((event) => event.id === signalB).length, 0,
+      'foreign venue B signal must not reach admin A');
+    console.log('JWT_WEBSOCKET_POSTGRES_CHANGES_OWN_DELIVERY=PASSED');
+    console.log('JWT_WEBSOCKET_POSTGRES_CHANGES_CROSS_VENUE_DENIED=PASSED');
+  } finally {
+    await Promise.allSettled(opened.map(([client, channel]) => client.removeChannel(channel)));
+    await Promise.allSettled(clients.map((client) => client.removeAllChannels()));
+  }
+}
+
 function exactly(rows, ids) {
   assert.deepEqual((rows ?? []).map((x) => x.id).sort(), ids.slice().sort());
 }
@@ -349,6 +427,13 @@ async function run() {
   assert.ok(rpc.status >= 400, 'cross-venue privileged RPC must fail');
   assert.match(JSON.stringify(rpc.parsed), /VENUE_FORBIDDEN/);
   console.log('JWT_HTTP_CROSS_VENUE_RPC_DENIED=PASSED');
+
+  if (process.env.PLATEFORM_TEST_REALTIME === '1') {
+    await assertRealtimeIsolation({
+      api, anonKey,
+      tokenA: sessionA.access_token, tokenB: sessionB.access_token,
+    });
+  }
 
   const privateFiles = await assertPrivateStorageIsolation({
     root, api, anonKey, userA, userB,
