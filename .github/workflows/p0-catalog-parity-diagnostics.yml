@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - integration/p0-recovery-format-20261010
+      - integration/p0-staging-continuity-20261010
       - fix/p0-staging-target-guard-20261010
 permissions:
   contents: read
@@ -67,6 +68,8 @@ jobs:
           PY
       - name: Verify live SQL role denial rules on a disposable replay
         run: bash scripts/check-isolated-rpc-security.sh
+      - name: Verify exposed-schema and RLS fail-closed contract
+        run: bash scripts/check-isolated-schema-exposure.sh
       - name: Remove disposable local database
         if: always()
         run: supabase stop --no-backup || true

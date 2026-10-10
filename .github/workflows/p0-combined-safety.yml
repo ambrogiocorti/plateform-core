@@ -1,0 +1,56 @@
+name: P0 combined continuity and staging certification
+on:
+  push:
+    branches:
+      - integration/p0-staging-continuity-20261010
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  combined_guards:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - name: Strict TypeScript for versioned continuity Edge Functions
+        run: >-
+          node node_modules/deno/bin.cjs check
+          --config supabase/functions/deno.json
+          supabase/functions/continuity-backup-worker/index.ts
+          supabase/functions/continuity-replica-receiver/index.ts
+      - name: Backup replica fail-closed ordering contract
+        run: npx vitest run tests/unit/continuity-preflight-contract.test.ts
+      - name: Restore-test target occupancy source contract
+        run: node --test scripts/check-restore-test-target-preflight.mjs
+      - name: Staging project and remote API preflight contract
+        run: >-
+          node --test
+          scripts/check-staging-project-binding.mjs
+          scripts/check-staging-api-reachability.mjs
+      - name: Full Step 12 static and worker contract regression
+        run: |
+          npm run check:step12
+          npm run check:backup-worker
+          npm run check:restore-test-worker
+          npm run check:restore-worker
+          npm run check:retention-worker
+          npm run check:continuity-binding
+      - name: Format check of combined safety code
+        run: >-
+          npx prettier --check
+          supabase/functions/continuity-backup-worker/index.ts
+          supabase/functions/continuity-replica-receiver/index.ts
+          tests/unit/continuity-preflight-contract.test.ts
+          tools/restore-test-worker/config.mjs
+          tools/restore-test-worker/start.mjs
+          scripts/check-restore-test-target-preflight.mjs
+          scripts/verify-staging-project-binding.mjs
+          scripts/check-staging-project-binding.mjs
+          scripts/verify-staging-api-reachability.mjs
+          scripts/check-staging-api-reachability.mjs
+          .github/workflows/p0-combined-safety.yml
