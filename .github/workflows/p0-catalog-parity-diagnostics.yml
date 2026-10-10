@@ -33,6 +33,29 @@ jobs:
           echo "INDEXES=$(sql_count "select count(*) from pg_indexes where schemaname in ('public','private')")"
           echo "CONSTRAINTS=$(sql_count "select count(*) from pg_constraint c join pg_namespace n on n.oid=c.connamespace where n.nspname in ('public','private')")"
           echo "PUBLIC_NO_RLS=$(sql_count "select count(*) from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and c.relkind in ('r','p') and not c.relrowsecurity")"
+      - name: Compare exact function identities against live Development inventory
+        run: |
+          set -euo pipefail
+          db_container="$(docker ps --filter 'name=supabase_db_' --format '{{.Names}}' | head -n 1)"
+          test -n "$db_container"
+          docker exec "$db_container" psql --username postgres --dbname postgres --no-align --tuples-only \
+            --command "select n.nspname||'.'||p.proname||'('||pg_get_function_identity_arguments(p.oid)||')' as identity from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname in ('public','private') order by identity;" \
+            > "$RUNNER_TEMP/replay-routines.txt"
+          python3 - "$RUNNER_TEMP/replay-routines.txt" <<'PY'
+          import json, sys
+          from pathlib import Path
+          expected = json.loads(Path('docs/evidence/live-function-inventory-2026-10-10.json').read_text())['identities']
+          actual = Path(sys.argv[1]).read_text().splitlines()
+          missing = sorted(set(expected) - set(actual))
+          unexpected = sorted(set(actual) - set(expected))
+          print('FUNCTION_INVENTORY_EXPECTED=', len(expected))
+          print('FUNCTION_INVENTORY_REPLAY=', len(actual))
+          print('MISSING_FUNCTION_IDENTITIES=', json.dumps(missing, ensure_ascii=False))
+          print('UNEXPECTED_FUNCTION_IDENTITIES=', json.dumps(unexpected, ensure_ascii=False))
+          if missing or unexpected:
+              sys.exit(1)
+          print('FUNCTION_IDENTITY_PARITY=PASSED')
+          PY
       - name: Remove disposable local database
         if: always()
         run: supabase stop --no-backup || true
