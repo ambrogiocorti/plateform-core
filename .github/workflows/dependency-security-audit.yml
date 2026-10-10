@@ -1,0 +1,26 @@
+name: P0 dependency security audit
+on:
+  push:
+    branches:
+      - fix/p0-dependency-vulnerability-audit-20261010
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - name: Audit published runtime and full dependency graph
+        run: node scripts/check-dependency-security.mjs
+      - name: Check audit script and workflow format
+        run: >-
+          npx prettier --check
+          scripts/check-dependency-security.mjs
+          .github/workflows/dependency-security-audit.yml
