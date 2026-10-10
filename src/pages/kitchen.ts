@@ -26,7 +26,6 @@ const itemSchema = z.object({
   allergens: z.array(z.string()),
 });
 
-
 const kitchenAdminOverviewSchema = z.object({
   summary: z.object({
     steps: z.number().int(),
@@ -83,7 +82,11 @@ function kitchenAdminPanel(data: KitchenAdminOverview, board: HTMLElement): HTML
       'div',
       { class: 'row between' },
       el('div', {}, el('p', { class: 'eyebrow' }, 'COORDINAMENTO'), el('h2', {}, 'Stazioni')),
-      button('VAI ALLA KDS', () => board.scrollIntoView({ behavior: 'smooth', block: 'start' }), 'secondary'),
+      button(
+        'VAI ALLA KDS',
+        () => board.scrollIntoView({ behavior: 'smooth', block: 'start' }),
+        'secondary',
+      ),
     ),
   );
   if (!data.stations.length)
@@ -125,8 +128,7 @@ function kitchenAdminPanel(data: KitchenAdminOverview, board: HTMLElement): HTML
     el('p', { class: 'eyebrow' }, 'PROBLEMI'),
     el('h2', {}, 'Piatti tornati indietro'),
   );
-  if (!data.returns.length)
-    returned.append(el('p', { class: 'muted' }, 'Nessun reso recente.'));
+  if (!data.returns.length) returned.append(el('p', { class: 'muted' }, 'Nessun reso recente.'));
   for (const item of data.returns)
     returned.append(
       el(
@@ -142,7 +144,14 @@ function kitchenAdminPanel(data: KitchenAdminOverview, board: HTMLElement): HTML
           'div',
           { class: 'kitchen-admin-return-meta' },
           status(item.action),
-          el('span', { class: 'muted' }, new Date(item.created_at).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })),
+          el(
+            'span',
+            { class: 'muted' },
+            new Date(item.created_at).toLocaleTimeString('it-IT', {
+              hour: '2-digit',
+              minute: '2-digit',
+            }),
+          ),
         ),
       ),
     );
@@ -153,7 +162,12 @@ function kitchenAdminPanel(data: KitchenAdminOverview, board: HTMLElement): HTML
     el(
       'header',
       { class: 'kitchen-admin-head' },
-      el('div', {}, el('p', { class: 'eyebrow' }, 'REGIA CUCINA'), el('h1', {}, 'Coordinamento servizio')),
+      el(
+        'div',
+        {},
+        el('p', { class: 'eyebrow' }, 'REGIA CUCINA'),
+        el('h1', {}, 'Coordinamento servizio'),
+      ),
       el(
         'p',
         { class: 'muted' },
@@ -325,11 +339,7 @@ export async function kitchenPage(context: StaffContext): Promise<HTMLElement> {
       card.append(line);
     }
 
-    if (
-      context.profile.role === 'PASS' &&
-      first.step_status === 'ACTIVE' &&
-      complete
-    ) {
+    if (context.profile.role === 'PASS' && first.step_status === 'ACTIVE' && complete) {
       card.append(
         el('div', { class: 'pass-ready-banner', role: 'status' }, 'PRONTO PER IL SERVIZIO'),
         button('AVVISA E LIBERA LO STEP', async () => {

@@ -1,11 +1,17 @@
 import { readFile } from 'node:fs/promises';
 
 const auditMigration = await readFile(
-  new URL('../supabase/migrations/20261006044128_step12_audit_error_code_visibility.sql', import.meta.url),
+  new URL(
+    '../supabase/migrations/20261006044128_step12_audit_error_code_visibility.sql',
+    import.meta.url,
+  ),
   'utf8',
 );
 const backupState = await readFile(
-  new URL('../supabase/migrations/20261004155630_step12_schema_snapshot_binding.sql', import.meta.url),
+  new URL(
+    '../supabase/migrations/20261004155630_step12_schema_snapshot_binding.sql',
+    import.meta.url,
+  ),
   'utf8',
 );
 const restoreCutover = await readFile(
@@ -15,11 +21,17 @@ const restoreCutover = await readFile(
 
 const checks = [
   [auditMigration.includes("'error_code','purpose'"), 'audit technical fields whitelist'],
-  [auditMigration.includes('create or replace function private.audit_values'), 'audit_values override'],
+  [
+    auditMigration.includes('create or replace function private.audit_values'),
+    'audit_values override',
+  ],
   [backupState.includes("'BACKUP_FAILED'"), 'backup failure audit action'],
   [backupState.includes("'error_code',trim(p_error_code)"), 'backup failure error code payload'],
   [backupState.includes("'purpose',job.purpose"), 'backup failure purpose payload'],
-  [restoreCutover.includes("'error_code',trim(p_error_code)"), 'restore failure error code payload'],
+  [
+    restoreCutover.includes("'error_code',trim(p_error_code)"),
+    'restore failure error code payload',
+  ],
   [restoreCutover.includes("'CUTOVER_ABORTED'"), 'cutover abort code'],
 ];
 

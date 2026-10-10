@@ -30,15 +30,28 @@ describe('offline causal queue policy', () => {
 
   it('does not block a successor after its predecessor becomes rejected', () => {
     const predecessor = base(crypto.randomUUID(), 'REJECTED');
-    const successor = { ...base(crypto.randomUUID(), 'PENDING'), predecessor_id: predecessor.client_event_id };
+    const successor = {
+      ...base(crypto.randomUUID(), 'PENDING'),
+      predecessor_id: predecessor.client_event_id,
+    };
     expect(hasBlockingPredecessor([predecessor, successor], successor)).toBe(false);
   });
 
   it('reconciles local conflict state with the authoritative server terminal state', () => {
-    const event = { ...base(crypto.randomUUID(), 'CONFLICT'), result: { reason: 'VERSION_CONFLICT' } };
-    const reconciled = reconcileQueueStatuses([event], [
-      { client_event_id: event.client_event_id, sync_status: 'REJECTED', result: { action: 'DISCARD' } },
-    ]);
+    const event = {
+      ...base(crypto.randomUUID(), 'CONFLICT'),
+      result: { reason: 'VERSION_CONFLICT' },
+    };
+    const reconciled = reconcileQueueStatuses(
+      [event],
+      [
+        {
+          client_event_id: event.client_event_id,
+          sync_status: 'REJECTED',
+          result: { action: 'DISCARD' },
+        },
+      ],
+    );
     expect(reconciled[0]!.sync_status).toBe('REJECTED');
     expect(reconciled[0]!.result).toEqual({ action: 'DISCARD' });
   });
