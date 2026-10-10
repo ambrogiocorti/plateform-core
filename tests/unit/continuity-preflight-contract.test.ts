@@ -23,6 +23,17 @@ describe('continuity P0 source ordering contract', () => {
     expect(backup).toContain('REPLICA_PREFLIGHT_BLOCKED');
   });
 
+  it('performs a read-only receiver readiness probe against a private bucket', () => {
+    const start = replica.indexOf("body?.action === 'preflight'");
+    const finish = replica.indexOf('const backupId =', start);
+    const probe = replica.slice(start, finish);
+    expect(start).toBeGreaterThan(-1);
+    expect(finish).toBeGreaterThan(start);
+    expect(probe).toContain('supabase.storage.getBucket(BUCKET)');
+    expect(probe).not.toContain('createBucket(');
+    expect(probe).toContain('bucket.public !== false');
+  });
+
   it('does not expose a readiness response before verifying the receiver token', () => {
     const verification = replica.search(/['"]verify_continuity_replica_token['"]/);
     const check = replica.search(/body\?\.action\s*===\s*['"]preflight['"]/);
