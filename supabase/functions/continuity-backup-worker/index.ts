@@ -9,7 +9,7 @@ const SOURCE_REF = (() => {
   if (url.protocol !== 'https:' || !match) {
     throw new Error('CONTINUITY_SOURCE_PROJECT_INVALID');
   }
-  return match[1];
+  return match[1] ?? '';
 })();
 
 function b64ToBytes(value: string): Uint8Array {
