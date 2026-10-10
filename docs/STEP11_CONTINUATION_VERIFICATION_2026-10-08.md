@@ -13,25 +13,25 @@ Ambiente remoto: `plateform-development` soltanto. Le sole modifiche SQL permane
 
 ## Evidenze del DB eseguite
 
-| Test | Esito | Persistenza fixture |
-| --- | --- | --- |
-| Storytelling pubblico | PASS | read-only |
-| Metadati SEO | PASS | read-only |
-| Sitemap | PASS | read-only |
-| Visibilità prenotazioni per sede | PASS | rollback |
-| Prenotazione, gruppo grande, caparra e idempotenza | PASS | rollback |
-| Notification Center e audit transizioni | PASS | rollback |
-| Conflict Center e audit risoluzione | PASS | rollback |
-| Venue scope/revoca e selector | PASS | rollback |
-| Catalogo condiviso e prezzo/disponibilità per sede | PASS | rollback |
-| Abilitazione multi-sede e step-up | PASS | rollback |
-| Editor sala avanzato e vincoli operativi | PASS | rollback |
-| Authorization snapshot offline firmato | PASS | rollback |
-| Job di stampa claimable e separazione ruoli | PASS | rollback |
-| Command Palette con scope e RLS | PASS | rollback |
-| No-show e rimborsi caparra server-authoritative | PASS | rollback |
-| Lista d'attesa e messaggistica, token privati | PASS | rollback |
-| Logout e revoca sessione idempotente | PASS | rollback |
+| Test                                               | Esito | Persistenza fixture |
+| -------------------------------------------------- | ----- | ------------------- |
+| Storytelling pubblico                              | PASS  | read-only           |
+| Metadati SEO                                       | PASS  | read-only           |
+| Sitemap                                            | PASS  | read-only           |
+| Visibilità prenotazioni per sede                   | PASS  | rollback            |
+| Prenotazione, gruppo grande, caparra e idempotenza | PASS  | rollback            |
+| Notification Center e audit transizioni            | PASS  | rollback            |
+| Conflict Center e audit risoluzione                | PASS  | rollback            |
+| Venue scope/revoca e selector                      | PASS  | rollback            |
+| Catalogo condiviso e prezzo/disponibilità per sede | PASS  | rollback            |
+| Abilitazione multi-sede e step-up                  | PASS  | rollback            |
+| Editor sala avanzato e vincoli operativi           | PASS  | rollback            |
+| Authorization snapshot offline firmato             | PASS  | rollback            |
+| Job di stampa claimable e separazione ruoli        | PASS  | rollback            |
+| Command Palette con scope e RLS                    | PASS  | rollback            |
+| No-show e rimborsi caparra server-authoritative    | PASS  | rollback            |
+| Lista d'attesa e messaggistica, token privati      | PASS  | rollback            |
+| Logout e revoca sessione idempotente               | PASS  | rollback            |
 
 Il test Notification Center eseguito senza aggiornare il fixture falliva con
 `NOTIFICATION_TEST_AUTH_CONTEXT_FAILED`, perché `full_auth_expires_at` del
@@ -54,6 +54,7 @@ sessione di sviluppo è stata conservata.
 - Tre revisioni commerciali pulite sullo stesso digest (attualmente 0/3).
 
 **Verdetto:** sviluppo in corso, Beta e release commerciale NON certificate.
+
 ## Correzione gate di sicurezza RPC
 
 Rilevati quattro endpoint pubblici di sola lettura mancanti da `private.api_permission_manifest` nonostante fossero correttamente esposti. Eseguite prove con ruolo `anon` sulle RPC di menu, navigazione, SEO e sitemap. Applicata soltanto a `plateform-development` la migrazione `20261008163112_step11_public_rpc_permission_manifest.sql` (8 voci già autorizzate; nessun nuovo GRANT). Test post-migrazione: `public.release_security_gate()->>'ok' = true` con zero voci non documentate. Conteggio DB 455, sorgente locale 132: rimangono 323 file da recuperare e i release gate esterni invariati.

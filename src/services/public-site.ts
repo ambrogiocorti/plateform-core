@@ -13,8 +13,10 @@ export function selectedVenue(
   const pathSlug = pathname.startsWith('/sedi/') ? pathname.split('/')[2] : undefined;
   // Conflicting or repeated explicit selectors are ambiguous, never silently
   // substitute another venue's menu, prices or reservation capacity.
-  if (requestedSlugs.length > 1 ||
-      (pathSlug !== undefined && requestedSlugs.length === 1 && requestedSlugs[0] !== pathSlug))
+  if (
+    requestedSlugs.length > 1 ||
+    (pathSlug !== undefined && requestedSlugs.length === 1 && requestedSlugs[0] !== pathSlug)
+  )
     return undefined;
   if (pathSlug !== undefined || requestedSlugs.length === 1) {
     const slug = pathSlug !== undefined ? pathSlug : requestedSlugs[0];
@@ -38,12 +40,14 @@ export function resolveBookingVenue(
   search: string,
 ): Venue | undefined {
   const selected = selectedVenue(site, pathname, search);
-  const explicitVenue = pathname.startsWith('/sedi/') ||
-    new URLSearchParams(search).has('sede');
+  const explicitVenue = pathname.startsWith('/sedi/') || new URLSearchParams(search).has('sede');
   // Even when the default venue cannot accept bookings, only the generic
   // booking entry may suggest another venue. Detail pages and explicit QR
   // links must never silently book a different location.
-  return explicitVenue ? (selected?.reservations_enabled ? selected : undefined)
+  return explicitVenue
+    ? selected?.reservations_enabled
+      ? selected
+      : undefined
     : bookingVenue(site, selected);
 }
 
@@ -66,8 +70,8 @@ export function canonicalPublicUrl(
   // Published menu QR pages share a slug across venues; the canonical URL must
   // preserve the selected venue to avoid merging different menus and prices.
   const namedMenu = /^\/menu\/[a-z0-9]+(?:-[a-z0-9]+)*$/.test(pathname);
-  const path = contextual.has(pathname) || namedMenu
-    ? venueAwarePath(pathname, site, venue) : pathname;
+  const path =
+    contextual.has(pathname) || namedMenu ? venueAwarePath(pathname, site, venue) : pathname;
   return new URL(path, origin).toString();
 }
 
@@ -76,10 +80,8 @@ export function normalizePublicPath(
 ): PublicPath | '/menu/:slug' | '/sedi/:venue' | '/tavolo/:id' | null {
   // Keep the public route catalogue aligned with the pages actually rendered by
   // apps/public/main.ts. These canonical route labels are also used by telemetry.
-  if (/^\/menu\/[a-z0-9]+(?:-[a-z0-9]+)*$/.test(pathname))
-    return '/menu/:slug';
-  if (/^\/sedi\/[a-z0-9]+(?:-[a-z0-9]+)*$/.test(pathname))
-    return '/sedi/:venue';
+  if (/^\/menu\/[a-z0-9]+(?:-[a-z0-9]+)*$/.test(pathname)) return '/menu/:slug';
+  if (/^\/sedi\/[a-z0-9]+(?:-[a-z0-9]+)*$/.test(pathname)) return '/sedi/:venue';
   if (pathname.startsWith('/tavolo/') && pathname.split('/').filter(Boolean).length === 2)
     return '/tavolo/:id';
   return ['/', '/menu', '/ristorante', '/gallery', '/sedi', '/prenota', '/contatti'].includes(
@@ -93,7 +95,10 @@ export function normalizePublicPath(
  * SPA navigation must never attribute a previous page's CLS/LCP to the next
  * page, and QR/customer session URLs must not enter public analytics.
  */
-export function publicMetricContext(pathname: string, search: string): {
+export function publicMetricContext(
+  pathname: string,
+  search: string,
+): {
   path: Exclude<ReturnType<typeof normalizePublicPath>, '/tavolo/:id' | null>;
   key: string;
 } | null {
@@ -106,9 +111,7 @@ export function publicMetricContext(pathname: string, search: string): {
   const venue = params.getAll('sede');
   const selectedSlug = venue.length === 1 ? venue[0] : undefined;
   const suffix =
-    selectedSlug &&
-    /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(selectedSlug) &&
-    selectedSlug.length <= 80
+    selectedSlug && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(selectedSlug) && selectedSlug.length <= 80
       ? `?sede=${selectedSlug}`
       : '';
   return { path, key: `${pathname}${suffix}` };

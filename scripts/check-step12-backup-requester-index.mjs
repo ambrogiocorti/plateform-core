@@ -1,7 +1,10 @@
 import { readFile } from 'node:fs/promises';
 
 const migration = await readFile(
-  new URL('../supabase/migrations/20261006051256_step12_backup_requester_index.sql', import.meta.url),
+  new URL(
+    '../supabase/migrations/20261006051256_step12_backup_requester_index.sql',
+    import.meta.url,
+  ),
   'utf8',
 );
 const checks = [
