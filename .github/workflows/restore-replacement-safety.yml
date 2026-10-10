@@ -1,0 +1,35 @@
+name: P0 replacement restore safety
+on:
+  push:
+    branches:
+      - fix/p0-restore-replacement-safety-20261010
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  replacement_restore_guard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - name: Execute isolated replacement-target preflight tests
+        run: node --test scripts/check-restore-replacement-safety.test.mjs
+      - name: Verify replacement DB tenant binding negative cases
+        run: npm run check:continuity-binding
+      - name: Verify complete restore contract
+        run: npm run check:restore-worker
+      - name: Verify cutover and 14 restore gates
+        run: npm run check:restore-cutover
+      - name: Prettier on replacement safety changes
+        run: >-
+          npx prettier --check
+          tools/restore-worker/config.mjs
+          tools/restore-worker/start.mjs
+          scripts/check-restore-replacement-safety.test.mjs
+          scripts/check-continuity-project-binding.mjs
+          .github/workflows/restore-replacement-safety.yml
