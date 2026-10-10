@@ -37,15 +37,30 @@ function databaseProjectRef(raw, name) {
   } catch {
     throw new Error(`CONFIG_INVALID:${name}`);
   }
-  if (!['postgres:', 'postgresql:'].includes(value.protocol) || !value.hostname || !value.username)
+  if (
+    !['postgres:', 'postgresql:'].includes(value.protocol) ||
+    !value.hostname ||
+    !value.username ||
+    !value.password ||
+    value.pathname !== '/postgres' ||
+    value.hash
+  ) {
     throw new Error(`CONFIG_INVALID:${name}`);
-  const hostMatch = value.hostname.toLowerCase().match(/^db\.([a-z0-9]+)\.supabase\.co$/);
-  const userMatch = decodeURIComponent(value.username).match(/^postgres\.([a-z0-9]+)$/i);
-  const refs = [hostMatch?.[1], userMatch?.[1]?.toLowerCase()].filter(Boolean);
-  if (!refs.length || new Set(refs).size !== 1)
-    throw new Error(`CONFIG_DB_PROJECT_REF_UNDETECTABLE:${name}`);
-  return refs[0];
+  }
+
+  const username = decodeURIComponent(value.username);
+  const direct = /^db\.([a-z0-9]+)\.supabase\.co$/.exec(value.hostname.toLowerCase());
+  const pooler = /^[a-z0-9-]+\.pooler\.supabase\.com$/.test(value.hostname.toLowerCase());
+  const pooledUser = /^postgres\.([a-z0-9]+)$/i.exec(username);
+  if (direct && username === 'postgres' && ['', '5432'].includes(value.port)) {
+    return direct[1];
+  }
+  if (pooler && pooledUser && ['', '5432', '6543'].includes(value.port)) {
+    return pooledUser[1].toLowerCase();
+  }
+  throw new Error(`CONFIG_DB_PROJECT_REF_UNDETECTABLE:${name}`);
 }
+
 async function commandOutput(command, args) {
   return await new Promise((resolveResult, reject) => {
     const child = spawn(command, args, { stdio: ['ignore', 'pipe', 'pipe'] });
@@ -103,6 +118,34 @@ export function loadConfig() {
     leaseSeconds: Number(process.env.PLATEFORM_RESTORE_LEASE_SECONDS || 1800),
   };
 }
+export async function probeTargetOccupied(config) {
+  const occupied = (
+    await commandOutput(config.psql, [
+      '-X',
+      '-A',
+      '-t',
+      '--set',
+      'ON_ERROR_STOP=1',
+      '--dbname',
+      config.targetDatabaseUrl,
+      '--command',
+      [
+        'select (',
+        "exists (select 1 from information_schema.tables where table_schema in ('public','private') and table_type = 'BASE TABLE')",
+        'or exists (select 1 from auth.users)',
+        'or exists (select 1 from auth.identities)',
+        'or exists (select 1 from storage.buckets)',
+        'or exists (select 1 from storage.objects)',
+        ')::text;',
+      ].join(' '),
+    ])
+  ).trim();
+  if (!['true', 'false', 't', 'f'].includes(occupied)) {
+    throw new Error('RESTORE_TARGET_PROBE_INVALID');
+  }
+  return occupied === 'true' || occupied === 't';
+}
+
 export async function checkPrerequisites(config) {
   if (
     !Number.isInteger(config.leaseSeconds) ||
@@ -118,24 +161,12 @@ export async function checkPrerequisites(config) {
   } catch {
     throw new Error('PREREQUISITE_MISSING:SUPABASE_JS');
   }
-  const occupied = (
-    await commandOutput(config.psql, [
-      '-X',
-      '-A',
-      '-t',
-      '--set',
-      'ON_ERROR_STOP=1',
-      '--dbname',
-      config.targetDatabaseUrl,
-      '--command',
-      "select (to_regclass('public.restaurant_profile') is not null)::text;",
-    ])
-  ).trim();
+  const occupied = await probeTargetOccupied(config);
   const temp = await mkdtemp(`${tmpdir()}/plateform-restore-`);
   return {
     psql: config.psql,
     targetProjectRef: config.targetProjectRef,
     temp,
-    targetOccupied: occupied === 'true' || occupied === 't',
+    targetOccupied: occupied,
   };
 }

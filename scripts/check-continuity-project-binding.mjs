@@ -68,6 +68,33 @@ try {
   expectError(loadRestoreConfig, 'RESTORE_DB_PROJECT_REF_MISMATCH');
 
   base();
+  process.env.PLATEFORM_RESTORE_TARGET_DB_URL =
+    'postgresql://postgres.replacementref:pw@attacker.example:5432/postgres';
+  expectError(
+    loadRestoreConfig,
+    'CONFIG_DB_PROJECT_REF_UNDETECTABLE:PLATEFORM_RESTORE_TARGET_DB_URL',
+  );
+
+  base();
+  process.env.PLATEFORM_RESTORE_TARGET_DB_URL =
+    'postgresql://postgres.replacementref:pw@db.otherref.supabase.co:5432/postgres';
+  expectError(
+    loadRestoreConfig,
+    'CONFIG_DB_PROJECT_REF_UNDETECTABLE:PLATEFORM_RESTORE_TARGET_DB_URL',
+  );
+
+  base();
+  process.env.PLATEFORM_RESTORE_TARGET_DB_URL =
+    'postgresql://postgres.replacementref@aws-0-eu-west-1.pooler.supabase.com:5432/postgres';
+  expectError(loadRestoreConfig, 'CONFIG_INVALID:PLATEFORM_RESTORE_TARGET_DB_URL');
+
+  base();
+  process.env.PLATEFORM_RESTORE_TARGET_DB_URL =
+    'postgresql://postgres:pw@db.replacementref.supabase.co:5432/postgres';
+  if (loadRestoreConfig().targetProjectRef !== 'replacementref')
+    throw new Error('RESTORE_DIRECT_CONNECTION_INVALID');
+
+  base();
   process.env.PLATEFORM_RESTORE_TARGET_CONFIRM_PROJECT_REF = 'wrongref';
   expectError(loadRestoreConfig, 'RESTORE_TARGET_CONFIRMATION_MISMATCH');
 
