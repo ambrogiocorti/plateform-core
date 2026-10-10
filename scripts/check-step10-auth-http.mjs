@@ -45,13 +45,28 @@ function localStatus() {
 
 function postgres(sql) {
   const containers = command('docker', [
-    'ps', '--filter', 'name=supabase_db_', '--format', '{{.Names}}',
-  ]).split('\n').filter(Boolean);
+    'ps',
+    '--filter',
+    'name=supabase_db_',
+    '--format',
+    '{{.Names}}',
+  ])
+    .split('\n')
+    .filter(Boolean);
   if (containers.length !== 1) throw new Error('EXPECTED_SINGLE_DISPOSABLE_DB');
   command('docker', [
-    'exec', containers[0], 'psql', '--username', 'postgres',
-    '--dbname', 'postgres', '--no-psqlrc', '--set', 'ON_ERROR_STOP=1',
-    '--command', sql,
+    'exec',
+    containers[0],
+    'psql',
+    '--username',
+    'postgres',
+    '--dbname',
+    'postgres',
+    '--no-psqlrc',
+    '--set',
+    'ON_ERROR_STOP=1',
+    '--command',
+    sql,
   ]);
 }
 
@@ -96,7 +111,8 @@ function totp(secret) {
   counter.writeBigUInt64BE(BigInt(Math.floor(Date.now() / 30_000)));
   const digest = createHmac('sha1', base32Decode(secret)).update(counter).digest();
   const offset = digest[digest.length - 1] & 15;
-  const value = ((digest[offset] & 127) << 24) |
+  const value =
+    ((digest[offset] & 127) << 24) |
     ((digest[offset + 1] & 255) << 16) |
     ((digest[offset + 2] & 255) << 8) |
     (digest[offset + 3] & 255);
@@ -116,7 +132,8 @@ async function signIn(api, anonKey, email) {
     auth: { persistSession: false, autoRefreshToken: false },
   });
   const { data, error } = await client.auth.signInWithPassword({
-    email, password: PASSWORD,
+    email,
+    password: PASSWORD,
   });
   if (error || !data?.session?.access_token || !data.session.user) {
     throw new Error('LOCAL_AUTH_LOGIN_FAILED');
@@ -155,17 +172,22 @@ async function rest(api, anonKey, token, path, method = 'GET', body = undefined)
       apikey: anonKey,
       Authorization: `Bearer ${token}`,
       Accept: 'application/json',
-      ...(body === undefined ? {} : {
-        'Content-Type': 'application/json',
-        Prefer: 'return=representation',
-      }),
+      ...(body === undefined
+        ? {}
+        : {
+            'Content-Type': 'application/json',
+            Prefer: 'return=representation',
+          }),
     },
     ...(body === undefined ? {} : { body: JSON.stringify(body) }),
   });
   const content = await res.text();
   let parsed;
-  try { parsed = content ? JSON.parse(content) : null; }
-  catch { throw new Error('LOCAL_REST_UNEXPECTED_NON_JSON'); }
+  try {
+    parsed = content ? JSON.parse(content) : null;
+  } catch {
+    throw new Error('LOCAL_REST_UNEXPECTED_NON_JSON');
+  }
   return { status: res.status, parsed };
 }
 
@@ -184,12 +206,16 @@ async function run() {
   const loginB = await signIn(api, anonKey, 'isolated.admin.b@example.test');
   const sessionA = loginA.session;
   const sessionB = loginB.session;
-  const sessionAId = uuid(sessionA.access_token ? JSON.parse(Buffer.from(
-    sessionA.access_token.split('.')[1], 'base64url').toString('utf8'),
-  ).session_id : '');
-  const sessionBId = uuid(JSON.parse(Buffer.from(
-    sessionB.access_token.split('.')[1], 'base64url').toString('utf8'),
-  ).session_id);
+  const sessionAId = uuid(
+    sessionA.access_token
+      ? JSON.parse(Buffer.from(sessionA.access_token.split('.')[1], 'base64url').toString('utf8'))
+          .session_id
+      : '',
+  );
+  const sessionBId = uuid(
+    JSON.parse(Buffer.from(sessionB.access_token.split('.')[1], 'base64url').toString('utf8'))
+      .session_id,
+  );
 
   postgres(`
     begin;
@@ -239,20 +265,28 @@ async function run() {
   console.log('JWT_HTTP_VENUE_READ_ISOLATION=PASSED');
 
   const mutation = await rest(
-    api, anonKey, sessionA.access_token,
-    `rooms?id=eq.${ROOM_B}`, 'PATCH', { name: 'CROSS_TENANT_MUTATION' },
+    api,
+    anonKey,
+    sessionA.access_token,
+    `rooms?id=eq.${ROOM_B}`,
+    'PATCH',
+    { name: 'CROSS_TENANT_MUTATION' },
   );
   assert.ok([200, 204, 401, 403].includes(mutation.status), 'unexpected mutation response');
   if (mutation.status === 200) exactly(mutation.parsed, []);
-  const after = await rest(api, anonKey, sessionB.access_token, `rooms?id=eq.${ROOM_B}&select=name`);
+  const after = await rest(
+    api,
+    anonKey,
+    sessionB.access_token,
+    `rooms?id=eq.${ROOM_B}&select=name`,
+  );
   assert.equal(after.status, 200);
   assert.deepEqual(after.parsed, [{ name: 'Room B' }]);
   console.log('JWT_HTTP_CROSS_VENUE_MUTATION_DENIED=PASSED');
 
-  const rpc = await rest(
-    api, anonKey, sessionA.access_token,
-    'rpc/get_floor_workspace', 'POST', { p_venue: VENUE_B },
-  );
+  const rpc = await rest(api, anonKey, sessionA.access_token, 'rpc/get_floor_workspace', 'POST', {
+    p_venue: VENUE_B,
+  });
   assert.ok(rpc.status >= 400, 'cross-venue privileged RPC must fail');
   assert.match(JSON.stringify(rpc.parsed), /VENUE_FORBIDDEN/);
   console.log('JWT_HTTP_CROSS_VENUE_RPC_DENIED=PASSED');
