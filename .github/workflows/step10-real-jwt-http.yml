@@ -1,0 +1,40 @@
+name: P0 local Auth JWT and PostgREST cross-venue gate
+on:
+  push:
+    branches:
+      - test/p0-real-jwt-cross-venue-http-20261011
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  real_jwt_http:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - uses: supabase/setup-cli@v3
+        with:
+          version: 2.84.2
+      - name: Confirm CLI supported local options
+        run: |
+          supabase start --help
+          supabase status --help
+      - name: Boot isolated Supabase Auth and PostgREST with all 459 migrations
+        run: >-
+          supabase start --exclude
+          studio,mailpit,imgproxy,logflare,vector,supavisor,realtime,edge-runtime,postgres-meta,storage-api
+      - name: Run genuine JWT PostgREST cross-venue and revocation checks
+        run: node scripts/check-step10-auth-http.mjs
+      - name: Check script and CI formatting
+        run: >-
+          npx prettier --check
+          scripts/check-step10-auth-http.mjs
+          .github/workflows/step10-real-jwt-http.yml
+      - name: Stop disposable local Supabase and discard the fixture
+        if: always()
+        run: supabase stop --no-backup || true
