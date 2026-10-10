@@ -6,6 +6,17 @@ const backup = source('supabase/functions/continuity-backup-worker/index.ts');
 const replica = source('supabase/functions/continuity-replica-receiver/index.ts');
 
 describe('continuity P0 source ordering contract', () => {
+  it('does not hardcode development/replica project refs into commercial workers', () => {
+    for (const hardcoded of ['abdxvlykasqmknexxhjo', 'dkbjgvovxgglqhqxmuyb']) {
+      expect(backup).not.toContain(hardcoded);
+      expect(replica).not.toContain(hardcoded);
+    }
+    expect(backup).toContain("Deno.env.get('SUPABASE_URL')");
+    expect(backup).toContain('replicaProjectRef');
+    expect(replica).toContain("'verify_continuity_replica_token'");
+    expect(replica).toContain('allowed !== true');
+  });
+
   it('checks for runnable work before remote preflight', () => {
     expect(backup.indexOf('leaseCutoff')).toBeGreaterThan(-1);
     expect(backup.indexOf('leaseCutoff')).toBeLessThan(
