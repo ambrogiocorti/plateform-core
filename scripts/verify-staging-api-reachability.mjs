@@ -5,15 +5,13 @@ function blocked(code) {
   throw new Error(code);
 }
 
-export async function verifyStagingApiReachability(binding, {
-  apiKey,
-  fetcher = fetch,
-  timeoutMs = 12_000,
-} = {}) {
+export async function verifyStagingApiReachability(
+  binding,
+  { apiKey, fetcher = fetch, timeoutMs = 12_000 } = {},
+) {
   if (binding?.status !== 'PASS' || !binding.project_ref)
     blocked('STAGING_UNVERIFIED_PROJECT_BINDING');
-  if (typeof apiKey !== 'string' || !apiKey)
-    blocked('STAGING_API_KEY_REQUIRED');
+  if (typeof apiKey !== 'string' || !apiKey) blocked('STAGING_API_KEY_REQUIRED');
 
   const endpoint = `https://${binding.project_ref}.supabase.co`;
   const headers = { apikey: apiKey, Accept: 'application/json' };
@@ -46,8 +44,7 @@ export async function verifyStagingApiReachability(binding, {
     blocked('STAGING_AUTH_SETTINGS_INVALID');
 
   const rest = await getJson('/rest/v1/');
-  if (!rest.swagger && !rest.openapi && !rest.paths)
-    blocked('STAGING_DATA_API_NOT_READY');
+  if (!rest.swagger && !rest.openapi && !rest.paths) blocked('STAGING_DATA_API_NOT_READY');
 
   return {
     status: 'PASS',
