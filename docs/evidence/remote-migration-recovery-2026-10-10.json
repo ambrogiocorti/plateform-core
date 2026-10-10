@@ -133,12 +133,26 @@
     }
   ],
   "rollback": "Restore prior migration directory and manifest from previous_commit. Do not rewrite remote history.",
-  "validation_status": "NOT_CERTIFIED",
+  "validation_status": "SOURCE_CHECKS_PASSED_STAGING_UNVERIFIED",
   "not_yet_done": [
     "fresh isolated Supabase staging rebuild",
     "migration idempotency",
     "RLS/schema parity",
     "edge deployment",
     "backup plus restore on current schema"
-  ]
+  ],
+  "source_integrity_ci": {
+    "status": "PASSED",
+    "run_id": 38041686909,
+    "run_url": "https://github.com/ambrogiocorti/plateform-core/actions/runs/38041686909",
+    "checks": [
+      "457 versioned migrations verified against the applied manifest",
+      "STEP12_MIGRATION_HISTORY_DUMP=PASSED",
+      "STEP12_MIGRATION_HISTORY_RESTORE=PASSED",
+      "STEP12_MIGRATION_HISTORY_VERIFY=PASSED",
+      "STEP12_MIGRATION_HISTORY_LATEST_VERSION=PASSED",
+      "STEP12_MIGRATION_HISTORY_MISMATCH_FAIL_CLOSED=PASSED"
+    ],
+    "scope": "repository fixture/source checks only; not a staging database rebuild"
+  }
 }
