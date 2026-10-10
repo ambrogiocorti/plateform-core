@@ -1,0 +1,36 @@
+{
+  "type": "STEP13_PUBLIC_SECURITY_DEFINER_ALLOWLIST_FIRST_PASS",
+  "date": "2026-10-10",
+  "source_project_ref": "abdxvlykasqmknexxhjo",
+  "observed_live": {
+    "anon_executable_public_security_definer_functions": 10,
+    "stable_routines": 10,
+    "non_stable_routines": 0,
+    "missing_explicit_search_path": 0,
+    "locked_empty_search_path": 10
+  },
+  "intent": "Anonymous read-only projections for public site, public menu and booking; NOT blanket permission to introduce more privileged endpoints.",
+  "allowlist": [
+    "get_booking_configuration(p_venue uuid)",
+    "get_public_booking_availability(p_venue uuid, p_service uuid, p_date date, p_party integer)",
+    "get_public_menu(p_venue uuid)",
+    "get_public_menu_by_id(p_public_menu uuid, p_venue uuid)",
+    "get_public_menu_by_slug(p_slug text, p_venue uuid)",
+    "get_public_menu_index(p_venue uuid)",
+    "get_public_navigation(p_venue uuid)",
+    "get_public_page_metadata(p_path text, p_venue uuid)",
+    "get_public_site()",
+    "get_public_sitemap_entries()"
+  ],
+  "new_ci_contract": "scripts/check-isolated-rpc-security.sh runs against 459-migration PostgreSQL and fails if anon executable SECURITY DEFINER set differs from exact list, or if volatile/missing search_path.",
+  "risk_notes": [
+    "STABLE volatility and explicit search_path do NOT by themselves prove non-leakage of sensitive fields.",
+    "Review transitive private functions, feature flags, multi-tenant visibility and projection fields for cross-venue disclosure.",
+    "HTTP Auth/JWT/RLS role tests are still required on a real isolated Supabase endpoint.",
+    "Do not revoke intentional public function access indiscriminately.",
+    "Do not mark Supabase security advisor warnings resolved based only on this inventory."
+  ],
+  "stage": "SOURCE_TRIAGE_AND_REGRESSION_GUARD",
+  "live_deployed_schema_modified": false,
+  "commercial_gate": "NO_GO"
+}
