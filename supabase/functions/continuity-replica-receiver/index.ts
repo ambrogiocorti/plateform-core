@@ -186,13 +186,11 @@ Deno.serve(async (req: Request) => {
 
       const bytes = b64ToBytes(cipherB64);
       const name = `chunk-${String(chunkNo).padStart(6, '0')}.bin`;
-      const { error } = await supabase.storage
-        .from(BUCKET)
-        .upload(`${backupId}/${name}`, bytes, {
-          upsert: true,
-          contentType: 'application/octet-stream',
-          cacheControl: '0',
-        });
+      const { error } = await supabase.storage.from(BUCKET).upload(`${backupId}/${name}`, bytes, {
+        upsert: true,
+        contentType: 'application/octet-stream',
+        cacheControl: '0',
+      });
       if (error) throw new Error('REPLICA_CHUNK_UPLOAD_FAILED');
 
       return Response.json({

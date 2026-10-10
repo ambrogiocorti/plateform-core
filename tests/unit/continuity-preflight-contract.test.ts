@@ -8,7 +8,9 @@ const replica = source('supabase/functions/continuity-replica-receiver/index.ts'
 describe('continuity P0 source ordering contract', () => {
   it('checks for runnable work before remote preflight', () => {
     expect(backup.indexOf('leaseCutoff')).toBeGreaterThan(-1);
-    expect(backup.indexOf('leaseCutoff')).toBeLessThan(backup.search(/action:\s*['\"]preflight['\"]/));
+    expect(backup.indexOf('leaseCutoff')).toBeLessThan(
+      backup.search(/action:\s*['\"]preflight['\"]/),
+    );
   });
 
   it('checks the authenticated replica before claiming or snapshotting', () => {
