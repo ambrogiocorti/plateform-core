@@ -1,0 +1,52 @@
+{
+  "kind": "LIVE_P0_CONTINUITY_BACKUP_GUARD",
+  "date": "2026-10-10",
+  "environment": "development",
+  "supabase_project_ref": "abdxvlykasqmknexxhjo",
+  "incident": "Replica receiver DNS lookup failed against inactive target. Backup retries generated unbounded rehearsal snapshot accumulation.",
+  "containment": {
+    "cron_job_id": 4,
+    "job_name": "plateform-daily-backup",
+    "schedule_active": false,
+    "queued_or_running_at_predeploy": 0,
+    "snapshot_manifests_at_predeploy": 155,
+    "no_purge_performed": true
+  },
+  "deployment": {
+    "edge_slug": "continuity-backup-worker",
+    "original_version": 8,
+    "original_ezbr_sha256": "9b7f76ae51f692b46065e5dcc848b8a2050f2862844ca622d13d1d2ec7306132",
+    "deployed_version": 10,
+    "new_ezbr_sha256": "64853131084bf6be4fb6e4fb6e9430fcd2902085d21b5622ef637904c47",
+    "verify_jwt": true,
+    "source_blob_sha": "8f5e542564529240e7c5d09cdceb70f3585f2d5f",
+    "rollback_file": "docs/recovery/continuity-backup-worker-v8-2026-10-10.txt"
+  },
+  "guard": {
+    "pending_job_detection_before_probe": true,
+    "authenticated_replica_check_before_claim": true,
+    "verified_target_project_ref": true,
+    "blocked_without_snapshot_on_failed_preflight": true,
+    "idle_and_precheck_error_heartbeats": true
+  },
+  "source_ci": {
+    "workflow_run_id": 38041946159,
+    "job": "continuity_p0",
+    "result": "success",
+    "checks": [
+      "targeted formatting",
+      "Deno strict typecheck",
+      "Vitest source-order contract"
+    ]
+  },
+  "blocked": {
+    "replica_target_project_ref": "dkbjgvovxgglqhqxmuyb",
+    "replica_target_status": "INACTIVE",
+    "replica_receiver_new_version_deployed": false,
+    "isolated_backup_restore_latest_schema_verified": false,
+    "storage_purge_authorized": false,
+    "full_release_gate_pass": false
+  },
+  "state": "P0_CONTAINED_PARTIAL",
+  "go_no_go": "NO_GO"
+}
