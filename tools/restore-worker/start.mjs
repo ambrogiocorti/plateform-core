@@ -1,6 +1,6 @@
 import { readFile, rm, mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
-import { loadConfig, checkPrerequisites } from './config.mjs';
+import { loadConfig, checkPrerequisites, probeTargetOccupied } from './config.mjs';
 import { claimRestore, backupMetadata, markVerifying, finishRestore } from './protocol.mjs';
 import { decryptVerified, sha256Text, verifyHmacSha256Text } from '../backup-worker/crypto.mjs';
 import { resolveEncryptionKey } from '../backup-worker/keyring.mjs';
@@ -109,6 +109,11 @@ async function restoreArtifacts(config, manifest, backupDir, temp, createClient,
     files[name === 'history_schema.sql' ? 'historySchema' : 'historyData'] = target;
   }
   validateAuthManifest(manifest);
+  // A previously empty project can acquire data while artifacts are decrypted.
+  // Recheck DB/Auth/Storage immediately before the destructive SQL restore.
+  if (await probeTargetOccupied(config)) {
+    throw new Error('RESTORE_TARGET_CHANGED_DURING_PREPARATION');
+  }
   await restoreDatabase(config, files);
   await quiesceTargetAutomation(config);
   await sanitizeRestoredSecurityState(config);
