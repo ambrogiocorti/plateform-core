@@ -154,6 +154,8 @@ test('Cashier enters a real count and sends the immutable reconciliation command
   await page.setViewportSize({ width: 390, height: 844 });
   const commands = await cashFixture(page);
   await page.goto('http://localhost:5174/cassa');
+  // Cash operations are in a collapsed details disclosure; open it before actions.
+  await page.locator('details.cashier-operations summary').click();
   await page.getByRole('button', { name: 'Quadratura e chiusura' }).click();
   const popup = page.getByRole('dialog', { name: 'Chiudi servizio contabile' });
   await expect(popup.getByText('Contante teorico 31,00', { exact: false })).toBeVisible();
@@ -174,6 +176,8 @@ test('Cashier enters a real count and sends the immutable reconciliation command
 test('Admin approves a discrepancy only after the password step-up succeeds', async ({ page }) => {
   const commands = await cashFixture(page, true);
   await page.goto('http://localhost:5174/cassa');
+  // Cash operations are in a collapsed details disclosure; open it before actions.
+  await page.locator('details.cashier-operations summary').click();
   await page.getByRole('button', { name: 'Verifica differenza' }).click();
   await page.getByLabel('Motivo della decisione').fill('Differenza verificata nel conteggio');
   await page.getByRole('button', { name: 'Approva e chiudi servizio' }).click();
