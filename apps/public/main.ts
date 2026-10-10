@@ -89,8 +89,8 @@ function setMeta(name: string, content: string, property = false): void {
   meta.content = content;
 }
 function applyMetadata(site: PublicSite, venue?: Venue): void {
-  const explicitlySelectedVenue = location.pathname.startsWith('/sedi/') ||
-    new URLSearchParams(location.search).has('sede');
+  const explicitlySelectedVenue =
+    location.pathname.startsWith('/sedi/') || new URLSearchParams(location.search).has('sede');
   const invalidVenueContext = explicitlySelectedVenue && !venue;
   const pageLabels: Record<string, string> = {
     '/menu': 'Menu',
@@ -171,14 +171,16 @@ function logoForStructuredData(site: PublicSite): string | undefined {
 function startPublicRender(focusAfterNavigation = false): void {
   const pending = render();
   const expectedRevision = revision;
-  void pending.then(() => {
-    if (expectedRevision === revision && focusAfterNavigation)
-      document.getElementById('main')?.focus({ preventScroll: true });
-  }).catch((error: unknown) => {
-    // A superseded slow RPC must not replace a newer, successfully rendered
-    // page with the error state from the previous navigation.
-    if (expectedRevision === revision) failed(error);
-  });
+  void pending
+    .then(() => {
+      if (expectedRevision === revision && focusAfterNavigation)
+        document.getElementById('main')?.focus({ preventScroll: true });
+    })
+    .catch((error: unknown) => {
+      // A superseded slow RPC must not replace a newer, successfully rendered
+      // page with the error state from the previous navigation.
+      if (expectedRevision === revision) failed(error);
+    });
 }
 function route(path: string): void {
   history.pushState(null, '', path);
@@ -219,7 +221,8 @@ async function render(): Promise<void> {
   applyBrand(site);
   const venue = selectedVenue(site, location.pathname, location.search);
   applyMetadata(site, venue);
-  const invalidVenueContext = !venue &&
+  const invalidVenueContext =
+    !venue &&
     (location.pathname.startsWith('/sedi/') || new URLSearchParams(location.search).has('sede'));
   if (invalidVenueContext) {
     // Invalid/archived venue URLs are never indexable and must not receive a
@@ -232,35 +235,48 @@ async function render(): Promise<void> {
   if (!location.pathname.startsWith('/tavolo/') && !invalidVenueContext) {
     const pathForSeo = location.pathname;
     const seoRevision = current;
-    void rpc('get_public_page_metadata', {
-      p_path: pathForSeo, p_venue: venue?.id ?? null,
-    }, z.object({
-      path: z.string(), title: z.string(), description: z.string(),
-      robots: z.enum(['index,follow', 'noindex,nofollow']),
-      canonical_url: z.string().nullable(), og_image_url: z.string().nullable(),
-    })).then((metadata) => {
-      if (seoRevision !== revision || metadata.path !== location.pathname) return;
-      document.title = metadata.title;
-      setMeta('description', metadata.description);
-      setMeta('og:title', metadata.title, true);
-      setMeta('og:description', metadata.description, true);
-      const multiVenueQuery = site.multi_venue && site.venues.length > 1 &&
-        new URLSearchParams(location.search).has('sede');
-      const robots = document.head.querySelector<HTMLMetaElement>('meta[name="robots"]');
-      if (robots) robots.content = invalidVenueContext || multiVenueQuery
-        ? 'noindex,nofollow' : metadata.robots;
-      const canonical = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
-      if (canonical) {
-        if (invalidVenueContext) canonical.remove();
-        else if (metadata.canonical_url) canonical.href = metadata.canonical_url;
-        else canonical.remove();
-      }
-      if (metadata.og_image_url) setMeta('og:image', metadata.og_image_url, true);
-    }).catch(() => {
-      // Never promote an unverified route or deployment to public indexing.
-      const robots = document.head.querySelector<HTMLMetaElement>('meta[name="robots"]');
-      if (seoRevision === revision && robots) robots.content = 'noindex,nofollow';
-    });
+    void rpc(
+      'get_public_page_metadata',
+      {
+        p_path: pathForSeo,
+        p_venue: venue?.id ?? null,
+      },
+      z.object({
+        path: z.string(),
+        title: z.string(),
+        description: z.string(),
+        robots: z.enum(['index,follow', 'noindex,nofollow']),
+        canonical_url: z.string().nullable(),
+        og_image_url: z.string().nullable(),
+      }),
+    )
+      .then((metadata) => {
+        if (seoRevision !== revision || metadata.path !== location.pathname) return;
+        document.title = metadata.title;
+        setMeta('description', metadata.description);
+        setMeta('og:title', metadata.title, true);
+        setMeta('og:description', metadata.description, true);
+        const multiVenueQuery =
+          site.multi_venue &&
+          site.venues.length > 1 &&
+          new URLSearchParams(location.search).has('sede');
+        const robots = document.head.querySelector<HTMLMetaElement>('meta[name="robots"]');
+        if (robots)
+          robots.content =
+            invalidVenueContext || multiVenueQuery ? 'noindex,nofollow' : metadata.robots;
+        const canonical = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+        if (canonical) {
+          if (invalidVenueContext) canonical.remove();
+          else if (metadata.canonical_url) canonical.href = metadata.canonical_url;
+          else canonical.remove();
+        }
+        if (metadata.og_image_url) setMeta('og:image', metadata.og_image_url, true);
+      })
+      .catch(() => {
+        // Never promote an unverified route or deployment to public indexing.
+        const robots = document.head.querySelector<HTMLMetaElement>('meta[name="robots"]');
+        if (seoRevision === revision && robots) robots.content = 'noindex,nofollow';
+      });
   }
   const reservationVenue = resolveBookingVenue(site, location.pathname, location.search);
   const bookingEnabled = sectionEnabled(site, 'booking') && Boolean(reservationVenue);
@@ -320,10 +336,16 @@ async function render(): Promise<void> {
       ),
     ),
   );
-  const menuButton = el('button', {
-    type: 'button', class: 'button quiet public-menu-toggle',
-    'aria-controls': 'public-navigation', 'aria-expanded': 'false',
-  }, 'Menu');
+  const menuButton = el(
+    'button',
+    {
+      type: 'button',
+      class: 'button quiet public-menu-toggle',
+      'aria-controls': 'public-navigation',
+      'aria-expanded': 'false',
+    },
+    'Menu',
+  );
   const header = el(
     'header',
     { class: 'public-header' },
@@ -346,13 +368,15 @@ async function render(): Promise<void> {
   else if (path.startsWith('/menu/') && venue) {
     const slug = path.slice('/menu/'.length);
     main.append(await (await import('../../src/pages/public-menu')).publishedMenuPage(slug, venue));
-  }
-  else if (path.startsWith('/menu/') && !venue) {
-    main.append(emptyState('Sede non disponibile',
-      'Il collegamento del menu si riferisce a una sede non valida o non più attiva.'));
+  } else if (path.startsWith('/menu/') && !venue) {
+    main.append(
+      emptyState(
+        'Sede non disponibile',
+        'Il collegamento del menu si riferisce a una sede non valida o non più attiva.',
+      ),
+    );
     if (site.multi_venue) main.append(el('a', { href: '/sedi' }, 'Visualizza le sedi'));
-  }
-  else if (path === '/ristorante' && sectionEnabled(site, 'story'))
+  } else if (path === '/ristorante' && sectionEnabled(site, 'story'))
     main.append(
       el(
         'section',
@@ -438,13 +462,20 @@ async function render(): Promise<void> {
     );
     main.append(section);
     section.append(
-      await (await import('../../src/pages/public-booking')).bookingPage(
-        reservationVenue, safePublicLink(textValue(site.content, 'privacy_url'), window.location.origin),
+      await (
+        await import('../../src/pages/public-booking')
+      ).bookingPage(
+        reservationVenue,
+        safePublicLink(textValue(site.content, 'privacy_url'), window.location.origin),
       ),
     );
   } else if (path === '/prenota') {
-    main.append(emptyState('Prenotazioni online non disponibili',
-      'La sede richiesta non accetta prenotazioni online. Contatta il ristorante o scegli un’altra sede.'));
+    main.append(
+      emptyState(
+        'Prenotazioni online non disponibili',
+        'La sede richiesta non accetta prenotazioni online. Contatta il ristorante o scegli un’altra sede.',
+      ),
+    );
   } else if (path.startsWith('/tavolo/')) {
     stopLive?.();
     stopLive = undefined;
@@ -660,15 +691,21 @@ async function menu(site: PublicSite, venue: Venue | undefined): Promise<HTMLEle
     el('h1', {}, 'Il nostro menu'),
   );
   if (!venue) {
-    section.append(emptyState('Sede non disponibile',
-      'Il collegamento indica una sede non valida o non più attiva. Seleziona una sede dal sito del ristorante.'));
+    section.append(
+      emptyState(
+        'Sede non disponibile',
+        'Il collegamento indica una sede non valida o non più attiva. Seleziona una sede dal sito del ristorante.',
+      ),
+    );
     if (site.multi_venue)
       section.append(el('a', { href: '/sedi', class: 'button secondary' }, 'Visualizza le sedi'));
     return section;
   }
   const picker = venuePicker(site, venue, false);
   if (picker) section.append(picker);
-  const availableMenus = await (await import('../../src/pages/public-menu')).publishedMenuIndex(venue, site.multi_venue);
+  const availableMenus = await (
+    await import('../../src/pages/public-menu')
+  ).publishedMenuIndex(venue, site.multi_venue);
   if (availableMenus) section.append(availableMenus);
   const dishes = await rpc('get_public_menu', { p_venue: venue.id }, z.array(menuDishSchema));
   const categories = [...new Set(dishes.map((dish) => dish.category_name))];

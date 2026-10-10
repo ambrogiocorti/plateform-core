@@ -137,7 +137,12 @@ function deliveryCard(context: StaffContext, step: WaiterStepSummary): HTMLEleme
     el(
       'div',
       { class: 'row between waiter-card-heading' },
-      el('div', {}, el('p', { class: 'eyebrow' }, `STEP ${step.stepNumber}`), el('h2', {}, step.tableName)),
+      el(
+        'div',
+        {},
+        el('p', { class: 'eyebrow' }, `STEP ${step.stepNumber}`),
+        el('h2', {}, step.tableName),
+      ),
       status(step.status === 'READY' ? 'PRONTO PER IL SERVIZIO' : step.status),
     ),
     el('p', { class: 'muted service-timer' }, `Comanda aperta da ${elapsedLabel(step.createdAt)}`),
@@ -175,7 +180,10 @@ function deliveryCard(context: StaffContext, step: WaiterStepSummary): HTMLEleme
 
 export async function waiterPage(context: StaffContext): Promise<HTMLElement> {
   if (!context.venue)
-    return emptyState('Nessuna sede assegnata', 'Contatta l’amministratore per configurare il servizio.');
+    return emptyState(
+      'Nessuna sede assegnata',
+      'Contatta l’amministratore per configurare il servizio.',
+    );
 
   const [floor, kitchenItems, calls, assignments] = await Promise.all([
     rpc('get_floor_workspace', { p_venue: context.venue.id }, floorSchema),
@@ -208,8 +216,18 @@ export async function waiterPage(context: StaffContext): Promise<HTMLElement> {
     el(
       'div',
       { class: 'waiter-priority-bar', role: 'status', 'aria-label': 'Riepilogo servizio' },
-      el('div', { class: 'waiter-counter' }, el('strong', {}, String(readySteps.length)), el('span', {}, 'Pronti')),
-      el('div', { class: 'waiter-counter' }, el('strong', {}, String(activeCalls.length)), el('span', {}, 'Chiamate')),
+      el(
+        'div',
+        { class: 'waiter-counter' },
+        el('strong', {}, String(readySteps.length)),
+        el('span', {}, 'Pronti'),
+      ),
+      el(
+        'div',
+        { class: 'waiter-counter' },
+        el('strong', {}, String(activeCalls.length)),
+        el('span', {}, 'Chiamate'),
+      ),
       el(
         'div',
         { class: 'waiter-counter' },
@@ -224,13 +242,30 @@ export async function waiterPage(context: StaffContext): Promise<HTMLElement> {
       el(
         'div',
         { class: 'row between waiter-section-heading' },
-        el('div', {}, el('p', { class: 'eyebrow' }, 'RUNNER'), el('h2', {}, 'Piatti da consegnare')),
+        el(
+          'div',
+          {},
+          el('p', { class: 'eyebrow' }, 'RUNNER'),
+          el('h2', {}, 'Piatti da consegnare'),
+        ),
         el('span', { class: 'muted' }, `${readySteps.length} step pronti`),
       ),
     );
     if (!readySteps.length)
-      root.append(emptyState('Nessuna consegna pronta', 'I nuovi step pronti compariranno qui in tempo reale.'));
-    else root.append(el('div', { class: 'waiter-delivery-grid' }, ...readySteps.map((step) => deliveryCard(context, step))));
+      root.append(
+        emptyState(
+          'Nessuna consegna pronta',
+          'I nuovi step pronti compariranno qui in tempo reale.',
+        ),
+      );
+    else
+      root.append(
+        el(
+          'div',
+          { class: 'waiter-delivery-grid' },
+          ...readySteps.map((step) => deliveryCard(context, step)),
+        ),
+      );
     return root;
   }
 
@@ -238,7 +273,12 @@ export async function waiterPage(context: StaffContext): Promise<HTMLElement> {
     const section = el(
       'section',
       { class: 'stack waiter-alert-section', 'aria-label': 'Chiamate clienti' },
-      el('div', { class: 'row between waiter-section-heading' }, el('h2', {}, 'Da gestire'), status(`${activeCalls.length} CHIAMATE`)),
+      el(
+        'div',
+        { class: 'row between waiter-section-heading' },
+        el('h2', {}, 'Da gestire'),
+        status(`${activeCalls.length} CHIAMATE`),
+      ),
     );
     for (const call of activeCalls) {
       const table = floor.tables.find((entry) => entry.id === call.table_id);
@@ -249,23 +289,28 @@ export async function waiterPage(context: StaffContext): Promise<HTMLElement> {
           el(
             'div',
             { class: 'row between waiter-card-heading' },
-            el('h3', {}, `${call.kind === 'BILL' ? 'Conto richiesto' : 'Chiamata cliente'} · ${table?.name ?? 'Tavolo'}`),
+            el(
+              'h3',
+              {},
+              `${call.kind === 'BILL' ? 'Conto richiesto' : 'Chiamata cliente'} · ${table?.name ?? 'Tavolo'}`,
+            ),
             status(call.status),
           ),
-          el('p', { class: 'muted service-timer' }, `In attesa da ${elapsedLabel(call.created_at)}`),
+          el(
+            'p',
+            { class: 'muted service-timer' },
+            `In attesa da ${elapsedLabel(call.created_at)}`,
+          ),
           el(
             'div',
             { class: 'row waiter-actions' },
-            button(
-              call.status === 'NEW' ? 'Prendi in carico' : 'Completa chiamata',
-              async () => {
-                await command('transition_waiter_call', {
-                  p_call: call.id,
-                  p_complete: call.status === 'ACCEPTED',
-                });
-                await context.refresh?.();
-              },
-            ),
+            button(call.status === 'NEW' ? 'Prendi in carico' : 'Completa chiamata', async () => {
+              await command('transition_waiter_call', {
+                p_call: call.id,
+                p_complete: call.status === 'ACCEPTED',
+              });
+              await context.refresh?.();
+            }),
             button('Apri conto', () => context.navigate(`/conti/${call.account_id}`), 'secondary'),
           ),
         ),
@@ -279,8 +324,17 @@ export async function waiterPage(context: StaffContext): Promise<HTMLElement> {
       el(
         'section',
         { class: 'stack', 'aria-label': 'Piatti pronti' },
-        el('div', { class: 'row between waiter-section-heading' }, el('h2', {}, 'Pronti da servire'), status(`${readySteps.length} STEP`)),
-        el('div', { class: 'waiter-delivery-grid' }, ...readySteps.map((step) => deliveryCard(context, step))),
+        el(
+          'div',
+          { class: 'row between waiter-section-heading' },
+          el('h2', {}, 'Pronti da servire'),
+          status(`${readySteps.length} STEP`),
+        ),
+        el(
+          'div',
+          { class: 'waiter-delivery-grid' },
+          ...readySteps.map((step) => deliveryCard(context, step)),
+        ),
       ),
     );
   }
@@ -310,7 +364,12 @@ export async function waiterPage(context: StaffContext): Promise<HTMLElement> {
                 el(
                   'div',
                   { class: 'row between waiter-card-heading' },
-                  el('div', {}, el('p', { class: 'eyebrow' }, `TAVOLO ${table.number}`), el('h2', {}, table.name)),
+                  el(
+                    'div',
+                    {},
+                    el('p', { class: 'eyebrow' }, `TAVOLO ${table.number}`),
+                    el('h2', {}, table.name),
+                  ),
                   pill,
                 ),
                 el('p', { class: 'muted' }, [room, zone].filter(Boolean).join(' · ')),
@@ -318,7 +377,11 @@ export async function waiterPage(context: StaffContext): Promise<HTMLElement> {
                   'div',
                   { class: 'waiter-table-facts' },
                   el('span', {}, `${table.covers}/${table.seats} coperti`),
-                  el('span', {}, `${table.open_accounts} ${table.open_accounts === 1 ? 'conto' : 'conti'}`),
+                  el(
+                    'span',
+                    {},
+                    `${table.open_accounts} ${table.open_accounts === 1 ? 'conto' : 'conti'}`,
+                  ),
                 ),
                 el(
                   'div',
@@ -327,12 +390,19 @@ export async function waiterPage(context: StaffContext): Promise<HTMLElement> {
                     ? button('Nuovo ordine', () => quickOrder(context, table))
                     : button('Nuovo conto', () => openAccountCreation(context, table)),
                   button('Apri conto', () => openTableAccount(context, table), 'secondary'),
-                  button('Dettagli tavolo', () => context.navigate(`/sala?tavolo=${table.id}`), 'quiet'),
+                  button(
+                    'Dettagli tavolo',
+                    () => context.navigate(`/sala?tavolo=${table.id}`),
+                    'quiet',
+                  ),
                 ),
               );
             }),
           )
-        : emptyState('Nessun tavolo assegnato', 'Le assegnazioni del servizio compariranno qui automaticamente.'),
+        : emptyState(
+            'Nessun tavolo assegnato',
+            'Le assegnazioni del servizio compariranno qui automaticamente.',
+          ),
     ),
   );
 
@@ -341,16 +411,27 @@ export async function waiterPage(context: StaffContext): Promise<HTMLElement> {
       el(
         'section',
         { class: 'stack waiter-active-orders', 'aria-label': 'Ordini attivi' },
-        el('div', { class: 'row between waiter-section-heading' }, el('h2', {}, 'Ordini in corso'), el('span', { class: 'muted' }, `${activeSteps.length} step`)),
-        ...activeSteps.slice(0, 8).map((step) =>
-          el(
-            'article',
-            { class: 'waiter-order-row' },
-            el('strong', {}, `${step.tableName} · Step ${step.stepNumber}`),
-            status(step.status),
-            el('span', { class: 'muted' }, `${step.items.reduce((sum, item) => sum + item.quantity, 0)} piatti · ${elapsedLabel(step.createdAt)}`),
-          ),
+        el(
+          'div',
+          { class: 'row between waiter-section-heading' },
+          el('h2', {}, 'Ordini in corso'),
+          el('span', { class: 'muted' }, `${activeSteps.length} step`),
         ),
+        ...activeSteps
+          .slice(0, 8)
+          .map((step) =>
+            el(
+              'article',
+              { class: 'waiter-order-row' },
+              el('strong', {}, `${step.tableName} · Step ${step.stepNumber}`),
+              status(step.status),
+              el(
+                'span',
+                { class: 'muted' },
+                `${step.items.reduce((sum, item) => sum + item.quantity, 0)} piatti · ${elapsedLabel(step.createdAt)}`,
+              ),
+            ),
+          ),
       ),
     );
 

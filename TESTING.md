@@ -126,7 +126,6 @@ Vedere `docs/REMOTE_CONFIGURATION.md` per preparazione, ripristino e limiti dell
 
 Il gate **non** sostituisce il collaudo browser: tempi reali del flusso tavolo→ordine, persistenza del contesto durante Realtime, touch/scroll su smartphone, accessibilità e resa visuale devono essere misurati nella checklist `docs/LOCAL_MANUAL_TEST_CHECKLIST.md`. Nessuna RLS, grant o state machine economica è stata semplificata per ottenere il percorso rapido.
 
-
 ## STEP 8 — live deterministic offline sync (2026-10-05)
 
 - Supabase development, fixture transazionale completamente rollbackata.
@@ -230,7 +229,6 @@ Il gate avanzato ha rilevato che `get_operational_statistics` restituiva già ca
 
 Questo non sostituisce il collaudo fisico Epson/EPOS/print-bridge/offline-printer, che resta l'ultimo gate esterno dello Step 7.
 
-
 ## STEP 12 — gate rehearsal reale
 
 `npm run continuity:rehearsal` è il runner operativo: non crea grant o richieste restore-test al posto del Super Admin; se il job TEST non è presente termina con `RESTORE_TEST_REQUEST_REQUIRED` e può essere rilanciato dopo la richiesta autorizzata.
@@ -250,6 +248,7 @@ Ulteriore hardening live del 6 ottobre: restore reference/actor FK indexes allin
 Ulteriori gate transazionali live sul development: alert worker recovery **7/7**, scheduler RPO idempotente **5/5**, lease/reclaim backup **8/8**, restore su backup non eleggibile fail-closed **6/6**, finish backup failure/audit **8/8**, API permission manifest client **5/5**. La migration `20261006044128_step12_audit_error_code_visibility.sql` conserva ora `error_code` e `purpose` negli audit tecnici senza ampliare il payload a campi non whitelisted. La riconciliazione post-restore del runbook passa **11/11**.
 
 ### Step 12 control-plane hardening — 2026-10-06
+
 - Restore-test su backup non verificato: **5/5 PASS**, fail-closed senza job/audit/idempotency residui.
 - Retention/restore race guard: **5/5 PASS**; restore attivo blocca il claim retention, restore terminale lo rende reclamabile.
 - Priorità coda backup: **7/7 PASS** (`PRE_RESTORE → RESTORE_TEST → MANUAL → SCHEDULED`) e un solo RUNNING.
@@ -262,8 +261,8 @@ Ulteriori gate transazionali live sul development: alert worker recovery **7/7**
 - Performance hardening restore references: migration `20261006045641`, Advisor ripulito per `backup_id/pre_restore_backup_id`.
 - Stato corrente: **130/130 migration**, Step 12 static **34/34**.
 
-
 ### Step 12 control-plane extended live gates — 2026-10-06
+
 - Restore-test backup non eligible: **5/5 PASS**.
 - Retention/restore race guard: **5/5 PASS**.
 - Backup queue priority: **7/7 PASS** (`PRE_RESTORE → RESTORE_TEST → MANUAL → SCHEDULED`).

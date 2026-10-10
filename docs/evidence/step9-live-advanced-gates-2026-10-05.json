@@ -54,11 +54,7 @@
   "room_editor": {
     "checks_passed": 10,
     "checks_total": 10,
-    "observed_errors": [
-      "P0001:VERSION_CONFLICT",
-      "P0001:LAYOUT_IN_SERVICE",
-      "42501:FORBIDDEN"
-    ],
+    "observed_errors": ["P0001:VERSION_CONFLICT", "P0001:LAYOUT_IN_SERVICE", "42501:FORBIDDEN"],
     "verified": [
       "save",
       "element/table persistence",
