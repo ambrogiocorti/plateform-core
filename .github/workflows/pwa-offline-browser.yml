@@ -2,6 +2,7 @@ name: P0 production PWA offline browser rehearsal
 on:
   push:
     branches:
+      - main
       - test/p0-pwa-browser-offline-20261010
   pull_request:
 permissions:
