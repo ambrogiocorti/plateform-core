@@ -5,6 +5,30 @@ on:
 permissions:
   contents: read
 jobs:
+  continuity_p0:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - name: Format check of new continuity sources
+        run: |
+          npx prettier --check \\
+            supabase/functions/continuity-backup-worker/index.ts \\
+            supabase/functions/continuity-replica-receiver/index.ts \\
+            tests/unit/continuity-preflight-contract.test.ts
+      - name: Strict Deno typecheck for continuity Edge Functions
+        run: |
+          node node_modules/deno/bin.cjs check \\
+            --config supabase/functions/deno.json \\
+            supabase/functions/continuity-backup-worker/index.ts \\
+            supabase/functions/continuity-replica-receiver/index.ts
+      - name: Continuity preflight contract regression
+        run: npx vitest run tests/unit/continuity-preflight-contract.test.ts
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 25
