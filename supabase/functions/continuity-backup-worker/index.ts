@@ -2,7 +2,15 @@ import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import { createClient } from 'npm:@supabase/supabase-js@2.116.0';
 
 const PRIMARY_BUCKET = 'plateform-continuity-primary';
-const SOURCE_REF = 'abdxvlykasqmknexxhjo';
+const SOURCE_REF = (() => {
+  const configured = Deno.env.get('SUPABASE_URL') ?? '';
+  const url = new URL(configured);
+  const match = /^([a-z0-9]{20})\\.supabase\\.co$/.exec(url.hostname);
+  if (url.protocol !== 'https:' || !match) {
+    throw new Error('CONTINUITY_SOURCE_PROJECT_INVALID');
+  }
+  return match[1];
+})();
 
 function b64ToBytes(value: string): Uint8Array {
   const clean = value.replace(/\s+/g, '');
@@ -225,10 +233,10 @@ Deno.serve(async (req: Request) => {
     );
     if (prepareError || !prepared?.final) throw new Error('SNAPSHOT_FAILED');
 
-    const primaryRef = `supabase-storage://${SOURCE_REF}/${PRIMARY_BUCKET}/${backupId}`;
-    const replicaRef = `supabase-storage://dkbjgvovxgglqhqxmuyb/plateform-continuity-replica/${backupId}`;
-
     const cfg = replicaConfig;
+    const replicaProjectRef = new URL(String(cfg.target_url)).hostname.split('.')[0] ?? '';
+    const primaryRef = `supabase-storage://${SOURCE_REF}/${PRIMARY_BUCKET}/${backupId}`;
+    const replicaRef = `supabase-storage://${replicaProjectRef}/plateform-continuity-replica/${backupId}`;
 
     const { data: meta, error: metaError } = await supabase.rpc(
       'build_continuity_backup_artifact_meta_v2',
