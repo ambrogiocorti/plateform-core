@@ -19,10 +19,14 @@ jobs:
       - run: npm ci
       - name: Test staging target binding fail-closed
         run: node --test scripts/check-staging-project-binding.mjs
+      - name: Test live API reachability preflight using mocked transport
+        run: node --test scripts/check-staging-api-reachability.mjs
       - name: Verify strict formatting
         run: >-
           npx prettier --check
           scripts/verify-staging-project-binding.mjs
           scripts/check-staging-project-binding.mjs
+          scripts/verify-staging-api-reachability.mjs
+          scripts/check-staging-api-reachability.mjs
           .github/workflows/staging-readiness.yml
           .github/workflows/staging-project-binding-test.yml
