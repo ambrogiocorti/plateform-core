@@ -1,0 +1,44 @@
+{
+  "kind": "P0_REPLICA_RECOVERY_FREE_SLOT_ROTATION",
+  "date": "2026-10-10",
+  "organization_plan": "free",
+  "active_project_limit": 2,
+  "source_project": "plateform-development",
+  "source_project_ref": "abdxvlykasqmknexxhjo",
+  "temporary_staging_pause": {
+    "project_name": "plateform-staging-clean",
+    "project_ref": "kghactswtabakkkbojmo",
+    "before": {
+      "status": "ACTIVE_HEALTHY",
+      "public_tables": 0,
+      "auth_users": 0,
+      "storage_objects": 0,
+      "edge_functions": 0
+    },
+    "pause_call": {
+      "success": true
+    },
+    "latest_state": "INACTIVE"
+  },
+  "replica": {
+    "name": "plateform-restore-test",
+    "project_ref": "dkbjgvovxgglqhqxmuyb",
+    "before": "INACTIVE",
+    "restore_call": {
+      "success": true
+    },
+    "latest_status": "RESTORING",
+    "original_edge_function": "continuity-replica-receiver",
+    "original_edge_version": 4,
+    "rollback_source": "docs/recovery/continuity-replica-receiver-v4-2026-10-10.txt"
+  },
+  "restrictions": [
+    "No new backup snapshots while receiver project is restoring",
+    "Do not deploy or invoke replica receiver until target ACTIVE_HEALTHY with pre-existing data and Storage verified",
+    "No deletion or overwrite of existing restore-test state",
+    "Staging was empty and can be restored later by pausing replica in the free two-active-project limit",
+    "Production must not use temporary slot rotation as the continuity solution"
+  ],
+  "scheduler_state": "PAUSED",
+  "release_gate": "NO_GO"
+}
