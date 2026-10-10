@@ -1,3 +1,4 @@
+import { isIP } from 'node:net';
 import { pathToFileURL } from 'node:url';
 
 const RESERVED_PROJECT_REFS = new Set([
@@ -38,7 +39,9 @@ export function verifyStagingProjectBinding({
     origin.pathname !== '/' ||
     origin.search ||
     origin.hash ||
-    origin.hostname.endsWith('.supabase.co')
+    origin.hostname.endsWith('.supabase.co') ||
+    origin.hostname.endsWith('.local') ||
+    isIP(origin.hostname) !== 0
   ) {
     blocked('STAGING_ORIGIN_MUST_BE_CLEAN_HTTPS');
   }
