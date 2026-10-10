@@ -64,17 +64,37 @@ async function refreshVisiblePage(): Promise<void> {
   }
   await currentContext.refresh?.();
 }
-const navigation: { path: string; label: string; roles: UserRole[]; section?: 'OPERATIVITÀ' | 'CONFIGURAZIONE' }[] = [
+const navigation: {
+  path: string;
+  label: string;
+  roles: UserRole[];
+  section?: 'OPERATIVITÀ' | 'CONFIGURAZIONE';
+}[] = [
   { path: '/operazioni', label: 'Operazioni', roles: ['ADMIN'], section: 'OPERATIVITÀ' },
   { path: '/servizio', label: 'Servizio', roles: ['WAITER'] },
   { path: '/salute', label: 'Operational Health', roles: ['SUPER_ADMIN'] },
   { path: '/accoglienza', label: 'Accoglienza', roles: ['ADMIN', 'HOST'], section: 'OPERATIVITÀ' },
-  { path: '/sala', label: 'Sala', roles: ['ADMIN', 'HOST', 'WAITER', 'CASHIER', 'PASS'], section: 'OPERATIVITÀ' },
+  {
+    path: '/sala',
+    label: 'Sala',
+    roles: ['ADMIN', 'HOST', 'WAITER', 'CASHIER', 'PASS'],
+    section: 'OPERATIVITÀ',
+  },
   { path: '/conti', label: 'Conti', roles: ['ADMIN', 'WAITER', 'CASHIER'], section: 'OPERATIVITÀ' },
   { path: '/cassa', label: 'Cassa', roles: ['ADMIN', 'CASHIER'], section: 'OPERATIVITÀ' },
-  { path: '/statistiche', label: 'Statistiche', roles: ['ADMIN', 'CASHIER'], section: 'OPERATIVITÀ' },
+  {
+    path: '/statistiche',
+    label: 'Statistiche',
+    roles: ['ADMIN', 'CASHIER'],
+    section: 'OPERATIVITÀ',
+  },
   { path: '/conflitti', label: 'Conflitti offline', roles: ['ADMIN'], section: 'OPERATIVITÀ' },
-  { path: '/dispositivi', label: 'Dispositivi', roles: ['ADMIN', 'SUPER_ADMIN'], section: 'CONFIGURAZIONE' },
+  {
+    path: '/dispositivi',
+    label: 'Dispositivi',
+    roles: ['ADMIN', 'SUPER_ADMIN'],
+    section: 'CONFIGURAZIONE',
+  },
   {
     path: '/stampe',
     label: 'Stampe',
@@ -83,14 +103,29 @@ const navigation: { path: string; label: string; roles: UserRole[]; section?: 'O
   },
   { path: '/modifiche', label: 'Approvazioni comande', roles: ['ADMIN'], section: 'OPERATIVITÀ' },
   { path: '/editor', label: 'Editor sala', roles: ['ADMIN'], section: 'CONFIGURAZIONE' },
-  { path: '/pianificazione', label: 'Turni e prenotazioni', roles: ['ADMIN'], section: 'CONFIGURAZIONE' },
+  {
+    path: '/pianificazione',
+    label: 'Turni e prenotazioni',
+    roles: ['ADMIN'],
+    section: 'CONFIGURAZIONE',
+  },
   { path: '/gestione', label: 'Configurazione', roles: ['ADMIN'], section: 'CONFIGURAZIONE' },
   { path: '/sito', label: 'Sito e branding', roles: ['ADMIN'], section: 'CONFIGURAZIONE' },
-  { path: '/impostazioni', label: 'Regole del servizio', roles: ['ADMIN'], section: 'CONFIGURAZIONE' },
+  {
+    path: '/impostazioni',
+    label: 'Regole del servizio',
+    roles: ['ADMIN'],
+    section: 'CONFIGURAZIONE',
+  },
   { path: '/privacy', label: 'Dati personali', roles: ['ADMIN'], section: 'CONFIGURAZIONE' },
   { path: '/audit', label: 'Audit', roles: ['SUPER_ADMIN'] },
   { path: '/staff', label: 'Staff', roles: ['ADMIN', 'SUPER_ADMIN'], section: 'CONFIGURAZIONE' },
-  { path: '/cucina', label: 'Cucina', roles: ['ADMIN', 'KITCHEN_ADMIN', 'KITCHEN_STAFF'], section: 'OPERATIVITÀ' },
+  {
+    path: '/cucina',
+    label: 'Cucina',
+    roles: ['ADMIN', 'KITCHEN_ADMIN', 'KITCHEN_STAFF'],
+    section: 'OPERATIVITÀ',
+  },
   { path: '/pass', label: 'Pass', roles: ['PASS'] },
   { path: '/consegne', label: 'Consegne', roles: ['WAITER'] },
   {
@@ -384,7 +419,9 @@ async function render(): Promise<void> {
         'Utilizza le funzioni disponibili per il tuo ruolo.',
       );
     else if (pageLink.path === '/operazioni')
-      content = await (await import('../../src/pages/admin-operations')).adminOperationsPage(context);
+      content = await (
+        await import('../../src/pages/admin-operations')
+      ).adminOperationsPage(context);
     else if (pageLink.path === '/servizio')
       content = await (await import('../../src/pages/waiter')).waiterPage(context);
     else if (pageLink.path === '/sala')

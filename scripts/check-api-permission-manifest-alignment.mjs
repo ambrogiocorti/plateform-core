@@ -1,15 +1,24 @@
 import { readFile } from 'node:fs/promises';
 
 const alignment = await readFile(
-  new URL('../supabase/migrations/20261005222521_api_permission_manifest_alignment.sql', import.meta.url),
+  new URL(
+    '../supabase/migrations/20261005222521_api_permission_manifest_alignment.sql',
+    import.meta.url,
+  ),
   'utf8',
 );
 const cleanup = await readFile(
-  new URL('../supabase/migrations/20261005223814_api_permission_manifest_legacy_cleanup.sql', import.meta.url),
+  new URL(
+    '../supabase/migrations/20261005223814_api_permission_manifest_legacy_cleanup.sql',
+    import.meta.url,
+  ),
   'utf8',
 );
 const heartbeat = await readFile(
-  new URL('../supabase/migrations/20261005221652_step12_continuity_worker_heartbeat.sql', import.meta.url),
+  new URL(
+    '../supabase/migrations/20261005221652_step12_continuity_worker_heartbeat.sql',
+    import.meta.url,
+  ),
   'utf8',
 );
 
@@ -33,7 +42,12 @@ const legacy = [
 const checks = [
   ...required.map((signature) => [alignment.includes(signature), `required:${signature}`]),
   ...legacy.map((signature) => [cleanup.includes(signature), `legacy-cleanup:${signature}`]),
-  [heartbeat.includes("('public.record_continuity_worker_heartbeat(text,text,jsonb)','service_role')"), 'heartbeat manifest service-role entry'],
+  [
+    heartbeat.includes(
+      "('public.record_continuity_worker_heartbeat(text,text,jsonb)','service_role')",
+    ),
+    'heartbeat manifest service-role entry',
+  ],
   [cleanup.includes("where api_role='authenticated'"), 'legacy cleanup scoped to authenticated'],
 ];
 

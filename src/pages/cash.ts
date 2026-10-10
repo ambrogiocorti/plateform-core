@@ -1,15 +1,6 @@
 import { z } from 'zod';
 import { readPage, readRows, rpc } from '../api/client';
-import {
-  button,
-  dialog,
-  el,
-  emptyState,
-  field,
-  showError,
-  status,
-  toast,
-} from '../components/dom';
+import { button, dialog, el, emptyState, field, showError, status, toast } from '../components/dom';
 import { formatMoney, parseMoney } from '../services/money';
 import { permittedPaymentMethod } from '../services/commercial-scope';
 import { accountWorkspaceSchema } from '../types/accounts';
@@ -112,7 +103,9 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
 
   async function loadAccount(accountId: string): Promise<void> {
     selectedAccountId = accountId;
-    accountWorkspace.replaceChildren(el('p', { class: 'loading', role: 'status' }, 'Caricamento conto…'));
+    accountWorkspace.replaceChildren(
+      el('p', { class: 'loading', role: 'status' }, 'Caricamento conto…'),
+    );
     const [workspace, paymentPage] = await Promise.all([
       rpc('get_account_workspace', { p_account: accountId }, accountWorkspaceSchema),
       rpc(
@@ -136,17 +129,8 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
     };
 
     const primaryActions = el('div', { class: 'cashier-primary-actions' });
-    const pay = button(
-      'NUOVO PAGAMENTO · F4',
-      () =>
-        paymentDialog(
-          context,
-          account.id,
-          balance.available_cents,
-          [],
-          undefined,
-          refreshSelected,
-        ),
+    const pay = button('NUOVO PAGAMENTO · F4', () =>
+      paymentDialog(context, account.id, balance.available_cents, [], undefined, refreshSelected),
     );
     pay.disabled = account.status === 'CLOSED' || balance.available_cents <= 0;
     if (pay.disabled)
@@ -163,8 +147,13 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
     const productRows = workspace.orders.flatMap((order) =>
       order.items.map((item) => ({ ...item, order_status: order.status })),
     );
-    const products = el('section', { class: 'cashier-detail-panel stack' }, el('h3', {}, 'Prodotti'));
-    if (!productRows.length) products.append(el('p', { class: 'muted' }, 'Nessun prodotto sul conto.'));
+    const products = el(
+      'section',
+      { class: 'cashier-detail-panel stack' },
+      el('h3', {}, 'Prodotti'),
+    );
+    if (!productRows.length)
+      products.append(el('p', { class: 'muted' }, 'Nessun prodotto sul conto.'));
     for (const item of productRows.slice(0, 16))
       products.append(
         el(
@@ -177,7 +166,11 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
       );
     if (productRows.length > 16)
       products.append(
-        el('p', { class: 'muted' }, `Altri ${productRows.length - 16} prodotti nello storico completo.`),
+        el(
+          'p',
+          { class: 'muted' },
+          `Altri ${productRows.length - 16} prodotti nello storico completo.`,
+        ),
       );
 
     const payments = el(
@@ -192,11 +185,7 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
         el(
           'div',
           { class: 'cashier-line' },
-          el(
-            'span',
-            {},
-            `${payment.method.replaceAll('_', ' ')} · ${payment.register_name}`,
-          ),
+          el('span', {}, `${payment.method.replaceAll('_', ' ')} · ${payment.register_name}`),
           el('strong', {}, formatMoney(payment.amount_cents + payment.tip_cents)),
           status(payment.status),
         ),
@@ -225,7 +214,11 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
         moneyKpi('TOTALE', balance.total_cents),
         moneyKpi('PAGATO', balance.paid_cents),
         moneyKpi('RESIDUO', balance.remaining_cents, 'cashier-kpi-primary'),
-        moneyKpi('IN ATTESA', balance.pending_cents, balance.pending_cents ? 'cashier-kpi-warning' : ''),
+        moneyKpi(
+          'IN ATTESA',
+          balance.pending_cents,
+          balance.pending_cents ? 'cashier-kpi-warning' : '',
+        ),
       ),
       ...(balance.pending_cents > 0
         ? [
@@ -296,7 +289,11 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
             !registerSessions.some(
               (entry) => entry.cash_register_id === register.id && !entry.closed_at,
             )
-            ? button('Apri servizio contabile', () => openService(register.id, register.name), 'secondary')
+            ? button(
+                'Apri servizio contabile',
+                () => openService(register.id, register.name),
+                'secondary',
+              )
             : null,
         ),
       );
@@ -316,7 +313,9 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
             status(service.status),
           ),
           button(
-            service.status === 'AWAITING_APPROVAL' ? 'Verifica differenza' : 'Quadratura e chiusura',
+            service.status === 'AWAITING_APPROVAL'
+              ? 'Verifica differenza'
+              : 'Quadratura e chiusura',
             () => reconciliationDialog(context, service.id),
             'secondary',
           ),
@@ -491,7 +490,9 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
       }
       if (event.key === 'F4' && selectedAccountId) {
         event.preventDefault();
-        const pay = accountWorkspace.querySelector<HTMLButtonElement>('.cashier-primary-actions .button');
+        const pay = accountWorkspace.querySelector<HTMLButtonElement>(
+          '.cashier-primary-actions .button',
+        );
         if (pay && !pay.disabled) pay.click();
       }
     },
@@ -520,10 +521,7 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
     accountWorkspace,
   );
 
-  view.append(
-    commandCenter,
-    secondary,
-  );
+  view.append(commandCenter, secondary);
   accountWorkspace.append(
     emptyState(
       'Seleziona un conto',

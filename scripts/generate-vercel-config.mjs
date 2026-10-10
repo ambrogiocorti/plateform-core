@@ -7,4 +7,6 @@ const config = createVercelConfiguration({
 });
 const destination = process.env.PLATEFORM_VERCEL_OUTPUT || 'vercel.json';
 await writeFile(destination, JSON.stringify(config, null, 2) + '\n', { mode: 0o644 });
-console.log(`Generated ${destination} for ${process.env.PLATEFORM_VERCEL_MODE || 'staging'} (no credentials written).`);
+console.log(
+  `Generated ${destination} for ${process.env.PLATEFORM_VERCEL_MODE || 'staging'} (no credentials written).`,
+);

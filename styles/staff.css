@@ -358,7 +358,9 @@
   color: #111;
   padding: 14mm;
   border-radius: 12px;
-  font: 14px/1.45 system-ui, sans-serif;
+  font:
+    14px/1.45 system-ui,
+    sans-serif;
 }
 .invoice-header,
 .invoice-brand,
@@ -853,9 +855,15 @@
   overflow: hidden;
   min-width: 0;
 }
-.kds-ticket.is-warning { border-top-color: var(--warning); }
-.kds-ticket.is-critical { border-top-color: var(--danger); }
-.kds-ticket.is-complete { border-top-color: var(--success); }
+.kds-ticket.is-warning {
+  border-top-color: var(--warning);
+}
+.kds-ticket.is-critical {
+  border-top-color: var(--danger);
+}
+.kds-ticket.is-complete {
+  border-top-color: var(--success);
+}
 .kds-ticket-head,
 .kds-step-summary,
 .kitchen-line-main,
@@ -865,9 +873,18 @@
   justify-content: space-between;
   gap: 12px;
 }
-.kds-ticket-head { padding: 18px 20px 12px; }
-.kds-ticket-head h2 { margin: 2px 0 0; font-size: clamp(24px, 2vw, 34px); }
-.kds-ticket-meta { display: grid; justify-items: end; gap: 7px; }
+.kds-ticket-head {
+  padding: 18px 20px 12px;
+}
+.kds-ticket-head h2 {
+  margin: 2px 0 0;
+  font-size: clamp(24px, 2vw, 34px);
+}
+.kds-ticket-meta {
+  display: grid;
+  justify-items: end;
+  gap: 7px;
+}
 .kds-timer {
   font-variant-numeric: tabular-nums;
   font-size: 22px;
@@ -878,13 +895,32 @@
   background: var(--raised);
   font-variant-numeric: tabular-nums;
 }
-.kitchen-line { padding: 16px 20px; border-top: 1px solid var(--border); }
-.kitchen-line h3 { margin: 0; font-size: clamp(20px, 1.7vw, 27px); line-height: 1.15; }
+.kitchen-line {
+  padding: 16px 20px;
+  border-top: 1px solid var(--border);
+}
+.kitchen-line h3 {
+  margin: 0;
+  font-size: clamp(20px, 1.7vw, 27px);
+  line-height: 1.15;
+}
 .kitchen-modifier,
-.kitchen-allergens { margin: 10px 0 0; font-weight: 750; line-height: 1.3; }
-.kitchen-modifier { color: var(--warning); }
-.kitchen-allergens { color: var(--danger); }
-.kitchen-line .button { min-height: 58px; margin-top: 14px; font-weight: 750; }
+.kitchen-allergens {
+  margin: 10px 0 0;
+  font-weight: 750;
+  line-height: 1.3;
+}
+.kitchen-modifier {
+  color: var(--warning);
+}
+.kitchen-allergens {
+  color: var(--danger);
+}
+.kitchen-line .button {
+  min-height: 58px;
+  margin-top: 14px;
+  font-weight: 750;
+}
 .pass-ready-banner {
   margin: 16px 20px 0;
   padding: 14px 16px;
@@ -895,17 +931,36 @@
   letter-spacing: 0.04em;
 }
 .kds-ticket > .button,
-.kds-delivery-actions { margin: 14px 20px 20px; }
-.kds-ticket > .button { width: calc(100% - 40px); min-height: 58px; }
-.kds-delivery-actions .button { flex: 1; min-height: 58px; }
+.kds-delivery-actions {
+  margin: 14px 20px 20px;
+}
+.kds-ticket > .button {
+  width: calc(100% - 40px);
+  min-height: 58px;
+}
+.kds-delivery-actions .button {
+  flex: 1;
+  min-height: 58px;
+}
 @media (min-width: 1200px) {
-  .kitchen-grid { grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); align-items: start; }
+  .kitchen-grid {
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    align-items: start;
+  }
 }
 @media (max-width: 720px) {
-  .kitchen-grid { grid-template-columns: 1fr; }
-  .kds-ticket-head { align-items: flex-start; }
-  .kds-delivery-actions { flex-direction: column; }
-  .kds-delivery-actions .button { width: 100%; }
+  .kitchen-grid {
+    grid-template-columns: 1fr;
+  }
+  .kds-ticket-head {
+    align-items: flex-start;
+  }
+  .kds-delivery-actions {
+    flex-direction: column;
+  }
+  .kds-delivery-actions .button {
+    width: 100%;
+  }
 }
 
 /* Operational UX — HOST */
@@ -932,9 +987,9 @@
 }
 .host-kpi span {
   color: var(--muted);
-  font-size: .72rem;
+  font-size: 0.72rem;
   font-weight: 800;
-  letter-spacing: .05em;
+  letter-spacing: 0.05em;
 }
 .host-quick-form,
 .host-filters {
@@ -974,13 +1029,19 @@
   border-left: 4px solid var(--warning);
 }
 @media (max-width: 1100px) {
-  .host-service-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .host-service-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 @media (max-width: 700px) {
   .host-service-kpis,
   .host-quick-form,
-  .host-filters { grid-template-columns: 1fr; }
-  .host-card-actions .button { flex: 1 1 140px; }
+  .host-filters {
+    grid-template-columns: 1fr;
+  }
+  .host-card-actions .button {
+    flex: 1 1 140px;
+  }
 }
 
 /* CASHIER — desktop-first incasso command center */

@@ -11,26 +11,35 @@ const migrationBytes = readFileSync(migrationPath);
 const sql = migrationBytes.toString('utf8');
 const foundation = readFileSync('supabase/migrations/20261003165439_foundation.sql', 'utf8');
 const enumValues = (type) => {
-  const match = foundation.match(new RegExp(`create type public\\.${type} as enum \\(([^)]*)\\)`, 'i'));
+  const match = foundation.match(
+    new RegExp(`create type public\\.${type} as enum \\(([^)]*)\\)`, 'i'),
+  );
   assert.ok(match, `${type} must exist in foundation schema`);
   return [...match[1].matchAll(/'([^']+)'/g)].map((m) => m[1]);
 };
 let count = 0;
 function check(name, run) {
-  try { run(); count++; } catch (error) { throw new Error(`${name}: ${error.message}`, { cause: error }); }
+  try {
+    run();
+    count++;
+  } catch (error) {
+    throw new Error(`${name}: ${error.message}`, { cause: error });
+  }
 }
 
 const paymentMethods = enumValues('payment_method');
 const refundStatuses = enumValues('refund_status');
 const paymentStatuses = enumValues('payment_status');
 check('payment enum contains only documented CORE methods', () => {
-  assert.deepEqual(paymentMethods, ['CASH','CARD_POS','STRIPE','SATISPAY_POS','SATISPAY_API']);
+  assert.deepEqual(paymentMethods, ['CASH', 'CARD_POS', 'STRIPE', 'SATISPAY_POS', 'SATISPAY_API']);
 });
 check('payment preflight terminal enum is valid', () => {
-  for (const value of ['FAILED','CANCELLED','REFUNDED']) assert.ok(paymentStatuses.includes(value));
+  for (const value of ['FAILED', 'CANCELLED', 'REFUNDED'])
+    assert.ok(paymentStatuses.includes(value));
 });
 check('refund preflight terminal enum is valid', () => {
-  for (const value of ['FAILED','REJECTED','COMPLETED']) assert.ok(refundStatuses.includes(value));
+  for (const value of ['FAILED', 'REJECTED', 'COMPLETED'])
+    assert.ok(refundStatuses.includes(value));
   assert.ok(!sql.match(/refunds[\s\S]{0,170}CANCELLED/), 'no nonexistent refund enum states');
 });
 check('historical refunded payments do not block activation', () => {
@@ -50,9 +59,7 @@ check('applied migration version and digest match the source manifest', () => {
   // Windows Git checkouts predating .gitattributes may contain CRLF. Accept
   // only the byte-identical SQL or an LF-canonicalized equivalent, never a
   // changed migration body. The manifest remains the authority.
-  const verifiedHash = rawHash === row.sha256
-    ? rawHash
-    : hash(sql.replace(/\r\n/g, '\n'));
+  const verifiedHash = rawHash === row.sha256 ? rawHash : hash(sql.replace(/\r\n/g, '\n'));
   assert.equal(row.sha256, verifiedHash);
 });
 for (const pattern of [
@@ -76,7 +83,8 @@ for (const pattern of [
   /SET licensed\s*=\s*false/,
   /'BOOKING_DEPOSITS'\) AND licensed\s*=\s*true/,
   /FROM PUBLIC,\s*anon,\s*authenticated/,
-]) check(`required policy: ${pattern}`, () => assert.match(sql, pattern));
+])
+  check(`required policy: ${pattern}`, () => assert.match(sql, pattern));
 
 check('all function scopes have fixed search path', () => {
   const functions = sql.match(/CREATE OR REPLACE FUNCTION/g) ?? [];
@@ -87,4 +95,6 @@ check('all function scopes have fixed search path', () => {
 check('policy does not perform destructive historical deletes', () => {
   assert.doesNotMatch(sql, /\b(?:DELETE FROM|TRUNCATE|DROP TABLE|DROP TYPE)\b/i);
 });
-console.log(`CORE_SERVER_POLICY_SOURCE=PASS (${count}/${count} source checks; real JWT API authorization still required)`);
+console.log(
+  `CORE_SERVER_POLICY_SOURCE=PASS (${count}/${count} source checks; real JWT API authorization still required)`,
+);

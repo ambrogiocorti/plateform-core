@@ -54,33 +54,81 @@ const site = {
 
 assert.equal(selectedVenue(site, '/sedi/navigli', '')?.slug, 'navigli');
 assert.equal(selectedVenue(site, '/menu', '?sede=navigli')?.slug, 'navigli');
-assert.equal(selectedVenue(site, '/menu', '')?.slug, 'centro', 'generic menu uses the default venue');
-assert.equal(selectedVenue(site, '/menu', '?sede=missing'), undefined,
-  'unknown explicit venue must not display default-venue prices');
-assert.equal(selectedVenue(site, '/menu', '?sede='), undefined,
-  'empty explicit venue must not display default-venue prices');
-assert.equal(selectedVenue(site, '/sedi/missing', ''), undefined,
-  'unknown venue detail must not inherit another venue');
-assert.equal(selectedVenue(site, '/sedi/navigli', '?sede=centro'), undefined,
-  'conflicting path/query venue selectors must fail closed');
-assert.equal(selectedVenue(site, '/menu', '?sede=centro&sede=navigli'), undefined,
-  'repeated venue selectors must not choose the first price list');
+assert.equal(
+  selectedVenue(site, '/menu', '')?.slug,
+  'centro',
+  'generic menu uses the default venue',
+);
+assert.equal(
+  selectedVenue(site, '/menu', '?sede=missing'),
+  undefined,
+  'unknown explicit venue must not display default-venue prices',
+);
+assert.equal(
+  selectedVenue(site, '/menu', '?sede='),
+  undefined,
+  'empty explicit venue must not display default-venue prices',
+);
+assert.equal(
+  selectedVenue(site, '/sedi/missing', ''),
+  undefined,
+  'unknown venue detail must not inherit another venue',
+);
+assert.equal(
+  selectedVenue(site, '/sedi/navigli', '?sede=centro'),
+  undefined,
+  'conflicting path/query venue selectors must fail closed',
+);
+assert.equal(
+  selectedVenue(site, '/menu', '?sede=centro&sede=navigli'),
+  undefined,
+  'repeated venue selectors must not choose the first price list',
+);
 assert.equal(bookingVenue(site, site.venues[0])?.slug, 'navigli');
-assert.equal(resolveBookingVenue(site, '/', '')?.slug, 'navigli', 'generic booking finds available venue');
+assert.equal(
+  resolveBookingVenue(site, '/', '')?.slug,
+  'navigli',
+  'generic booking finds available venue',
+);
 assert.equal(resolveBookingVenue(site, '/prenota', '?sede=navigli')?.slug, 'navigli');
-assert.equal(resolveBookingVenue(site, '/prenota', '?sede=centro'), undefined,
-  'disabled explicitly selected venue is never silently replaced');
-assert.equal(resolveBookingVenue(site, '/prenota', '?sede=missing'), undefined,
-  'unknown explicitly selected venue must fail closed');
-assert.equal(resolveBookingVenue(site, '/prenota', '?sede='), undefined,
-  'empty explicit selection must fail closed');
-assert.equal(resolveBookingVenue(site, '/sedi/centro', ''), undefined,
-  'non-bookable venue details must not fall back to a different location');
-assert.equal(resolveBookingVenue(site, '/sedi/navigli', '?sede=centro'), undefined,
-  'conflicting explicit booking selectors must be rejected');
-assert.equal(resolveBookingVenue(site, '/prenota', '?sede=centro&sede=navigli'), undefined,
-  'duplicate booking venue selectors must be rejected');
-assert.equal(resolveBookingVenue({...site,venues:site.venues.map(v=>({...v,reservations_enabled:false}))},'/prenota',''),undefined);
+assert.equal(
+  resolveBookingVenue(site, '/prenota', '?sede=centro'),
+  undefined,
+  'disabled explicitly selected venue is never silently replaced',
+);
+assert.equal(
+  resolveBookingVenue(site, '/prenota', '?sede=missing'),
+  undefined,
+  'unknown explicitly selected venue must fail closed',
+);
+assert.equal(
+  resolveBookingVenue(site, '/prenota', '?sede='),
+  undefined,
+  'empty explicit selection must fail closed',
+);
+assert.equal(
+  resolveBookingVenue(site, '/sedi/centro', ''),
+  undefined,
+  'non-bookable venue details must not fall back to a different location',
+);
+assert.equal(
+  resolveBookingVenue(site, '/sedi/navigli', '?sede=centro'),
+  undefined,
+  'conflicting explicit booking selectors must be rejected',
+);
+assert.equal(
+  resolveBookingVenue(site, '/prenota', '?sede=centro&sede=navigli'),
+  undefined,
+  'duplicate booking venue selectors must be rejected',
+);
+assert.equal(
+  resolveBookingVenue(
+    { ...site, venues: site.venues.map((v) => ({ ...v, reservations_enabled: false })) },
+    '/prenota',
+    '',
+  ),
+  undefined,
+);
 assert.equal(venueAwarePath('/menu', site, site.venues[1]), '/menu?sede=navigli');
 assert.equal(venueAwarePath('/sedi', site, site.venues[1]), '/sedi');
 assert.equal(
@@ -103,12 +151,25 @@ assert.equal(
   'https://restaurant.test/menu',
   'invalid venue canonical must not falsely attribute prices to the default venue',
 );
-assert.equal(safeRecoveredPublicRoute('/menu/carta-vini?sede=navigli#lista', 'https://restaurant.test'),
-  '/menu/carta-vini?sede=navigli#lista');
-for (const forged of ['//attacker.example/', '/staff', '/staff/login', '/api/status',
-  '/sitemap.xml', '/unknown', 'https://attacker.example/', '/menu/../../staff']) {
-  assert.equal(safeRecoveredPublicRoute(forged, 'https://restaurant.test'), null,
-    `static 404 route recovery rejects ${forged}`);
+assert.equal(
+  safeRecoveredPublicRoute('/menu/carta-vini?sede=navigli#lista', 'https://restaurant.test'),
+  '/menu/carta-vini?sede=navigli#lista',
+);
+for (const forged of [
+  '//attacker.example/',
+  '/staff',
+  '/staff/login',
+  '/api/status',
+  '/sitemap.xml',
+  '/unknown',
+  'https://attacker.example/',
+  '/menu/../../staff',
+]) {
+  assert.equal(
+    safeRecoveredPublicRoute(forged, 'https://restaurant.test'),
+    null,
+    `static 404 route recovery rejects ${forged}`,
+  );
 }
 assert.equal(
   canonicalPublicUrl(site, '/sedi/navigli', '', 'https://restaurant.test'),
@@ -118,32 +179,69 @@ assert.equal(normalizePublicPath('/sedi/navigli'), '/sedi/:venue');
 assert.equal(normalizePublicPath('/menu/carta-vini'), '/menu/:slug');
 assert.equal(normalizePublicPath('/tavolo/abc'), '/tavolo/:id');
 assert.equal(normalizePublicPath('/unknown'), null);
-assert.deepEqual(publicMetricContext('/menu/carta-vini', '?sede=navigli'), {
-  path: '/menu/:slug', key: '/menu/carta-vini?sede=navigli',
-}, 'performance metrics use a stable, venue-specific route snapshot');
-assert.equal(publicMetricContext('/tavolo/private-customer-token', '?sede=navigli'), null,
-  'QR/customer URLs must not be recorded in public page telemetry');
-assert.equal(publicMetricContext('/staff/login', ''), null,
-  'staff URLs must never be counted as public routes');
-assert.deepEqual(publicMetricContext('/menu/carta-vini', '?sede=navigli&email=private@example.test&token=abc'), {
-  path: '/menu/:slug', key: '/menu/carta-vini?sede=navigli',
-}, 'telemetry deduplication does not store arbitrary potentially sensitive query strings');
-assert.deepEqual(publicMetricContext('/menu', '?utm_campaign=test&phone=1234'), {
-  path: '/menu', key: '/menu',
-}, 'tracking and personal query params must not enter observer keys');
-for (const route of ['/', '/menu', '/menu/carta-vini', '/sedi/navigli', '/tavolo/abc', '/prenota']) {
+assert.deepEqual(
+  publicMetricContext('/menu/carta-vini', '?sede=navigli'),
+  {
+    path: '/menu/:slug',
+    key: '/menu/carta-vini?sede=navigli',
+  },
+  'performance metrics use a stable, venue-specific route snapshot',
+);
+assert.equal(
+  publicMetricContext('/tavolo/private-customer-token', '?sede=navigli'),
+  null,
+  'QR/customer URLs must not be recorded in public page telemetry',
+);
+assert.equal(
+  publicMetricContext('/staff/login', ''),
+  null,
+  'staff URLs must never be counted as public routes',
+);
+assert.deepEqual(
+  publicMetricContext('/menu/carta-vini', '?sede=navigli&email=private@example.test&token=abc'),
+  {
+    path: '/menu/:slug',
+    key: '/menu/carta-vini?sede=navigli',
+  },
+  'telemetry deduplication does not store arbitrary potentially sensitive query strings',
+);
+assert.deepEqual(
+  publicMetricContext('/menu', '?utm_campaign=test&phone=1234'),
+  {
+    path: '/menu',
+    key: '/menu',
+  },
+  'tracking and personal query params must not enter observer keys',
+);
+for (const route of [
+  '/',
+  '/menu',
+  '/menu/carta-vini',
+  '/sedi/navigli',
+  '/tavolo/abc',
+  '/prenota',
+]) {
   assert.equal(isClientSidePublicPath(route), true, `public route: ${route}`);
 }
-for (const route of ['/staff', '/staff/login', '/api/status', '/sitemap.xml',
-  '/robots.txt', '/menu/../../staff', '/menu/', '/sedi/milano/extra', '/unknown']) {
+for (const route of [
+  '/staff',
+  '/staff/login',
+  '/api/status',
+  '/sitemap.xml',
+  '/robots.txt',
+  '/menu/../../staff',
+  '/menu/',
+  '/sedi/milano/extra',
+  '/unknown',
+]) {
   assert.equal(isClientSidePublicPath(route), false, `not a public SPA route: ${route}`);
 }
 assert.ok(contrastRatio('#111315', '#f4f0e8') > 7);
 assert.equal(safeBackground('#ffffff', true), undefined);
 assert.equal(safeBackground('#111315', true), '#111315');
 assert.equal(safeAccent('#111315', '#111315'), undefined);
-for (const color of ['#ffffff','#ff0000','#ff6600','#00a0f0','#22cc99','#795127','#d3ab78']) {
-  assert.ok(contrastRatio(color,readableInk(color)) >= 4.5, `button text contrast: ${color}`);
+for (const color of ['#ffffff', '#ff0000', '#ff6600', '#00a0f0', '#22cc99', '#795127', '#d3ab78']) {
+  assert.ok(contrastRatio(color, readableInk(color)) >= 4.5, `button text contrast: ${color}`);
 }
 assert.equal(
   safePublicLink('javascript:alert(1)', 'https://restaurant.test'),

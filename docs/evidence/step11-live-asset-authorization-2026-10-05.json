@@ -17,47 +17,28 @@
     "magic_byte_validation": true,
     "sha256_checksum": true,
     "rate_limit": "20 / 600s per authenticated user",
-    "allowed_buckets": [
-      "branding",
-      "dishes",
-      "gallery",
-      "documents"
-    ]
+    "allowed_buckets": ["branding", "dishes", "gallery", "documents"]
   },
   "buckets": {
     "branding": {
       "public": true,
       "limit": 5242880,
-      "mime": [
-        "image/png",
-        "image/jpeg",
-        "image/webp"
-      ]
+      "mime": ["image/png", "image/jpeg", "image/webp"]
     },
     "dishes": {
       "public": true,
       "limit": 5242880,
-      "mime": [
-        "image/png",
-        "image/jpeg",
-        "image/webp"
-      ]
+      "mime": ["image/png", "image/jpeg", "image/webp"]
     },
     "gallery": {
       "public": true,
       "limit": 5242880,
-      "mime": [
-        "image/png",
-        "image/jpeg",
-        "image/webp"
-      ]
+      "mime": ["image/png", "image/jpeg", "image/webp"]
     },
     "documents": {
       "public": false,
       "limit": 5242880,
-      "mime": [
-        "application/pdf"
-      ]
+      "mime": ["application/pdf"]
     }
   },
   "live_probe": {

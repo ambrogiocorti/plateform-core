@@ -102,11 +102,7 @@
       "section": 3,
       "title": "Stack tecnologico obbligatorio",
       "status": "partial",
-      "implementation": [
-        "package.json",
-        "tsconfig.json",
-        "src/types/domain.ts"
-      ],
+      "implementation": ["package.json", "tsconfig.json", "src/types/domain.ts"],
       "tests": [],
       "external_verification": [],
       "requirements": [
@@ -149,9 +145,7 @@
       "section": 4,
       "title": "Backend e Supabase",
       "status": "partial",
-      "implementation": [
-        "supabase/migrations"
-      ],
+      "implementation": ["supabase/migrations"],
       "tests": [],
       "external_verification": [],
       "requirements": [
@@ -179,9 +173,7 @@
       "section": 5,
       "title": "Architettura commerciale: una catena per installazione, multi-sede opzionale",
       "status": "partial",
-      "implementation": [
-        "supabase/migrations/202609140001_foundation.sql"
-      ],
+      "implementation": ["supabase/migrations/202609140001_foundation.sql"],
       "tests": [],
       "external_verification": [],
       "requirements": [
@@ -237,9 +229,7 @@
         "src/pages/branding.ts",
         "supabase/migrations/202610030041_governance.sql"
       ],
-      "tests": [
-        "tests/database/configuration-floor.test.ts"
-      ],
+      "tests": ["tests/database/configuration-floor.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -263,9 +253,7 @@
       "section": 7,
       "title": "Ruoli e scope",
       "status": "partial",
-      "implementation": [
-        "supabase/migrations/202609140004_authorization.sql"
-      ],
+      "implementation": ["supabase/migrations/202609140004_authorization.sql"],
       "tests": [],
       "external_verification": [],
       "requirements": [
@@ -277,14 +265,8 @@
       "section": 8,
       "title": "SUPER_ADMIN",
       "status": "partial",
-      "implementation": [
-        "src/pages/technical.ts",
-        "src/pages/staff-management.ts"
-      ],
-      "tests": [
-        "tests/database/configuration-floor.test.ts",
-        "tests/e2e/configuration.spec.ts"
-      ],
+      "implementation": ["src/pages/technical.ts", "src/pages/staff-management.ts"],
+      "tests": ["tests/database/configuration-floor.test.ts", "tests/e2e/configuration.spec.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -310,13 +292,8 @@
       "section": 9,
       "title": "ADMIN del ristorante/catena",
       "status": "partial",
-      "implementation": [
-        "src/pages/operational-settings.ts",
-        "src/pages/privacy.ts"
-      ],
-      "tests": [
-        "tests/e2e/configuration.spec.ts"
-      ],
+      "implementation": ["src/pages/operational-settings.ts", "src/pages/privacy.ts"],
+      "tests": ["tests/e2e/configuration.spec.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -364,12 +341,8 @@
       "section": 10,
       "title": "Staff del ristorante",
       "status": "partial",
-      "implementation": [
-        "src/pages/staff-management.ts"
-      ],
-      "tests": [
-        "tests/database/devices.test.ts"
-      ],
+      "implementation": ["src/pages/staff-management.ts"],
+      "tests": ["tests/database/devices.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -389,13 +362,8 @@
       "section": 11,
       "title": "Camerieri",
       "status": "partial",
-      "implementation": [
-        "src/pages/floor.ts",
-        "src/pages/accounts.ts"
-      ],
-      "tests": [
-        "tests/database/service.test.ts"
-      ],
+      "implementation": ["src/pages/floor.ts", "src/pages/accounts.ts"],
+      "tests": ["tests/database/service.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -405,14 +373,8 @@
       "section": 12,
       "title": "HOST",
       "status": "partial",
-      "implementation": [
-        "src/pages/host.ts",
-        "src/components/floor-view.ts"
-      ],
-      "tests": [
-        "tests/e2e/staff-operations.spec.ts",
-        "tests/database/configuration-floor.test.ts"
-      ],
+      "implementation": ["src/pages/host.ts", "src/components/floor-view.ts"],
+      "tests": ["tests/e2e/staff-operations.spec.ts", "tests/database/configuration-floor.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -443,9 +405,7 @@
       "section": 13,
       "title": "Sito pubblico",
       "status": "partial",
-      "implementation": [
-        "apps/public/main.ts"
-      ],
+      "implementation": ["apps/public/main.ts"],
       "tests": [],
       "external_verification": [],
       "requirements": [
@@ -469,10 +429,7 @@
       "section": 14,
       "title": "Personalizzazione sito",
       "status": "partial",
-      "implementation": [
-        "src/pages/branding.ts",
-        "supabase/functions/asset-upload/index.ts"
-      ],
+      "implementation": ["src/pages/branding.ts", "supabase/functions/asset-upload/index.ts"],
       "tests": [
         "tests/database/configuration-floor.test.ts",
         "supabase/functions/_tests/assets.test.ts"
@@ -502,10 +459,7 @@
       "section": 15,
       "title": "Dominio pubblico e sottodominio staff",
       "status": "partial",
-      "implementation": [
-        "vite.public.config.ts",
-        "vite.staff.config.ts"
-      ],
+      "implementation": ["vite.public.config.ts", "vite.staff.config.ts"],
       "tests": [],
       "external_verification": [],
       "requirements": [
@@ -534,10 +488,7 @@
       "section": 17,
       "title": "Password, MFA e recovery",
       "status": "partial",
-      "implementation": [
-        "src/auth/staff.ts",
-        "supabase/migrations/202609140008_staff_auth.sql"
-      ],
+      "implementation": ["src/auth/staff.ts", "supabase/migrations/202609140008_staff_auth.sql"],
       "tests": [],
       "external_verification": [],
       "requirements": [
@@ -570,10 +521,7 @@
         "supabase/migrations/202609140008_staff_auth.sql",
         "supabase/migrations/202609150017_session_devices.sql"
       ],
-      "tests": [
-        "tests/database/devices.test.ts",
-        "tests/e2e/staff-operations.spec.ts"
-      ],
+      "tests": ["tests/database/devices.test.ts", "tests/e2e/staff-operations.spec.ts"],
       "external_verification": [
         "Full Supabase integration and concurrent PostgreSQL connections remain unverified."
       ],
@@ -597,12 +545,8 @@
       "section": 19,
       "title": "Turni",
       "status": "partial",
-      "implementation": [
-        "src/pages/planning.ts"
-      ],
-      "tests": [
-        "tests/database/completion.test.ts"
-      ],
+      "implementation": ["src/pages/planning.ts"],
+      "tests": ["tests/database/completion.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -618,13 +562,8 @@
       "section": 20,
       "title": "Servizi del ristorante",
       "status": "partial",
-      "implementation": [
-        "src/pages/planning.ts",
-        "src/pages/configuration.ts"
-      ],
-      "tests": [
-        "tests/database/completion.test.ts"
-      ],
+      "implementation": ["src/pages/planning.ts", "src/pages/configuration.ts"],
+      "tests": ["tests/database/completion.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -668,14 +607,8 @@
       "section": 22,
       "title": "Ingredienti",
       "status": "partial",
-      "implementation": [
-        "src/pages/catalog.ts",
-        "src/pages/configuration.ts"
-      ],
-      "tests": [
-        "tests/unit/domain.test.ts",
-        "tests/database/service.test.ts"
-      ],
+      "implementation": ["src/pages/catalog.ts", "src/pages/configuration.ts"],
+      "tests": ["tests/unit/domain.test.ts", "tests/database/service.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -685,13 +618,8 @@
       "section": 23,
       "title": "Allergeni",
       "status": "partial",
-      "implementation": [
-        "src/pages/catalog.ts"
-      ],
-      "tests": [
-        "tests/unit/domain.test.ts",
-        "tests/database/service.test.ts"
-      ],
+      "implementation": ["src/pages/catalog.ts"],
+      "tests": ["tests/unit/domain.test.ts", "tests/database/service.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -701,13 +629,8 @@
       "section": 24,
       "title": "Informazioni dietetiche",
       "status": "partial",
-      "implementation": [
-        "src/pages/catalog.ts",
-        "src/types/domain.ts"
-      ],
-      "tests": [
-        "tests/unit/domain.test.ts"
-      ],
+      "implementation": ["src/pages/catalog.ts", "src/types/domain.ts"],
+      "tests": ["tests/unit/domain.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -722,28 +645,17 @@
       "section": 25,
       "title": "Disponibilità giornaliera",
       "status": "partial",
-      "implementation": [
-        "supabase/migrations/202609140006_accounts_orders.sql"
-      ],
+      "implementation": ["supabase/migrations/202609140006_accounts_orders.sql"],
       "tests": [],
       "external_verification": [],
-      "requirements": [
-        "server-side;",
-        "atomico;",
-        "transazionale;",
-        "realtime."
-      ]
+      "requirements": ["server-side;", "atomico;", "transazionale;", "realtime."]
     },
     {
       "section": 26,
       "title": "Badge disponibilità",
       "status": "partial",
-      "implementation": [
-        "src/services/menu.ts"
-      ],
-      "tests": [
-        "tests/unit/domain.test.ts"
-      ],
+      "implementation": ["src/services/menu.ts"],
+      "tests": ["tests/unit/domain.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -758,26 +670,17 @@
       "section": 27,
       "title": "Prezzo storico",
       "status": "partial",
-      "implementation": [
-        "supabase/migrations/202609140006_accounts_orders.sql"
-      ],
+      "implementation": ["supabase/migrations/202609140006_accounts_orders.sql"],
       "tests": [],
       "external_verification": [],
-      "requirements": [
-        "ordine precedente resta €18;",
-        "nuovi ordini usano €20."
-      ]
+      "requirements": ["ordine precedente resta €18;", "nuovi ordini usano €20."]
     },
     {
       "section": 28,
       "title": "Archiviazione entità",
       "status": "partial",
-      "implementation": [
-        "src/pages/configuration.ts"
-      ],
-      "tests": [
-        "tests/database/completion.test.ts"
-      ],
+      "implementation": ["src/pages/configuration.ts"],
+      "tests": ["tests/database/completion.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -787,14 +690,8 @@
       "section": 29,
       "title": "Ingredienti rimovibili",
       "status": "partial",
-      "implementation": [
-        "src/pages/catalog.ts",
-        "src/pages/accounts.ts"
-      ],
-      "tests": [
-        "tests/unit/domain.test.ts",
-        "tests/database/service.test.ts"
-      ],
+      "implementation": ["src/pages/catalog.ts", "src/pages/accounts.ts"],
+      "tests": ["tests/unit/domain.test.ts", "tests/database/service.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -804,12 +701,8 @@
       "section": 30,
       "title": "Varianti",
       "status": "partial",
-      "implementation": [
-        "src/pages/catalog.ts"
-      ],
-      "tests": [
-        "tests/database/completion.test.ts"
-      ],
+      "implementation": ["src/pages/catalog.ts"],
+      "tests": ["tests/database/completion.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -819,33 +712,19 @@
       "section": 31,
       "title": "Piatti del giorno / temporanei",
       "status": "partial",
-      "implementation": [
-        "src/pages/catalog.ts"
-      ],
-      "tests": [
-        "tests/database/completion.test.ts"
-      ],
+      "implementation": ["src/pages/catalog.ts"],
+      "tests": ["tests/database/completion.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
-      "requirements": [
-        "sempre;",
-        "data specifica;",
-        "giorni specifici;",
-        "intervallo date."
-      ]
+      "requirements": ["sempre;", "data specifica;", "giorni specifici;", "intervallo date."]
     },
     {
       "section": 32,
       "title": "Menu dell'unico ristorante",
       "status": "partial",
-      "implementation": [
-        "src/pages/configuration.ts",
-        "src/pages/catalog.ts"
-      ],
-      "tests": [
-        "tests/database/scope-host.test.ts"
-      ],
+      "implementation": ["src/pages/configuration.ts", "src/pages/catalog.ts"],
+      "tests": ["tests/database/scope-host.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -867,9 +746,7 @@
         "src/room-editor/model.ts",
         "src/pages/room-editor.ts"
       ],
-      "tests": [
-        "tests/database/completion.test.ts"
-      ],
+      "tests": ["tests/database/completion.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -904,13 +781,8 @@
       "section": 34,
       "title": "Tavoli",
       "status": "partial",
-      "implementation": [
-        "src/pages/floor.ts",
-        "src/components/floor-view.ts"
-      ],
-      "tests": [
-        "tests/database/configuration-floor.test.ts"
-      ],
+      "implementation": ["src/pages/floor.ts", "src/components/floor-view.ts"],
+      "tests": ["tests/database/configuration-floor.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -920,12 +792,8 @@
       "section": 35,
       "title": "Layout sala",
       "status": "partial",
-      "implementation": [
-        "src/pages/room-editor.ts"
-      ],
-      "tests": [
-        "tests/database/completion.test.ts"
-      ],
+      "implementation": ["src/pages/room-editor.ts"],
+      "tests": ["tests/database/completion.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -935,13 +803,8 @@
       "section": 36,
       "title": "Stati tavolo",
       "status": "partial",
-      "implementation": [
-        "src/components/floor-view.ts",
-        "src/pages/operational-settings.ts"
-      ],
-      "tests": [
-        "tests/e2e/staff-operations.spec.ts"
-      ],
+      "implementation": ["src/components/floor-view.ts", "src/pages/operational-settings.ts"],
+      "tests": ["tests/e2e/staff-operations.spec.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -961,9 +824,7 @@
         "src/pages/floor.ts",
         "supabase/migrations/202609150019_table_group_operations.sql"
       ],
-      "tests": [
-        "tests/database/scope-host.test.ts"
-      ],
+      "tests": ["tests/database/scope-host.test.ts"],
       "external_verification": [
         "Full Supabase integration and concurrent PostgreSQL connections remain unverified."
       ],
@@ -977,9 +838,7 @@
         "src/pages/floor.ts",
         "supabase/migrations/202609150019_table_group_operations.sql"
       ],
-      "tests": [
-        "tests/database/service.test.ts"
-      ],
+      "tests": ["tests/database/service.test.ts"],
       "external_verification": [
         "Full Supabase integration and concurrent PostgreSQL connections remain unverified."
       ],
@@ -998,12 +857,8 @@
       "section": 39,
       "title": "Prenotazioni ON/OFF",
       "status": "partial",
-      "implementation": [
-        "src/pages/operational-settings.ts"
-      ],
-      "tests": [
-        "tests/e2e/configuration.spec.ts"
-      ],
+      "implementation": ["src/pages/operational-settings.ts"],
+      "tests": ["tests/e2e/configuration.spec.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -1019,13 +874,8 @@
       "section": 40,
       "title": "Modulo prenotazioni interno",
       "status": "partial",
-      "implementation": [
-        "src/pages/planning.ts",
-        "src/components/booking-fields.ts"
-      ],
-      "tests": [
-        "tests/database/completion.test.ts"
-      ],
+      "implementation": ["src/pages/planning.ts", "src/components/booking-fields.ts"],
+      "tests": ["tests/database/completion.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -1054,9 +904,7 @@
       "section": 41,
       "title": "Prenotazione automatica e booking pacing",
       "status": "partial",
-      "implementation": [
-        "supabase/migrations/202609140009_reservations.sql"
-      ],
+      "implementation": ["supabase/migrations/202609140009_reservations.sql"],
       "tests": [],
       "external_verification": [],
       "requirements": [
@@ -1074,32 +922,19 @@
       "section": 42,
       "title": "Duplicati prenotazione",
       "status": "partial",
-      "implementation": [
-        "src/pages/public-booking.ts"
-      ],
-      "tests": [
-        "tests/database/reservations-auth.test.ts"
-      ],
+      "implementation": ["src/pages/public-booking.ts"],
+      "tests": ["tests/database/reservations-auth.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
-      "requirements": [
-        "telefono;",
-        "data;",
-        "servizio;",
-        "orario;"
-      ]
+      "requirements": ["telefono;", "data;", "servizio;", "orario;"]
     },
     {
       "section": 43,
       "title": "Cancellazione prenotazione",
       "status": "partial",
-      "implementation": [
-        "src/pages/reservation-editor.ts"
-      ],
-      "tests": [
-        "tests/database/reservations-auth.test.ts"
-      ],
+      "implementation": ["src/pages/reservation-editor.ts"],
+      "tests": ["tests/database/reservations-auth.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -1109,9 +944,7 @@
       "section": 44,
       "title": "Stati prenotazione",
       "status": "partial",
-      "implementation": [
-        "supabase/migrations/202609140016_host_operations.sql"
-      ],
+      "implementation": ["supabase/migrations/202609140016_host_operations.sql"],
       "tests": [],
       "external_verification": [],
       "requirements": []
@@ -1124,10 +957,7 @@
         "src/pages/host.ts",
         "supabase/migrations/202609150018_host_workspace.sql"
       ],
-      "tests": [
-        "tests/database/scope-host.test.ts",
-        "tests/e2e/staff-operations.spec.ts"
-      ],
+      "tests": ["tests/database/scope-host.test.ts", "tests/e2e/staff-operations.spec.ts"],
       "external_verification": [
         "Full Supabase integration and concurrent PostgreSQL connections remain unverified."
       ],
@@ -1151,9 +981,7 @@
         "src/pages/host.ts",
         "supabase/migrations/202609140016_host_operations.sql"
       ],
-      "tests": [
-        "tests/database/scope-host.test.ts"
-      ],
+      "tests": ["tests/database/scope-host.test.ts"],
       "external_verification": [
         "Full Supabase integration and concurrent PostgreSQL connections remain unverified."
       ],
@@ -1163,9 +991,7 @@
       "section": 47,
       "title": "QR Code",
       "status": "partial",
-      "implementation": [
-        "src/pages/floor.ts"
-      ],
+      "implementation": ["src/pages/floor.ts"],
       "tests": [],
       "external_verification": [],
       "requirements": []
@@ -1174,9 +1000,7 @@
       "section": 48,
       "title": "Creazione conto",
       "status": "partial",
-      "implementation": [
-        "supabase/migrations/202609140006_accounts_orders.sql"
-      ],
+      "implementation": ["supabase/migrations/202609140006_accounts_orders.sql"],
       "tests": [],
       "external_verification": [],
       "requirements": []
@@ -1185,13 +1009,8 @@
       "section": 49,
       "title": "Più conti per tavolo",
       "status": "partial",
-      "implementation": [
-        "src/pages/floor.ts",
-        "src/pages/accounts.ts"
-      ],
-      "tests": [
-        "tests/database/service.test.ts"
-      ],
+      "implementation": ["src/pages/floor.ts", "src/pages/accounts.ts"],
+      "tests": ["tests/database/service.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -1201,9 +1020,7 @@
       "section": 50,
       "title": "Codice conto",
       "status": "partial",
-      "implementation": [
-        "supabase/migrations/202609140006_accounts_orders.sql"
-      ],
+      "implementation": ["supabase/migrations/202609140006_accounts_orders.sql"],
       "tests": [],
       "external_verification": [],
       "requirements": [
@@ -1225,9 +1042,7 @@
       "section": 51,
       "title": "Accesso cliente",
       "status": "partial",
-      "implementation": [
-        "supabase/functions/customer-session/index.ts"
-      ],
+      "implementation": ["supabase/functions/customer-session/index.ts"],
       "tests": [],
       "external_verification": [],
       "requirements": []
@@ -1236,9 +1051,7 @@
       "section": 52,
       "title": "Funzioni cliente",
       "status": "partial",
-      "implementation": [
-        "src/pages/customer.ts"
-      ],
+      "implementation": ["src/pages/customer.ts"],
       "tests": [],
       "external_verification": [],
       "requirements": [
@@ -1266,9 +1079,7 @@
       "section": 53,
       "title": "Ordinazione cliente",
       "status": "partial",
-      "implementation": [
-        "src/pages/customer.ts"
-      ],
+      "implementation": ["src/pages/customer.ts"],
       "tests": [],
       "external_verification": [],
       "requirements": []
@@ -1277,12 +1088,8 @@
       "section": 54,
       "title": "Carrello cliente",
       "status": "partial",
-      "implementation": [
-        "src/pages/customer.ts"
-      ],
-      "tests": [
-        "tests/e2e/customer.spec.ts"
-      ],
+      "implementation": ["src/pages/customer.ts"],
+      "tests": ["tests/e2e/customer.spec.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -1300,9 +1107,7 @@
       "section": 55,
       "title": "Chiamata cameriere",
       "status": "partial",
-      "implementation": [
-        "supabase/migrations/202609140012_kitchen_calls.sql"
-      ],
+      "implementation": ["supabase/migrations/202609140012_kitchen_calls.sql"],
       "tests": [],
       "external_verification": [],
       "requirements": []
@@ -1317,9 +1122,7 @@
         "src/services/notification-sound.ts",
         "src/pages/operational-settings.ts"
       ],
-      "tests": [
-        "tests/database/configuration-floor.test.ts"
-      ],
+      "tests": ["tests/database/configuration-floor.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -1344,9 +1147,7 @@
       "section": 57,
       "title": "Ordine cameriere",
       "status": "partial",
-      "implementation": [
-        "src/pages/accounts.ts"
-      ],
+      "implementation": ["src/pages/accounts.ts"],
       "tests": [],
       "external_verification": [],
       "requirements": [
@@ -1362,48 +1163,28 @@
       "section": 58,
       "title": "Step",
       "status": "partial",
-      "implementation": [
-        "src/pages/kitchen.ts",
-        "src/pages/offline.ts"
-      ],
-      "tests": [
-        "tests/database/completion.test.ts",
-        "tests/database/service.test.ts"
-      ],
+      "implementation": ["src/pages/kitchen.ts", "src/pages/offline.ts"],
+      "tests": ["tests/database/completion.test.ts", "tests/database/service.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
-      "requirements": [
-        "WAITER;",
-        "PASS;",
-        "KITCHEN_ADMIN."
-      ]
+      "requirements": ["WAITER;", "PASS;", "KITCHEN_ADMIN."]
     },
     {
       "section": 59,
       "title": "Stati ordine",
       "status": "partial",
-      "implementation": [
-        "src/services/state-machine.ts"
-      ],
+      "implementation": ["src/services/state-machine.ts"],
       "tests": [],
       "external_verification": [],
-      "requirements": [
-        "ordine;",
-        "item;",
-        "step."
-      ]
+      "requirements": ["ordine;", "item;", "step."]
     },
     {
       "section": 60,
       "title": "Modifiche ordine",
       "status": "partial",
-      "implementation": [
-        "src/pages/order-changes.ts"
-      ],
-      "tests": [
-        "tests/database/completion.test.ts"
-      ],
+      "implementation": ["src/pages/order-changes.ts"],
+      "tests": ["tests/database/completion.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -1422,9 +1203,7 @@
       "section": 61,
       "title": "Stazioni",
       "status": "partial",
-      "implementation": [
-        "supabase/migrations/202609140012_kitchen_calls.sql"
-      ],
+      "implementation": ["supabase/migrations/202609140012_kitchen_calls.sql"],
       "tests": [],
       "external_verification": [],
       "requirements": [
@@ -1441,13 +1220,8 @@
       "section": 62,
       "title": "KITCHEN_ADMIN",
       "status": "partial",
-      "implementation": [
-        "src/pages/kitchen.ts",
-        "src/pages/catalog.ts"
-      ],
-      "tests": [
-        "tests/database/service.test.ts"
-      ],
+      "implementation": ["src/pages/kitchen.ts", "src/pages/catalog.ts"],
+      "tests": ["tests/database/service.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -1468,10 +1242,7 @@
         "supabase/migrations/202609150030_prepaid_fulfillment.sql",
         "src/pages/accounts.ts"
       ],
-      "tests": [
-        "tests/database/reconciliation.test.ts",
-        "tests/e2e/accounts.spec.ts"
-      ],
+      "tests": ["tests/database/reconciliation.test.ts", "tests/e2e/accounts.spec.ts"],
       "external_verification": [],
       "requirements": [
         "vedere propria stazione;",
@@ -1492,48 +1263,27 @@
         "supabase/migrations/202609150030_prepaid_fulfillment.sql",
         "src/pages/accounts.ts"
       ],
-      "tests": [
-        "tests/database/reconciliation.test.ts",
-        "tests/e2e/accounts.spec.ts"
-      ],
+      "tests": ["tests/database/reconciliation.test.ts", "tests/e2e/accounts.spec.ts"],
       "external_verification": [],
-      "requirements": [
-        "Runner;",
-        "waiter table;",
-        "waiter zone;",
-        "combinazioni."
-      ]
+      "requirements": ["Runner;", "waiter table;", "waiter zone;", "combinazioni."]
     },
     {
       "section": 65,
       "title": "Piatti tornati indietro",
       "status": "partial",
-      "implementation": [
-        "src/pages/order-changes.ts",
-        "src/pages/kitchen.ts"
-      ],
-      "tests": [
-        "tests/database/completion.test.ts"
-      ],
+      "implementation": ["src/pages/order-changes.ts", "src/pages/kitchen.ts"],
+      "tests": ["tests/database/completion.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
-      "requirements": [
-        "PASS;",
-        "KITCHEN_ADMIN."
-      ]
+      "requirements": ["PASS;", "KITCHEN_ADMIN."]
     },
     {
       "section": 66,
       "title": "Stampanti stazioni",
       "status": "partial",
-      "implementation": [
-        "src/pages/operational-settings.ts",
-        "src/pages/printing.ts"
-      ],
-      "tests": [
-        "tests/database/completion.test.ts"
-      ],
+      "implementation": ["src/pages/operational-settings.ts", "src/pages/printing.ts"],
+      "tests": ["tests/database/completion.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -1557,10 +1307,7 @@
         "src/pages/account-list.ts",
         "supabase/migrations/202609150030_prepaid_fulfillment.sql"
       ],
-      "tests": [
-        "tests/database/reconciliation.test.ts",
-        "tests/e2e/accounts.spec.ts"
-      ],
+      "tests": ["tests/database/reconciliation.test.ts", "tests/e2e/accounts.spec.ts"],
       "external_verification": [],
       "requirements": []
     },
@@ -1568,21 +1315,12 @@
       "section": 68,
       "title": "Richiesta conto",
       "status": "partial",
-      "implementation": [
-        "src/pages/customer.ts",
-        "src/pages/notifications.ts"
-      ],
-      "tests": [
-        "tests/database/service.test.ts",
-        "tests/e2e/customer.spec.ts"
-      ],
+      "implementation": ["src/pages/customer.ts", "src/pages/notifications.ts"],
+      "tests": ["tests/database/service.test.ts", "tests/e2e/customer.spec.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
-      "requirements": [
-        "cameriere responsabile;",
-        "Cassa."
-      ]
+      "requirements": ["cameriere responsabile;", "Cassa."]
     },
     {
       "section": 69,
@@ -1597,10 +1335,7 @@
         "src/pages/account-finance.ts",
         "src/pages/account-list.ts"
       ],
-      "tests": [
-        "tests/database/reconciliation.test.ts",
-        "tests/e2e/accounts.spec.ts"
-      ],
+      "tests": ["tests/database/reconciliation.test.ts", "tests/e2e/accounts.spec.ts"],
       "external_verification": [],
       "requirements": [
         "nome;",
@@ -1620,9 +1355,7 @@
         "supabase/migrations/202609150021_cash_journal.sql",
         "supabase/migrations/202609150023_cash_reconciliation.sql"
       ],
-      "tests": [
-        "tests/database/reconciliation.test.ts"
-      ],
+      "tests": ["tests/database/reconciliation.test.ts"],
       "external_verification": [
         "Supabase reale e verifiche end-to-end ancora da eseguire; stato non verificato integralmente."
       ],
@@ -1636,16 +1369,11 @@
         "supabase/migrations/202609150021_cash_journal.sql",
         "supabase/migrations/202609150023_cash_reconciliation.sql"
       ],
-      "tests": [
-        "tests/database/reconciliation.test.ts"
-      ],
+      "tests": ["tests/database/reconciliation.test.ts"],
       "external_verification": [
         "Supabase reale e verifiche end-to-end ancora da eseguire; stato non verificato integralmente."
       ],
-      "requirements": [
-        "attivare;",
-        "disattivare;"
-      ]
+      "requirements": ["attivare;", "disattivare;"]
     },
     {
       "section": 72,
@@ -1656,10 +1384,7 @@
         "supabase/migrations/202609150023_cash_reconciliation.sql",
         "src/pages/reconciliation.ts"
       ],
-      "tests": [
-        "tests/database/reconciliation.test.ts",
-        "tests/e2e/cash.spec.ts"
-      ],
+      "tests": ["tests/database/reconciliation.test.ts", "tests/e2e/cash.spec.ts"],
       "external_verification": [
         "Supabase reale e verifiche end-to-end ancora da eseguire; stato non verificato integralmente."
       ],
@@ -1674,10 +1399,7 @@
         "supabase/migrations/202609150023_cash_reconciliation.sql",
         "src/pages/reconciliation.ts"
       ],
-      "tests": [
-        "tests/database/reconciliation.test.ts",
-        "tests/e2e/cash.spec.ts"
-      ],
+      "tests": ["tests/database/reconciliation.test.ts", "tests/e2e/cash.spec.ts"],
       "external_verification": [
         "Supabase reale e verifiche end-to-end ancora da eseguire; stato non verificato integralmente."
       ],
@@ -1708,10 +1430,7 @@
         "src/pages/billing.ts",
         "src/pages/account-payments.ts"
       ],
-      "tests": [
-        "tests/database/billing.test.ts",
-        "tests/e2e/accounts.spec.ts"
-      ],
+      "tests": ["tests/database/billing.test.ts", "tests/e2e/accounts.spec.ts"],
       "external_verification": [],
       "requirements": [
         "doppio pagamento;",
@@ -1768,10 +1487,7 @@
         "src/pages/billing.ts",
         "src/pages/account-payments.ts"
       ],
-      "tests": [
-        "tests/database/billing.test.ts",
-        "tests/e2e/accounts.spec.ts"
-      ],
+      "tests": ["tests/database/billing.test.ts", "tests/e2e/accounts.spec.ts"],
       "external_verification": [],
       "requirements": []
     },
@@ -1779,9 +1495,7 @@
       "section": 77,
       "title": "Metodi pagamento",
       "status": "partial",
-      "implementation": [
-        "supabase/migrations/202609140007_cash_payments.sql"
-      ],
+      "implementation": ["supabase/migrations/202609140007_cash_payments.sql"],
       "tests": [],
       "external_verification": [],
       "requirements": []
@@ -1790,13 +1504,8 @@
       "section": 78,
       "title": "POS tradizionale",
       "status": "partial",
-      "implementation": [
-        "src/pages/account-payments.ts"
-      ],
-      "tests": [
-        "tests/database/billing.test.ts",
-        "tests/e2e/cash.spec.ts"
-      ],
+      "implementation": ["src/pages/account-payments.ts"],
+      "tests": ["tests/database/billing.test.ts", "tests/e2e/cash.spec.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -1815,21 +1524,11 @@
         "supabase/functions/stripe-webhook/index.ts",
         "supabase/functions/_shared/providers.ts"
       ],
-      "tests": [
-        "supabase/functions/_tests/providers.test.ts",
-        "tests/database/completion.test.ts"
-      ],
+      "tests": ["supabase/functions/_tests/providers.test.ts", "tests/database/completion.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
-      "requirements": [
-        "pagamento;",
-        "stato;",
-        "webhook;",
-        "idempotenza;",
-        "errore;",
-        "conferma."
-      ]
+      "requirements": ["pagamento;", "stato;", "webhook;", "idempotenza;", "errore;", "conferma."]
     },
     {
       "section": 80,
@@ -1840,19 +1539,11 @@
         "supabase/functions/satispay-callback/index.ts",
         "supabase/functions/_shared/providers.ts"
       ],
-      "tests": [
-        "supabase/functions/_tests/providers.test.ts"
-      ],
+      "tests": ["supabase/functions/_tests/providers.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
-      "requirements": [
-        "richieste;",
-        "stato;",
-        "callback/webhook;",
-        "errori;",
-        "idempotenza."
-      ]
+      "requirements": ["richieste;", "stato;", "callback/webhook;", "errori;", "idempotenza."]
     },
     {
       "section": 81,
@@ -1863,9 +1554,7 @@
         "src/pages/provider-payments.ts",
         "supabase/functions/payments/index.ts"
       ],
-      "tests": [
-        "tests/database/billing.test.ts"
-      ],
+      "tests": ["tests/database/billing.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -1875,18 +1564,10 @@
       "section": 82,
       "title": "Mance",
       "status": "partial",
-      "implementation": [
-        "supabase/migrations/202609140007_cash_payments.sql"
-      ],
+      "implementation": ["supabase/migrations/202609140007_cash_payments.sql"],
       "tests": [],
       "external_verification": [],
-      "requirements": [
-        "contanti;",
-        "carta/POS;",
-        "Stripe;",
-        "Satispay;",
-        "metodo compatibile."
-      ]
+      "requirements": ["contanti;", "carta/POS;", "Stripe;", "Satispay;", "metodo compatibile."]
     },
     {
       "section": 83,
@@ -1898,17 +1579,9 @@
         "src/pages/billing.ts",
         "src/pages/account-payments.ts"
       ],
-      "tests": [
-        "tests/database/billing.test.ts",
-        "tests/e2e/accounts.spec.ts"
-      ],
+      "tests": ["tests/database/billing.test.ts", "tests/e2e/accounts.spec.ts"],
       "external_verification": [],
-      "requirements": [
-        "sconto percentuale;",
-        "sconto fisso;",
-        "piatto offerto;",
-        "conto offerto."
-      ]
+      "requirements": ["sconto percentuale;", "sconto fisso;", "piatto offerto;", "conto offerto."]
     },
     {
       "section": 84,
@@ -1924,17 +1597,11 @@
         "src/pages/account-finance.ts",
         "src/pages/account-list.ts"
       ],
-      "tests": [
-        "tests/database/reconciliation.test.ts",
-        "tests/e2e/accounts.spec.ts"
-      ],
+      "tests": ["tests/database/reconciliation.test.ts", "tests/e2e/accounts.spec.ts"],
       "external_verification": [
         "Supabase reale e verifiche end-to-end ancora da eseguire; stato non verificato integralmente."
       ],
-      "requirements": [
-        "interviene Admin;",
-        "operazione auditata."
-      ]
+      "requirements": ["interviene Admin;", "operazione auditata."]
     },
     {
       "section": 85,
@@ -1951,10 +1618,7 @@
         "src/pages/account-finance.ts",
         "src/pages/account-list.ts"
       ],
-      "tests": [
-        "tests/database/reconciliation.test.ts",
-        "tests/e2e/accounts.spec.ts"
-      ],
+      "tests": ["tests/database/reconciliation.test.ts", "tests/e2e/accounts.spec.ts"],
       "external_verification": [
         "Supabase reale e verifiche end-to-end ancora da eseguire; stato non verificato integralmente."
       ],
@@ -1983,19 +1647,11 @@
         "src/pages/account-list.ts",
         "supabase/migrations/202609150030_prepaid_fulfillment.sql"
       ],
-      "tests": [
-        "tests/database/reconciliation.test.ts",
-        "tests/e2e/accounts.spec.ts"
-      ],
+      "tests": ["tests/database/reconciliation.test.ts", "tests/e2e/accounts.spec.ts"],
       "external_verification": [
         "Supabase reale e verifiche end-to-end ancora da eseguire; stato non verificato integralmente."
       ],
-      "requirements": [
-        "password Admin;",
-        "conferma;",
-        "motivo;",
-        "audit."
-      ]
+      "requirements": ["password Admin;", "conferma;", "motivo;", "audit."]
     },
     {
       "section": 87,
@@ -2011,31 +1667,18 @@
         "src/pages/account-list.ts",
         "supabase/migrations/202609150030_prepaid_fulfillment.sql"
       ],
-      "tests": [
-        "tests/database/reconciliation.test.ts",
-        "tests/e2e/accounts.spec.ts"
-      ],
+      "tests": ["tests/database/reconciliation.test.ts", "tests/e2e/accounts.spec.ts"],
       "external_verification": [
         "Supabase reale e verifiche end-to-end ancora da eseguire; stato non verificato integralmente."
       ],
-      "requirements": [
-        "password/autorizzazione;",
-        "motivo;",
-        "audit."
-      ]
+      "requirements": ["password/autorizzazione;", "motivo;", "audit."]
     },
     {
       "section": 88,
       "title": "Conto di cortesia",
       "status": "partial",
-      "implementation": [
-        "src/pages/printing.ts",
-        "shared/print-document.ts"
-      ],
-      "tests": [
-        "tests/unit/printing.test.ts",
-        "tests/database/completion.test.ts"
-      ],
+      "implementation": ["src/pages/printing.ts", "shared/print-document.ts"],
+      "tests": ["tests/unit/printing.test.ts", "tests/database/completion.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -2055,14 +1698,8 @@
       "section": 89,
       "title": "Ricevuta finale",
       "status": "partial",
-      "implementation": [
-        "src/pages/printing.ts",
-        "shared/print-document.ts"
-      ],
-      "tests": [
-        "tests/unit/printing.test.ts",
-        "tests/database/completion.test.ts"
-      ],
+      "implementation": ["src/pages/printing.ts", "shared/print-document.ts"],
+      "tests": ["tests/unit/printing.test.ts", "tests/database/completion.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -2091,9 +1728,7 @@
         "shared/print-authorization.ts",
         "supabase/functions/print-authorization/index.ts"
       ],
-      "tests": [
-        "tests/unit/print-bridge.test.ts"
-      ],
+      "tests": ["tests/unit/print-bridge.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -2116,10 +1751,7 @@
         "src/pages/printing.ts",
         "supabase/migrations/202610030038_print_queue.sql"
       ],
-      "tests": [
-        "tests/database/completion.test.ts",
-        "tests/unit/print-bridge.test.ts"
-      ],
+      "tests": ["tests/database/completion.test.ts", "tests/unit/print-bridge.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -2133,9 +1765,7 @@
         "src/pages/statistics.ts",
         "supabase/migrations/202610030049_analytics_details.sql"
       ],
-      "tests": [
-        "tests/database/configuration-floor.test.ts"
-      ],
+      "tests": ["tests/database/configuration-floor.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -2165,29 +1795,18 @@
         "src/pages/technical.ts",
         "supabase/migrations/202610030050_technical_health.sql"
       ],
-      "tests": [
-        "tests/database/configuration-floor.test.ts",
-        "tests/e2e/configuration.spec.ts"
-      ],
+      "tests": ["tests/database/configuration-floor.test.ts", "tests/e2e/configuration.spec.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
-      "requirements": [
-        "Admin;",
-        "Cashier."
-      ]
+      "requirements": ["Admin;", "Cashier."]
     },
     {
       "section": 94,
       "title": "Feature flags",
       "status": "partial",
-      "implementation": [
-        "src/pages/technical.ts",
-        "src/pages/operational-settings.ts"
-      ],
-      "tests": [
-        "tests/database/configuration-floor.test.ts"
-      ],
+      "implementation": ["src/pages/technical.ts", "src/pages/operational-settings.ts"],
+      "tests": ["tests/database/configuration-floor.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -2201,10 +1820,7 @@
         "src/pages/technical.ts",
         "supabase/migrations/202610030051_resource_quotas.sql"
       ],
-      "tests": [
-        "tests/database/configuration-floor.test.ts",
-        "tests/database/completion.test.ts"
-      ],
+      "tests": ["tests/database/configuration-floor.test.ts", "tests/database/completion.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -2226,9 +1842,7 @@
         "src/pages/technical.ts",
         "supabase/migrations/202610030050_technical_health.sql"
       ],
-      "tests": [
-        "tests/database/foundation.test.ts"
-      ],
+      "tests": ["tests/database/foundation.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -2350,20 +1964,12 @@
       "section": 99,
       "title": "Impersonazione",
       "status": "partial",
-      "implementation": [
-        "apps/staff/main.ts",
-        "supabase/migrations/202610030041_governance.sql"
-      ],
-      "tests": [
-        "tests/database/foundation.test.ts"
-      ],
+      "implementation": ["apps/staff/main.ts", "supabase/migrations/202610030041_governance.sql"],
+      "tests": ["tests/database/foundation.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
-      "requirements": [
-        "utente impersonato;",
-        "Super Admin reale."
-      ]
+      "requirements": ["utente impersonato;", "Super Admin reale."]
     },
     {
       "section": 100,
@@ -2420,9 +2026,7 @@
         "OBSERVABILITY.md",
         "supabase/migrations/202610030052_observability.sql"
       ],
-      "tests": [
-        "tests/database/configuration-floor.test.ts"
-      ],
+      "tests": ["tests/database/configuration-floor.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -2439,9 +2043,7 @@
       "section": 102,
       "title": "Struttura audit",
       "status": "partial",
-      "implementation": [
-        "supabase/migrations/202609150022_audit_context.sql"
-      ],
+      "implementation": ["supabase/migrations/202609150022_audit_context.sql"],
       "tests": [],
       "external_verification": [
         "Supabase reale e verifiche end-to-end ancora da eseguire; stato non verificato integralmente."
@@ -2456,29 +2058,18 @@
         "supabase/migrations/202609140003_finance_audit.sql",
         "supabase/migrations/202609150024_audit_search.sql"
       ],
-      "tests": [
-        "tests/database/audit-search.test.ts"
-      ],
+      "tests": ["tests/database/audit-search.test.ts"],
       "external_verification": [
         "Supabase reale e verifiche end-to-end ancora da eseguire; stato non verificato integralmente."
       ],
-      "requirements": [
-        "modificare;",
-        "cancellare;",
-        "sovrascrivere;"
-      ]
+      "requirements": ["modificare;", "cancellare;", "sovrascrivere;"]
     },
     {
       "section": 104,
       "title": "Dashboard Audit",
       "status": "partial",
-      "implementation": [
-        "supabase/migrations/202609150024_audit_search.sql",
-        "src/pages/audit.ts"
-      ],
-      "tests": [
-        "tests/database/audit-search.test.ts"
-      ],
+      "implementation": ["supabase/migrations/202609150024_audit_search.sql", "src/pages/audit.ts"],
+      "tests": ["tests/database/audit-search.test.ts"],
       "external_verification": [
         "Supabase reale e verifiche end-to-end ancora da eseguire; stato non verificato integralmente."
       ],
@@ -2501,13 +2092,8 @@
       "section": 105,
       "title": "Dati sensibili audit",
       "status": "partial",
-      "implementation": [
-        "AUDIT.md",
-        "supabase/migrations/202609140003_finance_audit.sql"
-      ],
-      "tests": [
-        "tests/database/reconciliation.test.ts"
-      ],
+      "implementation": ["AUDIT.md", "supabase/migrations/202609140003_finance_audit.sql"],
+      "tests": ["tests/database/reconciliation.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -2528,12 +2114,8 @@
       "section": 106,
       "title": "Audit automatico",
       "status": "partial",
-      "implementation": [
-        "supabase/migrations/202609140003_finance_audit.sql"
-      ],
-      "tests": [
-        "tests/database/foundation.test.ts"
-      ],
+      "implementation": ["supabase/migrations/202609140003_finance_audit.sql"],
+      "tests": ["tests/database/foundation.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -2557,12 +2139,8 @@
       "section": 107,
       "title": "Scalabilità audit",
       "status": "partial",
-      "implementation": [
-        "supabase/migrations/202609150024_audit_search.sql"
-      ],
-      "tests": [
-        "tests/database/audit-search.test.ts"
-      ],
+      "implementation": ["supabase/migrations/202609150024_audit_search.sql"],
+      "tests": ["tests/database/audit-search.test.ts"],
       "external_verification": [
         "Supabase reale e verifiche end-to-end ancora da eseguire; stato non verificato integralmente."
       ],
@@ -2619,13 +2197,8 @@
       "section": 109,
       "title": "PWA",
       "status": "partial",
-      "implementation": [
-        "vite.pwa.ts",
-        "src/services/pwa.ts"
-      ],
-      "tests": [
-        "tests/e2e/interface.spec.ts"
-      ],
+      "implementation": ["vite.pwa.ts", "src/services/pwa.ts"],
+      "tests": ["tests/e2e/interface.spec.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -2674,10 +2247,7 @@
         "src/pages/offline.ts",
         "supabase/migrations/202610030055_offline_workspace.sql"
       ],
-      "tests": [
-        "tests/database/completion.test.ts",
-        "tests/unit/offline-queue.test.ts"
-      ],
+      "tests": ["tests/database/completion.test.ts", "tests/unit/offline-queue.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -2701,9 +2271,7 @@
         "src/pages/offline.ts",
         "supabase/migrations/202610030039_offline_commands.sql"
       ],
-      "tests": [
-        "tests/database/completion.test.ts"
-      ],
+      "tests": ["tests/database/completion.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -2731,10 +2299,7 @@
         "src/offline/store.ts",
         "supabase/migrations/202610030055_offline_workspace.sql"
       ],
-      "tests": [
-        "tests/database/completion.test.ts",
-        "tests/unit/offline-queue.test.ts"
-      ],
+      "tests": ["tests/database/completion.test.ts", "tests/unit/offline-queue.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -2755,10 +2320,7 @@
       "section": 114,
       "title": "Storage",
       "status": "partial",
-      "implementation": [
-        "supabase/functions/asset-upload/index.ts",
-        "src/pages/branding.ts"
-      ],
+      "implementation": ["supabase/functions/asset-upload/index.ts", "src/pages/branding.ts"],
       "tests": [
         "supabase/functions/_tests/assets.test.ts",
         "tests/database/configuration-floor.test.ts"
@@ -3003,9 +2565,7 @@
         "src/api/client.ts",
         "supabase/migrations/202609140006_accounts_orders.sql"
       ],
-      "tests": [
-        "tests/database/service.test.ts"
-      ],
+      "tests": ["tests/database/service.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -3030,18 +2590,13 @@
       "external_verification": [
         "Supabase reale e verifiche end-to-end ancora da eseguire; stato non verificato integralmente."
       ],
-      "requirements": [
-        "integer cents;",
-        "PostgreSQL numeric appropriato."
-      ]
+      "requirements": ["integer cents;", "PostgreSQL numeric appropriato."]
     },
     {
       "section": 120,
       "title": "Database",
       "status": "partial",
-      "implementation": [
-        "supabase/migrations"
-      ],
+      "implementation": ["supabase/migrations"],
       "tests": [],
       "external_verification": [],
       "requirements": [
@@ -3056,9 +2611,7 @@
       "section": 121,
       "title": "RLS",
       "status": "partial",
-      "implementation": [
-        "supabase/migrations/202609140004_authorization.sql"
-      ],
+      "implementation": ["supabase/migrations/202609140004_authorization.sql"],
       "tests": [],
       "external_verification": [],
       "requirements": [
@@ -3084,14 +2637,8 @@
       "section": 122,
       "title": "RPC / Edge Functions critiche",
       "status": "partial",
-      "implementation": [
-        "supabase/functions",
-        "supabase/migrations"
-      ],
-      "tests": [
-        "tests/database/completion.test.ts",
-        "supabase/functions/_tests/http.test.ts"
-      ],
+      "implementation": ["supabase/functions", "supabase/migrations"],
+      "tests": ["tests/database/completion.test.ts", "supabase/functions/_tests/http.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -3101,13 +2648,8 @@
       "section": 123,
       "title": "State machine",
       "status": "partial",
-      "implementation": [
-        "src/services/state-machine.ts"
-      ],
-      "tests": [
-        "tests/unit/domain.test.ts",
-        "tests/database/service.test.ts"
-      ],
+      "implementation": ["src/services/state-machine.ts"],
+      "tests": ["tests/unit/domain.test.ts", "tests/database/service.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -3134,14 +2676,8 @@
       "section": 124,
       "title": "UX per ruolo e performance operativa",
       "status": "partial",
-      "implementation": [
-        "apps/staff/main.ts",
-        "src/components/floor-view.ts"
-      ],
-      "tests": [
-        "tests/e2e/staff-operations.spec.ts",
-        "tests/e2e/configuration.spec.ts"
-      ],
+      "implementation": ["apps/staff/main.ts", "src/components/floor-view.ts"],
+      "tests": ["tests/e2e/staff-operations.spec.ts", "tests/e2e/configuration.spec.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -3189,9 +2725,7 @@
       "section": 125,
       "title": "Design system Plateform",
       "status": "partial",
-      "implementation": [
-        "styles"
-      ],
+      "implementation": ["styles"],
       "tests": [],
       "external_verification": [],
       "requirements": [
@@ -3244,14 +2778,8 @@
       "section": 126,
       "title": "Accessibilità",
       "status": "partial",
-      "implementation": [
-        "src/components/dom.ts",
-        "src/components/floor-view.ts"
-      ],
-      "tests": [
-        "tests/e2e/staff-operations.spec.ts",
-        "tests/e2e/interface.spec.ts"
-      ],
+      "implementation": ["src/components/dom.ts", "src/components/floor-view.ts"],
+      "tests": ["tests/e2e/staff-operations.spec.ts", "tests/e2e/interface.spec.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -3298,26 +2826,16 @@
       "section": 128,
       "title": "Error handling",
       "status": "partial",
-      "implementation": [
-        "src/api/client.ts"
-      ],
+      "implementation": ["src/api/client.ts"],
       "tests": [],
       "external_verification": [],
-      "requirements": [
-        "SQL;",
-        "stack trace;",
-        "segreti;",
-        "dettagli infrastrutturali sensibili."
-      ]
+      "requirements": ["SQL;", "stack trace;", "segreti;", "dettagli infrastrutturali sensibili."]
     },
     {
       "section": 129,
       "title": "Testing",
       "status": "partial",
-      "implementation": [
-        "TESTING.md",
-        "tests"
-      ],
+      "implementation": ["TESTING.md", "tests"],
       "tests": [],
       "external_verification": [],
       "requirements": [
@@ -3385,9 +2903,7 @@
       "section": 131,
       "title": "Security test",
       "status": "partial",
-      "implementation": [
-        "tests/database"
-      ],
+      "implementation": ["tests/database"],
       "tests": [],
       "external_verification": [],
       "requirements": [
@@ -3420,11 +2936,7 @@
       "section": 132,
       "title": "Struttura progetto suggerita",
       "status": "partial",
-      "implementation": [
-        "README.md",
-        "ARCHITECTURE.md",
-        "tools/print-bridge/README.md"
-      ],
+      "implementation": ["README.md", "ARCHITECTURE.md", "tools/print-bridge/README.md"],
       "tests": [],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
@@ -3552,9 +3064,7 @@
       "section": 134,
       "title": "Prima del codice",
       "status": "partial",
-      "implementation": [
-        "ARCHITECTURE.md"
-      ],
+      "implementation": ["ARCHITECTURE.md"],
       "tests": [],
       "external_verification": [],
       "requirements": []
@@ -3614,11 +3124,7 @@
       "section": 138,
       "title": "Ambienti: Development, Staging, Production",
       "status": "partial",
-      "implementation": [
-        "DEPLOYMENT.md",
-        ".env.example",
-        "src/config/environment.ts"
-      ],
+      "implementation": ["DEPLOYMENT.md", ".env.example", "src/config/environment.ts"],
       "tests": [],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
@@ -3642,9 +3148,7 @@
         "scripts/package-release.mjs",
         "scripts/release-archive.py"
       ],
-      "tests": [
-        "tests/unit/release.test.ts"
-      ],
+      "tests": ["tests/unit/release.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -3660,15 +3164,8 @@
       "section": 140,
       "title": "Migrazioni database e rollback",
       "status": "partial",
-      "implementation": [
-        "DATABASE.md",
-        "DEPLOYMENT.md",
-        "supabase/migrations"
-      ],
-      "tests": [
-        "tests/database/harness.ts",
-        "tests/database/billing.test.ts"
-      ],
+      "implementation": ["DATABASE.md", "DEPLOYMENT.md", "supabase/migrations"],
+      "tests": ["tests/database/harness.ts", "tests/database/billing.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -3690,10 +3187,7 @@
         "supabase/functions/maintenance/index.ts",
         "supabase/migrations/202610030054_privacy_retention.sql"
       ],
-      "tests": [
-        "tests/database/privacy.test.ts",
-        "tests/e2e/configuration.spec.ts"
-      ],
+      "tests": ["tests/database/privacy.test.ts", "tests/e2e/configuration.spec.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -3848,9 +3342,7 @@
         "src/pages/staff-management.ts",
         "supabase/migrations/202610030052_observability.sql"
       ],
-      "tests": [
-        "tests/database/devices.test.ts"
-      ],
+      "tests": ["tests/database/devices.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -3860,12 +3352,8 @@
       "section": 145,
       "title": "Command Palette e ricerca globale",
       "status": "partial",
-      "implementation": [
-        "apps/staff/main.ts"
-      ],
-      "tests": [
-        "tests/database/configuration-floor.test.ts"
-      ],
+      "implementation": ["apps/staff/main.ts"],
+      "tests": ["tests/database/configuration-floor.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -3885,13 +3373,8 @@
       "section": 146,
       "title": "Reservation Operations avanzate",
       "status": "partial",
-      "implementation": [
-        "src/pages/reservation-editor.ts",
-        "src/pages/host.ts"
-      ],
-      "tests": [
-        "tests/e2e/staff-operations.spec.ts"
-      ],
+      "implementation": ["src/pages/reservation-editor.ts", "src/pages/host.ts"],
+      "tests": ["tests/e2e/staff-operations.spec.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],
@@ -3910,10 +3393,7 @@
       "section": 147,
       "title": "Commercial Deployment Model",
       "status": "partial",
-      "implementation": [
-        "DEPLOYMENT.md",
-        "BACKUP_RESTORE.md"
-      ],
+      "implementation": ["DEPLOYMENT.md", "BACKUP_RESTORE.md"],
       "tests": [],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
@@ -3924,13 +3404,8 @@
       "section": 148,
       "title": "Release Strategy",
       "status": "partial",
-      "implementation": [
-        "CHANGELOG.md",
-        "scripts/check-release.mjs"
-      ],
-      "tests": [
-        "tests/unit/release.test.ts"
-      ],
+      "implementation": ["CHANGELOG.md", "scripts/check-release.mjs"],
+      "tests": ["tests/unit/release.test.ts"],
       "external_verification": [
         "Verifica integrale del requisito e collaudo su staging ancora aperti; fixture locali non equivalgono a prova production."
       ],

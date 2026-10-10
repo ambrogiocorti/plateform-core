@@ -23,8 +23,12 @@ export function recordPublicPageView(venueId?: string): void {
 
 type MetricContext = NonNullable<ReturnType<typeof publicMetricContext>>;
 
-function recordMetric(metric: MetricName, value: number, venueId: string | undefined,
-  context: MetricContext | null): void {
+function recordMetric(
+  metric: MetricName,
+  value: number,
+  venueId: string | undefined,
+  context: MetricContext | null,
+): void {
   if (!context || !Number.isFinite(value) || value < 0) return;
   const normalized = metric === 'CLS' ? Math.min(100, value) : Math.min(60_000, value);
   const key = `metric:${metric}:${context.key}`;
@@ -82,7 +86,9 @@ export function observePublicPerformance(venueId?: string): () => void {
       recordMetric('INP', event.duration, venueId, context);
   });
   const flush = () => recordMetric('CLS', cls, venueId, context);
-  const onPageHide = () => { if (!disposed) flush(); };
+  const onPageHide = () => {
+    if (!disposed) flush();
+  };
   window.addEventListener('pagehide', onPageHide);
   return () => {
     if (disposed) return;
