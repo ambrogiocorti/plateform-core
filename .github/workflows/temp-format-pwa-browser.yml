@@ -1,0 +1,31 @@
+name: Temporary PWA test formatting
+on:
+  push:
+    branches:
+      - test/p0-pwa-browser-offline-20261010
+permissions:
+  contents: write
+jobs:
+  normalize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - name: Format only new PWA browser fixtures
+        run: npx prettier --write playwright.pwa.config.ts tests/pwa-browser/shell.spec.ts
+      - name: Check format
+        run: npx prettier --check playwright.pwa.config.ts tests/pwa-browser/shell.spec.ts
+      - name: Commit only scoped files
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add playwright.pwa.config.ts tests/pwa-browser/shell.spec.ts
+          if ! git diff --cached --quiet; then
+            git commit -m "style: format production PWA browser tests"
+            git push origin HEAD:test/p0-pwa-browser-offline-20261010
+          fi
