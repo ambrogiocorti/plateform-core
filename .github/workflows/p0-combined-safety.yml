@@ -32,6 +32,14 @@ jobs:
           node --test
           scripts/check-staging-project-binding.mjs
           scripts/check-staging-api-reachability.mjs
+      - name: Full Step 12 static and worker contract regression
+        run: |
+          npm run check:step12
+          npm run check:backup-worker
+          npm run check:restore-test-worker
+          npm run check:restore-worker
+          npm run check:retention-worker
+          npm run check:continuity-binding
       - name: Format check of combined safety code
         run: >-
           npx prettier --check
