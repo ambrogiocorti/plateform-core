@@ -173,15 +173,26 @@ export async function hostPage(context: StaffContext): Promise<HTMLElement> {
               );
               return;
             }
-            await command('assign_table_group', {
-              p_reservation: entry.id,
-              p_tables: [proposal.id, ...proposal.table_ids.filter((id) => id !== proposal.id)],
-              p_confirm_change: false,
-              p_version: entry.version,
-            });
-            choices.close();
-            toast(`Tavolo assegnato: ${proposal.name}`);
-            await context.refresh?.();
+            // Initial seating is an operationally significant action: require
+            // explicit confirmation, just as we already do for table changes.
+            const confirmation = dialog(
+              'Conferma assegnazione',
+              el('p', {}, `Assegnare ${proposal.name} a ${entry.first_name} ${entry.last_name} · ${entry.party_size} persone?`),
+            );
+            confirmation.append(
+              button('Conferma', async () => {
+                await command('assign_table_group', {
+                  p_reservation: entry.id,
+                  p_tables: [proposal.id, ...proposal.table_ids.filter((id) => id !== proposal.id)],
+                  p_confirm_change: false,
+                  p_version: entry.version,
+                });
+                confirmation.close();
+                choices.close();
+                toast(`Tavolo assegnato: ${proposal.name}`);
+                await context.refresh?.();
+              }),
+            );
           },
           'secondary',
         ),
