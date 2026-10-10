@@ -1,0 +1,28 @@
+name: Clean migration replay (isolated CI)
+on:
+  push:
+    branches:
+      - recovery/p0-canonical-migrations-20261010
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  rebuild_from_scratch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v3
+        with:
+          version: 2.84.2
+      - name: Check 457 canonical migration file hashes
+        run: node scripts/check-migrations.mjs
+      - name: Fresh local PostgreSQL 17 and migration replay
+        run: supabase db start
+      - name: Validate fully applied history
+        run: |
+          test "$(find supabase/migrations -maxdepth 1 -type f -name '*.sql' | wc -l)" -eq 457
+          supabase migration list --local
+      - name: Stop ephemeral database
+        if: always()
+        run: supabase stop --no-backup || true
