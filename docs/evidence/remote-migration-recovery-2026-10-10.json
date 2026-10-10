@@ -133,7 +133,7 @@
     }
   ],
   "rollback": "Restore prior migration directory and manifest from previous_commit. Do not rewrite remote history.",
-  "validation_status": "458_MIGRATIONS_EPHEMERAL_REPLAY_AND_SOURCE_SUITE_PASSED_REMOTE_STAGING_PENDING",
+  "validation_status": "SOURCE_CHECKS_BROWSER_19_OF_19_AND_EPHEMERAL_REPLAY_PASSED_STAGING_LIVE_PENDING",
   "not_yet_done": [
     "fresh isolated Supabase staging rebuild",
     "migration idempotency",
@@ -200,5 +200,27 @@
     "ci_run_id": 38043293635,
     "ci_job": "run_full_source_suite",
     "ci_url": "https://github.com/ambrogiocorti/plateform-core/actions/runs/38043293635"
+  },
+  "latest_integrated_ci": {
+    "checked_at": "2026-10-10",
+    "run_id": 38044175529,
+    "url": "https://github.com/ambrogiocorti/plateform-core/actions/runs/38044175529",
+    "head_sha": "25e6ee9f66b12d84ddab319e29a6ee1edaf9bcf7",
+    "jobs": {
+      "verify_migrations": "SUCCESS",
+      "run_full_source_suite": "SUCCESS",
+      "browser_fixture_suite": "SUCCESS"
+    },
+    "playwright": {
+      "passed": 19,
+      "failed": 0,
+      "browser": "chromium",
+      "workers": 1,
+      "tests_are": "HTTP fixtures; NOT remote Auth/Storage/Edge end-to-end"
+    },
+    "clean_docker_replay_run": 38043566447,
+    "clean_docker_replay_result": "SUCCESS",
+    "docker_schema_checks": "CLEAN_REPLAY_SCHEMA_BASELINE=PASSED",
+    "note": "GitHub legacy generic ci.yml format:check remains separate and failing; staging remains paused to use Free slot for replica; release NO-GO."
   }
 }
