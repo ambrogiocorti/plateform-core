@@ -118,21 +118,7 @@ export function loadConfig() {
     leaseSeconds: Number(process.env.PLATEFORM_RESTORE_LEASE_SECONDS || 1800),
   };
 }
-export async function checkPrerequisites(config) {
-  if (
-    !Number.isInteger(config.leaseSeconds) ||
-    config.leaseSeconds < 60 ||
-    config.leaseSeconds > 1800
-  )
-    throw new Error('CONFIG_INVALID:PLATEFORM_RESTORE_LEASE_SECONDS');
-  await access(config.backupRoot, constants.R_OK);
-  await assertSafeBackupRoot(config.backupRoot);
-  await commandOutput(config.psql, ['--version']);
-  try {
-    await import('@supabase/supabase-js');
-  } catch {
-    throw new Error('PREREQUISITE_MISSING:SUPABASE_JS');
-  }
+export async function probeTargetOccupied(config) {
   const occupied = (
     await commandOutput(config.psql, [
       '-X',
@@ -157,11 +143,30 @@ export async function checkPrerequisites(config) {
   if (!['true', 'false', 't', 'f'].includes(occupied)) {
     throw new Error('RESTORE_TARGET_PROBE_INVALID');
   }
+  return occupied === 'true' || occupied === 't';
+}
+
+export async function checkPrerequisites(config) {
+  if (
+    !Number.isInteger(config.leaseSeconds) ||
+    config.leaseSeconds < 60 ||
+    config.leaseSeconds > 1800
+  )
+    throw new Error('CONFIG_INVALID:PLATEFORM_RESTORE_LEASE_SECONDS');
+  await access(config.backupRoot, constants.R_OK);
+  await assertSafeBackupRoot(config.backupRoot);
+  await commandOutput(config.psql, ['--version']);
+  try {
+    await import('@supabase/supabase-js');
+  } catch {
+    throw new Error('PREREQUISITE_MISSING:SUPABASE_JS');
+  }
+  const occupied = await probeTargetOccupied(config);
   const temp = await mkdtemp(`${tmpdir()}/plateform-restore-`);
   return {
     psql: config.psql,
     targetProjectRef: config.targetProjectRef,
     temp,
-    targetOccupied: occupied === 'true' || occupied === 't',
+    targetOccupied: occupied,
   };
 }
