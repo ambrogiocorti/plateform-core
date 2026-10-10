@@ -1,0 +1,44 @@
+name: Temporary P0 dependency lockfile remediation
+on:
+  push:
+    branches:
+      - fix/p0-dependency-vulnerability-audit-20261010
+permissions:
+  contents: write
+jobs:
+  patch_lock:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - name: Repair compatible vulnerable transitives without touching package.json
+        run: npm audit fix --package-lock-only --ignore-scripts
+      - name: Normalize audit script
+        run: npx prettier --write scripts/check-dependency-security.mjs
+      - name: Verify fixed complete dependency graph
+        run: |
+          npm ci
+          node scripts/check-dependency-security.mjs
+          npm audit --audit-level=high
+          npm run format:check
+      - name: Refuse unrelated changes before committing
+        run: |
+          other="$(git status --porcelain | awk '{print $2}' | grep -Ev '^(package-lock.json|scripts/check-dependency-security.mjs|.github/workflows/temp-fix-dependency-lock.yml)$' || true)"
+          if [ -n "$other" ]; then
+            echo "UNEXPECTED_DEPENDENCY_REMEDIATION_FILES"
+            exit 1
+          fi
+      - name: Commit only the lockfile and audit script
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add package-lock.json scripts/check-dependency-security.mjs
+          if ! git diff --cached --quiet; then
+            git commit -m "fix(security): patch source-map-js transitively in lockfile"
+            git push origin HEAD:fix/p0-dependency-vulnerability-audit-20261010
+          fi
