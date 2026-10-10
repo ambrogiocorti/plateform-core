@@ -40,9 +40,29 @@
     "server_internal_authorize_preserved": true
   },
   "validation": {
-    "full_clean_replay": "PENDING_CI",
-    "function_identity_parity_except_intentional_exclusions": "PENDING_CI",
-    "app_ci": "PENDING_CI"
+    "full_clean_replay": "PASSED",
+    "clean_replay_run_id": 38045101058,
+    "clean_replay_url": "https://github.com/ambrogiocorti/plateform-core/actions/runs/38045101058",
+    "catalog_counts": {
+      "migrations": 459,
+      "public_tables": 114,
+      "private_tables": 48,
+      "functions": 551,
+      "triggers": 311,
+      "rls_policies": 110,
+      "indexes": 450,
+      "constraints": 903,
+      "public_tables_without_rls": 0
+    },
+    "function_identity_parity_except_intentional_exclusions": "PASSED",
+    "function_parity_run_id": 38045101057,
+    "function_parity_url": "https://github.com/ambrogiocorti/plateform-core/actions/runs/38045101057",
+    "missing_function_identities": 0,
+    "unexpected_function_identities": 0,
+    "app_ci": "PASSED",
+    "app_ci_run_id": 38045131986,
+    "app_ci_url": "https://github.com/ambrogiocorti/plateform-core/actions/runs/38045131986",
+    "scope_note": "Local CI, not a real separate Supabase staging deployment, JWT/RLS negative-role test, or production release certification."
   },
   "source_release_go_no_go": "NO_GO",
   "note": "Never change Development schema history for an off-ledger recovery. Clean installations may intentionally omit diagnostics with a reviewed justification."
