@@ -65,8 +65,7 @@ export function verifyStagingProjectBinding({
   const directHost = `db.${projectRef}.supabase.co`;
   const direct = db.hostname === directHost && dbUser === 'postgres';
   const pooled =
-    /^[a-z0-9-]+\.pooler\.supabase\.com$/.test(db.hostname) &&
-    dbUser === `postgres.${projectRef}`;
+    /^[a-z0-9-]+\.pooler\.supabase\.com$/.test(db.hostname) && dbUser === `postgres.${projectRef}`;
   if (
     (!direct && !pooled) ||
     db.pathname !== '/postgres' ||
@@ -113,7 +112,9 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
       databaseUrl: process.env.STAGING_SUPABASE_DB_URL,
       publishableKey: process.env.VITE_SUPABASE_PUBLISHABLE_KEY,
     });
-    console.log(`STAGING_PROJECT_BINDING=${report.status} ${report.project_ref} ${report.database_connection}`);
+    console.log(
+      `STAGING_PROJECT_BINDING=${report.status} ${report.project_ref} ${report.database_connection}`,
+    );
   } catch (error) {
     // Never print source URLs, the connection string or a secret key to CI logs.
     console.error(`STAGING_PROJECT_BINDING=BLOCKED ${error.message}`);

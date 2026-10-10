@@ -46,46 +46,84 @@ test('rejects missing, Development and populated replica project refs', () => {
 });
 
 test('rejects frontend HTTP, embedded paths and a Supabase URL as origin', () => {
-  expectBlocked({ stagingOrigin: 'http://staging.plateform.example' }, 'STAGING_ORIGIN_MUST_BE_CLEAN_HTTPS');
-  expectBlocked({ stagingOrigin: 'https://staging.plateform.example/staff' }, 'STAGING_ORIGIN_MUST_BE_CLEAN_HTTPS');
-  expectBlocked({ stagingOrigin: `https://${projectRef}.supabase.co` }, 'STAGING_ORIGIN_MUST_BE_CLEAN_HTTPS');
+  expectBlocked(
+    { stagingOrigin: 'http://staging.plateform.example' },
+    'STAGING_ORIGIN_MUST_BE_CLEAN_HTTPS',
+  );
+  expectBlocked(
+    { stagingOrigin: 'https://staging.plateform.example/staff' },
+    'STAGING_ORIGIN_MUST_BE_CLEAN_HTTPS',
+  );
+  expectBlocked(
+    { stagingOrigin: `https://${projectRef}.supabase.co` },
+    'STAGING_ORIGIN_MUST_BE_CLEAN_HTTPS',
+  );
 });
 
 test('rejects backend pointing to Development or a mismatched project', () => {
-  expectBlocked({ supabaseUrl: 'https://abdxvlykasqmknexxhjo.supabase.co' }, 'STAGING_API_PROJECT_REF_MISMATCH');
-  expectBlocked({ supabaseUrl: `https://${projectRef}.supabase.co/rest/v1` }, 'STAGING_API_PROJECT_REF_MISMATCH');
+  expectBlocked(
+    { supabaseUrl: 'https://abdxvlykasqmknexxhjo.supabase.co' },
+    'STAGING_API_PROJECT_REF_MISMATCH',
+  );
+  expectBlocked(
+    { supabaseUrl: `https://${projectRef}.supabase.co/rest/v1` },
+    'STAGING_API_PROJECT_REF_MISMATCH',
+  );
 });
 
 test('rejects pooler tenant cross-binding and non-Supabase hosts', () => {
-  expectBlocked({
-    databaseUrl: 'postgresql://postgres.abdxvlykasqmknexxhjo:password@aws-0-eu-west-1.pooler.supabase.com:5432/postgres',
-  }, 'STAGING_DB_PROJECT_REF_MISMATCH');
-  expectBlocked({
-    databaseUrl: `postgresql://postgres.${projectRef}:password@attacker.example:5432/postgres`,
-  }, 'STAGING_DB_PROJECT_REF_MISMATCH');
+  expectBlocked(
+    {
+      databaseUrl:
+        'postgresql://postgres.abdxvlykasqmknexxhjo:password@aws-0-eu-west-1.pooler.supabase.com:5432/postgres',
+    },
+    'STAGING_DB_PROJECT_REF_MISMATCH',
+  );
+  expectBlocked(
+    {
+      databaseUrl: `postgresql://postgres.${projectRef}:password@attacker.example:5432/postgres`,
+    },
+    'STAGING_DB_PROJECT_REF_MISMATCH',
+  );
 });
 
 test('rejects direct database binding to a different project', () => {
-  expectBlocked({
-    databaseUrl: 'postgresql://postgres:password@db.abdxvlykasqmknexxhjo.supabase.co:5432/postgres',
-  }, 'STAGING_DB_PROJECT_REF_MISMATCH');
+  expectBlocked(
+    {
+      databaseUrl:
+        'postgresql://postgres:password@db.abdxvlykasqmknexxhjo.supabase.co:5432/postgres',
+    },
+    'STAGING_DB_PROJECT_REF_MISMATCH',
+  );
 });
 
 test('rejects missing database password and wrong database name', () => {
-  expectBlocked({
-    databaseUrl: `postgresql://postgres.${projectRef}@aws-0-eu-west-1.pooler.supabase.com:5432/postgres`,
-  }, 'STAGING_DB_CONNECTION_INVALID');
-  expectBlocked({
-    databaseUrl: `postgresql://postgres.${projectRef}:password@aws-0-eu-west-1.pooler.supabase.com:5432/template1`,
-  }, 'STAGING_DB_PROJECT_REF_MISMATCH');
+  expectBlocked(
+    {
+      databaseUrl: `postgresql://postgres.${projectRef}@aws-0-eu-west-1.pooler.supabase.com:5432/postgres`,
+    },
+    'STAGING_DB_CONNECTION_INVALID',
+  );
+  expectBlocked(
+    {
+      databaseUrl: `postgresql://postgres.${projectRef}:password@aws-0-eu-west-1.pooler.supabase.com:5432/template1`,
+    },
+    'STAGING_DB_PROJECT_REF_MISMATCH',
+  );
 });
 
 test('rejects server-side secret/public-role confusion', () => {
-  expectBlocked({ publishableKey: 'sb_secret_example_never_in_vite' }, 'STAGING_SECRET_KEY_IN_PUBLIC_ENV');
+  expectBlocked(
+    { publishableKey: 'sb_secret_example_never_in_vite' },
+    'STAGING_SECRET_KEY_IN_PUBLIC_ENV',
+  );
   expectBlocked({ publishableKey: legacyKey('service_role') }, 'STAGING_NON_ANON_JWT_EXPOSED');
   expectBlocked({ publishableKey: 'abc123.not-a-legit-key' }, 'STAGING_UNRECOGNIZED_PUBLIC_KEY');
 });
 
 test('accepts a legacy anon JWT when explicitly configured', () => {
-  assert.equal(verifyStagingProjectBinding({ ...base, publishableKey: legacyKey('anon') }).status, 'PASS');
+  assert.equal(
+    verifyStagingProjectBinding({ ...base, publishableKey: legacyKey('anon') }).status,
+    'PASS',
+  );
 });
