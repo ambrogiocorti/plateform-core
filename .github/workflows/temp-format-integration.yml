@@ -1,0 +1,35 @@
+name: Normalize recovered migration integration
+on:
+  push:
+    branches:
+      - integration/p0-migrations-format-20261010
+permissions:
+  contents: write
+jobs:
+  run_format_once:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - name: Apply repo Prettier baseline and validate
+        run: |
+          npm run format
+          git diff --check
+          npm run format:check
+      - name: Commit only normalization
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -u
+          if ! git diff --cached --quiet; then
+            git commit -m 'style: align recovered migrations and app sources with Prettier'
+            git push
+          fi
