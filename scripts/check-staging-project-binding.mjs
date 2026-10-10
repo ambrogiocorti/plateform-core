@@ -61,10 +61,7 @@ test('rejects frontend HTTP, embedded paths and a Supabase URL as origin', () =>
 });
 
 test('rejects IP-address and internal .local staging origins', () => {
-  expectBlocked(
-    { stagingOrigin: 'https://127.0.0.1' },
-    'STAGING_ORIGIN_MUST_BE_CLEAN_HTTPS',
-  );
+  expectBlocked({ stagingOrigin: 'https://127.0.0.1' }, 'STAGING_ORIGIN_MUST_BE_CLEAN_HTTPS');
   expectBlocked(
     { stagingOrigin: 'https://staging.internal.local' },
     'STAGING_ORIGIN_MUST_BE_CLEAN_HTTPS',
