@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "type": "PLATEFORM_P0_REPLACEMENT_RESTORE_SAFETY_GATE",
+  "date": "2026-10-10",
+  "scope": "source-only hardening of customer replacement restore; no live restore",
+  "source_branch": "fix/p0-restore-replacement-safety-20261010",
+  "base_branch": "integration/p0-staging-continuity-20261010",
+  "changes": [
+    "Nonempty target detection across public/private application base tables and Auth users/identities, Storage buckets/objects",
+    "Malformed PostgreSQL preflight result rejected rather than treated as empty",
+    "restore --check fails on an occupied target",
+    "Target database must use a project-bound Supabase direct or pooler host, a password, and /postgres",
+    "VERIFYING-only resume and 14 post-restore verification gates preserved"
+  ],
+  "ci": {
+    "focused_run_id": 38061718752,
+    "focused_result": "SUCCESS",
+    "tests": [
+      "isolated stub psql occupied/empty/malformed response",
+      "nonempty check precedes destructive restore operation",
+      "cross-tenant and forged DB host rejections",
+      "cutover static contract",
+      "restore worker static contract",
+      "Prettier"
+    ],
+    "full_application_ci": "PENDING_LAST_COMMIT"
+  },
+  "live_read_only": {
+    "development": {
+      "project_ref": "abdxvlykasqmknexxhjo",
+      "db_bytes": 1568446131,
+      "snapshots": 155,
+      "scheduler_active": false,
+      "backup_queue": 0
+    },
+    "replica": {
+      "project_ref": "dkbjgvovxgglqhqxmuyb",
+      "auth_users": 12,
+      "storage_objects": 3114,
+      "public_tables": 95,
+      "target_occupied": true
+    },
+    "staging": {
+      "project_ref": "kghactswtabakkkbojmo",
+      "status": "INACTIVE"
+    }
+  },
+  "required_next": [
+    "Provision an independently isolated disposable project with empty DB/Auth/Storage",
+    "Confirm backup of current schema and real byte-level DB, Auth, Storage and key escrow integrity",
+    "Run destructive restore only against a verified fresh disposable project",
+    "Complete all 14 post-restore checks and record RPO/RTO and cutover/rollback evidence",
+    "Only after proven recovery rehearse targeted retention and physical quota reclamation"
+  ],
+  "safety": {
+    "data_deleted": false,
+    "restore_executed": false,
+    "source_database_modified": false,
+    "scheduler_resumed": false,
+    "commercial_release_ready": false
+  },
+  "decision": "NO_GO"
+}
