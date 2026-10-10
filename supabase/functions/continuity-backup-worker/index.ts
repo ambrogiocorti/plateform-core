@@ -5,7 +5,7 @@ const PRIMARY_BUCKET = 'plateform-continuity-primary';
 const SOURCE_REF = (() => {
   const configured = Deno.env.get('SUPABASE_URL') ?? '';
   const url = new URL(configured);
-  const match = /^([a-z0-9]{20})\\.supabase\\.co$/.exec(url.hostname);
+  const match = /^([a-z0-9]{20})\.supabase\.co$/.exec(url.hostname);
   if (url.protocol !== 'https:' || !match) {
     throw new Error('CONTINUITY_SOURCE_PROJECT_INVALID');
   }
