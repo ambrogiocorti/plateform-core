@@ -298,7 +298,7 @@ async function assertRealtimeIsolation({ api, anonKey, tokenA, tokenB }) {
           event: 'INSERT',
           schema: 'public',
           table: 'realtime_signals',
-          filter: 'venue_id=eq.' + venueId,
+          ...(venueId ? { filter: 'venue_id=eq.' + venueId } : {}),
         },
         (payload) => events.push(payload.new),
       );
@@ -319,10 +319,11 @@ async function assertRealtimeIsolation({ api, anonKey, tokenA, tokenB }) {
       return events;
     }
 
-    const [eventsAA, eventsAB, eventsBB] = await Promise.all([
+    const [eventsAA, eventsAB, eventsBB, eventsAllA] = await Promise.all([
       subscribe(clients[0], 'adminA-own', VENUE_A, true),
       subscribe(clients[0], 'adminA-foreign', VENUE_B, false),
       subscribe(clients[1], 'adminB-own', VENUE_B, true),
+      subscribe(clients[0], 'adminA-unfiltered', null, true),
     ]);
     await new Promise((resolve) => setTimeout(resolve, 750));
     const signalA = '54000000-0000-4000-8000-000000000001';
@@ -370,7 +371,13 @@ async function assertRealtimeIsolation({ api, anonKey, tokenA, tokenB }) {
       ownA: eventsAA.length,
       foreignA: eventsAB.length,
       ownB: eventsBB.length,
+      unfilteredA: eventsAllA.length,
     }));
+    assert.equal(
+      eventsAllA.filter((event) => event.id === signalB).length,
+      0,
+      'unfiltered channel must never leak foreign signal',
+    );
     assert.ok(
       eventsAA.some((event) => event.id === signalA),
       'own venue A signal must reach its authorized WebSocket',
