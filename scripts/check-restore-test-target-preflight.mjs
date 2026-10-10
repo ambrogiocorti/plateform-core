@@ -8,11 +8,11 @@ const worker = readFileSync('tools/restore-test-worker/start.mjs', 'utf8');
 test('target probe rejects existing app tables, Auth identities and Storage objects', () => {
   for (const fragment of [
     "table_schema in ('public','private')",
-    "from auth.users",
-    "from auth.identities",
-    "from storage.buckets",
-    "from storage.objects",
-    "RESTORE_TARGET_PROBE_INVALID",
+    'from auth.users',
+    'from auth.identities',
+    'from storage.buckets',
+    'from storage.objects',
+    'RESTORE_TARGET_PROBE_INVALID',
   ]) {
     assert.ok(config.includes(fragment), `Missing target occupancy check: ${fragment}`);
   }
@@ -20,7 +20,7 @@ test('target probe rejects existing app tables, Auth identities and Storage obje
 
 test('readiness must not return READY if the destination has existing content', () => {
   const check = worker.indexOf("if (mode === '--check')");
-  const denied = worker.indexOf("if (prerequisite.targetOccupied)", check);
+  const denied = worker.indexOf('if (prerequisite.targetOccupied)', check);
   const ready = worker.indexOf("status: 'READY'", check);
   assert.ok(check >= 0 && denied > check && ready > denied);
   assert.ok(worker.slice(denied, ready).includes('RESTORE_TARGET_NOT_EMPTY'));

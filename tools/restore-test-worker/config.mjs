@@ -146,7 +146,7 @@ export async function checkPrerequisites(config) {
         'or exists (select 1 from auth.identities)',
         'or exists (select 1 from storage.buckets)',
         'or exists (select 1 from storage.objects)',
-        ")::text;",
+        ')::text;',
       ].join(' '),
     ])
   ).trim();
