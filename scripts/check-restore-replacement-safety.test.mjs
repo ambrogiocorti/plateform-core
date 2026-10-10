@@ -3,7 +3,7 @@ import test from 'node:test';
 import { chmod, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { checkPrerequisites } from '../tools/restore-worker/config.mjs';
+import { checkPrerequisites, probeTargetOccupied } from '../tools/restore-worker/config.mjs';
 
 const startFile = new URL('../tools/restore-worker/start.mjs', import.meta.url);
 
@@ -46,6 +46,12 @@ test('replacement preflight actually executes a complete read-only occupancy que
     assert.equal(empty.targetOccupied, false);
     await rm(empty.temp, { recursive: true, force: true });
 
+    // Data may appear after preflight and before the destructive SQL replay.
+    process.env.PLATEFORM_MOCK_PSQL_ANSWER = 'true';
+    assert.equal(await probeTargetOccupied(config), true);
+    process.env.PLATEFORM_MOCK_PSQL_ANSWER = 'false';
+    assert.equal(await probeTargetOccupied(config), false);
+
     process.env.PLATEFORM_MOCK_PSQL_ANSWER = 'garbage';
     await assert.rejects(() => checkPrerequisites(config), /RESTORE_TARGET_PROBE_INVALID/);
   } finally {
@@ -76,6 +82,10 @@ test('replacement readiness and destructive actions are ordered safely', async (
       storageGuard > occupiedBeforeRestore &&
       restoreCall > storageGuard,
   );
+  const freshProbe = source.indexOf('await probeTargetOccupied(config)');
+  const destructiveSql = source.indexOf('await restoreDatabase(config, files)');
+  assert.ok(freshProbe > 0 && destructiveSql > freshProbe, 'repeat occupancy probe immediately before applying database dump');
+  assert.ok(source.includes('RESTORE_TARGET_CHANGED_DURING_PREPARATION'));
   assert.ok(source.includes('RESTORE_TARGET_NOT_EMPTY'));
   assert.ok(source.includes("job.status === 'VERIFYING'"), 'verification-only resume preserved');
 });
