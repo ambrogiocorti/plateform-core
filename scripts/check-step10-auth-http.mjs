@@ -344,6 +344,19 @@ async function assertRealtimeIsolation({ api, anonKey, tokenA, tokenB }) {
         ROOM_B +
         "');",
     );
+    const [viaRestA, viaRestB, viaRestForeign] = await Promise.all([
+      rest(api, anonKey, tokenA, 'realtime_signals?select=id&id=eq.' + signalA),
+      rest(api, anonKey, tokenB, 'realtime_signals?select=id&id=eq.' + signalB),
+      rest(api, anonKey, tokenA, 'realtime_signals?select=id&id=eq.' + signalB),
+    ]);
+    assert.equal(viaRestA.status, 200);
+    assert.equal(viaRestB.status, 200);
+    assert.equal(viaRestForeign.status, 200);
+    exactly(viaRestA.parsed, [signalA]);
+    exactly(viaRestB.parsed, [signalB]);
+    exactly(viaRestForeign.parsed, []);
+    console.log('JWT_HTTP_REALTIME_SIGNAL_ROW_RLS=PASSED');
+
     const end = Date.now() + 14000;
     while (Date.now() < end) {
       if (
@@ -353,6 +366,11 @@ async function assertRealtimeIsolation({ api, anonKey, tokenA, tokenB }) {
         break;
       await new Promise((resolve) => setTimeout(resolve, 250));
     }
+    console.log('JWT_WS_EVENT_COUNTS=' + JSON.stringify({
+      ownA: eventsAA.length,
+      foreignA: eventsAB.length,
+      ownB: eventsBB.length,
+    }));
     assert.ok(
       eventsAA.some((event) => event.id === signalA),
       'own venue A signal must reach its authorized WebSocket',
