@@ -1,0 +1,49 @@
+{
+  "type": "P0_UNVERSIONED_ROUTINE_RECOVERY",
+  "date": "2026-10-10",
+  "source_project": "abdxvlykasqmknexxhjo",
+  "scope": "public/private routines, clean replay parity",
+  "live_count": 553,
+  "initial_clean_replay_count": 549,
+  "off_ledger_routines": [
+    {
+      "identity": "public.get_account_transfer_targets(p_account uuid)",
+      "classification": "BUSINESS_CRITICAL",
+      "method": "version exact live pg_get_functiondef() + validated grants"
+    },
+    {
+      "identity": "public.get_order_change_center(p_venue uuid)",
+      "classification": "BUSINESS_CRITICAL",
+      "method": "version exact live pg_get_functiondef() + validated grants"
+    },
+    {
+      "identity": "private.debug_menu_experience_e2e()",
+      "classification": "TEST_ONLY",
+      "disposition": "EXCLUDED from customer installs; privileged routine manipulates test JWT/session state"
+    },
+    {
+      "identity": "public.continuity_rehearsal_export_chunk(p_snapshot_id uuid, p_chunk_no integer, p_chunk_size integer, p_backup_key text)",
+      "classification": "REHEARSAL_ONLY",
+      "disposition": "EXCLUDED from customer installs; hard-coded snapshot UUID and backup key argument"
+    }
+  ],
+  "migration": {
+    "path": "supabase/migrations/20261010102752_recover_unversioned_operational_rpcs.sql",
+    "created_via": "Supabase CLI migration new",
+    "source_sha256": "130a45fe1432647fd90c9947ce32570e287cf26bb08d184f32a5e671e7308909",
+    "expected_files": 459,
+    "expected_clean_routines": 551
+  },
+  "authorization": {
+    "grants": "authenticated and service_role only, REVOKE PUBLIC/anon",
+    "source_db_roles_verified": true,
+    "server_internal_authorize_preserved": true
+  },
+  "validation": {
+    "full_clean_replay": "PENDING_CI",
+    "function_identity_parity_except_intentional_exclusions": "PENDING_CI",
+    "app_ci": "PENDING_CI"
+  },
+  "source_release_go_no_go": "NO_GO",
+  "note": "Never change Development schema history for an off-ledger recovery. Clean installations may intentionally omit diagnostics with a reviewed justification."
+}
