@@ -23,6 +23,20 @@ jobs:
         run: |
           test "$(find supabase/migrations -maxdepth 1 -type f -name '*.sql' | wc -l)" -eq 458
           supabase migration list --local
+      - name: Compare structural baseline to live Development inventory
+        run: |
+          set -euo pipefail
+          db_container="$(docker ps --filter 'name=supabase_db_' --format '{{.Names}}' | head -n 1)"
+          test -n "$db_container"
+          sql_count() {
+            docker exec "$db_container" psql --username postgres --dbname postgres --no-align --tuples-only --command "$1" | tr -d '[:space:]'
+          }
+          test "$(sql_count "select count(*) from supabase_migrations.schema_migrations")" = "458"
+          test "$(sql_count "select count(*) from pg_tables where schemaname='public'")" = "114"
+          test "$(sql_count "select count(*) from pg_tables where schemaname='private'")" = "48"
+          test "$(sql_count "select count(*) from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and c.relkind in ('r','p') and not c.relrowsecurity")" = "0"
+          test "$(sql_count "select count(*) from pg_tables where schemaname='private' and tablename like 'continuity_rehearsal_%'")" = "7"
+          echo 'CLEAN_REPLAY_SCHEMA_BASELINE=PASSED'
       - name: Stop ephemeral database
         if: always()
         run: supabase stop --no-backup || true
