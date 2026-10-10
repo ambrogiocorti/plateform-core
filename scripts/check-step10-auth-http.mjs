@@ -191,6 +191,214 @@ async function rest(api, anonKey, token, path, method = 'GET', body = undefined)
   return { status: res.status, parsed };
 }
 
+async function assertPrivateStorageIsolation({ root, api, anonKey, userA, userB, tokenA, tokenB }) {
+  const { data: bucket, error: bucketError } = await root.storage.getBucket('documents');
+  if (bucketError || !bucket || bucket.public !== false)
+    throw new Error('DOCUMENTS_PRIVATE_BUCKET_NOT_PROVISIONED');
+  const files = [
+    {
+      venue: VENUE_A,
+      user: userA,
+      path: 'venues/' + VENUE_A + '/documents/local-auth-a.pdf',
+      id: '53000000-0000-4000-8000-000000000001',
+      bytes: Buffer.from('%PDF-1.4\\nPLATEFORM LOCAL VENUE A\\n%%EOF'),
+    },
+    {
+      venue: VENUE_B,
+      user: userB,
+      path: 'venues/' + VENUE_B + '/documents/local-auth-b.pdf',
+      id: '53000000-0000-4000-8000-000000000002',
+      bytes: Buffer.from('%PDF-1.4\\nPLATEFORM LOCAL VENUE B\\n%%EOF'),
+    },
+  ];
+  for (const file of files) {
+    const { error: uploadError } = await root.storage
+      .from('documents')
+      .upload(file.path, file.bytes, { contentType: 'application/pdf', upsert: false });
+    if (uploadError) throw new Error('LOCAL_STORAGE_SEED_UPLOAD_FAILED');
+    const insert =
+      'insert into public.asset_uploads ' +
+      '(id,actor_id,bucket,venue_id,path,size_bytes,mime,status,checksum,saved_at) ' +
+      "values ('" +
+      file.id +
+      "','" +
+      file.user +
+      "','documents','" +
+      file.venue +
+      "','" +
+      file.path +
+      "'," +
+      file.bytes.length +
+      ",'application/pdf','SAVED','ci-fixture',now());";
+    postgres(insert);
+  }
+  const download = (token, path) =>
+    fetch(api + '/storage/v1/object/authenticated/documents/' + path, {
+      headers: { apikey: anonKey, Authorization: 'Bearer ' + token },
+      redirect: 'error',
+    });
+  for (const [token, own, forbidden] of [
+    [tokenA, files[0], files[1]],
+    [tokenB, files[1], files[0]],
+  ]) {
+    const ownResponse = await download(token, own.path);
+    assert.equal(ownResponse.status, 200, 'own private document downloadable with AAL2 JWT');
+    assert.deepEqual(Buffer.from(await ownResponse.arrayBuffer()), own.bytes);
+    const crossResponse = await download(token, forbidden.path);
+    assert.ok(
+      [400, 401, 403, 404].includes(crossResponse.status),
+      'foreign private document must not be downloadable',
+    );
+  }
+  const unauthenticated = await download(anonKey, files[0].path);
+  assert.ok(
+    [400, 401, 403, 404].includes(unauthenticated.status),
+    'private document must not be downloaded by anon',
+  );
+  const client = createClient(api, anonKey, {
+    global: { headers: { Authorization: 'Bearer ' + tokenA } },
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+  const { error: directUploadError } = await client.storage
+    .from('documents')
+    .upload(
+      'venues/' + VENUE_B + '/documents/forged-upload.pdf',
+      Buffer.from('%PDF-1.4\\nNO DIRECT UPLOAD\\n%%EOF'),
+      { contentType: 'application/pdf' },
+    );
+  assert.ok(directUploadError, 'direct cross-venue Storage upload must fail');
+  console.log('JWT_HTTP_STORAGE_PRIVATE_DOCUMENTS=PASSED');
+  console.log('JWT_HTTP_STORAGE_CROSS_VENUE_DOWNLOAD_DENIED=PASSED');
+  console.log('JWT_HTTP_STORAGE_DIRECT_UPLOAD_DENIED=PASSED');
+  return files;
+}
+
+async function assertRealtimeIsolation({ api, anonKey, tokenA, tokenB }) {
+  const clients = [
+    createClient(api, anonKey, { auth: { persistSession: false, autoRefreshToken: false } }),
+    createClient(api, anonKey, { auth: { persistSession: false, autoRefreshToken: false } }),
+  ];
+  const opened = [];
+  try {
+    await clients[0].realtime.setAuth(tokenA);
+    await clients[1].realtime.setAuth(tokenB);
+
+    async function subscribe(client, label, venueId, mustConnect) {
+      const events = [];
+      let resolveStatus;
+      let rejectStatus;
+      const ready = new Promise((resolve, reject) => {
+        resolveStatus = resolve;
+        rejectStatus = reject;
+      });
+      const channel = client.channel('ci-step10-' + label + '-' + crypto.randomUUID());
+      channel.on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'realtime_signals',
+          ...(venueId ? { filter: 'venue_id=eq.' + venueId } : {}),
+        },
+        (payload) => events.push(payload.new),
+      );
+      channel.subscribe((status) => {
+        if (status === 'SUBSCRIBED') resolveStatus();
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          if (mustConnect) rejectStatus(new Error('REALTIME_SUBSCRIBE_FAILED:' + label));
+          else resolveStatus();
+        }
+      });
+      opened.push([client, channel]);
+      await Promise.race([
+        ready,
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('REALTIME_SUBSCRIBE_TIMEOUT:' + label)), 18000),
+        ),
+      ]);
+      return events;
+    }
+
+    const [eventsAA, eventsAB, eventsBB, eventsAllA] = await Promise.all([
+      subscribe(clients[0], 'adminA-own', VENUE_A, true),
+      subscribe(clients[0], 'adminA-foreign', VENUE_B, false),
+      subscribe(clients[1], 'adminB-own', VENUE_B, true),
+      subscribe(clients[0], 'adminA-unfiltered', null, true),
+    ]);
+    await new Promise((resolve) => setTimeout(resolve, 750));
+    const signalA = '54000000-0000-4000-8000-000000000001';
+    const signalB = '54000000-0000-4000-8000-000000000002';
+    postgres(
+      'insert into public.realtime_signals(id,venue_id,topic,resource_id) values ' +
+        "('" +
+        signalA +
+        "','" +
+        VENUE_A +
+        "','FLOOR','" +
+        ROOM_A +
+        "')," +
+        "('" +
+        signalB +
+        "','" +
+        VENUE_B +
+        "','FLOOR','" +
+        ROOM_B +
+        "');",
+    );
+    const [viaRestA, viaRestB, viaRestForeign] = await Promise.all([
+      rest(api, anonKey, tokenA, 'realtime_signals?select=id&id=eq.' + signalA),
+      rest(api, anonKey, tokenB, 'realtime_signals?select=id&id=eq.' + signalB),
+      rest(api, anonKey, tokenA, 'realtime_signals?select=id&id=eq.' + signalB),
+    ]);
+    assert.equal(viaRestA.status, 200);
+    assert.equal(viaRestB.status, 200);
+    assert.equal(viaRestForeign.status, 200);
+    exactly(viaRestA.parsed, [signalA]);
+    exactly(viaRestB.parsed, [signalB]);
+    exactly(viaRestForeign.parsed, []);
+    console.log('JWT_HTTP_REALTIME_SIGNAL_ROW_RLS=PASSED');
+
+    const end = Date.now() + 14000;
+    while (Date.now() < end) {
+      if (
+        eventsAA.some((event) => event.id === signalA) &&
+        eventsBB.some((event) => event.id === signalB)
+      )
+        break;
+      await new Promise((resolve) => setTimeout(resolve, 250));
+    }
+    console.log('JWT_WS_EVENT_COUNTS=' + JSON.stringify({
+      ownA: eventsAA.length,
+      foreignA: eventsAB.length,
+      ownB: eventsBB.length,
+      unfilteredA: eventsAllA.length,
+    }));
+    assert.equal(
+      eventsAllA.filter((event) => event.id === signalB).length,
+      0,
+      'unfiltered channel must never leak foreign signal',
+    );
+    assert.ok(
+      eventsAA.some((event) => event.id === signalA),
+      'own venue A signal must reach its authorized WebSocket',
+    );
+    assert.ok(
+      eventsBB.some((event) => event.id === signalB),
+      'own venue B signal must reach its authorized WebSocket',
+    );
+    assert.equal(
+      eventsAB.filter((event) => event.id === signalB).length,
+      0,
+      'foreign venue B signal must not reach admin A',
+    );
+    console.log('JWT_WEBSOCKET_POSTGRES_CHANGES_OWN_DELIVERY=PASSED');
+    console.log('JWT_WEBSOCKET_POSTGRES_CHANGES_CROSS_VENUE_DENIED=PASSED');
+  } finally {
+    await Promise.allSettled(opened.map(([client, channel]) => client.removeChannel(channel)));
+    await Promise.allSettled(clients.map((client) => client.removeAllChannels()));
+  }
+}
+
 function exactly(rows, ids) {
   assert.deepEqual((rows ?? []).map((x) => x.id).sort(), ids.slice().sort());
 }
@@ -291,11 +499,39 @@ async function run() {
   assert.match(JSON.stringify(rpc.parsed), /VENUE_FORBIDDEN/);
   console.log('JWT_HTTP_CROSS_VENUE_RPC_DENIED=PASSED');
 
+  if (process.env.PLATEFORM_TEST_REALTIME === '1') {
+    await assertRealtimeIsolation({
+      api,
+      anonKey,
+      tokenA: sessionA.access_token,
+      tokenB: sessionB.access_token,
+    });
+  }
+
+  const privateFiles = await assertPrivateStorageIsolation({
+    root,
+    api,
+    anonKey,
+    userA,
+    userB,
+    tokenA: sessionA.access_token,
+    tokenB: sessionB.access_token,
+  });
+
   postgres(`update public.staff_venue_assignments
     set active = false where user_id = '${userA}' and venue_id = '${VENUE_A}';`);
   const afterRevoke = await rest(api, anonKey, sessionA.access_token, 'rooms?select=id');
   assert.equal(afterRevoke.status, 200);
   exactly(afterRevoke.parsed, []);
+  const revokedDocument = await fetch(
+    api + '/storage/v1/object/authenticated/documents/' + privateFiles[0].path,
+    { headers: { apikey: anonKey, Authorization: 'Bearer ' + sessionA.access_token } },
+  );
+  assert.ok(
+    [400, 401, 403, 404].includes(revokedDocument.status),
+    'revocation removes private document access using the old JWT',
+  );
+  console.log('JWT_HTTP_STORAGE_REVOCATION_SAME_TOKEN=PASSED');
   console.log('JWT_HTTP_ASSIGNMENT_REVOCATION_WITH_SAME_TOKEN=PASSED');
   console.log('LOCAL_AUTH_POSTGREST_CROSS_VENUE_GATE=PASSED');
 }
