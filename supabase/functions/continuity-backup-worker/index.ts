@@ -129,6 +129,21 @@ Deno.serve(async (req: Request) => {
   );
   if (verifyError || allowed !== true) return new Response("Not Found", { status: 404 });
 
+  // No unnecessary network probes when there is no runnable work. This also
+  // preserves the scheduled-backup pause while permitting future manual jobs.
+  const leaseCutoff = new Date().toISOString();
+  const { data: pending, error: pendingError } = await supabase
+    .from("backup_metadata")
+    .select("id")
+    .or(`status.eq.QUEUED,and(status.eq.RUNNING,lease_expires_at.lt.${leaseCutoff})`)
+    .limit(1);
+  if (pendingError) {
+    return Response.json({ status: "BLOCKED", code: "BACKUP_QUEUE_CHECK_FAILED" }, { status: 503 });
+  }
+  if (!pending?.length) {
+    return Response.json({ status: "IDLE" });
+  }
+
   // Verify the authenticated replica BEFORE claiming a backup or allocating a snapshot.
   let replicaConfig: any;
   try {
