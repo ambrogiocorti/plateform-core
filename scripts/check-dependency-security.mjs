@@ -49,5 +49,8 @@ if ((production.counts.high ?? 0) + (production.counts.critical ?? 0) > 0) {
   console.log('PRODUCTION_DEPENDENCY_SECURITY_GATE=PASSED');
 }
 if ((all.counts.high ?? 0) + (all.counts.critical ?? 0) > 0) {
-  console.log('DEVELOPMENT_DEPENDENCY_REMEDIATION_REQUIRED');
+  console.error('FULL_LOCKFILE_DEPENDENCY_SECURITY_GATE=BLOCKED');
+  process.exitCode = 1;
+} else {
+  console.log('FULL_LOCKFILE_DEPENDENCY_SECURITY_GATE=PASSED');
 }
