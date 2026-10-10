@@ -9,19 +9,33 @@ import { spawnSync } from 'node:child_process';
 const root = await mkdtemp(join(tmpdir(), 'plateform-build-site-'));
 const source = process.cwd();
 let tests = 0;
-const check = (fn) => { fn(); tests++; };
-const checkAsync = async (fn) => { await fn(); tests++; };
+const check = (fn) => {
+  fn();
+  tests++;
+};
+const checkAsync = async (fn) => {
+  await fn();
+  tests++;
+};
 try {
   for (const dir of ['scripts', 'dist/public', 'dist/staff', 'dist/site/old-menu'])
     await mkdir(join(root, dir), { recursive: true });
   await cp(join(source, 'scripts/build-site.mjs'), join(root, 'scripts/build-site.mjs'));
-  await cp(join(source, 'scripts/prerender-public.mjs'), join(root, 'scripts/prerender-public.mjs'));
+  await cp(
+    join(source, 'scripts/prerender-public.mjs'),
+    join(root, 'scripts/prerender-public.mjs'),
+  );
   const original = await readFile(join(source, 'apps/public/index.html'), 'utf8');
   const built = original.replaceAll('%BASE_URL%', '/').replace('./main.ts', '/assets/public.js');
   await writeFile(join(root, 'dist/public/index.html'), built);
-  await writeFile(join(root, 'dist/staff/index.html'), '<!doctype html><script src="/staff/assets/staff.js"></script>');
+  await writeFile(
+    join(root, 'dist/staff/index.html'),
+    '<!doctype html><script src="/staff/assets/staff.js"></script>',
+  );
   await writeFile(join(root, 'dist/site/old-menu/index.html'), 'OLD_PUBLISHED_CONTENT');
-  await writeFile(join(root, 'scripts/mock-rpc.mjs'), `
+  await writeFile(
+    join(root, 'scripts/mock-rpc.mjs'),
+    `
 const origin='https://ristorante.example.org';
 const site={name:'Ristorante <pericoloso>',branding:{},content:{hero_title:'Un luogo da scoprire',story:'Cucina & territorio'},multi_venue:false,venues:[{id:'00000000-0000-4000-8000-000000000001',slug:'centro',name:'Centro',address:'Via Test, 1',phone:'+390000'}]};
 const indexable=process.env.TEST_INDEXABLE==='yes';
@@ -33,24 +47,32 @@ globalThis.fetch=async (input,init)=>{
  if(fn==='get_public_page_metadata')data={path:arg.p_path,title:'Cucina & ospitalità',description:'Sapori locali',robots:indexable?'index,follow':'noindex,nofollow',canonical_url:indexable?origin+arg.p_path:null};
  if(fn==='get_public_menu')data=[{name:'Risotto & limone',category_name:'Primi',description:'Piatto del giorno',allergens:[{name:'Latte'}]}];
  return {ok:data!==undefined,status:data===undefined?404:200,json:async()=>data};
-};`);
-  const run = (indexable) => spawnSync(process.execPath,
-    ['--import', './scripts/mock-rpc.mjs', 'scripts/build-site.mjs'],
-    { cwd: root, encoding: 'utf8', timeout: 10000, env: { ...process.env,
-      PUBLIC_SITE_ORIGIN: 'https://ristorante.example.org',
-      VITE_SUPABASE_URL: 'https://project.supabase.co',
-      VITE_SUPABASE_PUBLISHABLE_KEY: 'sb_publishable_test',
-      TEST_INDEXABLE: indexable ? 'yes' : 'no',
-    } });
+};`,
+  );
+  const run = (indexable) =>
+    spawnSync(process.execPath, ['--import', './scripts/mock-rpc.mjs', 'scripts/build-site.mjs'], {
+      cwd: root,
+      encoding: 'utf8',
+      timeout: 10000,
+      env: {
+        ...process.env,
+        PUBLIC_SITE_ORIGIN: 'https://ristorante.example.org',
+        VITE_SUPABASE_URL: 'https://project.supabase.co',
+        VITE_SUPABASE_PUBLISHABLE_KEY: 'sb_publishable_test',
+        TEST_INDEXABLE: indexable ? 'yes' : 'no',
+      },
+    });
   let output = run(true);
   check(() => assert.equal(output.status, 0, output.stderr));
-  const first = await readFile(join(root,'dist/site/index.html'),'utf8');
-  const menu = await readFile(join(root,'dist/site/menu/index.html'),'utf8');
-  const robots = await readFile(join(root,'dist/site/robots.txt'),'utf8');
-  const map = await readFile(join(root,'dist/site/sitemap.xml'),'utf8');
+  const first = await readFile(join(root, 'dist/site/index.html'), 'utf8');
+  const menu = await readFile(join(root, 'dist/site/menu/index.html'), 'utf8');
+  const robots = await readFile(join(root, 'dist/site/robots.txt'), 'utf8');
+  const map = await readFile(join(root, 'dist/site/sitemap.xml'), 'utf8');
   check(() => assert.match(first, /Un luogo da scoprire/));
   check(() => assert.match(first, /aria-busy="false"/));
-  check(() => assert.match(first, /<link rel="canonical" href="https:\/\/ristorante\.example\.org\/">/));
+  check(() =>
+    assert.match(first, /<link rel="canonical" href="https:\/\/ristorante\.example\.org\/">/),
+  );
   check(() => assert.match(first, /Ristorante &lt;pericoloso&gt;/));
   check(() => assert.match(menu, /Risotto &amp; limone/));
   check(() => assert.match(robots, /Sitemap: https:\/\/ristorante\.example\.org\/sitemap.xml/));
@@ -63,8 +85,11 @@ globalThis.fetch=async (input,init)=>{
       ? { executable: process.execPath, script: 'check-step11-built-site-browser.mjs' }
       : null;
   if (browserMode) {
-    const browser = spawnSync(browserMode.executable, [join(source, 'scripts', browserMode.script), root, source],
-      { cwd: root, encoding: 'utf8', timeout: 25000 });
+    const browser = spawnSync(
+      browserMode.executable,
+      [join(source, 'scripts', browserMode.script), root, source],
+      { cwd: root, encoding: 'utf8', timeout: 25000 },
+    );
     check(() => assert.equal(browser.status, 0, `${browser.stdout}\n${browser.stderr}`));
     console.log(browser.stdout.trim());
   }
@@ -72,12 +97,16 @@ globalThis.fetch=async (input,init)=>{
   // SEO page and sitemap (including pages removed since an earlier build).
   output = run(false);
   check(() => assert.equal(output.status, 0, output.stderr));
-  const second = await readFile(join(root,'dist/site/index.html'),'utf8');
-  const blocked = await readFile(join(root,'dist/site/robots.txt'),'utf8');
+  const second = await readFile(join(root, 'dist/site/index.html'), 'utf8');
+  const blocked = await readFile(join(root, 'dist/site/robots.txt'), 'utf8');
   check(() => assert.match(second, /noindex,nofollow/));
   check(() => assert.match(blocked, /Disallow: \/\n/));
-  await checkAsync(() => assert.rejects(access(join(root,'dist/site/old-menu/index.html'))));
-  await checkAsync(() => assert.rejects(access(join(root,'dist/site/menu/index.html'))));
-  await checkAsync(() => assert.rejects(access(join(root,'dist/site/sitemap.xml'))));
-  console.log(`STEP11_INTEGRATED_BUILD_ASSEMBLY=PASS (${tests} assertions, real public index.html, isolated RPC transport)`);
-} finally { await rm(root,{recursive:true,force:true}); }
+  await checkAsync(() => assert.rejects(access(join(root, 'dist/site/old-menu/index.html'))));
+  await checkAsync(() => assert.rejects(access(join(root, 'dist/site/menu/index.html'))));
+  await checkAsync(() => assert.rejects(access(join(root, 'dist/site/sitemap.xml'))));
+  console.log(
+    `STEP11_INTEGRATED_BUILD_ASSEMBLY=PASS (${tests} assertions, real public index.html, isolated RPC transport)`,
+  );
+} finally {
+  await rm(root, { recursive: true, force: true });
+}

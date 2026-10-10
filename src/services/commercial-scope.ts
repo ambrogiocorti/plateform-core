@@ -7,8 +7,12 @@ export const externalPaymentProvidersIncluded = false;
 export const epsonPrintingIncluded = false;
 
 export function permittedPaymentMethod(method: string): boolean {
-  return method === 'CASH' || method === 'CARD_POS' ||
-    (externalPaymentProvidersIncluded && ['STRIPE', 'SATISPAY_API', 'SATISPAY_POS'].includes(method));
+  return (
+    method === 'CASH' ||
+    method === 'CARD_POS' ||
+    (externalPaymentProvidersIncluded &&
+      ['STRIPE', 'SATISPAY_API', 'SATISPAY_POS'].includes(method))
+  );
 }
 
 export function permittedPaymentMethods(methods: readonly string[]): string[] {
@@ -31,15 +35,18 @@ export type CoreBookingSlot = { status_if_booked?: string; deposit?: unknown };
  * Unknown booking statuses must fail closed in the CORE edition.
  */
 export function requiresExcludedDeposit(slot: CoreBookingSlot): boolean {
-  return !externalPaymentProvidersIncluded &&
-    (slot.status_if_booked === 'PENDING_DEPOSIT' || slot.deposit != null);
+  return (
+    !externalPaymentProvidersIncluded &&
+    (slot.status_if_booked === 'PENDING_DEPOSIT' || slot.deposit != null)
+  );
 }
 
 export function permittedBookingSlots<T extends CoreBookingSlot>(slots: readonly T[]): T[] {
   return externalPaymentProvidersIncluded
     ? [...slots]
-    : slots.filter((slot) =>
-      (slot.status_if_booked === 'RESERVED' || slot.status_if_booked === 'REQUESTED') &&
-      !requiresExcludedDeposit(slot),
-    );
+    : slots.filter(
+        (slot) =>
+          (slot.status_if_booked === 'RESERVED' || slot.status_if_booked === 'REQUESTED') &&
+          !requiresExcludedDeposit(slot),
+      );
 }

@@ -59,10 +59,15 @@ export function isRunnerOnly(
   assignments: readonly WaiterAssignmentSummary[],
   assignedTableCount: number,
 ): boolean {
-  return assignments.some((assignment) => assignment.active && assignment.mode === 'RUNNER') && assignedTableCount === 0;
+  return (
+    assignments.some((assignment) => assignment.active && assignment.mode === 'RUNNER') &&
+    assignedTableCount === 0
+  );
 }
 
-export function groupWaiterSteps<T extends WaiterKitchenItemSummary>(items: readonly T[]): WaiterStepSummary[] {
+export function groupWaiterSteps<T extends WaiterKitchenItemSummary>(
+  items: readonly T[],
+): WaiterStepSummary[] {
   const grouped = new Map<string, WaiterStepSummary>();
   for (const item of items) {
     const existing = grouped.get(item.step_id);
@@ -84,6 +89,8 @@ export function groupWaiterSteps<T extends WaiterKitchenItemSummary>(items: read
     });
   }
   return [...grouped.values()].sort(
-    (left, right) => Date.parse(left.createdAt) - Date.parse(right.createdAt) || left.tableNumber - right.tableNumber,
+    (left, right) =>
+      Date.parse(left.createdAt) - Date.parse(right.createdAt) ||
+      left.tableNumber - right.tableNumber,
   );
 }

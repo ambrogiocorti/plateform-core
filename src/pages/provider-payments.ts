@@ -32,7 +32,11 @@ export async function providerPaymentDialog(
   if (!externalPaymentProvidersIncluded) {
     dialog(
       'Provider non incluso in Plateform CORE',
-      el('p', {}, 'Questo pagamento o rimborso storico necessita di riconciliazione con il gestore originale. Plateform CORE non avvia chiamate ai provider esclusi e non modifica lo stato dell’operazione.'),
+      el(
+        'p',
+        {},
+        'Questo pagamento o rimborso storico necessita di riconciliazione con il gestore originale. Plateform CORE non avvia chiamate ai provider esclusi e non modifica lo stato dell’operazione.',
+      ),
     );
     return;
   }

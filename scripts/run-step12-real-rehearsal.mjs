@@ -138,14 +138,14 @@ if (restoreOutput.status === 'IDLE') {
     3,
   );
 }
-if (restoreOutput.status !== 'SUCCEEDED')
-  fail('RESTORE_TEST_EXECUTION', { output: restoreOutput });
+if (restoreOutput.status !== 'SUCCEEDED') fail('RESTORE_TEST_EXECUTION', { output: restoreOutput });
 
 const rv = restoreOutput.verification ?? {};
 const evidence = {
   date: new Date().toISOString(),
   status: 'PASSED',
-  source_project_ref: process.env.SUPABASE_URL?.match(/^https:\/\/([a-z0-9]+)\.supabase\.co\/?$/i)?.[1] ?? null,
+  source_project_ref:
+    process.env.SUPABASE_URL?.match(/^https:\/\/([a-z0-9]+)\.supabase\.co\/?$/i)?.[1] ?? null,
   source_state: 'REACHABLE_VERIFIED',
   target_project_ref: restoreOutput.target ?? restoreReady.targetProjectRef ?? null,
   target_project_name: 'plateform-restore-test',
@@ -190,4 +190,10 @@ await writeFile(evidencePath, `${JSON.stringify(evidence, null, 2)}\n`, { mode: 
 const gate = run(process.execPath, ['scripts/check-step12-real-rehearsal.mjs']);
 if (gate.error || gate.status !== 0)
   fail('FINAL_CERTIFICATION_GATE', { stderr: gate.stderr.slice(0, 800) });
-console.log(JSON.stringify({ status: 'PASSED', backup_id: backupState.id, target: evidence.target_project_ref }, null, 2));
+console.log(
+  JSON.stringify(
+    { status: 'PASSED', backup_id: backupState.id, target: evidence.target_project_ref },
+    null,
+    2,
+  ),
+);

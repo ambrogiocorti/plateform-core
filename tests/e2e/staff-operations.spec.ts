@@ -192,10 +192,14 @@ test('Host assigns a table with confirmation and has no financial navigation', a
   await expect(page.getByRole('link', { name: 'Conti', exact: true })).toHaveCount(0);
   await expect(page.getByRole('link', { name: 'Cassa', exact: true })).toHaveCount(0);
   await page.getByRole('button', { name: 'Dettagli', exact: true }).click();
-  await page.getByRole('dialog', { name: 'Marta Rossi' })
-    .getByRole('button', { name: 'Assegna tavolo', exact: true }).click();
-  await page.getByRole('dialog', { name: 'Assegna tavolo' })
-    .getByRole('button', { name: 'Tavolo 4 · 4 posti' }).click();
+  await page
+    .getByRole('dialog', { name: 'Marta Rossi' })
+    .getByRole('button', { name: 'Assegna tavolo', exact: true })
+    .click();
+  await page
+    .getByRole('dialog', { name: 'Assegna tavolo' })
+    .getByRole('button', { name: 'Tavolo 4 · 4 posti' })
+    .click();
   await page
     .getByRole('dialog', { name: 'Conferma assegnazione' })
     .getByRole('button', { name: 'Conferma', exact: true })

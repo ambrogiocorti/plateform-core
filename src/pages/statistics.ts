@@ -357,8 +357,16 @@ export async function statisticsPage(context: StaffContext): Promise<HTMLElement
       el('h2', {}, 'Cucina, consegne e chiamate'),
       el('p', {}, `Preparazione media: ${duration(data.preparation_seconds)}`),
       el('p', {}, `Permanenza media al tavolo: ${duration(data.average_stay_seconds)}`),
-      el('p', {}, `${data.returns} resi · ${data.cancelled_items} piatti annullati · ${data.calls} chiamate clienti`),
-      el('p', {}, `${data.operational_errors} errori operativi · ${data.incidents} incidenti nel periodo · ${data.open_incidents} incidenti aperti`),
+      el(
+        'p',
+        {},
+        `${data.returns} resi · ${data.cancelled_items} piatti annullati · ${data.calls} chiamate clienti`,
+      ),
+      el(
+        'p',
+        {},
+        `${data.operational_errors} errori operativi · ${data.incidents} incidenti nel periodo · ${data.open_incidents} incidenti aperti`,
+      ),
       el(
         'p',
         {},

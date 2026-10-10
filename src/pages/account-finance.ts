@@ -146,10 +146,17 @@ export async function accountPaymentHistory(
       );
       if (!permittedPaymentMethod(payment.method))
         card.append(
-          el('p', { class: 'muted' },
-            'Operazione storica con metodo escluso dalla CORE: consultazione consentita; nuove rettifiche e richieste al provider non disponibili.'),
+          el(
+            'p',
+            { class: 'muted' },
+            'Operazione storica con metodo escluso dalla CORE: consultazione consentita; nuove rettifiche e richieste al provider non disponibili.',
+          ),
         );
-      if (!manual(payment.method) && payment.status === 'PENDING' && permittedPaymentMethod(payment.method))
+      if (
+        !manual(payment.method) &&
+        payment.status === 'PENDING' &&
+        permittedPaymentMethod(payment.method)
+      )
         card.append(
           button(
             'Riprendi verifica online',
@@ -258,7 +265,11 @@ async function refundDialog(
   if (!permittedPaymentMethod(payment.method)) {
     dialog(
       'Rimborso non disponibile',
-      el('p', {}, 'Questo metodo appartiene a un provider escluso dalla versione CORE. La transazione storica resta visibile ma non può essere rimborsata da questa edizione.'),
+      el(
+        'p',
+        {},
+        'Questo metodo appartiene a un provider escluso dalla versione CORE. La transazione storica resta visibile ma non può essere rimborsata da questa edizione.',
+      ),
     );
     return;
   }

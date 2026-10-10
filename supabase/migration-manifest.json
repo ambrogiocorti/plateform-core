@@ -2747,6 +2747,12 @@
       "version": "20261009001127",
       "name": "fix_account_workspace_order_items_sort",
       "sha256": "9fec07e668afa02eeca799ed70e78eec1d6e0b730d3935844be26636a94c04d5"
+    },
+    {
+      "filename": "20261010102752_recover_unversioned_operational_rpcs.sql",
+      "version": "20261010102752",
+      "name": "recover_unversioned_operational_rpcs",
+      "sha256": "130a45fe1432647fd90c9947ce32570e287cf26bb08d184f32a5e671e7308909"
     }
   ]
 }

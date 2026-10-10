@@ -1,0 +1,69 @@
+{
+  "type": "P0_UNVERSIONED_ROUTINE_RECOVERY",
+  "date": "2026-10-10",
+  "source_project": "abdxvlykasqmknexxhjo",
+  "scope": "public/private routines, clean replay parity",
+  "live_count": 553,
+  "initial_clean_replay_count": 549,
+  "off_ledger_routines": [
+    {
+      "identity": "public.get_account_transfer_targets(p_account uuid)",
+      "classification": "BUSINESS_CRITICAL",
+      "method": "version exact live pg_get_functiondef() + validated grants"
+    },
+    {
+      "identity": "public.get_order_change_center(p_venue uuid)",
+      "classification": "BUSINESS_CRITICAL",
+      "method": "version exact live pg_get_functiondef() + validated grants"
+    },
+    {
+      "identity": "private.debug_menu_experience_e2e()",
+      "classification": "TEST_ONLY",
+      "disposition": "EXCLUDED from customer installs; privileged routine manipulates test JWT/session state"
+    },
+    {
+      "identity": "public.continuity_rehearsal_export_chunk(p_snapshot_id uuid, p_chunk_no integer, p_chunk_size integer, p_backup_key text)",
+      "classification": "REHEARSAL_ONLY",
+      "disposition": "EXCLUDED from customer installs; hard-coded snapshot UUID and backup key argument"
+    }
+  ],
+  "migration": {
+    "path": "supabase/migrations/20261010102752_recover_unversioned_operational_rpcs.sql",
+    "created_via": "Supabase CLI migration new",
+    "source_sha256": "130a45fe1432647fd90c9947ce32570e287cf26bb08d184f32a5e671e7308909",
+    "expected_files": 459,
+    "expected_clean_routines": 551
+  },
+  "authorization": {
+    "grants": "authenticated and service_role only, REVOKE PUBLIC/anon",
+    "source_db_roles_verified": true,
+    "server_internal_authorize_preserved": true
+  },
+  "validation": {
+    "full_clean_replay": "PASSED",
+    "clean_replay_run_id": 38045101058,
+    "clean_replay_url": "https://github.com/ambrogiocorti/plateform-core/actions/runs/38045101058",
+    "catalog_counts": {
+      "migrations": 459,
+      "public_tables": 114,
+      "private_tables": 48,
+      "functions": 551,
+      "triggers": 311,
+      "rls_policies": 110,
+      "indexes": 450,
+      "constraints": 903,
+      "public_tables_without_rls": 0
+    },
+    "function_identity_parity_except_intentional_exclusions": "PASSED",
+    "function_parity_run_id": 38045101057,
+    "function_parity_url": "https://github.com/ambrogiocorti/plateform-core/actions/runs/38045101057",
+    "missing_function_identities": 0,
+    "unexpected_function_identities": 0,
+    "app_ci": "PASSED",
+    "app_ci_run_id": 38045131986,
+    "app_ci_url": "https://github.com/ambrogiocorti/plateform-core/actions/runs/38045131986",
+    "scope_note": "Local CI, not a real separate Supabase staging deployment, JWT/RLS negative-role test, or production release certification."
+  },
+  "source_release_go_no_go": "NO_GO",
+  "note": "Never change Development schema history for an off-ledger recovery. Clean installations may intentionally omit diagnostics with a reviewed justification."
+}
