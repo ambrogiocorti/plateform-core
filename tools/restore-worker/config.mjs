@@ -37,15 +37,30 @@ function databaseProjectRef(raw, name) {
   } catch {
     throw new Error(`CONFIG_INVALID:${name}`);
   }
-  if (!['postgres:', 'postgresql:'].includes(value.protocol) || !value.hostname || !value.username)
+  if (
+    !['postgres:', 'postgresql:'].includes(value.protocol) ||
+    !value.hostname ||
+    !value.username ||
+    !value.password ||
+    value.pathname !== '/postgres' ||
+    value.hash
+  ) {
     throw new Error(`CONFIG_INVALID:${name}`);
-  const hostMatch = value.hostname.toLowerCase().match(/^db\.([a-z0-9]+)\.supabase\.co$/);
-  const userMatch = decodeURIComponent(value.username).match(/^postgres\.([a-z0-9]+)$/i);
-  const refs = [hostMatch?.[1], userMatch?.[1]?.toLowerCase()].filter(Boolean);
-  if (!refs.length || new Set(refs).size !== 1)
-    throw new Error(`CONFIG_DB_PROJECT_REF_UNDETECTABLE:${name}`);
-  return refs[0];
+  }
+
+  const username = decodeURIComponent(value.username);
+  const direct = /^db\.([a-z0-9]+)\.supabase\.co$/.exec(value.hostname.toLowerCase());
+  const pooler = /^[a-z0-9-]+\.pooler\.supabase\.com$/.test(value.hostname.toLowerCase());
+  const pooledUser = /^postgres\.([a-z0-9]+)$/i.exec(username);
+  if (direct && username === 'postgres' && ['', '5432'].includes(value.port)) {
+    return direct[1];
+  }
+  if (pooler && pooledUser && ['', '5432', '6543'].includes(value.port)) {
+    return pooledUser[1].toLowerCase();
+  }
+  throw new Error(`CONFIG_DB_PROJECT_REF_UNDETECTABLE:${name}`);
 }
+
 async function commandOutput(command, args) {
   return await new Promise((resolveResult, reject) => {
     const child = spawn(command, args, { stdio: ['ignore', 'pipe', 'pipe'] });
