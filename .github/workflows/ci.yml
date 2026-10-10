@@ -16,17 +16,17 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Format check of new continuity sources
-        run: |
-          npx prettier --check \\
-            supabase/functions/continuity-backup-worker/index.ts \\
-            supabase/functions/continuity-replica-receiver/index.ts \\
-            tests/unit/continuity-preflight-contract.test.ts
+        run: >-
+          npx prettier --check
+          supabase/functions/continuity-backup-worker/index.ts
+          supabase/functions/continuity-replica-receiver/index.ts
+          tests/unit/continuity-preflight-contract.test.ts
       - name: Strict Deno typecheck for continuity Edge Functions
-        run: |
-          node node_modules/deno/bin.cjs check \\
-            --config supabase/functions/deno.json \\
-            supabase/functions/continuity-backup-worker/index.ts \\
-            supabase/functions/continuity-replica-receiver/index.ts
+        run: >-
+          node node_modules/deno/bin.cjs check
+          --config supabase/functions/deno.json
+          supabase/functions/continuity-backup-worker/index.ts
+          supabase/functions/continuity-replica-receiver/index.ts
       - name: Continuity preflight contract regression
         run: npx vitest run tests/unit/continuity-preflight-contract.test.ts
   verify:
