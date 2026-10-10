@@ -24,9 +24,14 @@ function inspect(scope, args) {
       severity: item.severity,
       isDirect: item.isDirect === true,
       range: item.range,
-      fixAvailable: item.fixAvailable === true ? 'compatible' :
-        item.fixAvailable === false ? 'none' : 'breaking_or_manual',
-      via: (item.via || []).filter((entry) => typeof entry === 'object')
+      fixAvailable:
+        item.fixAvailable === true
+          ? 'compatible'
+          : item.fixAvailable === false
+            ? 'none'
+            : 'breaking_or_manual',
+      via: (item.via || [])
+        .filter((entry) => typeof entry === 'object')
         .map((entry) => ({ title: entry.title, range: entry.range, url: entry.url })),
     }))
     .sort((a, b) => a.name.localeCompare(b.name));
