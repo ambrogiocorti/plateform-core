@@ -135,12 +135,31 @@ export function loginPage(onComplete: () => Promise<void>): HTMLElement {
     submit.disabled = true;
     feedback.textContent = '';
     void (async () => {
-      const { error } = await client().auth.signInWithPassword({
-        email: identity.input.value.trim(),
-        password: password.input.value,
+      // GoTrue checks the password in the trusted Edge gateway and writes
+      // AUTH_LOGIN_FAILED only for a genuine provider rejection.
+      const { data: verified, error } = await client().functions.invoke('auth-audit-gateway', {
+        body: {
+          action: 'PASSWORD_LOGIN',
+          identifier: identity.input.value.trim(),
+          password: password.input.value,
+        },
       });
       password.input.value = '';
-      if (error) throw new Error('Credenziali non valide.');
+      if (error) throw safeError(error);
+      const login = z.discriminatedUnion('status', [
+        z.object({ status: z.literal('REJECTED') }),
+        z.object({
+          status: z.literal('ACCEPTED'),
+          access_token: z.string().min(1),
+          refresh_token: z.string().min(1),
+        }),
+      ]).parse(verified);
+      if (login.status === 'REJECTED') throw new Error('Credenziali non valide.');
+      const { error: sessionError } = await client().auth.setSession({
+        access_token: login.access_token,
+        refresh_token: login.refresh_token,
+      });
+      if (sessionError) throw safeError(sessionError);
       const info = await requirements();
       if (
         !info ||
@@ -230,15 +249,28 @@ async function showMfa(container: HTMLElement, onVerified: () => Promise<void>):
   code.input.required = true;
   const verify = button('Verifica e accedi', async () => {
     if (!code.input.reportValidity()) return;
-    const { error: verificationError } = await client().auth.mfa.challengeAndVerify({
-      factorId,
-      code: code.input.value,
+    const { data: verified, error } = await client().functions.invoke('auth-audit-gateway', {
+      body: { action: 'MFA_VERIFY', factor_id: factorId, code: code.input.value },
     });
     code.input.value = '';
-    if (verificationError) {
+    if (error) throw safeError(error);
+    const result = z.discriminatedUnion('status', [
+      z.object({ status: z.literal('REJECTED') }),
+      z.object({
+        status: z.literal('ACCEPTED'),
+        access_token: z.string().min(1),
+        refresh_token: z.string().min(1),
+      }),
+    ]).parse(verified);
+    if (result.status === 'REJECTED') {
       showError(new Error('MFA_REQUIRED'));
       return;
     }
+    const { error: sessionError } = await client().auth.setSession({
+      access_token: result.access_token,
+      refresh_token: result.refresh_token,
+    });
+    if (sessionError) throw safeError(sessionError);
     await onVerified();
   });
   container.replaceChildren(
