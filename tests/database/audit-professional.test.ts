@@ -26,6 +26,7 @@ describe('Security & Business Audit hardening', () => {
     for (const migration of [
       '20261011073505_audit_professional_catalog_filters_noise.sql',
       '20261011074105_audit_event_catalog_canonical_seed.sql',
+      '20261011074842_audit_safe_device_assignment_diff_fields.sql',
     ]) {
       await db.exec(await readFile(`supabase/migrations/${migration}`, 'utf8'));
     }
@@ -151,5 +152,21 @@ describe('Security & Business Audit hardening', () => {
       [id],
     );
     expect(await count()).toBe(before + 1);
+    const latest = (
+      await db.query<{
+        old_values: Record<string, unknown>;
+        new_values: Record<string, unknown>;
+      }>(
+        `select old_values,new_values from public.audit_log
+         where action='REGISTERED_DEVICES_UPDATE' and resource_id=$1
+         order by timestamp desc,id desc limit 1`,
+        [id],
+      )
+    ).rows[0]!;
+    expect(latest.old_values.assigned_role_or_station).not.toBe(
+      latest.new_values.assigned_role_or_station,
+    );
+    expect(latest.new_values).not.toHaveProperty('display_name');
+    expect(latest.new_values).not.toHaveProperty('user_agent');
   });
 });
