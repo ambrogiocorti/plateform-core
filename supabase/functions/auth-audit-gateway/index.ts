@@ -104,7 +104,19 @@ Deno.serve(endpoint(schema, async (body, request) => {
     signal: AbortSignal.timeout(15000),
   });
   if (!verified.ok) {
-    if (verified.status !== 400 && verified.status !== 422) throw new Error('REQUEST_FAILED');
+    // HTTP 4xx alone is insufficient: expired challenges, disabled factors and
+    // service errors must NOT be labelled as a user entering an incorrect OTP.
+    let providerFailure: unknown;
+    try { providerFailure = await verified.json(); } catch { /* fail closed */ }
+    const failure = z.object({ code: z.string().optional(), error_code: z.string().optional() })
+      .safeParse(providerFailure);
+    const providerCode = failure.success
+      ? (failure.data.code ?? failure.data.error_code)
+      : undefined;
+    if ((verified.status !== 400 && verified.status !== 422) ||
+        providerCode !== 'mfa_verification_failed') {
+      throw new Error('REQUEST_FAILED');
+    }
     await reportVerifiedDenial(request, 'MFA_VERIFICATION_FAILED', identity.user.id, sessionId);
     return { status: 'REJECTED' };
   }
