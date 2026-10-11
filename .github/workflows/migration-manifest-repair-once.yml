@@ -1,0 +1,38 @@
+name: One-time local migration manifest repair
+on:
+  push:
+    branches:
+      - feat/audit-commercial-hardening-20261011
+    paths:
+      - .github/workflows/migration-manifest-repair-once.yml
+permissions:
+  contents: write
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: node scripts/extend-local-migration-manifest.mjs
+      - run: npm run format
+      - run: npm run format:check
+      - run: npm run check:migrations
+      - name: Commit verified local manifest extension
+        run: |
+          if [ -z "$(git status --porcelain)" ]; then
+            echo 'No changes needed'
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -u
+          git commit -m "chore: extend local migration manifest with verified new SQL"
+          git push origin HEAD:refs/heads/feat/audit-commercial-hardening-20261011
