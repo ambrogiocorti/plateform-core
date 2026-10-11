@@ -71,7 +71,7 @@ describe('Security & Business Audit hardening', () => {
     await db?.close();
   });
 
-  it('catalogues observed actions, but labels missing security events PLANNED', async () => {
+  it('catalogues observed actions and accurately marks gateway-covered security events IMPLEMENTED', async () => {
     const catalog = (
       await db.query<{ data: Array<{ action: string; implementation_status: string }> }>(
         'select public.get_audit_event_catalog() as data',
@@ -79,7 +79,7 @@ describe('Security & Business Audit hardening', () => {
     ).rows[0]!.data;
     expect(catalog.length).toBeGreaterThanOrEqual(148);
     expect(catalog).toContainEqual(
-      expect.objectContaining({ action: 'AUTH_LOGIN_FAILED', implementation_status: 'PLANNED' }),
+      expect.objectContaining({ action: 'AUTH_LOGIN_FAILED', implementation_status: 'IMPLEMENTED' }),
     );
     expect(catalog).toContainEqual(
       expect.objectContaining({ action: 'PAYMENTS_UPDATE', implementation_status: 'OBSERVED' }),
