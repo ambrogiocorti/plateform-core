@@ -12,7 +12,10 @@
     "snapshots_rehearsal_rows_removed": 1716997,
     "chunks_rehearsal_removed": 8664,
     "snapshot_manifests_removed": 155,
-    "database_bytes_after_new_verified_backup": 59152051
+    "database_bytes_after_new_verified_backup": 59152051,
+    "storage_failed_primary_bytes_removed_total_including_stalled_retest": 209684909,
+    "storage_failed_primary_files_removed_total_including_stalled_retest": 789,
+    "database_bytes_after_latest_live_verification": 59152051
   },
   "safety": {
     "preserved_users": 12,
@@ -46,10 +49,14 @@
   "remaining": {
     "partial_backup_test_id": "c32a299d-9a4b-4a53-84cf-06893e157563",
     "partial_backup_test_status": "FAILED_WITH_AUTO_SNAPSHOT_CLEANUP_VERIFIED",
-    "partial_storage_files_from_latest_failed_test": 94,
-    "partial_storage_removal": "pending ten-minute safety grace then cron job",
+    "partial_storage_files_from_latest_failed_test": 0,
+    "partial_storage_removal": "DONE: HTTP 200, 94 primary and 93 replica objects purged under authenticated guarded GC; 0 failed-primary objects remain",
     "release_status": "NO_GO",
     "current_schema_restore_test_verified": false,
-    "ci_status": "FAIL_PRETTIER_FORMAT_CHECK_97_FILES"
+    "ci_status": "FAIL_PRETTIER_FORMAT_CHECK_97_FILES",
+    "current_verified_backup_id": "37d7a229-4f77-4ab2-8ac7-e920d4a6a2bc",
+    "current_backup_status": "SUCCEEDED_integrity_verified_primary_replica",
+    "last_successful_backup_at": "2026-10-11T07:05:46.920396Z",
+    "production_release": "NO_GO"
   }
 }
