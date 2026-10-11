@@ -243,6 +243,13 @@ export async function database(through = Number.POSITIVE_INFINITY) {
           await readFile('tests/database/fixtures/step11-notification-e2e-before-fix.sql', 'utf8'),
         );
       }
+      if (name === '20261008181605_core_edition_payment_and_print_denial.sql') {
+        // Hosted booking-deposit table is out-of-band in this local history.
+        // Mirror its verified schema only inside this disposable test instance.
+        await db.exec(
+          await readFile('tests/database/fixtures/core-edition-hosted-booking-deposit.sql','utf8'),
+        );
+      }
       await db.exec(sql);
       const match = /^(\d+)_([^.]*)\.sql$/.exec(name);
       if (match)
