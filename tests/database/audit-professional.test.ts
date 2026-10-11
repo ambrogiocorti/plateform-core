@@ -484,19 +484,21 @@ describe('Security & Business Audit hardening', () => {
     await db.exec('rollback to savepoint unauthorized_archive');
     await db.exec('reset role; set role service_role');
     const claim = (
-      await db.query<{ result: { status: string; lease: string; batch_no: number; previous_chain: string } }>(
-        'select public.claim_audit_archive_batch() result',
-      )
+      await db.query<{
+        result: { status: string; lease: string; batch_no: number; previous_chain: string };
+      }>('select public.claim_audit_archive_batch() result')
     ).rows[0]!.result;
     expect(claim.status).toBe('CLAIMED');
     const busy = (
-      await db.query<{ result: { status: string } }>('select public.claim_audit_archive_batch() result')
+      await db.query<{ result: { status: string } }>(
+        'select public.claim_audit_archive_batch() result',
+      )
     ).rows[0]!.result;
     expect(busy.status).toBe('BUSY');
     const page = (
-      await db.query<{ page: { rows: Array<{ id: string; timestamp: string }>; batch_no: number } }>(
-        'select public.read_audit_archive_batch($1,500) page',[claim.lease],
-      )
+      await db.query<{
+        page: { rows: Array<{ id: string; timestamp: string }>; batch_no: number };
+      }>('select public.read_audit_archive_batch($1,500) page', [claim.lease])
     ).rows[0]!.page;
     expect(page.rows.length).toBeGreaterThanOrEqual(3);
     const last = page.rows.at(-1)!;
@@ -504,22 +506,44 @@ describe('Security & Business Audit hardening', () => {
     const plainHash = '2'.repeat(64);
     const digest = createHash('sha256')
       .update(
-        [claim.previous_chain,claim.batch_no,payloadHash,plainHash,page.rows.length,last.id]
-          .join(':'),
-      ).digest('hex');
+        [
+          claim.previous_chain,
+          claim.batch_no,
+          payloadHash,
+          plainHash,
+          page.rows.length,
+          last.id,
+        ].join(':'),
+      )
+      .digest('hex');
     const path = 'v1/batch-' + String(claim.batch_no).padStart(9, '0') + '.bin';
     await db.exec('savepoint invalid_archive_chain');
     await expect(
-      db.query(
-        'select public.finish_audit_archive_batch($1,$2,$3,$4,$5,$6,$7,$8)',
-        [claim.lease,last.timestamp,last.id,page.rows.length,payloadHash,plainHash,'f'.repeat(64),path],
-      ),
+      db.query('select public.finish_audit_archive_batch($1,$2,$3,$4,$5,$6,$7,$8)', [
+        claim.lease,
+        last.timestamp,
+        last.id,
+        page.rows.length,
+        payloadHash,
+        plainHash,
+        'f'.repeat(64),
+        path,
+      ]),
     ).rejects.toThrow('AUDIT_ARCHIVE_CHAIN_INVALID');
     await db.exec('rollback to savepoint invalid_archive_chain');
     const sealed = (
       await db.query<{ state: { status: string; rows: number; batch_no: number } }>(
         'select public.finish_audit_archive_batch($1,$2,$3,$4,$5,$6,$7,$8) state',
-        [claim.lease,last.timestamp,last.id,page.rows.length,payloadHash,plainHash,digest,path],
+        [
+          claim.lease,
+          last.timestamp,
+          last.id,
+          page.rows.length,
+          payloadHash,
+          plainHash,
+          digest,
+          path,
+        ],
       )
     ).rows[0]!.state;
     expect(sealed.status).toBe('SEALED');
@@ -537,20 +561,20 @@ describe('Security & Business Audit hardening', () => {
     expect(health.archived_rows + health.remaining_rows).toBe(liveTotal);
     await db.exec('savepoint no_service_mutation');
     await expect(
-      db.query('delete from private.audit_archive_batches where batch_no=$1',[claim.batch_no]),
+      db.query('delete from private.audit_archive_batches where batch_no=$1', [claim.batch_no]),
     ).rejects.toThrow('permission denied');
     await db.exec('rollback to savepoint no_service_mutation');
     await db.exec('reset role');
     await db.exec('savepoint immutability_archive');
     await expect(
-      db.query('delete from private.audit_archive_batches where batch_no=$1',[claim.batch_no]),
+      db.query('delete from private.audit_archive_batches where batch_no=$1', [claim.batch_no]),
     ).rejects.toThrow('AUDIT_ARCHIVE_CHECKPOINT_IMMUTABLE');
     await db.exec('rollback to savepoint immutability_archive');
     await db.exec('set role service_role');
-    await db.query(
-      "select public.record_audit_archive_verification(true,1,$1,$2,null)",
-      [page.rows.length,digest],
-    );
+    await db.query('select public.record_audit_archive_verification(true,1,$1,$2,null)', [
+      page.rows.length,
+      digest,
+    ]);
     await db.exec('reset role');
     const status = (
       await db.query<{ result: string }>(
@@ -561,13 +585,16 @@ describe('Security & Business Audit hardening', () => {
     await identity(db, ids.superAdmin);
     const visibleHealth = (
       await db.query<{
-        report: { last_batch: number; archived_rows: number; latest_verification: { result: string } };
+        report: {
+          last_batch: number;
+          archived_rows: number;
+          latest_verification: { result: string };
+        };
       }>('select public.get_audit_archive_health() report')
     ).rows[0]!.report;
     expect(visibleHealth.last_batch).toBe(1);
     expect(visibleHealth.latest_verification.result).toBe('PASS');
   });
-
 
   it('marks native Auth logging unverified until provider events are actually present', async () => {
     const first = (
@@ -581,15 +608,24 @@ describe('Security & Business Audit hardening', () => {
 
     await db.exec('reset role');
     await db.query(
-      "insert into auth.audit_log_entries(id,payload,created_at) values(gen_random_uuid(),$1::json,now())",
-      [JSON.stringify({ action: 'login', email: 'do-not-show@example.invalid', credential: 'SECRET' })],
+      'insert into auth.audit_log_entries(id,payload,created_at) values(gen_random_uuid(),$1::json,now())',
+      [
+        JSON.stringify({
+          action: 'login',
+          email: 'do-not-show@example.invalid',
+          credential: 'SECRET',
+        }),
+      ],
     );
     await identity(db, ids.superAdmin);
     const second = (
       await db.query<{
         report: {
-          status: string; native_rows: number; login_attempts: number;
-          login_failures_certified: boolean; mfa_failures_certified: boolean;
+          status: string;
+          native_rows: number;
+          login_attempts: number;
+          login_failures_certified: boolean;
+          mfa_failures_certified: boolean;
         };
       }>('select public.get_auth_audit_readiness() report')
     ).rows[0]!.report;
@@ -604,5 +640,4 @@ describe('Security & Business Audit hardening', () => {
     await expect(db.query('select public.get_auth_audit_readiness()')).rejects.toThrow('FORBIDDEN');
     await db.exec('rollback to savepoint rejected_provider_visibility');
   });
-
 });

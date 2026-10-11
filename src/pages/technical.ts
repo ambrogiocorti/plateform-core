@@ -1505,19 +1505,25 @@ export async function technicalPage(context: StaffContext): Promise<HTMLElement>
     { class: 'card stack', id: 'audit-archive-health' },
     el('h2', {}, 'Archivio Audit e autenticazione'),
   );
-  const auditArchiveSummary = el('div', { class: 'stack' }, el('p', {}, 'Verifica archivio in corso…'));
+  const auditArchiveSummary = el(
+    'div',
+    { class: 'stack' },
+    el('p', {}, 'Verifica archivio in corso…'),
+  );
   auditArchiveHealth.append(auditArchiveSummary);
   view.append(auditArchiveHealth);
   const archiveSchema = z.object({
     last_batch: z.number(),
     archived_rows: z.number(),
     remaining_rows: z.number(),
-    latest_verification: z.object({
-      result: z.string(),
-      checked_at: z.string(),
-      checked_batches: z.number(),
-      checked_rows: z.number(),
-    }).nullable(),
+    latest_verification: z
+      .object({
+        result: z.string(),
+        checked_at: z.string(),
+        checked_batches: z.number(),
+        checked_rows: z.number(),
+      })
+      .nullable(),
   });
   const authSchema = z.object({
     status: z.string(),
@@ -1539,16 +1545,25 @@ export async function technicalPage(context: StaffContext): Promise<HTMLElement>
         el(
           'p',
           {},
-          'Archivio cifrato: ' + String(archive.value.archived_rows) +
-          ' eventi in ' + String(archive.value.last_batch) +
-          ' blocchi; da archiviare: ' + String(archive.value.remaining_rows) + '.',
+          'Archivio cifrato: ' +
+            String(archive.value.archived_rows) +
+            ' eventi in ' +
+            String(archive.value.last_batch) +
+            ' blocchi; da archiviare: ' +
+            String(archive.value.remaining_rows) +
+            '.',
         ),
         el(
           'p',
           {},
           'Ultimo test di recupero: ' +
-          (proof ? proof.result + ' · ' + proof.checked_rows + ' righe verificate · ' +
-          new Date(proof.checked_at).toLocaleString('it-IT') : 'NON VERIFICATO'),
+            (proof
+              ? proof.result +
+                ' · ' +
+                proof.checked_rows +
+                ' righe verificate · ' +
+                new Date(proof.checked_at).toLocaleString('it-IT')
+              : 'NON VERIFICATO'),
         ),
       );
     } else {
@@ -1559,10 +1574,15 @@ export async function technicalPage(context: StaffContext): Promise<HTMLElement>
         el(
           'p',
           {},
-          'Audit nativo Supabase Auth: ' + auth.value.status +
-          ' · eventi nel database: ' + auth.value.native_rows +
-          ' · tentativi login: ' + auth.value.login_attempts +
-          ' · tentativi MFA: ' + auth.value.mfa_verification_attempts + '.',
+          'Audit nativo Supabase Auth: ' +
+            auth.value.status +
+            ' · eventi nel database: ' +
+            auth.value.native_rows +
+            ' · tentativi login: ' +
+            auth.value.login_attempts +
+            ' · tentativi MFA: ' +
+            auth.value.mfa_verification_attempts +
+            '.',
         ),
         el(
           'p',
@@ -1571,7 +1591,9 @@ export async function technicalPage(context: StaffContext): Promise<HTMLElement>
         ),
       );
     } else {
-      auditArchiveSummary.append(el('p', { class: 'muted' }, 'Audit Auth: stato non verificabile.'));
+      auditArchiveSummary.append(
+        el('p', { class: 'muted' }, 'Audit Auth: stato non verificabile.'),
+      );
     }
     auditArchiveSummary.append(
       el(
