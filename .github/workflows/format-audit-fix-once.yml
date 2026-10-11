@@ -1,0 +1,32 @@
+name: Format audit test once
+on:
+  push:
+    branches:
+      - feat/audit-commercial-hardening-20261011
+    paths:
+      - .github/workflows/format-audit-fix-once.yml
+permissions:
+  contents: write
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: node node_modules/prettier/bin/prettier.cjs --write tests/database/audit-professional.test.ts
+      - run: npm run format:check
+      - run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add tests/database/audit-professional.test.ts
+            git commit -m "style: format native Auth audit test"
+            git push origin HEAD:refs/heads/feat/audit-commercial-hardening-20261011
+          fi
