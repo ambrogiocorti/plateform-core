@@ -1500,6 +1500,87 @@ export async function technicalPage(context: StaffContext): Promise<HTMLElement>
       ),
     );
   if (!data.incidents.length) incidents.append(el('p', {}, 'Nessun incidente aperto registrato.'));
+  const auditArchiveHealth = el(
+    'section',
+    { class: 'card stack', id: 'audit-archive-health' },
+    el('h2', {}, 'Archivio Audit e autenticazione'),
+  );
+  const auditArchiveSummary = el('div', { class: 'stack' }, el('p', {}, 'Verifica archivio in corso…'));
+  auditArchiveHealth.append(auditArchiveSummary);
+  view.append(auditArchiveHealth);
+  const archiveSchema = z.object({
+    last_batch: z.number(),
+    archived_rows: z.number(),
+    remaining_rows: z.number(),
+    latest_verification: z.object({
+      result: z.string(),
+      checked_at: z.string(),
+      checked_batches: z.number(),
+      checked_rows: z.number(),
+    }).nullable(),
+  });
+  const authSchema = z.object({
+    status: z.string(),
+    native_rows: z.number(),
+    login_attempts: z.number(),
+    mfa_verification_attempts: z.number(),
+    login_failures_certified: z.boolean(),
+    mfa_failures_certified: z.boolean(),
+  });
+  // Fail closed for partial deployments; never block the technical dashboard.
+  void Promise.allSettled([
+    rpc('get_audit_archive_health', {}, archiveSchema),
+    rpc('get_auth_audit_readiness', {}, authSchema),
+  ]).then(([archive, auth]) => {
+    auditArchiveSummary.replaceChildren();
+    if (archive.status === 'fulfilled') {
+      const proof = archive.value.latest_verification;
+      auditArchiveSummary.append(
+        el(
+          'p',
+          {},
+          'Archivio cifrato: ' + String(archive.value.archived_rows) +
+          ' eventi in ' + String(archive.value.last_batch) +
+          ' blocchi; da archiviare: ' + String(archive.value.remaining_rows) + '.',
+        ),
+        el(
+          'p',
+          {},
+          'Ultimo test di recupero: ' +
+          (proof ? proof.result + ' · ' + proof.checked_rows + ' righe verificate · ' +
+          new Date(proof.checked_at).toLocaleString('it-IT') : 'NON VERIFICATO'),
+        ),
+      );
+    } else {
+      auditArchiveSummary.append(el('p', { class: 'muted' }, 'Archivio: stato non verificabile.'));
+    }
+    if (auth.status === 'fulfilled') {
+      auditArchiveSummary.append(
+        el(
+          'p',
+          {},
+          'Audit nativo Supabase Auth: ' + auth.value.status +
+          ' · eventi nel database: ' + auth.value.native_rows +
+          ' · tentativi login: ' + auth.value.login_attempts +
+          ' · tentativi MFA: ' + auth.value.mfa_verification_attempts + '.',
+        ),
+        el(
+          'p',
+          { class: 'muted' },
+          'Gli eventi Auth senza esito attendibile non sono classificati come login o MFA falliti.',
+        ),
+      );
+    } else {
+      auditArchiveSummary.append(el('p', { class: 'muted' }, 'Audit Auth: stato non verificabile.'));
+    }
+    auditArchiveSummary.append(
+      el(
+        'p',
+        { class: 'muted' },
+        'Nessuna retention automatica dell’audit è attiva. L’archiviazione cifrata su due progetti non equivale a conservazione WORM certificata.',
+      ),
+    );
+  });
   view.append(incidents);
   return view;
 }
