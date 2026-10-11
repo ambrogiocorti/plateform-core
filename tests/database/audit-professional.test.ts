@@ -27,6 +27,7 @@ describe('Security & Business Audit hardening', () => {
       '20261011073505_audit_professional_catalog_filters_noise.sql',
       '20261011074105_audit_event_catalog_canonical_seed.sql',
       '20261011074842_audit_safe_device_assignment_diff_fields.sql',
+      '20261011075739_audit_privacy_sensitive_read_and_catalog_truth.sql',
     ]) {
       await db.exec(await readFile(`supabase/migrations/${migration}`, 'utf8'));
     }
@@ -169,4 +170,67 @@ describe('Security & Business Audit hardening', () => {
     expect(latest.new_values).not.toHaveProperty('display_name');
     expect(latest.new_values).not.toHaveProperty('user_agent');
   });
+
+  it('audits authorized private reservation contact reads without persisting PII', async () => {
+    const service = 'e1000000-0000-4000-8000-000000000011';
+    const reservation = 'e1000000-0000-4000-8000-000000000012';
+    await db.exec('reset role');
+    await db.query(
+      "insert into public.services(id,venue_id,name,starts_at,ends_at) values($1,$2,'Cena','19:00','23:00')",
+      [service, ids.venue],
+    );
+    await db.query(
+      "insert into public.reservations(id,venue_id,service_id,service_date,slot_time,first_name,last_name,phone,party_size,status) values($1,$2,$3,current_date+1,'19:00','Sensitive','Guest','+390099988877',2,'RESERVED')",
+      [reservation, ids.venue, service],
+    );
+    await identity(db, ids.admin);
+    const result = (
+      await db.query<{ data: Array<{ id: string }> }>(
+        'select public.search_privacy_reservations($1,$2) data',
+        [ids.venue, '+390099988877'],
+      )
+    ).rows[0]!.data;
+    expect(result).toHaveLength(1);
+    expect(result[0]?.id).toBe(reservation);
+
+    await db.exec('reset role');
+    const events = (
+      await db.query<{
+        action: string;
+        actor_user_id: string;
+        old_values: Record<string, unknown>;
+        new_values: Record<string, unknown>;
+        resource_type: string;
+      }>(
+        "select action,actor_user_id,old_values,new_values,resource_type from public.audit_log where action='SENSITIVE_DATA_ACCESS' order by timestamp desc,id desc",
+      )
+    ).rows;
+    expect(events).toHaveLength(1);
+    expect(events[0]).toMatchObject({
+      action: 'SENSITIVE_DATA_ACCESS',
+      actor_user_id: ids.admin,
+      resource_type: 'reservation_privacy_search',
+    });
+    expect(events[0]?.new_values).toHaveProperty('purpose', 'AUTHORIZED_CONTACT_LOOKUP');
+    expect(JSON.stringify(events)).not.toContain('Sensitive');
+    expect(JSON.stringify(events)).not.toContain('+390099988877');
+
+    const observed = (
+      await db.query<{ status: string }>(
+        "select implementation_status as status from private.audit_event_catalog where action='SENSITIVE_DATA_ACCESS'",
+      )
+    ).rows[0]!.status;
+    expect(observed).toBe('OBSERVED');
+
+    await identity(db, ids.superAdmin);
+    await db.exec('savepoint denied');
+    await expect(
+      db.query('select public.search_privacy_reservations($1,$2)', [
+        ids.venue,
+        '+390099988877',
+      ]),
+    ).rejects.toThrow('FORBIDDEN');
+    await db.exec('rollback to savepoint denied');
+  });
+
 });
