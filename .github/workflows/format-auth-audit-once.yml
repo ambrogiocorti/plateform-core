@@ -24,9 +24,7 @@ jobs:
             supabase/functions/auth-audit-gateway/index.ts \
             src/auth/staff.ts \
             tests/database/audit-professional.test.ts \
-            tests/database/harness.ts \
-            supabase/migrations/20261011155756_audit_auth_gateway_rejected_login_mfa_service_only.sql \
-            supabase/migrations/20261011160726_audit_retention_immutable_approval_gate_and_gateway_coverage.sql
+            tests/database/harness.ts
       - name: Retire temporary formatting workflow
         run: rm .github/workflows/format-auth-audit-once.yml
       - name: Commit formatting
