@@ -2,7 +2,7 @@
   "date": "2026-10-11",
   "source_project": "abdxvlykasqmknexxhjo",
   "work_type": "Live development database continuity cleanup",
-  "status": "DATABASE_TARGET_MET_WITH_BACKUP_RETEST_OPEN",
+  "status": "DATABASE_TARGET_MET_AND_CURRENT_BACKUP_VERIFIED_RESTORE_PENDING",
   "measurements": {
     "database_bytes_before": 1570633395,
     "database_bytes_after_committed_reclaim": 57603763,
@@ -11,7 +11,8 @@
     "storage_verified_successful_backups_preserved": 64,
     "snapshots_rehearsal_rows_removed": 1716997,
     "chunks_rehearsal_removed": 8664,
-    "snapshot_manifests_removed": 155
+    "snapshot_manifests_removed": 155,
+    "database_bytes_after_new_verified_backup": 59152051
   },
   "safety": {
     "preserved_users": 12,
@@ -37,13 +38,18 @@
     "storage_gc_schedule": "*/10 * * * *",
     "worker_chunk_size_before": 200,
     "worker_chunk_size_after": 500,
-    "backup_retest": "stalled_test_marked_failed_at_live_database; v11_not_yet_retested"
+    "backup_retest": "SUCCEEDED with continuity-backup-worker v11, 459 migrations, 41 files prim+replica, 3894396 bytes each, matching backup integrity.",
+    "backup_retest_id": "37d7a229-4f77-4ab2-8ac7-e920d4a6a2bc",
+    "backup_retest_completed_at": "2026-10-11T07:05:46.920396Z",
+    "backup_manifest_checksum": "9fa109582c37082605d52954291701cba95bcaddafedf9f33862a9d0198d8319"
   },
   "remaining": {
     "partial_backup_test_id": "c32a299d-9a4b-4a53-84cf-06893e157563",
-    "partial_backup_test_status": "FAILED",
+    "partial_backup_test_status": "FAILED_WITH_AUTO_SNAPSHOT_CLEANUP_VERIFIED",
     "partial_storage_files_from_latest_failed_test": 94,
     "partial_storage_removal": "pending ten-minute safety grace then cron job",
-    "release_status": "NO_GO"
+    "release_status": "NO_GO",
+    "current_schema_restore_test_verified": false,
+    "ci_status": "FAIL_PRETTIER_FORMAT_CHECK_97_FILES"
   }
 }
