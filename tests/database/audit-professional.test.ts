@@ -48,6 +48,7 @@ describe('Security & Business Audit hardening', () => {
       '20261011153016_audit_archive_independent_restore_verification_log.sql',
       '20261011153304_audit_archive_automatic_rotation_and_daily_recovery_test.sql',
       '20261011153810_audit_auth_provider_readiness_without_false_failure_labels.sql',
+      '20261011155756_audit_auth_gateway_rejected_login_mfa_service_only.sql',
     ]) {
       await db.exec(await readFile(`supabase/migrations/${migration}`, 'utf8'));
     }
@@ -640,4 +641,74 @@ describe('Security & Business Audit hardening', () => {
     await expect(db.query('select public.get_auth_audit_readiness()')).rejects.toThrow('FORBIDDEN');
     await db.exec('rollback to savepoint rejected_provider_visibility');
   });
+
+  it('accepts only service-attested rejected GoTrue login/MFA without credentials or sensitive payload', async () => {
+    await identity(db, ids.admin);
+    await db.exec('savepoint unauthorized_auth_attestation');
+    await expect(db.query("select public.record_auth_gateway_failure('AUTH_LOGIN_FAILED')"))
+      .rejects.toThrow();
+    await db.exec('rollback to savepoint unauthorized_auth_attestation');
+    await db.exec('reset role; set role service_role');
+    const written = (
+      await db.query<{ recorded: boolean }>(
+        "select public.record_auth_gateway_failure('AUTH_LOGIN_FAILED') recorded",
+      )
+    ).rows[0]!.recorded;
+    expect(written).toBe(true);
+    await db.exec('reset role');
+    const anonymous = (
+      await db.query<{
+        action: string; result: string; actor_user_id: string | null;
+        new_values: Record<string, unknown>; emitter_source: string;
+      }>(
+        "select action,result,actor_user_id,new_values,emitter_source from public.audit_log where action='AUTH_LOGIN_FAILED'",
+      )
+    ).rows;
+    expect(anonymous).toHaveLength(1);
+    expect(anonymous[0]).toMatchObject({
+      action: 'AUTH_LOGIN_FAILED',result: 'DENIED',
+      actor_user_id: null,emitter_source:'EDGE_AUTH_GATEWAY',
+      new_values: {source:'GOTRUE_SERVER_VERIFIED',failure_class:'INVALID_CREDENTIALS'},
+    });
+    const session = 'ad000000-0000-4000-8000-000000000001';
+    await db.query(
+      'insert into auth.sessions(id,user_id,not_after) values($1,$2,now()+interval \'1 day\')',
+      [session,ids.admin],
+    );
+    await db.exec('set role service_role');
+    const verified = (
+      await db.query<{ recorded: boolean }>(
+        "select public.record_auth_gateway_failure('MFA_VERIFICATION_FAILED',$1,$2) recorded",
+        [ids.admin,session],
+      )
+    ).rows[0]!.recorded;
+    expect(verified).toBe(true);
+    await db.exec('savepoint rejected_missing_verified_context');
+    await expect(db.query(
+      "select public.record_auth_gateway_failure('MFA_VERIFICATION_FAILED',$1,$2)",
+      [ids.cashier,session],
+    )).rejects.toThrow('MFA_VERIFIED_SESSION_REQUIRED');
+    await db.exec('rollback to savepoint rejected_missing_verified_context');
+    await db.exec('reset role');
+    const events = (
+      await db.query<{action:string;actor_user_id:string|null;new_values:Record<string,unknown>}>(
+        "select action,actor_user_id,new_values from public.audit_log where action in ('AUTH_LOGIN_FAILED','MFA_VERIFICATION_FAILED') order by action",
+      )
+    ).rows;
+    expect(events).toHaveLength(2);
+    expect(events.find((entry)=>entry.action==='MFA_VERIFICATION_FAILED')?.actor_user_id)
+      .toBe(ids.admin);
+    const serialized = JSON.stringify(events);
+    for(const sensitive of ['password','email','token','totp','secret','ip_address','user_agent']){
+      expect(serialized).not.toContain(sensitive);
+    }
+    const catalogue = (
+      await db.query<{action:string;implementation_status:string}>(
+        "select action,implementation_status from private.audit_event_catalog where action in ('AUTH_LOGIN_FAILED','MFA_VERIFICATION_FAILED') order by action",
+      )
+    ).rows;
+    expect(catalogue.map((item)=>item.implementation_status))
+      .toEqual(['OBSERVED','OBSERVED']);
+  });
+
 });
