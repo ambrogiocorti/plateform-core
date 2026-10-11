@@ -62,3 +62,27 @@ a backup/restore, rotazione delle partizioni e archivio storico senza perdita,
 protezione delle copie esterne e prove di carico con milioni di eventi. La tabella è
 partizionata per timestamp con partizione di default; nessun job di rotazione è ancora attivo.
 Telemetry è separata dall'audit e non può sostituirlo.
+
+
+## Audit professionale — aggiornamento live 11 ottobre 2026
+
+**Implementato sul database `plateform-development` (non ancora certificato per la vendita).**
+
+- `private.audit_event_catalog` include 141 codici storicamente osservati in produzione di sviluppo, classificati per area, criticità e classe di conservazione. La seed migration canonica popola gli stessi 141 codici anche su nuove installazioni con audit inizialmente vuoto.
+- I 7 eventi `AUTH_LOGIN_FAILED`, `MFA_VERIFICATION_FAILED`, `SENSITIVE_DATA_ACCESS`, `SENSITIVE_DATA_EXPORTED`, `AUDIT_EXPORTED`, `ACCESS_DENIED`, `PRIVILEGE_CHANGE_DENIED` sono **PLANNED**: il catalogo non li trasforma in eventi realmente emessi. Serve implementazione/integrazione Auth, privacy ed error-handling con fonte server attendibile.
+- `public.search_audit_professional` mantiene autorizzazione `SUPER_ADMIN`, pagina tramite coppia ordinata `(timestamp,id)`, filtra sul server anche `category` e `severity` e restituisce etichetta umana e classe dell'evento. La precedente `public.search_audit` resta disponibile, senza rompere i consumer già esistenti.
+- `public.get_audit_event_catalog` espone al solo Super Admin l'elenco dei tipi realmente osservati e di quelli pianificati. Alla dashboard `/audit` si aggiungono filtri Categoria/Criticità, etichetta per evento e informazioni di registrazione e completezza del catalogo.
+- Sugli UPDATE di `public.registered_devices` non producono più audit le sole modifiche a `last_seen_at`, `last_sync_at`, `app_version`: sono telemetria/presenza del dispositivo. Restano nell'audit modifiche a utente, sede, etichetta, piattaforma, assegnazione e revoca, più ogni INSERT/DELETE. La verifica diretta con transazione rollback è PASS: heartbeat senza nuovo evento, cambio assegnazione con nuovo evento.
+- Colonne opzionali aggiunte per evoluzioni documentate: `ip_address`, `user_agent`, `reason_code`, `authorization_context`; il campo `emitter_source` è `DATABASE_AUDIT` per i record generati nel DB. **Non** raccogliamo automaticamente IP/User-Agent non affidabili da header client né dati di sessione segreti. Per IP/UA serviranno una trust boundary verificata, minimizzazione e retention documentata.
+- Le categorie sono basate su un catalogo versionato, non su testo libero dell'utente; gli eventi futuri senza voce esplicita sono restituiti come `UNCATALOGUED`, visibili e da riesaminare, mai ignorati silenziosamente.
+- Nessun evento storico è stato cancellato o modificato. Il registro resta append-only. I nomi/codici possono apparire in lingua inglese se non ancora tradotti: le azioni prioritarie hanno già label in italiano.
+
+### Limitazioni e gate residui
+
+1. Il test transazionale sul database Supabase e la verifica SQL delle autorizzazioni sono distinti da un vero test browser/GoTrue/MFA del Super Admin; quest'ultimo non è ancora certificato.
+2. La traccia durevole dei login Auth **falliti** non si ottiene affidabilmente da una transazione di login fallita. È necessario un canale server affidabile che non accetti falsificazioni dal browser e con rate limiting. Il catalogo la segnala come PLANNED.
+3. Non registrare semplici visualizzazioni, click o heartbeat come audit. Esportazioni e consultazioni di dati personali sono da tracciare con un canale autorizzato separato, non inserendo payload personali o segreti.
+4. Una policy concreta di retention per categoria richiede una valutazione normativa e operativa: il campo `retention_class` è classificazione, non autorizza cancellazioni automatiche. Archiviazione durabile, checksum, verifica anti-manomissione esterna e restore storico rimangono da certificare.
+5. Database remoto e repository hanno una cronologia migrazioni non ancora completamente riconciliata: **il fatto che due nuove migrazioni siano in git non rende il progetto go-live-ready**. Tutte le condizioni di `ROADMAP_STATUS` e dei gate commerciali restano applicabili.
+
+Test: `tests/database/audit-professional.test.ts` più verifica live transazionale (rollback) del comportamento dei trigger. I test PGlite, anche quando verdi, non equivalgono a una prova completa dell'infrastruttura Supabase.
