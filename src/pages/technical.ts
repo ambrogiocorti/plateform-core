@@ -297,7 +297,7 @@ export async function technicalPage(context: StaffContext): Promise<HTMLElement>
       ['1', 'Ultime 24 ore'],
       ['7', 'Ultimi 7 giorni'],
       ['30', 'Ultimi 30 giorni'],
-    ].map(([value, name]) => el('option', { value: value ?? '', ...(value === '7' ? { selected: true } : {}) }, name ?? '')),
+    ].map(([value, name]) => el('option', { value: value ?? '', ...(value === '7' ? { selected: 'selected' } : {}) }, name ?? '')),
   );
   const technicalLogRows = el('tbody');
   const logFeedback = el('p', { class: 'muted', role: 'status' });
