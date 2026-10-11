@@ -41,6 +41,7 @@ describe('Security & Business Audit hardening', () => {
       '20261011080554_audit_future_month_partition_rotation_no_data_loss.sql',
       '20261011081547_technical_logs_redacted_superadmin_search.sql',
       '20261011082028_technical_health_logs_approved_retention_only.sql',
+      '20261011134204_technical_auth_native_audit_redacted_read.sql',
     ]) {
       await db.exec(await readFile(`supabase/migrations/${migration}`, 'utf8'));
     }
@@ -426,4 +427,42 @@ describe('Security & Business Audit hardening', () => {
     expect(before).toBe(1);
     expect(after).toBe(1);
   });
+
+  it('lists Supabase Auth provider actions without exposing the native payload or assuming login outcome', async () => {
+    await db.exec('reset role');
+    await db.query(
+      `insert into auth.audit_log_entries(id,payload,created_at,ip_address)
+       values(gen_random_uuid(),$1::json,now()-interval '10 minutes','192.0.2.99')`,
+      [JSON.stringify({ action: 'verification_attempted', email: 'private@example.test', access_token: 'SECRET_DO_NOT_EXPOSE' })],
+    );
+    await identity(db, ids.superAdmin);
+    const result = (
+      await db.query<{
+        data: { events: Array<Record<string, unknown>>; has_more: boolean };
+      }>(
+        `select public.search_technical_logs(
+          p_source=>'AUTH',
+          p_from=>now()-interval '1 day',
+          p_to=>now()
+        ) data`,
+      )
+    ).rows[0]!.data;
+    expect(result.events).toHaveLength(1);
+    expect(result.events[0]).toMatchObject({
+      source: 'AUTH',
+      operation: 'AUTH_PROVIDER_EVENT',
+      code: 'verification_attempted',
+      result: 'RECORDED_UNCLASSIFIED',
+    });
+    expect(JSON.stringify(result)).not.toContain('private@example.test');
+    expect(JSON.stringify(result)).not.toContain('SECRET_DO_NOT_EXPOSE');
+    expect(JSON.stringify(result)).not.toContain('192.0.2.99');
+    await identity(db, ids.cashier);
+    await db.exec('savepoint denied_native_auth');
+    await expect(
+      db.query("select public.search_technical_logs(p_source=>'AUTH')"),
+    ).rejects.toThrow('FORBIDDEN');
+    await db.exec('rollback to savepoint denied_native_auth');
+  });
+
 });
