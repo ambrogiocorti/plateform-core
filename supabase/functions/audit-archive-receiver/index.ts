@@ -24,6 +24,49 @@ Deno.serve(async (req: Request) => {
   if (authError || allowed !== true || source !== SOURCE_REF) return new Response('Not Found', { status: 404 });
   let body: Record<string, unknown>;
   try { body = await req.json(); } catch { return Response.json({ status: 'INVALID_INPUT' }, { status: 400 }); }
+  if (body.action === 'verify') {
+    const after = Number(body.after_batch ?? 0);
+    const limit = Number(body.limit ?? 30);
+    if (!Number.isInteger(after) || after<0 || !Number.isInteger(limit) || limit<1 || limit>30) {
+      return Response.json({ status: 'INVALID_VERIFY_WINDOW' }, { status: 400 });
+    }
+    try {
+      const { data: rows, error: listError } = await supabase.rpc('list_audit_archive_witnesses', {
+        p_after: after, p_limit: limit,
+      });
+      if (listError || !Array.isArray(rows)) throw new Error('AUDIT_WITNESS_LIST_FAILED');
+      let previous = rows[0]?.previous_chain_sha256 ?? '0'.repeat(64);
+      let nextBatch = after+1;
+      let checkedRows = 0;
+      for (const row of rows) {
+        if (row.batch_no !== nextBatch || row.previous_chain_sha256 !== previous) {
+          throw new Error('AUDIT_WITNESS_SEQUENCE_INVALID');
+        }
+        const expectedChain = await digest(new TextEncoder().encode(
+          previous + ':' + row.batch_no + ':' + row.payload_sha256 + ':' +
+          row.plaintext_sha256 + ':' + row.row_count + ':' + row.upper_event_id
+        ));
+        if (expectedChain !== row.chain_sha256) throw new Error('AUDIT_WITNESS_CHAIN_INVALID');
+        const { data: payload, error: downloadError } = await supabase.storage.from(BUCKET).download(row.object_path);
+        if (downloadError || !payload) throw new Error('AUDIT_WITNESS_OBJECT_MISSING');
+        const bytes = new Uint8Array(await payload.arrayBuffer());
+        if (bytes.byteLength !== row.byte_count || await digest(bytes) !== row.payload_sha256) {
+          throw new Error('AUDIT_WITNESS_PAYLOAD_MISMATCH');
+        }
+        previous = row.chain_sha256;
+        checkedRows += row.row_count;
+        nextBatch++;
+      }
+      return Response.json({
+        status:'VERIFIED',checked_batches:rows.length,checked_rows:checkedRows,
+        last_batch:nextBatch-1,last_chain_sha256:previous,
+      },{headers:{'cache-control':'no-store'}});
+    } catch (err) {
+      const code = err instanceof Error?err.message:'AUDIT_VERIFY_FAILED';
+      console.error('audit witness verify',code);
+      return Response.json({status:'FAILED',code},{status:500});
+    }
+  }
   const seq = Number(body.batch_no);
   const expected = String(body.payload_sha256 ?? '');
   const plain = String(body.plaintext_sha256 ?? '');
