@@ -145,6 +145,15 @@ export async function staffManagementPage(context: StaffContext): Promise<HTMLEl
         editor.append(
           button('Crea utente', async () => {
             if ([name, identifier, password].some((input) => !input.input.reportValidity())) return;
+            const staffIdentifier = identifier.input.value.trim().toLowerCase();
+            const identityDomain = workspace.identity_domain?.trim().toLowerCase();
+            if (identityDomain && staffIdentifier.split('@').at(-1) !== identityDomain) {
+              toast(
+                `L'identificativo staff deve terminare con @${identityDomain}. Usa “Suggerisci identificativo” per generarne uno valido.`,
+                true,
+              );
+              return;
+            }
             if (scope.value === 'VENUE' && venueIds.size === 0) {
               toast('Assegna almeno una sede allo staff con ambito sede.', true);
               return;
@@ -158,8 +167,8 @@ export async function staffManagementPage(context: StaffContext): Promise<HTMLEl
               body: {
                 action: 'CREATE',
                 idempotency_key: commandKey,
-                display_name: name.input.value,
-                identifier: identifier.input.value,
+                display_name: name.input.value.trim(),
+                identifier: staffIdentifier,
                 password: secret,
                 role: role.value,
                 scope: scope.value,
