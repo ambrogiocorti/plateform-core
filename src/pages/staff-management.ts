@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { client, readRows, rpc, safeEdgeError } from '../api/client';
-import { button, dialog, el, field, status, toast } from '../components/dom';
+import { button, dialog, el, field, showError, status, toast } from '../components/dom';
 import { stepUp } from '../auth/step-up';
 import type { StaffContext } from './staff-context';
 import { command } from './staff-context';
@@ -41,6 +41,7 @@ function accessScopeEditor(
   context: StaffContext,
   initialScope: 'CHAIN' | 'VENUE',
   initialVenues: string[],
+  onVenueChange?: () => void,
 ): { scope: HTMLSelectElement; venueIds: Set<string>; venueFields: HTMLElement; sync: () => void } {
   const scope = el(
     'select',
@@ -60,6 +61,7 @@ function accessScopeEditor(
       input.addEventListener('change', () => {
         if (input.checked) venueIds.add(venue.id);
         else venueIds.delete(venue.id);
+        onVenueChange?.();
       });
       return el('label', { class: 'checkbox-line' }, input, venue.name);
     }),
@@ -102,58 +104,55 @@ export async function staffManagementPage(context: StaffContext): Promise<HTMLEl
           { 'aria-label': 'Ruolo' },
           ...roles.map((value) => el('option', { value }, value.replaceAll('_', ' '))),
         );
+        let identifierEdited = false;
+        let suggestionRevision = 0;
+        let getSelectedVenueName = (): string | undefined => context.venue?.name;
+        const refreshSuggestedIdentifier = async () => {
+          const current = ++suggestionRevision;
+          if (identifierEdited) return;
+          const venueName = getSelectedVenueName();
+          if (!venueName) return;
+          const suggested = await rpc(
+            'suggest_staff_identifier',
+            { p_name: venueName },
+            z.string(),
+          );
+          if (current === suggestionRevision && !identifierEdited)
+            identifier.input.value = suggested;
+        };
+        identifier.input.addEventListener('input', () => {
+          identifierEdited = true;
+          suggestionRevision++;
+        });
         const access = accessScopeEditor(
           context,
           context.profile.scope === 'CHAIN' && context.profile.role === 'SUPER_ADMIN'
             ? 'CHAIN'
             : 'VENUE',
           context.venue ? [context.venue.id] : [],
+          () => void refreshSuggestedIdentifier().catch(showError),
         );
         const { scope, venueIds, venueFields } = access;
-        let suggestionRevision = 0;
-        const suggestIdentifier = async () => {
-          const current = ++suggestionRevision;
-          const candidateName = name.input.value.trim();
-          if (!candidateName || identifier.input.value.trim()) return;
-          const suggested = await rpc(
-            'suggest_staff_identifier',
-            { p_name: candidateName },
-            z.string(),
-          );
-          if (current === suggestionRevision && !identifier.input.value.trim())
-            identifier.input.value = suggested;
-        };
-        name.input.addEventListener('blur', () => void suggestIdentifier().catch(() => undefined));
+        getSelectedVenueName = () =>
+          context.venues.find((venue) => venueIds.has(venue.id))?.name ??
+          context.venue?.name ??
+          context.venues[0]?.name;
         const editor = dialog(
           'Nuovo utente staff',
           name.root,
           identifier.root,
-          button(
-            'Suggerisci identificativo',
-            async () => {
-              identifier.input.value = '';
-              await suggestIdentifier();
-            },
-            'secondary',
-          ),
+          el('p', { class: 'muted' }, 'Proposto dal nome della sede; puoi modificarlo con qualsiasi indirizzo email valido.'),
           password.root,
           el('label', {}, 'Ruolo', role),
           el('label', {}, 'Ambito', scope),
           venueFields,
         );
+        void refreshSuggestedIdentifier().catch(showError);
         const commandKey = crypto.randomUUID();
         editor.append(
           button('Crea utente', async () => {
             if ([name, identifier, password].some((input) => !input.input.reportValidity())) return;
             const staffIdentifier = identifier.input.value.trim().toLowerCase();
-            const identityDomain = workspace.identity_domain?.trim().toLowerCase();
-            if (identityDomain && staffIdentifier.split('@').at(-1) !== identityDomain) {
-              toast(
-                `L'identificativo staff deve terminare con @${identityDomain}. Usa “Suggerisci identificativo” per generarne uno valido.`,
-                true,
-              );
-              return;
-            }
             if (scope.value === 'VENUE' && venueIds.size === 0) {
               toast('Assegna almeno una sede allo staff con ambito sede.', true);
               return;
