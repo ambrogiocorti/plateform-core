@@ -141,7 +141,11 @@ export async function staffManagementPage(context: StaffContext): Promise<HTMLEl
           'Nuovo utente staff',
           name.root,
           identifier.root,
-          el('p', { class: 'muted' }, 'Proposto dal nome della sede; puoi modificarlo con qualsiasi indirizzo email valido.'),
+          el(
+            'p',
+            { class: 'muted' },
+            'Proposto dal nome della sede; puoi modificarlo con qualsiasi indirizzo email valido.',
+          ),
           password.root,
           el('label', {}, 'Ruolo', role),
           el('label', {}, 'Ambito', scope),
