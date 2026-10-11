@@ -329,6 +329,7 @@ export async function technicalPage(context: StaffContext): Promise<HTMLElement>
       ['ERROR', 'Errori applicativi'],
       ['EDGE', 'Richieste Edge'],
       ['HEALTH', 'Anomalie di salute'],
+      ['AUTH', 'Audit nativo Supabase Auth'],
     ].map(([value, name]) => el('option', { value: value ?? '' }, name ?? '')),
   );
   const logPeriod = el(
@@ -427,7 +428,7 @@ export async function technicalPage(context: StaffContext): Promise<HTMLElement>
     el(
       'p',
       { class: 'muted' },
-      'Registri separati dall’audit immutabile: errori applicativi, telemetria Edge e controlli di salute non HEALTHY. Nessun payload, IP o segreto.',
+      'Registri separati dall’audit immutabile: errori applicativi, Edge, controlli di salute e azioni native Supabase Auth. Le azioni Auth sono eventi non classificati per esito; la scrittura nel database dipende dalle impostazioni Supabase. Nessun payload, IP o segreto.',
     ),
     el(
       'div',
