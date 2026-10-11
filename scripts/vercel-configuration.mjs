@@ -49,7 +49,6 @@ export function createVercelConfiguration({ supabaseUrl, mode = 'staging' }) {
     buildCommand: 'npm run build:pages',
     installCommand: 'npm ci',
     outputDirectory: 'dist/site',
-    public: false,
     rewrites: [
       { source: '/staff', destination: '/staff/index.html' },
       { source: '/staff/:page([a-z0-9-]+)', destination: '/staff/index.html' },
