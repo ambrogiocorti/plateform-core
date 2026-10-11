@@ -216,6 +216,15 @@ export async function database(through = Number.POSITIVE_INFINITY) {
           );
         `);
       }
+      if (name === '20261008163112_step11_public_rpc_permission_manifest.sql') {
+        // These four RPC implementations exist on hosted Development but their
+        // CREATE FUNCTION SQL is missing from the tracked migration history.
+        // Apply the exact hosted definitions only to the disposable PGlite
+        // test database. This does NOT certify a clean-environment install.
+        await db.exec(
+          await readFile('tests/database/fixtures/step11-hosted-public-rpcs.sql', 'utf8'),
+        );
+      }
       await db.exec(sql);
       const match = /^(\d+)_([^.]*)\.sql$/.exec(name);
       if (match)
