@@ -49,6 +49,7 @@ describe('Security & Business Audit hardening', () => {
       '20261011153304_audit_archive_automatic_rotation_and_daily_recovery_test.sql',
       '20261011153810_audit_auth_provider_readiness_without_false_failure_labels.sql',
       '20261011155756_audit_auth_gateway_rejected_login_mfa_service_only.sql',
+      '20261011160726_audit_retention_immutable_approval_gate_and_gateway_coverage.sql',
     ]) {
       await db.exec(await readFile(`supabase/migrations/${migration}`, 'utf8'));
     }
@@ -709,6 +710,31 @@ describe('Security & Business Audit hardening', () => {
     ).rows;
     expect(catalogue.map((item)=>item.implementation_status))
       .toEqual(['OBSERVED','OBSERVED']);
+  });
+
+
+  it('keeps legal hold and Audit purge disabled and prevents any client from altering governance', async () => {
+    const state = (
+      await db.query<{ data: { status: string; legal_hold_active: boolean; audit_purge_enabled: boolean; external_worm_certified: boolean } }>(
+        'select public.get_audit_retention_readiness() data',
+      )
+    ).rows[0]!.data;
+    expect(state).toMatchObject({
+      status: 'AWAITING_FORMAL_APPROVAL',
+      legal_hold_active: true,
+      audit_purge_enabled: false,
+      external_worm_certified: false,
+    });
+    await identity(db, ids.cashier);
+    await db.exec('savepoint deny_retention');
+    await expect(db.query('select public.get_audit_retention_readiness()')).rejects.toThrow('FORBIDDEN');
+    await db.exec('rollback to savepoint deny_retention');
+    await db.exec('reset role');
+    await db.exec('savepoint immutable_retention');
+    await expect(
+      db.query('update private.audit_retention_governance set policy_status=$1 where id', ['APPROVED']),
+    ).rejects.toThrow('AUDIT_RETENTION_APPROVAL_REQUIRES_VERSIONED_MIGRATION');
+    await db.exec('rollback to savepoint immutable_retention');
   });
 
 });
