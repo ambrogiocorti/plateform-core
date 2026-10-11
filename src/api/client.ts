@@ -91,6 +91,13 @@ const messages: Record<string, string> = {
   STEP_UP_REQUIRED: 'Conferma nuovamente la tua identità per procedere.',
   FULL_AUTH_REQUIRED: 'Accedi di nuovo con identificativo e password.',
   PIN_OR_FULL_AUTH_REQUIRED: 'Sblocca la sessione con PIN o accedi di nuovo.',
+  STAFF_IDENTIFIER_TAKEN: 'Questo identificativo staff è già utilizzato. Scegline uno diverso.',
+  INVALID_STAFF_COMMAND:
+    'Dati staff non validi. Controlla il dominio dell’identificativo e le sedi assegnate.',
+  STAFF_COMMAND_PENDING: 'Esiste già una creazione o modifica staff in sospeso. Controlla le operazioni da riprendere.',
+  STAFF_LIMIT: 'È stato raggiunto il limite di utenti staff attivi.',
+  STAFF_COMMAND_RECOVERY_REQUIRED:
+    'La creazione staff richiede un recupero. Controlla le operazioni da riprendere prima di ripetere la richiesta.',
   LOGIN_FORBIDDEN: 'L’accesso operativo non è disponibile per questo account.',
   DEVICE_REVOKED: 'Questo dispositivo è stato revocato.',
   MFA_REQUIRED: 'Completa la verifica con il codice di autenticazione.',
@@ -189,6 +196,27 @@ export function safeError(
       ? messages[code]!
       : 'Operazione non completata. Verifica la connessione e aggiorna i dati prima di riprovare.',
   );
+}
+
+// Edge Functions return a reviewed error code plus a server-generated request ID.
+// Decode this structured response instead of disguising validation failures as connectivity issues.
+export async function safeEdgeError(error: unknown): Promise<ApplicationError> {
+  const context =
+    error !== null && typeof error === 'object' && 'context' in error ? error.context : null;
+  if (context instanceof Response) {
+    const payload: unknown = await context.clone().json().catch(() => null);
+    const parsed = z
+      .object({ code: z.string(), request_id: z.string().optional() })
+      .safeParse(payload);
+    if (parsed.success && Object.prototype.hasOwnProperty.call(messages, parsed.data.code)) {
+      return new ApplicationError(
+        parsed.data.code,
+        parsed.data.request_id ?? crypto.randomUUID(),
+        messages[parsed.data.code]!,
+      );
+    }
+  }
+  return safeError(error);
 }
 
 export async function rpc<T>(
