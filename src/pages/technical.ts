@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { client, readRows, rpc, safeError } from '../api/client';
-import { button, dialog, el, field, status, toast } from '../components/dom';
+import { button, dialog, el, field, showError, status, toast } from '../components/dom';
 import type { StaffContext } from './staff-context';
 import { stepUp } from '../auth/step-up';
 import { externalPaymentProvidersIncluded } from '../services/commercial-scope';
@@ -279,6 +279,137 @@ export async function technicalPage(context: StaffContext): Promise<HTMLElement>
     ),
   );
   view.append(operationalHealth);
+
+  const logSource = el(
+    'select',
+    { 'aria-label': 'Origine log tecnico' },
+    ...[
+      ['ALL', 'Tutte le origini'],
+      ['ERROR', 'Errori applicativi'],
+      ['EDGE', 'Richieste Edge'],
+      ['HEALTH', 'Anomalie di salute'],
+    ].map(([value, name]) => el('option', { value }, name)),
+  );
+  const logPeriod = el(
+    'select',
+    { 'aria-label': 'Periodo log tecnico' },
+    ...[
+      ['1', 'Ultime 24 ore'],
+      ['7', 'Ultimi 7 giorni'],
+      ['30', 'Ultimi 30 giorni'],
+    ].map(([value, name]) => el('option', { value, ...(value === '7' ? { selected: true } : {}) }, name)),
+  );
+  const technicalLogRows = el('tbody');
+  const logFeedback = el('p', { class: 'muted', role: 'status' });
+  const logMore = button('Carica log precedenti', () => fetchTechnicalLogs(true), 'secondary');
+  logMore.hidden = true;
+  let technicalCursor: { occurred_at: string; entry_key: string } | null = null;
+  let technicalLogRevision = 0;
+  let logWindow: { start: string; end: string; source: string } | null = null;
+  async function fetchTechnicalLogs(append = false): Promise<void> {
+    const revision = ++technicalLogRevision;
+    if (!append || !logWindow) {
+      technicalCursor = null;
+      const end = new Date();
+      const days = Number(logPeriod.value);
+      logWindow = {
+        start: new Date(end.getTime() - days * 86_400_000).toISOString(),
+        end: end.toISOString(),
+        source: logSource.value,
+      };
+    }
+    const data = await rpc(
+      'search_technical_logs',
+      {
+        p_source: logWindow.source,
+        p_from: logWindow.start,
+        p_to: logWindow.end,
+        p_before_at: technicalCursor?.occurred_at ?? null,
+        p_before_key: technicalCursor?.entry_key ?? null,
+        p_limit: 50,
+      },
+      z.object({
+        events: z.array(
+          z.object({
+            occurred_at: z.string(),
+            source: z.string(),
+            severity: z.string(),
+            result: z.string(),
+            operation: z.string(),
+            code: z.string(),
+            request_id: z.uuid().nullable(),
+            correlation_id: z.uuid().nullable(),
+            entry_key: z.string(),
+            latency_ms: z.number().nullable(),
+            environment: z.string().nullable(),
+            release_version: z.string().nullable(),
+          }),
+        ),
+        has_more: z.boolean(),
+      }),
+    );
+    if (revision !== technicalLogRevision) return;
+    if (!append) technicalLogRows.replaceChildren();
+    for (const event of data.events) {
+      technicalLogRows.append(
+        el(
+          'tr',
+          {},
+          el('td', {}, new Date(event.occurred_at).toLocaleString('it-IT')),
+          el('td', {}, event.source),
+          el('td', {}, status(event.severity)),
+          el('td', {}, event.operation),
+          el('td', {}, event.code),
+          el('td', {}, event.request_id ?? '—'),
+          el('td', {}, event.latency_ms === null ? '—' : String(event.latency_ms) + ' ms'),
+        ),
+      );
+    }
+    const last = data.events.at(-1);
+    technicalCursor = last
+      ? { occurred_at: last.occurred_at, entry_key: last.entry_key }
+      : null;
+    logMore.hidden = !data.has_more;
+    logFeedback.textContent = technicalLogRows.childElementCount
+      ? String(technicalLogRows.childElementCount) + ' righe caricate. I dettagli tecnici sono minimizzati.'
+      : 'Nessun evento in questo periodo. Assenza di log non significa che il servizio sia verificato.';
+  }
+  const technicalLogs = el(
+    'section',
+    { class: 'card stack', id: 'technical-logs' },
+    el('h2', {}, 'Log tecnici e anomalie'),
+    el(
+      'p',
+      { class: 'muted' },
+      'Registri separati dall’audit immutabile: errori applicativi, telemetria Edge e controlli di salute non HEALTHY. Nessun payload, IP o segreto.',
+    ),
+    el(
+      'div',
+      { class: 'row wrap' },
+      el('label', { class: 'field' }, 'Origine', logSource),
+      el('label', { class: 'field' }, 'Periodo', logPeriod),
+      button('Aggiorna log', () => fetchTechnicalLogs().catch(showError), 'secondary'),
+    ),
+    logFeedback,
+    el(
+      'div',
+      { class: 'table-wrap' },
+      el(
+        'table',
+        {},
+        el(
+          'thead',
+          {},
+          el('tr', {}, ...['Data', 'Origine', 'Gravità', 'Operazione', 'Codice', 'Richiesta', 'Latenza'].map((title) => el('th', {}, title))),
+        ),
+        technicalLogRows,
+      ),
+    ),
+    logMore,
+  );
+  view.append(technicalLogs);
+  void fetchTechnicalLogs().catch(showError);
+
 
   const latest =
       data.releases.find((row) => ['RELEASED', 'STAGING'].includes(String(row.status))) ??
