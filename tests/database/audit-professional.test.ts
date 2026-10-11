@@ -32,6 +32,7 @@ describe('Security & Business Audit hardening', () => {
       '20261011080213_audit_trusted_stepup_denial_source.sql',
       '20261011080554_audit_future_month_partition_rotation_no_data_loss.sql',
       '20261011081547_technical_logs_redacted_superadmin_search.sql',
+      '20261011082028_technical_health_logs_approved_retention_only.sql',
     ]) {
       await db.exec(await readFile(`supabase/migrations/${migration}`, 'utf8'));
     }
@@ -385,6 +386,32 @@ describe('Security & Business Audit hardening', () => {
     await db.exec('savepoint denylogs');
     await expect(db.query('select public.search_technical_logs()')).rejects.toThrow('FORBIDDEN');
     await db.exec('rollback to savepoint denylogs');
+  });
+
+
+  it('leaves monitoring logs untouched unless retention is explicitly approved', async () => {
+    await db.exec('reset role');
+    await db.exec("insert into public.health_checks(checked_at,component,status,code,request_id) values ('2025-01-10T12:00:00Z','DATABASE','DEGRADED','TEST_RETENTION',gen_random_uuid())");
+    const before = (
+      await db.query<{ total: number }>(
+        "select count(*)::integer total from public.health_checks where code='TEST_RETENTION'",
+      )
+    ).rows[0]!.total;
+    await db.exec('set role service_role');
+    const result = (
+      await db.query<{ response: { enabled: boolean; health_removed: number } }>(
+        'select public.run_health_log_retention() as response',
+      )
+    ).rows[0]!.response;
+    await db.exec('reset role');
+    const after = (
+      await db.query<{ total: number }>(
+        "select count(*)::integer total from public.health_checks where code='TEST_RETENTION'",
+      )
+    ).rows[0]!.total;
+    expect(result).toEqual({ enabled: false, health_removed: 0 });
+    expect(before).toBe(1);
+    expect(after).toBe(1);
   });
 
 });
