@@ -24,6 +24,39 @@ Deno.serve(async (req: Request) => {
   if (authError || allowed !== true || source !== SOURCE_REF) return new Response('Not Found', { status: 404 });
   let body: Record<string, unknown>;
   try { body = await req.json(); } catch { return Response.json({ status: 'INVALID_INPUT' }, { status: 400 }); }
+  if (body.action === 'recover') {
+    const seq = Number(body.batch_no);
+    if (!Number.isInteger(seq) || seq < 1 || seq > 100000000) {
+      return Response.json({ status: 'INVALID_BATCH' }, { status: 400 });
+    }
+    try {
+      const { data: rows, error: listError } = await supabase.rpc('list_audit_archive_witnesses', {
+        p_after: seq-1,p_limit:1,
+      });
+      if (listError || !Array.isArray(rows) || rows.length !== 1 || rows[0].batch_no !== seq) {
+        throw new Error('AUDIT_RECOVERY_WITNESS_NOT_FOUND');
+      }
+      const witness = rows[0];
+      const { data: file, error } = await supabase.storage.from(BUCKET).download(witness.object_path);
+      if (error || !file) throw new Error('AUDIT_RECOVERY_OBJECT_MISSING');
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      if (bytes.byteLength !== witness.byte_count || await digest(bytes) !== witness.payload_sha256) {
+        throw new Error('AUDIT_RECOVERY_DIGEST_MISMATCH');
+      }
+      let encoded = '';
+      for (let i = 0; i < bytes.length; i += 8192) {
+        encoded += String.fromCharCode(...bytes.subarray(i,i+8192));
+      }
+      return Response.json({
+        status:'RECOVERED_CIPHERTEXT',batch_no:seq,sha256:witness.payload_sha256,
+        chain_sha256:witness.chain_sha256,object_bytes:bytes.length,ciphertext_b64:btoa(encoded),
+      },{headers:{'cache-control':'no-store'}});
+    } catch (err) {
+      const code = err instanceof Error?err.message:'AUDIT_RECOVERY_FAILED';
+      console.error('audit recovery',code);
+      return Response.json({status:'FAILED',code},{status:500});
+    }
+  }
   if (body.action === 'verify') {
     const after = Number(body.after_batch ?? 0);
     const limit = Number(body.limit ?? 30);
