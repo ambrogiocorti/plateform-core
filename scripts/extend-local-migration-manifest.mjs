@@ -25,8 +25,11 @@ for (const filename of local) {
   const canonical = sha(bytes.toString('utf8').replace(/\r\n/g, '\n'));
   const existing = old.get(filename);
   if (existing) {
-    if (existing.version !== parsed[1] || existing.name !== parsed[2] ||
-      ![raw, canonical].includes(existing.sha256))
+    if (
+      existing.version !== parsed[1] ||
+      existing.name !== parsed[2] ||
+      ![raw, canonical].includes(existing.sha256)
+    )
       throw new Error('EXISTING_MIGRATION_CHANGED:' + filename);
     entries.push(existing);
   } else {
@@ -39,10 +42,18 @@ for (const name of old.keys()) {
 }
 if (new Set(entries.map((entry) => entry.version)).size !== entries.length)
   throw new Error('DUPLICATE_MIGRATION_VERSION');
-if (additions===0) {
+if (additions === 0) {
   console.log('Local migration manifest already up to date: ' + entries.length);
 } else {
-  await writeFile(manifestFile, JSON.stringify({ ...current, migrations: entries }, null, 2) + '\n');
-  console.log('Local migration manifest extended to ' + entries.length +
-    ' files; new entries=' + additions + '. Remote reconciliation NOT certified.');
+  await writeFile(
+    manifestFile,
+    JSON.stringify({ ...current, migrations: entries }, null, 2) + '\n',
+  );
+  console.log(
+    'Local migration manifest extended to ' +
+      entries.length +
+      ' files; new entries=' +
+      additions +
+      '. Remote reconciliation NOT certified.',
+  );
 }

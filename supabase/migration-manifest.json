@@ -797,6 +797,60 @@
       "version": "20261008181605",
       "name": "core_edition_payment_and_print_denial",
       "sha256": "ffe4d024c6611632ea07a78a636422889f6e40c5985ec0c169f745672c5c3509"
+    },
+    {
+      "filename": "20261011073505_audit_professional_catalog_filters_noise.sql",
+      "version": "20261011073505",
+      "name": "audit_professional_catalog_filters_noise",
+      "sha256": "7c2276bcc513eff3774646b402b1bf36ee20ed41192a371a15197be685b85c1e"
+    },
+    {
+      "filename": "20261011074105_audit_event_catalog_canonical_seed.sql",
+      "version": "20261011074105",
+      "name": "audit_event_catalog_canonical_seed",
+      "sha256": "85281ccd658422e01143b945c8e43aa101f248939fc6f749642429ec77eb8230"
+    },
+    {
+      "filename": "20261011074842_audit_safe_device_assignment_diff_fields.sql",
+      "version": "20261011074842",
+      "name": "audit_safe_device_assignment_diff_fields",
+      "sha256": "295b0ea8b84046dec9d044e773160f7b64e922f81ae38982820f2479a9fb569d"
+    },
+    {
+      "filename": "20261011075739_audit_privacy_sensitive_read_and_catalog_truth.sql",
+      "version": "20261011075739",
+      "name": "audit_privacy_sensitive_read_and_catalog_truth",
+      "sha256": "cf964678b600b78c3e7cc5e439f3b12c05a6c145d4a38b2158636446bc48a471"
+    },
+    {
+      "filename": "20261011075935_audit_secure_superadmin_export_with_stepup.sql",
+      "version": "20261011075935",
+      "name": "audit_secure_superadmin_export_with_stepup",
+      "sha256": "ff20135c62f83dd3e136aa859f2acd9d69ce814a8662a6221444299e814dde00"
+    },
+    {
+      "filename": "20261011080213_audit_trusted_stepup_denial_source.sql",
+      "version": "20261011080213",
+      "name": "audit_trusted_stepup_denial_source",
+      "sha256": "70aa3fc9af2baff41bce8a8640cc15691147ff61a133fcb91e520cddebb3744d"
+    },
+    {
+      "filename": "20261011080554_audit_future_month_partition_rotation_no_data_loss.sql",
+      "version": "20261011080554",
+      "name": "audit_future_month_partition_rotation_no_data_loss",
+      "sha256": "cc6b890b306154628325e8d8d397f7d71a7a7f4de6df2050297b73edbbc6b523"
+    },
+    {
+      "filename": "20261011081547_technical_logs_redacted_superadmin_search.sql",
+      "version": "20261011081547",
+      "name": "technical_logs_redacted_superadmin_search",
+      "sha256": "05b6ffdfb411b0cc262809c85ff1e2c396d5c586a6b48a6fa55a2b6262f18784"
+    },
+    {
+      "filename": "20261011082028_technical_health_logs_approved_retention_only.sql",
+      "version": "20261011082028",
+      "name": "technical_health_logs_approved_retention_only",
+      "sha256": "5f9cad677142d28ce8a7a7d4d015ca7dd547f2f9d8372e6b42e2032d6439cf2b"
     }
   ]
 }
