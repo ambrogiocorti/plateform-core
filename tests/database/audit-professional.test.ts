@@ -329,11 +329,11 @@ describe('Security & Business Audit hardening', () => {
   it('precreates secured monthly audit partitions without relocating existing entries', async () => {
     const rows = (
       await db.query<{ name: string; rls: boolean }>(
-        \`select c.relname name,c.relrowsecurity rls
+        `select c.relname name,c.relrowsecurity rls
          from pg_inherits i join pg_class c on c.oid=i.inhrelid
          where i.inhparent='public.audit_log'::regclass
            and c.relname ~ '^audit_log_[0-9]{4}_[0-9]{2}$'
-         order by c.relname\`,
+         order by c.relname`,
       )
     ).rows;
     expect(rows).toHaveLength(4);
