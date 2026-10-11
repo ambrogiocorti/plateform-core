@@ -1,5 +1,6 @@
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import type { PGlite } from '@electric-sql/pglite';
+import { readFile, readdir } from 'node:fs/promises';
 import { database, identity, ids, seed } from './harness';
 
 type Page = {
@@ -11,7 +12,23 @@ describe('Security & Business Audit hardening', () => {
   let db: PGlite;
   const request = 'a5000000-0000-4000-8000-000000000001';
   beforeAll(async () => {
-    db = await database();
+    // Audit-specific, isolated PGlite test: the unrelated Step 11 RPC permission
+    // manifest migration currently blocks the full migration replay.
+    // This does NOT count as a passing full-history migration gate.
+    const migrations = (await readdir('supabase/migrations'))
+      .filter((name) => name.endsWith('.sql'))
+      .sort();
+    const cutoff = migrations.findIndex((name) =>
+      name.startsWith('20261008163112_step11_public_rpc_permission_manifest'),
+    );
+    if (cutoff < 0) throw new Error('STEP11_BASELINE_NOT_FOUND');
+    db = await database(cutoff);
+    for (const migration of [
+      '20261011073505_audit_professional_catalog_filters_noise.sql',
+      '20261011074105_audit_event_catalog_canonical_seed.sql',
+    ]) {
+      await db.exec(await readFile(`supabase/migrations/${migration}`, 'utf8'));
+    }
     await seed(db);
     await db.query(
       `insert into public.audit_log(timestamp,actor_type,actor_user_id,actor_role,venue_id,action,resource_type,resource_id,operation,result,request_id,correlation_id)
