@@ -857,6 +857,12 @@
       "version": "20261011134204",
       "name": "technical_auth_native_audit_redacted_read",
       "sha256": "77784026c9b846253de2b59feb6b1eee7a4a31d44c2cd909ce0446f7b58b838d"
+    },
+    {
+      "filename": "20261011135611_reconcile_core_public_rpc_and_staff_identifier_contracts.sql",
+      "version": "20261011135611",
+      "name": "reconcile_core_public_rpc_and_staff_identifier_contracts",
+      "sha256": "2ef305ccb97719a901a62b20631e817918f5d86c7c9c8bbbf48d9f0d1202b452"
     }
   ]
 }
