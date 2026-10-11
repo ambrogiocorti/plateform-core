@@ -1,6 +1,7 @@
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import type { PGlite } from '@electric-sql/pglite';
 import { readFile, readdir } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import { database, identity, ids, seed } from './harness';
 
 type Page = {
@@ -42,6 +43,10 @@ describe('Security & Business Audit hardening', () => {
       '20261011081547_technical_logs_redacted_superadmin_search.sql',
       '20261011082028_technical_health_logs_approved_retention_only.sql',
       '20261011134204_technical_auth_native_audit_redacted_read.sql',
+      '20261011152001_audit_archive_encrypted_primary_replica_checkpoint.sql',
+      '20261011152612_audit_archive_checkpoint_readback_service_only.sql',
+      '20261011153016_audit_archive_independent_restore_verification_log.sql',
+      '20261011153304_audit_archive_automatic_rotation_and_daily_recovery_test.sql',
     ]) {
       await db.exec(await readFile(`supabase/migrations/${migration}`, 'utf8'));
     }
@@ -470,4 +475,76 @@ describe('Security & Business Audit hardening', () => {
     );
     await db.exec('rollback to savepoint denied_native_auth');
   });
+
+  it('protects the archive lease, verifies cryptographic checkpoints and prevents mutation', async () => {
+    await identity(db, ids.admin);
+    await db.exec('savepoint unauthorized_archive');
+    await expect(db.query('select public.claim_audit_archive_batch()')).rejects.toThrow();
+    await db.exec('rollback to savepoint unauthorized_archive');
+    await db.exec('reset role; set role service_role');
+    const claim = (
+      await db.query<{ result: { status: string; lease: string; batch_no: number; previous_chain: string } }>(
+        'select public.claim_audit_archive_batch() result',
+      )
+    ).rows[0]!.result;
+    expect(claim.status).toBe('CLAIMED');
+    const busy = (
+      await db.query<{ result: { status: string } }>('select public.claim_audit_archive_batch() result')
+    ).rows[0]!.result;
+    expect(busy.status).toBe('BUSY');
+    const page = (
+      await db.query<{ page: { rows: Array<{ id: string; timestamp: string }>; batch_no: number } }>(
+        'select public.read_audit_archive_batch($1,500) page',[claim.lease],
+      )
+    ).rows[0]!.page;
+    expect(page.rows.length).toBeGreaterThanOrEqual(3);
+    const last = page.rows.at(-1)!;
+    const payloadHash = '1'.repeat(64);
+    const plainHash = '2'.repeat(64);
+    const digest = createHash('sha256')
+      .update(
+        [claim.previous_chain,claim.batch_no,payloadHash,plainHash,page.rows.length,last.id]
+          .join(':'),
+      ).digest('hex');
+    const path = 'v1/batch-' + String(claim.batch_no).padStart(9, '0') + '.bin';
+    await db.exec('savepoint invalid_archive_chain');
+    await expect(
+      db.query(
+        'select public.finish_audit_archive_batch($1,$2,$3,$4,$5,$6,$7,$8)',
+        [claim.lease,last.timestamp,last.id,page.rows.length,payloadHash,plainHash,'f'.repeat(64),path],
+      ),
+    ).rejects.toThrow('AUDIT_ARCHIVE_CHAIN_INVALID');
+    await db.exec('rollback to savepoint invalid_archive_chain');
+    const sealed = (
+      await db.query<{ state: { status: string; rows: number; batch_no: number } }>(
+        'select public.finish_audit_archive_batch($1,$2,$3,$4,$5,$6,$7,$8) state',
+        [claim.lease,last.timestamp,last.id,page.rows.length,payloadHash,plainHash,digest,path],
+      )
+    ).rows[0]!.state;
+    expect(sealed.status).toBe('SEALED');
+    expect(sealed.rows).toBe(page.rows.length);
+    const health = (
+      await db.query<{ state: { archived_rows: number; remaining_rows: number } }>(
+        'select public.audit_archive_status() state',
+      )
+    ).rows[0]!.state;
+    expect(health.archived_rows).toBe(page.rows.length);
+    expect(health.remaining_rows).toBe(0);
+    await db.exec('savepoint immutability_archive');
+    await expect(
+      db.query('delete from private.audit_archive_batches where batch_no=$1',[claim.batch_no]),
+    ).rejects.toThrow('AUDIT_ARCHIVE_CHECKPOINT_IMMUTABLE');
+    await db.exec('rollback to savepoint immutability_archive');
+    await db.query(
+      "select public.record_audit_archive_verification(true,1,$1,$2,null)",
+      [page.rows.length,digest],
+    );
+    const status = (
+      await db.query<{ result: string }>(
+        'select result from private.audit_archive_verification_runs order by checked_at desc limit 1',
+      )
+    ).rows[0]!.result;
+    expect(status).toBe('PASS');
+  });
+
 });
