@@ -288,7 +288,7 @@ export async function technicalPage(context: StaffContext): Promise<HTMLElement>
       ['ERROR', 'Errori applicativi'],
       ['EDGE', 'Richieste Edge'],
       ['HEALTH', 'Anomalie di salute'],
-    ].map(([value, name]) => el('option', { value }, name)),
+    ].map(([value, name]) => el('option', { value }, name ?? '')),
   );
   const logPeriod = el(
     'select',
@@ -297,7 +297,7 @@ export async function technicalPage(context: StaffContext): Promise<HTMLElement>
       ['1', 'Ultime 24 ore'],
       ['7', 'Ultimi 7 giorni'],
       ['30', 'Ultimi 30 giorni'],
-    ].map(([value, name]) => el('option', { value, ...(value === '7' ? { selected: true } : {}) }, name)),
+    ].map(([value, name]) => el('option', { value, ...(value === '7' ? { selected: true } : {}) }, name ?? '')),
   );
   const technicalLogRows = el('tbody');
   const logFeedback = el('p', { class: 'muted', role: 'status' });
