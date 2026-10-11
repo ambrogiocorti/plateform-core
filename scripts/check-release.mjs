@@ -131,7 +131,8 @@ export function releaseProblems(matrix, evidence, digest, now = Date.now()) {
   const errors = [];
   const coreEdition = evidence.edition === 'CORE';
   const expectedSections = coreEdition
-    ? (row) => row.status === 'verified' ||
+    ? (row) =>
+        row.status === 'verified' ||
         (excludedCoreSections.includes(row.section) && row.status === 'out_of_scope_core')
     : (row) => row.status === 'verified';
   if (
@@ -146,8 +147,20 @@ export function releaseProblems(matrix, evidence, digest, now = Date.now()) {
   if (evidence.source_digest !== digest)
     errors.push('Le evidenze non corrispondono ai sorgenti attuali.');
   const requiredLocalSuites = [
-    'typecheck', 'lint', 'edge', 'unit_database', 'browser', 'build',
-    ...(coreEdition ? ['core_edition_contract', 'core_server_policy_source', 'core_edge_guard_source', 'core_release_profile'] : []),
+    'typecheck',
+    'lint',
+    'edge',
+    'unit_database',
+    'browser',
+    'build',
+    ...(coreEdition
+      ? [
+          'core_edition_contract',
+          'core_server_policy_source',
+          'core_edge_guard_source',
+          'core_release_profile',
+        ]
+      : []),
   ];
   for (const suite of requiredLocalSuites)
     if (evidence.local_checks?.[suite] !== 'passed')

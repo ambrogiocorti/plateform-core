@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { client, readRows, rpc, safeError } from '../api/client';
-import { button, dialog, el, field, status, toast } from '../components/dom';
+import { button, dialog, el, field, showError, status, toast } from '../components/dom';
 import type { StaffContext } from './staff-context';
 import { stepUp } from '../auth/step-up';
 import { externalPaymentProvidersIncluded } from '../services/commercial-scope';
@@ -178,7 +178,8 @@ export async function technicalPage(context: StaffContext): Promise<HTMLElement>
   const hasUnavailable = coreProbes.some(({ probe }) => probe?.status === 'UNAVAILABLE');
   const hasDegraded = coreProbes.some(({ probe }) => probe?.status === 'DEGRADED');
   const hasUnknown = coreProbes.some(
-    ({ probe }) => !probe || !fresh(probe.checked_at) || ['UNVERIFIED', 'DISABLED'].includes(probe.status),
+    ({ probe }) =>
+      !probe || !fresh(probe.checked_at) || ['UNVERIFIED', 'DISABLED'].includes(probe.status),
   );
   const overallHealth = hasUnavailable
     ? 'CRITICAL'
@@ -195,7 +196,10 @@ export async function technicalPage(context: StaffContext): Promise<HTMLElement>
   const totalDevices = Number(data.usage.devices ?? 0);
   const operationalHealth = el(
     'section',
-    { class: `technical-hero is-${overallHealth.toLowerCase().replaceAll(' ', '-')}`, 'aria-label': 'Operational Health' },
+    {
+      class: `technical-hero is-${overallHealth.toLowerCase().replaceAll(' ', '-')}`,
+      'aria-label': 'Operational Health',
+    },
     el(
       'div',
       { class: 'technical-hero-head' },
@@ -204,7 +208,11 @@ export async function technicalPage(context: StaffContext): Promise<HTMLElement>
         {},
         el('p', { class: 'eyebrow' }, 'PLATEFORM TECHNICAL CONTROL'),
         el('h1', {}, 'Operational Health'),
-        el('p', { class: 'muted' }, 'Stato tecnico dell’installazione. Nessun KPI economico del ristorante.'),
+        el(
+          'p',
+          { class: 'muted' },
+          'Stato tecnico dell’installazione. Nessun KPI economico del ristorante.',
+        ),
       ),
       status(overallHealth),
     ),
@@ -230,13 +238,23 @@ export async function technicalPage(context: StaffContext): Promise<HTMLElement>
         { class: 'technical-health-card' },
         el('span', {}, 'EDGE ERROR RATE'),
         el('strong', {}, data.metrics.latest_at ? `${data.metrics.error_percent ?? 0}%` : 'N/D'),
-        el('small', {}, data.metrics.latest_at ? `${data.metrics.failures}/${data.metrics.requests} errori` : 'Misura non disponibile'),
+        el(
+          'small',
+          {},
+          data.metrics.latest_at
+            ? `${data.metrics.failures}/${data.metrics.requests} errori`
+            : 'Misura non disponibile',
+        ),
       ),
       el(
         'article',
         { class: 'technical-health-card' },
         el('span', {}, 'LATENZA P95'),
-        el('strong', {}, data.metrics.latency_p95_ms === null ? 'N/D' : `${data.metrics.latency_p95_ms} ms`),
+        el(
+          'strong',
+          {},
+          data.metrics.latency_p95_ms === null ? 'N/D' : `${data.metrics.latency_p95_ms} ms`,
+        ),
         el('small', {}, data.metrics.latest_at ? 'ultimi 15 minuti' : 'misura non disponibile'),
       ),
       el(
@@ -258,27 +276,192 @@ export async function technicalPage(context: StaffContext): Promise<HTMLElement>
         { class: 'technical-health-card' },
         el('span', {}, 'RPO'),
         el('strong', {}, data.backup_health.rpo_within_target ? 'ENTRO TARGET' : 'FUORI TARGET'),
-        el('small', {}, data.backup_health.backup_age_minutes === null ? 'backup non misurato' : `${data.backup_health.backup_age_minutes} min dall’ultimo backup`),
+        el(
+          'small',
+          {},
+          data.backup_health.backup_age_minutes === null
+            ? 'backup non misurato'
+            : `${data.backup_health.backup_age_minutes} min dall’ultimo backup`,
+        ),
       ),
       el(
         'article',
         { class: 'technical-health-card' },
         el('span', {}, 'RESTORE'),
         el('strong', {}, data.backup_health.latest_restore_status ?? 'N/D'),
-        el('small', {}, `${data.backup_health.restore_pending_count} pending · ${data.backup_health.restore_failed_24h} falliti 24h`),
+        el(
+          'small',
+          {},
+          `${data.backup_health.restore_pending_count} pending · ${data.backup_health.restore_failed_24h} falliti 24h`,
+        ),
       ),
     ),
     el(
       'nav',
       { class: 'technical-shortcuts', 'aria-label': 'Scorciatoie tecniche' },
-      button('SERVIZI', () => document.getElementById('technical-health')?.scrollIntoView({ behavior: 'smooth' }), 'secondary'),
-      button('CONTINUITÀ', () => document.getElementById('technical-continuity')?.scrollIntoView({ behavior: 'smooth' }), 'secondary'),
-      button('CODE', () => document.getElementById('technical-queues')?.scrollIntoView({ behavior: 'smooth' }), 'secondary'),
+      button(
+        'SERVIZI',
+        () => document.getElementById('technical-health')?.scrollIntoView({ behavior: 'smooth' }),
+        'secondary',
+      ),
+      button(
+        'CONTINUITÀ',
+        () =>
+          document.getElementById('technical-continuity')?.scrollIntoView({ behavior: 'smooth' }),
+        'secondary',
+      ),
+      button(
+        'CODE',
+        () => document.getElementById('technical-queues')?.scrollIntoView({ behavior: 'smooth' }),
+        'secondary',
+      ),
       button('DISPOSITIVI', () => context.navigate('/dispositivi'), 'secondary'),
       button('AUDIT', () => context.navigate('/audit'), 'secondary'),
     ),
   );
   view.append(operationalHealth);
+
+  const logSource = el(
+    'select',
+    { 'aria-label': 'Origine log tecnico' },
+    ...[
+      ['ALL', 'Tutte le origini'],
+      ['ERROR', 'Errori applicativi'],
+      ['EDGE', 'Richieste Edge'],
+      ['HEALTH', 'Anomalie di salute'],
+      ['AUTH', 'Audit nativo Supabase Auth'],
+    ].map(([value, name]) => el('option', { value: value ?? '' }, name ?? '')),
+  );
+  const logPeriod = el(
+    'select',
+    { 'aria-label': 'Periodo log tecnico' },
+    ...[
+      ['1', 'Ultime 24 ore'],
+      ['7', 'Ultimi 7 giorni'],
+      ['30', 'Ultimi 30 giorni'],
+    ].map(([value, name]) =>
+      el(
+        'option',
+        { value: value ?? '', ...(value === '7' ? { selected: 'selected' } : {}) },
+        name ?? '',
+      ),
+    ),
+  );
+  const technicalLogRows = el('tbody');
+  const logFeedback = el('p', { class: 'muted', role: 'status' });
+  const logMore = button('Carica log precedenti', () => fetchTechnicalLogs(true), 'secondary');
+  logMore.hidden = true;
+  let technicalCursor: { occurred_at: string; entry_key: string } | null = null;
+  let technicalLogRevision = 0;
+  let logWindow: { start: string; end: string; source: string } | null = null;
+  async function fetchTechnicalLogs(append = false): Promise<void> {
+    const revision = ++technicalLogRevision;
+    if (!append || !logWindow) {
+      technicalCursor = null;
+      const end = new Date();
+      const days = Number(logPeriod.value);
+      logWindow = {
+        start: new Date(end.getTime() - days * 86_400_000).toISOString(),
+        end: end.toISOString(),
+        source: logSource.value,
+      };
+    }
+    const data = await rpc(
+      'search_technical_logs',
+      {
+        p_source: logWindow.source,
+        p_from: logWindow.start,
+        p_to: logWindow.end,
+        p_before_at: technicalCursor?.occurred_at ?? null,
+        p_before_key: technicalCursor?.entry_key ?? null,
+        p_limit: 50,
+      },
+      z.object({
+        events: z.array(
+          z.object({
+            occurred_at: z.string(),
+            source: z.string(),
+            severity: z.string(),
+            result: z.string(),
+            operation: z.string(),
+            code: z.string(),
+            request_id: z.uuid().nullable(),
+            correlation_id: z.uuid().nullable(),
+            entry_key: z.string(),
+            latency_ms: z.number().nullable(),
+            environment: z.string().nullable(),
+            release_version: z.string().nullable(),
+          }),
+        ),
+        has_more: z.boolean(),
+      }),
+    );
+    if (revision !== technicalLogRevision) return;
+    if (!append) technicalLogRows.replaceChildren();
+    for (const event of data.events) {
+      technicalLogRows.append(
+        el(
+          'tr',
+          {},
+          el('td', {}, new Date(event.occurred_at).toLocaleString('it-IT')),
+          el('td', {}, event.source),
+          el('td', {}, status(event.severity)),
+          el('td', {}, event.operation),
+          el('td', {}, event.code),
+          el('td', {}, event.request_id ?? '—'),
+          el('td', {}, event.latency_ms === null ? '—' : String(event.latency_ms) + ' ms'),
+        ),
+      );
+    }
+    const last = data.events.at(-1);
+    technicalCursor = last ? { occurred_at: last.occurred_at, entry_key: last.entry_key } : null;
+    logMore.hidden = !data.has_more;
+    logFeedback.textContent = technicalLogRows.childElementCount
+      ? String(technicalLogRows.childElementCount) +
+        ' righe caricate. I dettagli tecnici sono minimizzati.'
+      : 'Nessun evento in questo periodo. Assenza di log non significa che il servizio sia verificato.';
+  }
+  const technicalLogs = el(
+    'section',
+    { class: 'card stack', id: 'technical-logs' },
+    el('h2', {}, 'Log tecnici e anomalie'),
+    el(
+      'p',
+      { class: 'muted' },
+      'Registri separati dall’audit immutabile: errori applicativi, Edge, controlli di salute e azioni native Supabase Auth. Le azioni Auth sono eventi non classificati per esito; la scrittura nel database dipende dalle impostazioni Supabase. Nessun payload, IP o segreto.',
+    ),
+    el(
+      'div',
+      { class: 'row wrap' },
+      el('label', { class: 'field' }, 'Origine', logSource),
+      el('label', { class: 'field' }, 'Periodo', logPeriod),
+      button('Aggiorna log', () => fetchTechnicalLogs().catch(showError), 'secondary'),
+    ),
+    logFeedback,
+    el(
+      'div',
+      { class: 'table-wrap' },
+      el(
+        'table',
+        {},
+        el(
+          'thead',
+          {},
+          el(
+            'tr',
+            {},
+            ...['Data', 'Origine', 'Gravità', 'Operazione', 'Codice', 'Richiesta', 'Latenza'].map(
+              (title) => el('th', {}, title),
+            ),
+          ),
+        ),
+        technicalLogRows,
+      ),
+    ),
+    logMore,
+  );
+  view.append(technicalLogs);
+  void fetchTechnicalLogs().catch(showError);
 
   const latest =
       data.releases.find((row) => ['RELEASED', 'STAGING'].includes(String(row.status))) ??
@@ -887,16 +1070,16 @@ export async function technicalPage(context: StaffContext): Promise<HTMLElement>
       : !licensed
         ? 'DISATTIVATO'
         : !probe
-        ? 'NON COLLAUDATO'
-        : Date.now() - Date.parse(probe.checked_at) > 300000
-          ? 'DA AGGIORNARE'
-          : ({
-              HEALTHY: 'RAGGIUNGIBILE',
-              DEGRADED: 'DEGRADATO',
-              UNAVAILABLE: 'NON RAGGIUNGIBILE',
-              DISABLED: 'DISATTIVATO',
-              UNVERIFIED: 'NON COLLAUDATO',
-            }[probe.status] ?? 'NON COLLAUDATO');
+          ? 'NON COLLAUDATO'
+          : Date.now() - Date.parse(probe.checked_at) > 300000
+            ? 'DA AGGIORNARE'
+            : ({
+                HEALTHY: 'RAGGIUNGIBILE',
+                DEGRADED: 'DEGRADATO',
+                UNAVAILABLE: 'NON RAGGIUNGIBILE',
+                DISABLED: 'DISATTIVATO',
+                UNVERIFIED: 'NON COLLAUDATO',
+              }[probe.status] ?? 'NON COLLAUDATO');
     health.append(
       el(
         'div',
@@ -943,7 +1126,11 @@ export async function technicalPage(context: StaffContext): Promise<HTMLElement>
       ),
     ),
   );
-  const usage = el('section', { class: 'card stack', id: 'technical-queues' }, el('h2', {}, 'Risorse e code operative'));
+  const usage = el(
+    'section',
+    { class: 'card stack', id: 'technical-queues' },
+    el('h2', {}, 'Risorse e code operative'),
+  );
   const names: Record<string, string> = {
     users: 'Utenti attivi',
     venues: 'Sedi attive',
@@ -1313,6 +1500,175 @@ export async function technicalPage(context: StaffContext): Promise<HTMLElement>
       ),
     );
   if (!data.incidents.length) incidents.append(el('p', {}, 'Nessun incidente aperto registrato.'));
+  const auditArchiveHealth = el(
+    'section',
+    { class: 'card stack', id: 'audit-archive-health' },
+    el('h2', {}, 'Archivio Audit e autenticazione'),
+  );
+  const auditArchiveSummary = el(
+    'div',
+    { class: 'stack' },
+    el('p', {}, 'Verifica archivio in corso…'),
+  );
+  auditArchiveHealth.append(auditArchiveSummary);
+  view.append(auditArchiveHealth);
+  const archiveSchema = z.object({
+    last_batch: z.number(),
+    archived_rows: z.number(),
+    remaining_rows: z.number(),
+    latest_verification: z
+      .object({
+        result: z.string(),
+        checked_at: z.string(),
+        checked_batches: z.number(),
+        checked_rows: z.number(),
+      })
+      .nullable(),
+  });
+  const authSchema = z.object({
+    status: z.string(),
+    native_rows: z.number(),
+    login_attempts: z.number(),
+    mfa_verification_attempts: z.number(),
+    login_failures_certified: z.boolean(),
+    mfa_failures_certified: z.boolean(),
+    gateway_login_failures_observed: z.number(),
+    gateway_mfa_failures_observed: z.number(),
+  });
+  const retentionSchema = z.object({
+    status: z.string(),
+    audit_purge_enabled: z.boolean(),
+    legal_hold_active: z.boolean(),
+    external_worm_certified: z.boolean(),
+    external_key_custody_certified: z.boolean(),
+    retention_policy_approved: z.boolean(),
+  });
+  const certificationSchema = z.object({
+    overall_status: z.string(),
+    reasons: z.array(z.string()),
+    archive_recovery_current: z.boolean(),
+    archive_overdue_events: z.number(),
+    login_failures_observed: z.number(),
+    mfa_failures_observed: z.number(),
+  });
+  // Fail closed for partial deployments; never block the technical dashboard.
+  void Promise.allSettled([
+    rpc('get_audit_archive_health', {}, archiveSchema),
+    rpc('get_auth_audit_readiness', {}, authSchema),
+    rpc('get_audit_retention_readiness', {}, retentionSchema),
+    rpc('get_audit_certification_gates', {}, certificationSchema),
+  ]).then(([archive, auth, retention, certification]) => {
+    auditArchiveSummary.replaceChildren();
+    if (archive.status === 'fulfilled') {
+      const proof = archive.value.latest_verification;
+      auditArchiveSummary.append(
+        el(
+          'p',
+          {},
+          'Archivio cifrato: ' +
+            String(archive.value.archived_rows) +
+            ' eventi in ' +
+            String(archive.value.last_batch) +
+            ' blocchi; da archiviare: ' +
+            String(archive.value.remaining_rows) +
+            '.',
+        ),
+        el(
+          'p',
+          {},
+          'Ultimo test di recupero: ' +
+            (proof
+              ? proof.result +
+                ' · ' +
+                proof.checked_rows +
+                ' righe verificate · ' +
+                new Date(proof.checked_at).toLocaleString('it-IT')
+              : 'NON VERIFICATO'),
+        ),
+      );
+    } else {
+      auditArchiveSummary.append(el('p', { class: 'muted' }, 'Archivio: stato non verificabile.'));
+    }
+    if (auth.status === 'fulfilled') {
+      auditArchiveSummary.append(
+        el(
+          'p',
+          {},
+          'Audit nativo Supabase Auth: ' +
+            auth.value.status +
+            ' · eventi nel database: ' +
+            auth.value.native_rows +
+            ' · tentativi login: ' +
+            auth.value.login_attempts +
+            ' · tentativi MFA: ' +
+            auth.value.mfa_verification_attempts +
+            '.',
+        ),
+        el(
+          'p',
+          { class: 'muted' },
+          'Gli eventi Auth senza esito attendibile non sono classificati come login o MFA falliti.',
+        ),
+        el(
+          'p',
+          {},
+          'Fallimenti accertati dal gateway staff: ' +
+            auth.value.gateway_login_failures_observed +
+            ' login, ' +
+            auth.value.gateway_mfa_failures_observed +
+            ' verifiche MFA. Il gateway non monitora i client esterni.',
+        ),
+      );
+    } else {
+      auditArchiveSummary.append(
+        el('p', { class: 'muted' }, 'Audit Auth: stato non verificabile.'),
+      );
+    }
+    if (certification.status === 'fulfilled') {
+      const state = certification.value;
+      auditArchiveSummary.append(
+        el(
+          'p',
+          {},
+          'Gate commerciali Audit: ' + state.overall_status +
+            '. Recupero archivio aggiornato: ' +
+            (state.archive_recovery_current ? 'SI' : 'NO') +
+            '. Eventi oltre la finestra di archiviazione: ' +
+            String(state.archive_overdue_events) + '.',
+        ),
+        el(
+          'p',
+          { class: 'muted' },
+          state.reasons.length
+            ? 'Controlli ancora aperti: ' + state.reasons.join(', ')
+            : 'Tutti i gate Audit attualmente configurati risultano soddisfatti.',
+        ),
+      );
+    } else {
+      auditArchiveSummary.append(
+        el('p', { class: 'muted' }, 'Gate di certificazione Audit non verificabili: stato NO-GO.'),
+      );
+    }
+    auditArchiveSummary.append(
+      el(
+        'p',
+        { class: 'muted' },
+        retention.status === 'fulfilled'
+          ? 'Retention Audit: ' +
+              retention.value.status +
+              '. Blocco cancellazione: ' +
+              (retention.value.audit_purge_enabled ? 'NO' : 'ATTIVO') +
+              ', blocco legale: ' +
+              (retention.value.legal_hold_active ? 'ATTIVO' : 'NON ATTIVO') +
+              '. Conservazione WORM esterna: ' +
+              (retention.value.external_worm_certified ? 'verificata' : 'non certificata') +
+              '. Policy legale: ' +
+              (retention.value.retention_policy_approved ? 'approvata' : 'da approvare') +
+              '.'
+          : 'Retention Audit: stato non verificabile, nessuna cancellazione autorizzata.',
+      ),
+    );
+  });
   view.append(incidents);
   return view;
 }

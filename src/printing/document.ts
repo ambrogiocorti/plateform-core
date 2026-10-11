@@ -42,9 +42,7 @@ export const printPayloadSchema = z.object({
       z.object({ method: z.string(), amount_cents: z.number().int(), tip_cents: z.number().int() }),
     )
     .optional(),
-  refunds: z
-    .array(z.object({ method: z.string(), amount_cents: z.number().int() }))
-    .optional(),
+  refunds: z.array(z.object({ method: z.string(), amount_cents: z.number().int() })).optional(),
 });
 export type PrintPayload = z.infer<typeof printPayloadSchema>;
 export { printLines, eposDocument } from '../../shared/print-document';

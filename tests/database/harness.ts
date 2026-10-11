@@ -125,8 +125,18 @@ export async function database(through = Number.POSITIVE_INFINITY) {
     grant usage on schema storage to anon,authenticated,service_role;
     grant select on storage.objects to anon,authenticated;
     create schema auth;
+    -- Supabase Auth owns this table in hosted projects. Keep a strict fixture
+    -- without sample credentials, IP addresses or provider logs by default.
+    create table auth.audit_log_entries(
+      instance_id uuid,
+      id uuid primary key default gen_random_uuid(),
+      payload json,
+      created_at timestamptz not null default now(),
+      ip_address varchar
+    );
+    revoke all on auth.audit_log_entries from public,anon,authenticated;
     create table auth.users(id uuid primary key, email text);
-    create table auth.sessions(id uuid primary key, user_id uuid not null references auth.users(id));
+    create table auth.sessions(id uuid primary key, user_id uuid not null references auth.users(id), not_after timestamptz);
     create function auth.jwt() returns jsonb language sql stable as
       $$ select coalesce(nullif(current_setting('request.jwt.claims',true),''),'{}')::jsonb $$;
     create function auth.uid() returns uuid language sql stable as
@@ -216,6 +226,37 @@ export async function database(through = Number.POSITIVE_INFINITY) {
           );
         `);
       }
+      if (name === '20261008163112_step11_public_rpc_permission_manifest.sql') {
+        // These four RPC implementations exist on hosted Development but their
+        // CREATE FUNCTION SQL is missing from the tracked migration history.
+        // Apply the exact hosted definitions only to the disposable PGlite
+        // test database. This does NOT certify a clean-environment install.
+        await db.exec(
+          await readFile('tests/database/fixtures/step11-hosted-public-rpcs.sql', 'utf8'),
+        );
+      }
+      if (name === '20261008163715_step11_notification_probe_expiring_fixture_fix.sql') {
+        // The hosted test probe is not recreated by recorded local SQL.
+        // Reconstruct the pre-fix definition in disposable PGlite only;
+        // then execute the original migration unchanged.
+        await db.exec(
+          await readFile('tests/database/fixtures/step11-notification-e2e-before-fix.sql', 'utf8'),
+        );
+      }
+      if (name === '20261008181605_core_edition_payment_and_print_denial.sql') {
+        // Hosted booking-deposit table is out-of-band in this local history.
+        // Mirror its verified schema only inside this disposable test instance.
+        await db.exec(
+          await readFile('tests/database/fixtures/core-edition-hosted-booking-deposit.sql', 'utf8'),
+        );
+      }
+      if (name === '20261011135611_reconcile_core_public_rpc_and_staff_identifier_contracts.sql') {
+        // Hosted feature name whitelist was expanded outside local history.
+        // Match its verified definition only in this PGlite test fixture.
+        await db.exec(
+          await readFile('tests/database/fixtures/hosted-feature-flag-allowed-codes.sql', 'utf8'),
+        );
+      }
       await db.exec(sql);
       const match = /^(\d+)_([^.]*)\.sql$/.exec(name);
       if (match)
@@ -224,6 +265,24 @@ export async function database(through = Number.POSITIVE_INFINITY) {
           [match[1], match[2], [sql]],
         );
     } catch (error) {
+      if (name === '20261008163112_step11_public_rpc_permission_manifest.sql') {
+        const diagnosis = await db.query<{
+          identity: string;
+          present: boolean;
+          security_definer: boolean | null;
+          configuration: string[] | null;
+        }>(`
+          select name.identity, p.oid is not null present, p.prosecdef security_definer,
+                 p.proconfig configuration
+          from (values ('public.get_public_menu_index(uuid)'),
+                       ('public.get_public_navigation(uuid)'),
+                       ('public.get_public_page_metadata(text,uuid)'),
+                       ('public.get_public_sitemap_entries()')) name(identity)
+          left join pg_catalog.pg_proc p
+             on p.oid=pg_catalog.to_regprocedure(name.identity)
+        `);
+        console.error('STEP11_PUBLIC_RPC_DIAGNOSTIC', JSON.stringify(diagnosis.rows));
+      }
       await db.close();
       throw new Error(`Migration ${name} failed`, { cause: error });
     }

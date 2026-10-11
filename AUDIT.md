@@ -62,3 +62,64 @@ a backup/restore, rotazione delle partizioni e archivio storico senza perdita,
 protezione delle copie esterne e prove di carico con milioni di eventi. La tabella è
 partizionata per timestamp con partizione di default; nessun job di rotazione è ancora attivo.
 Telemetry è separata dall'audit e non può sostituirlo.
+
+## Audit professionale — aggiornamento live 11 ottobre 2026
+
+**Implementato sul database `plateform-development` (non ancora certificato per la vendita).**
+
+- `private.audit_event_catalog` include 141 codici storicamente osservati in produzione di sviluppo, classificati per area, criticità e classe di conservazione. La seed migration canonica popola gli stessi 141 codici anche su nuove installazioni con audit inizialmente vuoto.
+- I 7 eventi `AUTH_LOGIN_FAILED`, `MFA_VERIFICATION_FAILED`, `SENSITIVE_DATA_ACCESS`, `SENSITIVE_DATA_EXPORTED`, `AUDIT_EXPORTED`, `ACCESS_DENIED`, `PRIVILEGE_CHANGE_DENIED` sono **PLANNED**: il catalogo non li trasforma in eventi realmente emessi. Serve implementazione/integrazione Auth, privacy ed error-handling con fonte server attendibile.
+- `public.search_audit_professional` mantiene autorizzazione `SUPER_ADMIN`, pagina tramite coppia ordinata `(timestamp,id)`, filtra sul server anche `category` e `severity` e restituisce etichetta umana e classe dell'evento. La precedente `public.search_audit` resta disponibile, senza rompere i consumer già esistenti.
+- `public.get_audit_event_catalog` espone al solo Super Admin l'elenco dei tipi realmente osservati e di quelli pianificati. Alla dashboard `/audit` si aggiungono filtri Categoria/Criticità, etichetta per evento e informazioni di registrazione e completezza del catalogo.
+- Sugli UPDATE di `public.registered_devices` non producono più audit le sole modifiche a `last_seen_at`, `last_sync_at`, `app_version`: sono telemetria/presenza del dispositivo. Restano nell'audit modifiche a utente, sede, etichetta, piattaforma, assegnazione e revoca, più ogni INSERT/DELETE. La verifica diretta con transazione rollback è PASS: heartbeat senza nuovo evento, cambio assegnazione con nuovo evento.
+- Colonne opzionali aggiunte per evoluzioni documentate: `ip_address`, `user_agent`, `reason_code`, `authorization_context`; il campo `emitter_source` è `DATABASE_AUDIT` per i record generati nel DB. **Non** raccogliamo automaticamente IP/User-Agent non affidabili da header client né dati di sessione segreti. Per IP/UA serviranno una trust boundary verificata, minimizzazione e retention documentata.
+- Le categorie sono basate su un catalogo versionato, non su testo libero dell'utente; gli eventi futuri senza voce esplicita sono restituiti come `UNCATALOGUED`, visibili e da riesaminare, mai ignorati silenziosamente.
+- La allowlist di redazione include inoltre i soli identificativi e attributi tecnici `user_id`, `platform`, `assigned_role_or_station`: le differenze sulle assegnazioni dei dispositivi sono consultabili senza duplicare `display_name` nell'audit. Test SQL diretto: heartbeat ignorato, cambio assegnazione registrato, differenza visibile e nessun campo sensibile, tutto in rollback.
+- Nessun evento storico è stato cancellato o modificato. Il registro resta append-only. I nomi/codici possono apparire in lingua inglese se non ancora tradotti: le azioni prioritarie hanno già label in italiano.
+
+### Limitazioni e gate residui
+
+1. Il test transazionale sul database Supabase e la verifica SQL delle autorizzazioni sono distinti da un vero test browser/GoTrue/MFA del Super Admin; quest'ultimo non è ancora certificato.
+2. La traccia durevole dei login Auth **falliti** non si ottiene affidabilmente da una transazione di login fallita. È necessario un canale server affidabile che non accetti falsificazioni dal browser e con rate limiting. Il catalogo la segnala come PLANNED.
+3. Non registrare semplici visualizzazioni, click o heartbeat come audit. Esportazioni e consultazioni di dati personali sono da tracciare con un canale autorizzato separato, non inserendo payload personali o segreti.
+4. Una policy concreta di retention per categoria richiede una valutazione normativa e operativa: il campo `retention_class` è classificazione, non autorizza cancellazioni automatiche. Archiviazione durabile, checksum, verifica anti-manomissione esterna e restore storico rimangono da certificare.
+5. Database remoto e repository hanno una cronologia migrazioni non ancora completamente riconciliata: **il fatto che due nuove migrazioni siano in git non rende il progetto go-live-ready**. Tutte le condizioni di `ROADMAP_STATUS` e dei gate commerciali restano applicabili.
+
+Test: `tests/database/audit-professional.test.ts` più verifica live transazionale (rollback) del comportamento dei trigger. I test PGlite, anche quando verdi, non equivalgono a una prova completa dell'infrastruttura Supabase.
+
+## Estensione verificata — 11 ottobre 2026, audit privacy / export / security / partizioni
+
+Implementato e applicato esclusivamente a Supabase `plateform-development`:
+
+- La RPC `search_privacy_reservations` è ora VOLATILE e produce `SENSITIVE_DATA_ACCESS` dopo l'autorizzazione Admin e la ricerca, senza inserire né telefono né risultati personali nei campi audit. Errori nella registrazione interrompono anche la lettura; gli eventi non sono persi silenziosamente.
+- `export_reservation_personal_data` già usava step-up e scriveva `PERSONAL_DATA_EXPORTED`: NON è stata duplicata la logica. Catalogati anche rettifica, anonimizzazione e privacy hold come eventi implementati.
+- `export_audit_professional` usa Super Admin, password step-up `AUDIT_EXPORT` monouso, motivazione obbligatoria, massimo 500 righe e finestra fino a 31 giorni; esclude IP, user-agent e campi metadata. La dashboard `/audit` consente il download JSON e segnala le esportazioni parziali. Ogni esportazione completata scrive `AUDIT_EXPORTED`.
+- `record_step_up_denial` può essere chiamata **solo** da `service_role`. La Edge `step-up` v12 la invoca quando la verifica effettiva di password fallisce. Non copia password, email, IP o token; conserva l'attore da `auth.getUser()` e la sessione già autorizzata. Il codice distribuito coincide con GitHub; nessuna prova con account reale è stata eseguita.
+- Il catalogo distingue `OBSERVED` (evento effettivamente apparso nel DB), `IMPLEMENTED` (flusso scritto e testato ma evento non ancora prodotto live) e `PLANNED` (funzionalità non ancora verificata). Trigger limitati promuovono eventi sensibili a `OBSERVED` soltanto al loro effettivo inserimento.
+- Quattro partizioni audit future sono predisposte per novembre e dicembre 2026, gennaio e febbraio 2027, con RLS e trigger di immutabilità ereditati. Cron `plateform-audit-future-partitions` ogni giorno 20 del mese, ore 00:05 UTC, prepara i prossimi quattro mesi. Non è attiva **alcuna cancellazione** né spostamento dei vecchi eventi in default.
+- Test SQL live (transazione rollback) e pipeline PGlite focalizzata: **8/8 PASS**, incluse ricerca privacy senza PII, privilegi, esportazione monouso, step-up denial, partizioni e immutabilità storica. CI globale ancora in FAIL: 101 file nella verifica Prettier; la storia migrazioni remota/local non è riconciliata.
+
+### Requisiti ancora non certificati
+
+- `AUTH_LOGIN_FAILED` prima della sessione e `MFA_VERIFICATION_FAILED`: non implementare da semplice chiamata browser che sarebbe falsificabile; serve un'integrazione con Auth/GoTrue o gateway attendibile con anti-abuso. `ACCESS_DENIED` e `PRIVILEGE_CHANGE_DENIED` generali devono essere registrati fuori dalla transazione negata, senza rendere una negazione una modifica riuscita.
+- Prova Auth reale su utente staff e MFA, integrazione browser/deploy della UI, restore end-to-end dell'ultima versione.
+- Archivio storico durevole fuori database con cifratura/verifica hash e controllo delle chiavi, test anti-manomissione e retention approvata dal titolare. **Nessuna eliminazione audit** autorizzata finché non è provata la recuperabilità e la policy legale.
+- Catalogo con label italiane per tutti i codici; eventuale revisione semantica delle categorie; controllo di qualità dei log.
+- Gate completo `npm run check` e `npm run release:check`, confronto delle migrazioni remote/local e merge controllato delle PR #21 e #22.
+
+**Stato rilascio: NO-GO.** Le CI focalizzate non equivalgono al rilascio commerciale e non è stato creato alcun pacchetto.
+
+## Aggiornamento Audit/Log — 11 ottobre 2026
+
+Il catalogo e la dashboard Audit sono integrati con la dashboard **Log tecnici e anomalie** in `/salute`. Le nuove RPC server-side `search_technical_logs` e `run_health_log_retention` sono separate dalla consultazione immutabile `search_audit_professional`; un errore tecnico non viene spacciato per mutazione economica e un log di salute non costituisce prova di un accesso Auth.
+
+Eventi `AUTH_LOGIN_FAILED` e `MFA_VERIFICATION_FAILED` non sono ancora emessi in modo attendibile dall'applicazione: Supabase offre audit Auth nativi, ma la copia opzionale `auth.audit_log_entries` risulta vuota. Il canale live `STEP_UP_FAILED` rimane verificato a livello di fonte Edge; il nuovo login staff richiede un piano specifico per tracciare fallimenti **prima** della sessione senza accettare segnalazioni falsificabili dal browser. Non salvare mai le credenziali tentate.
+
+Lo storico Audit è preservato, senza cancellazioni automatiche. Una retention dell'audit richiede termini approvati, archivio esterno verificato anti-manomissione e restore-test indipendente. Non usare la cronologia dei job PostgreSQL o i log di telemetria al posto di tale archivio. Finché questi gate mancano, l'audit è funzionalmente esteso ma non completamente certificato per la vendita.
+
+## Verifica ampliata del 11 ottobre 2026 — provider Auth e CI
+
+- L'endpoint `search_technical_logs` supporta anche la fonte `AUTH`: legge soltanto i codici azione da `auth.audit_log_entries`, con accesso Super Admin e senza payload, password, email, indirizzi IP o token. Mostra `RECORDED_UNCLASSIFIED` anche per `login` e `verification_attempted`, perché una generica azione Auth non attesta da sola successo o fallimento.
+- Il percorso di lettura è implementato e coperto da **11 test focalizzati superati**; la tabella `auth.audit_log_entries` su Supabase Development risulta ancora vuota. Per i veri tentativi iniziali occorre attivare e verificare la scrittura provider nel database da **Supabase → Authentication → Audit Logs → Write audit logs to the database**. Riferimento https://supabase.com/docs/guides/auth/audit-logs.
+- Il servizio di audit applicativo, esportazioni con step-up, accessi privacy, eventi di device e log tecnici restano implementati e testati. L'archivio storico _indipendente_, anti-manomissione, con conservazione giuridica approvata e restore-test è ancora **non certificato**; non attivare eliminazioni dei registri Audit.
+- La riproduzione dell'ambiente non è completa: Development contiene **470 migrazioni** applicate; il manifest GitHub descrive **144 migrazioni locali**. File SQL e fixture di recupero delle definizioni hosted sono distinti, e le fixture PGlite **non** sono migrazioni approvate. Release commerciale NO-GO fino alla riconciliazione e ai test reali GoTrue/browser/restore.

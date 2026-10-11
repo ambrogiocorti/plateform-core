@@ -1,0 +1,43 @@
+{
+  "capture_date": "2026-10-11",
+  "environment": "plateform-development",
+  "state": {
+    "checked_at": "2026-10-11 08:26:17.936539+00",
+    "db_bytes": 74077875,
+    "audit_events": 3220,
+    "catalog_types": 154,
+    "native_auth_db_events": 0,
+    "migrations": 468,
+    "technical_errors": 0,
+    "health_checks": 11763,
+    "active_log_jobs": 2,
+    "retention_enabled": false
+  },
+  "implemented": [
+    "professional security business audit catalog",
+    "server enforced audit search and export",
+    "privacy contact access events",
+    "step-up-denied service-only audit",
+    "device heartbeat suppression",
+    "redacted technical log search",
+    "technical dashboard log explorer",
+    "health log retention gated on approved policy",
+    "future monthly audit partitions"
+  ],
+  "checks": {
+    "focused_ci": "PASS",
+    "test_count": 10,
+    "passed": 10,
+    "typescript": "PASS",
+    "full_ci": "FAIL: formatting and historical migration replay remain unresolved"
+  },
+  "open": [
+    "Auth native database audit integration is not enabled/verified; auth.audit_log_entries has zero rows",
+    "untrusted unauthenticated login attempt attribution and MFA provider evidence unverified",
+    "external independent WORM/signed audit archive and legal retention schedule not configured",
+    "staging real-user browser GoTrue end-to-end tests pending",
+    "release migrations/github history and baseline format gate fail",
+    "current schema backup requested; verify completion separately"
+  ],
+  "release": "NO_GO"
+}

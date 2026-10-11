@@ -1,0 +1,21 @@
+name: Auth gateway live denial security probe
+on:
+  push:
+    branches:
+      - feat/audit-commercial-hardening-20261011
+    paths:
+      - .github/workflows/auth-gateway-live-probe.yml
+      - scripts/test-auth-gateway-live.mjs
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test-auth-gateway:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: node scripts/test-auth-gateway-live.mjs

@@ -77,10 +77,19 @@ describe('public site venue routing', () => {
   });
   it('recovers only owned, same-origin public routes from static 404 fallback', () => {
     const origin = 'https://ristorante.example';
-    expect(safeRecoveredPublicRoute('/menu/carta-vini?sede=navigli#menu', origin))
-      .toBe('/menu/carta-vini?sede=navigli#menu');
-    for (const candidate of ['//attacker.example', '/staff', '/staff/login', '/api/status',
-      '/robots.txt', '/menu/../../staff', 'https://attacker.example', '/non-esistente']) {
+    expect(safeRecoveredPublicRoute('/menu/carta-vini?sede=navigli#menu', origin)).toBe(
+      '/menu/carta-vini?sede=navigli#menu',
+    );
+    for (const candidate of [
+      '//attacker.example',
+      '/staff',
+      '/staff/login',
+      '/api/status',
+      '/robots.txt',
+      '/menu/../../staff',
+      'https://attacker.example',
+      '/non-esistente',
+    ]) {
       expect(safeRecoveredPublicRoute(candidate, origin)).toBeNull();
     }
   });
@@ -96,10 +105,13 @@ describe('public site venue routing', () => {
 
 describe('public telemetry privacy', () => {
   it('does not retain personal or marketing query parameters in observer keys', () => {
-    expect(publicMetricContext('/menu', '?sede=navigli&email=private@example.test&token=secret'))
-      .toEqual({ path:'/menu',key:'/menu?sede=navigli' });
-    expect(publicMetricContext('/menu', '?phone=123456&utm_source=private'))
-      .toEqual({ path:'/menu',key:'/menu' });
+    expect(
+      publicMetricContext('/menu', '?sede=navigli&email=private@example.test&token=secret'),
+    ).toEqual({ path: '/menu', key: '/menu?sede=navigli' });
+    expect(publicMetricContext('/menu', '?phone=123456&utm_source=private')).toEqual({
+      path: '/menu',
+      key: '/menu',
+    });
   });
 });
 

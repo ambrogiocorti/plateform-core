@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-11",
+  "project": "plateform-development",
+  "remote_migrations": 468,
+  "audit_catalog_entries": 154,
+  "audit_history_min_preserved": 3215,
+  "focused_ci": {
+    "status": "PASS",
+    "tests_passed": 10,
+    "tests_total": 10,
+    "typescript": "PASS"
+  },
+  "live_invariant_check": {
+    "status": "PASS",
+    "passed": 15,
+    "total": 15
+  },
+  "current_backup": {
+    "id": "178520e4-f415-4d4d-8435-1208b4ac1fcc",
+    "status": "SUCCEEDED",
+    "integrity_verified": true,
+    "schema_version": "20261011082028",
+    "prim_file_count": 42,
+    "replica_file_count": 42,
+    "bytes_each": 3979184,
+    "temporary_rows_left": 0,
+    "temporary_chunks_left": 0
+  },
+  "technical_logging": {
+    "rpc": "search_technical_logs",
+    "ui_page": "/salute",
+    "admin_only": true,
+    "redacted": true,
+    "retention_rpc": "run_health_log_retention",
+    "retention_enabled": false,
+    "cron_active": true
+  },
+  "open_gates": [
+    "Native Supabase Auth audits to database not enabled or verified",
+    "Login/MFA failures not all correlated to Plateform audit",
+    "External tamper-evident/WORM audit archive and approved retention not certified",
+    "Full replay of migration history / clean install not passing",
+    "General CI format check baseline failure",
+    "No real browser GoTrue E2E or current backup full restore-test"
+  ],
+  "release": "NO_GO"
+}

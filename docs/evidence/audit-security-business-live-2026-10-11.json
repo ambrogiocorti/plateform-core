@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-11",
+  "environment": "plateform-development",
+  "scope": "Security & Business Audit",
+  "live_measurements": {
+    "db_bytes": 59881139,
+    "audit_rows": 3215,
+    "catalog": 154,
+    "migrations": 466,
+    "latest_migration": "20261011080554"
+  },
+  "implementation": {
+    "last_deployed_step_up_version": 12,
+    "role_authoritative_denial_rpc": "public.record_step_up_denial",
+    "service_role_only": true,
+    "privacy_contact_search_audit": "public.search_privacy_reservations",
+    "audit_export": "public.export_audit_professional",
+    "audit_export_requires_password_stepup": true,
+    "audit_export_requires_reason": true,
+    "audit_export_max_rows": 500,
+    "audit_export_max_days": 31,
+    "first_future_partition": "audit_log_2026_11",
+    "prepared_future_partitions": 4,
+    "automatic_partition_job": "plateform-audit-future-partitions",
+    "historic_records_deleted": 0
+  },
+  "verification": {
+    "focused_ci": "PASS",
+    "focused_db_tests": 8,
+    "focused_db_test_passed": 8,
+    "typescript": "PASS",
+    "step_up_edge_deployed_code_matches_github": true,
+    "security_permission_check": "PASS service_role only denial reporter; no anon audit export",
+    "full_pipeline": "FAIL npm run format:check (101 files)"
+  },
+  "remains_open": [
+    "auth_login_failed_before_authenticated_session",
+    "MFA verification failed from authoritative server source",
+    "general 403/access denied trace outside rolled-back transactions",
+    "external immutable historical archive, crypto integrity, formal retention",
+    "GoTrue live MFA/e2e on real user",
+    "remote 466 migration / canonical source reconciliation",
+    "complete build CI & release checks, merge and production cutover"
+  ],
+  "commercial_release": "NO_GO",
+  "notes": "Dedicated PGlite fixture deliberately bypasses unrelated historical Step 11 replay blocker; this is not a clean-install certification."
+}

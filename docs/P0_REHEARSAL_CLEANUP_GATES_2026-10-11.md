@@ -48,11 +48,11 @@ where command ilike '%backup%' or command ilike '%retention%';
 
 ## Gate obbligatori PRIMA di modificare qualsiasi tabella
 
-1. Acquisire un backup *nuovo* di database/Auth/Storage/migration history con controllo hash, cifratura, chiavi disponibili e copia indipendente dal progetto. Conservare il manifest, l'inventario di tutti gli oggetti e il digest della cronologia SQL.
+1. Acquisire un backup _nuovo_ di database/Auth/Storage/migration history con controllo hash, cifratura, chiavi disponibili e copia indipendente dal progetto. Conservare il manifest, l'inventario di tutti gli oggetti e il digest della cronologia SQL.
 2. Ripristinare su `plateform-restore-test` disposable separato, verificando 457 migrazioni e relativo digest, numero utenti Auth, byte/hash Storage, RLS, conti, pagamenti e audit. Non azzerare un target che contenga dati non sostituibili.
 3. Congelare nuove creazioni di snapshot; verificare di nuovo `backup_metadata` (nessun job QUEUED/RUNNING) e `restore_jobs` (nessun restore attivo), acquisire inventario per snapshot e Storage; mantenere il rapporto dell'operazione.
 4. Approvare espressamente una retention per gli artefatti dei backup completati; distinguere snapshot di backup falliti, riusciti e orfani. Conservare `backup_metadata`, audit e referenze di restore. Ogni rimozione deve utilizzare un manifest esplicito di UUID, non una cancellazione indiscriminata di tutti i manifest.
-5. Testare in staging con dump disponibile, riconciliazione contatori e un test di restore *dopo* la bonifica. Le copie in Storage si cancellano tramite Storage API, mai con `DELETE FROM storage.objects`.
+5. Testare in staging con dump disponibile, riconciliazione contatori e un test di restore _dopo_ la bonifica. Le copie in Storage si cancellano tramite Storage API, mai con `DELETE FROM storage.objects`.
 6. Solo dopo il recupero logico valutare recupero fisico: VACUUM ordinario riutilizza pagine ma non garantisce che la quota DB diminuisca. `VACUUM FULL` richiede lock esclusivo e spazio aggiuntivo: non avviarlo automaticamente su Free oltre quota. Valutare `pg_repack` solo dopo verifica estensioni, permessi e headroom, o ricostruzione isolata pulita con cutover controllato.
 
 ## Requisiti per la bonifica per batch

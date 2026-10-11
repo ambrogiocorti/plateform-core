@@ -1,13 +1,5 @@
 export type RoomElementKind =
-  | 'WALL'
-  | 'DOOR'
-  | 'WINDOW'
-  | 'COUNTER'
-  | 'RECTANGLE'
-  | 'ELLIPSE'
-  | 'DECOR'
-  | 'TEXT'
-  | 'ZONE';
+  'WALL' | 'DOOR' | 'WINDOW' | 'COUNTER' | 'RECTANGLE' | 'ELLIPSE' | 'DECOR' | 'TEXT' | 'ZONE';
 
 export interface RuntimeLayoutElement {
   id: string;

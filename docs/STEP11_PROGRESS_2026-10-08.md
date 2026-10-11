@@ -37,7 +37,7 @@ The verified export of all 455 complete SQL statement bodies is **not** availabl
 
 ## Executed checks
 
-- `scripts/check-migrations.mjs`: **PASS** (local 132 manifest files only; *not* a remote consistency assertion).
+- `scripts/check-migrations.mjs`: **PASS** (local 132 manifest files only; _not_ a remote consistency assertion).
 - `scripts/check-migration-recovery.mjs`: **PASS, 27/27**, including wrong digest rejection, preserved prior files, archived manifest, adopted canonical SQL, truncated export rejection.
 - `scripts/check-step11-static.mjs`: **PASS**.
 - `scripts/check-step11-public-runtime.mjs`: **PASS** (including explicit booking venue isolation and multi-venue menu canonical tests).

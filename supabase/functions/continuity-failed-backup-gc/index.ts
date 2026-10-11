@@ -21,7 +21,11 @@ Deno.serve(async (req: Request) => {
   if (authError || authenticated !== true) return new Response('Not Found', { status: 404 });
 
   let body: { limit?: number } = {};
-  try { body = await req.json(); } catch { return Response.json({ status: 'INVALID_INPUT' }, { status: 400 }); }
+  try {
+    body = await req.json();
+  } catch {
+    return Response.json({ status: 'INVALID_INPUT' }, { status: 400 });
+  }
   const limit = body.limit === undefined ? 8 : Number(body.limit);
   if (!Number.isInteger(limit) || limit < 1 || limit > 15) {
     return Response.json({ status: 'INVALID_LIMIT' }, { status: 400 });
@@ -31,13 +35,18 @@ Deno.serve(async (req: Request) => {
     const { data: config, error: configError } = await client.rpc(
       'get_continuity_replica_runtime_config',
     );
-    if (configError || config?.target_url !== TARGET ||
-        !config?.target_anon_jwt || !config?.channel_token) {
+    if (
+      configError ||
+      config?.target_url !== TARGET ||
+      !config?.target_anon_jwt ||
+      !config?.channel_token
+    ) {
       return Response.json({ status: 'BLOCKED', code: 'REPLICA_CONFIG_INVALID' }, { status: 503 });
     }
 
     const { data: ids, error: listError } = await client.rpc(
-      'list_failed_continuity_storage_cleanup', { p_limit: limit },
+      'list_failed_continuity_storage_cleanup',
+      { p_limit: limit },
     );
     if (listError || !Array.isArray(ids)) throw new Error('CANDIDATE_QUERY_FAILED');
 
@@ -49,13 +58,16 @@ Deno.serve(async (req: Request) => {
       if (!UUID.test(backupId)) throw new Error('INVALID_CANDIDATE');
 
       const { data: valid, error: validError } = await client
-        .from('backup_metadata').select('status,integrity_verified')
-        .eq('id', backupId).single();
+        .from('backup_metadata')
+        .select('status,integrity_verified')
+        .eq('id', backupId)
+        .single();
       if (validError || valid?.status !== 'FAILED' || valid?.integrity_verified !== false) {
         throw new Error('CANDIDATE_STATE_CHANGED');
       }
       const { data: restores, error: restoresError } = await client
-        .from('restore_jobs').select('id')
+        .from('restore_jobs')
+        .select('id')
         .or('backup_id.eq.' + backupId + ',pre_restore_backup_id.eq.' + backupId)
         .limit(1);
       if (restoresError || (restores?.length ?? 0) !== 0) {
@@ -83,9 +95,11 @@ Deno.serve(async (req: Request) => {
       let primaryFiles = 0;
       for (;;) {
         const { data: files, error: filesError } = await client.storage
-          .from(BUCKET).list(backupId, { limit: 1000, offset: 0 });
+          .from(BUCKET)
+          .list(backupId, { limit: 1000, offset: 0 });
         if (filesError) throw new Error('PRIMARY_LIST_FAILED');
-        const paths = (files ?? []).filter((x) => Boolean(x.name) && !x.id?.endsWith('/'))
+        const paths = (files ?? [])
+          .filter((x) => Boolean(x.name) && !x.id?.endsWith('/'))
           .map((x) => backupId + '/' + x.name);
         if (!paths.length) break;
         const { error: removalError } = await client.storage.from(BUCKET).remove(paths);
@@ -99,8 +113,10 @@ Deno.serve(async (req: Request) => {
     }
 
     return Response.json({
-      status: 'SUCCEEDED', deleted_backup_folders: cleaned.length,
-      deleted_primary_files: removedPrimary, deleted_replica_files: removedReplica,
+      status: 'SUCCEEDED',
+      deleted_backup_folders: cleaned.length,
+      deleted_primary_files: removedPrimary,
+      deleted_replica_files: removedReplica,
       backup_ids: cleaned,
     });
   } catch (error) {

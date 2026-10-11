@@ -1,3 +1,21 @@
+> **Aggiornamento 11 ottobre 2026 — Audit e Log.**
+> Supabase Development ha **475 migrazioni remote** e 3.235 audit originali.
+> Archivio AES-256-GCM: 17 batch, doppia copia su due progetti Supabase.
+> Recupero integrale dei 3.235 eventi e controllo hash-chain: **PASS**.
+> Archiviazione ogni 15 minuti; recovery-test giornaliero attivo.
+> Test dedicati Audit/Log: **13/13 PASS**; TypeScript e Prettier: PASS.
+> Supabase Auth nativo: 0 eventi in DB anche dopo un login fallito
+> controllato. Abilitazione audit provider e collaudo MFA da completare.
+> Retention Audit senza cancellazioni; WORM esterno e termini legali
+> non certificati. CI generale bloccata da **migration inventory mismatch**.
+> Release commerciale: **NO-GO**.
+>
+> **Verifica 11 ottobre 2026, ore 16:07 Europe/Amsterdam — Audit/Log e ritorno alla Roadmap.** Supabase Development: **470 migrazioni remote**, **3.233 eventi audit** conservati, catalogo di **154** tipologie, e **0 righe** in `auth.audit_log_entries`. La CI dedicata Audit ha **11 test PASS**; la CI generale prosegue ora fino a Playwright ma presenta fallimenti reali nei test E2E di cassa e salute tecnica (vedere esecuzioni GitHub Action sul branch audit). **Non certificare go-live né l'intero modulo audit**: attivazione verificata dell'audit nativo Auth per login/MFA, archivio indipendente anti-manomissione, retention approvata, test browser reali e riproducibilità da zero restano gate aperti. Non eliminare né comprimere lo storico audit per aggirarli. Dopo la chiusura di questi gate, priorità funzionali Roadmap: cassa/riconciliazione, osservabilità dashboard, flusso ordine→conto→pagamento e regressione completa multi-sede.
+
+> **Aggiornamento prevalente — 11 ottobre 2026, Audit e pipeline.** Audit/Log: ricerca e filtri protetti, export con step-up, privacy, step-up denial, device noise, 11/11 test focalizzati, log tecnici e lettura minimizzata degli eventi provider Auth implementati. `auth.audit_log_entries` resta vuota fino alla configurazione/verifica Supabase. CI: riparato il controllo Prettier (101 file) e il manifest locale; ora **144** SQL locali contro **470** migrazioni remote (326 non riconciliate). Le fixture hosted dei test non sono una ricostruzione pulita. CI completa/GoTrue/restore e archivio indipendente sono gate aperti. **NO-GO commerciale**.
+
+> **Aggiornamento 11 ottobre 2026 — Audit/Log.** Supabase Development contiene **468 migrazioni remote** (da riverificare a ogni deploy), catalogo Audit professionale e dashboard Log tecnici implementati. **10/10** test focalizzati Audit/Log passati; CI generale ancora FAIL. Dati Audit preesistenti preservati e policy tecnica di retention non attiva. Mancano copertura nativa verificata dei login/MFA falliti, archivio indipendente anti-manomissione, test GoTrue/browser live, riconciliazione migrazioni e gate completo della piattaforma. **NO-GO commerciale**. L'aggiornamento prevale sui checkpoint storici seguenti.
+
 # Plateform — stato di implementazione
 
 > **Aggiornamento prevalente — 8 ottobre 2026.** I conteggi di seguito sono

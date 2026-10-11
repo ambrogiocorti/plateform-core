@@ -49,8 +49,6 @@
     "terminal_provider_leases_bad_rows": 0,
     "completed_provider_errors_bad_rows": 0
   },
-  "migrations": [
-    "supabase/migrations/20261005140800_step6_refund_reopens_balance.sql"
-  ],
+  "migrations": ["supabase/migrations/20261005140800_step6_refund_reopens_balance.sql"],
   "manual_ui_note": "All configured payment methods were exercised by the user in the development UI; online provider payment/refund outcomes were independently verified server-side."
 }

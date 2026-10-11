@@ -92,7 +92,7 @@ for (const marker of [
   assert.ok(main.includes(marker), `Missing staff-shell waiter marker: ${marker}`);
 
 for (const marker of [
-  "Promise.all([",
+  'Promise.all([',
   "'get_floor_workspace'",
   "'get_kitchen_board'",
   "'waiter_calls'",
