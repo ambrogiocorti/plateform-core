@@ -125,6 +125,16 @@ export async function database(through = Number.POSITIVE_INFINITY) {
     grant usage on schema storage to anon,authenticated,service_role;
     grant select on storage.objects to anon,authenticated;
     create schema auth;
+    -- Supabase Auth owns this table in hosted projects. Keep a strict fixture
+    -- without sample credentials, IP addresses or provider logs by default.
+    create table auth.audit_log_entries(
+      instance_id uuid,
+      id uuid primary key default gen_random_uuid(),
+      payload json,
+      created_at timestamptz not null default now(),
+      ip_address varchar
+    );
+    revoke all on auth.audit_log_entries from public,anon,authenticated;
     create table auth.users(id uuid primary key, email text);
     create table auth.sessions(id uuid primary key, user_id uuid not null references auth.users(id));
     create function auth.jwt() returns jsonb language sql stable as
