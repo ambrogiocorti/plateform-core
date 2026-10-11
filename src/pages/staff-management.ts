@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { client, readRows, rpc } from '../api/client';
+import { client, readRows, rpc, safeEdgeError } from '../api/client';
 import { button, dialog, el, field, status, toast } from '../components/dom';
 import { stepUp } from '../auth/step-up';
 import type { StaffContext } from './staff-context';
@@ -176,7 +176,7 @@ export async function staffManagementPage(context: StaffContext): Promise<HTMLEl
                 grant_id: grant,
               },
             });
-            if (error) throw error;
+            if (error) throw await safeEdgeError(error);
             z.object({ id: z.uuid() }).parse(data);
             editor.close();
             toast('Utente creato.');
