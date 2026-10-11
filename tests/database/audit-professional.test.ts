@@ -29,6 +29,7 @@ describe('Security & Business Audit hardening', () => {
       '20261011074842_audit_safe_device_assignment_diff_fields.sql',
       '20261011075739_audit_privacy_sensitive_read_and_catalog_truth.sql',
       '20261011075935_audit_secure_superadmin_export_with_stepup.sql',
+      '20261011080213_audit_trusted_stepup_denial_source.sql',
     ]) {
       await db.exec(await readFile(`supabase/migrations/${migration}`, 'utf8'));
     }
@@ -276,6 +277,51 @@ describe('Security & Business Audit hardening', () => {
       )
     ).rows[0]!.status;
     expect(implemented).toBe('OBSERVED');
+  });
+
+
+  it('records a redacted step-up denial only from the trusted service role', async () => {
+    await identity(db, ids.admin);
+    await db.exec('savepoint forbidden');
+    await expect(
+      db.query('select public.record_step_up_denial($1,$2,$3)', [
+        ids.admin,
+        ids.admin.replace(/^2/, '3'),
+        'PRIVACY',
+      ]),
+    ).rejects.toThrow();
+    await db.exec('rollback to savepoint forbidden');
+    await db.exec('reset role;set role service_role');
+    await db.query('select public.record_step_up_denial($1,$2,$3)', [
+      ids.admin,
+      ids.admin.replace(/^2/, '3'),
+      'PRIVACY',
+    ]);
+    await db.exec('reset role');
+    const rows = (
+      await db.query<{
+        actor_user_id: string;
+        new_values: Record<string, unknown>;
+        result: string;
+        emitter_source: string;
+      }>(
+        "select actor_user_id,new_values,result,emitter_source from public.audit_log where action='STEP_UP_FAILED'",
+      )
+    ).rows;
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({
+      actor_user_id: ids.admin,
+      result: 'DENIED',
+      emitter_source: 'EDGE_STEP_UP',
+      new_values: { purpose: 'PRIVACY' },
+    });
+    expect(JSON.stringify(rows)).not.toContain('password');
+    const status = (
+      await db.query<{ state: string }>(
+        "select implementation_status state from private.audit_event_catalog where action='STEP_UP_FAILED'",
+      )
+    ).rows[0]!.state;
+    expect(status).toBe('OBSERVED');
   });
 
 });
