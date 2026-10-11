@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { rpc } from '../api/client';
 import { button, dialog, el, field, showError, status } from '../components/dom';
+import { stepUp } from '../auth/step-up';
 
 const eventSchema = z.object({
   id: z.uuid(),
@@ -182,6 +183,73 @@ export async function auditPage(): Promise<HTMLElement> {
     ),
     el('button', { type: 'submit', class: 'button secondary' }, 'Cerca eventi'),
   );
+  const exportButton = button(
+    'Esporta audit con verifica password',
+    () => {
+      const reason = field('Motivo dell’esportazione (obbligatorio)', 'audit-export-reason');
+      reason.input.required = true;
+      reason.input.minLength = 8;
+      reason.input.maxLength = 240;
+      const popup = dialog(
+        'Esportazione audit protetta',
+        el('p', {}, 'Solo Super Admin. Saranno esportati al massimo 500 eventi nel periodo selezionato, non superiore a 31 giorni. Se risultano altri eventi, restringi il periodo. Non contiene IP né User-Agent.'),
+        reason.root,
+      );
+      popup.append(
+        button('Verifica password ed esporta JSON', async () => {
+          if (!reason.input.reportValidity()) return;
+          const end = to.input.value ? new Date(to.input.value) : new Date();
+          const start = from.input.value
+            ? new Date(from.input.value)
+            : new Date(end.getTime() - 24 * 60 * 60 * 1000);
+          if (
+            Number.isNaN(start.getTime()) ||
+            Number.isNaN(end.getTime()) ||
+            end.getTime() < start.getTime() ||
+            end.getTime() - start.getTime() > 31 * 24 * 60 * 60 * 1000
+          ) {
+            throw new Error('Periodo non valido: seleziona al massimo 31 giorni.');
+          }
+          const grant = await stepUp('AUDIT_EXPORT');
+          const exported = await rpc(
+            'export_audit_professional',
+            {
+              p_grant: grant,
+              p_reason: reason.input.value.trim(),
+              p_from: start.toISOString(),
+              p_to: end.toISOString(),
+              p_limit: 500,
+            },
+            z.object({
+              generated_at: z.string(),
+              rows: z.array(z.record(z.string(), z.unknown())),
+              has_more: z.boolean(),
+              limit: z.number(),
+            }),
+          );
+          const blobUrl = URL.createObjectURL(
+            new Blob([JSON.stringify(exported, null, 2)], {
+              type: 'application/json;charset=utf-8',
+            }),
+          );
+          const link = el('a', {
+            href: blobUrl,
+            download: `Plateform-audit-${new Date().toISOString().slice(0, 10)}.json`,
+          });
+          link.click();
+          setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+          popup.close();
+          if (exported.has_more) {
+            dialog(
+              'Esportazione parziale',
+              el('p', {}, 'L’intervallo contiene più di 500 eventi. Restringi il periodo e ripeti l’esportazione con nuova verifica password.'),
+            );
+          }
+        }),
+      );
+    },
+    'secondary',
+  );
   const more = button('Carica eventi precedenti', async () => load(true), 'secondary');
   more.hidden = true;
   async function load(append = false): Promise<void> {
@@ -310,6 +378,7 @@ export async function auditPage(): Promise<HTMLElement> {
       ),
     ),
     filters,
+    exportButton,
     feedback,
     el(
       'div',
