@@ -1,3 +1,23 @@
+> **Aggiornamento delle verifiche — 11 ottobre 2026, 16:20 UTC.** Il gateway
+> `auth-audit-gateway` versione **2** verifica con GoTrue il login staff e la
+> challenge MFA e registra gli errori soltanto quando il provider attesta
+> rispettivamente `invalid_credentials` o `mfa_verification_failed`.
+> Prova live: **1 `AUTH_LOGIN_FAILED`** anonimo verificato con identità sintetica
+> inesistente, senza password/email/IP/token. MFA senza sessione respinta;
+> **MFA con account TOTP attivo non ancora collaudata end-to-end**.
+> L'archivio contiene **19 blocchi / 3.243 eventi** in entrambi i progetti.
+> Un **secondo recupero completo PASS** ha decifrato e verificato tutti i
+> 19 blocchi, senza eliminazioni; originale e replica corrispondono.
+> Nel DB `auth.audit_log_entries` sono ancora **0 eventi**: la registrazione
+> Auth nativa al database è separata dal gateway staff.
+> La governance `private.audit_retention_governance` è in stato
+> `AWAITING_FORMAL_APPROVAL`, `purge_enabled=false`, `legal_hold=true`;
+> l'infrastruttura WORM esterna e la custodia indipendente delle chiavi
+> non sono certificate. Il sistema **non può essere etichettato conforme
+> alla conservazione legale/WORM** senza fornitore adeguato e approvazione
+> della policy. Sono necessarie verifiche autentiche dell'MFA, dell'eventuale
+> archivio esterno e della CI completa prima della chiusura del gate Audit.
+
 # Plateform — Archivio Audit e verifica Auth (11 ottobre 2026)
 
 **Ambiente:** Supabase `plateform-development` (`abdxvlykasqmknexxhjo`); progetto replica `plateform-restore-test` (`dkbjgvovxgglqhqxmuyb`).
