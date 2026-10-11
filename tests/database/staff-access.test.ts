@@ -77,7 +77,7 @@ describe('Step 1 staff access and credential lifecycle', () => {
     );
     expect(result.rows[0]!.job.status).toBe('PENDING');
     const persisted = await db.query<{ identifier: string }>(
-      'select values->>\'identifier\' as identifier from public.staff_admin_jobs where id=$1',
+      "select values->>'identifier' as identifier from public.staff_admin_jobs where id=$1",
       [result.rows[0]!.job.id],
     );
     expect(persisted.rows[0]!.identifier).toBe(values.identifier);
