@@ -851,6 +851,12 @@
       "version": "20261011082028",
       "name": "technical_health_logs_approved_retention_only",
       "sha256": "5f9cad677142d28ce8a7a7d4d015ca7dd547f2f9d8372e6b42e2032d6439cf2b"
+    },
+    {
+      "filename": "20261011134204_technical_auth_native_audit_redacted_read.sql",
+      "version": "20261011134204",
+      "name": "technical_auth_native_audit_redacted_read",
+      "sha256": "77784026c9b846253de2b59feb6b1eee7a4a31d44c2cd909ce0446f7b58b838d"
     }
   ]
 }
