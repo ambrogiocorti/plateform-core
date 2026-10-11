@@ -197,6 +197,22 @@ async function showMfa(container: HTMLElement, onVerified: () => Promise<void>):
   let factorId = data.totp.find((factor) => factor.status === 'verified')?.id;
   const instructions = el('div', { class: 'stack' });
   if (!factorId) {
+    // An interrupted enrollment retains its friendly name in GoTrue even though
+    // the TOTP factor is not usable yet. Unenroll only our unverified factors
+    // before presenting a fresh QR, otherwise subsequent attempts fail with
+    // mfa_factor_name_conflict (422).
+    const pending = data.all.filter(
+      (factor) =>
+        factor.factor_type === 'totp' &&
+        factor.status === 'unverified' &&
+        factor.friendly_name === 'Plateform',
+    );
+    for (const factor of pending) {
+      const { error: unenrollError } = await client().auth.mfa.unenroll({
+        factorId: factor.id,
+      });
+      if (unenrollError) throw safeError(unenrollError);
+    }
     const { data: enrollment, error: enrollmentError } = await client().auth.mfa.enroll({
       factorType: 'totp',
       friendlyName: 'Plateform',
