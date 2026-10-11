@@ -56,8 +56,7 @@ function auditDiff(beforeValue: unknown, afterValue: unknown): HTMLElement {
   const keys = [...new Set([...Object.keys(before), ...Object.keys(after)])]
     .filter((key) => JSON.stringify(before[key]) !== JSON.stringify(after[key]))
     .sort();
-  const renderValue = (value: unknown) =>
-    value === undefined ? '—' : JSON.stringify(value);
+  const renderValue = (value: unknown) => (value === undefined ? '—' : JSON.stringify(value));
   return el(
     'section',
     { class: 'stack compact' },
@@ -69,7 +68,11 @@ function auditDiff(beforeValue: unknown, afterValue: unknown): HTMLElement {
           el(
             'table',
             {},
-            el('thead', {}, el('tr', {}, ...['Campo', 'Prima', 'Dopo'].map((s) => el('th', {}, s)))),
+            el(
+              'thead',
+              {},
+              el('tr', {}, ...['Campo', 'Prima', 'Dopo'].map((s) => el('th', {}, s))),
+            ),
             el(
               'tbody',
               {},
@@ -85,7 +88,11 @@ function auditDiff(beforeValue: unknown, afterValue: unknown): HTMLElement {
             ),
           ),
         )
-      : el('p', { class: 'muted' }, 'Nessuna differenza nei campi ammessi dalla policy di redazione.'),
+      : el(
+          'p',
+          { class: 'muted' },
+          'Nessuna differenza nei campi ammessi dalla policy di redazione.',
+        ),
   );
 }
 
@@ -93,10 +100,17 @@ export async function auditPage(): Promise<HTMLElement> {
   const catalog = await rpc(
     'get_audit_event_catalog',
     {},
-    z.array(z.object({ action: z.string(), implementation_status: z.enum(['OBSERVED', 'IMPLEMENTED', 'PLANNED']) })),
+    z.array(
+      z.object({
+        action: z.string(),
+        implementation_status: z.enum(['OBSERVED', 'IMPLEMENTED', 'PLANNED']),
+      }),
+    ),
   );
   const observedTypes = catalog.filter((item) => item.implementation_status === 'OBSERVED').length;
-  const implementedTypes = catalog.filter((item) => item.implementation_status === 'IMPLEMENTED').length;
+  const implementedTypes = catalog.filter(
+    (item) => item.implementation_status === 'IMPLEMENTED',
+  ).length;
   const plannedTypes = catalog.filter((item) => item.implementation_status === 'PLANNED').length;
   const action = field('Evento', 'action');
   action.input.maxLength = 100;
@@ -192,7 +206,11 @@ export async function auditPage(): Promise<HTMLElement> {
       reason.input.maxLength = 240;
       const popup = dialog(
         'Esportazione audit protetta',
-        el('p', {}, 'Solo Super Admin. Saranno esportati al massimo 500 eventi nel periodo selezionato, non superiore a 31 giorni. Se risultano altri eventi, restringi il periodo. Non contiene IP né User-Agent.'),
+        el(
+          'p',
+          {},
+          'Solo Super Admin. Saranno esportati al massimo 500 eventi nel periodo selezionato, non superiore a 31 giorni. Se risultano altri eventi, restringi il periodo. Non contiene IP né User-Agent.',
+        ),
         reason.root,
       );
       popup.append(
@@ -242,7 +260,11 @@ export async function auditPage(): Promise<HTMLElement> {
           if (exported.has_more) {
             dialog(
               'Esportazione parziale',
-              el('p', {}, 'L’intervallo contiene più di 500 eventi. Restringi il periodo e ripeti l’esportazione con nuova verifica password.'),
+              el(
+                'p',
+                {},
+                'L’intervallo contiene più di 500 eventi. Restringi il periodo e ripeti l’esportazione con nuova verifica password.',
+              ),
             );
           }
         }),
@@ -321,7 +343,11 @@ export async function auditPage(): Promise<HTMLElement> {
                   'Evento audit',
                   el('p', {}, `Richiesta ${entry.request_id}`),
                   el('p', {}, `Correlazione ${entry.correlation_id}`),
-                  el('p', {}, `Categoria ${categoryLabels[entry.category] ?? entry.category} · Criticità ${entry.severity}`),
+                  el(
+                    'p',
+                    {},
+                    `Categoria ${categoryLabels[entry.category] ?? entry.category} · Criticità ${entry.severity}`,
+                  ),
                   el('p', {}, `Registrato tramite ${entry.emitter_source}`),
                   entry.reason_code ? el('p', {}, `Motivo codificato ${entry.reason_code}`) : null,
                   el(
@@ -392,9 +418,16 @@ export async function auditPage(): Promise<HTMLElement> {
           el(
             'tr',
             {},
-            ...['Data', 'Evento', 'Categoria', 'Criticità', 'Risorsa', 'Ruolo', 'Esito', 'Dettagli'].map((label) =>
-              el('th', {}, label),
-            ),
+            ...[
+              'Data',
+              'Evento',
+              'Categoria',
+              'Criticità',
+              'Risorsa',
+              'Ruolo',
+              'Esito',
+              'Dettagli',
+            ].map((label) => el('th', {}, label)),
           ),
         ),
         rows,

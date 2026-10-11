@@ -29,7 +29,11 @@ Deno.serve(
         email: identity.user.email,
         password: body.password,
       });
-      if (error || data.user?.id !== identity.user.id || authorization.user_id !== identity.user.id) {
+      if (
+        error ||
+        data.user?.id !== identity.user.id ||
+        authorization.user_id !== identity.user.id
+      ) {
         // The actual credential verification happened server-side; only this
         // trusted Edge Function may record the denial. Never send passwords,
         // emails, addresses or raw client messages to the immutable audit log.

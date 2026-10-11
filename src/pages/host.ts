@@ -202,9 +202,7 @@ export async function hostPage(context: StaffContext): Promise<HTMLElement> {
       entry.phone ? el('a', { href: `tel:${entry.phone}` }, entry.phone) : null,
       entry.customer_note ? el('p', {}, `Nota cliente: ${entry.customer_note}`) : null,
       entry.allergies ? el('p', {}, `Allergie: ${entry.allergies}`) : null,
-      entry.special_occasion
-        ? el('p', {}, `Occasione speciale: ${entry.special_occasion}`)
-        : null,
+      entry.special_occasion ? el('p', {}, `Occasione speciale: ${entry.special_occasion}`) : null,
     );
 
     if (!entry.walk_in && ['REQUESTED', 'RESERVED', 'ARRIVED'].includes(entry.status))
@@ -219,7 +217,13 @@ export async function hostPage(context: StaffContext): Promise<HTMLElement> {
         ),
       );
     if (['REQUESTED', 'RESERVED', 'ARRIVED'].includes(entry.status))
-      popup.append(button(entry.table_id ? 'Cambia tavolo' : 'Assegna tavolo', () => chooseTable(entry), 'secondary'));
+      popup.append(
+        button(
+          entry.table_id ? 'Cambia tavolo' : 'Assegna tavolo',
+          () => chooseTable(entry),
+          'secondary',
+        ),
+      );
 
     const note = field('Nota interna', 'note', 'text', entry.internal_note ?? '');
     note.input.maxLength = 2000;
@@ -306,7 +310,9 @@ export async function hostPage(context: StaffContext): Promise<HTMLElement> {
             { class: 'host-arrival-meta' },
             `${entry.party_size} persone · ${entry.table_name ?? 'TAVOLO DA ASSEGNARE'}`,
           ),
-          entry.allergies ? el('p', { class: 'host-alert-line' }, `ALLERGIE · ${entry.allergies}`) : null,
+          entry.allergies
+            ? el('p', { class: 'host-alert-line' }, `ALLERGIE · ${entry.allergies}`)
+            : null,
         ),
         status(labels[entry.status]),
       ),
@@ -349,10 +355,30 @@ export async function hostPage(context: StaffContext): Promise<HTMLElement> {
     more.hidden = !result.has_more;
     filteredSummary.textContent = `${result.total} risultati · ${result.covers} coperti`;
     kpis.replaceChildren(
-      el('article', { class: 'host-kpi' }, el('strong', {}, String(result.arrived)), el('span', {}, 'ARRIVATI')),
-      el('article', { class: 'host-kpi' }, el('strong', {}, String(result.requested)), el('span', {}, 'DA CONFERMARE')),
-      el('article', { class: 'host-kpi' }, el('strong', {}, String(result.total)), el('span', {}, 'NELLA LISTA')),
-      el('article', { class: 'host-kpi' }, el('strong', {}, String(result.covers)), el('span', {}, 'COPERTI')),
+      el(
+        'article',
+        { class: 'host-kpi' },
+        el('strong', {}, String(result.arrived)),
+        el('span', {}, 'ARRIVATI'),
+      ),
+      el(
+        'article',
+        { class: 'host-kpi' },
+        el('strong', {}, String(result.requested)),
+        el('span', {}, 'DA CONFERMARE'),
+      ),
+      el(
+        'article',
+        { class: 'host-kpi' },
+        el('strong', {}, String(result.total)),
+        el('span', {}, 'NELLA LISTA'),
+      ),
+      el(
+        'article',
+        { class: 'host-kpi' },
+        el('strong', {}, String(result.covers)),
+        el('span', {}, 'COPERTI'),
+      ),
     );
   }
 
@@ -372,7 +398,12 @@ export async function hostPage(context: StaffContext): Promise<HTMLElement> {
   const quickWalkIn = el(
     'section',
     { class: 'card host-quick-form' },
-    el('div', {}, el('p', { class: 'eyebrow' }, 'ARRIVO SENZA PRENOTAZIONE'), el('h2', {}, 'Walk-in rapido')),
+    el(
+      'div',
+      {},
+      el('p', { class: 'eyebrow' }, 'ARRIVO SENZA PRENOTAZIONE'),
+      el('h2', {}, 'Walk-in rapido'),
+    ),
     walkInName.root,
     walkInCovers.root,
     el('label', { class: 'field' }, 'Servizio', walkInService),
@@ -431,7 +462,12 @@ export async function hostPage(context: StaffContext): Promise<HTMLElement> {
   async function refreshFloor(): Promise<void> {
     try {
       map.replaceChildren(
-        el('div', { class: 'row between' }, el('h2', {}, 'Sala in servizio'), el('span', { class: 'muted' }, venueName)),
+        el(
+          'div',
+          { class: 'row between' },
+          el('h2', {}, 'Sala in servizio'),
+          el('span', { class: 'muted' }, venueName),
+        ),
         await floorPage(context),
       );
     } catch (error) {

@@ -4,7 +4,15 @@ import { readFile, readdir } from 'node:fs/promises';
 import { database, identity, ids, seed } from './harness';
 
 type Page = {
-  events: { id: string; action: string; category: string; severity: string; action_label: string; emitter_source: string; timestamp: string }[];
+  events: {
+    id: string;
+    action: string;
+    category: string;
+    severity: string;
+    action_label: string;
+    emitter_source: string;
+    timestamp: string;
+  }[];
   has_more: boolean;
 };
 
@@ -230,14 +238,10 @@ describe('Security & Business Audit hardening', () => {
     await identity(db, ids.superAdmin);
     await db.exec('savepoint denied');
     await expect(
-      db.query('select public.search_privacy_reservations($1,$2)', [
-        ids.venue,
-        '+390099988877',
-      ]),
+      db.query('select public.search_privacy_reservations($1,$2)', [ids.venue, '+390099988877']),
     ).rejects.toThrow('FORBIDDEN');
     await db.exec('rollback to savepoint denied');
   });
-
 
   it('exports redacted bounded audit only with one-use Super Admin step-up and reason', async () => {
     const grantId = 'e2000000-0000-4000-8000-000000000001';
@@ -247,7 +251,8 @@ describe('Security & Business Audit hardening', () => {
       [grantId, ids.superAdmin, ids.superAdmin.replace(/^2/, '3')],
     );
     await identity(db, ids.superAdmin);
-    const query = "select public.export_audit_professional($1,$2,'2026-09-15T00:00:00Z','2026-09-16T00:00:00Z',20) as data";
+    const query =
+      "select public.export_audit_professional($1,$2,'2026-09-15T00:00:00Z','2026-09-16T00:00:00Z',20) as data";
     const output = (
       await db.query<{
         data: {
@@ -281,7 +286,6 @@ describe('Security & Business Audit hardening', () => {
     ).rows[0]!.status;
     expect(implemented).toBe('OBSERVED');
   });
-
 
   it('records a redacted step-up denial only from the trusted service role', async () => {
     await identity(db, ids.admin);
@@ -327,7 +331,6 @@ describe('Security & Business Audit hardening', () => {
     expect(status).toBe('OBSERVED');
   });
 
-
   it('precreates secured monthly audit partitions without relocating existing entries', async () => {
     const rows = (
       await db.query<{ name: string; rls: boolean }>(
@@ -355,30 +358,39 @@ describe('Security & Business Audit hardening', () => {
     expect(preserved).toBe(3);
   });
 
-
   it('limits technical logs to Super Admin, returns only sanitized fields with stable pagination', async () => {
     await db.exec('reset role');
-    await db.exec("insert into public.system_errors(created_at,code,operation,request_id,correlation_id,context) values ('2026-10-10T12:00:00Z','TEST_FAILURE','test-operation',gen_random_uuid(),gen_random_uuid(),'{\"secret\":\"DO_NOT_LEAK\"}'::jsonb)");
-    await db.exec("insert into public.health_checks(checked_at,component,status,latency_ms,code,request_id) values ('2026-10-10T12:00:00Z','DATABASE','DEGRADED',123,'PROBE_FAILED',gen_random_uuid())");
-    await db.exec("insert into public.telemetry_events(created_at,event,environment,release_version,request_id,correlation_id,properties) values ('2026-10-10T12:00:00Z','HTTP_FAILURE','development','0.1.0',gen_random_uuid(),gen_random_uuid(),'{\"operation\":\"test-edge\",\"duration_ms\":123,\"code\":\"TEST_502\",\"status\":502,\"secret\":\"DO_NOT_LEAK\"}'::jsonb)");
+    await db.exec(
+      "insert into public.system_errors(created_at,code,operation,request_id,correlation_id,context) values ('2026-10-10T12:00:00Z','TEST_FAILURE','test-operation',gen_random_uuid(),gen_random_uuid(),'{\"secret\":\"DO_NOT_LEAK\"}'::jsonb)",
+    );
+    await db.exec(
+      "insert into public.health_checks(checked_at,component,status,latency_ms,code,request_id) values ('2026-10-10T12:00:00Z','DATABASE','DEGRADED',123,'PROBE_FAILED',gen_random_uuid())",
+    );
+    await db.exec(
+      'insert into public.telemetry_events(created_at,event,environment,release_version,request_id,correlation_id,properties) values (\'2026-10-10T12:00:00Z\',\'HTTP_FAILURE\',\'development\',\'0.1.0\',gen_random_uuid(),gen_random_uuid(),\'{"operation":"test-edge","duration_ms":123,"code":"TEST_502","status":502,"secret":"DO_NOT_LEAK"}\'::jsonb)',
+    );
     await identity(db, ids.superAdmin);
-    const query = async (source: string, cursor?: { occurred_at: string; entry_key: string }) => (
-      await db.query<{ data: { events: Array<Record<string, unknown>>; has_more: boolean } }>(
-        "select public.search_technical_logs($1,'2026-10-10T11:00:00Z','2026-10-10T13:00:00Z',$2,$3,2) data",
-        [source,cursor?.occurred_at ?? null,cursor?.entry_key ?? null],
-      )
-    ).rows[0]!.data;
+    const query = async (source: string, cursor?: { occurred_at: string; entry_key: string }) =>
+      (
+        await db.query<{ data: { events: Array<Record<string, unknown>>; has_more: boolean } }>(
+          "select public.search_technical_logs($1,'2026-10-10T11:00:00Z','2026-10-10T13:00:00Z',$2,$3,2) data",
+          [source, cursor?.occurred_at ?? null, cursor?.entry_key ?? null],
+        )
+      ).rows[0]!.data;
     const first = await query('ALL');
     expect(first.events).toHaveLength(2);
     expect(first.has_more).toBe(true);
     const last = first.events[1]!;
-    const second = await query('ALL', { occurred_at: String(last.occurred_at), entry_key: String(last.entry_key) });
+    const second = await query('ALL', {
+      occurred_at: String(last.occurred_at),
+      entry_key: String(last.entry_key),
+    });
     expect(second.events).toHaveLength(1);
     expect(second.has_more).toBe(false);
-    const all = [...first.events,...second.events];
-    expect(new Set(all.map((x)=>x.entry_key)).size).toBe(3);
+    const all = [...first.events, ...second.events];
+    expect(new Set(all.map((x) => x.entry_key)).size).toBe(3);
     expect(JSON.stringify(all)).not.toContain('DO_NOT_LEAK');
-    expect(all.every(x=>!('context' in x))).toBe(true);
+    expect(all.every((x) => !('context' in x))).toBe(true);
     const onlyError = await query('ERROR');
     expect(onlyError.events).toHaveLength(1);
     expect(onlyError.events[0]?.source).toBe('ERROR');
@@ -388,10 +400,11 @@ describe('Security & Business Audit hardening', () => {
     await db.exec('rollback to savepoint denylogs');
   });
 
-
   it('leaves monitoring logs untouched unless retention is explicitly approved', async () => {
     await db.exec('reset role');
-    await db.exec("insert into public.health_checks(checked_at,component,status,code,request_id) values ('2025-01-10T12:00:00Z','DATABASE','DEGRADED','PROBE_TIMEOUT',gen_random_uuid())");
+    await db.exec(
+      "insert into public.health_checks(checked_at,component,status,code,request_id) values ('2025-01-10T12:00:00Z','DATABASE','DEGRADED','PROBE_TIMEOUT',gen_random_uuid())",
+    );
     const before = (
       await db.query<{ total: number }>(
         "select count(*)::integer total from public.health_checks where checked_at='2025-01-10T12:00:00Z'",
@@ -413,5 +426,4 @@ describe('Security & Business Audit hardening', () => {
     expect(before).toBe(1);
     expect(after).toBe(1);
   });
-
 });

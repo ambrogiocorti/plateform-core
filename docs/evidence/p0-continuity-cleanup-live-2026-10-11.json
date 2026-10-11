@@ -32,10 +32,7 @@
   },
   "prevention": {
     "cleanup_trigger": "private.cleanup_finished_rehearsal_snapshot",
-    "schema_migration_versions": [
-      "20261011064417",
-      "20261011064608"
-    ],
+    "schema_migration_versions": ["20261011064417", "20261011064608"],
     "storage_gc_function": "continuity-failed-backup-gc",
     "storage_gc_cron_job": 24,
     "storage_gc_schedule": "*/10 * * * *",

@@ -63,7 +63,6 @@ protezione delle copie esterne e prove di carico con milioni di eventi. La tabel
 partizionata per timestamp con partizione di default; nessun job di rotazione è ancora attivo.
 Telemetry è separata dall'audit e non può sostituirlo.
 
-
 ## Audit professionale — aggiornamento live 11 ottobre 2026
 
 **Implementato sul database `plateform-development` (non ancora certificato per la vendita).**
