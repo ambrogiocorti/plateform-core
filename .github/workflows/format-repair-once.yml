@@ -1,0 +1,43 @@
+name: One-time Plateform format repair
+on:
+  push:
+    branches:
+      - feat/audit-commercial-hardening-20261011
+    paths:
+      - .github/workflows/format-repair-once.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: plateform-format-repair-20261011
+  cancel-in-progress: false
+
+jobs:
+  format:
+    if: github.repository == 'ambrogiocorti/plateform-core' && github.event.head_commit.message == 'chore: trigger one-time repo formatting'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run format
+      - run: npm run format:check
+      - name: Commit strictly formatting changes to the feature branch
+        run: |
+          if [ -z "$(git status --porcelain)" ]; then
+            echo 'Nothing to format'
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -u
+          git commit -m "style: apply project Prettier formatting"
+          git push origin HEAD:refs/heads/feat/audit-commercial-hardening-20261011
