@@ -359,7 +359,7 @@ describe('Security & Business Audit hardening', () => {
   it('limits technical logs to Super Admin, returns only sanitized fields with stable pagination', async () => {
     await db.exec('reset role');
     await db.exec("insert into public.system_errors(created_at,code,operation,request_id,correlation_id,context) values ('2026-10-10T12:00:00Z','TEST_FAILURE','test-operation',gen_random_uuid(),gen_random_uuid(),'{\"secret\":\"DO_NOT_LEAK\"}'::jsonb)");
-    await db.exec("insert into public.health_checks(checked_at,component,status,latency_ms,code,request_id) values ('2026-10-10T12:00:00Z','DATABASE','DEGRADED',123,'TEST_UNHEALTHY',gen_random_uuid())");
+    await db.exec("insert into public.health_checks(checked_at,component,status,latency_ms,code,request_id) values ('2026-10-10T12:00:00Z','DATABASE','DEGRADED',123,'PROBE_FAILED',gen_random_uuid())");
     await db.exec("insert into public.telemetry_events(created_at,event,environment,release_version,request_id,correlation_id,properties) values ('2026-10-10T12:00:00Z','HTTP_FAILURE','development','0.1.0',gen_random_uuid(),gen_random_uuid(),'{\"operation\":\"test-edge\",\"duration_ms\":123,\"code\":\"TEST_502\",\"status\":502,\"secret\":\"DO_NOT_LEAK\"}'::jsonb)");
     await identity(db, ids.superAdmin);
     const query = async (source: string, cursor?: { occurred_at: string; entry_key: string }) => (
@@ -391,10 +391,10 @@ describe('Security & Business Audit hardening', () => {
 
   it('leaves monitoring logs untouched unless retention is explicitly approved', async () => {
     await db.exec('reset role');
-    await db.exec("insert into public.health_checks(checked_at,component,status,code,request_id) values ('2025-01-10T12:00:00Z','DATABASE','DEGRADED','TEST_RETENTION',gen_random_uuid())");
+    await db.exec("insert into public.health_checks(checked_at,component,status,code,request_id) values ('2025-01-10T12:00:00Z','DATABASE','DEGRADED','PROBE_TIMEOUT',gen_random_uuid())");
     const before = (
       await db.query<{ total: number }>(
-        "select count(*)::integer total from public.health_checks where code='TEST_RETENTION'",
+        "select count(*)::integer total from public.health_checks where checked_at='2025-01-10T12:00:00Z'",
       )
     ).rows[0]!.total;
     await db.exec('set role service_role');
@@ -406,7 +406,7 @@ describe('Security & Business Audit hardening', () => {
     await db.exec('reset role');
     const after = (
       await db.query<{ total: number }>(
-        "select count(*)::integer total from public.health_checks where code='TEST_RETENTION'",
+        "select count(*)::integer total from public.health_checks where checked_at='2025-01-10T12:00:00Z'",
       )
     ).rows[0]!.total;
     expect(result).toEqual({ enabled: false, health_removed: 0 });
