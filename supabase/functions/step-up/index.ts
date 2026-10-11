@@ -29,8 +29,18 @@ Deno.serve(
         email: identity.user.email,
         password: body.password,
       });
-      if (error || data.user?.id !== identity.user.id || authorization.user_id !== identity.user.id)
+      if (error || data.user?.id !== identity.user.id || authorization.user_id !== identity.user.id) {
+        // The actual credential verification happened server-side; only this
+        // trusted Edge Function may record the denial. Never send passwords,
+        // emails, addresses or raw client messages to the immutable audit log.
+        const { error: auditError } = await serverClient(request).rpc('record_step_up_denial', {
+          p_user: identity.user.id,
+          p_session: authorization.session_id,
+          p_action: body.action,
+        });
+        if (auditError) console.error('STEP_UP_DENIAL_AUDIT_FAILED');
         throw new Error('UNAUTHORIZED');
+      }
       const { data: grant, error: grantError } = await serverClient(request).rpc(
         'issue_step_up_grant',
         {
