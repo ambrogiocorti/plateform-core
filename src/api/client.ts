@@ -94,7 +94,8 @@ const messages: Record<string, string> = {
   STAFF_IDENTIFIER_TAKEN: 'Questo identificativo staff è già utilizzato. Scegline uno diverso.',
   INVALID_STAFF_COMMAND:
     'Dati staff non validi. Controlla il dominio dell’identificativo e le sedi assegnate.',
-  STAFF_COMMAND_PENDING: 'Esiste già una creazione o modifica staff in sospeso. Controlla le operazioni da riprendere.',
+  STAFF_COMMAND_PENDING:
+    'Esiste già una creazione o modifica staff in sospeso. Controlla le operazioni da riprendere.',
   STAFF_LIMIT: 'È stato raggiunto il limite di utenti staff attivi.',
   STAFF_COMMAND_RECOVERY_REQUIRED:
     'La creazione staff richiede un recupero. Controlla le operazioni da riprendere prima di ripetere la richiesta.',
