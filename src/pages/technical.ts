@@ -1532,12 +1532,23 @@ export async function technicalPage(context: StaffContext): Promise<HTMLElement>
     mfa_verification_attempts: z.number(),
     login_failures_certified: z.boolean(),
     mfa_failures_certified: z.boolean(),
+    gateway_login_failures_observed: z.number(),
+    gateway_mfa_failures_observed: z.number(),
+  });
+  const retentionSchema = z.object({
+    status: z.string(),
+    audit_purge_enabled: z.boolean(),
+    legal_hold_active: z.boolean(),
+    external_worm_certified: z.boolean(),
+    external_key_custody_certified: z.boolean(),
+    retention_policy_approved: z.boolean(),
   });
   // Fail closed for partial deployments; never block the technical dashboard.
   void Promise.allSettled([
     rpc('get_audit_archive_health', {}, archiveSchema),
     rpc('get_auth_audit_readiness', {}, authSchema),
-  ]).then(([archive, auth]) => {
+    rpc('get_audit_retention_readiness', {}, retentionSchema),
+  ]).then(([archive, auth, retention]) => {
     auditArchiveSummary.replaceChildren();
     if (archive.status === 'fulfilled') {
       const proof = archive.value.latest_verification;
@@ -1589,6 +1600,15 @@ export async function technicalPage(context: StaffContext): Promise<HTMLElement>
           { class: 'muted' },
           'Gli eventi Auth senza esito attendibile non sono classificati come login o MFA falliti.',
         ),
+        el(
+          'p',
+          {},
+          'Fallimenti accertati dal gateway staff: ' +
+            auth.value.gateway_login_failures_observed +
+            ' login, ' +
+            auth.value.gateway_mfa_failures_observed +
+            ' verifiche MFA. Il gateway non monitora i client esterni.',
+        ),
       );
     } else {
       auditArchiveSummary.append(
@@ -1599,7 +1619,19 @@ export async function technicalPage(context: StaffContext): Promise<HTMLElement>
       el(
         'p',
         { class: 'muted' },
-        'Nessuna retention automatica dell’audit è attiva. L’archiviazione cifrata su due progetti non equivale a conservazione WORM certificata.',
+        retention.status === 'fulfilled'
+          ? 'Retention Audit: ' +
+              retention.value.status +
+              '. Blocco cancellazione: ' +
+              (retention.value.audit_purge_enabled ? 'NO' : 'ATTIVO') +
+              ', blocco legale: ' +
+              (retention.value.legal_hold_active ? 'ATTIVO' : 'NON ATTIVO') +
+              '. Conservazione WORM esterna: ' +
+              (retention.value.external_worm_certified ? 'verificata' : 'non certificata') +
+              '. Policy legale: ' +
+              (retention.value.retention_policy_approved ? 'approvata' : 'da approvare') +
+              '.'
+          : 'Retention Audit: stato non verificabile, nessuna cancellazione autorizzata.',
       ),
     );
   });
