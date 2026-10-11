@@ -31,6 +31,7 @@ describe('Security & Business Audit hardening', () => {
       '20261011075935_audit_secure_superadmin_export_with_stepup.sql',
       '20261011080213_audit_trusted_stepup_denial_source.sql',
       '20261011080554_audit_future_month_partition_rotation_no_data_loss.sql',
+      '20261011081547_technical_logs_redacted_superadmin_search.sql',
     ]) {
       await db.exec(await readFile(`supabase/migrations/${migration}`, 'utf8'));
     }
@@ -351,6 +352,39 @@ describe('Security & Business Audit hardening', () => {
       )
     ).rows[0]!.total;
     expect(preserved).toBe(3);
+  });
+
+
+  it('limits technical logs to Super Admin, returns only sanitized fields with stable pagination', async () => {
+    await db.exec('reset role');
+    await db.exec("insert into public.system_errors(created_at,code,operation,request_id,correlation_id,context) values ('2026-10-10T12:00:00Z','TEST_FAILURE','test-operation',gen_random_uuid(),gen_random_uuid(),'{\"secret\":\"DO_NOT_LEAK\"}'::jsonb)");
+    await db.exec("insert into public.health_checks(checked_at,component,status,latency_ms,code,request_id) values ('2026-10-10T12:00:00Z','DATABASE','DEGRADED',123,'TEST_UNHEALTHY',gen_random_uuid())");
+    await db.exec("insert into public.telemetry_events(created_at,event,environment,release_version,request_id,correlation_id,properties) values ('2026-10-10T12:00:00Z','HTTP_FAILURE','development','0.1.0',gen_random_uuid(),gen_random_uuid(),'{\"operation\":\"test-edge\",\"duration_ms\":123,\"code\":\"TEST_502\",\"status\":502,\"secret\":\"DO_NOT_LEAK\"}'::jsonb)");
+    await identity(db, ids.superAdmin);
+    const query = async (source: string, cursor?: { occurred_at: string; entry_key: string }) => (
+      await db.query<{ data: { events: Array<Record<string, unknown>>; has_more: boolean } }>(
+        "select public.search_technical_logs($1,'2026-10-10T11:00:00Z','2026-10-10T13:00:00Z',$2,$3,2) data",
+        [source,cursor?.occurred_at ?? null,cursor?.entry_key ?? null],
+      )
+    ).rows[0]!.data;
+    const first = await query('ALL');
+    expect(first.events).toHaveLength(2);
+    expect(first.has_more).toBe(true);
+    const last = first.events[1]!;
+    const second = await query('ALL', { occurred_at: String(last.occurred_at), entry_key: String(last.entry_key) });
+    expect(second.events).toHaveLength(1);
+    expect(second.has_more).toBe(false);
+    const all = [...first.events,...second.events];
+    expect(new Set(all.map((x)=>x.entry_key)).size).toBe(3);
+    expect(JSON.stringify(all)).not.toContain('DO_NOT_LEAK');
+    expect(all.every(x=>!('context' in x))).toBe(true);
+    const onlyError = await query('ERROR');
+    expect(onlyError.events).toHaveLength(1);
+    expect(onlyError.events[0]?.source).toBe('ERROR');
+    await identity(db, ids.cashier);
+    await db.exec('savepoint denylogs');
+    await expect(db.query('select public.search_technical_logs()')).rejects.toThrow('FORBIDDEN');
+    await db.exec('rollback to savepoint denylogs');
   });
 
 });
