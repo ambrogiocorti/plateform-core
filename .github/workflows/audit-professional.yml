@@ -3,12 +3,18 @@ on:
   push:
     paths:
       - 'src/pages/audit.ts'
+      - 'src/auth/staff.ts'
+      - 'supabase/functions/auth-audit-gateway/index.ts'
+      - 'scripts/check-auth-audit-gateway.mjs'
       - 'tests/database/audit-professional.test.ts'
       - 'supabase/migrations/*audit_*.sql'
       - '.github/workflows/audit-professional.yml'
   pull_request:
     paths:
       - 'src/pages/audit.ts'
+      - 'src/auth/staff.ts'
+      - 'supabase/functions/auth-audit-gateway/index.ts'
+      - 'scripts/check-auth-audit-gateway.mjs'
       - 'tests/database/audit-professional.test.ts'
       - 'supabase/migrations/*audit_*.sql'
       - '.github/workflows/audit-professional.yml'
@@ -25,5 +31,6 @@ jobs:
           node-version: '24'
           cache: npm
       - run: npm ci
+      - run: node scripts/check-auth-audit-gateway.mjs
       - run: npm run typecheck
       - run: node node_modules/vitest/vitest.mjs run tests/database/audit-professional.test.ts
