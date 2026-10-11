@@ -1,0 +1,35 @@
+name: Audit scoped formatter (one-time)
+on:
+  push:
+    branches:
+      - feat/audit-commercial-hardening-20261011
+    paths:
+      - .github/workflows/audit-format-one-time.yml
+permissions:
+  contents: write
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Format only new audit and log files
+        run: |
+          node node_modules/prettier/bin/prettier.cjs --write             src/pages/technical.ts             supabase/functions/audit-archive-receiver/index.ts             supabase/functions/audit-archive-worker/index.ts             supabase/functions/audit-archive-verify/index.ts             tests/database/audit-professional.test.ts             docs/AUDIT_ARCHIVE_AND_AUTH_CERTIFICATION_2026-10-11.md             .github/workflows/audit-format-one-time.yml
+      - run: npm run format:check
+      - name: Commit scoped formatting
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add src/pages/technical.ts               supabase/functions/audit-archive-receiver/index.ts               supabase/functions/audit-archive-worker/index.ts               supabase/functions/audit-archive-verify/index.ts               tests/database/audit-professional.test.ts               docs/AUDIT_ARCHIVE_AND_AUTH_CERTIFICATION_2026-10-11.md               .github/workflows/audit-format-one-time.yml
+            git commit -m "style: format audit archive and technical-log changes"
+            git push origin HEAD:refs/heads/feat/audit-commercial-hardening-20261011
+          fi
