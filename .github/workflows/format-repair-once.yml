@@ -15,7 +15,6 @@ concurrency:
 
 jobs:
   format:
-    if: github.repository == 'ambrogiocorti/plateform-core' && github.event.head_commit.message == 'chore: trigger one-time repo formatting'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
