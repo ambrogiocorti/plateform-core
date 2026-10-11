@@ -50,6 +50,7 @@ describe('Security & Business Audit hardening', () => {
       '20261011153810_audit_auth_provider_readiness_without_false_failure_labels.sql',
       '20261011155756_audit_auth_gateway_rejected_login_mfa_service_only.sql',
       '20261011160726_audit_retention_immutable_approval_gate_and_gateway_coverage.sql',
+      '20261011175254_audit_certification_fail_closed_release_gates.sql',
     ]) {
       await db.exec(await readFile(`supabase/migrations/${migration}`, 'utf8'));
     }
@@ -735,6 +736,32 @@ describe('Security & Business Audit hardening', () => {
       db.query('update private.audit_retention_governance set policy_status=$1 where id', ['APPROVED']),
     ).rejects.toThrow('AUDIT_RETENTION_APPROVAL_REQUIRES_VERSIONED_MIGRATION');
     await db.exec('rollback to savepoint immutable_retention');
+  });
+
+
+  it('does not certify Audit commercially when real MFA, native Auth, WORM and retention approval are missing', async () => {
+    const { rows } = await db.query<{
+      report: {
+        overall_status: string;
+        reasons: string[];
+        legal_hold_active: boolean;
+        audit_purge_enabled: boolean;
+        archive_recovery_current: boolean;
+      };
+    }>('select public.get_audit_certification_gates() report');
+    const report = rows[0]!.report;
+    expect(report.overall_status).toBe('CERTIFICATION_BLOCKED');
+    expect(report.reasons).toContain('MFA_FAILURE_NOT_OBSERVED');
+    expect(report.reasons).toContain('NATIVE_AUTHSINK_NOT_VERIFIED');
+    expect(report.reasons).toContain('EXTERNAL_WORM_NOT_CERTIFIED');
+    expect(report.reasons).toContain('INDEPENDENT_KEY_CUSTODY_NOT_CERTIFIED');
+    expect(report.reasons).toContain('RETENTION_POLICY_NOT_APPROVED');
+    expect(report.legal_hold_active).toBe(true);
+    expect(report.audit_purge_enabled).toBe(false);
+    await identity(db, ids.cashier);
+    await db.exec('savepoint rejected_gate');
+    await expect(db.query('select public.get_audit_certification_gates()')).rejects.toThrow('FORBIDDEN');
+    await db.exec('rollback to savepoint rejected_gate');
   });
 
 });
