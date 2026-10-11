@@ -1,7 +1,8 @@
 import { z } from 'zod';
 import { client, readRows, rpc, safeEdgeError } from '../api/client';
-import { button, dialog, el, field, showError, status, toast } from '../components/dom';
+import { button, dialog, el, field, status, toast } from '../components/dom';
 import { stepUp } from '../auth/step-up';
+import { automaticStaffIdentifier } from '../auth/staff-identifier';
 import type { StaffContext } from './staff-context';
 import { command } from './staff-context';
 
@@ -87,9 +88,7 @@ export async function staffManagementPage(context: StaffContext): Promise<HTMLEl
         'div',
         {},
         el('h2', {}, 'La squadra'),
-        workspace.identity_domain
-          ? el('p', { class: 'muted' }, `Dominio predefinito degli identificativi: ${workspace.identity_domain}`)
-          : null,
+        el('p', { class: 'muted' }, 'Identificativi automatici: nome.cognome@nomedellasede.it'),
       ),
       button('Aggiungi utente', () => {
         const name = field('Nome e cognome', 'name');
@@ -105,25 +104,21 @@ export async function staffManagementPage(context: StaffContext): Promise<HTMLEl
           ...roles.map((value) => el('option', { value }, value.replaceAll('_', ' '))),
         );
         let identifierEdited = false;
-        let suggestionRevision = 0;
         let preferredVenueId = context.venue?.id;
         let getSelectedVenueName = (): string | undefined => context.venue?.name;
-        const refreshSuggestedIdentifier = async () => {
-          const current = ++suggestionRevision;
+        identifier.input.placeholder = 'nome.cognome@nomesede.it';
+        identifier.input.autocomplete = 'off';
+        const refreshSuggestedIdentifier = () => {
           if (identifierEdited) return;
-          const venueName = getSelectedVenueName();
-          if (!venueName) return;
-          const suggested = await rpc(
-            'suggest_staff_identifier',
-            { p_name: venueName },
-            z.string(),
+          identifier.input.value = automaticStaffIdentifier(
+            name.input.value,
+            getSelectedVenueName() ?? '',
           );
-          if (current === suggestionRevision && !identifierEdited)
-            identifier.input.value = suggested;
         };
+        name.input.addEventListener('input', refreshSuggestedIdentifier);
+        // A manual change takes priority even when name or venue changes afterwards.
         identifier.input.addEventListener('input', () => {
           identifierEdited = true;
-          suggestionRevision++;
         });
         const access = accessScopeEditor(
           context,
@@ -133,7 +128,7 @@ export async function staffManagementPage(context: StaffContext): Promise<HTMLEl
           context.venue ? [context.venue.id] : [],
           (venueId) => {
             preferredVenueId = venueId;
-            void refreshSuggestedIdentifier().catch(showError);
+            refreshSuggestedIdentifier();
           },
         );
         const { scope, venueIds, venueFields } = access;
@@ -150,14 +145,14 @@ export async function staffManagementPage(context: StaffContext): Promise<HTMLEl
           el(
             'p',
             { class: 'muted' },
-            'Proposto dal nome della sede; puoi modificarlo con qualsiasi indirizzo email valido.',
+            'Generato automaticamente da nome, cognome e sede. Puoi modificarlo manualmente.',
           ),
           password.root,
           el('label', {}, 'Ruolo', role),
           el('label', {}, 'Ambito', scope),
           venueFields,
         );
-        void refreshSuggestedIdentifier().catch(showError);
+        refreshSuggestedIdentifier();
         const commandKey = crypto.randomUUID();
         editor.append(
           button('Crea utente', async () => {
