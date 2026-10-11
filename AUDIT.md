@@ -87,3 +87,25 @@ Telemetry è separata dall'audit e non può sostituirlo.
 5. Database remoto e repository hanno una cronologia migrazioni non ancora completamente riconciliata: **il fatto che due nuove migrazioni siano in git non rende il progetto go-live-ready**. Tutte le condizioni di `ROADMAP_STATUS` e dei gate commerciali restano applicabili.
 
 Test: `tests/database/audit-professional.test.ts` più verifica live transazionale (rollback) del comportamento dei trigger. I test PGlite, anche quando verdi, non equivalgono a una prova completa dell'infrastruttura Supabase.
+
+## Estensione verificata — 11 ottobre 2026, audit privacy / export / security / partizioni
+
+Implementato e applicato esclusivamente a Supabase `plateform-development`:
+
+- La RPC `search_privacy_reservations` è ora VOLATILE e produce `SENSITIVE_DATA_ACCESS` dopo l'autorizzazione Admin e la ricerca, senza inserire né telefono né risultati personali nei campi audit. Errori nella registrazione interrompono anche la lettura; gli eventi non sono persi silenziosamente.
+- `export_reservation_personal_data` già usava step-up e scriveva `PERSONAL_DATA_EXPORTED`: NON è stata duplicata la logica. Catalogati anche rettifica, anonimizzazione e privacy hold come eventi implementati.
+- `export_audit_professional` usa Super Admin, password step-up `AUDIT_EXPORT` monouso, motivazione obbligatoria, massimo 500 righe e finestra fino a 31 giorni; esclude IP, user-agent e campi metadata. La dashboard `/audit` consente il download JSON e segnala le esportazioni parziali. Ogni esportazione completata scrive `AUDIT_EXPORTED`.
+- `record_step_up_denial` può essere chiamata **solo** da `service_role`. La Edge `step-up` v12 la invoca quando la verifica effettiva di password fallisce. Non copia password, email, IP o token; conserva l'attore da `auth.getUser()` e la sessione già autorizzata. Il codice distribuito coincide con GitHub; nessuna prova con account reale è stata eseguita.
+- Il catalogo distingue `OBSERVED` (evento effettivamente apparso nel DB), `IMPLEMENTED` (flusso scritto e testato ma evento non ancora prodotto live) e `PLANNED` (funzionalità non ancora verificata). Trigger limitati promuovono eventi sensibili a `OBSERVED` soltanto al loro effettivo inserimento.
+- Quattro partizioni audit future sono predisposte per novembre e dicembre 2026, gennaio e febbraio 2027, con RLS e trigger di immutabilità ereditati. Cron `plateform-audit-future-partitions` ogni giorno 20 del mese, ore 00:05 UTC, prepara i prossimi quattro mesi. Non è attiva **alcuna cancellazione** né spostamento dei vecchi eventi in default.
+- Test SQL live (transazione rollback) e pipeline PGlite focalizzata: **8/8 PASS**, incluse ricerca privacy senza PII, privilegi, esportazione monouso, step-up denial, partizioni e immutabilità storica. CI globale ancora in FAIL: 101 file nella verifica Prettier; la storia migrazioni remota/local non è riconciliata.
+
+### Requisiti ancora non certificati
+
+- `AUTH_LOGIN_FAILED` prima della sessione e `MFA_VERIFICATION_FAILED`: non implementare da semplice chiamata browser che sarebbe falsificabile; serve un'integrazione con Auth/GoTrue o gateway attendibile con anti-abuso. `ACCESS_DENIED` e `PRIVILEGE_CHANGE_DENIED` generali devono essere registrati fuori dalla transazione negata, senza rendere una negazione una modifica riuscita.
+- Prova Auth reale su utente staff e MFA, integrazione browser/deploy della UI, restore end-to-end dell'ultima versione.
+- Archivio storico durevole fuori database con cifratura/verifica hash e controllo delle chiavi, test anti-manomissione e retention approvata dal titolare. **Nessuna eliminazione audit** autorizzata finché non è provata la recuperabilità e la policy legale.
+- Catalogo con label italiane per tutti i codici; eventuale revisione semantica delle categorie; controllo di qualità dei log.
+- Gate completo `npm run check` e `npm run release:check`, confronto delle migrazioni remote/local e merge controllato delle PR #21 e #22.
+
+**Stato rilascio: NO-GO.** Le CI focalizzate non equivalgono al rilascio commerciale e non è stato creato alcun pacchetto.
