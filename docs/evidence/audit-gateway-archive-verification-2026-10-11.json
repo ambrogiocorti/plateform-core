@@ -1,0 +1,52 @@
+{
+  "date": "2026-10-11",
+  "environment": "plateform-development",
+  "source_project": "abdxvlykasqmknexxhjo",
+  "replica_project": "dkbjgvovxgglqhqxmuyb",
+  "auth": {
+    "deployment": "auth-audit-gateway",
+    "deployment_version": 2,
+    "active": true,
+    "anonymous_provider_rejected_login_test": "PASS",
+    "staff_gateway_audit_event": "AUTH_LOGIN_FAILED",
+    "observed": 1,
+    "native_auth_audit_db_rows": 0,
+    "mfa_unauthenticated_rejected": "PASS",
+    "mfa_authenticated_wrong_totp_end_to_end": "NOT_TESTED_NO_TEST_ACCOUNT",
+    "mfa_provider_error_classification": "ONLY_MFA_VERIFICATION_FAILED",
+    "consumer_roles_may_insert_failures": false
+  },
+  "archive": {
+    "batches": 19,
+    "archived_rows": 3243,
+    "replica_witnesses": 19,
+    "replica_objects": 19,
+    "independent_restore": "PASS",
+    "restored_rows": 3243,
+    "verified_batches": 19,
+    "prior_passes": 2,
+    "algorithm": "AES-256-GCM",
+    "hash": "SHA-256",
+    "original_rows_deleted": 0
+  },
+  "retention": {
+    "policy_status": "AWAITING_FORMAL_APPROVAL",
+    "purge_enabled": false,
+    "legal_hold_active": true,
+    "external_worm_verified": false,
+    "independent_kms_custody_verified": false,
+    "formal_retention_approved": false
+  },
+  "checks": {
+    "focused_suite": "LATEST_WORKFLOW_FAILURE_REQUIRES_LOG_INVESTIGATION",
+    "last_known_green_focus": "2026-10-11 16:08 UTC before gateway provider-code refinement",
+    "full_pipeline": "FAIL: migration history and CI gates remain open"
+  },
+  "limitations": [
+    "Synthetic TOTP test needs a throwaway authenticated staff account and seeded verified factor",
+    "Native Supabase Auth database sink not enabled",
+    "Legal/contractual WORM retention period and object-lock provider not configured",
+    "No approval to purge original immutable audit log"
+  ],
+  "commercial_release": "NO_GO"
+}
