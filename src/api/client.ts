@@ -93,7 +93,7 @@ const messages: Record<string, string> = {
   PIN_OR_FULL_AUTH_REQUIRED: 'Sblocca la sessione con PIN o accedi di nuovo.',
   STAFF_IDENTIFIER_TAKEN: 'Questo identificativo staff è già utilizzato. Scegline uno diverso.',
   INVALID_STAFF_COMMAND:
-    'Dati staff non validi. Controlla il dominio dell’identificativo e le sedi assegnate.',
+    'Dati staff non validi. Controlla il formato email, i campi obbligatori e le sedi assegnate.',
   STAFF_COMMAND_PENDING:
     'Esiste già una creazione o modifica staff in sospeso. Controlla le operazioni da riprendere.',
   STAFF_LIMIT: 'È stato raggiunto il limite di utenti staff attivi.',
