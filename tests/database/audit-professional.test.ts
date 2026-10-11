@@ -529,7 +529,11 @@ describe('Security & Business Audit hardening', () => {
       )
     ).rows[0]!.state;
     expect(health.archived_rows).toBe(page.rows.length);
-    expect(health.remaining_rows).toBe(0);
+    // Recent events are intentionally held back by the five-minute archive safety window.
+    const liveTotal = (
+      await db.query<{ total: number }>('select count(*)::integer total from public.audit_log')
+    ).rows[0]!.total;
+    expect(health.archived_rows + health.remaining_rows).toBe(liveTotal);
     await db.exec('savepoint immutability_archive');
     await expect(
       db.query('delete from private.audit_archive_batches where batch_no=$1',[claim.batch_no]),
