@@ -123,6 +123,9 @@ describe('Security & Business Audit hardening', () => {
   });
 
   it('excludes device heartbeat and keeps device security/configuration changes', async () => {
+    // Inspect the DB trigger as the PGlite fixture owner: browser roles have
+    // no direct INSERT/UPDATE grants for this table by design.
+    await db.exec('reset role');
     const id = 'e5000000-0000-4000-8000-000000000001';
     await db.query(
       `insert into public.registered_devices(id,user_id,venue_id,display_name,platform,app_version)
