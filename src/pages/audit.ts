@@ -45,6 +45,49 @@ const categoryLabels: Record<string, string> = {
   UNCATALOGUED: 'Da catalogare',
 };
 
+function auditDiff(beforeValue: unknown, afterValue: unknown): HTMLElement {
+  const asObject = (value: unknown): Record<string, unknown> =>
+    value !== null && typeof value === 'object' && !Array.isArray(value)
+      ? (value as Record<string, unknown>)
+      : {};
+  const before = asObject(beforeValue);
+  const after = asObject(afterValue);
+  const keys = [...new Set([...Object.keys(before), ...Object.keys(after)])]
+    .filter((key) => JSON.stringify(before[key]) !== JSON.stringify(after[key]))
+    .sort();
+  const renderValue = (value: unknown) =>
+    value === undefined ? '—' : JSON.stringify(value);
+  return el(
+    'section',
+    { class: 'stack compact' },
+    el('h3', {}, 'Campi modificati (solo valori consentiti dall’audit)'),
+    keys.length
+      ? el(
+          'div',
+          { class: 'table-wrap' },
+          el(
+            'table',
+            {},
+            el('thead', {}, el('tr', {}, ...['Campo', 'Prima', 'Dopo'].map((s) => el('th', {}, s)))),
+            el(
+              'tbody',
+              {},
+              ...keys.map((key) =>
+                el(
+                  'tr',
+                  {},
+                  el('td', {}, key),
+                  el('td', {}, renderValue(before[key])),
+                  el('td', {}, renderValue(after[key])),
+                ),
+              ),
+            ),
+          ),
+        )
+      : el('p', { class: 'muted' }, 'Nessuna differenza nei campi ammessi dalla policy di redazione.'),
+  );
+}
+
 export async function auditPage(): Promise<HTMLElement> {
   const catalog = await rpc(
     'get_audit_event_catalog',
@@ -229,6 +272,7 @@ export async function auditPage(): Promise<HTMLElement> {
                     {},
                     `Conto ${entry.account_id ?? '—'} · Cassa ${entry.cash_register_id ?? '—'} · Servizio ${entry.service_session_id ?? '—'}`,
                   ),
+                  auditDiff(entry.old_values, entry.new_values),
                   el('h3', {}, 'Prima'),
                   el('pre', {}, JSON.stringify(entry.old_values, null, 2)),
                   el('h3', {}, 'Dopo'),
