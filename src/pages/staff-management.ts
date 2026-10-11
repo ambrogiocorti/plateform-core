@@ -88,7 +88,7 @@ export async function staffManagementPage(context: StaffContext): Promise<HTMLEl
         {},
         el('h2', {}, 'La squadra'),
         workspace.identity_domain
-          ? el('p', { class: 'muted' }, `Dominio identificativi: ${workspace.identity_domain}`)
+          ? el('p', { class: 'muted' }, `Dominio predefinito degli identificativi: ${workspace.identity_domain}`)
           : null,
       ),
       button('Aggiungi utente', () => {
