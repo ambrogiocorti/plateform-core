@@ -44,3 +44,9 @@ Il provider Supabase conserva inoltre log infrastrutturali e **Auth Audit Logs**
 - 10/10 test focalizzati Audit/Log superati su PGlite e controllo TypeScript; test di autorizzazioni/filtri/paginazione/minimizzazione, configurazione retention disattivata.
 - L'integrazione è nel branch di sviluppo, non è certificata end-to-end con browser e autenticazione Supabase reali.
 - La CI generale resta non conforme, inclusi problemi di formattazione e replay storico migrazioni. Continuity/restore e readiness commerciale sono gate separati.
+
+## Consultazione degli eventi nativi Supabase Auth
+
+In `/salute` la fonte `AUTH` nel visualizzatore dei log tecnici presenta codici azione provider in forma minimizzata. La lettura è disponibile solo al Super Admin, con filtri temporali e cursore. Non restituisce payload, indirizzo IP o email. `RECORDED_UNCLASSIFIED` significa che l'esito specifico non è dimostrato.
+
+La tabella nativa PostgreSQL opzionale `auth.audit_log_entries` era vuota al controllo dell'11 ottobre 2026. La piattaforma **non** può dichiarare visibili i fallimenti di login e MFA dal solo supporto della query; l'abilitazione della scrittura e il test con Auth reale sono gate aperti. Non aggiungere sorgenti client per ricreare i login falliti, perché sarebbero falsificabili.
