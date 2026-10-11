@@ -61,6 +61,33 @@ describe('Step 1 staff access and credential lifecycle', () => {
     expect(retry.rows).toEqual(result.rows);
   });
 
+  it('accepts an authorized custom staff email domain without changing the configured default', async () => {
+    await identity(db, ids.superAdmin);
+    const grant = await stepUp(db, ids.superAdmin, 'PRIVILEGED_STAFF');
+    const values = {
+      display_name: 'Admin Sede collaudo',
+      identifier: 'sede.collaudo@custom.example',
+      role: 'ADMIN',
+      scope: 'CHAIN',
+      venue_ids: [],
+    };
+    const result = await db.query<{ job: { id: string; user_id: string; status: string } }>(
+      "select public.begin_staff_admin_job('CREATE',$1::jsonb,$2,$3) as job",
+      [JSON.stringify(values), crypto.randomUUID(), grant],
+    );
+    expect(result.rows[0]!.job.status).toBe('PENDING');
+    const persisted = await db.query<{ identifier: string }>(
+      'select values->>\'identifier\' as identifier from public.staff_admin_jobs where id=$1',
+      [result.rows[0]!.job.id],
+    );
+    expect(persisted.rows[0]!.identifier).toBe(values.identifier);
+    expect(
+      (await db.query<{ domain: string }>(
+        'select staff_identity_domain as domain from public.restaurant_profile where id',
+      )).rows[0]!.domain,
+    ).toBe('staff.test');
+  });
+
   it('updates role/scope atomically and invalidates stale operational credentials', async () => {
     await db.exec(`insert into private.staff_pins(user_id,pin_hash)
       values('${ids.waiter}',extensions.crypt('192847',extensions.gen_salt('bf',4)))`);
