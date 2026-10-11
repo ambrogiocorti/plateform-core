@@ -30,6 +30,7 @@ describe('Security & Business Audit hardening', () => {
       '20261011075739_audit_privacy_sensitive_read_and_catalog_truth.sql',
       '20261011075935_audit_secure_superadmin_export_with_stepup.sql',
       '20261011080213_audit_trusted_stepup_denial_source.sql',
+      '20261011080554_audit_future_month_partition_rotation_no_data_loss.sql',
     ]) {
       await db.exec(await readFile(`supabase/migrations/${migration}`, 'utf8'));
     }
@@ -322,6 +323,34 @@ describe('Security & Business Audit hardening', () => {
       )
     ).rows[0]!.state;
     expect(status).toBe('OBSERVED');
+  });
+
+
+  it('precreates secured monthly audit partitions without relocating existing entries', async () => {
+    const rows = (
+      await db.query<{ name: string; rls: boolean }>(
+        \`select c.relname name,c.relrowsecurity rls
+         from pg_inherits i join pg_class c on c.oid=i.inhrelid
+         where i.inhparent='public.audit_log'::regclass
+           and c.relname ~ '^audit_log_[0-9]{4}_[0-9]{2}$'
+         order by c.relname\`,
+      )
+    ).rows;
+    expect(rows).toHaveLength(4);
+    expect(rows.every((p) => p.rls)).toBe(true);
+    await db.exec('reset role');
+    const noMore = (
+      await db.query<{ created: number }>(
+        'select private.ensure_audit_monthly_partitions(4) as created',
+      )
+    ).rows[0]!.created;
+    expect(noMore).toBe(0);
+    const preserved = (
+      await db.query<{ total: number }>(
+        "select count(*)::integer total from public.audit_log_default where action='PAYMENTS_UPDATE'",
+      )
+    ).rows[0]!.total;
+    expect(preserved).toBe(3);
   });
 
 });
