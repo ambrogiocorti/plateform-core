@@ -1,8 +1,19 @@
 # P0 — Cleanup rehearsal controllato (11 ottobre 2026)
 
-**Stato: BLOCKED — NON eseguire cancellazioni finché non sono soddisfatti i gate qui sotto.**
+**Stato aggiornato 2026-10-11: RECUPERO FISICO COMPLETATO; VERIFICA BACKUP/RESTORE CORRENTE ANCORA APERTA.** Le condizioni sotto riportate documentano il preflight e i gate commerciali, non una certificazione di rilascio.
 Ambiente: Supabase `plateform-development` (`abdxvlykasqmknexxhjo`).
 Questo documento non autorizza cancellazione automatica né fa parte del release gate production.
+
+## Esito operativo live 11 ottobre 2026
+
+- Database sceso da circa 1.570,6 MB a **57,6 MB** dopo TRUNCATE transazionale protetto delle cinque tabelle temporanee (strutture conservate).
+- Snapshot storici eliminati: 155; copie di righe: 1.716.997; chunk: 8.664; file Storage primari collegati ai vecchi backup falliti: 695 (circa 205,8 MB).
+- Primario/replica ultimo backup riuscito precedente alla bonifica confrontati con identico inventario di 68 file e 3.560.226 byte. L'ultimo backup verificato dal sistema resta quello del 9 ottobre; **nessuna nuova prova di restore certificata**.
+- Trigger di pulizia terminale installato con migrazione remota `20261011064417`, test transazionale con rollback superato; RPC selector del GC remota `20261011064608`, senza EXECUTE per anon/authenticated.
+- Edge `continuity-failed-backup-gc` e cron #24 attivo per il purge dei fallimenti senza riferimenti di restore; Edge `continuity-backup-worker` v11 usa chunk da 500 anziché 200 righe.
+- Il backup di prova con il vecchio worker è rimasto RUNNING oltre sei minuti e senza progressi Storage; chiuso `FAILED / BACKUP_STALLED_NO_PROGRESS` con cleanup automatico verificato. Il relativo Storage parziale segue un grace period protettivo prima del purge.
+- 459 migrazioni remote dopo i due interventi. **Non allineare/forzare** manualmente il manifest GitHub: la riconciliazione completa delle migrazioni remote resta requisito separato.
+- PR draft, release commerciale **NO-GO**.
 
 ## Dimensionamento osservato
 
