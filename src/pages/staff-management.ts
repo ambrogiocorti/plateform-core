@@ -41,7 +41,7 @@ function accessScopeEditor(
   context: StaffContext,
   initialScope: 'CHAIN' | 'VENUE',
   initialVenues: string[],
-  onVenueChange?: () => void,
+  onVenueChange?: (venueId: string) => void,
 ): { scope: HTMLSelectElement; venueIds: Set<string>; venueFields: HTMLElement; sync: () => void } {
   const scope = el(
     'select',
@@ -61,7 +61,7 @@ function accessScopeEditor(
       input.addEventListener('change', () => {
         if (input.checked) venueIds.add(venue.id);
         else venueIds.delete(venue.id);
-        onVenueChange?.();
+        onVenueChange?.(venue.id);
       });
       return el('label', { class: 'checkbox-line' }, input, venue.name);
     }),
@@ -106,6 +106,7 @@ export async function staffManagementPage(context: StaffContext): Promise<HTMLEl
         );
         let identifierEdited = false;
         let suggestionRevision = 0;
+        let preferredVenueId = context.venue?.id;
         let getSelectedVenueName = (): string | undefined => context.venue?.name;
         const refreshSuggestedIdentifier = async () => {
           const current = ++suggestionRevision;
@@ -130,10 +131,15 @@ export async function staffManagementPage(context: StaffContext): Promise<HTMLEl
             ? 'CHAIN'
             : 'VENUE',
           context.venue ? [context.venue.id] : [],
-          () => void refreshSuggestedIdentifier().catch(showError),
+          (venueId) => {
+            preferredVenueId = venueId;
+            void refreshSuggestedIdentifier().catch(showError);
+          },
         );
         const { scope, venueIds, venueFields } = access;
         getSelectedVenueName = () =>
+          context.venues.find((venue) => venue.id === preferredVenueId && venueIds.has(venue.id))
+            ?.name ??
           context.venues.find((venue) => venueIds.has(venue.id))?.name ??
           context.venue?.name ??
           context.venues[0]?.name;
