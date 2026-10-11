@@ -4,7 +4,6 @@
   "buildCommand": "npm run build:pages",
   "installCommand": "npm ci",
   "outputDirectory": "dist/site",
-  "public": false,
   "rewrites": [
     {
       "source": "/staff",

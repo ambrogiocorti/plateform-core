@@ -11,7 +11,7 @@ check(() => assert.equal(verified.framework, null));
 check(() => assert.equal(verified.outputDirectory, 'dist/site'));
 check(() => assert.equal(verified.installCommand, 'npm ci'));
 check(() => assert.equal(verified.buildCommand, 'npm run build:pages'));
-check(() => assert.equal(verified.public, false));
+check(() => assert.equal(Object.hasOwn(verified, 'public'), false));
 const paths = verified.rewrites.map((r) => r.source);
 check(() => assert.ok(paths.includes('/staff/:page([a-z0-9-]+)')));
 check(() => assert.ok(paths.includes('/menu/:slug([a-z0-9-]+)')));
