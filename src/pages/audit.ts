@@ -92,9 +92,10 @@ export async function auditPage(): Promise<HTMLElement> {
   const catalog = await rpc(
     'get_audit_event_catalog',
     {},
-    z.array(z.object({ action: z.string(), implementation_status: z.enum(['OBSERVED', 'PLANNED']) })),
+    z.array(z.object({ action: z.string(), implementation_status: z.enum(['OBSERVED', 'IMPLEMENTED', 'PLANNED']) })),
   );
   const observedTypes = catalog.filter((item) => item.implementation_status === 'OBSERVED').length;
+  const implementedTypes = catalog.filter((item) => item.implementation_status === 'IMPLEMENTED').length;
   const plannedTypes = catalog.filter((item) => item.implementation_status === 'PLANNED').length;
   const action = field('Evento', 'action');
   action.input.maxLength = 100;
@@ -305,7 +306,7 @@ export async function auditPage(): Promise<HTMLElement> {
       el(
         'p',
         { class: 'muted' },
-        `${observedTypes} tipi di evento osservati; ${plannedTypes} ancora da implementare. Il registro è in sola lettura e non include click o heartbeat.`,
+        `${observedTypes} tipi osservati, ${implementedTypes} implementati ma non ancora osservati, ${plannedTypes} pianificati. Il registro è in sola lettura; i click e gli heartbeat non sono audit.`,
       ),
     ),
     filters,
