@@ -534,15 +534,23 @@ describe('Security & Business Audit hardening', () => {
       await db.query<{ total: number }>('select count(*)::integer total from public.audit_log')
     ).rows[0]!.total;
     expect(health.archived_rows + health.remaining_rows).toBe(liveTotal);
+    await db.exec('savepoint no_service_mutation');
+    await expect(
+      db.query('delete from private.audit_archive_batches where batch_no=$1',[claim.batch_no]),
+    ).rejects.toThrow('permission denied');
+    await db.exec('rollback to savepoint no_service_mutation');
+    await db.exec('reset role');
     await db.exec('savepoint immutability_archive');
     await expect(
       db.query('delete from private.audit_archive_batches where batch_no=$1',[claim.batch_no]),
     ).rejects.toThrow('AUDIT_ARCHIVE_CHECKPOINT_IMMUTABLE');
     await db.exec('rollback to savepoint immutability_archive');
+    await db.exec('set role service_role');
     await db.query(
       "select public.record_audit_archive_verification(true,1,$1,$2,null)",
       [page.rows.length,digest],
     );
+    await db.exec('reset role');
     const status = (
       await db.query<{ result: string }>(
         'select result from private.audit_archive_verification_runs order by checked_at desc limit 1',
