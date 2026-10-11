@@ -28,6 +28,7 @@ describe('Security & Business Audit hardening', () => {
       '20261011074105_audit_event_catalog_canonical_seed.sql',
       '20261011074842_audit_safe_device_assignment_diff_fields.sql',
       '20261011075739_audit_privacy_sensitive_read_and_catalog_truth.sql',
+      '20261011075935_audit_secure_superadmin_export_with_stepup.sql',
     ]) {
       await db.exec(await readFile(`supabase/migrations/${migration}`, 'utf8'));
     }
@@ -231,6 +232,50 @@ describe('Security & Business Audit hardening', () => {
       ]),
     ).rejects.toThrow('FORBIDDEN');
     await db.exec('rollback to savepoint denied');
+  });
+
+
+  it('exports redacted bounded audit only with one-use Super Admin step-up and reason', async () => {
+    const grantId = 'e2000000-0000-4000-8000-000000000001';
+    await db.exec('reset role');
+    await db.query(
+      "insert into private.step_up_grants(id,user_id,session_id,action,resource_id,expires_at) values($1,$2,$3,'AUDIT_EXPORT',null,now()+interval '2 minutes')",
+      [grantId, ids.superAdmin, ids.superAdmin.replace(/^2/, '3')],
+    );
+    await identity(db, ids.superAdmin);
+    const query = "select public.export_audit_professional($1,$2,'2026-09-15T00:00:00Z','2026-09-16T00:00:00Z',20) as data";
+    const output = (
+      await db.query<{
+        data: {
+          rows: Array<Record<string, unknown>>;
+          has_more: boolean;
+          generated_at: string;
+        };
+      }>(query, [grantId, 'Controllo audit per anomalia di cassa'])
+    ).rows[0]!.data;
+    expect(output.rows.length).toBeGreaterThanOrEqual(3);
+    expect(output.rows[0]).not.toHaveProperty('ip_address');
+    expect(output.rows[0]).not.toHaveProperty('user_agent');
+    expect(output.has_more).toBe(false);
+    await db.exec('savepoint reused');
+    await expect(
+      db.query(query, [grantId, 'Seconda esportazione non autorizzata']),
+    ).rejects.toThrow('STEP_UP_REQUIRED');
+    await db.exec('rollback to savepoint reused');
+    await db.exec('reset role');
+    const events = (
+      await db.query<{ action: string; reason: string }>(
+        "select action,new_values->>'reason' reason from public.audit_log where action='AUDIT_EXPORTED'",
+      )
+    ).rows;
+    expect(events).toHaveLength(1);
+    expect(events[0]?.reason).toBe('Controllo audit per anomalia di cassa');
+    const implemented = (
+      await db.query<{ status: string }>(
+        "select implementation_status status from private.audit_event_catalog where action='AUDIT_EXPORTED'",
+      )
+    ).rows[0]!.status;
+    expect(implemented).toBe('OBSERVED');
   });
 
 });
