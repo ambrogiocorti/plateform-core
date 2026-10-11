@@ -6,6 +6,12 @@ const eventSchema = z.object({
   id: z.uuid(),
   timestamp: z.string(),
   action: z.string(),
+  action_label: z.string(),
+  category: z.string(),
+  severity: z.string(),
+  retention_class: z.string(),
+  emitter_source: z.string(),
+  reason_code: z.string().nullable(),
   resource_type: z.string(),
   result: z.string(),
   old_values: z.unknown(),
@@ -24,7 +30,29 @@ const eventSchema = z.object({
   device_id: z.uuid().nullable(),
 });
 
+const categoryLabels: Record<string, string> = {
+  SECURITY: 'Sicurezza',
+  STAFF_ADMIN: 'Personale e permessi',
+  MENU_INVENTORY: 'Menu e magazzino',
+  SERVICE_ORDERS: 'Sala e ordini',
+  FINANCE: 'Pagamenti e cassa',
+  RESERVATIONS: 'Prenotazioni',
+  OPERATIONS: 'Operazioni',
+  PRIVACY: 'Privacy',
+  CONTINUITY: 'Backup e continuità',
+  SYSTEM: 'Sistema',
+  OTHER: 'Altri eventi',
+  UNCATALOGUED: 'Da catalogare',
+};
+
 export async function auditPage(): Promise<HTMLElement> {
+  const catalog = await rpc(
+    'get_audit_event_catalog',
+    {},
+    z.array(z.object({ action: z.string(), implementation_status: z.enum(['OBSERVED', 'PLANNED']) })),
+  );
+  const observedTypes = catalog.filter((item) => item.implementation_status === 'OBSERVED').length;
+  const plannedTypes = catalog.filter((item) => item.implementation_status === 'PLANNED').length;
   const action = field('Evento', 'action');
   action.input.maxLength = 100;
   const actor = field('ID utente', 'actor'),
@@ -50,6 +78,20 @@ export async function auditPage(): Promise<HTMLElement> {
       'CUSTOMER',
       'SYSTEM',
     ].map((value) => el('option', { value }, value)),
+  );
+  const category = el(
+    'select',
+    {},
+    el('option', { value: '' }, 'Tutte le categorie'),
+    ...Object.entries(categoryLabels).map(([value, label]) => el('option', { value }, label)),
+  );
+  const severity = el(
+    'select',
+    {},
+    el('option', { value: '' }, 'Tutte le criticità'),
+    el('option', { value: 'NORMAL' }, 'Normale'),
+    el('option', { value: 'ELEVATED' }, 'Elevata'),
+    el('option', { value: 'CRITICAL' }, 'Critica'),
   );
   const impersonation = el(
     'select',
@@ -80,6 +122,8 @@ export async function auditPage(): Promise<HTMLElement> {
       'div',
       { class: 'grid' },
       action.root,
+      el('label', { class: 'field' }, 'Categoria', category),
+      el('label', { class: 'field' }, 'Criticità', severity),
       actor.root,
       venue.root,
       resource.root,
@@ -119,13 +163,15 @@ export async function auditPage(): Promise<HTMLElement> {
         p_impersonated: impersonation.value ? impersonation.value === 'true' : null,
         p_resource_type: resourceType.input.value || null,
         p_action: action.input.value,
+        p_category: category.value || null,
+        p_severity: severity.value || null,
         p_result: result.value || null,
         p_from: from.input.value ? new Date(from.input.value).toISOString() : null,
         p_to: to.input.value ? new Date(to.input.value).toISOString() : null,
       };
     }
     const data = await rpc(
-      'search_audit',
+      'search_audit_professional',
       {
         ...appliedFilters,
         p_before_at: cursor?.at ?? null,
@@ -142,7 +188,14 @@ export async function auditPage(): Promise<HTMLElement> {
           'tr',
           {},
           el('td', {}, new Date(entry.timestamp).toLocaleString('it-IT')),
-          el('td', {}, entry.action),
+          el(
+            'td',
+            {},
+            el('strong', {}, entry.action_label),
+            el('small', { class: 'muted' }, entry.action),
+          ),
+          el('td', {}, categoryLabels[entry.category] ?? entry.category),
+          el('td', {}, entry.severity),
           el('td', {}, entry.resource_type),
           el('td', {}, entry.actor_role ?? 'SYSTEM'),
           el('td', {}, status(entry.result)),
@@ -156,6 +209,9 @@ export async function auditPage(): Promise<HTMLElement> {
                   'Evento audit',
                   el('p', {}, `Richiesta ${entry.request_id}`),
                   el('p', {}, `Correlazione ${entry.correlation_id}`),
+                  el('p', {}, `Categoria ${categoryLabels[entry.category] ?? entry.category} · Criticità ${entry.severity}`),
+                  el('p', {}, `Registrato tramite ${entry.emitter_source}`),
+                  entry.reason_code ? el('p', {}, `Motivo codificato ${entry.reason_code}`) : null,
                   el(
                     'p',
                     {},
@@ -198,6 +254,16 @@ export async function auditPage(): Promise<HTMLElement> {
   const view = el(
     'section',
     { class: 'stack' },
+    el(
+      'section',
+      { class: 'card stack compact' },
+      el('h2', {}, 'Security & Business Audit Log'),
+      el(
+        'p',
+        { class: 'muted' },
+        `${observedTypes} tipi di evento osservati; ${plannedTypes} ancora da implementare. Il registro è in sola lettura e non include click o heartbeat.`,
+      ),
+    ),
     filters,
     feedback,
     el(
@@ -212,7 +278,7 @@ export async function auditPage(): Promise<HTMLElement> {
           el(
             'tr',
             {},
-            ...['Data', 'Evento', 'Risorsa', 'Ruolo', 'Esito', 'Dettagli'].map((label) =>
+            ...['Data', 'Evento', 'Categoria', 'Criticità', 'Risorsa', 'Ruolo', 'Esito', 'Dettagli'].map((label) =>
               el('th', {}, label),
             ),
           ),
