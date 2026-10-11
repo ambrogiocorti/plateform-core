@@ -1543,12 +1543,21 @@ export async function technicalPage(context: StaffContext): Promise<HTMLElement>
     external_key_custody_certified: z.boolean(),
     retention_policy_approved: z.boolean(),
   });
+  const certificationSchema = z.object({
+    overall_status: z.string(),
+    reasons: z.array(z.string()),
+    archive_recovery_current: z.boolean(),
+    archive_overdue_events: z.number(),
+    login_failures_observed: z.number(),
+    mfa_failures_observed: z.number(),
+  });
   // Fail closed for partial deployments; never block the technical dashboard.
   void Promise.allSettled([
     rpc('get_audit_archive_health', {}, archiveSchema),
     rpc('get_auth_audit_readiness', {}, authSchema),
     rpc('get_audit_retention_readiness', {}, retentionSchema),
-  ]).then(([archive, auth, retention]) => {
+    rpc('get_audit_certification_gates', {}, certificationSchema),
+  ]).then(([archive, auth, retention, certification]) => {
     auditArchiveSummary.replaceChildren();
     if (archive.status === 'fulfilled') {
       const proof = archive.value.latest_verification;
@@ -1613,6 +1622,31 @@ export async function technicalPage(context: StaffContext): Promise<HTMLElement>
     } else {
       auditArchiveSummary.append(
         el('p', { class: 'muted' }, 'Audit Auth: stato non verificabile.'),
+      );
+    }
+    if (certification.status === 'fulfilled') {
+      const state = certification.value;
+      auditArchiveSummary.append(
+        el(
+          'p',
+          {},
+          'Gate commerciali Audit: ' + state.overall_status +
+            '. Recupero archivio aggiornato: ' +
+            (state.archive_recovery_current ? 'SI' : 'NO') +
+            '. Eventi oltre la finestra di archiviazione: ' +
+            String(state.archive_overdue_events) + '.',
+        ),
+        el(
+          'p',
+          { class: 'muted' },
+          state.reasons.length
+            ? 'Controlli ancora aperti: ' + state.reasons.join(', ')
+            : 'Tutti i gate Audit attualmente configurati risultano soddisfatti.',
+        ),
+      );
+    } else {
+      auditArchiveSummary.append(
+        el('p', { class: 'muted' }, 'Gate di certificazione Audit non verificabili: stato NO-GO.'),
       );
     }
     auditArchiveSummary.append(
