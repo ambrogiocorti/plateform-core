@@ -247,7 +247,7 @@ export async function database(through = Number.POSITIVE_INFINITY) {
         // Hosted booking-deposit table is out-of-band in this local history.
         // Mirror its verified schema only inside this disposable test instance.
         await db.exec(
-          await readFile('tests/database/fixtures/core-edition-hosted-booking-deposit.sql','utf8'),
+          await readFile('tests/database/fixtures/core-edition-hosted-booking-deposit.sql', 'utf8'),
         );
       }
       await db.exec(sql);
