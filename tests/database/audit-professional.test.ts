@@ -433,7 +433,13 @@ describe('Security & Business Audit hardening', () => {
     await db.query(
       `insert into auth.audit_log_entries(id,payload,created_at,ip_address)
        values(gen_random_uuid(),$1::json,now()-interval '10 minutes','192.0.2.99')`,
-      [JSON.stringify({ action: 'verification_attempted', email: 'private@example.test', access_token: 'SECRET_DO_NOT_EXPOSE' })],
+      [
+        JSON.stringify({
+          action: 'verification_attempted',
+          email: 'private@example.test',
+          access_token: 'SECRET_DO_NOT_EXPOSE',
+        }),
+      ],
     );
     await identity(db, ids.superAdmin);
     const result = (
@@ -459,10 +465,9 @@ describe('Security & Business Audit hardening', () => {
     expect(JSON.stringify(result)).not.toContain('192.0.2.99');
     await identity(db, ids.cashier);
     await db.exec('savepoint denied_native_auth');
-    await expect(
-      db.query("select public.search_technical_logs(p_source=>'AUTH')"),
-    ).rejects.toThrow('FORBIDDEN');
+    await expect(db.query("select public.search_technical_logs(p_source=>'AUTH')")).rejects.toThrow(
+      'FORBIDDEN',
+    );
     await db.exec('rollback to savepoint denied_native_auth');
   });
-
 });
