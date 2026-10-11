@@ -224,6 +224,24 @@ export async function database(through = Number.POSITIVE_INFINITY) {
           [match[1], match[2], [sql]],
         );
     } catch (error) {
+      if (name === '20261008163112_step11_public_rpc_permission_manifest.sql') {
+        const diagnosis = await db.query<{
+          identity: string;
+          present: boolean;
+          security_definer: boolean | null;
+          configuration: string[] | null;
+        }>(`
+          select name.identity, p.oid is not null present, p.prosecdef security_definer,
+                 p.proconfig configuration
+          from (values ('public.get_public_menu_index(uuid)'),
+                       ('public.get_public_navigation(uuid)'),
+                       ('public.get_public_page_metadata(text,uuid)'),
+                       ('public.get_public_sitemap_entries()')) name(identity)
+          left join pg_catalog.pg_proc p
+             on p.oid=pg_catalog.to_regprocedure(name.identity)
+        `);
+        console.error('STEP11_PUBLIC_RPC_DIAGNOSTIC', JSON.stringify(diagnosis.rows));
+      }
       await db.close();
       throw new Error(`Migration ${name} failed`, { cause: error });
     }
