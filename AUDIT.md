@@ -109,3 +109,11 @@ Implementato e applicato esclusivamente a Supabase `plateform-development`:
 - Gate completo `npm run check` e `npm run release:check`, confronto delle migrazioni remote/local e merge controllato delle PR #21 e #22.
 
 **Stato rilascio: NO-GO.** Le CI focalizzate non equivalgono al rilascio commerciale e non è stato creato alcun pacchetto.
+
+## Aggiornamento Audit/Log — 11 ottobre 2026
+
+Il catalogo e la dashboard Audit sono integrati con la dashboard **Log tecnici e anomalie** in `/salute`. Le nuove RPC server-side `search_technical_logs` e `run_health_log_retention` sono separate dalla consultazione immutabile `search_audit_professional`; un errore tecnico non viene spacciato per mutazione economica e un log di salute non costituisce prova di un accesso Auth.
+
+Eventi `AUTH_LOGIN_FAILED` e `MFA_VERIFICATION_FAILED` non sono ancora emessi in modo attendibile dall'applicazione: Supabase offre audit Auth nativi, ma la copia opzionale `auth.audit_log_entries` risulta vuota. Il canale live `STEP_UP_FAILED` rimane verificato a livello di fonte Edge; il nuovo login staff richiede un piano specifico per tracciare fallimenti **prima** della sessione senza accettare segnalazioni falsificabili dal browser. Non salvare mai le credenziali tentate.
+
+Lo storico Audit è preservato, senza cancellazioni automatiche. Una retention dell'audit richiede termini approvati, archivio esterno verificato anti-manomissione e restore-test indipendente. Non usare la cronologia dei job PostgreSQL o i log di telemetria al posto di tale archivio. Finché questi gate mancano, l'audit è funzionalmente esteso ma non completamente certificato per la vendita.
