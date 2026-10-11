@@ -250,6 +250,13 @@ export async function database(through = Number.POSITIVE_INFINITY) {
           await readFile('tests/database/fixtures/core-edition-hosted-booking-deposit.sql', 'utf8'),
         );
       }
+      if (name === '20261011135611_reconcile_core_public_rpc_and_staff_identifier_contracts.sql') {
+        // Hosted feature name whitelist was expanded outside local history.
+        // Match its verified definition only in this PGlite test fixture.
+        await db.exec(
+          await readFile('tests/database/fixtures/hosted-feature-flag-allowed-codes.sql', 'utf8'),
+        );
+      }
       await db.exec(sql);
       const match = /^(\d+)_([^.]*)\.sql$/.exec(name);
       if (match)
