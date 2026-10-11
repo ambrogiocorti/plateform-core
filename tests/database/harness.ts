@@ -235,6 +235,14 @@ export async function database(through = Number.POSITIVE_INFINITY) {
           await readFile('tests/database/fixtures/step11-hosted-public-rpcs.sql', 'utf8'),
         );
       }
+      if (name === '20261008163715_step11_notification_probe_expiring_fixture_fix.sql') {
+        // The hosted test probe is not recreated by recorded local SQL.
+        // Reconstruct the pre-fix definition in disposable PGlite only;
+        // then execute the original migration unchanged.
+        await db.exec(
+          await readFile('tests/database/fixtures/step11-notification-e2e-before-fix.sql', 'utf8'),
+        );
+      }
       await db.exec(sql);
       const match = /^(\d+)_([^.]*)\.sql$/.exec(name);
       if (match)
