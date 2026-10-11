@@ -47,6 +47,7 @@ describe('Security & Business Audit hardening', () => {
       '20261011152612_audit_archive_checkpoint_readback_service_only.sql',
       '20261011153016_audit_archive_independent_restore_verification_log.sql',
       '20261011153304_audit_archive_automatic_rotation_and_daily_recovery_test.sql',
+      '20261011153810_audit_auth_provider_readiness_without_false_failure_labels.sql',
     ]) {
       await db.exec(await readFile(`supabase/migrations/${migration}`, 'utf8'));
     }
@@ -557,6 +558,51 @@ describe('Security & Business Audit hardening', () => {
       )
     ).rows[0]!.result;
     expect(status).toBe('PASS');
+    await identity(db, ids.superAdmin);
+    const visibleHealth = (
+      await db.query<{
+        report: { last_batch: number; archived_rows: number; latest_verification: { result: string } };
+      }>('select public.get_audit_archive_health() report')
+    ).rows[0]!.report;
+    expect(visibleHealth.last_batch).toBe(1);
+    expect(visibleHealth.latest_verification.result).toBe('PASS');
+  });
+
+
+  it('marks native Auth logging unverified until provider events are actually present', async () => {
+    const first = (
+      await db.query<{
+        report: { status: string; native_rows: number; login_failures_certified: boolean };
+      }>('select public.get_auth_audit_readiness() report')
+    ).rows[0]!.report;
+    expect(first.status).toBe('DATABASE_SINK_NOT_VERIFIED');
+    expect(first.native_rows).toBe(0);
+    expect(first.login_failures_certified).toBe(false);
+
+    await db.exec('reset role');
+    await db.query(
+      "insert into auth.audit_log_entries(id,payload,created_at) values(gen_random_uuid(),$1::json,now())",
+      [JSON.stringify({ action: 'login', email: 'do-not-show@example.invalid', credential: 'SECRET' })],
+    );
+    await identity(db, ids.superAdmin);
+    const second = (
+      await db.query<{
+        report: {
+          status: string; native_rows: number; login_attempts: number;
+          login_failures_certified: boolean; mfa_failures_certified: boolean;
+        };
+      }>('select public.get_auth_audit_readiness() report')
+    ).rows[0]!.report;
+    expect(second.status).toBe('NATIVE_EVENTS_PRESENT_OUTCOMES_UNCLASSIFIED');
+    expect(second.native_rows).toBe(1);
+    expect(second.login_attempts).toBe(1);
+    expect(second.login_failures_certified).toBe(false);
+    expect(second.mfa_failures_certified).toBe(false);
+
+    await identity(db, ids.cashier);
+    await db.exec('savepoint rejected_provider_visibility');
+    await expect(db.query('select public.get_auth_audit_readiness()')).rejects.toThrow('FORBIDDEN');
+    await db.exec('rollback to savepoint rejected_provider_visibility');
   });
 
 });
