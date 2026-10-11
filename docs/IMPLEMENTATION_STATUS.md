@@ -1,3 +1,5 @@
+> **Aggiornamento 11 ottobre 2026 — Audit/Log.** Supabase Development contiene **468 migrazioni remote** (da riverificare a ogni deploy), catalogo Audit professionale e dashboard Log tecnici implementati. **10/10** test focalizzati Audit/Log passati; CI generale ancora FAIL. Dati Audit preesistenti preservati e policy tecnica di retention non attiva. Mancano copertura nativa verificata dei login/MFA falliti, archivio indipendente anti-manomissione, test GoTrue/browser live, riconciliazione migrazioni e gate completo della piattaforma. **NO-GO commerciale**. L'aggiornamento prevale sui checkpoint storici seguenti.
+
 # Plateform — stato di implementazione
 
 > **Aggiornamento prevalente — 8 ottobre 2026.** I conteggi di seguito sono
