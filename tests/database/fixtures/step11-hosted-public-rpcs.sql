@@ -316,3 +316,95 @@ end
 $function$;
 REVOKE ALL ON FUNCTION public.get_public_sitemap_entries() FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.get_public_sitemap_entries() TO anon,authenticated,service_role;
+
+-- Hosted private permission inventory inspector, similarly missing from the
+-- currently available historical migration files. Test fixture only.
+CREATE OR REPLACE FUNCTION private.api_permission_manifest_report()
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ STABLE SECURITY DEFINER
+ SET search_path TO ''
+AS $function$
+declare
+  v_anon_actual integer;
+  v_auth_actual integer;
+  v_anon_manifest integer;
+  v_auth_manifest integer;
+  v_anon_undocumented integer;
+  v_auth_undocumented integer;
+  v_anon_missing integer;
+  v_auth_missing integer;
+begin
+  with roles(api_role,role_oid) as (
+    select rolname,oid
+    from pg_catalog.pg_roles
+    where rolname in ('anon','authenticated')
+  ),
+  funcs as (
+    select p.oid,
+           coalesce(p.proacl,pg_catalog.acldefault('f',p.proowner)) acl
+    from pg_catalog.pg_proc p
+    join pg_catalog.pg_namespace n on n.oid=p.pronamespace
+    where n.nspname in ('public','private')
+      and p.prokind='f'
+  ),
+  actual as (
+    select distinct f.oid function_oid,r.api_role
+    from funcs f
+    cross join roles r
+    join lateral pg_catalog.aclexplode(f.acl) a
+      on a.grantee=r.role_oid
+     and a.privilege_type='EXECUTE'
+  ),
+  manifest as (
+    select m.api_role,
+           to_regprocedure(m.function_identity)::oid function_oid
+    from private.api_permission_manifest m
+    where m.api_role in ('anon','authenticated')
+  )
+  select
+    count(*) filter(where a.api_role='anon'),
+    count(*) filter(where a.api_role='authenticated'),
+    (select count(*) from manifest m where m.api_role='anon'),
+    (select count(*) from manifest m where m.api_role='authenticated'),
+    count(*) filter(where a.api_role='anon' and not exists(
+      select 1 from manifest m where m.api_role='anon' and m.function_oid=a.function_oid
+    )),
+    count(*) filter(where a.api_role='authenticated' and not exists(
+      select 1 from manifest m where m.api_role='authenticated' and m.function_oid=a.function_oid
+    )),
+    (select count(*) from manifest m where m.api_role='anon' and not exists(
+      select 1 from actual a where a.api_role='anon' and a.function_oid=m.function_oid
+    )),
+    (select count(*) from manifest m where m.api_role='authenticated' and not exists(
+      select 1 from actual a where a.api_role='authenticated' and a.function_oid=m.function_oid
+    ))
+  into
+    v_anon_actual,v_auth_actual,
+    v_anon_manifest,v_auth_manifest,
+    v_anon_undocumented,v_auth_undocumented,
+    v_anon_missing,v_auth_missing
+  from actual a;
+
+  return jsonb_build_object(
+    'anon',jsonb_build_object(
+      'actual',v_anon_actual,
+      'manifest',v_anon_manifest,
+      'undocumented',v_anon_undocumented,
+      'missing',v_anon_missing
+    ),
+    'authenticated',jsonb_build_object(
+      'actual',v_auth_actual,
+      'manifest',v_auth_manifest,
+      'undocumented',v_auth_undocumented,
+      'missing',v_auth_missing
+    ),
+    'ok',
+      v_anon_undocumented=0
+      and v_auth_undocumented=0
+      and v_anon_missing=0
+      and v_auth_missing=0
+  );
+end
+$function$;
+REVOKE ALL ON FUNCTION private.api_permission_manifest_report() FROM PUBLIC,anon,authenticated;
