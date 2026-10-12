@@ -218,7 +218,11 @@ async function render(): Promise<void> {
       },
       Math.max(0, Date.parse(authInfo.full_auth_expires_at) - Date.now()) + 1000,
     );
-  const links = navigation.filter((entry) => entry.roles.includes(profile.role));
+  const links = navigation.filter(
+    (entry) =>
+      entry.roles.includes(profile.role) &&
+      (entry.path !== '/food-cost' || context.licensedFeatures?.has('FOOD_COST')),
+  );
   if (staffPath() === '/' || staffPath() === '/login')
     history.replaceState(null, '', staffHref(links[0]?.path ?? '/operazioni'));
   const pageLink = links.find(
