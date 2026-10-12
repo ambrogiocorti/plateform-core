@@ -820,6 +820,11 @@ describe('Authoritative service workflows', () => {
     await db.exec('reset role');
     await identity(db, ids.waiter);
     await db.query('select public.deliver_step($1,false)', [item.step_id]);
+    const ownPickup = await db.query<{ step_id: string; served_at: string | null }>(
+      'select step_id, served_at from public.step_deliveries where step_id=$1 and waiter_id=$2',
+      [item.step_id, ids.waiter],
+    );
+    expect(ownPickup.rows).toEqual([{ step_id: item.step_id, served_at: null }]);
     await db.query('select public.deliver_step($1,true)', [item.step_id]);
     expect((await db.query('select status from public.orders')).rows).toEqual([
       { status: 'SERVED' },
@@ -866,6 +871,11 @@ describe('Authoritative service workflows', () => {
       ]),
     );
     await db.query('select public.deliver_step($1,false)', [item.step_id]);
+    const runnerPickup = await db.query<{ step_id: string; served_at: string | null }>(
+      'select step_id, served_at from public.step_deliveries where step_id=$1 and waiter_id=$2',
+      [item.step_id, runner],
+    );
+    expect(runnerPickup.rows).toEqual([{ step_id: item.step_id, served_at: null }]);
     await db.query('select public.deliver_step($1,true)', [item.step_id]);
     // The Runner can deliver this step but cannot read orders directly.
     expect((await db.query('select status from public.orders')).rows).toEqual([]);
