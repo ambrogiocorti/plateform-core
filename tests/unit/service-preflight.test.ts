@@ -3,9 +3,27 @@ import { evaluateServicePreflight } from '../../src/services/service-preflight';
 import type { ServicePreflightInput } from '../../src/services/service-preflight';
 
 const baseline: ServicePreflightInput = {
-  dishes: [{ id: 'dish-a', active: true }],
+  dishes: [
+    {
+      id: 'dish-a',
+      category_id: 'category-a',
+      active: true,
+      schedule_mode: 'ALWAYS',
+      available_from: null,
+      available_until: null,
+      weekdays: null,
+    },
+  ],
+  categories: [{ id: 'category-a', active: true }],
+  localDate: '2026-10-12',
   venueDishes: [
-    { dish_id: 'dish-a', enabled: true, availability: 5, local_station_id: null },
+    {
+      dish_id: 'dish-a',
+      enabled: true,
+      availability: 5,
+      availability_date: '2026-10-12',
+      local_station_id: null,
+    },
   ],
   dishStations: [{ dish_id: 'dish-a', station_id: 'station-a', is_primary: true }],
   stations: [{ id: 'station-a', active: true }],
@@ -38,12 +56,52 @@ describe('per-venue service preflight', () => {
     for (const change of [
       { venueDishes: [{ ...baseline.venueDishes![0]!, availability: 0 }] },
       { venueDishes: [{ ...baseline.venueDishes![0]!, enabled: false }] },
-      { dishes: [{ id: 'dish-a', active: false }] },
+      { dishes: [{ ...baseline.dishes![0]!, active: false }] },
+      { categories: [{ id: 'category-a', active: false }] },
+      { venueDishes: [{ ...baseline.venueDishes![0]!, availability_date: '2026-10-11' }] },
       { stations: [{ id: 'station-a', active: false }] },
       { venueDishes: [{ ...baseline.venueDishes![0]!, local_station_id: 'inactive-station' }] },
     ]) {
       expect(evaluateServicePreflight({ ...baseline, ...change }).orderableRoutedDishes).toBe(0);
     }
+  });
+
+  it('accepts a missing per-venue override as enabled, but not an inactive category', () => {
+    expect(evaluateServicePreflight({ ...baseline, venueDishes: [] }).orderableRoutedDishes).toBe(1);
+    expect(
+      evaluateServicePreflight({
+        ...baseline,
+        categories: [{ id: 'category-a', active: false }],
+      }).orderableRoutedDishes,
+    ).toBe(0);
+  });
+
+  it('honors local calendar availability, weekly schedules and station overrides', () => {
+    const weekdayDish = {
+      ...baseline.dishes![0]!,
+      schedule_mode: 'WEEKDAYS',
+      weekdays: [1],
+    };
+    expect(
+      evaluateServicePreflight({
+        ...baseline,
+        dishes: [weekdayDish],
+        venueDishes: [{ ...baseline.venueDishes![0]!, availability: null }],
+      }).orderableRoutedDishes,
+    ).toBe(1);
+    expect(
+      evaluateServicePreflight({
+        ...baseline,
+        localDate: '2026-10-13',
+        dishes: [weekdayDish],
+      }).orderableRoutedDishes,
+    ).toBe(0);
+    expect(
+      evaluateServicePreflight({
+        ...baseline,
+        venueDishes: [{ ...baseline.venueDishes![0]!, local_station_id: 'inactive' }],
+      }).orderableRoutedDishes,
+    ).toBe(0);
   });
 
   it('never counts staff from another venue, inactive accounts or unassigned kitchen staff', () => {
@@ -71,6 +129,7 @@ describe('per-venue service preflight', () => {
     const result = evaluateServicePreflight({
       ...baseline,
       dishes: null,
+      categories: null,
       venueDishes: null,
       dishStations: null,
     });
