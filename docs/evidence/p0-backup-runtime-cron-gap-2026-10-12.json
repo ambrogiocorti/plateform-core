@@ -1,0 +1,85 @@
+{
+  "observed_utc_date": "2026-10-12",
+  "mode": "READ_ONLY",
+  "project": "plateform-development",
+  "project_id": "abdxvlykasqmknexxhjo",
+  "previous_observation_superseded": false,
+  "strict_release_gate": "NO_GO",
+  "backup_catalog": {
+    "rows": 0,
+    "successful_backups": 0,
+    "verified_recoverable_backups": 0
+  },
+  "restore_jobs": {
+    "rows": 0
+  },
+  "cron": {
+    "plateform-backup-worker": {
+      "active": true,
+      "schedule": "* * * * *",
+      "last_24h_runs": 1440,
+      "successful_cron_dispatches": 1440,
+      "failed_cron_dispatches": 0
+    },
+    "plateform-daily-backup": {
+      "active": false,
+      "schedule": "*/5 * * * *",
+      "last_24h_runs": 0
+    },
+    "plateform-continuity-alerts": {
+      "active": true,
+      "schedule": "*/10 * * * *",
+      "last_24h_runs": 144,
+      "successful_cron_dispatches": 144
+    }
+  },
+  "heartbeats": [
+    {
+      "worker": "BACKUP",
+      "last_status": "IDLE",
+      "recency": "~27 seconds at inspection"
+    },
+    {
+      "worker": "RETENTION",
+      "last_status": "IDLE",
+      "recency": "~206 seconds at inspection"
+    },
+    {
+      "worker": "RESTORE_TEST",
+      "last_status": "IDLE",
+      "recency": "~6.1 days stale at inspection"
+    }
+  ],
+  "configured_targets": {
+    "rpo_target_minutes": 60,
+    "rto_target_minutes": 60,
+    "backup_retention_days": 30,
+    "restore_test_interval_days": 30
+  },
+  "storage": {
+    "continuity_primary": {
+      "object_count": 2998,
+      "declared_metadata_bytes": 188139881
+    },
+    "audit_archive_primary": {
+      "object_count": 25,
+      "declared_metadata_bytes": 3542810
+    }
+  },
+  "conclusions": [
+    "1440 successful backup cron runs in 24h are scheduler invocation outcomes, NOT 1440 complete recoverable backup snapshots.",
+    "Zero public.backup_metadata entries means no authenticated, complete, certified backup artifacts recorded in the application catalog.",
+    "The disabled daily backup cron must not be enabled without knowing user intent, external backup worker readiness, encryption/replica and storage costs.",
+    "The restore-test worker has a stale heartbeat, no restore jobs and a pre-existing non-empty restore-test project; do not repurpose/delete it.",
+    "Reported RPO/RTO values are configuration targets, not measured recovery objectives. No go-live backup/restore certification."
+  ],
+  "next_actions": [
+    "Determine whether the backup scheduler was intentionally disabled and confirm backup worker host credentials/configuration without printing secrets.",
+    "Provision independent persistent encrypted primary and replica storage and verified escrow keyring.",
+    "Use a safe snapshot request on Development only after proving data-volume/cost/credentials and permissions.",
+    "Restore into a genuinely empty, explicitly designated and independently backed-up target—not the existing restore-test instance with 137 migrations.",
+    "Prove Auth data, roles/RLS, Storage bytes, canonical history hashes, audit immutability and observed RPO/RTO after restore."
+  ],
+  "no_destructive_actions": true,
+  "no_live_changes": true
+}
