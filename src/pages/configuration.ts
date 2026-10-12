@@ -36,7 +36,6 @@ const modules: Record<string, Module> = {
     fields: [
       { key: 'name', label: 'Nome layout' },
       { key: 'room_id', label: 'Sala', source: 'rooms' },
-      { key: 'active', label: 'Attivo', type: 'checkbox', default: true },
     ],
   },
   zones: {
@@ -172,6 +171,20 @@ export async function configurationPage(context: StaffContext): Promise<HTMLElem
       el('h2', {}, definition.label),
       button('Aggiungi', async () => editConfiguration(context, entity, definition)),
     ),
+    entity === 'room_layouts'
+      ? el(
+          'p',
+          { class: 'muted' },
+          'Crea qui un layout in bozza. Dopo il salvataggio apri Editor sala, disegna la piantina, salva e premi Attiva layout.',
+        )
+      : null,
+    entity === 'room_layouts' && rows.length
+      ? el(
+          'a',
+          { class: 'button secondary', href: `${import.meta.env.BASE_URL}editor` },
+          'Apri Editor sala',
+        )
+      : null,
   );
   if (!rows.length)
     view.append(
