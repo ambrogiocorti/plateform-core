@@ -31,15 +31,19 @@ const baseline: ServicePreflightInput = {
     { id: 'waiter-a', role: 'WAITER', active: true },
     { id: 'kitchen-a', role: 'KITCHEN_STAFF', active: true },
     { id: 'pass-a', role: 'PASS', active: true },
+    { id: 'cashier-a', role: 'CASHIER', active: true },
   ],
   venueStaff: [
     { user_id: 'waiter-a', active: true },
     { user_id: 'kitchen-a', active: true },
     { user_id: 'pass-a', active: true },
+    { user_id: 'cashier-a', active: true },
   ],
   stationStaff: [
     { user_id: 'kitchen-a', station_id: 'station-a', active: true },
   ],
+  cashRegisters: [{ id: 'cash-register-a', active: true }],
+  cashiers: [{ user_id: 'cashier-a', cash_register_id: 'cash-register-a', active: true }],
 };
 
 describe('per-venue service preflight', () => {
@@ -49,6 +53,7 @@ describe('per-venue service preflight', () => {
       waiterAssigned: true,
       kitchenStaffed: true,
       passAssigned: true,
+      cashierAssigned: true,
     });
   });
 
@@ -113,6 +118,17 @@ describe('per-venue service preflight', () => {
     expect(result.waiterAssigned).toBe(false);
     expect(result.kitchenStaffed).toBe(false);
     expect(result.passAssigned).toBe(false);
+    expect(result.cashierAssigned).toBe(false);
+  });
+
+  it('requires an active cashier and a valid register assignment', () => {
+    for (const changes of [
+      { cashRegisters: [{ id: 'cash-register-a', active: false }] },
+      { cashiers: [{ user_id: 'cashier-a', cash_register_id: 'other', active: true }] },
+      { cashiers: [{ user_id: 'cashier-a', cash_register_id: 'cash-register-a', active: false }] },
+    ]) {
+      expect(evaluateServicePreflight({ ...baseline, ...changes }).cashierAssigned).toBe(false);
+    }
   });
 
   it('allows a venue-assigned kitchen admin without station assignment', () => {
