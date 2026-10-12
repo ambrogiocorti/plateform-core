@@ -246,6 +246,15 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
             ),
           ]
         : []),
+      ...(account.unserved_items > 0
+        ? [
+            el(
+              'div',
+              { class: 'cashier-warning', role: 'status' },
+              `${account.unserved_items} piatti risultano ancora non serviti. La chiusura contabile è separata dalla consegna al tavolo.`,
+            ),
+          ]
+        : []),
       primaryActions,
       el('div', { class: 'cashier-account-details' }, products, payments),
     );
@@ -413,7 +422,7 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
           el(
             'p',
             { class: 'muted' },
-            'Non confermare i pagamenti del provider con la procedura manuale. Apri lo storico del conto per verificarli.',
+            'Questo metodo non è confermabile manualmente nell’edizione CORE. Apri lo storico del conto per verificare le opzioni disponibili.',
           ),
           button('Apri storico conto', () => context.navigate(`/conti/${payment.account_id}`), 'quiet'),
         );
