@@ -39,7 +39,16 @@ export async function loadSetupFacts(
 const uuid = z.uuid();
 const staff = z.object({ id: uuid, role: z.string(), active: z.boolean() });
 const station = z.object({ id: uuid, active: z.boolean() });
-const dish = z.object({ id: uuid, active: z.boolean() });
+const dish = z.object({
+  id: uuid,
+  category_id: uuid,
+  active: z.boolean(),
+  schedule_mode: z.string(),
+  available_from: z.string().nullable(),
+  available_until: z.string().nullable(),
+  weekdays: z.array(z.number().int()).nullable(),
+});
+const category = z.object({ id: uuid, active: z.boolean() });
 const venueStaff = z.object({ user_id: uuid, active: z.boolean() });
 const stationStaff = z.object({
   user_id: uuid,
@@ -50,6 +59,7 @@ const venueDish = z.object({
   dish_id: uuid,
   enabled: z.boolean(),
   availability: z.number().int().nonnegative().nullable(),
+  availability_date: z.string().nullable(),
   local_station_id: uuid.nullable(),
 });
 const dishStation = z.object({
@@ -65,6 +75,7 @@ const dishStation = z.object({
 export async function loadServicePreflight(
   venueId: string,
   canManageSharedCatalog: boolean,
+  timeZone: string,
 ): Promise<ReturnType<typeof evaluateServicePreflight>> {
   const [stations, profiles, assignments, stationAssignments] = await Promise.all([
     readRows('stations', station, venueId, { active: 'true' }),
@@ -72,17 +83,29 @@ export async function loadServicePreflight(
     readRows('staff_venue_assignments', venueStaff, venueId, { active: 'true' }),
     readRows('station_staff_assignments', stationStaff, venueId, { active: 'true' }),
   ]);
+  const localParts = new Intl.DateTimeFormat('en', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(new Date());
+  const localDate = ['year', 'month', 'day']
+    .map((part) => localParts.find((entry) => entry.type === part)?.value)
+    .join('-');
   const catalog = canManageSharedCatalog
     ? await Promise.all([
         readRows('dishes', dish, undefined, { active: 'true' }),
-        readRows('venue_dish_settings', venueDish, venueId, { enabled: 'true' }),
+        readRows('categories', category, undefined, { active: 'true' }),
+        readRows('venue_dish_settings', venueDish, venueId),
         readRows('dish_station_assignments', dishStation, venueId, { is_primary: 'true' }),
       ])
     : null;
   const input: ServicePreflightInput = {
     dishes: catalog?.[0] ?? null,
-    venueDishes: catalog?.[1] ?? null,
-    dishStations: catalog?.[2] ?? null,
+    categories: catalog?.[1] ?? null,
+    venueDishes: catalog?.[2] ?? null,
+    dishStations: catalog?.[3] ?? null,
+    localDate,
     stations,
     profiles,
     venueStaff: assignments,
@@ -110,7 +133,11 @@ export async function restaurantSetupPage(context: StaffContext): Promise<HTMLEl
     const canManageSharedCatalog = !context.multiVenue || context.profile.scope === 'CHAIN';
     const facts = await loadSetupFacts(venueId, canManageSharedCatalog);
     const progress = evaluateSetup(facts);
-    const operations = await loadServicePreflight(venueId, canManageSharedCatalog);
+    const operations = await loadServicePreflight(
+      venueId,
+      canManageSharedCatalog,
+      venue.timezone,
+    );
     const explanation = progress.basicsConfigured
       ? 'Sono presenti gli elementi minimi di configurazione. Verifica personale, turni, prezzi, disponibilità e l’intero ciclo operativo prima di aprire il servizio.'
       : 'Segui l’ordine indicato. Ogni stato è letto dal database della sede; non vengono creati dati dimostrativi.';
@@ -196,7 +223,7 @@ export async function restaurantSetupPage(context: StaffContext): Promise<HTMLEl
             explanation:
               operations.orderableRoutedDishes === null
                 ? 'Richiede accesso al catalogo da parte di un Admin di catena.'
-                : `${operations.orderableRoutedDishes} piatti attivi, abilitati per la sede, disponibili e collegati a una stazione attiva.`,
+                : `${operations.orderableRoutedDishes} piatti visibili oggi, non esauriti e collegati a una stazione attiva.`,
             path: '/gestione?modulo=dishes',
           },
           {
