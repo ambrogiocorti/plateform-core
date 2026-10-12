@@ -1,0 +1,59 @@
+{
+  "observed_on": "2026-10-12",
+  "environment": "plateform-development",
+  "sql_archive_branch": "p0/recover-canonical-remote-sql-20261012",
+  "candidate_branch": "p0/stage-canonical-migration-replay-20261012",
+  "live_applied_migrations": 480,
+  "git_original": 134,
+  "local_only_pending": "20261012120000_staff_identifier_custom_email_domain.sql",
+  "candidate_manifest": 481,
+  "sha256_inventory": "fb1fe8c2d07176b9dfee0a788bc2bf164d8769016ebae829f475b49fc81c3fc1",
+  "verified_git_blob_count": 480,
+  "verified_git_blob_mismatches": 0,
+  "original_git_copy_count": 134,
+  "original_git_manifest_preserved": true,
+  "shared_sql_comparison": {
+    "identical_raw_hash": 109,
+    "remote_sql_plus_final_LF_matches_local": 12,
+    "other_sha_divergences": 12,
+    "of_those_whitespace_only_when_all_whitespace_removed": [
+      "20261005062556_step10_venue_idempotent_step_up_retry.sql",
+      "20261005140800_step6_refund_reopens_balance.sql",
+      "20261005163939_kitchen_board_allergen_snapshot.sql",
+      "20261005165352_host_operational_summary.sql",
+      "20261005170110_kitchen_admin_operational_overview.sql",
+      "20261005170559_admin_operational_overview.sql",
+      "20261005223140_step12_continuity_worker_health.sql",
+      "20261006045641_step12_restore_reference_indexes.sql",
+      "20261006050249_step12_restore_actor_indexes.sql",
+      "20261006051256_step12_backup_requester_index.sql"
+    ],
+    "non_whitespace_divergences": [
+      "20261005062508_step10_venue_lifecycle_management.sql",
+      "20261005221652_step12_continuity_worker_heartbeat.sql"
+    ]
+  },
+  "findings": [
+    {
+      "filename": "20261005062508_step10_venue_lifecycle_management.sql",
+      "finding": "Step-up authorization for FEATURE_CHANGE occurs earlier in remote SQL than in local original, before the INVALID_REQUEST validation. Execution ordering is materially different; review security and failure-path semantics before adoption."
+    },
+    {
+      "filename": "20261005221652_step12_continuity_worker_heartbeat.sql",
+      "finding": "Remote stored SQL is 17,401 characters versus 2,080 in original local. Remote contains substantial additional operations. A clean replay is required; do not assume it is equivalent to the following health migration."
+    }
+  ],
+  "caveats": [
+    "Whitespace-stripped comparison is a triage heuristic, not proof of PostgreSQL semantic equivalence (including SQL literals).",
+    "No live DB migration history was changed; archive/candidate are unmerged drafts.",
+    "Data API authorization, missing out-of-band private tables, Auth/Storage, backup/restore and full CI still require test evidence.",
+    "Migration version 20261012120000 is NOT present in remote history; it is retained locally pending validation and authorized deployment."
+  ],
+  "security_scan": {
+    "private_key_like_patterns_found_in_migration_sql": 0,
+    "suspected_literal_credentials_regex_hits": 0,
+    "vault_seed_patterns": 0,
+    "copy_program_patterns": 0,
+    "limits": "Regex pre-screen only; manual review remains required."
+  }
+}
