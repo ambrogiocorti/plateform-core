@@ -46,11 +46,31 @@ export function accountClosureActions(
   if (account.status !== 'CLOSED') {
     const close = button(
       'Chiudi conto',
-      async () => {
-        await command('close_account', { p_account: account.id });
-        toast('Conto chiuso.');
-        if (onClosed) await onClosed();
-        else context.navigate('/conti');
+      () => {
+        const confirmation = dialog(
+          'Conferma chiusura conto',
+          el(
+            'p',
+            {},
+            `Conto ${account.account_name}: il server chiuderà il conto soltanto con saldo residuo e pagamenti in attesa entrambi a zero.`,
+          ),
+          account.unserved_items > 0
+            ? el(
+                'p',
+                { role: 'alert' },
+                `Ci sono ancora ${account.unserved_items} piatti non serviti. La chiusura contabile non attesta che siano stati consegnati.`,
+              )
+            : null,
+        );
+        confirmation.append(
+          button('Conferma chiusura', async () => {
+            await command('close_account', { p_account: account.id });
+            confirmation.close();
+            toast('Conto chiuso.');
+            if (onClosed) await onClosed();
+            else context.navigate('/conti');
+          }),
+        );
       },
       'secondary',
     );
