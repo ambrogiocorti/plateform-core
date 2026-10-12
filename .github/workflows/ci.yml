@@ -58,6 +58,34 @@ jobs:
       - name: Reproducible dependency install
         run: npm.cmd ci --no-audit --no-fund
 
+      - name: Locate OpenSSL for HTTPS print bridge tests
+        # Some Windows installations put the OpenSSL binary inside Git for Windows,
+        # rather than on PATH. Never change the user's global PATH.
+        run: |
+          $existing = Get-Command openssl.exe -ErrorAction SilentlyContinue
+          if ($existing) {
+            $binary = $existing.Source
+          } else {
+            $gitExe = (Get-Command git.exe -ErrorAction Stop).Source
+            $gitRoot = Split-Path -Parent (Split-Path -Parent $gitExe)
+            $candidates = @(
+              (Join-Path $gitRoot 'ucrt64\bin\openssl.exe'),
+              (Join-Path $gitRoot 'mingw64\bin\openssl.exe'),
+              (Join-Path $gitRoot 'usr\bin\openssl.exe'),
+              (Join-Path $env:ProgramFiles 'OpenSSL-Win64\bin\openssl.exe')
+            )
+            $binary = $candidates |
+              Where-Object { Test-Path -LiteralPath $_ -PathType Leaf } |
+              Select-Object -First 1
+          }
+          if (-not $binary) {
+            Write-Error 'OpenSSL executable not found. Install OpenSSL for Windows and make it available to the runner account.'
+            exit 1
+          }
+          & $binary version
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Add-Content -LiteralPath $env:GITHUB_PATH -Value (Split-Path -Parent $binary)
+
       - name: Quick source verification
         if: ${{ inputs.suite == 'quick' }}
         run: |
