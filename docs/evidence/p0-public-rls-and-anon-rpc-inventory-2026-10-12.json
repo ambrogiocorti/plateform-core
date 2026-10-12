@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-12",
+  "mode": "READ_ONLY_DB_CATALOG_INSPECTION",
+  "source": "Supabase Development abdxvlykasqmknexxhjo",
+  "public_app_tables": {
+    "rls_enabled": 118,
+    "rls_disabled": 0,
+    "rls_enabled_no_policy": 9
+  },
+  "public_rls_no_policy_names": [
+    "audit_log_2026_11",
+    "audit_log_2026_12",
+    "audit_log_2027_01",
+    "audit_log_2027_02",
+    "audit_log_default",
+    "menu_services",
+    "offline_authorization_snapshots",
+    "returned_items",
+    "waitlist_settings"
+  ],
+  "direct_table_grants_to_low_privilege_roles": "All nine no-policy public tables have no direct anon SELECT/INSERT and no authenticated SELECT/UPDATE under the tested pg_has_table_privilege predicates. This does not audit all commands, inherited permissions, views or RPC paths.",
+  "anon_accessible_security_definer_public_functions": [
+    "get_booking_configuration(uuid)",
+    "get_public_booking_availability(uuid,uuid,date,integer)",
+    "get_public_menu(uuid)",
+    "get_public_menu_by_id(uuid,uuid)",
+    "get_public_menu_by_slug(text,uuid)",
+    "get_public_menu_index(uuid)",
+    "get_public_navigation(uuid)",
+    "get_public_page_metadata(text,uuid)",
+    "get_public_site()",
+    "get_public_sitemap_entries()"
+  ],
+  "total_anon_security_definer_including_private_schema": 11,
+  "additional_private_function": "private.can_read_signal(realtime_signals)",
+  "all_listed_function_search_paths_configured_to_empty": true,
+  "caveats": [
+    "10 public SECURITY DEFINER functions being anonymous-callable can be intentional public read/booking APIs; empty search_path does not prove each function safe.",
+    "private.can_read_signal is not in the public API schema; separately verify schema USAGE grants and its Realtime invocation chain.",
+    "The lack of RLS policies on a private table commonly reflects deny-by-default and is not an automatic need to grant access.",
+    "Authenticated and cross-venue access tests, JWT freshness, nested function privileges and replay under Supabase's real gateway remain open.",
+    "No policy, function, role or extension was changed."
+  ],
+  "P0_gate": "OPEN"
+}
