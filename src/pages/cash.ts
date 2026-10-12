@@ -61,12 +61,12 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
   async function searchAccounts(): Promise<void> {
     const revision = ++searchRevision;
     const query = search.input.value.trim();
-    if (query.length < 2) {
+    if (query.length === 1) {
       searchResults.replaceChildren();
-      searchFeedback.textContent = query ? 'Digita almeno 2 caratteri.' : '';
+      searchFeedback.textContent = 'Digita almeno 2 caratteri.';
       return;
     }
-    searchFeedback.textContent = 'Ricerca conti…';
+    searchFeedback.textContent = query ? 'Ricerca conti…' : 'Caricamento conti attivi…';
     const result = await rpc(
       'search_accounts',
       {
@@ -99,8 +99,10 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
       searchResults.append(open);
     }
     searchFeedback.textContent = result.items.length
-      ? `${result.items.length} conti trovati${result.has_more ? ' · affina la ricerca per altri risultati' : ''}.`
-      : 'Nessun conto attivo corrisponde alla ricerca.';
+      ? `${result.items.length} conti ${query ? 'trovati' : 'attivi'}${result.has_more ? ' · cerca per tavolo o nome per altri risultati' : ''}.`
+      : query
+        ? 'Nessun conto attivo corrisponde alla ricerca.'
+        : 'Nessun conto attivo da incassare.';
   }
 
   async function loadAccount(accountId: string): Promise<void> {
@@ -532,17 +534,18 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
   accountWorkspace.append(
     emptyState(
       'Seleziona un conto',
-      'Cerca per tavolo, nome cliente o ID. Il conto resta aperto qui mentre registri l’incasso.',
+      'Seleziona un conto attivo dall’elenco oppure cerca per tavolo, nome cliente o ID.',
     ),
   );
 
   context.refresh = async () => {
     await Promise.all([
       refreshSecondary(),
+      searchAccounts(),
       selectedAccountId ? loadAccount(selectedAccountId) : Promise.resolve(),
     ]);
   };
 
-  await refreshSecondary();
+  await Promise.all([refreshSecondary(), searchAccounts()]);
   return view;
 }
