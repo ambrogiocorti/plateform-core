@@ -51,12 +51,14 @@ export const setupDefinitions = [
 ] as const;
 
 export type SetupKey = (typeof setupDefinitions)[number]['key'];
-export type SetupFacts = Readonly<Record<SetupKey, boolean>>;
+export type SetupFact = boolean | 'MANAGED_BY_CHAIN';
+export type SetupFacts = Readonly<Record<SetupKey, SetupFact>>;
 
 export function evaluateSetup(facts: SetupFacts) {
   const steps = setupDefinitions.map((definition) => ({
     ...definition,
     completed: facts[definition.key] === true,
+    requiresChain: facts[definition.key] === 'MANAGED_BY_CHAIN',
   }));
   const completed = steps.filter((step) => step.completed).length;
   return {
