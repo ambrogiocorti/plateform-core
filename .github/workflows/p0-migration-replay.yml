@@ -1,0 +1,59 @@
+# P0 isolated replay candidate — read-only exercise in disposable in-memory PostgreSQL.
+# NEVER queries or mutates the live Supabase project or deployment.
+name: Plateform P0 migration replay (local only)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: plateform-p0-replay
+  cancel-in-progress: false
+
+jobs:
+  replay:
+    if: github.repository == 'ambrogiocorti/plateform-core' && github.ref == 'refs/heads/main'
+    runs-on: [self-hosted, Windows, X64, plateform-local]
+    timeout-minutes: 75
+    defaults:
+      run:
+        shell: powershell
+    env:
+      CI: 'true'
+      GIT_CONFIG_COUNT: '1'
+      GIT_CONFIG_KEY_0: core.autocrlf
+      GIT_CONFIG_VALUE_0: 'false'
+    steps:
+      - name: Checkout exact reviewed migration candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+          ref: '1bcee69d404476bfbfd568a7c535bfeea0d5a0f6'
+
+      - name: Preserve original LF migration bytes in checkout
+        run: |
+          git -c core.autocrlf=false checkout-index --all --force
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Set up Node.js 24.13
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24.13.0'
+
+      - name: Install pinned dependencies
+        run: npm.cmd ci --no-audit --no-fund
+
+      - name: Verify all 481 candidate migration hashes
+        run: npm.cmd run check:migrations
+
+      - name: Replay SQL in isolated PGlite and enforce Step 11 security contract
+        run: npm.cmd run check:step11-assets
+
+      - name: Run isolated database regression suite
+        run: npm.cmd run test:db
+
+# This tests a pinned unmerged PR candidate, not the trusted production branch.
+# No Supabase tokens, network database URLs, production secrets or deployments.
