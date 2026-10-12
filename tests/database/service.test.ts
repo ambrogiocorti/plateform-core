@@ -1003,6 +1003,31 @@ describe('Authoritative service workflows', () => {
     await expect(payment(account, 1)).rejects.toThrow('IDEMPOTENCY_MISMATCH');
   });
 
+  it('resumes the exact PENDING cash payment after UI reload without charging again', async () => {
+    const account = await payableAccount();
+    const pending = await payment(account, 1800);
+    const history = await db.query<{ result: { items: { id: string; status: string }[] } }>(
+      'select public.get_account_payments($1) as result',
+      [account],
+    );
+    expect(history.rows[0]?.result.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: pending.id, status: 'PENDING' }),
+      ]),
+    );
+    const first = await db.query<{ result: { id: string; status: string } }>(
+      'select public.confirm_manual_payment($1,true) as result',
+      [pending.id],
+    );
+    const repeated = await db.query<{ result: { id: string; status: string } }>(
+      'select public.confirm_manual_payment($1,true) as result',
+      [pending.id],
+    );
+    expect(first.rows[0]?.result).toEqual({ id: pending.id, status: 'COMPLETED' });
+    expect(repeated.rows[0]?.result).toEqual(first.rows[0]?.result);
+    expect((await db.query('select id from public.payments')).rows).toHaveLength(1);
+  });
+
   it('records revenue and tips separately, closes only a fully settled account and invalidates the code', async () => {
     const account = await payableAccount();
     const pending = await payment(account, 1800, paymentKey, 200);
