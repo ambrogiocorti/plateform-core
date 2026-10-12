@@ -216,7 +216,39 @@ export async function database(through = Number.POSITIVE_INFINITY) {
           );
         `);
       }
+      // P0 Development-only fixture: the last remote audit migration disables
+      // a trigger created OUTSIDE the SQL migration history. Recreate its
+      // independently inspected live definition only in disposable PGlite.
+      // This tests Development parity, NOT clean-deployment reproducibility.
+      const devAuditPause =
+        name === '20261012075338_restore_dev_audit_capture_keep_immutability.sql';
+      if (devAuditPause) {
+        await db.exec(`
+          create function private.plateform_dev_skip_audit()
+          returns trigger language plpgsql set search_path=''
+          as $audit_fixture$ begin return null; end $audit_fixture$;
+          create trigger plateform_dev_pause_audit
+          before insert on public.audit_log for each row
+          execute function private.plateform_dev_skip_audit();
+        `);
+      }
       await db.exec(sql);
+      if (devAuditPause) {
+        const state = await db.query<{ tgname: string; tgenabled: string }>(`
+          select tgname, tgenabled from pg_catalog.pg_trigger
+          where tgrelid = 'public.audit_log'::regclass
+          and tgname in ('audit_immutable', 'audit_no_truncate', 'plateform_dev_pause_audit')
+        `);
+        const actual = new Map(state.rows.map((row) => [row.tgname, row.tgenabled]));
+        if (
+          actual.size !== 3 ||
+          actual.get('audit_immutable') !== 'O' ||
+          actual.get('audit_no_truncate') !== 'O' ||
+          actual.get('plateform_dev_pause_audit') !== 'D'
+        ) {
+          throw new Error('DEV_AUDIT_FIXTURE_MIGRATION_GUARDS_NOT_PRESERVED');
+        }
+      }
       const match = /^(\d+)_([^.]*)\.sql$/.exec(name);
       if (match)
         await db.query(
