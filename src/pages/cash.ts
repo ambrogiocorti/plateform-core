@@ -272,6 +272,7 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
         z.object({
           id: z.uuid(),
           account_id: z.uuid(),
+          cash_register_id: z.uuid(),
           method: z.string(),
           amount_cents: z.number(),
           tip_cents: z.number(),
@@ -388,13 +389,32 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
           `Conto ${formatMoney(payment.amount_cents)} · mancia ${formatMoney(payment.tip_cents)}`,
         ),
       );
-      if (permittedPaymentMethod(payment.method))
+      const pending = {
+        ...payment,
+        register_name:
+          registers.find((row) => row.id === payment.cash_register_id)?.name ??
+          'Cassa non disponibile',
+      };
+      if (mayResolveManualPayment(pending))
         card.append(
           button(
-            'Verifica esito',
-            () => manualPaymentVerification(payment.id, payment.account_id),
+            'Riprendi verifica manuale',
+            () =>
+              resolveManualPayment(pending, async () => {
+                await refreshSecondary();
+                if (selectedAccountId === payment.account_id) await loadAccount(payment.account_id);
+              }),
             'secondary',
           ),
+        );
+      else
+        card.append(
+          el(
+            'p',
+            { class: 'muted' },
+            'Non confermare i pagamenti del provider con la procedura manuale. Apri lo storico del conto per verificarli.',
+          ),
+          button('Apri storico conto', () => context.navigate(`/conti/${payment.account_id}`), 'quiet'),
         );
       pendingSection.append(card);
     }
@@ -445,34 +465,6 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
         await refreshSecondary();
       }),
     );
-  }
-
-  function manualPaymentVerification(paymentId: string, accountId: string): void {
-    const confirm = dialog(
-      'Verifica l’incasso',
-      el(
-        'p',
-        {},
-        'Controlla il contante ricevuto o l’esito sul POS. Questa conferma registra il pagamento sul conto.',
-      ),
-    );
-    for (const success of [true, false])
-      confirm.append(
-        button(
-          success ? 'Incasso verificato' : 'Non incassato',
-          async () => {
-            await rpc(
-              'confirm_manual_payment',
-              { p_payment: paymentId, p_success: success },
-              z.object({ id: z.uuid(), status: z.string() }),
-            );
-            confirm.close();
-            await refreshSecondary();
-            if (selectedAccountId === accountId) await loadAccount(accountId);
-          },
-          success ? 'primary' : 'secondary',
-        ),
-      );
   }
 
   function moneyKpi(label: string, cents: number, extraClass = ''): HTMLElement {
