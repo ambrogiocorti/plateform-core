@@ -72,6 +72,7 @@ const navigation: {
 }[] = [
   { path: '/operazioni', label: 'Operazioni', roles: ['ADMIN'], section: 'OPERATIVITÀ' },
   { path: '/preparazione', label: 'Avvio guidato', roles: ['ADMIN'], section: 'CONFIGURAZIONE' },
+  { path: '/menu-sede', label: 'Menu della sede', roles: ['ADMIN'], section: 'CONFIGURAZIONE' },
   { path: '/servizio', label: 'Servizio', roles: ['WAITER'] },
   { path: '/salute', label: 'Operational Health', roles: ['SUPER_ADMIN'] },
   { path: '/accoglienza', label: 'Accoglienza', roles: ['ADMIN', 'HOST'], section: 'OPERATIVITÀ' },
@@ -427,6 +428,8 @@ async function render(): Promise<void> {
       content = await (
         await import('../../src/pages/restaurant-setup')
       ).restaurantSetupPage(context);
+    else if (pageLink.path === '/menu-sede')
+      content = await (await import('../../src/pages/venue-menu')).venueMenuPage(context);
     else if (pageLink.path === '/servizio')
       content = await (await import('../../src/pages/waiter')).waiterPage(context);
     else if (pageLink.path === '/sala')
