@@ -1,30 +1,88 @@
-name: Plateform development checks
+# Plateform Development CI — manual, trusted main branch, local Windows machine.
+# No hosted minutes, no staging/prod secrets, and no automatic PR execution.
+name: Plateform development checks (local Windows)
+
 on:
-  push:
-  pull_request:
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: "Choose the checks to run on the local Windows runner"
+        required: true
+        type: choice
+        default: quick
+        options:
+          - quick
+          - full
+
 permissions:
   contents: read
+
+concurrency:
+  group: plateform-local-windows-ci
+  cancel-in-progress: false
+
 jobs:
   verify:
-    runs-on: ubuntu-latest
-    timeout-minutes: 25
+    if: github.repository == 'ambrogiocorti/plateform-core' && github.ref == 'refs/heads/main'
+    runs-on: [self-hosted, Windows, X64, plateform-local]
+    timeout-minutes: 120
+    defaults:
+      run:
+        shell: powershell
+    env:
+      CI: "true"
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout trusted main (no persisted credentials)
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          node-version: '24'
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Node.js 24.13 (required by Plateform)
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24.13.0'
           cache: npm
-      - run: npm ci
-      - run: npm run format:check
-      - run: npm run check
-      - run: npx playwright install --with-deps chromium
-      - run: node scripts/check-step11-build-assembly.mjs --browser-node
-      - run: npm run test:e2e
-      - uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: failed-browser-checks
-          path: test-results/
-          retention-days: 7
-# Commercial packaging is a separate gate: npm run release:check / release:zip.
-# Passing fixture tests never authorizes a production deployment or a sale-ready ZIP.
+
+      - name: Reproducible dependency install
+        run: npm.cmd ci --no-audit --no-fund
+
+      - name: Quick source verification
+        if: ${{ inputs.suite == 'quick' }}
+        run: |
+          npm.cmd run format:check
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          npm.cmd run check:migrations
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          npm.cmd run typecheck
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          npm.cmd run lint
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          npm.cmd run test:unit
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          npm.cmd run build
+          exit $LASTEXITCODE
+
+      - name: Full application checks (source, DB fixtures, Edge, build)
+        if: ${{ inputs.suite == 'full' }}
+        run: |
+          npm.cmd run format:check
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          npm.cmd run check
+          exit $LASTEXITCODE
+
+      - name: Install Chromium for browser E2E
+        if: ${{ inputs.suite == 'full' }}
+        run: npx.cmd playwright install chromium
+
+      - name: Verify public/staff browser build assembly
+        if: ${{ inputs.suite == 'full' }}
+        run: node scripts/check-step11-build-assembly.mjs --browser-node
+
+      - name: Browser end-to-end regression
+        if: ${{ inputs.suite == 'full' }}
+        run: npm.cmd run test:e2e
+
+# Manual trusted-main checks only. No release, backup/restore, payment,
+# provider integrations or production deployment is performed by this workflow.
+# Passing local tests does NOT close commercial release or staging E2E gates.
