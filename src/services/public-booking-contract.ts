@@ -20,7 +20,9 @@ const localTime = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
 export function venueLocalToday(timeZone: string, now: Date = new Date()): string {
   const parts = new Intl.DateTimeFormat('en-GB', {
     timeZone,
-    year: 'numeric', month: '2-digit', day: '2-digit',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
   }).formatToParts(now);
   const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
   return `${values.year}-${values.month}-${values.day}`;
@@ -39,14 +41,24 @@ export function addCalendarDays(iso: string, days: number): string {
 export function bookableSlots(input: unknown, expected: SearchKey): PublicSlot[] {
   if (!input || typeof input !== 'object') throw new Error('INVALID_AVAILABILITY');
   const data = input as Partial<PublicAvailability>;
-  if (data.venue_id !== expected.venueId || data.service_id !== expected.serviceId ||
-      data.date !== expected.date || data.party_size !== expected.party ||
-      !Array.isArray(data.slots)) throw new Error('STALE_AVAILABILITY');
+  if (
+    data.venue_id !== expected.venueId ||
+    data.service_id !== expected.serviceId ||
+    data.date !== expected.date ||
+    data.party_size !== expected.party ||
+    !Array.isArray(data.slots)
+  )
+    throw new Error('STALE_AVAILABILITY');
   const unique = new Set<string>();
   const slots: PublicSlot[] = [];
   for (const slot of data.slots) {
-    if (!slot || typeof slot !== 'object' || !localTime.test(slot.time) ||
-        typeof slot.available !== 'boolean' || unique.has(slot.time))
+    if (
+      !slot ||
+      typeof slot !== 'object' ||
+      !localTime.test(slot.time) ||
+      typeof slot.available !== 'boolean' ||
+      unique.has(slot.time)
+    )
       throw new Error('INVALID_AVAILABILITY');
     unique.add(slot.time);
     if (!slot.available) continue;
@@ -65,9 +77,10 @@ export function verifiedPaymentUrl(url: unknown, provider: 'STRIPE' | 'SATISPAY'
     throw new Error('INVALID_CHECKOUT_URL');
   // Match only the concrete checkout hosts allowed by the server integration.
   // A generic *.stripe.com / *.satispay.com suffix would allow unrelated hosts.
-  const allowedHosts = provider === 'STRIPE'
-    ? ['checkout.stripe.com']
-    : ['online.satispay.com', 'staging-online.satispay.com', 'staging.online.satispay.com'];
+  const allowedHosts =
+    provider === 'STRIPE'
+      ? ['checkout.stripe.com']
+      : ['online.satispay.com', 'staging-online.satispay.com', 'staging.online.satispay.com'];
   if (!allowedHosts.includes(parsed.hostname)) throw new Error('INVALID_CHECKOUT_URL');
   return parsed.href;
 }
@@ -84,7 +97,8 @@ export function depositNextAction(
   result: CheckoutResult,
   depositId: string,
   provider: 'STRIPE' | 'SATISPAY',
-): { action: 'REDIRECT'; url: string } | { action: 'AWAIT_CONFIRMATION' | 'FAILED' | 'PROCESSING' } {
+):
+  { action: 'REDIRECT'; url: string } | { action: 'AWAIT_CONFIRMATION' | 'FAILED' | 'PROCESSING' } {
   if (result.deposit_id !== depositId || result.provider !== provider)
     throw new Error('INVALID_CHECKOUT_CONTEXT');
   if (result.state === 'COMPLETED') return { action: 'AWAIT_CONFIRMATION' };

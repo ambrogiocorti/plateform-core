@@ -82,9 +82,11 @@ describe('Step 1 staff access and credential lifecycle', () => {
     );
     expect(persisted.rows[0]!.identifier).toBe(values.identifier);
     expect(
-      (await db.query<{ domain: string }>(
-        'select staff_identity_domain as domain from public.restaurant_profile where id',
-      )).rows[0]!.domain,
+      (
+        await db.query<{ domain: string }>(
+          'select staff_identity_domain as domain from public.restaurant_profile where id',
+        )
+      ).rows[0]!.domain,
     ).toBe('staff.test');
   });
 

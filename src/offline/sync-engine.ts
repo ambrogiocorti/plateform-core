@@ -22,7 +22,8 @@ export async function reconcileOfflineEvents<T extends CausalQueueEvent>(
       if (
         reconciled.some(
           (event, index) =>
-            event.sync_status !== events[index]?.sync_status || event.result !== events[index]?.result,
+            event.sync_status !== events[index]?.sync_status ||
+            event.result !== events[index]?.result,
         )
       ) {
         events.splice(0, events.length, ...reconciled);

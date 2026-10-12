@@ -45,4 +45,4 @@ node scripts/check-step11-build-assembly.mjs --browser-node
 
 Il database di sviluppo usa ancora `https://plateform-test.example`, riservato al collaudo. Non pubblicare né contrassegnare come `PASS` un gate dipendente da DNS, provider o hardware che non è stato realmente verificato.
 
-**Esito:** codice migliorato, Step 11 *non ancora certificato*. Nessuno ZIP finale.
+**Esito:** codice migliorato, Step 11 _non ancora certificato_. Nessuno ZIP finale.

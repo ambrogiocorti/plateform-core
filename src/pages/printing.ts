@@ -31,9 +31,11 @@ export async function accountPrintAction(
   context: StaffContext,
   account: string,
 ): Promise<HTMLElement> {
-  const devices = (await readRows('print_devices', deviceSchema, context.venue?.id, {
-    active: 'true',
-  })).filter((device) => permittedPrintDriver(device.driver));
+  const devices = (
+    await readRows('print_devices', deviceSchema, context.venue?.id, {
+      active: 'true',
+    })
+  ).filter((device) => permittedPrintDriver(device.driver));
   return button(
     'Stampa conto',
     () => {

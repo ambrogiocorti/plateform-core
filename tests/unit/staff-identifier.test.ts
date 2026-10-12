@@ -23,8 +23,6 @@ describe('Automatic staff login identifier', () => {
     expect(automaticStaffIdentifier('Mario Rossi', 'Sede Milano')).toBe(
       'mario.rossi@sedemilano.it',
     );
-    expect(automaticStaffIdentifier('Mario Rossi', 'Sede Roma')).toBe(
-      'mario.rossi@sederoma.it',
-    );
+    expect(automaticStaffIdentifier('Mario Rossi', 'Sede Roma')).toBe('mario.rossi@sederoma.it');
   });
 });
