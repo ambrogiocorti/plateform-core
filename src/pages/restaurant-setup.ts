@@ -1,8 +1,10 @@
 import { z } from 'zod';
-import { readPage } from '../api/client';
+import { readPage, readRows } from '../api/client';
 import { button, el, emptyState, status } from '../components/dom';
 import { evaluateSetup, setupDefinitions } from '../services/setup-readiness';
 import type { SetupFacts } from '../services/setup-readiness';
+import { evaluateServicePreflight } from '../services/service-preflight';
+import type { ServicePreflightInput } from '../services/service-preflight';
 import type { StaffContext } from './staff-context';
 
 const identity = z.object({ id: z.uuid() });
@@ -34,6 +36,61 @@ export async function loadSetupFacts(
   return Object.fromEntries(rows) as SetupFacts;
 }
 
+const uuid = z.uuid();
+const staff = z.object({ id: uuid, role: z.string(), active: z.boolean() });
+const station = z.object({ id: uuid, active: z.boolean() });
+const dish = z.object({ id: uuid, active: z.boolean() });
+const venueStaff = z.object({ user_id: uuid, active: z.boolean() });
+const stationStaff = z.object({
+  user_id: uuid,
+  station_id: uuid,
+  active: z.boolean(),
+});
+const venueDish = z.object({
+  dish_id: uuid,
+  enabled: z.boolean(),
+  availability: z.number().int().nonnegative().nullable(),
+  local_station_id: uuid.nullable(),
+});
+const dishStation = z.object({
+  dish_id: uuid,
+  station_id: uuid,
+  is_primary: z.boolean(),
+});
+
+/**
+ * Queries use the authenticated PostgREST client with the selected venue and
+ * existing RLS. Never use privileged RPCs or count another venue's personnel.
+ */
+export async function loadServicePreflight(
+  venueId: string,
+  canManageSharedCatalog: boolean,
+): Promise<ReturnType<typeof evaluateServicePreflight>> {
+  const [stations, profiles, assignments, stationAssignments] = await Promise.all([
+    readRows('stations', station, venueId, { active: 'true' }),
+    readRows('staff_profiles', staff, undefined, { active: 'true' }),
+    readRows('staff_venue_assignments', venueStaff, venueId, { active: 'true' }),
+    readRows('station_staff_assignments', stationStaff, venueId, { active: 'true' }),
+  ]);
+  const catalog = canManageSharedCatalog
+    ? await Promise.all([
+        readRows('dishes', dish, undefined, { active: 'true' }),
+        readRows('venue_dish_settings', venueDish, venueId, { enabled: 'true' }),
+        readRows('dish_station_assignments', dishStation, venueId, { is_primary: 'true' }),
+      ])
+    : null;
+  const input: ServicePreflightInput = {
+    dishes: catalog?.[0] ?? null,
+    venueDishes: catalog?.[1] ?? null,
+    dishStations: catalog?.[2] ?? null,
+    stations,
+    profiles,
+    venueStaff: assignments,
+    stationStaff: stationAssignments,
+  };
+  return evaluateServicePreflight(input);
+}
+
 export async function restaurantSetupPage(context: StaffContext): Promise<HTMLElement> {
   if (context.profile.role !== 'ADMIN')
     return emptyState(
@@ -53,6 +110,7 @@ export async function restaurantSetupPage(context: StaffContext): Promise<HTMLEl
     const canManageSharedCatalog = !context.multiVenue || context.profile.scope === 'CHAIN';
     const facts = await loadSetupFacts(venueId, canManageSharedCatalog);
     const progress = evaluateSetup(facts);
+    const operations = await loadServicePreflight(venueId, canManageSharedCatalog);
     const explanation = progress.basicsConfigured
       ? 'Sono presenti gli elementi minimi di configurazione. Verifica personale, turni, prezzi, disponibilità e l’intero ciclo operativo prima di aprire il servizio.'
       : 'Segui l’ordine indicato. Ogni stato è letto dal database della sede; non vengono creati dati dimostrativi.';
@@ -119,6 +177,70 @@ export async function restaurantSetupPage(context: StaffContext): Promise<HTMLEl
     view.replaceChildren(
       header,
       el('section', { class: 'stack' }, el('h2', {}, 'Configurazione della sede'), list),
+      el(
+        'section',
+        { class: 'card stack' },
+        el('h2', {}, 'Preparazione del servizio reale'),
+        el(
+          'p',
+          { class: 'muted' },
+          'Controlli server in sola lettura: personale autorizzato per questa sede e almeno un piatto abilitato e instradato a una stazione attiva. La presenza non dimostra ancora la riuscita di un ordine.',
+        ),
+        ...[
+          {
+            label: 'Piatto ordinabile con stazione attiva',
+            completed:
+              operations.orderableRoutedDishes === null
+                ? null
+                : operations.orderableRoutedDishes > 0,
+            explanation:
+              operations.orderableRoutedDishes === null
+                ? 'Richiede accesso al catalogo da parte di un Admin di catena.'
+                : `${operations.orderableRoutedDishes} piatti attivi, abilitati per la sede, disponibili e collegati a una stazione attiva.`,
+            path: '/gestione?modulo=dishes',
+          },
+          {
+            label: 'Cameriere assegnato alla sede',
+            completed: operations.waiterAssigned,
+            explanation: 'Richiede un profilo cameriere attivo assegnato a questa sede.',
+            path: '/staff',
+          },
+          {
+            label: 'Personale cucina operativo',
+            completed: operations.kitchenStaffed,
+            explanation:
+              'Richiede un Kitchen Admin assegnato o personale cucina attivo assegnato a una stazione attiva.',
+            path: '/staff',
+          },
+          {
+            label: 'Pass assegnato alla sede',
+            completed: operations.passAssigned,
+            explanation: 'Richiede un profilo Pass attivo assegnato a questa sede.',
+            path: '/staff',
+          },
+        ].map((check) =>
+          el(
+            'div',
+            { class: 'row between' },
+            el(
+              'div',
+              { class: 'stack' },
+              el('strong', {}, check.label),
+              el('p', { class: 'muted' }, check.explanation),
+              status(
+                check.completed === null
+                  ? 'Richiede Admin di catena'
+                  : check.completed
+                    ? 'Elemento presente'
+                    : 'Da configurare',
+              ),
+            ),
+            check.completed === null
+              ? null
+              : button('Gestisci', () => context.navigate(check.path), 'secondary'),
+          ),
+        ),
+      ),
       el(
         'section',
         { class: 'card stack' },
