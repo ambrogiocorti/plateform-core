@@ -1,0 +1,43 @@
+{
+  "observed_on": "2026-10-12",
+  "repo": "ambrogiocorti/plateform-core",
+  "environment": "local Windows self-hosted PGlite using exact PR #33 commit",
+  "pinned_candidate_sha": "0a1dafd1554c2459abd4e9ce27de486909961378",
+  "runs": [
+    {
+      "id": 38260941616,
+      "conclusion": "success"
+    },
+    {
+      "id": 38262272534,
+      "conclusion": "success"
+    }
+  ],
+  "verifications": {
+    "local_manifest_481": "PASS",
+    "recovered_480_canonical_content_sha": "PASS in prior independent catalog comparison",
+    "format_test_harness": "PASS",
+    "isolated_postgres_replay_with_dev_trigger_fixture": "PASS",
+    "step11_asset_boundary": "PASS",
+    "db_test_files": {
+      "passed": 12,
+      "failed": 0
+    },
+    "db_test_cases": {
+      "passed": 162,
+      "skipped": 4,
+      "failed": 0
+    }
+  },
+  "skipped_case_reason": "Four tests are gated by describe.runIf(process.env.PLATEFORM_TEST_EDITION === 'FULL') in tests/database/completion.test.ts; they were not executed under the current CORE-like environment. Do not count as passed.",
+  "limitations": [
+    "Replayed 480 authentic migrations plus local-only migration, but the final Development audit migration requires a separately reproduced out-of-band, disabled audit-pause trigger.",
+    "PGlite simulates some host-provided cron, auth and vault surface; this is not a fresh Supabase installation or a real GoTrue/PostgREST/Storage/Realtime integration test.",
+    "Backup/restore, independent replica, real RPO/RTO, real staff JWT, staging HTTPS and full browser suite remain unverified.",
+    "Canonical archive PR #32 and candidate PR #33 are still drafts and must not be merged as release-approved.",
+    "Quick CI on main was green before adding p0 workflows; this latest candidate replay does not establish current main full certification."
+  ],
+  "P0_replay_candidate_validation": "PASS_DEV_PARITY_ONLY",
+  "P0_strict_clean_install": "BLOCKED",
+  "release": "NO_GO"
+}
