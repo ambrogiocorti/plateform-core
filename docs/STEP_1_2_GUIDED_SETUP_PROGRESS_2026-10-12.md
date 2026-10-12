@@ -69,3 +69,18 @@ Le nuove funzioni pure hanno test unitari per scope, stock, calendario, override
 - Completamento dello storico migrazioni in quarantena, backup/restore e staging prima del go-live commerciale.
 
 La roadmap mantiene STEP 2 **IN PROGRESS** finché il gate cameriere → ordine → cucina → Pass → servizio non è verificato in modo reale.
+
+
+## Macro-passo funzionale 4 — handoff Pass → Cameriere/Runner → SERVED
+
+**Problema osservato nel codice e nel database:** `public.deliver_step(uuid, boolean)` registra la presa in carico in `public.step_deliveries` ma lascia lo stato `order_steps.status='READY'` finché non viene segnalata la consegna. La UI precedente non distingueva le prese in carico e proponeva contemporaneamente `Prendi in carico` e `Consegnato`. Un secondo cameriere poteva tentare inutilmente l'azione (il server avrebbe risposto `DELIVERY_ALREADY_CLAIMED`), mentre la prima persona non aveva un indicatore del proprio lavoro.
+
+**Correzione implementata:**
+
+- `readRows('step_deliveries')` ora usa il ramo a chiave composta del client REST, e non `readPage` ordinato per `id` (la tabella **non ha** colonna `id`). La query usa `venue_id`, `waiter_id` e `served_at IS NULL` applicando le policy RLS esistenti. La policy `deliveries_read` consente al personale WAITER soltanto i propri claim, oltre ai ruoli privilegiati previsti dal database.
+- Per ogni step `READY` con `can_deliver=true`, la pagina `/servizio` ora mostra `Prendi in carico` se non assegnato al cameriere corrente; dopo conferma server e refresh RLS mostra `CONSEGNA IN CARICO A TE` e soltanto `Conferma consegna al tavolo`.
+- `Conferma consegna al tavolo` apre un dialog di conferma esplicita e solo dopo richiama `deliver_step(p_served:true)`. Il backend verifica ancora `private.responsible_waiter`, ruolo, titolarità claim e step `READY`; non viene usato stato inventato nel client né scrittura SQL diretta.
+- Lo stesso percorso funziona anche in modalità `RUNNER` perché `deliveryCard` è comune alle due viste. I test unitari di `waiterDeliveryAction` verificano stati READY/non READY, `canDeliver`, claim proprio e identità dello step.
+- Non vengono concessi nuovi privilegi sulle consegne al personale e non vengono modificati SQL storici. Lo stato di claim altrui non è leggibile da WAITER a causa dell'attuale RLS: in caso di concorrenza il controllo atomico del server rimane autoritativo.
+
+**Stato:** codice presente nel branch PR #38, **non ancora testato in CI/browser su questo commit**. Occorre una verifica di due cameriere/runner in sessioni reali, con contestuale claim, marcatura SERVED e controllo che il secondo non possa incassare/consegnare un ordine altrui. Non attestare lo STEP 2 come chiuso solo per la presenza del flusso UI.
