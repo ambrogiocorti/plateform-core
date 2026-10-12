@@ -1,0 +1,62 @@
+{
+  "date": "2026-10-11",
+  "source_project": "abdxvlykasqmknexxhjo",
+  "work_type": "Live development database continuity cleanup",
+  "status": "DATABASE_TARGET_MET_AND_CURRENT_BACKUP_VERIFIED_RESTORE_PENDING",
+  "measurements": {
+    "database_bytes_before": 1570633395,
+    "database_bytes_after_committed_reclaim": 57603763,
+    "storage_failed_primary_bytes_removed_from_old_jobs": 205810871,
+    "storage_failed_primary_old_files_removed": 695,
+    "storage_verified_successful_backups_preserved": 64,
+    "snapshots_rehearsal_rows_removed": 1716997,
+    "chunks_rehearsal_removed": 8664,
+    "snapshot_manifests_removed": 155,
+    "database_bytes_after_new_verified_backup": 59152051,
+    "storage_failed_primary_bytes_removed_total_including_stalled_retest": 209684909,
+    "storage_failed_primary_files_removed_total_including_stalled_retest": 789,
+    "database_bytes_after_latest_live_verification": 59152051
+  },
+  "safety": {
+    "preserved_users": 12,
+    "preserved_venues": 1,
+    "preserved_orders": 2,
+    "preserved_accounts": 2,
+    "preserved_payments": 7,
+    "migrations_before": 457,
+    "migrations_after": 459,
+    "backup_before_cleanup": "656dcf01-ca49-4f85-9526-11f223d2b053",
+    "independent_replica_inventory_verified": true,
+    "independent_backup_current_schema_restore_test_verified": false,
+    "application_e2e_verified": false
+  },
+  "prevention": {
+    "cleanup_trigger": "private.cleanup_finished_rehearsal_snapshot",
+    "schema_migration_versions": [
+      "20261011064417",
+      "20261011064608"
+    ],
+    "storage_gc_function": "continuity-failed-backup-gc",
+    "storage_gc_cron_job": 24,
+    "storage_gc_schedule": "*/10 * * * *",
+    "worker_chunk_size_before": 200,
+    "worker_chunk_size_after": 500,
+    "backup_retest": "SUCCEEDED with continuity-backup-worker v11, 459 migrations, 41 files prim+replica, 3894396 bytes each, matching backup integrity.",
+    "backup_retest_id": "37d7a229-4f77-4ab2-8ac7-e920d4a6a2bc",
+    "backup_retest_completed_at": "2026-10-11T07:05:46.920396Z",
+    "backup_manifest_checksum": "9fa109582c37082605d52954291701cba95bcaddafedf9f33862a9d0198d8319"
+  },
+  "remaining": {
+    "partial_backup_test_id": "c32a299d-9a4b-4a53-84cf-06893e157563",
+    "partial_backup_test_status": "FAILED_WITH_AUTO_SNAPSHOT_CLEANUP_VERIFIED",
+    "partial_storage_files_from_latest_failed_test": 0,
+    "partial_storage_removal": "DONE: HTTP 200, 94 primary and 93 replica objects purged under authenticated guarded GC; 0 failed-primary objects remain",
+    "release_status": "NO_GO",
+    "current_schema_restore_test_verified": false,
+    "ci_status": "FAIL_PRETTIER_FORMAT_CHECK_97_FILES",
+    "current_verified_backup_id": "37d7a229-4f77-4ab2-8ac7-e920d4a6a2bc",
+    "current_backup_status": "SUCCEEDED_integrity_verified_primary_replica",
+    "last_successful_backup_at": "2026-10-11T07:05:46.920396Z",
+    "production_release": "NO_GO"
+  }
+}
