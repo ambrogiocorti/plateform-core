@@ -1,0 +1,108 @@
+# Manual formatting remediation on trusted main only.
+# Does not mark CI or commercial release passed and never auto-merges its PR.
+name: Plateform propose Prettier repair
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: plateform-format-repair
+  cancel-in-progress: false
+
+jobs:
+  format:
+    if: github.repository == 'ambrogiocorti/plateform-core' && github.ref == 'refs/heads/main'
+    runs-on: [self-hosted, Windows, X64, plateform-local]
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: powershell
+    env:
+      CI: "true"
+      GIT_CONFIG_COUNT: "1"
+      GIT_CONFIG_KEY_0: core.autocrlf
+      GIT_CONFIG_VALUE_0: "false"
+    steps:
+      - name: Checkout reviewed main without persisted credentials
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Ensure LF checkout from the Git index
+        run: |
+          git -c core.autocrlf=false checkout-index --all --force
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Install Node.js 24.13
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24.13.0'
+          cache: npm
+
+      - name: Install pinned dependencies
+        run: npm.cmd ci --no-audit --no-fund
+
+      - name: Apply Prettier only in the runner workspace
+        run: |
+          npm.cmd run format
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          npm.cmd run format:check
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Verify no audited SQL or manifest was touched
+        run: |
+          $paths = @(git diff --name-only --no-ext-diff)
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $forbidden = @($paths | Where-Object {
+            $_ -match '^supabase/migrations/' -or
+            $_ -eq 'supabase/migration-manifest.json' -or
+            $_ -eq 'package-lock.json'
+          })
+          if ($forbidden.Count -gt 0) {
+            Write-Error "Formatting modified immutable migration files or the lockfile; refusing PR."
+            exit 1
+          }
+          if ($paths.Count -gt 700) {
+            Write-Error "Unexpected formatting scope; refusing PR."
+            exit 1
+          }
+          git diff --check
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          npm.cmd run check:migrations
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Write-Host "Formatting changes: $($paths.Count); migration digests unchanged."
+
+      - name: Open a review-only formatting pull request
+        id: proposal
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: main
+          branch: ci/prettier-normalize-baseline
+          title: "style(ci): normalize Plateform sources with pinned Prettier"
+          commit-message: "style: apply repository Prettier 3.9.6 formatting"
+          body: |
+            Mechanical formatting proposal created from trusted main using the exact
+            Prettier version locked in package-lock.json.
+            - npm run format:check passed in the formatting workspace.
+            - npm run check:migrations passed; SQL migrations and digest manifest unchanged.
+            - Review the diff before merging. This is NOT a successful CI/full release gate.
+            - After merge rerun the manual Windows CI quick and then full suites.
+          draft: true
+          delete-branch: false
+          add-paths: "."
+
+      - name: Show proposed PR
+        env:
+          PROPOSAL_URL: ${{ steps.proposal.outputs.pull-request-url }}
+        run: |
+          if ($env:PROPOSAL_URL) {
+            Write-Host "Review formatting PR at $env:PROPOSAL_URL"
+          } else {
+            Write-Host "No formatting PR created (no changes), or PR creation was prevented by GitHub settings."
+          }
