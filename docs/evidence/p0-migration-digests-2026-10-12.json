@@ -1,0 +1,108 @@
+{
+  "generated_at_utc": "2026-10-12",
+  "source": "live Supabase migration statements (SHA-256 via extensions.digest)",
+  "project_id": "abdxvlykasqmknexxhjo",
+  "repository": "ambrogiocorti/plateform-core",
+  "git_baseline": "aa777de0273329e17a8c5189b502addb80ccb090",
+  "remote_total_according_to_catalog": 480,
+  "local_manifest_total": 134,
+  "versions_compared": 133,
+  "byte_exact_match": 109,
+  "only_remote_sql_plus_single_lf_matches_local": 12,
+  "newline_only_files": [
+    "20261004224216_step11_branding_accessibility_contrast.sql",
+    "20261004224445_step11_branding_theme_default_contrast_fix.sql",
+    "20261004231459_step9_analytics_station_throughput_fix.sql",
+    "20261004231739_step9_analytics_booking_semantics.sql",
+    "20261005142447_registered_device_heartbeat_realtime.sql",
+    "20261005144849_operational_settings_unrelated_feature_save_fix.sql",
+    "20261005152701_step7_return_approval_refund_and_notification_fix.sql",
+    "20261005155412_step7_pdf_invoice_output.sql",
+    "20261005155543_step7_document_snapshot_refunds.sql",
+    "20261005222521_api_permission_manifest_alignment.sql",
+    "20261005223814_api_permission_manifest_legacy_cleanup.sql",
+    "20261006044128_step12_audit_error_code_visibility.sql"
+  ],
+  "non_newline_hash_mismatches": [
+    {
+      "filename": "20261005062508_step10_venue_lifecycle_management.sql",
+      "version": "20261005062508",
+      "local_sha256": "a3d9730ecf77e1ae01f78de206715de845a38077d2d858e40d442b33049afe50",
+      "remote_sha256": "25010ec1bf085eef530626d96e865e65eab49b2d3fc423a1db4da31f8e1e0e0f"
+    },
+    {
+      "filename": "20261005062556_step10_venue_idempotent_step_up_retry.sql",
+      "version": "20261005062556",
+      "local_sha256": "125a54d17867bc5bea57d554ae46ded0b05e39f7b79ccaa5251d883f0ff89bae",
+      "remote_sha256": "f346cd8abe2b6cf875fdc4c51a7c799cbe08e24ec1aabe102a77b11287b13d8c"
+    },
+    {
+      "filename": "20261005140800_step6_refund_reopens_balance.sql",
+      "version": "20261005140800",
+      "local_sha256": "4e898789f736d4035a8ac1c5619c6d8266e440f32626ae620d605143ac5b0e22",
+      "remote_sha256": "ccc87f6b0ebd484f0262cdaf9e6e89ca934544a60a458e8fbb6a18e3c53f0df1"
+    },
+    {
+      "filename": "20261005163939_kitchen_board_allergen_snapshot.sql",
+      "version": "20261005163939",
+      "local_sha256": "4bc1a9b6bcc96cbad611d27506937005132aae1cfbf9d20767299554579a441e",
+      "remote_sha256": "0f8a10510ae4d19f9333ef273535397ea75cf87656028083f6a106db3c7ef2dc"
+    },
+    {
+      "filename": "20261005165352_host_operational_summary.sql",
+      "version": "20261005165352",
+      "local_sha256": "9e32929076983f22b630a470b95860ea1549139decf5974cd19262f3e67fd1a2",
+      "remote_sha256": "7f3871356afd371b351e9c853172b88d026eb5a8e68d63f6b78fef7db3e86647"
+    },
+    {
+      "filename": "20261005170110_kitchen_admin_operational_overview.sql",
+      "version": "20261005170110",
+      "local_sha256": "dfc8bb066c557b3ee5bf62dcdd97786a8237da28b1b2f6d0d60187d6d98af158",
+      "remote_sha256": "da86fd61baded4cc349451e74504aefb28b53bd3d80ee90db6e796db4215f988"
+    },
+    {
+      "filename": "20261005170559_admin_operational_overview.sql",
+      "version": "20261005170559",
+      "local_sha256": "954feb34ffcfdbc7aaa067a2fd9b37454fc781b7573b661567b93023fc832b1e",
+      "remote_sha256": "25b04c78de244493f246323a40ad8a2d5c3b5a3a67d8b0a81d812068db6605ea"
+    },
+    {
+      "filename": "20261005221652_step12_continuity_worker_heartbeat.sql",
+      "version": "20261005221652",
+      "local_sha256": "131d605c99aef9f1cb3c519425b649b43708015c12c9c0be446bad45e64a3fe7",
+      "remote_sha256": "0d8e9008e0bafcca458b735f14c0f658e7c9e2d75e18f3c1c8f8b77a49db059a"
+    },
+    {
+      "filename": "20261005223140_step12_continuity_worker_health.sql",
+      "version": "20261005223140",
+      "local_sha256": "fbd61c87eb19993066008336faaaba65f804da999f16b58c09ed9f26eee7ae22",
+      "remote_sha256": "1aeed048caa7f993b6c2c48087a05071522d692dce0887cd58b8c5dde052966d"
+    },
+    {
+      "filename": "20261006045641_step12_restore_reference_indexes.sql",
+      "version": "20261006045641",
+      "local_sha256": "b12471255e838495c9aa8f2334dccc73e88b081ba226a77d8e523682b450fa9d",
+      "remote_sha256": "efa30e2f96bf8e4e5fbc6ca5ae71538c1ca92169614ef7bf9e662cb1cd0254c9"
+    },
+    {
+      "filename": "20261006050249_step12_restore_actor_indexes.sql",
+      "version": "20261006050249",
+      "local_sha256": "939a48932120b878b26149e030fe548410b8d5cf5358566d39b528e5612abc33",
+      "remote_sha256": "7e1f317cfa4c7c602b907360da32885ce2868c77dd41d3adffda90460dada77d"
+    },
+    {
+      "filename": "20261006051256_step12_backup_requester_index.sql",
+      "version": "20261006051256",
+      "local_sha256": "18e1dd1db40797d03a0afa92ef07c8e305ba3f44c341dcad0609dd7987ec1bf1",
+      "remote_sha256": "963347077cabc64d2e8ac8d02cd557572678349f3226c3bae25343a1accd858d"
+    }
+  ],
+  "local_version_absent_remote": [
+    "20261012120000_staff_identifier_custom_email_domain.sql"
+  ],
+  "notes": [
+    "The 12 non-newline mismatches are byte-level discrepancies; at least 20261005062508 includes a substantive change in step-up authorization. Other mismatches require line-by-line review before a semantic conclusion.",
+    "Remote-only migration versions total 347 as captured in docs/evidence/p0-migration-inventory-2026-10-12.json.",
+    "No migration history was modified. Do not use this file to repair or backfill remote migration history."
+  ]
+}
