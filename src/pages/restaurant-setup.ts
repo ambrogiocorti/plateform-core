@@ -55,6 +55,12 @@ const stationStaff = z.object({
   station_id: uuid,
   active: z.boolean(),
 });
+const cashRegister = z.object({ id: uuid, active: z.boolean() });
+const cashierAssignment = z.object({
+  user_id: uuid,
+  cash_register_id: uuid,
+  active: z.boolean(),
+});
 const venueDish = z.object({
   dish_id: uuid,
   enabled: z.boolean(),
@@ -76,12 +82,15 @@ export async function loadServicePreflight(
   venueId: string,
   timeZone: string,
 ): Promise<ReturnType<typeof evaluateServicePreflight>> {
-  const [stations, profiles, assignments, stationAssignments] = await Promise.all([
-    readRows('stations', station, venueId, { active: 'true' }),
-    readRows('staff_profiles', staff, undefined, { active: 'true' }),
-    readRows('staff_venue_assignments', venueStaff, venueId, { active: 'true' }),
-    readRows('station_staff_assignments', stationStaff, venueId, { active: 'true' }),
-  ]);
+  const [stations, profiles, assignments, stationAssignments, cashRegisters, cashiers] =
+    await Promise.all([
+      readRows('stations', station, venueId, { active: 'true' }),
+      readRows('staff_profiles', staff, undefined, { active: 'true' }),
+      readRows('staff_venue_assignments', venueStaff, venueId, { active: 'true' }),
+      readRows('station_staff_assignments', stationStaff, venueId, { active: 'true' }),
+      readRows('cash_registers', cashRegister, venueId, { active: 'true' }),
+      readRows('cashier_assignments', cashierAssignment, venueId, { active: 'true' }),
+    ]);
   const localParts = new Intl.DateTimeFormat('en', {
     timeZone,
     year: 'numeric',
@@ -109,6 +118,8 @@ export async function loadServicePreflight(
     profiles,
     venueStaff: assignments,
     stationStaff: stationAssignments,
+    cashRegisters,
+    cashiers,
   };
   return evaluateServicePreflight(input);
 }
@@ -238,6 +249,13 @@ export async function restaurantSetupPage(context: StaffContext): Promise<HTMLEl
             label: 'Pass assegnato alla sede',
             completed: operations.passAssigned,
             explanation: 'Richiede un profilo Pass attivo assegnato a questa sede.',
+            path: '/staff',
+          },
+          {
+            label: 'Cassiere associato a una cassa attiva',
+            completed: operations.cashierAssigned,
+            explanation:
+              'Richiede un cassiere attivo assegnato alla sede e a una postazione cassa attiva.',
             path: '/staff',
           },
         ].map((check) =>
