@@ -31,12 +31,23 @@ jobs:
         shell: powershell
     env:
       CI: "true"
+      # Override Git for Windows autocrlf without mutating the PC user profile.
+      GIT_CONFIG_COUNT: "1"
+      GIT_CONFIG_KEY_0: core.autocrlf
+      GIT_CONFIG_VALUE_0: "false"
     steps:
       - name: Checkout trusted main (no persisted credentials)
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
           fetch-depth: 1
+
+      - name: Recreate tracked files with LF line endings
+        # On Windows, a previous checkout may have left CRLF files in _work.
+        # Do not format the entire repository: restore tracked bytes from Git.
+        run: |
+          git -c core.autocrlf=false checkout-index --all --force
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Node.js 24.13 (required by Plateform)
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
