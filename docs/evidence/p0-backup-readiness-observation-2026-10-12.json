@@ -1,0 +1,34 @@
+{
+  "observed_on_utc_date": "2026-10-12",
+  "scope": "READ_ONLY_DEVELOPMENT",
+  "supabase_project_ref": "abdxvlykasqmknexxhjo",
+  "public_backup_metadata_rows": 0,
+  "storage_objects_by_bucket": [
+    {
+      "bucket_id": "plateform-continuity-primary",
+      "objects": 2998,
+      "declared_metadata_bytes": 188139881
+    },
+    {
+      "bucket_id": "plateform-audit-archive-primary",
+      "objects": 25,
+      "declared_metadata_bytes": 3542810
+    }
+  ],
+  "pg_cron_jobs_total": 17,
+  "pg_cron_jobs_active": 16,
+  "audit_log_trigger_states": {
+    "audit_immutable": "ENABLED",
+    "audit_no_truncate": "ENABLED",
+    "plateform_dev_pause_audit": "DISABLED"
+  },
+  "recovery_certification": "BLOCKED",
+  "explanation": "Storage records indicate object metadata, not complete independently usable DB/Auth/Storage snapshots. No verified backup catalog entries exist for the current Development dataset. Active cron configurations do not prove worker success, offsite replica integrity, restored data or accepted RPO/RTO.",
+  "next_proofs": [
+    "Verified DB and Auth snapshot with secure manifests and per-snapshot checksums",
+    "Independently replicated Storage payloads and audit archive integrity",
+    "Fresh separate restore target with schema/data/user/policy counts, hashes and access checks",
+    "Repeatable worker health, key escrow, retention, incident alerts and accepted RPO/RTO"
+  ],
+  "no_change_to_live_database": true
+}
