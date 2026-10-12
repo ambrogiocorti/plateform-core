@@ -2,7 +2,6 @@ import { z } from 'zod';
 import { readPage, readRows, rpc } from '../api/client';
 import { button, dialog, el, emptyState, field, showError, status, toast } from '../components/dom';
 import { formatMoney, parseMoney } from '../services/money';
-import { permittedPaymentMethod } from '../services/commercial-scope';
 import { accountWorkspaceSchema } from '../types/accounts';
 import { accountPrintAction } from './printing';
 import { paymentDialog } from './account-payments';
