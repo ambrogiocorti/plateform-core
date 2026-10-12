@@ -4,6 +4,8 @@ import { providerPaymentDialog } from './provider-payments';
 import { stepUp } from '../auth/step-up';
 import { button, dialog, el, field, status, toast } from '../components/dom';
 import { formatMoney, parseMoney } from '../services/money';
+import { accountSettlementState } from '../services/account-settlement';
+import { mayResolveManualPayment, resolveManualPayment } from './manual-payment-resolution';
 import { permittedPaymentMethod } from '../services/commercial-scope';
 import { paymentRegisterSchema } from '../types/accounts';
 import type { Account, AccountBalance } from '../types/accounts';
@@ -38,6 +40,7 @@ export function accountClosureActions(
   context: StaffContext,
   account: Account,
   balance: AccountBalance,
+  onClosed?: () => void | Promise<void>,
 ): HTMLElement {
   const actions = el('div', { class: 'row' });
   if (account.status !== 'CLOSED') {
@@ -46,11 +49,12 @@ export function accountClosureActions(
       async () => {
         await command('close_account', { p_account: account.id });
         toast('Conto chiuso.');
-        context.navigate('/conti');
+        if (onClosed) await onClosed();
+        else context.navigate('/conti');
       },
       'secondary',
     );
-    close.disabled = balance.remaining_cents !== 0 || balance.pending_cents !== 0;
+    close.disabled = accountSettlementState(account.status, balance) !== 'BALANCED';
     if (close.disabled)
       close.title = 'Il saldo deve essere zero e tutti i pagamenti devono avere un esito.';
     actions.append(close);
@@ -144,6 +148,18 @@ export async function accountPaymentHistory(
           `Mancia separata ${formatMoney(payment.tip_cents)} · Rimborsi ${formatMoney(payment.refunded_cents)} + ${formatMoney(payment.refunded_tip_cents)} mance`,
         ),
       );
+      if (mayResolveManualPayment(payment)) {
+        card.append(
+          button(
+            'Riprendi verifica incasso',
+            () =>
+              resolveManualPayment(payment, () => {
+                context.navigate(`/conti/${account.id}`);
+              }),
+            'secondary',
+          ),
+        );
+      }
       if (!permittedPaymentMethod(payment.method))
         card.append(
           el(
