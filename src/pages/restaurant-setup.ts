@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { readPage } from '../api/client';
 import { button, el, emptyState, status } from '../components/dom';
 import { evaluateSetup, setupDefinitions } from '../services/setup-readiness';
-import type { SetupFacts, SetupKey } from '../services/setup-readiness';
+import type { SetupFacts } from '../services/setup-readiness';
 import type { StaffContext } from './staff-context';
 
 const identity = z.object({ id: z.uuid() });
