@@ -29,6 +29,15 @@ const claimSchema = z.object({
   claimed_at: z.string(),
   served_at: z.string().nullable(),
 });
+const financeAttentionSchema = z.object({
+  cash: z.object({
+    open_registers: z.number().int(),
+    open_services: z.number().int(),
+    pending_payments: z.number().int(),
+    pending_reconciliations: z.number().int(),
+  }),
+});
+
 const kitchenRow = z.object({
   step_id: z.uuid(),
   step_number: z.number().int(),
@@ -78,11 +87,12 @@ export async function serviceExceptionsPage(context: StaffContext): Promise<HTML
   let revision = 0;
   const refresh = async () => {
     const currentRevision = ++revision;
-    const [calls, deliveries, floor, kitchen] = await Promise.all([
+    const [calls, deliveries, floor, kitchen, finance] = await Promise.all([
       loadOpenCalls(venue.id),
       loadUnservedDeliveries(venue.id),
       rpc('get_floor_workspace', { p_venue: venue.id }, floorSchema),
       rpc('get_kitchen_board', { p_venue: venue.id }, z.array(kitchenRow)),
+      rpc('get_admin_operational_overview', { p_venue: venue.id }, financeAttentionSchema),
     ]);
     if (currentRevision !== revision) return;
     const now = Date.now();
@@ -199,6 +209,22 @@ export async function serviceExceptionsPage(context: StaffContext): Promise<HTML
       ),
       el('section', { class: 'stack' }, el('h2', {}, 'Chiamate e richieste conto'), callList),
       el('section', { class: 'stack' }, el('h2', {}, 'Consegne già prese in carico'), deliveryList),
+      el(
+        'section',
+        { class: 'card stack', 'aria-label': 'Verifiche contabili' },
+        el('h2', {}, 'Pagamenti e quadratura'),
+        el(
+          'p',
+          { role: 'status' },
+          `${finance.cash.pending_payments} pagamenti da verificare · ${finance.cash.pending_reconciliations} quadrature in attesa · ${finance.cash.open_services} servizi contabili aperti`,
+        ),
+        el(
+          'p',
+          { class: 'muted' },
+          'Verifica gli esiti POS/contanti prima di confermarli. Le quadrature con differenza richiedono l’approvazione prevista dal server.',
+        ),
+        button('Apri Cassa e quadrature', () => context.navigate('/cassa'), 'secondary'),
+      ),
     );
   };
   context.refresh = refresh;
