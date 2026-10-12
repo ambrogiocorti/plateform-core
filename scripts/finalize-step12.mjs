@@ -16,12 +16,28 @@ function gate(script, args = []) {
 
 const staticGate = gate('scripts/check-step12-static.mjs');
 if (!staticGate.ok) {
-  console.error(JSON.stringify({ status: 'BLOCKED', stage: 'STEP12_STATIC', detail: staticGate.stderr.slice(-1200) }, null, 2));
+  console.error(
+    JSON.stringify(
+      { status: 'BLOCKED', stage: 'STEP12_STATIC', detail: staticGate.stderr.slice(-1200) },
+      null,
+      2,
+    ),
+  );
   process.exit(2);
 }
 const rehearsalGate = gate('scripts/check-step12-real-rehearsal.mjs');
 if (!rehearsalGate.ok) {
-  console.error(JSON.stringify({ status: 'BLOCKED', stage: 'STEP12_REAL_REHEARSAL', detail: rehearsalGate.stderr.slice(-2400) }, null, 2));
+  console.error(
+    JSON.stringify(
+      {
+        status: 'BLOCKED',
+        stage: 'STEP12_REAL_REHEARSAL',
+        detail: rehearsalGate.stderr.slice(-2400),
+      },
+      null,
+      2,
+    ),
+  );
   process.exit(3);
 }
 
@@ -45,7 +61,8 @@ for (const sectionNumber of [115, 116]) {
   const section = requirements.sections.find((entry) => entry.section === sectionNumber);
   if (!section) throw new Error(`REQUIREMENT_SECTION_MISSING:${sectionNumber}`);
   section.status = 'verified';
-  const note = 'Step 12 certificato tramite scripts/check-step12-real-rehearsal.mjs sulla migration baseline corrente.';
+  const note =
+    'Step 12 certificato tramite scripts/check-step12-real-rehearsal.mjs sulla migration baseline corrente.';
   if (!section.verification_notes.includes(note)) section.verification_notes.push(note);
 }
 

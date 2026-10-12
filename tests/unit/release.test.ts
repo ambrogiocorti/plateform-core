@@ -39,12 +39,15 @@ function evidence() {
 describe('commercial release gate', () => {
   it('permits only explicitly excluded provider/driver sections for CORE', () => {
     const reduced = structuredClone(matrix);
-    for (const section of excludedCoreSections) reduced.sections[section]!.status = 'out_of_scope_core';
+    for (const section of excludedCoreSections)
+      reduced.sections[section]!.status = 'out_of_scope_core';
     const record = evidence();
     Object.assign(record, { edition: 'CORE' });
     Object.assign(record.local_checks, {
-      core_edition_contract: 'passed', core_server_policy_source: 'passed',
-      core_edge_guard_source: 'passed', core_release_profile: 'passed',
+      core_edition_contract: 'passed',
+      core_server_policy_source: 'passed',
+      core_edge_guard_source: 'passed',
+      core_release_profile: 'passed',
     });
     record.integration_checks = Object.fromEntries(
       requiredCoreIntegrationChecks.map((name) => [

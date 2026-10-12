@@ -1,10 +1,5 @@
 export type OfflineSyncStatus =
-  | 'PENDING'
-  | 'SYNCING'
-  | 'SYNCED'
-  | 'CONFLICT'
-  | 'REJECTED'
-  | 'RESOLVED';
+  'PENDING' | 'SYNCING' | 'SYNCED' | 'CONFLICT' | 'REJECTED' | 'RESOLVED';
 
 export interface CausalQueueEvent {
   client_event_id: string;

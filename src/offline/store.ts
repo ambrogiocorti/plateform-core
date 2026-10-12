@@ -125,7 +125,12 @@ async function enqueueOperation(
       )
     )
       throw new Error('OFFLINE_OTHER_USER_QUEUE');
-    if (queue.some((e) => e.resource_id === resource && !['SYNCED', 'REJECTED', 'RESOLVED'].includes(e.sync_status)))
+    if (
+      queue.some(
+        (e) =>
+          e.resource_id === resource && !['SYNCED', 'REJECTED', 'RESOLVED'].includes(e.sync_status),
+      )
+    )
       throw new Error('OFFLINE_RESOURCE_ALREADY_QUEUED');
     const event = queueEventSchema.parse({
       client_event_id: crypto.randomUUID(),

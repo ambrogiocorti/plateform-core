@@ -47,7 +47,7 @@ production/staging sul computer del runner.
    - Additional labels: `plateform-local`
    - Work folder: lasciare `_work`
    - Windows service: **No**, per l'uso manuale.
-7. Avviare ` .\run.cmd ` nella directory del runner. Lasciare PowerShell
+7. Avviare `.\run.cmd` nella directory del runner. Lasciare PowerShell
    aperto durante l'esecuzione. La pagina Runners deve mostrarlo `Idle`.
 
 Il token di registrazione è temporaneo: se scade, generarne uno nuovo

@@ -207,7 +207,10 @@ export async function safeEdgeError(error: unknown): Promise<ApplicationError> {
   const context =
     error !== null && typeof error === 'object' && 'context' in error ? error.context : null;
   if (context instanceof Response) {
-    const payload: unknown = await context.clone().json().catch(() => null);
+    const payload: unknown = await context
+      .clone()
+      .json()
+      .catch(() => null);
     const parsed = z
       .object({ code: z.string(), request_id: z.string().optional() })
       .safeParse(payload);

@@ -428,7 +428,9 @@ describe('completion: authoritative catalog, editor, planning and equal shares',
     () => {
       async function onlinePayment() {
         const account = await createOrder();
-        await db.exec("reset role; update public.feature_flags set licensed=true where name='STRIPE'");
+        await db.exec(
+          "reset role; update public.feature_flags set licensed=true where name='STRIPE'",
+        );
         await db.query(
           "update public.venue_settings set payment_methods=array['CASH','STRIPE']::public.payment_method[] where venue_id=$1",
           [ids.venue],
@@ -451,9 +453,10 @@ describe('completion: authoritative catalog, editor, planning and equal shares',
           )
         ).rows[0]!.r.id;
         const operation = (
-          await db.query<{ r: { id: string } }>('select public.prepare_provider_operation($1,null) r', [
-            payment,
-          ])
+          await db.query<{ r: { id: string } }>(
+            'select public.prepare_provider_operation($1,null) r',
+            [payment],
+          )
         ).rows[0]!.r.id;
         return { account, payment, operation };
       }
@@ -543,7 +546,6 @@ describe('completion: authoritative catalog, editor, planning and equal shares',
           ),
         ).rejects.toThrow('PROVIDER_VERIFICATION_FAILED');
       });
-
     },
   );
 

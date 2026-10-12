@@ -5,10 +5,20 @@ import type { StaffContext } from './staff-context';
 import { floorStatusLabels } from '../components/floor-view';
 import { notificationRulesSchema } from '../components/notification-indicator';
 import { enableNotificationSound, playNotificationSound } from '../services/notification-sound';
-import { permittedPaymentMethods, permittedPrintDriver, permittedPrintDrivers } from '../services/commercial-scope';
+import {
+  permittedPaymentMethods,
+  permittedPrintDriver,
+  permittedPrintDrivers,
+} from '../services/commercial-scope';
 
 const record = z.record(z.string(), z.unknown());
-const methods = permittedPaymentMethods(['CASH', 'CARD_POS', 'STRIPE', 'SATISPAY_POS', 'SATISPAY_API']);
+const methods = permittedPaymentMethods([
+  'CASH',
+  'CARD_POS',
+  'STRIPE',
+  'SATISPAY_POS',
+  'SATISPAY_API',
+]);
 const methodNames: Record<string, string> = {
   CASH: 'Contanti',
   CARD_POS: 'POS esterno',
@@ -133,7 +143,11 @@ export async function operationalSettingsPage(context: StaffContext): Promise<HT
     gift = select('Omaggi', policies, settings.complimentary_policy);
   const financeKey = crypto.randomUUID();
   financial.append(
-    el('p', { class: 'muted' }, 'Edizione CORE: incassi in contanti o POS carta esterno, senza collegamento al provider. Verifica l’esito sul terminale prima di confermare.'),
+    el(
+      'p',
+      { class: 'muted' },
+      'Edizione CORE: incassi in contanti o POS carta esterno, senza collegamento al provider. Verifica l’esito sul terminale prima di confermare.',
+    ),
     pay.root,
     el('label', {}, 'Sconti', discount),
     el('label', {}, 'Omaggi', gift),
@@ -212,21 +226,30 @@ export async function operationalSettingsPage(context: StaffContext): Promise<HT
   const registers = await readRows('cash_registers', record, context.venue.id);
   const printers = (
     await readRows(
-    'print_devices',
-    z.object({
-      id: z.uuid(),
-      name: z.string(),
-      driver: z.enum(['BROWSER', 'EPOS', 'BRIDGE']),
-      configuration: z.record(z.string(), z.unknown()).default({}),
-    }),
-    context.venue.id,
-    { active: 'true' },
+      'print_devices',
+      z.object({
+        id: z.uuid(),
+        name: z.string(),
+        driver: z.enum(['BROWSER', 'EPOS', 'BRIDGE']),
+        configuration: z.record(z.string(), z.unknown()).default({}),
+      }),
+      context.venue.id,
+      { active: 'true' },
     )
-  ).filter((device) => device.configuration.output !== 'PDF' && permittedPrintDriver(device.driver));
+  ).filter(
+    (device) => device.configuration.output !== 'PDF' && permittedPrintDriver(device.driver),
+  );
   const stations = await readRows('stations', record, context.venue.id, { active: 'true' });
-  const printConfig = el('section', { class: 'card stack' },
+  const printConfig = el(
+    'section',
+    { class: 'card stack' },
     el('h2', {}, 'Postazioni e stampa'),
-    el('p', { class: 'muted' }, 'Edizione CORE: stampa via browser/PDF. Driver Epson e bridge non inclusi.'));
+    el(
+      'p',
+      { class: 'muted' },
+      'Edizione CORE: stampa via browser/PDF. Driver Epson e bridge non inclusi.',
+    ),
+  );
   for (const register of registers)
     printConfig.append(
       button(

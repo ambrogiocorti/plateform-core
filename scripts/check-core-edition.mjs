@@ -13,34 +13,71 @@ import {
 } from '../src/services/commercial-scope.ts';
 
 let count = 0;
-function check(test) { test(); count++; }
+function check(test) {
+  test();
+  count++;
+}
 
 check(() => assert.equal(externalPaymentProvidersIncluded, false));
 check(() => assert.equal(epsonPrintingIncluded, false));
-check(() => assert.deepEqual(permittedPaymentMethods([
-  'CASH','CARD_POS','STRIPE','SATISPAY_POS','SATISPAY_API',
-]), ['CASH','CARD_POS']));
-for (const valid of ['CASH','CARD_POS'])
+check(() =>
+  assert.deepEqual(
+    permittedPaymentMethods(['CASH', 'CARD_POS', 'STRIPE', 'SATISPAY_POS', 'SATISPAY_API']),
+    ['CASH', 'CARD_POS'],
+  ),
+);
+for (const valid of ['CASH', 'CARD_POS'])
   check(() => assert.equal(permittedPaymentMethod(valid), true));
-for (const invalid of ['STRIPE','SATISPAY_POS','SATISPAY_API','','BOGUS'])
+for (const invalid of ['STRIPE', 'SATISPAY_POS', 'SATISPAY_API', '', 'BOGUS'])
   check(() => assert.equal(permittedPaymentMethod(invalid), false));
 check(() => assert.deepEqual(permittedPrintDrivers(), ['BROWSER']));
 check(() => assert.equal(permittedPrintDriver('BROWSER'), true));
-for (const invalid of ['EPOS','BRIDGE','','BOGUS'])
+for (const invalid of ['EPOS', 'BRIDGE', '', 'BOGUS'])
   check(() => assert.equal(permittedPrintDriver(invalid), false));
 const bookingSlots = [
   { time: '19:00', status_if_booked: 'RESERVED' },
   { time: '19:30', status_if_booked: 'REQUESTED' },
   { time: '20:00', status_if_booked: 'PENDING_DEPOSIT' },
 ];
-check(() => assert.deepEqual(permittedBookingSlots(bookingSlots).map((entry) => entry.time), ['19:00', '19:30']));
+check(() =>
+  assert.deepEqual(
+    permittedBookingSlots(bookingSlots).map((entry) => entry.time),
+    ['19:00', '19:30'],
+  ),
+);
 check(() => assert.equal(bookingSlots.length, 3, 'caller input must not be mutated'));
-check(() => assert.deepEqual(permittedBookingSlots([{ time: '20:00', status_if_booked: 'PENDING_DEPOSIT' }]), []));
-check(() => assert.deepEqual(permittedBookingSlots([{ time: '20:30', status_if_booked: 'RESERVED', deposit: { amount_cents: 1000 } }]), []));
-check(() => assert.deepEqual(permittedBookingSlots([{ time: '20:45', status_if_booked: 'REQUESTED', deposit: { amount_cents: 1000 } }]), []));
-check(() => assert.deepEqual(permittedBookingSlots([{ time: '21:00', status_if_booked: 'UNKNOWN' }]), []));
+check(() =>
+  assert.deepEqual(
+    permittedBookingSlots([{ time: '20:00', status_if_booked: 'PENDING_DEPOSIT' }]),
+    [],
+  ),
+);
+check(() =>
+  assert.deepEqual(
+    permittedBookingSlots([
+      { time: '20:30', status_if_booked: 'RESERVED', deposit: { amount_cents: 1000 } },
+    ]),
+    [],
+  ),
+);
+check(() =>
+  assert.deepEqual(
+    permittedBookingSlots([
+      { time: '20:45', status_if_booked: 'REQUESTED', deposit: { amount_cents: 1000 } },
+    ]),
+    [],
+  ),
+);
+check(() =>
+  assert.deepEqual(permittedBookingSlots([{ time: '21:00', status_if_booked: 'UNKNOWN' }]), []),
+);
 check(() => assert.deepEqual(permittedBookingSlots([{ time: '21:15' }]), []));
-check(() => assert.equal(requiresExcludedDeposit({ status_if_booked: 'RESERVED', deposit: { amount_cents: 1000 } }), true));
+check(() =>
+  assert.equal(
+    requiresExcludedDeposit({ status_if_booked: 'RESERVED', deposit: { amount_cents: 1000 } }),
+    true,
+  ),
+);
 check(() => assert.equal(requiresExcludedDeposit({ status_if_booked: 'RESERVED' }), false));
 
 const accountPayments = readFileSync('src/pages/account-payments.ts', 'utf8');
@@ -61,20 +98,42 @@ check(() => assert.match(publicBooking, /permittedBookingSlots\(confirmedSlots\)
 check(() => assert.match(publicBooking, /confirmedSlots\.some\(requiresExcludedDeposit\)/));
 check(() => assert.match(publicBooking, /if \(!externalPaymentProvidersIncluded\)/));
 check(() => assert.match(publicBooking, /Non inviare un’altra richiesta/));
-check(() => assert.match(printing, /\.filter\(\(device\) => permittedPrintDriver\(device\.driver\)\)/));
-check(() => assert.match(printing, /if \(!permittedPrintDriver\(device\.driver\)\) \{\s*await finish\(false\);/));
-check(() => assert.match(printing, /La stampa su questo dispositivo non è inclusa in Plateform CORE/));
+check(() =>
+  assert.match(printing, /\.filter\(\(device\) => permittedPrintDriver\(device\.driver\)\)/),
+);
+check(() =>
+  assert.match(
+    printing,
+    /if \(!permittedPrintDriver\(device\.driver\)\) \{\s*await finish\(false\);/,
+  ),
+);
+check(() =>
+  assert.match(printing, /La stampa su questo dispositivo non è inclusa in Plateform CORE/),
+);
 check(() => assert.match(accountFinance, /if \(!permittedPaymentMethod\(payment\.method\)\)/));
-check(() => assert.match(accountFinance, /manual\(payment\.method\) &&\s*permittedPaymentMethod\(payment\.method\)/));
+check(() =>
+  assert.match(
+    accountFinance,
+    /manual\(payment\.method\) &&\s*permittedPaymentMethod\(payment\.method\)/,
+  ),
+);
 check(() => assert.match(accountFinance, /Operazione storica con metodo escluso dalla CORE/));
-check(() => assert.match(accountFinance, /refund\.status === 'PENDING' &&\s*!manual\(payment\.method\) &&\s*permittedPaymentMethod\(payment\.method\)/));
+check(() =>
+  assert.match(
+    accountFinance,
+    /refund\.status === 'PENDING' &&\s*!manual\(payment\.method\) &&\s*permittedPaymentMethod\(payment\.method\)/,
+  ),
+);
 check(() => assert.match(cashPage, /if \(permittedPaymentMethod\(payment\.method\)\)/));
 check(() => assert.match(providerPayments, /if \(!externalPaymentProvidersIncluded\) \{/));
 check(() => assert.match(technicalPage, /FUORI PERIMETRO CORE/));
 check(() => assert.match(technicalPage, /excludedFromCore/));
 const receiptLines = printLines({
-  restaurant: 'Plateform QA', at: '2026-10-08T17:00:00Z',
-  account: 'A-01', table: '7', document: 'Conto di cortesia',
+  restaurant: 'Plateform QA',
+  at: '2026-10-08T17:00:00Z',
+  account: 'A-01',
+  table: '7',
+  document: 'Conto di cortesia',
   lines: [{ name: 'Piatto prova', quantity: 1, total_cents: 1290 }],
   balance: { total_cents: 1290, discount_cents: 0 },
   payments: [{ method: 'CARD_POS', amount_cents: 1290, tip_cents: 0 }],
@@ -85,4 +144,6 @@ check(() => assert.ok(receiptLines.some((line) => line.includes('documento comme
 check(() => assert.ok(receiptLines.some((line) => line.includes('CARD_POS'))));
 check(() => assert.ok(receiptLines.some((line) => line.includes('Rimborso CASH'))));
 
-console.log(`CORE_EDITION_SOURCE_CONTRACT=PASS (${count}/${count} checks; server configuration verified separately)`);
+console.log(
+  `CORE_EDITION_SOURCE_CONTRACT=PASS (${count}/${count} checks; server configuration verified separately)`,
+);
