@@ -5,6 +5,8 @@ DO $test$
 DECLARE
   v_id uuid := gen_random_uuid();
   v_seen boolean;
+  v_update_rejected boolean := false;
+  v_delete_rejected boolean := false;
 BEGIN
   IF NOT EXISTS (
     SELECT 1 FROM pg_trigger
@@ -31,6 +33,24 @@ BEGIN
       SELECT 1 FROM public.audit_log WHERE id = v_id
     ) INTO v_seen;
     IF NOT v_seen THEN RAISE EXCEPTION 'AUDIT_TEST_INSERT_NOT_VISIBLE'; END IF;
+    -- The immutable-row guard must reject both kinds of row mutation.
+    -- These operations target only the transient row created above.
+    BEGIN
+      UPDATE public.audit_log SET action = 'UNAUTHORIZED_UPDATE' WHERE id = v_id;
+    EXCEPTION WHEN OTHERS THEN
+      v_update_rejected := true;
+    END;
+    IF NOT v_update_rejected THEN
+      RAISE EXCEPTION 'AUDIT_UPDATE_NOT_REJECTED';
+    END IF;
+    BEGIN
+      DELETE FROM public.audit_log WHERE id = v_id;
+    EXCEPTION WHEN OTHERS THEN
+      v_delete_rejected := true;
+    END;
+    IF NOT v_delete_rejected THEN
+      RAISE EXCEPTION 'AUDIT_DELETE_NOT_REJECTED';
+    END IF;
     RAISE EXCEPTION 'ROLLBACK_EXPECTED';
   EXCEPTION WHEN raise_exception THEN
     IF SQLERRM <> 'ROLLBACK_EXPECTED' THEN RAISE; END IF;
@@ -38,5 +58,5 @@ BEGIN
   IF EXISTS (SELECT 1 FROM public.audit_log WHERE id = v_id) THEN
     RAISE EXCEPTION 'AUDIT_TEST_ROLLBACK_FAILED';
   END IF;
-  RAISE NOTICE 'AUDIT_CAPTURE_SMOKE_TEST_PASSED';
+  RAISE NOTICE 'AUDIT_INSERT_IMMUTABILITY_SMOKE_TEST_PASSED';
 END $test$;
