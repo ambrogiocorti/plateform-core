@@ -14,6 +14,7 @@ Consentire a un Admin di comprendere cosa manca in una nuova installazione reale
 - Ogni verifica usa una lettura server con `limit: 1`, senza replicare tutto il catalogo in memoria.
 - Collegamenti diretti alle schermate esistenti di configurazione, che effettuano gli interventi tramite il server-side `save_configuration_command` e le sue autorizzazioni, non tramite LocalStorage.
 - Aggiornamento dello stato dal database dopo le modifiche; nessuna falsa conferma offline o in caso di errore API.
+- Nei multi-sede, i due controlli di catalogo condiviso non vengono letti né resi modificabili a un Admin limitato alla sede: vengono mostrati come **da gestire da un Admin di catena**, senza una falsa conferma.
 - Avviso esplicito che personale, assegnazioni, disponibilità, autorizzazioni, stampa, pagamenti e servizio end-to-end devono ancora essere controllati.
 - Test unitari del calcolo di avanzamento e dell'ordine delle dipendenze.
 
