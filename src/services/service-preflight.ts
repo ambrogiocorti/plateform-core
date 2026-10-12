@@ -49,6 +49,17 @@ export interface ServiceStaffStation {
   active: boolean;
 }
 
+export interface ServiceCashRegister {
+  id: string;
+  active: boolean;
+}
+
+export interface ServiceCashierAssignment {
+  user_id: string;
+  cash_register_id: string;
+  active: boolean;
+}
+
 export interface ServicePreflightInput {
   dishes: readonly ServiceDish[] | null;
   categories: readonly ServiceCategory[] | null;
@@ -59,6 +70,8 @@ export interface ServicePreflightInput {
   profiles: readonly ServiceStaff[];
   venueStaff: readonly ServiceStaffVenue[];
   stationStaff: readonly ServiceStaffStation[];
+  cashRegisters: readonly ServiceCashRegister[];
+  cashiers: readonly ServiceCashierAssignment[];
 }
 
 export interface ServicePreflightResult {
@@ -66,6 +79,7 @@ export interface ServicePreflightResult {
   waiterAssigned: boolean;
   kitchenStaffed: boolean;
   passAssigned: boolean;
+  cashierAssigned: boolean;
 }
 
 /**
@@ -142,5 +156,18 @@ export function evaluateServicePreflight(input: ServicePreflightInput): ServiceP
     waiterAssigned: activeUsers.some((profile) => profile.role === 'WAITER'),
     kitchenStaffed,
     passAssigned: activeUsers.some((profile) => profile.role === 'PASS'),
+    cashierAssigned: activeUsers.some(
+      (profile) =>
+        profile.role === 'CASHIER' &&
+        input.cashiers.some(
+          (assignment) =>
+            assignment.active &&
+            assignment.user_id === profile.id &&
+            input.cashRegisters.some(
+              (register) =>
+                register.active && register.id === assignment.cash_register_id,
+            ),
+        ),
+    ),
   };
 }
