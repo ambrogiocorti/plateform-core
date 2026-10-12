@@ -1,0 +1,1416 @@
+{
+  "generated_at": "2026-10-12",
+  "source_project": "plateform-development",
+  "source_ref": "abdxvlykasqmknexxhjo",
+  "git_base_branch": "main",
+  "git_base_commit": "aa777de0273329e17a8c5189b502addb80ccb090",
+  "state": "NOT_RECONCILED",
+  "remote_count": 480,
+  "local_manifest_count": 134,
+  "remote_only_count": 347,
+  "local_only_count": 1,
+  "renamed_at_same_version_count": 0,
+  "sha256_comparison_status": "NOT_PERFORMED: only names and versions queried",
+  "remote_only": [
+    {
+      "version": "20261006095341",
+      "name": "step12_automated_restore_test_enqueue"
+    },
+    {
+      "version": "20261006100248",
+      "name": "step13_rehearsal_private_rls_hardening"
+    },
+    {
+      "version": "20261006100407",
+      "name": "step13_remove_unused_anon_table_grants"
+    },
+    {
+      "version": "20261006123156",
+      "name": "step12_snapshot_table_capture"
+    },
+    {
+      "version": "20261006123220",
+      "name": "step12_snapshot_begin"
+    },
+    {
+      "version": "20261006123241",
+      "name": "step12_snapshot_public_capture"
+    },
+    {
+      "version": "20261006123259",
+      "name": "step12_snapshot_durable_capture"
+    },
+    {
+      "version": "20261006123334",
+      "name": "step12_snapshot_finalize"
+    },
+    {
+      "version": "20261006123541",
+      "name": "step12_worker_runtime_config"
+    },
+    {
+      "version": "20261006123722",
+      "name": "step12_snapshot_prepare_rpc"
+    },
+    {
+      "version": "20261006123740",
+      "name": "step12_snapshot_chunk_export_rpc"
+    },
+    {
+      "version": "20261006123917",
+      "name": "step12_backup_master_key_config"
+    },
+    {
+      "version": "20261006124130",
+      "name": "step12_worker_supplied_backup_key"
+    },
+    {
+      "version": "20261006124133",
+      "name": "step12_snapshot_prepare_rpc"
+    },
+    {
+      "version": "20261006124148",
+      "name": "step12_snapshot_export_rpc"
+    },
+    {
+      "version": "20261006124155",
+      "name": "step12_snapshot_summary_rpc"
+    },
+    {
+      "version": "20261006124319",
+      "name": "step12_backup_artifact_manifest"
+    },
+    {
+      "version": "20261006124615",
+      "name": "step12_backup_worker_invoker"
+    },
+    {
+      "version": "20261006124653",
+      "name": "step12_backup_worker_dispatch"
+    },
+    {
+      "version": "20261006124823",
+      "name": "step12_backup_worker_probe"
+    },
+    {
+      "version": "20261006125043",
+      "name": "step12_backup_manifest_two_migration_refs"
+    },
+    {
+      "version": "20261006125146",
+      "name": "step12_snapshot_migration_history"
+    },
+    {
+      "version": "20261006125217",
+      "name": "step12_snapshot_prepare_with_migrations"
+    },
+    {
+      "version": "20261006125250",
+      "name": "step12_migration_bundle_artifacts"
+    },
+    {
+      "version": "20261006125512",
+      "name": "step12_backup_worker_timeout"
+    },
+    {
+      "version": "20261006125723",
+      "name": "step12_retention_worker_dispatch"
+    },
+    {
+      "version": "20261006130241",
+      "name": "step13_public_site_permission_manifest_alignment"
+    },
+    {
+      "version": "20261006130337",
+      "name": "step12_cleanup_experimental_backup_key_path"
+    },
+    {
+      "version": "20261006130646",
+      "name": "step12_storage_object_backup_manifest_rpc"
+    },
+    {
+      "version": "20261006130713",
+      "name": "step12_storage_binary_manifest_v3"
+    },
+    {
+      "version": "20261006152527",
+      "name": "step13_sensitive_rpc_manifest_alignment"
+    },
+    {
+      "version": "20261006152722",
+      "name": "step13_reviewed_rpc_manifest_alignment"
+    },
+    {
+      "version": "20261006152845",
+      "name": "step13_authenticated_rpc_manifest_reconciliation"
+    },
+    {
+      "version": "20261006153524",
+      "name": "step13_permission_manifest_signature_cleanup"
+    },
+    {
+      "version": "20261006153737",
+      "name": "step13_permission_manifest_canonical_gate"
+    },
+    {
+      "version": "20261006155825",
+      "name": "step13_continuity_storage_private_guard"
+    },
+    {
+      "version": "20261006160150",
+      "name": "step13_critical_client_write_gate"
+    },
+    {
+      "version": "20261006160833",
+      "name": "step13_hot_path_fk_indexes"
+    },
+    {
+      "version": "20261006160953",
+      "name": "step13_financial_hot_path_indexes"
+    },
+    {
+      "version": "20261006161211",
+      "name": "step13_audit_append_only_service_role"
+    },
+    {
+      "version": "20261006174053",
+      "name": "step13_release_security_gate"
+    },
+    {
+      "version": "20261006184034",
+      "name": "step13_release_readiness_gate"
+    },
+    {
+      "version": "20261006184329",
+      "name": "step13_critical_fk_indexes_batch1"
+    },
+    {
+      "version": "20261006184359",
+      "name": "step13_critical_fk_indexes_batch2"
+    },
+    {
+      "version": "20261006184621",
+      "name": "step13_critical_fk_indexes_batch3"
+    },
+    {
+      "version": "20261006184815",
+      "name": "step13_database_regression_gate"
+    },
+    {
+      "version": "20261006184849",
+      "name": "step13_readiness_include_database_gate"
+    },
+    {
+      "version": "20261006184959",
+      "name": "step13_hot_path_fk_indexes"
+    },
+    {
+      "version": "20261006185012",
+      "name": "step13_release_test_evidence_registry"
+    },
+    {
+      "version": "20261006185052",
+      "name": "step13_release_test_result_writer"
+    },
+    {
+      "version": "20261006185108",
+      "name": "step13_readiness_include_test_gate"
+    },
+    {
+      "version": "20261006185248",
+      "name": "step13_ci_pipeline_state_machine"
+    },
+    {
+      "version": "20261006185357",
+      "name": "step13_ci_state_machine_test_evidence"
+    },
+    {
+      "version": "20261006185443",
+      "name": "step13_application_releases_append_only"
+    },
+    {
+      "version": "20261006185511",
+      "name": "step13_ci_documentation_release_gates"
+    },
+    {
+      "version": "20261006185553",
+      "name": "step13_ci_authoritative_stage_gates"
+    },
+    {
+      "version": "20261006185650",
+      "name": "step13_remove_duplicate_release_build_index"
+    },
+    {
+      "version": "20261006185811",
+      "name": "step13_expand_security_test_catalog"
+    },
+    {
+      "version": "20261006185905",
+      "name": "step13_pending_privileged_security_e2e"
+    },
+    {
+      "version": "20261006190225",
+      "name": "step13_expand_assignment_performance_tests"
+    },
+    {
+      "version": "20261006190422",
+      "name": "step13_expand_manipulation_tests"
+    },
+    {
+      "version": "20261006191011",
+      "name": "step13_release_table_ci_only_writer"
+    },
+    {
+      "version": "20261006191056",
+      "name": "step13_ci_release_writer_test_catalog"
+    },
+    {
+      "version": "20261006191250",
+      "name": "step13_step_up_binding_test_catalog"
+    },
+    {
+      "version": "20261006191337",
+      "name": "step13_environment_release_gates"
+    },
+    {
+      "version": "20261006191633",
+      "name": "step13_edge_function_release_tests"
+    },
+    {
+      "version": "20261006191848",
+      "name": "step13_edge_function_secret_hygiene_test"
+    },
+    {
+      "version": "20261006191957",
+      "name": "step13_security_advisor_triage_test"
+    },
+    {
+      "version": "20261006192644",
+      "name": "step13_ci_environment_preflight"
+    },
+    {
+      "version": "20261006192721",
+      "name": "step13_ci_environment_preflight_test"
+    },
+    {
+      "version": "20261006192823",
+      "name": "step13_ci_release_status_alignment"
+    },
+    {
+      "version": "20261006192909",
+      "name": "step13_ci_release_status_alignment_test"
+    },
+    {
+      "version": "20261006193305",
+      "name": "step13_migration_duplicate_name_triage_test"
+    },
+    {
+      "version": "20261006193500",
+      "name": "step13_data_api_explicit_exposure_test"
+    },
+    {
+      "version": "20261006193705",
+      "name": "step13_postgres_17_11_compatibility_test"
+    },
+    {
+      "version": "20261006194047",
+      "name": "step13_internal_health_snapshot"
+    },
+    {
+      "version": "20261006194131",
+      "name": "step13_internal_health_snapshot_test"
+    },
+    {
+      "version": "20261006194219",
+      "name": "step13_readiness_core_health_gate"
+    },
+    {
+      "version": "20261006194351",
+      "name": "step13_readiness_core_health_fail_closed_test"
+    },
+    {
+      "version": "20261006194709",
+      "name": "step13_technical_incident_role_isolation_test"
+    },
+    {
+      "version": "20261006194748",
+      "name": "step13_database_gate_health_cron"
+    },
+    {
+      "version": "20261006194844",
+      "name": "step13_security_definer_search_path_test"
+    },
+    {
+      "version": "20261006194945",
+      "name": "step13_supabase_authorization_pattern_audit_test"
+    },
+    {
+      "version": "20261006195127",
+      "name": "step13_authenticated_dml_rpc_authorization_review_test"
+    },
+    {
+      "version": "20261006195357",
+      "name": "step13_authenticated_definer_dml_guard_review_test"
+    },
+    {
+      "version": "20261006195609",
+      "name": "step13_documentation_release_gate"
+    },
+    {
+      "version": "20261006195655",
+      "name": "step13_documentation_gate_enforcement_test"
+    },
+    {
+      "version": "20261006195924",
+      "name": "step13_privacy_retention_baseline"
+    },
+    {
+      "version": "20261006195935",
+      "name": "step13_force_close_path_isolation_test"
+    },
+    {
+      "version": "20261006200045",
+      "name": "step13_privacy_retention_fail_safe_test"
+    },
+    {
+      "version": "20261006200154",
+      "name": "step13_cron_topology_review_test"
+    },
+    {
+      "version": "20261006200233",
+      "name": "step13_privacy_retention_default_alignment"
+    },
+    {
+      "version": "20261006200344",
+      "name": "step13_data_retention_engine_test"
+    },
+    {
+      "version": "20261006200607",
+      "name": "step13_privacy_data_rights_authorization_review_test"
+    },
+    {
+      "version": "20261006200731",
+      "name": "step13_chain_admin_privacy_config_reachability_test"
+    },
+    {
+      "version": "20261006201023",
+      "name": "step13_documentation_versioned_source_gate"
+    },
+    {
+      "version": "20261006201103",
+      "name": "step13_documentation_versioned_source_gate_test"
+    },
+    {
+      "version": "20261006203904",
+      "name": "step13_documentation_draft_integrity_test"
+    },
+    {
+      "version": "20261006204112",
+      "name": "step13_offline_conflict_fk_indexes"
+    },
+    {
+      "version": "20261006204614",
+      "name": "step13_master_acceptance_coverage_unit"
+    },
+    {
+      "version": "20261006204653",
+      "name": "step13_master_acceptance_coverage_integration"
+    },
+    {
+      "version": "20261006204809",
+      "name": "step13_master_acceptance_coverage_e2e"
+    },
+    {
+      "version": "20261006204831",
+      "name": "step13_master_acceptance_coverage_chaos"
+    },
+    {
+      "version": "20261006204912",
+      "name": "step13_master_acceptance_coverage_audit"
+    },
+    {
+      "version": "20261006205300",
+      "name": "step13_master_acceptance_coverage_security"
+    },
+    {
+      "version": "20261006205435",
+      "name": "step13_master_acceptance_coverage_additional"
+    },
+    {
+      "version": "20261006210648",
+      "name": "release4a_recipe_cost_foundation"
+    },
+    {
+      "version": "20261006210822",
+      "name": "release4a_recipe_cost_authoritative_api"
+    },
+    {
+      "version": "20261006211043",
+      "name": "release4a_food_cost_calculation"
+    },
+    {
+      "version": "20261006211226",
+      "name": "release4a_food_cost_snapshots"
+    },
+    {
+      "version": "20261006211319",
+      "name": "release4a_food_cost_test_catalog"
+    },
+    {
+      "version": "20261006211427",
+      "name": "release4a_cost_history_fk_indexes"
+    },
+    {
+      "version": "20261006211530",
+      "name": "release4a_menu_engineering_classification"
+    },
+    {
+      "version": "20261006211736",
+      "name": "release4a_menu_engineering_report"
+    },
+    {
+      "version": "20261006211851",
+      "name": "release4a_menu_engineering_test_catalog"
+    },
+    {
+      "version": "20261006212016",
+      "name": "release4b_multi_menu_promotion_schema"
+    },
+    {
+      "version": "20261006212237",
+      "name": "release4b_promotion_target_fk_indexes"
+    },
+    {
+      "version": "20261006212311",
+      "name": "release4b_menu_schedule_engine"
+    },
+    {
+      "version": "20261006212441",
+      "name": "release4b_public_multi_menu_api"
+    },
+    {
+      "version": "20261006212553",
+      "name": "release4b_public_menu_single_venue_resolution_fix"
+    },
+    {
+      "version": "20261006212638",
+      "name": "release4b_public_menu_test_catalog"
+    },
+    {
+      "version": "20261006212732",
+      "name": "release4b_authoritative_menu_editor"
+    },
+    {
+      "version": "20261006213309",
+      "name": "release4b_menu_editor_test_catalog"
+    },
+    {
+      "version": "20261006213357",
+      "name": "release4b_authoritative_promotion_editor"
+    },
+    {
+      "version": "20261006213453",
+      "name": "release4b_promotion_editor_test_catalog"
+    },
+    {
+      "version": "20261006213736",
+      "name": "release4c_message_queue_foundation"
+    },
+    {
+      "version": "20261006213900",
+      "name": "release4c_message_configuration_api"
+    },
+    {
+      "version": "20261006214101",
+      "name": "release4c_reservation_message_outbox"
+    },
+    {
+      "version": "20261006214356",
+      "name": "release4c_reminder_scheduler"
+    },
+    {
+      "version": "20261006214658",
+      "name": "release4c_message_delivery_state_machine"
+    },
+    {
+      "version": "20261006214805",
+      "name": "release4c_delivery_event_canonical_replay"
+    },
+    {
+      "version": "20261006214928",
+      "name": "release4c_message_templates"
+    },
+    {
+      "version": "20261006215747",
+      "name": "release4c_message_worker_scheduler"
+    },
+    {
+      "version": "20261006215951",
+      "name": "release4c_message_test_catalog"
+    },
+    {
+      "version": "20261006220223",
+      "name": "release4d_reservation_status_extension"
+    },
+    {
+      "version": "20261006220345",
+      "name": "release4d_booking_commercial_policy"
+    },
+    {
+      "version": "20261006220446",
+      "name": "release4d_booking_policy_weekday_validation_fix"
+    },
+    {
+      "version": "20261006220714",
+      "name": "release4d_booking_policy_idempotency_order_fix"
+    },
+    {
+      "version": "20261006221238",
+      "name": "release4_feature_gate_foundation"
+    },
+    {
+      "version": "20261006221417",
+      "name": "release4c_email_and_feature_gates"
+    },
+    {
+      "version": "20261006221710",
+      "name": "release4c_message_worker_unification"
+    },
+    {
+      "version": "20261006221914",
+      "name": "release4c_messaging_acceptance_tests"
+    },
+    {
+      "version": "20261006222240",
+      "name": "release4c_resend_email_adapter_contract"
+    },
+    {
+      "version": "20261006222510",
+      "name": "release4c_messaging_tick_cron"
+    },
+    {
+      "version": "20261006222616",
+      "name": "release4c_message_final_internal_tests"
+    },
+    {
+      "version": "20261006222747",
+      "name": "release4c_worker_edge_reachability_test"
+    },
+    {
+      "version": "20261006223152",
+      "name": "release4_feature_gate_enforcement_existing_modules"
+    },
+    {
+      "version": "20261006223243",
+      "name": "release4_feature_gate_default_deny_test"
+    },
+    {
+      "version": "20261006223813",
+      "name": "release4c_remove_legacy_messaging_tick_overload"
+    },
+    {
+      "version": "20261007033741",
+      "name": "release4c_message_worker_state_machine"
+    },
+    {
+      "version": "20261007034220",
+      "name": "release4c_remove_redundant_worker_overloads"
+    },
+    {
+      "version": "20261007034412",
+      "name": "release4d_reservation_deposit_foundation"
+    },
+    {
+      "version": "20261007034748",
+      "name": "release4d_public_booking_deposit_integration"
+    },
+    {
+      "version": "20261007034935",
+      "name": "release4d_public_booking_phone_validation_fix"
+    },
+    {
+      "version": "20261007035005",
+      "name": "release4d_deposit_policy_test_catalog"
+    },
+    {
+      "version": "20261007035037",
+      "name": "release4d_deposit_provider_state_machine"
+    },
+    {
+      "version": "20261007035127",
+      "name": "release4d_deposit_public_idempotency_fix"
+    },
+    {
+      "version": "20261007035208",
+      "name": "release4d_deposit_callback_test_catalog"
+    },
+    {
+      "version": "20261007035236",
+      "name": "release4d_deposit_expiry_runner"
+    },
+    {
+      "version": "20261007035512",
+      "name": "release4c_confirmation_outbox_test_catalog"
+    },
+    {
+      "version": "20261007035540",
+      "name": "release4d_deposit_expiry_edge_tests"
+    },
+    {
+      "version": "20261007035606",
+      "name": "release4c_message_delivery_lifecycle"
+    },
+    {
+      "version": "20261007035653",
+      "name": "release4d_waitlist_foundation"
+    },
+    {
+      "version": "20261007035800",
+      "name": "release4d_waitlist_service_fk_index"
+    },
+    {
+      "version": "20261007035829",
+      "name": "release4d_waitlist_candidate_offer_api"
+    },
+    {
+      "version": "20261007035855",
+      "name": "release4d_waitlist_priority_test_catalog"
+    },
+    {
+      "version": "20261007035927",
+      "name": "release4d_waitlist_atomic_acceptance"
+    },
+    {
+      "version": "20261007040004",
+      "name": "release4d_waitlist_acceptance_note_column_fix"
+    },
+    {
+      "version": "20261007040102",
+      "name": "release4d_waitlist_last_slot_test_catalog"
+    },
+    {
+      "version": "20261007040130",
+      "name": "release4d_waitlist_public_entry_api"
+    },
+    {
+      "version": "20261007040140",
+      "name": "release4d_waitlist_offer_expiry"
+    },
+    {
+      "version": "20261007040203",
+      "name": "release4d_waitlist_lifecycle_test_catalog"
+    },
+    {
+      "version": "20261007040221",
+      "name": "release4c_message_delivery_test_catalog"
+    },
+    {
+      "version": "20261007040239",
+      "name": "release4d_waitlist_edge_test_catalog"
+    },
+    {
+      "version": "20261007040350",
+      "name": "release4c_reminder_scheduler_cron"
+    },
+    {
+      "version": "20261007040523",
+      "name": "release4e_takeaway_core_model"
+    },
+    {
+      "version": "20261007040635",
+      "name": "release4c_message_worker_cron"
+    },
+    {
+      "version": "20261007040701",
+      "name": "release4e_kitchen_board_takeaway"
+    },
+    {
+      "version": "20261007040802",
+      "name": "release4e_takeaway_slot_admin_api"
+    },
+    {
+      "version": "20261007040838",
+      "name": "release4d_deposit_callback_edge_security_test"
+    },
+    {
+      "version": "20261007040839",
+      "name": "release4e_takeaway_authoritative_order_api"
+    },
+    {
+      "version": "20261007040918",
+      "name": "release4e_takeaway_atomicity_test_catalog"
+    },
+    {
+      "version": "20261007041032",
+      "name": "release4c_outbox_test_catalog"
+    },
+    {
+      "version": "20261007041206",
+      "name": "release4c_message_worker_state_machine"
+    },
+    {
+      "version": "20261007041441",
+      "name": "release4e_takeaway_status_lifecycle"
+    },
+    {
+      "version": "20261007041739",
+      "name": "release4c_message_worker_retry_reconcile_fix"
+    },
+    {
+      "version": "20261007041909",
+      "name": "release4c_worker_test_catalog"
+    },
+    {
+      "version": "20261007041938",
+      "name": "release4e_takeaway_venue_settings"
+    },
+    {
+      "version": "20261007042033",
+      "name": "release4e_takeaway_slot_settings_enforcement"
+    },
+    {
+      "version": "20261007042047",
+      "name": "release4c_reminder_exactly_once_test"
+    },
+    {
+      "version": "20261007042207",
+      "name": "release4e_takeaway_staff_approval_request_layer"
+    },
+    {
+      "version": "20261007042258",
+      "name": "release4c_remove_legacy_message_rpc_overloads"
+    },
+    {
+      "version": "20261007042312",
+      "name": "release4e_takeaway_request_preview"
+    },
+    {
+      "version": "20261007042352",
+      "name": "release4e_takeaway_direct_staff_approval_branch"
+    },
+    {
+      "version": "20261007042357",
+      "name": "release4c_unify_messaging_cron"
+    },
+    {
+      "version": "20261007042437",
+      "name": "release4e_takeaway_staff_approval_actions"
+    },
+    {
+      "version": "20261007043309",
+      "name": "release4_unit_allergen_test_catalog"
+    },
+    {
+      "version": "20261007043432",
+      "name": "release4_unit_variant_test_catalog"
+    },
+    {
+      "version": "20261007043640",
+      "name": "release4_unit_totals_test_catalog"
+    },
+    {
+      "version": "20261007043742",
+      "name": "release4_unit_discount_test_catalog"
+    },
+    {
+      "version": "20261007045032",
+      "name": "release4_unit_booking_pacing_test_catalog"
+    },
+    {
+      "version": "20261007045238",
+      "name": "release4_unit_tips_test_catalog"
+    },
+    {
+      "version": "20261007045503",
+      "name": "release4_navigation_telemetry_separation"
+    },
+    {
+      "version": "20261007045857",
+      "name": "release4_payment_webhook_out_of_order_test"
+    },
+    {
+      "version": "20261007050203",
+      "name": "release4_customer_audit_attribution"
+    },
+    {
+      "version": "20261007050304",
+      "name": "release4_customer_audit_test_catalog"
+    },
+    {
+      "version": "20261007051315",
+      "name": "step13_backup_replica_rate_limit_recovery_test"
+    },
+    {
+      "version": "20261007052142",
+      "name": "release4c_confirmation_outbox_test_catalog"
+    },
+    {
+      "version": "20261007052246",
+      "name": "release4c_message_delivery_worker"
+    },
+    {
+      "version": "20261007052444",
+      "name": "release4c_message_template_resolution_fix"
+    },
+    {
+      "version": "20261007052512",
+      "name": "release4c_message_claim_payload_fix"
+    },
+    {
+      "version": "20261007052800",
+      "name": "release4c_outbox_fail_closed_no_channel"
+    },
+    {
+      "version": "20261007052917",
+      "name": "release4c_message_worker_test_catalog"
+    },
+    {
+      "version": "20261007053219",
+      "name": "release4c_message_state_machine_unification"
+    },
+    {
+      "version": "20261007053408",
+      "name": "release4c_reminder_delivery_test_catalog"
+    },
+    {
+      "version": "20261007054229",
+      "name": "release4a_food_cost_concurrency_test_catalog"
+    },
+    {
+      "version": "20261007070453",
+      "name": "release4c_message_outbox_test_catalog"
+    },
+    {
+      "version": "20261007071114",
+      "name": "release4c_messaging_worker_tests"
+    },
+    {
+      "version": "20261007071336",
+      "name": "release4_offline_user_revoked_chaos_test"
+    },
+    {
+      "version": "20261007071858",
+      "name": "release4c_messaging_feature_guards"
+    },
+    {
+      "version": "20261007072004",
+      "name": "release4c_message_delivery_worker_api"
+    },
+    {
+      "version": "20261007072142",
+      "name": "release4c_message_payload_template_fix"
+    },
+    {
+      "version": "20261007072343",
+      "name": "release4c_remove_redundant_message_worker_overloads"
+    },
+    {
+      "version": "20261007072542",
+      "name": "release4c_align_message_configuration_with_canonical_worker"
+    },
+    {
+      "version": "20261007073051",
+      "name": "release4c_message_outbox_test_catalog"
+    },
+    {
+      "version": "20261007073219",
+      "name": "release4c_reservation_message_contact_preferences"
+    },
+    {
+      "version": "20261007073339",
+      "name": "release4c_message_contact_preference_test"
+    },
+    {
+      "version": "20261007073520",
+      "name": "release4b_public_menu_feature_guard"
+    },
+    {
+      "version": "20261007073538",
+      "name": "release4c_reminder_retry_test_catalog"
+    },
+    {
+      "version": "20261007073709",
+      "name": "release4c_message_cron_orchestration"
+    },
+    {
+      "version": "20261007074041",
+      "name": "release4c_restore_unified_messaging_cron"
+    },
+    {
+      "version": "20261007074128",
+      "name": "release4c_messaging_orchestration_test_catalog"
+    },
+    {
+      "version": "20261007120232",
+      "name": "release4d_no_show_grace_engine"
+    },
+    {
+      "version": "20261007120520",
+      "name": "release4d_no_show_regression_probe"
+    },
+    {
+      "version": "20261007120728",
+      "name": "release4d_no_show_scheduler_index"
+    },
+    {
+      "version": "20261007121034",
+      "name": "release4d_no_show_deposit_policy_queue"
+    },
+    {
+      "version": "20261007121107",
+      "name": "release4d_no_show_deposit_policy_probe"
+    },
+    {
+      "version": "20261007121404",
+      "name": "release4d_no_show_deposit_provider_state_machine"
+    },
+    {
+      "version": "20261007121613",
+      "name": "release4d_no_show_deposit_provider_hardening"
+    },
+    {
+      "version": "20261007121732",
+      "name": "release4d_no_show_deposit_provider_probe"
+    },
+    {
+      "version": "20261007122126",
+      "name": "release4d_notification_single_version_trigger"
+    },
+    {
+      "version": "20261007122328",
+      "name": "release4d_notification_center_e2e_probe"
+    },
+    {
+      "version": "20261007122509",
+      "name": "release4d_notification_center_e2e_probe"
+    },
+    {
+      "version": "20261007122634",
+      "name": "release4d_conflict_center_api"
+    },
+    {
+      "version": "20261007122720",
+      "name": "release4d_conflict_center_e2e_probe"
+    },
+    {
+      "version": "20261007122934",
+      "name": "release4d_command_palette_scope_hardening"
+    },
+    {
+      "version": "20261007123009",
+      "name": "release4d_command_palette_e2e_probe"
+    },
+    {
+      "version": "20261007123410",
+      "name": "release4d_staff_venue_context"
+    },
+    {
+      "version": "20261007123552",
+      "name": "release4d_staff_venue_context_e2e_probe"
+    },
+    {
+      "version": "20261007123649",
+      "name": "release4d_staff_venue_context_probe_deferred_fix"
+    },
+    {
+      "version": "20261007123733",
+      "name": "release4d_staff_venue_context_probe_constraint_fix"
+    },
+    {
+      "version": "20261007124014",
+      "name": "release4d_menu_venue_override_e2e_probe"
+    },
+    {
+      "version": "20261007124252",
+      "name": "release4d_enable_multi_venue_e2e_probe"
+    },
+    {
+      "version": "20261007124525",
+      "name": "release4d_database_unavailable_chaos_harness"
+    },
+    {
+      "version": "20261007124840",
+      "name": "release4d_no_show_provider_fk_indexes"
+    },
+    {
+      "version": "20261007161816",
+      "name": "release4d_staff_logout_session"
+    },
+    {
+      "version": "20261007161844",
+      "name": "release4d_staff_logout_probe"
+    },
+    {
+      "version": "20261007161940",
+      "name": "release4d_staff_logout_probe_fix"
+    },
+    {
+      "version": "20261007162736",
+      "name": "release4d_initial_setup_recovery_state"
+    },
+    {
+      "version": "20261007162834",
+      "name": "release4d_initial_setup_recovery_probe"
+    },
+    {
+      "version": "20261007162848",
+      "name": "release4d_command_palette_staff_paths"
+    },
+    {
+      "version": "20261007170054",
+      "name": "release4d_offline_authorization_issuance"
+    },
+    {
+      "version": "20261007170113",
+      "name": "release4d_offline_authorization_issuance_probe"
+    },
+    {
+      "version": "20261007170137",
+      "name": "release4d_offline_authorization_interval_fix"
+    },
+    {
+      "version": "20261007172501",
+      "name": "release4d_public_booking_availability"
+    },
+    {
+      "version": "20261007172609",
+      "name": "release4d_public_booking_availability_probe"
+    },
+    {
+      "version": "20261007172656",
+      "name": "release4d_public_booking_availability_probe_fix"
+    },
+    {
+      "version": "20261007173829",
+      "name": "release4d_public_reservation_edge_contract_test"
+    },
+    {
+      "version": "20261007174231",
+      "name": "release4d_public_waitlist_edge_hardening_test"
+    },
+    {
+      "version": "20261007175252",
+      "name": "release4d_waitlist_offer_messaging_bridge"
+    },
+    {
+      "version": "20261007175504",
+      "name": "release4d_waitlist_offer_messaging_bridge_probe"
+    },
+    {
+      "version": "20261007175546",
+      "name": "release4d_waitlist_offer_messaging_bridge_probe_expiry_fix"
+    },
+    {
+      "version": "20261007183328",
+      "name": "release4d_accounts_center_read_model"
+    },
+    {
+      "version": "20261007185420",
+      "name": "release4d_cash_workspace_read_model"
+    },
+    {
+      "version": "20261007185721",
+      "name": "release4d_cash_workspace_services"
+    },
+    {
+      "version": "20261007191828",
+      "name": "release4d_host_services_read_model"
+    },
+    {
+      "version": "20261007195927",
+      "name": "release4d_operational_staff_workspace"
+    },
+    {
+      "version": "20261007200306",
+      "name": "release4d_menu_admin_workspace"
+    },
+    {
+      "version": "20261007200924",
+      "name": "release4d_dish_admin_detail"
+    },
+    {
+      "version": "20261007201419",
+      "name": "release4d_catalog_version_price_history"
+    },
+    {
+      "version": "20261007201534",
+      "name": "release4d_catalog_authoritative_crud"
+    },
+    {
+      "version": "20261007201600",
+      "name": "release4d_menu_admin_workspace_catalog_refs"
+    },
+    {
+      "version": "20261007201638",
+      "name": "release4d_catalog_crud_probe"
+    },
+    {
+      "version": "20261007205402",
+      "name": "release4d_menu_experience_runtime_alignment"
+    },
+    {
+      "version": "20261007205427",
+      "name": "release4d_menu_experience_probe"
+    },
+    {
+      "version": "20261007211240",
+      "name": "release4d_account_workspace_item_version"
+    },
+    {
+      "version": "20261007211524",
+      "name": "release4d_returnable_order_items"
+    },
+    {
+      "version": "20261007212719",
+      "name": "release4d_advanced_order_account_contract_probe"
+    },
+    {
+      "version": "20261007212742",
+      "name": "release4d_advanced_order_account_contract_probe_fix"
+    },
+    {
+      "version": "20261007213333",
+      "name": "release4d_print_operations_workspace"
+    },
+    {
+      "version": "20261007215048",
+      "name": "release4d_print_claimable_jobs"
+    },
+    {
+      "version": "20261007215119",
+      "name": "release4d_print_claimable_probe"
+    },
+    {
+      "version": "20261007215159",
+      "name": "release4d_print_claimable_probe_fix"
+    },
+    {
+      "version": "20261007220300",
+      "name": "release4d_room_editor_workspace_crud"
+    },
+    {
+      "version": "20261007220950",
+      "name": "release4d_room_editor_advanced_probe"
+    },
+    {
+      "version": "20261007221034",
+      "name": "release4d_room_editor_advanced_probe_feature_fix"
+    },
+    {
+      "version": "20261007221150",
+      "name": "release4d_room_editor_feature_hardening"
+    },
+    {
+      "version": "20261008051809",
+      "name": "beta_readiness_separation"
+    },
+    {
+      "version": "20261008052116",
+      "name": "beta_status_documentation_gate"
+    },
+    {
+      "version": "20261008075652",
+      "name": "public_site_storytelling_content"
+    },
+    {
+      "version": "20261008081614",
+      "name": "staff_identifier_suffix_contract"
+    },
+    {
+      "version": "20261008081654",
+      "name": "staff_identifier_probe_fix"
+    },
+    {
+      "version": "20261008082821",
+      "name": "full_auth_shift_mode_and_admin_ownership"
+    },
+    {
+      "version": "20261008083034",
+      "name": "shift_and_service_requirement_contracts"
+    },
+    {
+      "version": "20261008083103",
+      "name": "service_configuration_contract"
+    },
+    {
+      "version": "20261008083224",
+      "name": "service_configuration_contract_probe_fix"
+    },
+    {
+      "version": "20261008085101",
+      "name": "navigation_telemetry_anon_surface_hardening"
+    },
+    {
+      "version": "20261008090122",
+      "name": "menu_service_assignment_contract"
+    },
+    {
+      "version": "20261008091023",
+      "name": "step11_public_menu_index_contract"
+    },
+    {
+      "version": "20261008091039",
+      "name": "step11_public_menu_index_uuid_fix"
+    },
+    {
+      "version": "20261008091803",
+      "name": "step11_public_navigation_contract"
+    },
+    {
+      "version": "20261008092502",
+      "name": "step11_public_page_metadata_secure"
+    },
+    {
+      "version": "20261008092732",
+      "name": "step11_public_metadata_regression_suite"
+    },
+    {
+      "version": "20261008092819",
+      "name": "step11_public_sitemap_entries_contract"
+    },
+    {
+      "version": "20261008092901",
+      "name": "step11_public_sitemap_regression_suite"
+    },
+    {
+      "version": "20261008100820",
+      "name": "step11_booking_ready_public_visibility"
+    },
+    {
+      "version": "20261008100925",
+      "name": "step11_booking_visibility_regression"
+    },
+    {
+      "version": "20261008101420",
+      "name": "step11_booking_availability_dst_gap_guard"
+    },
+    {
+      "version": "20261008101941",
+      "name": "step11_booking_privacy_public_readiness"
+    },
+    {
+      "version": "20261008102214",
+      "name": "step11_booking_privacy_authoritative_rpc_guard"
+    },
+    {
+      "version": "20261008133446",
+      "name": "step11_booking_availability_server_test_privacy_rolling_dates"
+    },
+    {
+      "version": "20261008134210",
+      "name": "step11_public_booking_transactional_rollback_regression"
+    },
+    {
+      "version": "20261008134229",
+      "name": "step11_public_booking_regression_fix_coalesce"
+    },
+    {
+      "version": "20261009001127",
+      "name": "fix_account_workspace_order_items_sort"
+    },
+    {
+      "version": "20261011064417",
+      "name": "cleanup_terminal_rehearsal_snapshots_after_backup_finalization"
+    },
+    {
+      "version": "20261011064608",
+      "name": "list_failed_continuity_storage_cleanup_with_restore_guards"
+    },
+    {
+      "version": "20261011073505",
+      "name": "audit_professional_catalog_filters_noise"
+    },
+    {
+      "version": "20261011074105",
+      "name": "audit_event_catalog_canonical_seed"
+    },
+    {
+      "version": "20261011074842",
+      "name": "audit_safe_device_assignment_diff_fields"
+    },
+    {
+      "version": "20261011075739",
+      "name": "audit_privacy_sensitive_read_and_catalog_truth"
+    },
+    {
+      "version": "20261011075935",
+      "name": "audit_secure_superadmin_export_with_stepup"
+    },
+    {
+      "version": "20261011080213",
+      "name": "audit_trusted_stepup_denial_source"
+    },
+    {
+      "version": "20261011080554",
+      "name": "audit_future_month_partition_rotation_no_data_loss"
+    },
+    {
+      "version": "20261011081547",
+      "name": "technical_logs_redacted_superadmin_search"
+    },
+    {
+      "version": "20261011082028",
+      "name": "technical_health_logs_approved_retention_only"
+    },
+    {
+      "version": "20261011134204",
+      "name": "technical_auth_native_audit_redacted_read"
+    },
+    {
+      "version": "20261011135611",
+      "name": "reconcile_core_public_rpc_and_staff_identifier_contracts"
+    },
+    {
+      "version": "20261011152001",
+      "name": "audit_archive_encrypted_primary_replica_checkpoint"
+    },
+    {
+      "version": "20261011152612",
+      "name": "audit_archive_checkpoint_readback_service_only"
+    },
+    {
+      "version": "20261011153016",
+      "name": "audit_archive_independent_restore_verification_log"
+    },
+    {
+      "version": "20261011153304",
+      "name": "audit_archive_automatic_rotation_and_daily_recovery_test"
+    },
+    {
+      "version": "20261011153810",
+      "name": "audit_auth_provider_readiness_without_false_failure_labels"
+    },
+    {
+      "version": "20261011155756",
+      "name": "audit_auth_gateway_rejected_login_mfa_service_only"
+    },
+    {
+      "version": "20261011160726",
+      "name": "audit_retention_immutable_approval_gate_and_gateway_coverage"
+    },
+    {
+      "version": "20261011175254",
+      "name": "audit_certification_fail_closed_release_gates"
+    },
+    {
+      "version": "20261011221212",
+      "name": "staff_identifier_custom_email_domain"
+    },
+    {
+      "version": "20261012075338",
+      "name": "restore_dev_audit_capture_keep_immutability"
+    }
+  ],
+  "local_only": [
+    {
+      "version": "20261012120000",
+      "name": "staff_identifier_custom_email_domain"
+    }
+  ],
+  "renamed_at_same_version": [],
+  "notes": [
+    "Do not treat a matching name/version as proof that applied SQL matches Git.",
+    "Export exact SQL and compare SHA-256 before any migration adoption.",
+    "No historic migration rows have been inserted, renamed or removed."
+  ]
+}

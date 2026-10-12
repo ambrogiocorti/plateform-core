@@ -8,7 +8,7 @@ import {
 } from '../../scripts/check-release.mjs';
 const digest = 'a'.repeat(64);
 const matrix = {
-  sections: Array.from({ length: 151 }, (_, section) => ({ section, status: 'verified' })),
+  sections: Array.from({ length: 158 }, (_, section) => ({ section, status: 'verified' })),
 };
 function evidence() {
   return {
@@ -64,7 +64,7 @@ describe('commercial release gate', () => {
     );
     reduced.sections[91]!.status = 'out_of_scope_core';
     expect(releaseProblems(reduced, record, digest)).toContain(
-      'Le 151 sezioni del master devono risultare verificate con evidenze.',
+      'Le 158 sezioni del master devono risultare verificate con evidenze.',
     );
   });
   it('requires all roadmap steps, including unresolved integration checks', () => {
@@ -92,8 +92,34 @@ describe('commercial release gate', () => {
     const incomplete = structuredClone(matrix);
     incomplete.sections[71]!.status = 'partial';
     expect(releaseProblems(incomplete, evidence(), digest)).toContain(
-      'Le 151 sezioni del master devono risultare verificate con evidenze.',
+      'Le 158 sezioni del master devono risultare verificate con evidenze.',
     );
+  });
+  it('blocks a FULL release when late sections 151–157 are missing or unverified', () => {
+    const incomplete = structuredClone(matrix);
+    incomplete.sections[157]!.status = 'pending';
+    expect(releaseProblems(incomplete, evidence(), digest)).toContain(
+      'Le 158 sezioni del master devono risultare verificate con evidenze.',
+    );
+    const incompleteInventory = structuredClone(matrix);
+    incompleteInventory.sections.pop();
+    expect(releaseProblems(incompleteInventory, evidence(), digest)).toContain(
+      'Le 158 sezioni del master devono risultare verificate con evidenze.',
+    );
+  });
+  it('requires P0 continuity, migration, audit and environment evidence separately', () => {
+    for (const name of [
+      'remote_migration_reconciliation_and_clean_rebuild',
+      'audit_append_only_and_archive_restore_e2e',
+      'staging_production_isolation_verified',
+      'leaked_password_protection_enabled',
+    ]) {
+      const record = evidence();
+      delete record.integration_checks[name];
+      expect(releaseProblems(matrix, record, digest)).toContain(
+        `Collaudo reale mancante: ${name}.`,
+      );
+    }
   });
   it('blocks packaging after source changes despite previously passing reviews', () => {
     expect(releaseProblems(matrix, evidence(), 'b'.repeat(64)).length).toBeGreaterThan(0);

@@ -10,6 +10,15 @@ export const requiredIntegrationChecks = [
   'pwa_offline_revocation_and_conflicts',
   'backup_restore_database_auth_storage',
   'accessibility_mobile_and_load',
+  'remote_migration_reconciliation_and_clean_rebuild',
+  'audit_append_only_and_archive_restore_e2e',
+  'staging_production_isolation_verified',
+  'leaked_password_protection_enabled',
+  'food_cost_and_menu_engineering_e2e',
+  'multi_menu_qr_promotions_e2e',
+  'messaging_provider_consent_retry_e2e',
+  'reservation_deposit_server_authority_e2e',
+  'waitlist_takeaway_concurrency_e2e',
 ];
 /** The CORE edition still requires real end-to-end cash/POS/PDF testing and
  * *negative* server-side tests proving the absent integrations cannot run.
@@ -27,8 +36,14 @@ export const requiredCoreIntegrationChecks = [
   'pwa_offline_revocation_and_conflicts',
   'backup_restore_database_auth_storage',
   'accessibility_mobile_and_load',
+  'remote_migration_reconciliation_and_clean_rebuild',
+  'audit_append_only_and_archive_restore_e2e',
+  'staging_production_isolation_verified',
+  'leaked_password_protection_enabled',
+  'server_denies_unlicensed_release4_modules',
 ];
-export const excludedCoreSections = [79, 80, 90];
+export const MASTER_SECTION_COUNT = 158;
+export const excludedCoreSections = [79, 80, 90, 151, 152, 153, 154, 155, 156];
 export const requiredDocuments = [
   'README.md',
   'ARCHITECTURE.md',
@@ -136,13 +151,13 @@ export function releaseProblems(matrix, evidence, digest, now = Date.now()) {
     : (row) => row.status === 'verified';
   if (
     !Array.isArray(matrix.sections) ||
-    matrix.sections.length !== 151 ||
-    new Set(matrix.sections.map((row) => row.section)).size !== 151 ||
-    Array.from({ length: 151 }, (_, i) => i).some(
+    matrix.sections.length !== MASTER_SECTION_COUNT ||
+    new Set(matrix.sections.map((row) => row.section)).size !== MASTER_SECTION_COUNT ||
+    Array.from({ length: MASTER_SECTION_COUNT }, (_, i) => i).some(
       (i) => !matrix.sections.some((row) => row.section === i && expectedSections(row)),
     )
   )
-    errors.push('Le 151 sezioni del master devono risultare verificate con evidenze.');
+    errors.push(`Le ${MASTER_SECTION_COUNT} sezioni del master devono risultare verificate con evidenze.`);
   if (evidence.source_digest !== digest)
     errors.push('Le evidenze non corrispondono ai sorgenti attuali.');
   const requiredLocalSuites = [

@@ -8,7 +8,7 @@ import {
 
 const digest = 'a'.repeat(64);
 const allVerified = {
-  sections: Array.from({ length: 151 }, (_, section) => ({ section, status: 'verified' })),
+  sections: Array.from({ length: 158 }, (_, section) => ({ section, status: 'verified' })),
 };
 const evidence = (edition = 'CORE') => ({
   edition,
@@ -34,12 +34,12 @@ let count = 0;
 const check = (cb) => { cb(); count++; };
 const core = structuredClone(allVerified);
 for (const section of excludedCoreSections) core.sections[section].status = 'out_of_scope_core';
-check(() => assert.deepEqual(excludedCoreSections, [79, 80, 90]));
+check(() => assert.deepEqual(excludedCoreSections, [79, 80, 90, 151, 152, 153, 154, 155, 156]));
 check(() => assert.equal(releaseProblems(core, evidence(), digest).length, 0));
 check(() => assert.ok(releaseProblems(core, evidence('FULL'), digest).length > 0));
 const altered = structuredClone(core);
 altered.sections[91].status = 'out_of_scope_core';
-check(() => assert.ok(releaseProblems(altered, evidence(), digest).some((x) => x.includes('151 sezioni'))));
+check(() => assert.ok(releaseProblems(altered, evidence(), digest).some((x) => x.includes('158 sezioni'))));
 for (const required of requiredCoreIntegrationChecks) {
   const record = evidence();
   delete record.integration_checks[required];

@@ -4000,9 +4000,114 @@
       "tests": [],
       "external_verification": [],
       "requirements": []
+    },
+    {
+      "section": 151,
+      "title": "Ricettario e food cost",
+      "status": "pending",
+      "implementation": [],
+      "tests": [],
+      "external_verification": [
+        "Attestazione end-to-end e sicurezza non ancora prodotte per questa sezione."
+      ],
+      "requirements": [
+        "Ricette quantitative con ingrediente, quantità, unità, resa e scarto.",
+        "Conversioni fra unità compatibili e storico dei costi ingredienti.",
+        "Food cost teorico calcolato server-side senza float JavaScript autoritativi e snapshot storici."
+      ]
+    },
+    {
+      "section": 152,
+      "title": "Margine piatto e menu engineering",
+      "status": "pending",
+      "implementation": [],
+      "tests": [],
+      "external_verification": [
+        "Attestazione end-to-end e sicurezza non ancora prodotte per questa sezione."
+      ],
+      "requirements": [
+        "Food cost amount/percentage e gross margin amount/percentage teorici, distinti dall'utile netto.",
+        "Menu engineering per vendite, ricavi, costo, margine, periodo, sede, menu e categoria.",
+        "Rimborsi e annullamenti riflessi correttamente negli indicatori."
+      ]
+    },
+    {
+      "section": 153,
+      "title": "Menu multipli, QR dedicati e promozioni",
+      "status": "pending",
+      "implementation": [],
+      "tests": [],
+      "external_verification": [
+        "Attestazione end-to-end e sicurezza non ancora prodotte per questa sezione."
+      ],
+      "requirements": [
+        "Più menu sul catalogo condiviso con pubblicazione, schedule, sede, slug e QR dedicato.",
+        "Promozioni e contenuti evidenziati con finestre temporali, priorità e limiti di impression.",
+        "Nessuna alterazione non autorizzata dei prezzi reali per effetto delle promozioni."
+      ]
+    },
+    {
+      "section": 154,
+      "title": "Messaggistica prenotazioni",
+      "status": "pending",
+      "implementation": [],
+      "tests": [],
+      "external_verification": [
+        "Attestazione end-to-end e sicurezza non ancora prodotte per questa sezione."
+      ],
+      "requirements": [
+        "Job separati dallo stato prenotazione con adapter per WhatsApp/Telegram/SMS.",
+        "Stati QUEUED/SENDING/SENT/DELIVERED/FAILED/CANCELLED, retry/backoff, idempotenza.",
+        "Errori provider non compromettono la prenotazione."
+      ]
+    },
+    {
+      "section": 155,
+      "title": "Caparra prenotazione",
+      "status": "pending",
+      "implementation": [],
+      "tests": [],
+      "external_verification": [
+        "Attestazione end-to-end e sicurezza non ancora prodotte per questa sezione."
+      ],
+      "requirements": [
+        "Depositi separati dal conto, importo/valuta/provider/status/rimborsi.",
+        "Conferma dei pagamenti esclusivamente server-side con callback idempotente.",
+        "Scadenza, capacità, rimborsi e policy del locale gestiti atomicamente e con audit."
+      ]
+    },
+    {
+      "section": 156,
+      "title": "Takeaway",
+      "status": "pending",
+      "implementation": [],
+      "tests": [],
+      "external_verification": [
+        "Attestazione end-to-end e sicurezza non ancora prodotte per questa sezione."
+      ],
+      "requirements": [
+        "Ordini con origine TAKEAWAY e slot ritiro su una sede specifica.",
+        "Riutilizzo dei servizi server authoritative di prezzo, disponibilità, KDS, cucina e pagamenti.",
+        "Capienza degli slot, ordini in concorrenza e READY_FOR_PICKUP verificati in un flusso reale."
+      ]
+    },
+    {
+      "section": 157,
+      "title": "Definition of Done delle nuove funzionalità",
+      "status": "pending",
+      "implementation": [],
+      "tests": [],
+      "external_verification": [
+        "Attestazione end-to-end e sicurezza non ancora prodotte per questa sezione."
+      ],
+      "requirements": [
+        "Le sezioni 151–156 richiedono schema/migrazioni, RLS, API autoritative, concorrenza, audit, privacy, UX responsive e test.",
+        "Accettazione E2E per reminder idempotenti, provider indisponibili, depositi, waitlist, takeaway, costi storici, QR e promozioni."
+      ]
     }
   ],
-  "last_updated": "2026-10-04",
+  "last_updated": "2026-10-12",
   "commercial_release_ready": false,
-  "clean_full_reviews": 0
+  "clean_full_reviews": 0,
+  "supplementary_specification": "MASTER_PROMPT_PLATEFORM_COMMERCIALE_AGGIORNATO.md (fonte fornita dall'utente; copia integrale non ancora versionata qui)"
 }
