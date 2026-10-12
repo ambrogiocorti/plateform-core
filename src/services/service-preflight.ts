@@ -1,5 +1,15 @@
 export interface ServiceDish {
   id: string;
+  category_id: string;
+  active: boolean;
+  schedule_mode: string;
+  available_from: string | null;
+  available_until: string | null;
+  weekdays: readonly number[] | null;
+}
+
+export interface ServiceCategory {
+  id: string;
   active: boolean;
 }
 
@@ -7,6 +17,7 @@ export interface ServiceVenueDish {
   dish_id: string;
   enabled: boolean;
   availability: number | null;
+  availability_date: string | null;
   local_station_id: string | null;
 }
 
@@ -40,6 +51,8 @@ export interface ServiceStaffStation {
 
 export interface ServicePreflightInput {
   dishes: readonly ServiceDish[] | null;
+  categories: readonly ServiceCategory[] | null;
+  localDate: string;
   venueDishes: readonly ServiceVenueDish[] | null;
   dishStations: readonly ServiceDishStation[] | null;
   stations: readonly ServiceStation[];
@@ -82,22 +95,44 @@ export function evaluateServicePreflight(input: ServicePreflightInput): ServiceP
   );
 
   let orderableRoutedDishes: number | null = null;
-  if (input.dishes && input.venueDishes && input.dishStations) {
-    const activeDishes = new Set(
-      input.dishes.filter((dish) => dish.active).map((dish) => dish.id),
+  if (input.dishes && input.categories && input.venueDishes && input.dishStations) {
+    const activeCategories = new Set(
+      input.categories.filter((category) => category.active).map((category) => category.id),
+    );
+    const weekday = new Date(`${input.localDate}T12:00:00Z`).getUTCDay() || 7;
+    const settingsByDish = new Map(
+      input.venueDishes.map((settings) => [settings.dish_id, settings]),
     );
     const primaryStations = new Map(
       input.dishStations
         .filter((assignment) => assignment.is_primary)
         .map((assignment) => [assignment.dish_id, assignment.station_id]),
     );
-    orderableRoutedDishes = input.venueDishes.filter((settings) => {
-      if (!settings.enabled || !activeDishes.has(settings.dish_id)) return false;
-      if (settings.availability !== null && settings.availability <= 0) return false;
-      // A local station override takes precedence over the shared primary
-      // station; never fall back when that override is disabled or missing.
+    orderableRoutedDishes = input.dishes.filter((dish) => {
+      if (!dish.active || !activeCategories.has(dish.category_id)) return false;
+      const scheduleAllowed =
+        dish.schedule_mode === 'ALWAYS' ||
+        (dish.schedule_mode === 'DATE' && dish.available_from === input.localDate) ||
+        (dish.schedule_mode === 'WEEKDAYS' && (dish.weekdays?.includes(weekday) ?? false)) ||
+        (dish.schedule_mode === 'RANGE' &&
+          dish.available_from !== null &&
+          dish.available_until !== null &&
+          dish.available_from <= input.localDate &&
+          input.localDate <= dish.available_until);
+      if (!scheduleAllowed) return false;
+      const settings = settingsByDish.get(dish.id);
+      // Absence of an override means ENABLED in get_public_menu.
+      if (settings?.enabled === false) return false;
+      // An explicit count expires when availability_date is not the local day.
+      if (
+        settings?.availability !== null &&
+        settings?.availability !== undefined &&
+        (settings.availability <= 0 || settings.availability_date !== input.localDate)
+      ) return false;
+      // A local station override takes precedence over the shared primary;
+      // it must itself refer to an ACTIVE station.
       const destination =
-        settings.local_station_id ?? primaryStations.get(settings.dish_id);
+        settings?.local_station_id ?? primaryStations.get(dish.id);
       return destination !== undefined && activeStationIds.has(destination);
     }).length;
   }
