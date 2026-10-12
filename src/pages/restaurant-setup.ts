@@ -74,7 +74,6 @@ const dishStation = z.object({
  */
 export async function loadServicePreflight(
   venueId: string,
-  canManageSharedCatalog: boolean,
   timeZone: string,
 ): Promise<ReturnType<typeof evaluateServicePreflight>> {
   const [stations, profiles, assignments, stationAssignments] = await Promise.all([
@@ -92,19 +91,19 @@ export async function loadServicePreflight(
   const localDate = ['year', 'month', 'day']
     .map((part) => localParts.find((entry) => entry.type === part)?.value)
     .join('-');
-  const catalog = canManageSharedCatalog
-    ? await Promise.all([
-        readRows('dishes', dish, undefined, { active: 'true' }),
-        readRows('categories', category, undefined, { active: 'true' }),
-        readRows('venue_dish_settings', venueDish, venueId),
-        readRows('dish_station_assignments', dishStation, venueId, { is_primary: 'true' }),
-      ])
-    : null;
+  // All staff roles may SELECT the shared menu through catalog_read RLS.
+  // Only CHAIN admins may create/edit global catalog records; this code is read-only.
+  const catalog = await Promise.all([
+    readRows('dishes', dish, undefined, { active: 'true' }),
+    readRows('categories', category, undefined, { active: 'true' }),
+    readRows('venue_dish_settings', venueDish, venueId),
+    readRows('dish_station_assignments', dishStation, venueId, { is_primary: 'true' }),
+  ]);
   const input: ServicePreflightInput = {
-    dishes: catalog?.[0] ?? null,
-    categories: catalog?.[1] ?? null,
-    venueDishes: catalog?.[2] ?? null,
-    dishStations: catalog?.[3] ?? null,
+    dishes: catalog[0],
+    categories: catalog[1],
+    venueDishes: catalog[2],
+    dishStations: catalog[3],
     localDate,
     stations,
     profiles,
@@ -133,11 +132,7 @@ export async function restaurantSetupPage(context: StaffContext): Promise<HTMLEl
     const canManageSharedCatalog = !context.multiVenue || context.profile.scope === 'CHAIN';
     const facts = await loadSetupFacts(venueId, canManageSharedCatalog);
     const progress = evaluateSetup(facts);
-    const operations = await loadServicePreflight(
-      venueId,
-      canManageSharedCatalog,
-      venue.timezone,
-    );
+    const operations = await loadServicePreflight(venueId, venue.timezone);
     const explanation = progress.basicsConfigured
       ? 'Sono presenti gli elementi minimi di configurazione. Verifica personale, turni, prezzi, disponibilità e l’intero ciclo operativo prima di aprire il servizio.'
       : 'Segui l’ordine indicato. Ogni stato è letto dal database della sede; non vengono creati dati dimostrativi.';
@@ -222,7 +217,7 @@ export async function restaurantSetupPage(context: StaffContext): Promise<HTMLEl
                 : operations.orderableRoutedDishes > 0,
             explanation:
               operations.orderableRoutedDishes === null
-                ? 'Richiede accesso al catalogo da parte di un Admin di catena.'
+                ? 'Impossibile verificare il catalogo. Contatta un Admin di catena.'
                 : `${operations.orderableRoutedDishes} piatti visibili oggi, non esauriti e collegati a una stazione attiva.`,
             path: '/menu-sede',
           },
