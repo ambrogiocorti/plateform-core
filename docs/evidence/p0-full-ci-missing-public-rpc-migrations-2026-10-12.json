@@ -1,0 +1,125 @@
+{
+  "observed_on": "2026-10-12",
+  "kind": "READ_ONLY_P0_SQL_REPLAY_BLOCKER",
+  "project": "plateform-development",
+  "supabase_project_ref": "abdxvlykasqmknexxhjo",
+  "repo": "ambrogiocorti/plateform-core",
+  "ci": {
+    "workflow": "Plateform development checks (local Windows)",
+    "full_run_id": 38246436076,
+    "quick_pass_run_id": 38245707499,
+    "sha": "ff0dc38f7a28f91dbad88d0465989c7b93bbd84c",
+    "result": "full failed before browser checks",
+    "failing_step": "Full application checks (source, DB fixtures, Edge, build)",
+    "error": "PUBLIC_RPC_SECURITY_CONTRACT_CHANGED",
+    "migration": "20261008163112_step11_public_rpc_permission_manifest.sql",
+    "call_stack": "scripts/check-step11-assets.mjs -> tests/database/harness.ts -> local SQL replay",
+    "preliminary_gates_passed": [
+      "format:check",
+      "check:migrations (local only)",
+      "check:core-edition",
+      "check:core-server-policy",
+      "check:core-edge-guards",
+      "check:core-release-profile",
+      "check:waiter-ux",
+      "check:step11-static",
+      "check:step11-runtime",
+      "check:step11-booking",
+      "check:step11-prerender",
+      "check:step11-build-assembly"
+    ],
+    "not_reached": [
+      "check:step11-assets",
+      "typecheck/lint in full run",
+      "check:edge",
+      "test:edge",
+      "full database tests",
+      "browser E2E"
+    ]
+  },
+  "live_catalog": {
+    "total_remote_migration_versions": 480,
+    "latest": "20261012075338",
+    "four_rpc_signatures": [
+      "public.get_public_menu_index(uuid)",
+      "public.get_public_navigation(uuid)",
+      "public.get_public_page_metadata(text,uuid)",
+      "public.get_public_sitemap_entries()"
+    ],
+    "all_four_live_present": true,
+    "all_four_live_security_definer": true,
+    "all_four_live_search_path_locked": true,
+    "local_manifest_versions": 134,
+    "remote_only_prerequisites": [
+      {
+        "version": "20261008091023",
+        "name": "step11_public_menu_index_contract",
+        "sql_bytes": 1622,
+        "sha256": "40ffe06d8111704cce220c68321be2547ca6f3286ebb11a6a00c17f65ff535a6",
+        "filename": "20261008091023_step11_public_menu_index_contract.sql",
+        "missing_from_local_manifest": true
+      },
+      {
+        "version": "20261008091039",
+        "name": "step11_public_menu_index_uuid_fix",
+        "sql_bytes": 1375,
+        "sha256": "0ee7c606d45f066bc6ed5fd18a81f68dbd29379c07b73a521e3eb34e5dbad9de",
+        "filename": "20261008091039_step11_public_menu_index_uuid_fix.sql",
+        "missing_from_local_manifest": true
+      },
+      {
+        "version": "20261008091803",
+        "name": "step11_public_navigation_contract",
+        "sql_bytes": 3092,
+        "sha256": "f062bd3163cc63047e63b6949f49258521b633290677fa2747b8237d141cb49b",
+        "filename": "20261008091803_step11_public_navigation_contract.sql",
+        "missing_from_local_manifest": true
+      },
+      {
+        "version": "20261008092502",
+        "name": "step11_public_page_metadata_secure",
+        "sql_bytes": 5477,
+        "sha256": "64beb83b5b57e23f4ad211e210802bd025511b7c110c6fc149e2becfc2112264",
+        "filename": "20261008092502_step11_public_page_metadata_secure.sql",
+        "missing_from_local_manifest": true
+      },
+      {
+        "version": "20261008092732",
+        "name": "step11_public_metadata_regression_suite",
+        "sql_bytes": 3048,
+        "sha256": "9643aa50f40895eecbed3e82cbc1a40a689072d95e5aeb2bb34032205b25a9a2",
+        "filename": "20261008092732_step11_public_metadata_regression_suite.sql",
+        "missing_from_local_manifest": true
+      },
+      {
+        "version": "20261008092819",
+        "name": "step11_public_sitemap_entries_contract",
+        "sql_bytes": 1984,
+        "sha256": "eee599407f21d99967c402ec04541805ed0d8252656ae18a161fe61b9c3ed6bc",
+        "filename": "20261008092819_step11_public_sitemap_entries_contract.sql",
+        "missing_from_local_manifest": true
+      },
+      {
+        "version": "20261008092901",
+        "name": "step11_public_sitemap_regression_suite",
+        "sql_bytes": 1478,
+        "sha256": "ea8c0a4ce86da64921eb3a686e3ed2521754fff44c422cddc1ec429f53dc3494",
+        "filename": "20261008092901_step11_public_sitemap_regression_suite.sql",
+        "missing_from_local_manifest": true
+      }
+    ]
+  },
+  "analysis": "The failing local PGlite replay reaches an applied SQL guard without earlier live Supabase migrations creating the public RPCs. This is evidence of incomplete local migration history, not evidence of live RPC misconfiguration.",
+  "do_not": [
+    "Do not disable the public RPC security guard.",
+    "Do not edit old applied migration SQL to bypass the check.",
+    "Do not synthesize placeholder RPCs in the PGlite fixture.",
+    "Do not classify full CI or commercial release as passed."
+  ],
+  "required_next_steps": [
+    "Recover complete canonical SQL for all 480 live versions, with independently verified count and inventory SHA-256.",
+    "Preserve originals of 134 local SQL files, including 12 nontrivial divergent hashes and one local-only migration.",
+    "Reconcile history on a separate test database and repeat a clean replay before changing deployment migrations.",
+    "Re-run full workflow and staging / RLS security validations after safe history reconciliation."
+  ]
+}
