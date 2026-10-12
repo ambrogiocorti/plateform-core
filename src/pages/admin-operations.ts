@@ -177,7 +177,9 @@ function renderOverview(context: StaffContext, data: AdminOverview): HTMLElement
     { class: 'admin-quick-actions', 'aria-label': 'Aree operative' },
     button('AVVIO GUIDATO', () => context.navigate('/preparazione'), 'secondary'),
     button('MENU SEDE', () => context.navigate('/menu-sede'), 'secondary'),
-    button('FOOD COST', () => context.navigate('/food-cost'), 'secondary'),
+    context.licensedFeatures?.has('FOOD_COST')
+      ? button('FOOD COST', () => context.navigate('/food-cost'), 'secondary')
+      : null,
     button('ECCEZIONI', () => context.navigate('/eccezioni'), 'secondary'),
     button('SALA', () => context.navigate('/sala'), 'secondary'),
     button('ACCOGLIENZA', () => context.navigate('/accoglienza'), 'secondary'),
