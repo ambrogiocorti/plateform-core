@@ -1,0 +1,140 @@
+# Source-only acceptance evidence for Plateform delivery macro-step A.
+# Runs the exact unmerged code SHA, never connects to live Supabase,
+# never deploys, and never masks failing format/type/unit/browser checks.
+name: Plateform two-step candidate validation
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: plateform-two-step-feature-38
+  cancel-in-progress: false
+
+jobs:
+  candidate:
+    if: github.repository == 'ambrogiocorti/plateform-core' && github.ref == 'refs/heads/main'
+    runs-on: [self-hosted, Windows, X64, plateform-local]
+    timeout-minutes: 120
+    defaults:
+      run:
+        shell: powershell
+    env:
+      CI: 'true'
+      GIT_CONFIG_COUNT: '1'
+      GIT_CONFIG_KEY_0: core.autocrlf
+      GIT_CONFIG_VALUE_0: 'false'
+    steps:
+      - name: Checkout frozen candidate PR 38 (read-only)
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+          ref: '0e10008d29420ee4e0101764bd23cf55174399a0'
+
+      - name: Restore original source bytes
+        run: |
+          git -c core.autocrlf=false checkout-index --all --force
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Node.js 24.13
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24.13.0'
+
+      - name: Install reproducible dependencies
+        id: install
+        run: npm.cmd ci --no-audit --no-fund
+
+      - name: Repository format gate
+        id: format
+        if: steps.install.outcome == 'success'
+        continue-on-error: true
+        run: npm.cmd run format:check
+
+      - name: TypeScript strict compilation gate
+        id: typecheck
+        if: steps.install.outcome == 'success'
+        continue-on-error: true
+        run: npm.cmd run typecheck
+
+      - name: ESLint source gate
+        id: lint
+        if: steps.install.outcome == 'success'
+        continue-on-error: true
+        run: npm.cmd run lint
+
+      - name: Existing SQL checksums (not a remote schema certificate)
+        id: migration_hash
+        if: steps.install.outcome == 'success'
+        continue-on-error: true
+        run: npm.cmd run check:migrations
+
+      - name: Edition, server and role contracts
+        id: contracts
+        if: steps.install.outcome == 'success'
+        continue-on-error: true
+        run: |
+          npm.cmd run check:core-edition
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          npm.cmd run check:core-server-policy
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          npm.cmd run check:waiter-ux
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          npm.cmd run check:cashier-ux
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          npm.cmd run check:admin-ux
+          exit $LASTEXITCODE
+
+      - name: Unit regression suite
+        id: unit
+        if: steps.install.outcome == 'success'
+        continue-on-error: true
+        run: npm.cmd run test:unit
+
+      - name: Public and staff production builds
+        id: build
+        if: steps.install.outcome == 'success'
+        continue-on-error: true
+        run: npm.cmd run build
+
+      - name: Install Chromium for browser E2E
+        id: chromium
+        if: steps.install.outcome == 'success'
+        continue-on-error: true
+        run: npx.cmd playwright install chromium
+
+      - name: Browser functional regression
+        id: browser
+        if: steps.install.outcome == 'success' && steps.chromium.outcome == 'success' && steps.build.outcome == 'success'
+        continue-on-error: true
+        run: npm.cmd run test:e2e
+
+      - name: Do not hide any failed or skipped acceptance checks
+        if: always()
+        run: |
+          $results = @(
+            'install=${{ steps.install.outcome }}',
+            'format=${{ steps.format.outcome }}',
+            'typecheck=${{ steps.typecheck.outcome }}',
+            'lint=${{ steps.lint.outcome }}',
+            'migration_hash=${{ steps.migration_hash.outcome }}',
+            'contracts=${{ steps.contracts.outcome }}',
+            'unit=${{ steps.unit.outcome }}',
+            'build=${{ steps.build.outcome }}',
+            'chromium=${{ steps.chromium.outcome }}',
+            'browser=${{ steps.browser.outcome }}'
+          )
+          $results | ForEach-Object { Write-Output $_ }
+          if (@($results | Where-Object { -not $_.EndsWith('=success') }).Count -gt 0) {
+            Write-Error 'CANDIDATE_NOT_ACCEPTED: one or more gates failed or were skipped.'
+            exit 1
+          }
+
+# This workflow has no JWT keys, no external payment API credentials, no
+# Supabase DB URL, no deployment access and no checkout write permission.
+# The recovered 481-version database candidate has a DIFFERENT, still
+# unmerged and not clean-install-certified history; thus a green source
+# candidate does not close P0 backup/restore or staging acceptance.
