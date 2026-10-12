@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { accountSettlementState } from '../../src/services/account-settlement';
-import { mayResolveManualPayment } from '../../src/pages/manual-payment-resolution';
+import { accountSettlementState, mayResolveManualPayment } from '../../src/services/account-settlement';
 
 describe('account closure depends on authoritative financial state', () => {
   it('permits only a zero remainder with no pending provider/manual payment', () => {
