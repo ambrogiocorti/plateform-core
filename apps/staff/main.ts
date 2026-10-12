@@ -71,6 +71,7 @@ const navigation: {
   section?: 'OPERATIVITÀ' | 'CONFIGURAZIONE';
 }[] = [
   { path: '/operazioni', label: 'Operazioni', roles: ['ADMIN'], section: 'OPERATIVITÀ' },
+  { path: '/eccezioni', label: 'Eccezioni servizio', roles: ['ADMIN'], section: 'OPERATIVITÀ' },
   { path: '/preparazione', label: 'Avvio guidato', roles: ['ADMIN'], section: 'CONFIGURAZIONE' },
   { path: '/menu-sede', label: 'Menu della sede', roles: ['ADMIN'], section: 'CONFIGURAZIONE' },
   { path: '/servizio', label: 'Servizio', roles: ['WAITER'] },
@@ -424,6 +425,8 @@ async function render(): Promise<void> {
       content = await (
         await import('../../src/pages/admin-operations')
       ).adminOperationsPage(context);
+    else if (pageLink.path === '/eccezioni')
+      content = await (await import('../../src/pages/service-exceptions')).serviceExceptionsPage(context);
     else if (pageLink.path === '/preparazione')
       content = await (
         await import('../../src/pages/restaurant-setup')
