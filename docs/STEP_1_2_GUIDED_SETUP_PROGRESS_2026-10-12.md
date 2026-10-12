@@ -32,3 +32,39 @@ Lettura privilegiata **solo per diagnosi** del dataset della sede Plateform Mila
 - Non certifica sezione P0 migrazioni, backup/restore, staging o E2E multi-dispositivo.
 
 **Prossima realizzazione funzionale:** verifica e completamento del circuito reale Admin → cameriere → tavolo/conto → ordine → cucina → Pass → cassa, concentrandosi su eventuali funzionalità mancanti rispetto alle pagine già esistenti, senza dichiarare assenti quelle implementate.
+
+
+## Macro-passo funzionale 2 — Preflight operativo per sede
+
+La pagina `/preparazione` controlla anche, **attraverso SELECT RLS** e senza scrivere dati, quattro prerequisiti del flusso CORE:
+
+1. Almeno un piatto attivo con categoria attiva, calendario di disponibilità valido nel fuso della sede, scorta odierna non esaurita, override di sede non disabilitato e stazione principale (o override locale) attiva.
+2. Almeno un profilo `WAITER` attivo, assegnato alla sede con assegnazione attiva.
+3. Un `KITCHEN_ADMIN` assegnato oppure un `KITCHEN_STAFF` assegnato anche a una stazione attiva.
+4. Un `PASS` attivo e assegnato alla stessa sede.
+
+Le regole menu seguono l'effettivo `public.get_public_menu(uuid)` verificato in sola lettura: `venue_dish_settings` è **facoltativo**; `coalesce(enabled, true)`, schedule `ALWAYS/DATE/WEEKDAYS/RANGE`, disponibilità giornaliera e catalogo con categorie attive. Nessun risultato può essere dichiarato positivo per mera esistenza di righe non utilizzabili. L'Admin VENUE può leggere il catalogo mediante policy `catalog_read` ma non modificare il catalogo globale.
+
+**Riscontro Development, solo read-only:** sulla sede Plateform Milano risultano zero piatti attivi e zero assegnazioni attive per WAITER, KITCHEN e PASS. Queste mancanze vengono visualizzate come configurazioni aperte, non nascoste.
+
+## Macro-passo funzionale 3 — Menu della sede (override operativi)
+
+Nuova rotta Admin `/menu-sede` per ogni sede autorizzata, raggiungibile dalla navigazione, dal Centro operativo e dall'avvio guidato.
+
+- Pagina di catalogo con paginazione server-side da 25 piatti, filtrata su prodotti attivi e letta con RLS.
+- Mostra categoria, prezzo di catalogo, stato locale, scorte e stazione di preparazione; riconosce override disabilitati, scorte giornaliere scadute o a zero, stazioni non attive e categorie non attive.
+- Riutilizza l'editor esistente `venueDishDialog`: salva `enabled`, prezzo locale, disponibilità giornaliera e stazione con la RPC server `save_venue_dish`.
+- La RPC è già protetta da `private.authorize(p_venue, ADMIN)`, controllo di versione, idempotenza, transazione, stazioni valide e storico prezzi (funzione originale controllata nel catalogo PostgreSQL).
+- Se non esiste una stazione attiva, impedisce di aprire un editor che il backend rifiuterebbe e collega alla configurazione stazioni.
+- Non consente creazione o modifica di `dishes`, `categories` o altri dati condivisi agli Admin limitati alla sede.
+
+Le nuove funzioni pure hanno test unitari per scope, stock, calendario, overrides, stazione principale e assegnazioni del personale. Questi test **sono implementati ma non ancora eseguiti sul nuovo commit**; TypeScript, lint, test browser e reali sessioni JWT devono essere verificati prima di considerare il macro-passo completo o fare merge della PR.
+
+## Prossimi sotto-passi CORE
+
+- Verifica reale della configurazione staff e assegnazioni contro due sedi e quattro ruoli, con JWT e RLS.
+- Test di un ordine reale dall'account alla stazione, PASS e consegna, senza simulare il backend.
+- Gestione delle anomalie di servizio e handoff cassa/chiusura.
+- Completamento dello storico migrazioni in quarantena, backup/restore e staging prima del go-live commerciale.
+
+La roadmap mantiene STEP 2 **IN PROGRESS** finché il gate cameriere → ordine → cucina → Pass → servizio non è verificato in modo reale.
