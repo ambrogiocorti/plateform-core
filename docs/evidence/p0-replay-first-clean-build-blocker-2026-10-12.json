@@ -1,0 +1,40 @@
+{
+  "date": "2026-10-12",
+  "environment": "LOCAL_DISPOSABLE_PGLITE_ONLY",
+  "workflow_run": 38258766430,
+  "pinned_candidate_sha_at_failure": "1bcee69d404476bfbfd568a7c535bfeea0d5a0f6",
+  "local_migrations": 481,
+  "manifest_digest_gate": "PASS",
+  "replay_gate": "FAILED",
+  "failing_migration": "20261012075338_restore_dev_audit_capture_keep_immutability.sql",
+  "exception": "trigger plateform_dev_pause_audit for table audit_log does not exist",
+  "root_cause": "This Development-only trigger was created out-of-band and is missing from all 480 historical migration SQL statements; exact canonical SQL replay fails without it.",
+  "live_observed_trigger": {
+    "name": "plateform_dev_pause_audit",
+    "table": "public.audit_log",
+    "timing": "BEFORE INSERT",
+    "function": "private.plateform_dev_skip_audit()",
+    "function_language": "plpgsql",
+    "function_search_path": "",
+    "function_behavior": "RETURN NULL",
+    "current_state": "DISABLED"
+  },
+  "live_guards_confirmed": {
+    "audit_immutable": "ENABLED",
+    "audit_no_truncate": "ENABLED"
+  },
+  "candidate_fixture": {
+    "only_when_migration_filename": "20261012075338_restore_dev_audit_capture_keep_immutability.sql",
+    "file": "tests/database/harness.ts",
+    "behavior": "Add exact out-of-band audit-pause trigger to disposable PGlite immediately before original SQL. Assert that migration disables pause trigger but preserves immutable/no-truncate guards.",
+    "not_live_sql": true,
+    "not_a_release_or_clean_replay_pass": true
+  },
+  "next": [
+    "Rerun this isolated fixture-assisted replay to discover any further drift or regression.",
+    "Separately certify strict clean deployment from committed migrations without out-of-band trigger; current strict clean replay is blocked.",
+    "Ensure database export/restore and audit history are independently verified.",
+    "Keep all 480 canonical remote SQL bytes and the 134 originals untouched."
+  ],
+  "release": "BLOCKED"
+}

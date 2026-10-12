@@ -1,0 +1,41 @@
+{
+  "captured_on": "2026-10-12",
+  "source_run": "https://github.com/ambrogiocorti/plateform-core/actions/runs/38265622448",
+  "failed_stage": "Playwright browser E2E",
+  "checks_prior": "PASS",
+  "test_summary": {
+    "unit_and_db_passed": 238,
+    "skipped_full_edition": 4,
+    "browser_passed": 13,
+    "browser_failed": 6
+  },
+  "causes_reproduced_from_source": [
+    {
+      "spec": "tests/e2e/cash.spec.ts",
+      "failed": 2,
+      "cause": "Cashier reconciliation buttons are inside closed <details class=cashier-operations>; tests must expand summary before interacting",
+      "change": "expand Postazioni, servizi e verifiche; retain actual payment assertions"
+    },
+    {
+      "spec": "tests/e2e/staff-operations.spec.ts",
+      "failed": 2,
+      "cause": "Host UI uses Dettagli > Assegna tavolo and button FILTRA, not outdated Gestisci / Scegli tavolo / Applica filtri; first assignment is immediate",
+      "change": "exercise real role-labelled dialog and exact RPC payload assertion; use FILTRA"
+    },
+    {
+      "spec": "tests/e2e/configuration.spec.ts",
+      "failed": 1,
+      "cause": "technicalPage response decoder requires restores, backup_health and continuity_targets; mock omitted them, preventing view from rendering",
+      "change": "fill every required response field with safe unverified/default values, not false success"
+    },
+    {
+      "spec": "tests/e2e/interface.spec.ts",
+      "failed": 1,
+      "cause": "menu route fetches get_public_navigation index before get_public_menu; mock omitted navigation index",
+      "change": "mock empty menus index and retain XSS/allergen assertions"
+    }
+  ],
+  "scope": "Changes only to E2E tests on candidate branch; production UI, authentication logic and 480 canonical migration SQL blobs unchanged",
+  "need_retest": "Run pinned read-only candidate full suite again before CI conclusion",
+  "release_status": "NO_GO"
+}
