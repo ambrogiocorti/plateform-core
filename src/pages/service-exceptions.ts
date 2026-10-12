@@ -97,9 +97,7 @@ export async function serviceExceptionsPage(context: StaffContext): Promise<HTML
     if (currentRevision !== revision) return;
     const now = Date.now();
     const tables = new Map(floor.tables.map((table) => [table.id, table]));
-    const steps = new Map(
-      kitchen.map((item) => [item.step_id, item]),
-    );
+    const steps = new Map(kitchen.map((item) => [item.step_id, item]));
     const waitingCalls = calls.rows.filter(
       (call) => customerCallAttention(call, now) === 'DELAYED',
     );
@@ -121,7 +119,11 @@ export async function serviceExceptionsPage(context: StaffContext): Promise<HTML
           el(
             'div',
             { class: 'stack' },
-            el('h3', {}, `${call.kind === 'BILL' ? 'Richiesta conto' : 'Chiamata cameriere'} · ${table?.name ?? 'Tavolo'}`),
+            el(
+              'h3',
+              {},
+              `${call.kind === 'BILL' ? 'Richiesta conto' : 'Chiamata cameriere'} · ${table?.name ?? 'Tavolo'}`,
+            ),
             status(call.status === 'NEW' ? 'Da prendere in carico' : 'In gestione'),
             el(
               'p',
@@ -150,7 +152,11 @@ export async function serviceExceptionsPage(context: StaffContext): Promise<HTML
       );
     if (calls.hasMore)
       callList.append(
-        el('p', { role: 'status' }, 'Sono visualizzate le 50 chiamate più vecchie; verifica la presenza di altre richieste.'),
+        el(
+          'p',
+          { role: 'status' },
+          'Sono visualizzate le 50 chiamate più vecchie; verifica la presenza di altre richieste.',
+        ),
       );
 
     const deliveryList = el('section', { class: 'stack' });
@@ -164,11 +170,19 @@ export async function serviceExceptionsPage(context: StaffContext): Promise<HTML
           el(
             'div',
             { class: 'stack' },
-            el('h3', {}, step?.table_name
-              ? `${step.table_name} · Step ${step.step_number}`
-              : 'Consegna da verificare'),
+            el(
+              'h3',
+              {},
+              step?.table_name
+                ? `${step.table_name} · Step ${step.step_number}`
+                : 'Consegna da verificare',
+            ),
             status(delayed ? 'Controllo operatore richiesto' : 'Presa in carico'),
-            el('p', { class: 'muted' }, `Presa in carico da ${formatWaitDuration(waitingSeconds(claim.claimed_at, now))}`),
+            el(
+              'p',
+              { class: 'muted' },
+              `Presa in carico da ${formatWaitDuration(waitingSeconds(claim.claimed_at, now))}`,
+            ),
             el(
               'p',
               { class: 'muted' },
@@ -181,11 +195,18 @@ export async function serviceExceptionsPage(context: StaffContext): Promise<HTML
     }
     if (!deliveries.rows.length)
       deliveryList.append(
-        emptyState('Nessuna consegna presa in carico', 'Non risultano claim di consegna ancora aperti.'),
+        emptyState(
+          'Nessuna consegna presa in carico',
+          'Non risultano claim di consegna ancora aperti.',
+        ),
       );
     if (deliveries.hasMore)
       deliveryList.append(
-        el('p', { role: 'status' }, 'Sono visualizzate le 50 consegne più vecchie; potrebbero essercene altre.'),
+        el(
+          'p',
+          { role: 'status' },
+          'Sono visualizzate le 50 consegne più vecchie; potrebbero essercene altre.',
+        ),
       );
 
     root.replaceChildren(
