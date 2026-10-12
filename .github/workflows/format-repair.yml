@@ -77,6 +77,22 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           Write-Host "Formatting changes: $($paths.Count); migration digests unchanged."
 
+      - name: Capture exact formatted workflow YAML for reviewed commit
+        # A GITHUB_TOKEN cannot push modified workflow files; print only the
+        # formatting result for two public-in-repository YAML sources.
+        # No credentials or runtime environment values are included.
+        run: |
+          foreach ($path in @('.github/workflows/ci.yml', '.github/workflows/format-repair.yml')) {
+            if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
+              Write-Error "Missing YAML file: $path"
+              exit 1
+            }
+            $bytes = [System.IO.File]::ReadAllBytes((Resolve-Path -LiteralPath $path))
+            $base64 = [Convert]::ToBase64String($bytes)
+            $name = Split-Path -Leaf $path
+            Write-Host "PLATEFORM_PRETTIER_YAML|$name|$base64"
+          }
+
       - name: Exclude protected GitHub workflow files from the bot-created PR
         # GITHUB_TOKEN can commit source formatting, but cannot push updates to
         # .github/workflows/* without an independent workflows permission.
