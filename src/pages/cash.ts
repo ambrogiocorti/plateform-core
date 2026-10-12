@@ -6,6 +6,8 @@ import { permittedPaymentMethod } from '../services/commercial-scope';
 import { accountWorkspaceSchema } from '../types/accounts';
 import { accountPrintAction } from './printing';
 import { paymentDialog } from './account-payments';
+import { accountClosureActions } from './account-finance';
+import { mayResolveManualPayment, resolveManualPayment } from './manual-payment-resolution';
 import { command } from './staff-context';
 import type { StaffContext } from './staff-context';
 import { reconciliationDialog } from './reconciliation';
@@ -141,6 +143,7 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
     primaryActions.append(
       pay,
       button('DIVIDI / PRODOTTI', () => context.navigate(`/conti/${account.id}`), 'secondary'),
+      accountClosureActions(context, account, balance, refreshSelected),
       await accountPrintAction(context, account.id),
     );
 
@@ -180,16 +183,24 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
     );
     if (!paymentPage.items.length)
       payments.append(el('p', { class: 'muted' }, 'Nessun pagamento registrato.'));
-    for (const payment of paymentPage.items)
-      payments.append(
-        el(
-          'div',
-          { class: 'cashier-line' },
-          el('span', {}, `${payment.method.replaceAll('_', ' ')} · ${payment.register_name}`),
-          el('strong', {}, formatMoney(payment.amount_cents + payment.tip_cents)),
-          status(payment.status),
-        ),
+    for (const payment of paymentPage.items) {
+      const entry = el(
+        'div',
+        { class: 'cashier-line' },
+        el('span', {}, `${payment.method.replaceAll('_', ' ')} · ${payment.register_name}`),
+        el('strong', {}, formatMoney(payment.amount_cents + payment.tip_cents)),
+        status(payment.status),
       );
+      if (mayResolveManualPayment(payment))
+        entry.append(
+          button(
+            'Riprendi verifica',
+            () => resolveManualPayment(payment, refreshSelected),
+            'secondary',
+          ),
+        );
+      payments.append(entry);
+    }
     if (paymentPage.has_more)
       payments.append(
         button('Storico completo', () => context.navigate(`/conti/${account.id}`), 'quiet'),
