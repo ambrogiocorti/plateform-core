@@ -12,10 +12,15 @@ const identity = z.object({ id: z.uuid() });
  * configuration screens. Never mark a step complete on network/permission error.
  * Deliberately checks presence, not hypothetical successful service operations.
  */
-export async function loadSetupFacts(venueId: string): Promise<SetupFacts> {
+export async function loadSetupFacts(
+  venueId: string,
+  canManageSharedCatalog = true,
+): Promise<SetupFacts> {
   const rows = await Promise.all(
     setupDefinitions.map(async (step) => {
       const shared = step.key === 'categories' || step.key === 'dishes';
+      if (shared && !canManageSharedCatalog)
+        return [step.key, 'MANAGED_BY_CHAIN'] as const;
       // Inactive rows do not enable a service, payment post or operational area.
       const filters = { active: 'true' };
       const result = await readPage(step.key, identity, {
@@ -41,7 +46,8 @@ export async function restaurantSetupPage(context: StaffContext): Promise<HTMLEl
   async function refresh(): Promise<void> {
     // If the venue selection changes, do not reuse any previous venue's state.
     if (context.venue?.id !== venueId) return;
-    const facts = await loadSetupFacts(venueId);
+    const canManageSharedCatalog = !context.multiVenue || context.profile.scope === 'CHAIN';
+    const facts = await loadSetupFacts(venueId, canManageSharedCatalog);
     const progress = evaluateSetup(facts);
     const explanation = progress.basicsConfigured
       ? 'Sono presenti gli elementi minimi di configurazione. Verifica personale, turni, prezzi, disponibilità e l’intero ciclo operativo prima di aprire il servizio.'
@@ -67,7 +73,13 @@ export async function restaurantSetupPage(context: StaffContext): Promise<HTMLEl
           { class: 'card stack' },
           el('strong', {}, `Prossimo passo: ${progress.next.title}`),
           el('p', {}, progress.next.description),
-          button('Vai alla configurazione', () => context.navigate(progress.next!.route)),
+          progress.next.requiresChain
+            ? el(
+                'p',
+                { class: 'muted' },
+                'Questo catalogo è condiviso tra le sedi: richiedi la configurazione a un Admin di catena.',
+              )
+            : button('Vai alla configurazione', () => context.navigate(progress.next!.route)),
         ),
       );
 
@@ -82,13 +94,21 @@ export async function restaurantSetupPage(context: StaffContext): Promise<HTMLEl
             { class: 'stack' },
             el('h3', {}, step.title),
             el('p', { class: 'muted' }, step.description),
-            status(step.completed ? 'Elemento presente' : 'Da configurare'),
+            status(
+              step.requiresChain
+                ? 'Richiede Admin di catena'
+                : step.completed
+                  ? 'Elemento presente'
+                  : 'Da configurare',
+            ),
           ),
-          button(
-            step.completed ? 'Apri' : 'Configura',
-            () => context.navigate(step.route),
-            'secondary',
-          ),
+          step.requiresChain
+            ? el('span', { class: 'muted' }, 'Gestione della catena')
+            : button(
+                step.completed ? 'Apri' : 'Configura',
+                () => context.navigate(step.route),
+                'secondary',
+              ),
         ),
       );
 
