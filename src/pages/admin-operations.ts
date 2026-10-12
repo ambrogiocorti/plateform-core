@@ -175,6 +175,7 @@ function renderOverview(context: StaffContext, data: AdminOverview): HTMLElement
   const quick = el(
     'nav',
     { class: 'admin-quick-actions', 'aria-label': 'Aree operative' },
+    button('AVVIO GUIDATO', () => context.navigate('/preparazione'), 'secondary'),
     button('SALA', () => context.navigate('/sala'), 'secondary'),
     button('ACCOGLIENZA', () => context.navigate('/accoglienza'), 'secondary'),
     button('CUCINA', () => context.navigate('/cucina'), 'secondary'),
