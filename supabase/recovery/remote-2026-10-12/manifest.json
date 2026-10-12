@@ -1,0 +1,3861 @@
+{
+  "kind": "READ_ONLY_CANONICAL_SUPABASE_MIGRATION_SQL_RECOVERY",
+  "captured_utc_date": "2026-10-12",
+  "project_ref": "abdxvlykasqmknexxhjo",
+  "git_ref": "p0/recover-canonical-remote-sql-20261012",
+  "sql_stored_under": "supabase/recovery/remote-2026-10-12",
+  "source": "supabase_migrations.schema_migrations.version/name/array_to_string(statements,E'\\n')",
+  "entries": 480,
+  "sql_bytes": 2296575,
+  "independently_measured_inventory_sha256": "fb1fe8c2d07176b9dfee0a788bc2bf164d8769016ebae829f475b49fc81c3fc1",
+  "git_blob_hashes_compared_to_remote": 480,
+  "git_blob_hash_mismatches": 0,
+  "warnings": [
+    "Archive only: not live applied deployment files.",
+    "No SQL was executed or changed on development project.",
+    "Do not merge or copy into supabase/migrations before verifying drift and isolated replay.",
+    "Investigate SQL for embedded sensitive literals before changing branch visibility or exposing exports."
+  ],
+  "migrations": [
+    {
+      "filename": "20261003165439_foundation.sql",
+      "version": "20261003165439",
+      "name": "foundation",
+      "sql_bytes": 16327,
+      "sha256": "5bcfb0c1c779702954e83746fe8d3e8c4a583a5bb0ef660d72b7547cf7109b7b",
+      "git_blob_sha": "3e2422d57fd1716dee2ab16a55c1c44a742bcd7e"
+    },
+    {
+      "filename": "20261003165447_operations_schema.sql",
+      "version": "20261003165447",
+      "name": "operations_schema",
+      "sql_bytes": 21237,
+      "sha256": "a7d88eb95b5ca3e9f390073c0e902b0a62ab7312d3d2ee157f78e0198d69fe5a",
+      "git_blob_sha": "5681a19dfb13cb4b66b0e714b86c90c28f035ea7"
+    },
+    {
+      "filename": "20261003165453_finance_audit.sql",
+      "version": "20261003165453",
+      "name": "finance_audit",
+      "sql_bytes": 20486,
+      "sha256": "21e17981a7b7029304d6c29c118979f7e3359bfb0a9c9a09ebfacfb1441b64dc",
+      "git_blob_sha": "c9caefc6500a5162d840c49a26f49c739d5be622"
+    },
+    {
+      "filename": "20261003165459_authorization.sql",
+      "version": "20261003165459",
+      "name": "authorization",
+      "sql_bytes": 15583,
+      "sha256": "03b04185f4e3ef6c8649a4bf3b61fa18dfeca74025a28a03ddf55053b6fb45a7",
+      "git_blob_sha": "b96a48071e667a797b1ffd0419c1605e210067dc"
+    },
+    {
+      "filename": "20261003165527_setup_catalog.sql",
+      "version": "20261003165527",
+      "name": "setup_catalog",
+      "sql_bytes": 14421,
+      "sha256": "5ebcf5838304aa8afb1433e76ee17248e192070919f6efaf548879b303dafedd",
+      "git_blob_sha": "25b1df9154ae3af59870f831b2b8e0bca9f8c49d"
+    },
+    {
+      "filename": "20261003165534_accounts_orders.sql",
+      "version": "20261003165534",
+      "name": "accounts_orders",
+      "sql_bytes": 16065,
+      "sha256": "710b2b0caea12f2b2e7269bf0ae4b08cea44fd7dca2f836ec9e708a95d319c51",
+      "git_blob_sha": "d0178aff36ab11b6081b03660c749fed1e72b4e0"
+    },
+    {
+      "filename": "20261003165541_cash_payments.sql",
+      "version": "20261003165541",
+      "name": "cash_payments",
+      "sql_bytes": 15059,
+      "sha256": "ef7cb6aa29ff91de79c5bf630a5ad419a143d156b3d8a44f33ee67603bbf456e",
+      "git_blob_sha": "cea75946f30e4e185bce7b5ec98047179bf57779"
+    },
+    {
+      "filename": "20261003165547_staff_auth.sql",
+      "version": "20261003165547",
+      "name": "staff_auth",
+      "sql_bytes": 9485,
+      "sha256": "00666180b0e47875090cd1f2ada6d9b65d19331c2169d06882662a6059a74e7a",
+      "git_blob_sha": "69395cf705f6bdd757d0c9f9627504edd04e742a"
+    },
+    {
+      "filename": "20261003165554_reservations.sql",
+      "version": "20261003165554",
+      "name": "reservations",
+      "sql_bytes": 9072,
+      "sha256": "a81911c01a63363cdfde69cbea912c0827fec7c43acd6cf6b2be3aa97050c192",
+      "git_blob_sha": "25a83e007c3b95efb315a361b9dc4eadd1ac86ae"
+    },
+    {
+      "filename": "20261003165601_edge_rate_limit.sql",
+      "version": "20261003165601",
+      "name": "edge_rate_limit",
+      "sql_bytes": 507,
+      "sha256": "a9c759173e7aee52e67cc996ddcdd3aaa3c2696ba3abb7ab160ba5755047b9a1",
+      "git_blob_sha": "276d5a50584a22384b8ff13242db031fa2e083a1"
+    },
+    {
+      "filename": "20261003165831_staff_admin.sql",
+      "version": "20261003165831",
+      "name": "staff_admin",
+      "sql_bytes": 6690,
+      "sha256": "b263b4b0170b54563d404a0f1458d1af37e90dd314f5b6c5bf877759eba1eb5b",
+      "git_blob_sha": "a5101faafc34a5b918b45e3361aaacd3ed22ff85"
+    },
+    {
+      "filename": "20261003165839_kitchen_calls.sql",
+      "version": "20261003165839",
+      "name": "kitchen_calls",
+      "sql_bytes": 14996,
+      "sha256": "b8ee5dbc7a0da6151fd0375552fa48b35bf22d8632bfc9a89e42e04e5e38eb9c",
+      "git_blob_sha": "6665d5cf3f4cb3964733d9b1778d6f695325ad45"
+    },
+    {
+      "filename": "20261003165846_staff_assignments.sql",
+      "version": "20261003165846",
+      "name": "staff_assignments",
+      "sql_bytes": 3637,
+      "sha256": "d0a9f22aa42ae1d401ccb22792c7bd4db88f7848c5127a2715c126424b260381",
+      "git_blob_sha": "b6dac45b061fcad3f69fae6f010e109d23eca0a8"
+    },
+    {
+      "filename": "20261003165851_venues.sql",
+      "version": "20261003165851",
+      "name": "venues",
+      "sql_bytes": 4448,
+      "sha256": "6922f1b226409d26de6b1fcda300a080e6ceac8ab49788913fc747cd1fe10c7e",
+      "git_blob_sha": "73baa6105f1fa5dbea7c4b0f1919a062a0f6a570"
+    },
+    {
+      "filename": "20261003165859_customer_sessions.sql",
+      "version": "20261003165859",
+      "name": "customer_sessions",
+      "sql_bytes": 3832,
+      "sha256": "0f6dc94f00b70ad27ee1e3dfdacfac3c66cb13f6e70dc3489fe40ebeb6c0bf32",
+      "git_blob_sha": "99231567899ba0597a732fedf1f3b84727857700"
+    },
+    {
+      "filename": "20261003165908_host_operations.sql",
+      "version": "20261003165908",
+      "name": "host_operations",
+      "sql_bytes": 11567,
+      "sha256": "49d2878d50db86c13eff677afa5eda2ae6006192809ff04537f9b566940d727a",
+      "git_blob_sha": "7978328779c52424ab9cc9cc322b83632e12656e"
+    },
+    {
+      "filename": "20261003170004_session_devices.sql",
+      "version": "20261003170004",
+      "name": "session_devices",
+      "sql_bytes": 9377,
+      "sha256": "370abe77848ab490322ff75a0b9cd2731ab9d25188e0dc8d5b3cb00175cd55f2",
+      "git_blob_sha": "d0a00757926f29e96bdfb50e11e4e4e1bcca0d66"
+    },
+    {
+      "filename": "20261003170010_host_workspace.sql",
+      "version": "20261003170010",
+      "name": "host_workspace",
+      "sql_bytes": 11746,
+      "sha256": "e1f9c22e3c3dd4b4bc27b7c53a0ce91669ba3c728676a48e5bd743f4ddde84de",
+      "git_blob_sha": "898e7b2ddd6127a774dfdeaae947203d7ae3729a"
+    },
+    {
+      "filename": "20261003170017_table_group_operations.sql",
+      "version": "20261003170017",
+      "name": "table_group_operations",
+      "sql_bytes": 10347,
+      "sha256": "8175e4a9739f0858e3f7b4255dec770d7fe988454637827d3725e193e658daec",
+      "git_blob_sha": "6af717d42260bb04fcac1ab05b25169636e48c74"
+    },
+    {
+      "filename": "20261003170026_realtime_signals.sql",
+      "version": "20261003170026",
+      "name": "realtime_signals",
+      "sql_bytes": 10270,
+      "sha256": "f3f47b97aa6bfffad36033b7e01c278613c72b6c858240f7957b91ccaac8e981",
+      "git_blob_sha": "20b1ff7970db95ece6bad721a419f3789dc4a758"
+    },
+    {
+      "filename": "20261003170033_cash_journal.sql",
+      "version": "20261003170033",
+      "name": "cash_journal",
+      "sql_bytes": 15806,
+      "sha256": "84fb7b234806e3af83b04e482f7e2aa6cd36f117a09c1a2d135d0059d85597d5",
+      "git_blob_sha": "4089c2d801d4c650b675b24d21b4fe2a5e7fbe67"
+    },
+    {
+      "filename": "20261003170040_audit_context.sql",
+      "version": "20261003170040",
+      "name": "audit_context",
+      "sql_bytes": 7249,
+      "sha256": "f6de3cf3e5f6ba27ff616d9f466f10995ca1db499eea01e876076af64a807f11",
+      "git_blob_sha": "e952ab6a2b197f1f3c0d4daa8ccb88a06e9503cc"
+    },
+    {
+      "filename": "20261003170113_cash_reconciliation.sql",
+      "version": "20261003170113",
+      "name": "cash_reconciliation",
+      "sql_bytes": 14726,
+      "sha256": "0584f2a7da465b4271c5723dcdc8c691bc473b76fc23dcb2d7847a918e7bc360",
+      "git_blob_sha": "6efcf6617f1a15805d08f8ea7cdffd8972eb9eb4"
+    },
+    {
+      "filename": "20261003170121_audit_search.sql",
+      "version": "20261003170121",
+      "name": "audit_search",
+      "sql_bytes": 2366,
+      "sha256": "b68c59e1e7ba26b827b46f3c1daf00566bfcd1d5e505b85814003e36430a3080",
+      "git_blob_sha": "b923b1f701ccd77c0601a49bb0e0d0af055f11ac"
+    },
+    {
+      "filename": "20261003170128_account_workspace.sql",
+      "version": "20261003170128",
+      "name": "account_workspace",
+      "sql_bytes": 6952,
+      "sha256": "00950bd6ee59bd5d9695e600c295b3936a9d83e70a619203ad8bfe2d9cd2982f",
+      "git_blob_sha": "495b99db8cd6315b20b5d5680d521a439aaedf85"
+    },
+    {
+      "filename": "20261003170135_account_floor_lifecycle.sql",
+      "version": "20261003170135",
+      "name": "account_floor_lifecycle",
+      "sql_bytes": 23508,
+      "sha256": "e205be47ad533a9d700a8d49b405eb41ce5aa42d4381f9c9e590a88d0f3563d4",
+      "git_blob_sha": "3eea3eacfb4a33689729894d19d7e3b2d8b78889"
+    },
+    {
+      "filename": "20261003170140_financial_command_retry.sql",
+      "version": "20261003170140",
+      "name": "financial_command_retry",
+      "sql_bytes": 3382,
+      "sha256": "e7904dcf99c32071bfc41801d5be2823e4567689bf5e0ca6b1a11ad8b26664b4",
+      "git_blob_sha": "da054fe0eb606b7850bcd55102a6f325c8afa8dc"
+    },
+    {
+      "filename": "20261003170149_billing_units.sql",
+      "version": "20261003170149",
+      "name": "billing_units",
+      "sql_bytes": 20285,
+      "sha256": "0dad48ff3d0beadd4f275bdbcab3f9affec2f9d00f6e6d3b90c7ff4b56ef83e3",
+      "git_blob_sha": "cd22ad17baceb012054295aa20436754c5016b5f"
+    },
+    {
+      "filename": "20261003170229_discounts.sql",
+      "version": "20261003170229",
+      "name": "discounts",
+      "sql_bytes": 15855,
+      "sha256": "23689ca6eb2f54730ab4d0615e3b967d01b5a15df423a36badbcf7cde8227b40",
+      "git_blob_sha": "3bd05785343273a5fa6595a9e16e7a9e3156e16e"
+    },
+    {
+      "filename": "20261003170236_prepaid_fulfillment.sql",
+      "version": "20261003170236",
+      "name": "prepaid_fulfillment",
+      "sql_bytes": 23541,
+      "sha256": "53cdcdc3ed7855ec8df4096df6ea34deb51af6211f0b824a13bd2d1bea9d82d6",
+      "git_blob_sha": "64f8e172a38843f7d39747e6657016e0760673a1"
+    },
+    {
+      "filename": "20261003170241_equal_splits.sql",
+      "version": "20261003170241",
+      "name": "equal_splits",
+      "sql_bytes": 10596,
+      "sha256": "d8c0f27c131c9265870e88f03ba79ef671016f1ee980278847d0780ce650deed",
+      "git_blob_sha": "60accdeef7de639d8288088cfeb00a7143f938f7"
+    },
+    {
+      "filename": "20261003170248_catalog_planning.sql",
+      "version": "20261003170248",
+      "name": "catalog_planning",
+      "sql_bytes": 15539,
+      "sha256": "272bc69540a4a1afdb40f52c09cddb270dd70abcd3c274c6120d9a6d8bf4556c",
+      "git_blob_sha": "2a2ffb35ae925fab6628c3ccba9f7c7d886e43d0"
+    },
+    {
+      "filename": "20261003170255_room_editor.sql",
+      "version": "20261003170255",
+      "name": "room_editor",
+      "sql_bytes": 8715,
+      "sha256": "71390bc980381b4d367a2a0c63fd2bef6e41075735ae6369089e4b0186aec5e0",
+      "git_blob_sha": "d8e6f6942481628d6fb935ebcebe40ae97cd80ef"
+    },
+    {
+      "filename": "20261003170302_order_corrections.sql",
+      "version": "20261003170302",
+      "name": "order_corrections",
+      "sql_bytes": 11398,
+      "sha256": "ba2cf8a2d3a2f950393fdcb3236e56eaa7b903054bb5f88feda20b6dbb69b788",
+      "git_blob_sha": "83803d768123fe6bf6ee5dc6f349e58f12dce8b8"
+    },
+    {
+      "filename": "20261003170348_account_transfers.sql",
+      "version": "20261003170348",
+      "name": "account_transfers",
+      "sql_bytes": 10509,
+      "sha256": "52a834fc93c439ac5fcb1716ec66d3e7f27bfda3dad464979c53cdef69fc33db",
+      "git_blob_sha": "760f11e0d1c6fdb0b7f0836735be6cc45c067be1"
+    },
+    {
+      "filename": "20261003170355_provider_operations.sql",
+      "version": "20261003170355",
+      "name": "provider_operations",
+      "sql_bytes": 12380,
+      "sha256": "656f63e000b3ab00e0c7fbf30a78e646296bff6268e665b55d2dd7a257de090c",
+      "git_blob_sha": "c24977eda1883cf20eba2dbfba65dbd7050d33a0"
+    },
+    {
+      "filename": "20261003170406_editor_guards.sql",
+      "version": "20261003170406",
+      "name": "editor_guards",
+      "sql_bytes": 5042,
+      "sha256": "c3f0356a5a2b9b346d527ab5227829028dd94f1f904d327c13e3a329e687fd05",
+      "git_blob_sha": "520a734d9562c816ffce100132ec01ec19ab2787"
+    },
+    {
+      "filename": "20261003170414_print_queue.sql",
+      "version": "20261003170414",
+      "name": "print_queue",
+      "sql_bytes": 11324,
+      "sha256": "837945e67e34091ad6ab2a9804afb97fdd5aad3c603a944a54ca623cda611408",
+      "git_blob_sha": "4b35627c7f894ff4649ea10c38fddac8ce881c74"
+    },
+    {
+      "filename": "20261003170421_offline_commands.sql",
+      "version": "20261003170421",
+      "name": "offline_commands",
+      "sql_bytes": 15420,
+      "sha256": "10c697139a9a899621ba41dfc969d4ec9f5ef711de2e5495dd08b3095e6f9ce9",
+      "git_blob_sha": "fa894d6dfc9083781217ffbc8194b49f35b64c7e"
+    },
+    {
+      "filename": "20261003170430_staff_jobs.sql",
+      "version": "20261003170430",
+      "name": "staff_jobs",
+      "sql_bytes": 11638,
+      "sha256": "5e6f5100c6732add606e0fd50494ee9602723f5c3788a6c3bbef41fa1e19f024",
+      "git_blob_sha": "8dd0b6c9b0d828677512d376acdd59aa3cf1a53c"
+    },
+    {
+      "filename": "20261003170455_governance.sql",
+      "version": "20261003170455",
+      "name": "governance",
+      "sql_bytes": 7393,
+      "sha256": "feb1456e7e7e2351709464a1d237fb04ea6154a5ccdef93941f48d4f5abedb36",
+      "git_blob_sha": "dae9790c5469795ea557d5bb4e86f2a11fbebd8f"
+    },
+    {
+      "filename": "20261003170503_statistics_incidents.sql",
+      "version": "20261003170503",
+      "name": "statistics_incidents",
+      "sql_bytes": 6500,
+      "sha256": "d66478cc24775e3f8252e46edd122724cfd81e7e5d2642f1176ea6a494812ac7",
+      "git_blob_sha": "8b4d1aaaf260a6d7b880cdd5f220a54da9b72add"
+    },
+    {
+      "filename": "20261003170509_reservation_editing.sql",
+      "version": "20261003170509",
+      "name": "reservation_editing",
+      "sql_bytes": 16786,
+      "sha256": "f2967f40deb7f2a7b91baab8e964dab58e63ad122de021b87ac286917ef0c325",
+      "git_blob_sha": "2612d1fe0417f5744113e3b2265dbb407dea2bec"
+    },
+    {
+      "filename": "20261003170515_assets_settings.sql",
+      "version": "20261003170515",
+      "name": "assets_settings",
+      "sql_bytes": 9449,
+      "sha256": "64d51d96513ae8b9030f85ddf7675ebbbc590ff82145f706499debb43bcd4685",
+      "git_blob_sha": "4b8dfb611e446514f973e9e1dbe00c86a35e8ae5"
+    },
+    {
+      "filename": "20261003170522_asset_commands_search.sql",
+      "version": "20261003170522",
+      "name": "asset_commands_search",
+      "sql_bytes": 3457,
+      "sha256": "7d9f45274e0de11e6b08324dbee43b5a3bdb9e0f4117efd73bb7fbd0a68b802c",
+      "git_blob_sha": "4a4f3ef7126ad87e3f3afde30dd61fa838d22abd"
+    },
+    {
+      "filename": "20261003170530_operational_configuration.sql",
+      "version": "20261003170530",
+      "name": "operational_configuration",
+      "sql_bytes": 5015,
+      "sha256": "e4b50702b0b22677d23c9eea829e4f8346d2f479247f5b7cfe14000048fa6ad0",
+      "git_blob_sha": "e38614202d54f2c1ef7f1d9b00c364322f02f465"
+    },
+    {
+      "filename": "20261003170547_operational_floor.sql",
+      "version": "20261003170547",
+      "name": "operational_floor",
+      "sql_bytes": 2015,
+      "sha256": "d7cef95aa294959d9f3f1e8cac7b5c6d13dd2f842e70fe0f6d14ebba0a11ce3a",
+      "git_blob_sha": "38109587f8fb0781c259f061048e38bbf9c699bc"
+    },
+    {
+      "filename": "20261003170553_notifications_printers.sql",
+      "version": "20261003170553",
+      "name": "notifications_printers",
+      "sql_bytes": 8307,
+      "sha256": "ca04e3632cb75f689bd77a1953ed60c261116077a6466a5d988d54467d49cda7",
+      "git_blob_sha": "869a25914c376f169e628de213509710c4336334"
+    },
+    {
+      "filename": "20261003170600_analytics_details.sql",
+      "version": "20261003170600",
+      "name": "analytics_details",
+      "sql_bytes": 6531,
+      "sha256": "a488d3f5b5e0abd3628dbb5877238ca93076876549e80f7b2471a341781147e2",
+      "git_blob_sha": "8274a7a3da5efad00df8d4490b533e887fe0f522"
+    },
+    {
+      "filename": "20261003170608_technical_health.sql",
+      "version": "20261003170608",
+      "name": "technical_health",
+      "sql_bytes": 10084,
+      "sha256": "646165ba1abf87a103da1d5c020e41103d75e17974f849337bc458fb9364eddb",
+      "git_blob_sha": "2acff41486640b35a4b398112ad7231c376b582b"
+    },
+    {
+      "filename": "20261003170616_resource_quotas.sql",
+      "version": "20261003170616",
+      "name": "resource_quotas",
+      "sql_bytes": 3866,
+      "sha256": "1742fc8228496c24245bfdb9fddf23200d904981dd23d339069d3462e4c88b82",
+      "git_blob_sha": "b96e4a72d80c5da7ac6f3d431050bf33f812aef2"
+    },
+    {
+      "filename": "20261003170624_observability.sql",
+      "version": "20261003170624",
+      "name": "observability",
+      "sql_bytes": 4226,
+      "sha256": "6003467abefaf5b9d4e837227b221ce74225aee3c0a551da4900a729e44b5258",
+      "git_blob_sha": "ec55503e79f9a78c005001686a4404164f47ad7e"
+    },
+    {
+      "filename": "20261003170733_print_bridge.sql",
+      "version": "20261003170733",
+      "name": "print_bridge",
+      "sql_bytes": 1101,
+      "sha256": "1e8d52877b7076757475ba0ac80138d3f3da553177066142b65b8f4081cc9af1",
+      "git_blob_sha": "d116c1f7b669bf01ba1242a61fb49ad694570665"
+    },
+    {
+      "filename": "20261003170742_privacy_retention.sql",
+      "version": "20261003170742",
+      "name": "privacy_retention",
+      "sql_bytes": 16973,
+      "sha256": "60a4660d98a8ba3a5ce5e8050e1ab951736e43a6528d3b967b8b4d7a2cda900c",
+      "git_blob_sha": "38d7ff751e30aa3dd5f77844af760e32c0571551"
+    },
+    {
+      "filename": "20261003170748_offline_workspace.sql",
+      "version": "20261003170748",
+      "name": "offline_workspace",
+      "sql_bytes": 9345,
+      "sha256": "2f3fdcbe9904d691a9471e8db6444d561e86e43caa2f07839a5388e50ef34a64",
+      "git_blob_sha": "aca270eede96c59373e3aa671d0dc06e28141bf6"
+    },
+    {
+      "filename": "20261003170907_foundation_runtime_guards.sql",
+      "version": "20261003170907",
+      "name": "foundation_runtime_guards",
+      "sql_bytes": 6016,
+      "sha256": "5adee012b75300db6e4d979297bea432e916f094ff8b881fbea41951c3b1e246",
+      "git_blob_sha": "ddf834b258fcc7caf89c844c4b4a5c301d6badc0"
+    },
+    {
+      "filename": "20261003171200_explicit_api_permissions.sql",
+      "version": "20261003171200",
+      "name": "explicit_api_permissions",
+      "sql_bytes": 18773,
+      "sha256": "a4ed54abc245d8ac41caaa88b1e85206fbbf9f4fe8967385e3b355dfe3941dc5",
+      "git_blob_sha": "5b957e41d7a361696ee517f478168fa5c8551a0e"
+    },
+    {
+      "filename": "20261003171337_rpc_only_mutations.sql",
+      "version": "20261003171337",
+      "name": "rpc_only_mutations",
+      "sql_bytes": 304,
+      "sha256": "c5a7d26662713517dded85406c81772f747b114753c14702c2042eecd795b2fd",
+      "git_blob_sha": "1f81a565bd68129ff5c5ce35ea6d403751e5eb7a"
+    },
+    {
+      "filename": "20261003183931_staff_access_and_password_lifecycle.sql",
+      "version": "20261003183931",
+      "name": "staff_access_and_password_lifecycle",
+      "sql_bytes": 31177,
+      "sha256": "8d9efcf5874cbcdb2fec4ff72287c0539edbc1ff9033189526802f8ef5c87258",
+      "git_blob_sha": "e3c409e68895c4ccdf176d3813e698c9aa1d02c9"
+    },
+    {
+      "filename": "20261003193224_step1_policy_hardening.sql",
+      "version": "20261003193224",
+      "name": "step1_policy_hardening",
+      "sql_bytes": 281,
+      "sha256": "6e5c4cef8bdadfc2fa39dbfb058ddda5d6b0820b01ba8d0f25f5b7f4085423ad",
+      "git_blob_sha": "05738de04289f127a514695939530fde09e3cb92"
+    },
+    {
+      "filename": "20261003194820_step1_remove_legacy_staff_provision.sql",
+      "version": "20261003194820",
+      "name": "step1_remove_legacy_staff_provision",
+      "sql_bytes": 525,
+      "sha256": "c175c08783af91a41458ca9824d85649fa34789ebd83cf3faa527dd4875a0ee0",
+      "git_blob_sha": "7fea915f08a0106970252f6aa43004dd2d9d4d18"
+    },
+    {
+      "filename": "20261003200443_step2_catalog_schedule_rules.sql",
+      "version": "20261003200443",
+      "name": "step2_catalog_schedule_rules",
+      "sql_bytes": 652,
+      "sha256": "2ef1293bee841b1f626889c5ee750cbc9d793928afffbb46cde767512c3d5560",
+      "git_blob_sha": "66c1cd7e1a2246086dcd24d376d6616d7fab26d6"
+    },
+    {
+      "filename": "20261003201517_step2_station_realtime.sql",
+      "version": "20261003201517",
+      "name": "step2_station_realtime",
+      "sql_bytes": 1683,
+      "sha256": "d45428984ab0ba6f85ee5e330f22061d7c0e09c8433a924f3d179290caad03a7",
+      "git_blob_sha": "a45f5c98247246b77a94c324b44c8f2d6e587a3b"
+    },
+    {
+      "filename": "20261003201808_step2_dish_station_realtime.sql",
+      "version": "20261003201808",
+      "name": "step2_dish_station_realtime",
+      "sql_bytes": 1310,
+      "sha256": "e8138d66c0d034a39b8d5faa2a4d6326813cb34694cf6d60802fb5ced4ba4829",
+      "git_blob_sha": "b924963af611a91c81ae89c141ea994c4d800e21"
+    },
+    {
+      "filename": "20261003202130_step2_catalog_admin_scope.sql",
+      "version": "20261003202130",
+      "name": "step2_catalog_admin_scope",
+      "sql_bytes": 11568,
+      "sha256": "f9dd9b5d12bf27cb7908e5a0fc3bda748d53c28c0e91f5f6f9c5252ef04567f0",
+      "git_blob_sha": "dfe74549d899d051b0dcb3ca4d107a7c5ad32dea"
+    },
+    {
+      "filename": "20261003203628_step4_customer_experience_core.sql",
+      "version": "20261003203628",
+      "name": "step4_customer_experience_core",
+      "sql_bytes": 12781,
+      "sha256": "f51e28845935fb51f5f78cd277f40cbf72203266e0ae0f4028d8c3c90cde1374",
+      "git_blob_sha": "4afee1f80aacffd183e4ac079897e7b4ff1eaa71"
+    },
+    {
+      "filename": "20261003203705_step4_customer_order_uuid_validation.sql",
+      "version": "20261003203705",
+      "name": "step4_customer_order_uuid_validation",
+      "sql_bytes": 3532,
+      "sha256": "ce7950a4c40abee292fbc034e61ae267c52f37fa25837b4e1b92da9dec733bf8",
+      "git_blob_sha": "a89cb499178fc0b58689a4703970acabeaa6f3ff"
+    },
+    {
+      "filename": "20261003210902_step4_customer_access_hardening.sql",
+      "version": "20261003210902",
+      "name": "step4_customer_access_hardening",
+      "sql_bytes": 1971,
+      "sha256": "a112b1c900fa745ccc6527418e1da23b50cf5aadc5eada0c445c7fad1242a21c",
+      "git_blob_sha": "49b77d8286a728e093847d35fa01ea6b3f578b8f"
+    },
+    {
+      "filename": "20261003211043_step4_customer_backoff_cleanup.sql",
+      "version": "20261003211043",
+      "name": "step4_customer_backoff_cleanup",
+      "sql_bytes": 1436,
+      "sha256": "e9aa2d3aa0d8f23f44004bb2a21ff376391557ff714a022521b263cbb25530ab",
+      "git_blob_sha": "c652623922020a399b413ce72153e1b0a66ed921"
+    },
+    {
+      "filename": "20261003212934_step4_waiter_call_lifecycle.sql",
+      "version": "20261003212934",
+      "name": "step4_waiter_call_lifecycle",
+      "sql_bytes": 2010,
+      "sha256": "7a6708ede6418f1077d0f598990654a5586189d7079a84046638c55ee5bbf265",
+      "git_blob_sha": "9787d66121f4bf27c2a72c53b7b85e8f846bbe4f"
+    },
+    {
+      "filename": "20261003214003_step5_booking_integrity.sql",
+      "version": "20261003214003",
+      "name": "step5_booking_integrity",
+      "sql_bytes": 5262,
+      "sha256": "4006780ded2bad44aed44e867fe1228b6a38365b2b53427af0bda5900d647a4b",
+      "git_blob_sha": "5772c9fa0b3fd98e0718a367d7db44403850fa80"
+    },
+    {
+      "filename": "20261004003748_step7_notifications_printing_returns.sql",
+      "version": "20261004003748",
+      "name": "step7_notifications_printing_returns",
+      "sql_bytes": 11209,
+      "sha256": "9adf0c9b907dc693fcbce31f495bec000845141fb1a8e42ed2f4bfddc1849b71",
+      "git_blob_sha": "c74b44e20df739eecf513ae865e7b61be4567834"
+    },
+    {
+      "filename": "20261004053423_step8_offline_reconciliation.sql",
+      "version": "20261004053423",
+      "name": "step8_offline_reconciliation",
+      "sql_bytes": 11226,
+      "sha256": "0ed3bee3d03f27ac3fedaf3daa435825a7cc5abcae184f416c6ee09af7c38ddc",
+      "git_blob_sha": "e9a6a44f6a44ddece21fc943bed00011ebb33bb3"
+    },
+    {
+      "filename": "20261004054938_step9_advanced_room_editor_guard.sql",
+      "version": "20261004054938",
+      "name": "step9_advanced_room_editor_guard",
+      "sql_bytes": 1084,
+      "sha256": "c7830cc2c0685176527c5df4ce7bf9c69b2117e485d4c11e4e89a5cb077abe0c",
+      "git_blob_sha": "ecae747eb2806b91d50f1a4e60bb71b696096a9b"
+    },
+    {
+      "filename": "20261004060339_step9_advanced_analytics.sql",
+      "version": "20261004060339",
+      "name": "step9_advanced_analytics",
+      "sql_bytes": 4096,
+      "sha256": "f2c01daab4098c6b21ec5bcbe3c6139c05458c959489894668ef84a679e166ae",
+      "git_blob_sha": "c52f1c40332195db7f8b862001ee4a4dcd858ae3"
+    },
+    {
+      "filename": "20261004060929_step9_advanced_analytics_hardening.sql",
+      "version": "20261004060929",
+      "name": "step9_advanced_analytics_hardening",
+      "sql_bytes": 6563,
+      "sha256": "77911a55b3e3baeba8363ba7bc427cea07587cf258e848d786fc902038cdb9f0",
+      "git_blob_sha": "2945eef0bc74e1d7879cd9ca512567b249024e8a"
+    },
+    {
+      "filename": "20261004061537_step9_authorized_command_palette.sql",
+      "version": "20261004061537",
+      "name": "step9_authorized_command_palette",
+      "sql_bytes": 2908,
+      "sha256": "aee5d6b0180e622c3bb6e432cc03e4d5465934f5174a9a6ba235899df36a5a48",
+      "git_blob_sha": "6807c5883edc869403fe54a0c781f187bc717def"
+    },
+    {
+      "filename": "20261004062610_step9_device_management.sql",
+      "version": "20261004062610",
+      "name": "step9_device_management",
+      "sql_bytes": 6240,
+      "sha256": "2a54c65eed0bccd576c23cabed7fe9d7503472dc9eb132b596298d48d5bb4d75",
+      "git_blob_sha": "40b2bd5c2ef215c65d24f095e0635dae021ae8c5"
+    },
+    {
+      "filename": "20261004070546_step10_multi_venue_commercial.sql",
+      "version": "20261004070546",
+      "name": "step10_multi_venue_commercial",
+      "sql_bytes": 3414,
+      "sha256": "9aa3ba1bcecc3960724a3a3163c5b032807ebf09b0fd4c9348f0da6f6b42251d",
+      "git_blob_sha": "c294be5d92b345ba8c6e517edf68e93f90406db9"
+    },
+    {
+      "filename": "20261004071506_step10_remove_legacy_create_venue.sql",
+      "version": "20261004071506",
+      "name": "step10_remove_legacy_create_venue",
+      "sql_bytes": 325,
+      "sha256": "01cd2a49eef74c4b91f375125f1a58640861d8bd87ac8a86e2e6897f3b6b2e21",
+      "git_blob_sha": "173461d79385b6cde3cf52712119861d08529938"
+    },
+    {
+      "filename": "20261004072536_step11_public_branding_contract.sql",
+      "version": "20261004072536",
+      "name": "step11_public_branding_contract",
+      "sql_bytes": 6590,
+      "sha256": "39460381b888cef20340e10e144ea387b72466e3c0bde2cc1e00df7cacba4fef",
+      "git_blob_sha": "7c34c54b0f797ccc583f463bfaed8ba7a6c9efec"
+    },
+    {
+      "filename": "20261004075252_step12_backup_state_machine.sql",
+      "version": "20261004075252",
+      "name": "step12_backup_state_machine",
+      "sql_bytes": 9249,
+      "sha256": "c500fc73e11fe988ad52b928f66eee0df82553dc963c561500510c6bfab7cf92",
+      "git_blob_sha": "480b050557fa7d564472fb41bfbb180078b32562"
+    },
+    {
+      "filename": "20261004080808_step12_restore_control_plane.sql",
+      "version": "20261004080808",
+      "name": "step12_restore_control_plane",
+      "sql_bytes": 7639,
+      "sha256": "a0a4f592c6bd43f6d39ea4f2f1c5217d1632f00d434293364dcdaa15d8b35694",
+      "git_blob_sha": "f628c37ea9d263a1a1244cf90be7e5e1b76471f8"
+    },
+    {
+      "filename": "20261004105716_step12_restore_worker_protocol.sql",
+      "version": "20261004105716",
+      "name": "step12_restore_worker_protocol",
+      "sql_bytes": 8472,
+      "sha256": "cc42430a32825a4be036180741c225026dc107fbf8c9a8c5b8d398c6f6c550aa",
+      "git_blob_sha": "9a29f1a9eb5ce39c988f10695171cae21635cf0a"
+    },
+    {
+      "filename": "20261004110052_step12_scheduled_backup_queue.sql",
+      "version": "20261004110052",
+      "name": "step12_scheduled_backup_queue",
+      "sql_bytes": 1513,
+      "sha256": "2646e576f9642ec52c7fd70f577750fb0b0fa02a5b5a81218c9e70d58dcdbcf1",
+      "git_blob_sha": "334591d1825158df3eca055277773336105bd427"
+    },
+    {
+      "filename": "20261004110736_step12_restore_test_control.sql",
+      "version": "20261004110736",
+      "name": "step12_restore_test_control",
+      "sql_bytes": 4543,
+      "sha256": "31d8e9d0836696cf7ef279546d9dcb78880e24632adfa05d157059e9f5ea254e",
+      "git_blob_sha": "ec7de996a13b71a7d2a603f20b9e194ca2207968"
+    },
+    {
+      "filename": "20261004114444_step12_daily_backup_schedule.sql",
+      "version": "20261004114444",
+      "name": "step12_daily_backup_schedule",
+      "sql_bytes": 351,
+      "sha256": "d9b7e51f323e03115f2168b029b717df2713ea298521d24e721424b702c47c3b",
+      "git_blob_sha": "5634b5691c0df0d89320df921455c2a5f6a5a023"
+    },
+    {
+      "filename": "20261004115400_step12_operational_health.sql",
+      "version": "20261004115400",
+      "name": "step12_operational_health",
+      "sql_bytes": 3568,
+      "sha256": "c57950b0f7ad911170111b45bc3e29fb5db0f3900597ac6491f49a964364a1a3",
+      "git_blob_sha": "19611e6534a66d2daead74f5e8a970e2b5d33e54"
+    },
+    {
+      "filename": "20261004121556_step12_continuity_alerting.sql",
+      "version": "20261004121556",
+      "name": "step12_continuity_alerting",
+      "sql_bytes": 8613,
+      "sha256": "a50d11d5acd6a28f1a6563ffe23c619daf6e9bbf4288c48d221832d9aa5eed85",
+      "git_blob_sha": "5d016870601ea198aa87034c74d0b6221b912ae4"
+    },
+    {
+      "filename": "20261004122645_step12_continuity_targets.sql",
+      "version": "20261004122645",
+      "name": "step12_continuity_targets",
+      "sql_bytes": 16789,
+      "sha256": "9d727fe4f9ad2b8b948a53957392030e94106e1b92be79fc3626e0ef5c95af35",
+      "git_blob_sha": "8b5a2c05358d51a1702cb6504e6a6d042042a1be"
+    },
+    {
+      "filename": "20261004123049_step12_continuity_targets_api_hardening.sql",
+      "version": "20261004123049",
+      "name": "step12_continuity_targets_api_hardening",
+      "sql_bytes": 3131,
+      "sha256": "dca01a60b5da802e37ab66d8ece2eefbb9dd14493598fbfffd5020d8836f7d24",
+      "git_blob_sha": "8875f489d4421740a9037a7712c45c619902031b"
+    },
+    {
+      "filename": "20261004123554_step12_restore_mode_isolation.sql",
+      "version": "20261004123554",
+      "name": "step12_restore_mode_isolation",
+      "sql_bytes": 3710,
+      "sha256": "b6bcd1fe60a8cb64efb58f59abacd859fda8afe3ce3bdb08313edc3254e08b24",
+      "git_blob_sha": "b7da16396305002a709af09b8076d265aaa2f0ef"
+    },
+    {
+      "filename": "20261004125043_step12_restore_cutover_gate.sql",
+      "version": "20261004125043",
+      "name": "step12_restore_cutover_gate",
+      "sql_bytes": 9534,
+      "sha256": "14c32b457473c2afddcdf958894223a5f4523d79ef287e09678f07988c3e5417",
+      "git_blob_sha": "c3f2c0232ecc7ec244e6ddfe4e58088618b5f78c"
+    },
+    {
+      "filename": "20261004125610_step12_restore_cutover_alerting.sql",
+      "version": "20261004125610",
+      "name": "step12_restore_cutover_alerting",
+      "sql_bytes": 2239,
+      "sha256": "797f8f2302fa600a925212bf9c5df298930f51f00fddf1f84479672ac87f103e",
+      "git_blob_sha": "0d5472501c908f86e13a7b6bc80bff2e491b4a02"
+    },
+    {
+      "filename": "20261004143611_step12_backup_retention_enforcement.sql",
+      "version": "20261004143611",
+      "name": "step12_backup_retention_enforcement",
+      "sql_bytes": 6274,
+      "sha256": "daee393c6522c749fa5910e2dd4ccafef6b6e8c74e3cc6b1dac082d0fd896650",
+      "git_blob_sha": "1fbd4b07b27175f6b49175b2d8fe3633de05d99a"
+    },
+    {
+      "filename": "20261004144057_step12_retention_operational_health.sql",
+      "version": "20261004144057",
+      "name": "step12_retention_operational_health",
+      "sql_bytes": 6187,
+      "sha256": "767704069719ff0f0abd39b0caacdc10f688c3aa1f1272675f684220bec5a2c8",
+      "git_blob_sha": "0c93084f655a0faaa000110c315bdb75492d5683"
+    },
+    {
+      "filename": "20261004145929_step12_migration_history_recovery.sql",
+      "version": "20261004145929",
+      "name": "step12_migration_history_recovery",
+      "sql_bytes": 8057,
+      "sha256": "d814726867b3985606e3de3c2482f76b45032c8650653da216c04df2febed129",
+      "git_blob_sha": "58dcebda39a86893e9f4f57e707c40d8ca889cd9"
+    },
+    {
+      "filename": "20261004151630_step12_storage_metadata_integrity.sql",
+      "version": "20261004151630",
+      "name": "step12_storage_metadata_integrity",
+      "sql_bytes": 8693,
+      "sha256": "f19f0a7b5cc98c4160507f6b3e5bc045dfed3024c580655de6c5fbdea827b918",
+      "git_blob_sha": "ed19479ecdfccfb1ddbb6f36449874273785a0ce"
+    },
+    {
+      "filename": "20261004154213_step12_backup_replica_durability.sql",
+      "version": "20261004154213",
+      "name": "step12_backup_replica_durability",
+      "sql_bytes": 1388,
+      "sha256": "1c2f48f1e4748b0810a6674af10d39cc523dddde1fbcb31d967413623fe246b0",
+      "git_blob_sha": "9428aa0d5685bd57a22df967239370762fe5d59b"
+    },
+    {
+      "filename": "20261004154534_step12_restore_retention_race_guard.sql",
+      "version": "20261004154534",
+      "name": "step12_restore_retention_race_guard",
+      "sql_bytes": 4618,
+      "sha256": "38ff69a13cf9297ff2572f879da212d7a033ed3a9df4102721df46b2a55a2922",
+      "git_blob_sha": "e4d9bb640c0f774c5c994c8ef6b678534a1febaf"
+    },
+    {
+      "filename": "20261004155039_step12_manifest_authentication.sql",
+      "version": "20261004155039",
+      "name": "step12_manifest_authentication",
+      "sql_bytes": 1940,
+      "sha256": "ff6819431901ff7fb61a5717768b9d55ae7314e5b3fa8c69eb7d4d2399782d5a",
+      "git_blob_sha": "2ccdb457e820bc2a42d89e86b6f03c658b423f27"
+    },
+    {
+      "filename": "20261004155630_step12_schema_snapshot_binding.sql",
+      "version": "20261004155630",
+      "name": "step12_schema_snapshot_binding",
+      "sql_bytes": 11409,
+      "sha256": "ef40f2c8e128af1bbe339c946156f5cae8491ce7730073db1852614b3ca6c5c5",
+      "git_blob_sha": "16c048758747b0334657b29bf553ff2e534f3961"
+    },
+    {
+      "filename": "20261004160452_step12_pre_restore_priority_and_retention.sql",
+      "version": "20261004160452",
+      "name": "step12_pre_restore_priority_and_retention",
+      "sql_bytes": 4459,
+      "sha256": "5bbdc62a0389f0918a97100193da62f67c6b03947d7095ee417515b420512da0",
+      "git_blob_sha": "b8d940028cee6f7cc4e5b170a4aedc32b8b2882d"
+    },
+    {
+      "filename": "20261004161807_step12_operational_release_baseline.sql",
+      "version": "20261004161807",
+      "name": "step12_operational_release_baseline",
+      "sql_bytes": 3887,
+      "sha256": "06b950179dac7237a7b984d3617268f2a52a2023096e95e00b23377f42e0f6b3",
+      "git_blob_sha": "79afff7417d149e39620cf8dd456a50b8e6fa6ba"
+    },
+    {
+      "filename": "20261004162621_step12_release_metadata_hardening.sql",
+      "version": "20261004162621",
+      "name": "step12_release_metadata_hardening",
+      "sql_bytes": 1111,
+      "sha256": "f74175c67fef0c870715efb5f8ef8a534eec0086b1d316f61c6c8676a2fe6bc2",
+      "git_blob_sha": "4c76ea7e4f1e518371c6edf6906df6c5eef641f4"
+    },
+    {
+      "filename": "20261004205734_step12_private_state_recovery_policy.sql",
+      "version": "20261004205734",
+      "name": "step12_private_state_recovery_policy",
+      "sql_bytes": 2200,
+      "sha256": "443fa9ba39721c8eb571985bd2c60fa7805d01fe45cd7ddedea31c641613abe0",
+      "git_blob_sha": "be466bcd12a7160cb32b7010e8c00588d0961de6"
+    },
+    {
+      "filename": "20261004224216_step11_branding_accessibility_contrast.sql",
+      "version": "20261004224216",
+      "name": "step11_branding_accessibility_contrast",
+      "sql_bytes": 2940,
+      "sha256": "1a9ad22de4bd3edd2679addab08b2fa43afc06399e6d9bbf910bd1cd312ed734",
+      "git_blob_sha": "00c3b3cc07dcef83b0eb703f99f87b0f5c8e986f"
+    },
+    {
+      "filename": "20261004224445_step11_branding_theme_default_contrast_fix.sql",
+      "version": "20261004224445",
+      "name": "step11_branding_theme_default_contrast_fix",
+      "sql_bytes": 1358,
+      "sha256": "e3053167e9e21746fd05e4c90216b30051102e4670b89d1f79995bc29c2ca15e",
+      "git_blob_sha": "373d452f92358866715965a81ff580555825a9a0"
+    },
+    {
+      "filename": "20261004231459_step9_analytics_station_throughput_fix.sql",
+      "version": "20261004231459",
+      "name": "step9_analytics_station_throughput_fix",
+      "sql_bytes": 6111,
+      "sha256": "18ab4dd76e9465a2f696b45c43fc5e332bc7cb7563681278a911cc62c1fd7c2f",
+      "git_blob_sha": "03080e6790d6a115a5be5167d70589d9e794427d"
+    },
+    {
+      "filename": "20261004231739_step9_analytics_booking_semantics.sql",
+      "version": "20261004231739",
+      "name": "step9_analytics_booking_semantics",
+      "sql_bytes": 6366,
+      "sha256": "029ad641696039bdc58f71cb158e46e67ab7b781751416d2a916bec24292af2e",
+      "git_blob_sha": "899fd4d7b93094e456e8e91239a9335e722e74b1"
+    },
+    {
+      "filename": "20261005062508_step10_venue_lifecycle_management.sql",
+      "version": "20261005062508",
+      "name": "step10_venue_lifecycle_management",
+      "sql_bytes": 5700,
+      "sha256": "25010ec1bf085eef530626d96e865e65eab49b2d3fc423a1db4da31f8e1e0e0f",
+      "git_blob_sha": "1981dcb928af248759ed69c040ee27c7a8b16acb"
+    },
+    {
+      "filename": "20261005062556_step10_venue_idempotent_step_up_retry.sql",
+      "version": "20261005062556",
+      "name": "step10_venue_idempotent_step_up_retry",
+      "sql_bytes": 8312,
+      "sha256": "f346cd8abe2b6cf875fdc4c51a7c799cbe08e24ec1aabe102a77b11287b13d8c",
+      "git_blob_sha": "2b34400b2f43618551e9ebe6c97f6352147c7484"
+    },
+    {
+      "filename": "20261005140800_step6_refund_reopens_balance.sql",
+      "version": "20261005140800",
+      "name": "step6_refund_reopens_balance",
+      "sql_bytes": 15749,
+      "sha256": "ccc87f6b0ebd484f0262cdaf9e6e89ca934544a60a458e8fbb6a18e3c53f0df1",
+      "git_blob_sha": "98562410545e09f347dd687f0a63814356d8d950"
+    },
+    {
+      "filename": "20261005142447_registered_device_heartbeat_realtime.sql",
+      "version": "20261005142447",
+      "name": "registered_device_heartbeat_realtime",
+      "sql_bytes": 262,
+      "sha256": "0e0005f4f9b26ae70593ac2f1383f40ffdb9de0802e1b612b5a3a8913873dff9",
+      "git_blob_sha": "a92dcf24d375ab98c2bac1bf0d9e779eecb9f369"
+    },
+    {
+      "filename": "20261005144849_operational_settings_unrelated_feature_save_fix.sql",
+      "version": "20261005144849",
+      "name": "operational_settings_unrelated_feature_save_fix",
+      "sql_bytes": 1458,
+      "sha256": "0f111f4154666640d3979f12027619928866ce421b8470aafe8591244ec83a21",
+      "git_blob_sha": "72f6c8bb0204d85bb8e060a774374e7a7d86eb0d"
+    },
+    {
+      "filename": "20261005152701_step7_return_approval_refund_and_notification_fix.sql",
+      "version": "20261005152701",
+      "name": "step7_return_approval_refund_and_notification_fix",
+      "sql_bytes": 6482,
+      "sha256": "55d80a370466c900a76cdc87c04b7cbdad11df3adebd0b12402febc3aa7deb3e",
+      "git_blob_sha": "2ef3ea960e3f782342df21568400293191ddeddc"
+    },
+    {
+      "filename": "20261005155412_step7_pdf_invoice_output.sql",
+      "version": "20261005155412",
+      "name": "step7_pdf_invoice_output",
+      "sql_bytes": 1389,
+      "sha256": "7ddd832dc6113f29b49d5b2c04d160860c96b88630282462037fe816f60f3bef",
+      "git_blob_sha": "1f8c36455e400612237d23daa8d37206d511c108"
+    },
+    {
+      "filename": "20261005155543_step7_document_snapshot_refunds.sql",
+      "version": "20261005155543",
+      "name": "step7_document_snapshot_refunds",
+      "sql_bytes": 2740,
+      "sha256": "b446dfe128c0f5904076de751e8a9ab163df9267f0fce3a519c475f99b96c899",
+      "git_blob_sha": "620284b47f5ca19587d50aeb1a1e51b96606da5b"
+    },
+    {
+      "filename": "20261005163939_kitchen_board_allergen_snapshot.sql",
+      "version": "20261005163939",
+      "name": "kitchen_board_allergen_snapshot",
+      "sql_bytes": 3816,
+      "sha256": "0f8a10510ae4d19f9333ef273535397ea75cf87656028083f6a106db3c7ef2dc",
+      "git_blob_sha": "473d7a0b22620e8f8b2f1cb9dd1e7c8723706562"
+    },
+    {
+      "filename": "20261005165352_host_operational_summary.sql",
+      "version": "20261005165352",
+      "name": "host_operational_summary",
+      "sql_bytes": 2929,
+      "sha256": "7f3871356afd371b351e9c853172b88d026eb5a8e68d63f6b78fef7db3e86647",
+      "git_blob_sha": "658ce2c3c3fc05bb89cce2c2189d6ee3a441c391"
+    },
+    {
+      "filename": "20261005170110_kitchen_admin_operational_overview.sql",
+      "version": "20261005170110",
+      "name": "kitchen_admin_operational_overview",
+      "sql_bytes": 3189,
+      "sha256": "da86fd61baded4cc349451e74504aefb28b53bd3d80ee90db6e796db4215f988",
+      "git_blob_sha": "19f63c4f7891f545693d13b12d88942038fe2ad6"
+    },
+    {
+      "filename": "20261005170559_admin_operational_overview.sql",
+      "version": "20261005170559",
+      "name": "admin_operational_overview",
+      "sql_bytes": 5666,
+      "sha256": "25b04c78de244493f246323a40ad8a2d5c3b5a3a67d8b0a81d812068db6605ea",
+      "git_blob_sha": "d011de4eeecd91f442f03e4bc058f0fc6630998a"
+    },
+    {
+      "filename": "20261005221652_step12_continuity_worker_heartbeat.sql",
+      "version": "20261005221652",
+      "name": "step12_continuity_worker_heartbeat",
+      "sql_bytes": 17411,
+      "sha256": "0d8e9008e0bafcca458b735f14c0f658e7c9e2d75e18f3c1c8f8b77a49db059a",
+      "git_blob_sha": "f824eaa4acf25acfbd92eee310bd484be398f99f"
+    },
+    {
+      "filename": "20261005222521_api_permission_manifest_alignment.sql",
+      "version": "20261005222521",
+      "name": "api_permission_manifest_alignment",
+      "sql_bytes": 791,
+      "sha256": "0d2272935a773ca6ecb093ca0bb52eef44a9d8fb48308720d0770cee43d92df6",
+      "git_blob_sha": "d4a6fccbcddc317b262203a385d002f6893732fb"
+    },
+    {
+      "filename": "20261005223140_step12_continuity_worker_health.sql",
+      "version": "20261005223140",
+      "name": "step12_continuity_worker_health",
+      "sql_bytes": 16962,
+      "sha256": "1aeed048caa7f993b6c2c48087a05071522d692dce0887cd58b8c5dde052966d",
+      "git_blob_sha": "08e1260046b4f8a5eb95d963200d3f42cd0fc0a1"
+    },
+    {
+      "filename": "20261005223814_api_permission_manifest_legacy_cleanup.sql",
+      "version": "20261005223814",
+      "name": "api_permission_manifest_legacy_cleanup",
+      "sql_bytes": 367,
+      "sha256": "f26c03f34baf52d25490b33b630a127f06a28c6f0a0756ddf19d1f0a2f2575e0",
+      "git_blob_sha": "97824bb3aafc56a52a01a4339697517bec8209c7"
+    },
+    {
+      "filename": "20261006044128_step12_audit_error_code_visibility.sql",
+      "version": "20261006044128",
+      "name": "step12_audit_error_code_visibility",
+      "sql_bytes": 1177,
+      "sha256": "a3a22e1e98dd9ab523f38505bb2a67a1826b8d2a861c1b9b3c37716d7535b746",
+      "git_blob_sha": "4d5c91d870beb7d01891bdc1db280b167691e704"
+    },
+    {
+      "filename": "20261006045641_step12_restore_reference_indexes.sql",
+      "version": "20261006045641",
+      "name": "step12_restore_reference_indexes",
+      "sql_bytes": 222,
+      "sha256": "efa30e2f96bf8e4e5fbc6ca5ae71538c1ca92169614ef7bf9e662cb1cd0254c9",
+      "git_blob_sha": "d1944b0d098f78c032523afcc3f80698e649d6e8"
+    },
+    {
+      "filename": "20261006050249_step12_restore_actor_indexes.sql",
+      "version": "20261006050249",
+      "name": "step12_restore_actor_indexes",
+      "sql_bytes": 225,
+      "sha256": "7e1f317cfa4c7c602b907360da32885ce2868c77dd41d3adffda90460dada77d",
+      "git_blob_sha": "faf6d80118975c7ae13f0e54a56f5db73c6a218a"
+    },
+    {
+      "filename": "20261006051256_step12_backup_requester_index.sql",
+      "version": "20261006051256",
+      "name": "step12_backup_requester_index",
+      "sql_bytes": 123,
+      "sha256": "963347077cabc64d2e8ac8d02cd557572678349f3226c3bae25343a1accd858d",
+      "git_blob_sha": "bff569d1c4781bcb9b675a73d75348055fcde22c"
+    },
+    {
+      "filename": "20261006095341_step12_automated_restore_test_enqueue.sql",
+      "version": "20261006095341",
+      "name": "step12_automated_restore_test_enqueue",
+      "sql_bytes": 2635,
+      "sha256": "c18f0a52c90e6106d1058c0c09d8b082d5a0832d816fba1cb9486f3d585d19c1",
+      "git_blob_sha": "72be8c38803925b02f4d9ed3d965c563423697e1"
+    },
+    {
+      "filename": "20261006100248_step13_rehearsal_private_rls_hardening.sql",
+      "version": "20261006100248",
+      "name": "step13_rehearsal_private_rls_hardening",
+      "sql_bytes": 1192,
+      "sha256": "17de678cc71a54d49cc3f470b357e757cb2c6af2db310762b3331065b2dfd189",
+      "git_blob_sha": "9389e52136f80aebde4f380bc8811782a09250df"
+    },
+    {
+      "filename": "20261006100407_step13_remove_unused_anon_table_grants.sql",
+      "version": "20261006100407",
+      "name": "step13_remove_unused_anon_table_grants",
+      "sql_bytes": 120,
+      "sha256": "b25daaae6f206d83a0866b9a9f0f675d91851795f413672c6d132fe242ecfd08",
+      "git_blob_sha": "c8aebb523bcd7d76d9926857f884f4de1d8ba2e6"
+    },
+    {
+      "filename": "20261006123156_step12_snapshot_table_capture.sql",
+      "version": "20261006123156",
+      "name": "step12_snapshot_table_capture",
+      "sql_bytes": 3085,
+      "sha256": "8ba310ed6c917a073fae689211f784af0b77241ba244a83ed9098ab838454e21",
+      "git_blob_sha": "0a048c41b8fd53e7e82f6aee696e8eecd083630c"
+    },
+    {
+      "filename": "20261006123220_step12_snapshot_begin.sql",
+      "version": "20261006123220",
+      "name": "step12_snapshot_begin",
+      "sql_bytes": 2752,
+      "sha256": "270f4dabee20eabe409d983f18ef8953e669dcf315f68c4f3b9455f54b6bf18b",
+      "git_blob_sha": "662b767604b4369a9307945d8cf265fe7d85b510"
+    },
+    {
+      "filename": "20261006123241_step12_snapshot_public_capture.sql",
+      "version": "20261006123241",
+      "name": "step12_snapshot_public_capture",
+      "sql_bytes": 1257,
+      "sha256": "67ced768d1efdfd61ee3c8b8a4b909231b93de051060166e886923f5205755d1",
+      "git_blob_sha": "46f441b7c5617c9ae8974f73e16a4fc70180e693"
+    },
+    {
+      "filename": "20261006123259_step12_snapshot_durable_capture.sql",
+      "version": "20261006123259",
+      "name": "step12_snapshot_durable_capture",
+      "sql_bytes": 2361,
+      "sha256": "2b20535f9003ce80520a1e0b4fdec3a0b4aaf25cf207181a08505b5b304cf4ee",
+      "git_blob_sha": "4da11568449e86fc9091e6660418366b34ab4985"
+    },
+    {
+      "filename": "20261006123334_step12_snapshot_finalize.sql",
+      "version": "20261006123334",
+      "name": "step12_snapshot_finalize",
+      "sql_bytes": 4947,
+      "sha256": "76b6c01159ea61f073d0b439c6b0cf9eb34fccae11b2f79e477138a972116180",
+      "git_blob_sha": "d0442c58f47a644b7f8f75db1c55643a55761438"
+    },
+    {
+      "filename": "20261006123541_step12_worker_runtime_config.sql",
+      "version": "20261006123541",
+      "name": "step12_worker_runtime_config",
+      "sql_bytes": 2374,
+      "sha256": "0c5a75e1ea2fd8e2d53df4c9b4683183ddbf9164183b921b6cee046a83f8ebf6",
+      "git_blob_sha": "4d43f97fb973d9adf2f9877c87ce539d4982621f"
+    },
+    {
+      "filename": "20261006123722_step12_snapshot_prepare_rpc.sql",
+      "version": "20261006123722",
+      "name": "step12_snapshot_prepare_rpc",
+      "sql_bytes": 1026,
+      "sha256": "d5de5e94caaa2f0269fb6240bb32c136882615dbd0437c9c839139950ac2e29c",
+      "git_blob_sha": "412b9232916498c5a3fbf00b7525231dc25457ab"
+    },
+    {
+      "filename": "20261006123740_step12_snapshot_chunk_export_rpc.sql",
+      "version": "20261006123740",
+      "name": "step12_snapshot_chunk_export_rpc",
+      "sql_bytes": 1675,
+      "sha256": "83d5a56f67c74bc0734c47fd94c7f70d950ab3d5ed0f4ece6b9425338590956b",
+      "git_blob_sha": "4d5f32557899b550dacfcf7a90615324be4276fe"
+    },
+    {
+      "filename": "20261006123917_step12_backup_master_key_config.sql",
+      "version": "20261006123917",
+      "name": "step12_backup_master_key_config",
+      "sql_bytes": 438,
+      "sha256": "84676776fbe4497e049135866328a52d9745af47cbbec2f2fa28ac4037fb8fa1",
+      "git_blob_sha": "98a28377b4f24f20cb45eae14eefa855def0213e"
+    },
+    {
+      "filename": "20261006124130_step12_worker_supplied_backup_key.sql",
+      "version": "20261006124130",
+      "name": "step12_worker_supplied_backup_key",
+      "sql_bytes": 3780,
+      "sha256": "edc12f3cddf0355e6448c2abc2d718010c92b3644dfc421ddf37471c6c74374c",
+      "git_blob_sha": "a632984fd9b041ec478be6200a7b041b4f09ba0a"
+    },
+    {
+      "filename": "20261006124133_step12_snapshot_prepare_rpc.sql",
+      "version": "20261006124133",
+      "name": "step12_snapshot_prepare_rpc",
+      "sql_bytes": 1173,
+      "sha256": "911295c9bb161281a22c90bb9d13e2e86e60bf7c10668fcb18b89e5bd5024b30",
+      "git_blob_sha": "48fb006281b5b07febedbe35c1f942064214c6e8"
+    },
+    {
+      "filename": "20261006124148_step12_snapshot_export_rpc.sql",
+      "version": "20261006124148",
+      "name": "step12_snapshot_export_rpc",
+      "sql_bytes": 1666,
+      "sha256": "56490a9ae53e81da36318b976fbcac96c4c5ba8ef5f55fb5e6a3fca545aa9e17",
+      "git_blob_sha": "880e6820cb71eccfa00125431a051c4424d7d8b4"
+    },
+    {
+      "filename": "20261006124155_step12_snapshot_summary_rpc.sql",
+      "version": "20261006124155",
+      "name": "step12_snapshot_summary_rpc",
+      "sql_bytes": 3958,
+      "sha256": "534dd6ee7848e022498251bd2890c45cffe01d19e092539c61cc6d52a16b99a5",
+      "git_blob_sha": "0999358278a1899eb7592e93e5cf31087fb213dd"
+    },
+    {
+      "filename": "20261006124319_step12_backup_artifact_manifest.sql",
+      "version": "20261006124319",
+      "name": "step12_backup_artifact_manifest",
+      "sql_bytes": 7530,
+      "sha256": "20fc282219c482acc0a0ff3047f58262a198b2a654c0e77b6e21ab0539b904be",
+      "git_blob_sha": "a41a50554d9e0c653f19889f8d1dbb0950712ace"
+    },
+    {
+      "filename": "20261006124615_step12_backup_worker_invoker.sql",
+      "version": "20261006124615",
+      "name": "step12_backup_worker_invoker",
+      "sql_bytes": 1112,
+      "sha256": "b37fa4d39b47539a3c2bc9c8f15adadc39fd292ccfc9f68db7465c0fb47402b3",
+      "git_blob_sha": "750783f2eeef9f8fcf97980913832b29d05cd15d"
+    },
+    {
+      "filename": "20261006124653_step12_backup_worker_dispatch.sql",
+      "version": "20261006124653",
+      "name": "step12_backup_worker_dispatch",
+      "sql_bytes": 881,
+      "sha256": "ece502539d73abec0b6b5d1d5a7f69555b49effa2fc6055139181cf582918bae",
+      "git_blob_sha": "8c11113732db37e4e30d28618c2d1815912c19e8"
+    },
+    {
+      "filename": "20261006124823_step12_backup_worker_probe.sql",
+      "version": "20261006124823",
+      "name": "step12_backup_worker_probe",
+      "sql_bytes": 1276,
+      "sha256": "7a56658a5cd0202d722138342e56133dc0053d945c534911dbb219aef762d91e",
+      "git_blob_sha": "0a645aecdbd9f087617c4f7530266263d0b8bbcb"
+    },
+    {
+      "filename": "20261006125043_step12_backup_manifest_two_migration_refs.sql",
+      "version": "20261006125043",
+      "name": "step12_backup_manifest_two_migration_refs",
+      "sql_bytes": 7244,
+      "sha256": "90441f4f1d8ea3ff0286273391ed68ce6631413d0e41e7d087f16c79d7de8ac7",
+      "git_blob_sha": "a8f4aa832f54f288908eb048e918f47d41eecb61"
+    },
+    {
+      "filename": "20261006125146_step12_snapshot_migration_history.sql",
+      "version": "20261006125146",
+      "name": "step12_snapshot_migration_history",
+      "sql_bytes": 3830,
+      "sha256": "ad1b4af7d8ca9d1d6e32855ee680dab4a7fd5ec73fbc3a9698e9b2bed93b3816",
+      "git_blob_sha": "213aa3a3734459c686bf7ec53546d572f836acbf"
+    },
+    {
+      "filename": "20261006125217_step12_snapshot_prepare_with_migrations.sql",
+      "version": "20261006125217",
+      "name": "step12_snapshot_prepare_with_migrations",
+      "sql_bytes": 2090,
+      "sha256": "04064656b7977f9ef4f889e36b9020a7128791063df868ae9812b7b2f016ccdd",
+      "git_blob_sha": "7211da5c9f05952c336cb0e8806d529afff17b1d"
+    },
+    {
+      "filename": "20261006125250_step12_migration_bundle_artifacts.sql",
+      "version": "20261006125250",
+      "name": "step12_migration_bundle_artifacts",
+      "sql_bytes": 3699,
+      "sha256": "02f9183ad43e866455bb98adca18fd5c83ad3150b2f07515ad3299cbe7b16034",
+      "git_blob_sha": "5ced27eb8f0237630536dee8402a9e8c8ee35ef8"
+    },
+    {
+      "filename": "20261006125512_step12_backup_worker_timeout.sql",
+      "version": "20261006125512",
+      "name": "step12_backup_worker_timeout",
+      "sql_bytes": 948,
+      "sha256": "d6218869ec663c762ef655635e261e723c16684d5bb48548c021e6806e908079",
+      "git_blob_sha": "76c83a95c24fe050abb16c3e53369e038891c9ee"
+    },
+    {
+      "filename": "20261006125723_step12_retention_worker_dispatch.sql",
+      "version": "20261006125723",
+      "name": "step12_retention_worker_dispatch",
+      "sql_bytes": 959,
+      "sha256": "f220db97fc604607dcf6d94257e09a89e85d0b5257751c055d516f8f1aaf1772",
+      "git_blob_sha": "2bb9e9082c516cbb39813d24b8bbdc80814d00fe"
+    },
+    {
+      "filename": "20261006130241_step13_public_site_permission_manifest_alignment.sql",
+      "version": "20261006130241",
+      "name": "step13_public_site_permission_manifest_alignment",
+      "sql_bytes": 345,
+      "sha256": "4223f3df088f58ddfb27043164ecfe8018eee5f3f20ec52a37f0e78754e1da18",
+      "git_blob_sha": "e6a66c9b5635b489fe731234f50da411e518d2ff"
+    },
+    {
+      "filename": "20261006130337_step12_cleanup_experimental_backup_key_path.sql",
+      "version": "20261006130337",
+      "name": "step12_cleanup_experimental_backup_key_path",
+      "sql_bytes": 569,
+      "sha256": "f5826cba5292da2e0004ea69b24f4e3b16dbf0a1216119579c5a901637fa7635",
+      "git_blob_sha": "f7c4df88dfd9a45f11734bb5c3e318b99d703797"
+    },
+    {
+      "filename": "20261006130646_step12_storage_object_backup_manifest_rpc.sql",
+      "version": "20261006130646",
+      "name": "step12_storage_object_backup_manifest_rpc",
+      "sql_bytes": 1485,
+      "sha256": "486102d946f6a55fa82e26a7e5adc78fa59295d78fbc19cb011977f9bcb3ed02",
+      "git_blob_sha": "84b89fab2a725813a841472208602a0eeb1e749e"
+    },
+    {
+      "filename": "20261006130713_step12_storage_binary_manifest_v3.sql",
+      "version": "20261006130713",
+      "name": "step12_storage_binary_manifest_v3",
+      "sql_bytes": 2705,
+      "sha256": "2163ad0769e41d00eb53d77c5e422284b56041df7811b0aad2f59ce7a1193b34",
+      "git_blob_sha": "4ef199fd3a0d744a26248c27841d9a709dd64de3"
+    },
+    {
+      "filename": "20261006152527_step13_sensitive_rpc_manifest_alignment.sql",
+      "version": "20261006152527",
+      "name": "step13_sensitive_rpc_manifest_alignment",
+      "sql_bytes": 3359,
+      "sha256": "db8abca859ff291b87d3f57292da0f0b7e90700725ad7f8b9b6614ec50bedcaf",
+      "git_blob_sha": "8cf8faecc429d3faf2179b4a31683b3b85391c0a"
+    },
+    {
+      "filename": "20261006152722_step13_reviewed_rpc_manifest_alignment.sql",
+      "version": "20261006152722",
+      "name": "step13_reviewed_rpc_manifest_alignment",
+      "sql_bytes": 268,
+      "sha256": "a07f4d022d154d8e46667fd2146089d01bc2866ca1fc98b5715f1bf22bd24755",
+      "git_blob_sha": "e185f4255de3a6ff3c8cf1c1af75e1ab370de245"
+    },
+    {
+      "filename": "20261006152845_step13_authenticated_rpc_manifest_reconciliation.sql",
+      "version": "20261006152845",
+      "name": "step13_authenticated_rpc_manifest_reconciliation",
+      "sql_bytes": 13256,
+      "sha256": "22c73358a2f1a41d2174a56d506647bc73e6db6187ec0de9d788218d7de5d6ea",
+      "git_blob_sha": "93b0b6091e49f0da646c98e9d26f115b78d9cfe4"
+    },
+    {
+      "filename": "20261006153524_step13_permission_manifest_signature_cleanup.sql",
+      "version": "20261006153524",
+      "name": "step13_permission_manifest_signature_cleanup",
+      "sql_bytes": 432,
+      "sha256": "4507d81fc67ccde890edf26fde88691e00f435cca4764875049cd41236adb49c",
+      "git_blob_sha": "49a8c283064c273d8e58ba702769332cd3a761e7"
+    },
+    {
+      "filename": "20261006153737_step13_permission_manifest_canonical_gate.sql",
+      "version": "20261006153737",
+      "name": "step13_permission_manifest_canonical_gate",
+      "sql_bytes": 4391,
+      "sha256": "2f4121b9c4ab9c91338d6c0ad76bc410884bd5e91ca4565fb1919a3671621788",
+      "git_blob_sha": "691f6af5367ba3fe1ea0fec979be30f00f1fd73f"
+    },
+    {
+      "filename": "20261006155825_step13_continuity_storage_private_guard.sql",
+      "version": "20261006155825",
+      "name": "step13_continuity_storage_private_guard",
+      "sql_bytes": 839,
+      "sha256": "6ce83960d0b80c44f8040fd001f2ec1842700b51b3ebf0cb8e74240e181fb2a5",
+      "git_blob_sha": "6f5163ee0904a575cd71f0b956b8564d3883cc95"
+    },
+    {
+      "filename": "20261006160150_step13_critical_client_write_gate.sql",
+      "version": "20261006160150",
+      "name": "step13_critical_client_write_gate",
+      "sql_bytes": 1725,
+      "sha256": "613b6490908d5e76ce93fea7e37ef1a12930d5e1129514e9c844334dee0c8cd0",
+      "git_blob_sha": "72070727c315082d80b6ebbb07df18f8cd172e40"
+    },
+    {
+      "filename": "20261006160833_step13_hot_path_fk_indexes.sql",
+      "version": "20261006160833",
+      "name": "step13_hot_path_fk_indexes",
+      "sql_bytes": 724,
+      "sha256": "40d6aa88424bf2e193f30d4510f3bb8c473fcb8805fae19023ed58206d5f219d",
+      "git_blob_sha": "d6774f7cbae03bc55a46973c01323b91e098561d"
+    },
+    {
+      "filename": "20261006160953_step13_financial_hot_path_indexes.sql",
+      "version": "20261006160953",
+      "name": "step13_financial_hot_path_indexes",
+      "sql_bytes": 973,
+      "sha256": "b2c44a59f9ebe84c31fa1da6926228316b0b6130fcf10f577bb609480217eaa6",
+      "git_blob_sha": "7f5b6ce396f4dd47d2afb766130c8885fb8be1d5"
+    },
+    {
+      "filename": "20261006161211_step13_audit_append_only_service_role.sql",
+      "version": "20261006161211",
+      "name": "step13_audit_append_only_service_role",
+      "sql_bytes": 398,
+      "sha256": "1fbb3bd81445a8bc765d04f962e9ad603bfa4627eae492f88dc6c9efa0b89243",
+      "git_blob_sha": "e2135a45c7665d7aee3225a576ef7020164c0f10"
+    },
+    {
+      "filename": "20261006174053_step13_release_security_gate.sql",
+      "version": "20261006174053",
+      "name": "step13_release_security_gate",
+      "sql_bytes": 2485,
+      "sha256": "4e7f55cb262577854516410de912d0267e175b970176881c0327b7640bfb4299",
+      "git_blob_sha": "1b4c57db4a4d1ee47c5864d0d4b9e63a21325bbd"
+    },
+    {
+      "filename": "20261006184034_step13_release_readiness_gate.sql",
+      "version": "20261006184034",
+      "name": "step13_release_readiness_gate",
+      "sql_bytes": 6202,
+      "sha256": "46fac278388c3791b5b04d0634f8de672c395f437550f1baa4f9877b8dfa0f86",
+      "git_blob_sha": "51a16bc54a41087140b26658b442684f5d9ca527"
+    },
+    {
+      "filename": "20261006184329_step13_critical_fk_indexes_batch1.sql",
+      "version": "20261006184329",
+      "name": "step13_critical_fk_indexes_batch1",
+      "sql_bytes": 1113,
+      "sha256": "d88f2a68962bcb6568caa94e8aa5bec3b9af32203efbddd718c6170c3d82e1d5",
+      "git_blob_sha": "38805ff3a07b2b4466b48b68f02818674ad62092"
+    },
+    {
+      "filename": "20261006184359_step13_critical_fk_indexes_batch2.sql",
+      "version": "20261006184359",
+      "name": "step13_critical_fk_indexes_batch2",
+      "sql_bytes": 1614,
+      "sha256": "298040ad2c64a87c6da491e563810e0b7efd8cf7319267204fc0957221aa3295",
+      "git_blob_sha": "b2982fe6bd79832848650ae57d8ca464c4acf01d"
+    },
+    {
+      "filename": "20261006184621_step13_critical_fk_indexes_batch3.sql",
+      "version": "20261006184621",
+      "name": "step13_critical_fk_indexes_batch3",
+      "sql_bytes": 2395,
+      "sha256": "92933f6e266e6438c35aaf4d5da4fe3fe519dd73e3c187febe37e95fb3858801",
+      "git_blob_sha": "8ee8f64ca6311259fdcbe630f0e6d8fecd96f6fe"
+    },
+    {
+      "filename": "20261006184815_step13_database_regression_gate.sql",
+      "version": "20261006184815",
+      "name": "step13_database_regression_gate",
+      "sql_bytes": 4504,
+      "sha256": "631abf88e07c9db484e338fa86a73df21dce88f6f3638888c30640116a85f6c4",
+      "git_blob_sha": "b96f757f8d68bd2c0b4822efec494381f4aa75e8"
+    },
+    {
+      "filename": "20261006184849_step13_readiness_include_database_gate.sql",
+      "version": "20261006184849",
+      "name": "step13_readiness_include_database_gate",
+      "sql_bytes": 3044,
+      "sha256": "70cb86c36353897a89882f7c8921e1d817c5b28c60e9d0d00f7ac909d37a0266",
+      "git_blob_sha": "8ad071f55fed260effcbf43e7adb63f3b277abae"
+    },
+    {
+      "filename": "20261006184959_step13_hot_path_fk_indexes.sql",
+      "version": "20261006184959",
+      "name": "step13_hot_path_fk_indexes",
+      "sql_bytes": 457,
+      "sha256": "cbb658f14425487ab7fe400720d906da8a913d31e40db19a18d36f76b9fd1daf",
+      "git_blob_sha": "388f4f31efdc8c072163b7f213402c66e1d7505d"
+    },
+    {
+      "filename": "20261006185012_step13_release_test_evidence_registry.sql",
+      "version": "20261006185012",
+      "name": "step13_release_test_evidence_registry",
+      "sql_bytes": 9296,
+      "sha256": "7531e1696754569a77a25ab6887e05c60018614a0e0e13d703b98502f59965d2",
+      "git_blob_sha": "aaa49668f00b87846e628f145d3c7d7940bc9f96"
+    },
+    {
+      "filename": "20261006185052_step13_release_test_result_writer.sql",
+      "version": "20261006185052",
+      "name": "step13_release_test_result_writer",
+      "sql_bytes": 1903,
+      "sha256": "ef869f23f9dc8449a2317ff324f3aa0eb2c069bb856a7f42d21bee4243cd12ae",
+      "git_blob_sha": "02603d6e8830c1a4bbf95b1ed1d18b997d370ca4"
+    },
+    {
+      "filename": "20261006185108_step13_readiness_include_test_gate.sql",
+      "version": "20261006185108",
+      "name": "step13_readiness_include_test_gate",
+      "sql_bytes": 3171,
+      "sha256": "d2cc7b1e8bf135dcc381d1d6ad35ac5d716505ce0a57a3a8cef55caab5e8331d",
+      "git_blob_sha": "458583b0a7a0fa863389aaf791e2c1b24f12944c"
+    },
+    {
+      "filename": "20261006185248_step13_ci_pipeline_state_machine.sql",
+      "version": "20261006185248",
+      "name": "step13_ci_pipeline_state_machine",
+      "sql_bytes": 8902,
+      "sha256": "202271ba5e3e081da6c50847cbbf1db2cc62d455f9393e0bc993ef1367120cb3",
+      "git_blob_sha": "e1c06e475e5af41fa80c2ba95a7b0393b0ac0a6d"
+    },
+    {
+      "filename": "20261006185357_step13_ci_state_machine_test_evidence.sql",
+      "version": "20261006185357",
+      "name": "step13_ci_state_machine_test_evidence",
+      "sql_bytes": 968,
+      "sha256": "3dd5f3e15eddb2ca6b8544f4d26f647d4e3f1b6a2a33ed553ee0cfce3d098b23",
+      "git_blob_sha": "7b9f72204ebe882e2191f9ace51467d52044fa13"
+    },
+    {
+      "filename": "20261006185443_step13_application_releases_append_only.sql",
+      "version": "20261006185443",
+      "name": "step13_application_releases_append_only",
+      "sql_bytes": 738,
+      "sha256": "4dc02da1aacb62975f278a1f787c0592fd1d498b41dd57697a0e4986d0e0f3f5",
+      "git_blob_sha": "9249802e0346154a5e573d71a058193b49c1f55b"
+    },
+    {
+      "filename": "20261006185511_step13_ci_documentation_release_gates.sql",
+      "version": "20261006185511",
+      "name": "step13_ci_documentation_release_gates",
+      "sql_bytes": 855,
+      "sha256": "0bec647040369802c66bf0810f6968a9bc8a83524309c70e71a790bfcef0f064",
+      "git_blob_sha": "84ce1e6f9bd95c12dd019bac62dae8ab8d9f26c0"
+    },
+    {
+      "filename": "20261006185553_step13_ci_authoritative_stage_gates.sql",
+      "version": "20261006185553",
+      "name": "step13_ci_authoritative_stage_gates",
+      "sql_bytes": 4726,
+      "sha256": "731dc0f4ed4122635e2fbc847a69d36ab7bcf5d6f7659edd68a9fef3889c1d0b",
+      "git_blob_sha": "32fc0af191be55be28eb7ee60f6a4743afda9975"
+    },
+    {
+      "filename": "20261006185650_step13_remove_duplicate_release_build_index.sql",
+      "version": "20261006185650",
+      "name": "step13_remove_duplicate_release_build_index",
+      "sql_bytes": 63,
+      "sha256": "725e86fc5d2adcd539b4cdd9acb714b6116bdf049b5453c1fa849de981b05a65",
+      "git_blob_sha": "1d7c69707004eca85d473629250e46fe66aee3ed"
+    },
+    {
+      "filename": "20261006185811_step13_expand_security_test_catalog.sql",
+      "version": "20261006185811",
+      "name": "step13_expand_security_test_catalog",
+      "sql_bytes": 613,
+      "sha256": "0da65d823e8dfc1724297d6e60ba25a3a1d3e221e31059ec4ecff0ebb0be7d23",
+      "git_blob_sha": "25510da467ee228a9c69a24b74bc4d4af715fa76"
+    },
+    {
+      "filename": "20261006185905_step13_pending_privileged_security_e2e.sql",
+      "version": "20261006185905",
+      "name": "step13_pending_privileged_security_e2e",
+      "sql_bytes": 698,
+      "sha256": "16916ab5533c7520081460d475e1a4b8a64f63d7fda22b8eb5d115f658f6337e",
+      "git_blob_sha": "0d81f181f54ae3e20406645d105b7c02283d9bcc"
+    },
+    {
+      "filename": "20261006190225_step13_expand_assignment_performance_tests.sql",
+      "version": "20261006190225",
+      "name": "step13_expand_assignment_performance_tests",
+      "sql_bytes": 641,
+      "sha256": "715f531fe1c0ca75715c440a27f1f04594a17f9e1ec830c2ba922aaaa6b58280",
+      "git_blob_sha": "a1c30b296fabeb0d8cd1d8994510bba0c1db4d3b"
+    },
+    {
+      "filename": "20261006190422_step13_expand_manipulation_tests.sql",
+      "version": "20261006190422",
+      "name": "step13_expand_manipulation_tests",
+      "sql_bytes": 535,
+      "sha256": "c69b35eaf53e6eec11bffe70058270ab9966e4f7e1a03f5f82342ea380fdd917",
+      "git_blob_sha": "d61e5c827be06e7f1786c27407a45bea97faf434"
+    },
+    {
+      "filename": "20261006191011_step13_release_table_ci_only_writer.sql",
+      "version": "20261006191011",
+      "name": "step13_release_table_ci_only_writer",
+      "sql_bytes": 97,
+      "sha256": "c0d764d4be3bb2f652fb3cefb277fd266f984d61692d0021279cd7f09bfba283",
+      "git_blob_sha": "abbed51bde3306199848f399e6453c9ac83ac45a"
+    },
+    {
+      "filename": "20261006191056_step13_ci_release_writer_test_catalog.sql",
+      "version": "20261006191056",
+      "name": "step13_ci_release_writer_test_catalog",
+      "sql_bytes": 268,
+      "sha256": "be9a856162437752ed8b9ec0d7bf5086734909e5436d46a7fd7bbd4e97c6316d",
+      "git_blob_sha": "3a6aaebd4cd18421283e41ad4aba0ba9db7cc612"
+    },
+    {
+      "filename": "20261006191250_step13_step_up_binding_test_catalog.sql",
+      "version": "20261006191250",
+      "name": "step13_step_up_binding_test_catalog",
+      "sql_bytes": 255,
+      "sha256": "3f60b5906be04a9b5b6b20f485e0a17e9175b0ca1a93e789f6476b37045e84aa",
+      "git_blob_sha": "e65e9c9a4dc1e41078964270e043ccd3eb81a4fa"
+    },
+    {
+      "filename": "20261006191337_step13_environment_release_gates.sql",
+      "version": "20261006191337",
+      "name": "step13_environment_release_gates",
+      "sql_bytes": 924,
+      "sha256": "3ebcbdbfcf6bf97454cde04ae4a643bc574e88b58ff0dd61b0f8466acf102009",
+      "git_blob_sha": "95597c95bd4c352a6e4bf5bc66e6ff8390fb69d5"
+    },
+    {
+      "filename": "20261006191633_step13_edge_function_release_tests.sql",
+      "version": "20261006191633",
+      "name": "step13_edge_function_release_tests",
+      "sql_bytes": 512,
+      "sha256": "7e72645b0c9d658736650607ae69fbb2b5de5f2a00c66b85487f26414d5bae68",
+      "git_blob_sha": "b35f57fc669a7a86b59d9ba180c6694c72d16dd8"
+    },
+    {
+      "filename": "20261006191848_step13_edge_function_secret_hygiene_test.sql",
+      "version": "20261006191848",
+      "name": "step13_edge_function_secret_hygiene_test",
+      "sql_bytes": 317,
+      "sha256": "ee67fc79650e6e665c55d825bf0f5ecf8c8f2761709656a62ab5daf780c3d118",
+      "git_blob_sha": "f312844c582b62bf508ba2a864e259dd5420cc78"
+    },
+    {
+      "filename": "20261006191957_step13_security_advisor_triage_test.sql",
+      "version": "20261006191957",
+      "name": "step13_security_advisor_triage_test",
+      "sql_bytes": 338,
+      "sha256": "51cfe2e0f473f969d738465a9b16bd83860e378fbe178c5b8a9e2c538ce9b0a8",
+      "git_blob_sha": "a4c7f24a7ff625310d628e7dced1d0efb9f84a56"
+    },
+    {
+      "filename": "20261006192644_step13_ci_environment_preflight.sql",
+      "version": "20261006192644",
+      "name": "step13_ci_environment_preflight",
+      "sql_bytes": 1910,
+      "sha256": "0157068e792f06c203579d76fc42cf93ae39e9f80f69178d86c6f8d59e86bd70",
+      "git_blob_sha": "bef1f587c1b30582f07d22ef98f8eaa529a5bb1b"
+    },
+    {
+      "filename": "20261006192721_step13_ci_environment_preflight_test.sql",
+      "version": "20261006192721",
+      "name": "step13_ci_environment_preflight_test",
+      "sql_bytes": 288,
+      "sha256": "31898ac921afc453ad574e22cc40599b4896730d44c06e9892243b8fa8e6d93f",
+      "git_blob_sha": "b4c68b43da220c4778bcb9082881b8b0bce11a74"
+    },
+    {
+      "filename": "20261006192823_step13_ci_release_status_alignment.sql",
+      "version": "20261006192823",
+      "name": "step13_ci_release_status_alignment",
+      "sql_bytes": 4631,
+      "sha256": "13ee51c22a33a93dfa3389d1102fe443ab0228fd3aa5e659f036fb4c97894d74",
+      "git_blob_sha": "f18a76901f780440b5b3d59ae1885017183c005e"
+    },
+    {
+      "filename": "20261006192909_step13_ci_release_status_alignment_test.sql",
+      "version": "20261006192909",
+      "name": "step13_ci_release_status_alignment_test",
+      "sql_bytes": 276,
+      "sha256": "5294b0eed4b311f671bf3760aa55bed30957e210e1e2c52877d6f1e244522c73",
+      "git_blob_sha": "6fcd6559127247b355a23af7ef97de87fdef3a0c"
+    },
+    {
+      "filename": "20261006193305_step13_migration_duplicate_name_triage_test.sql",
+      "version": "20261006193305",
+      "name": "step13_migration_duplicate_name_triage_test",
+      "sql_bytes": 318,
+      "sha256": "1a610ea3b27fe0fe9778ed32200a530ea87b965f44fab857117150d06acd9820",
+      "git_blob_sha": "4c64281475a434f4da4bbf05f3d487d99f44ff2b"
+    },
+    {
+      "filename": "20261006193500_step13_data_api_explicit_exposure_test.sql",
+      "version": "20261006193500",
+      "name": "step13_data_api_explicit_exposure_test",
+      "sql_bytes": 363,
+      "sha256": "7756e9b4902e447398d6ddd728cbab91dbeb3e72f7f741adadd73a882d105be0",
+      "git_blob_sha": "20ad0b0c20dfbfe74c9738cbec54dbc4665fab60"
+    },
+    {
+      "filename": "20261006193705_step13_postgres_17_11_compatibility_test.sql",
+      "version": "20261006193705",
+      "name": "step13_postgres_17_11_compatibility_test",
+      "sql_bytes": 314,
+      "sha256": "052eee93e39b7753c4ab0b75401654c9024c0c4f3d7afc7f239727bbc9c3530c",
+      "git_blob_sha": "899e77707e37636baf485b73939183bdab5e477c"
+    },
+    {
+      "filename": "20261006194047_step13_internal_health_snapshot.sql",
+      "version": "20261006194047",
+      "name": "step13_internal_health_snapshot",
+      "sql_bytes": 3898,
+      "sha256": "eb05692973381d92c527e47433afc26f384e326cbbb6dcba99d852407ee26bf6",
+      "git_blob_sha": "3fc3d19801448c3e5b6a61977978fedec359ac83"
+    },
+    {
+      "filename": "20261006194131_step13_internal_health_snapshot_test.sql",
+      "version": "20261006194131",
+      "name": "step13_internal_health_snapshot_test",
+      "sql_bytes": 292,
+      "sha256": "f5e02919b35b9676508f8c3eb5e252b08c4f0eb87374a209fd6765854bfb3109",
+      "git_blob_sha": "3406f5f4f1f764c78b820354219ba3dc40234300"
+    },
+    {
+      "filename": "20261006194219_step13_readiness_core_health_gate.sql",
+      "version": "20261006194219",
+      "name": "step13_readiness_core_health_gate",
+      "sql_bytes": 4294,
+      "sha256": "e8fb5dbdfba39bf7ed6425c3ffeae1f31ddfd25cb54c9dd448572e0fb3e6caec",
+      "git_blob_sha": "0071d53ce3d652c64ee783db1354c43fb721a9a3"
+    },
+    {
+      "filename": "20261006194351_step13_readiness_core_health_fail_closed_test.sql",
+      "version": "20261006194351",
+      "name": "step13_readiness_core_health_fail_closed_test",
+      "sql_bytes": 268,
+      "sha256": "ad12c6621e820fb14ab2b1b44875d267d346b44f7b35f5c8166ef153ccdc3e29",
+      "git_blob_sha": "04586cc208a444545deb18217b506896fcb9fb1d"
+    },
+    {
+      "filename": "20261006194709_step13_technical_incident_role_isolation_test.sql",
+      "version": "20261006194709",
+      "name": "step13_technical_incident_role_isolation_test",
+      "sql_bytes": 324,
+      "sha256": "e7067b8d1dd8fe180a21cb916e15b103156793d698353b9837acf8afac212d94",
+      "git_blob_sha": "2c3f3a4a8cc8d04e0867da54f40bc7b78664eb2d"
+    },
+    {
+      "filename": "20261006194748_step13_database_gate_health_cron.sql",
+      "version": "20261006194748",
+      "name": "step13_database_gate_health_cron",
+      "sql_bytes": 4237,
+      "sha256": "5086abd4c6d10f70586db8801ee84c3ec71e59a8eae56cd6415ae69abc79ea2f",
+      "git_blob_sha": "7664f0d63f03938ebbd0a97d2ca5a72e729b3fff"
+    },
+    {
+      "filename": "20261006194844_step13_security_definer_search_path_test.sql",
+      "version": "20261006194844",
+      "name": "step13_security_definer_search_path_test",
+      "sql_bytes": 263,
+      "sha256": "fae72a43c88da507cd4df6d940a7ae4e467cabefa7b0d9427427c4f3adf2c1c6",
+      "git_blob_sha": "2b2ad0f60fa5efc47b45e880f83cdf0f2668af37"
+    },
+    {
+      "filename": "20261006194945_step13_supabase_authorization_pattern_audit_test.sql",
+      "version": "20261006194945",
+      "name": "step13_supabase_authorization_pattern_audit_test",
+      "sql_bytes": 302,
+      "sha256": "d952aa457e76d727c02edbb0695b22d8316669b51ed4ec91c94f045623fdc703",
+      "git_blob_sha": "625bff3433342d8283f1ffba81ded5fa0d6c8a19"
+    },
+    {
+      "filename": "20261006195127_step13_authenticated_dml_rpc_authorization_review_test.sql",
+      "version": "20261006195127",
+      "name": "step13_authenticated_dml_rpc_authorization_review_test",
+      "sql_bytes": 328,
+      "sha256": "6efc921503182f8fb3b5e64bc0dcd5b7e0f52da75bc67e11e1fd61c2072446d5",
+      "git_blob_sha": "f848cde9bd42e2aaf20359857ca90cd3ba2c9882"
+    },
+    {
+      "filename": "20261006195357_step13_authenticated_definer_dml_guard_review_test.sql",
+      "version": "20261006195357",
+      "name": "step13_authenticated_definer_dml_guard_review_test",
+      "sql_bytes": 301,
+      "sha256": "f72c7491094d255d5fecdd50984539a00de43c471580905e587b509c21c678b8",
+      "git_blob_sha": "f73c9d39d79efa029c96b9f6decbd57ae4b7a6ac"
+    },
+    {
+      "filename": "20261006195609_step13_documentation_release_gate.sql",
+      "version": "20261006195609",
+      "name": "step13_documentation_release_gate",
+      "sql_bytes": 4323,
+      "sha256": "f203398fb0a51324ac3791e14cfcad649a621cddeaee36da8d1634143bdb93bb",
+      "git_blob_sha": "8f97af25ba6f433fa94879928ee229b1df17b9e7"
+    },
+    {
+      "filename": "20261006195655_step13_documentation_gate_enforcement_test.sql",
+      "version": "20261006195655",
+      "name": "step13_documentation_gate_enforcement_test",
+      "sql_bytes": 349,
+      "sha256": "f1b05f957a98a5859dbc77216664d062f221e7122b1b1f2a514e67a9ab28b1e0",
+      "git_blob_sha": "70ba03d774ad99855fd89d3a3374e8678001e114"
+    },
+    {
+      "filename": "20261006195924_step13_privacy_retention_baseline.sql",
+      "version": "20261006195924",
+      "name": "step13_privacy_retention_baseline",
+      "sql_bytes": 834,
+      "sha256": "f888c524815c887b5f782cd8d41ea8744255cebe56392211e86092217c3da1ff",
+      "git_blob_sha": "c4999b49207c1c647177efca4dc9ff8043848cc4"
+    },
+    {
+      "filename": "20261006195935_step13_force_close_path_isolation_test.sql",
+      "version": "20261006195935",
+      "name": "step13_force_close_path_isolation_test",
+      "sql_bytes": 358,
+      "sha256": "9c048c353c07bb5e9bb224f5f53e052d6f8be5338511cc87f2ee7530605048c2",
+      "git_blob_sha": "aa81c68fd75c26fb960126ae265b17bcf79ff5fd"
+    },
+    {
+      "filename": "20261006200045_step13_privacy_retention_fail_safe_test.sql",
+      "version": "20261006200045",
+      "name": "step13_privacy_retention_fail_safe_test",
+      "sql_bytes": 326,
+      "sha256": "11bdd73dfb164fc6c9561c1aec37fbea43ed8caf7fb652c0cc641a841ad33cf5",
+      "git_blob_sha": "1e1be427a75a9c86299962eb6e58cb2dd7d89307"
+    },
+    {
+      "filename": "20261006200154_step13_cron_topology_review_test.sql",
+      "version": "20261006200154",
+      "name": "step13_cron_topology_review_test",
+      "sql_bytes": 335,
+      "sha256": "13bd85d816c9274bd86bd79fe326c1d06dbe63b64574d3e793dd0191efb4cc96",
+      "git_blob_sha": "fab7d37f55852871d8e4eaf8aa818017072c91d3"
+    },
+    {
+      "filename": "20261006200233_step13_privacy_retention_default_alignment.sql",
+      "version": "20261006200233",
+      "name": "step13_privacy_retention_default_alignment",
+      "sql_bytes": 249,
+      "sha256": "0036f7c20cbadae16cf7bd5711e9c10aba62ce6c455ebe837598e024911e764b",
+      "git_blob_sha": "3fdac45b3bf9c00410d3d4596b17412d479050ad"
+    },
+    {
+      "filename": "20261006200344_step13_data_retention_engine_test.sql",
+      "version": "20261006200344",
+      "name": "step13_data_retention_engine_test",
+      "sql_bytes": 356,
+      "sha256": "237b93c0f9b6ff5a2a8ef060bac047f102c663fd46675fd61151ce0e44668437",
+      "git_blob_sha": "66f29f1a7f4a9ff3d16a024b4266ab011a3ff016"
+    },
+    {
+      "filename": "20261006200607_step13_privacy_data_rights_authorization_review_test.sql",
+      "version": "20261006200607",
+      "name": "step13_privacy_data_rights_authorization_review_test",
+      "sql_bytes": 345,
+      "sha256": "390c9421b7e59f73d4cc08309fcbe8149fb4a7e3c584789c07dc146b1882bdfe",
+      "git_blob_sha": "3ebcbd7617de1edde92081eb8730ba73d18b17e8"
+    },
+    {
+      "filename": "20261006200731_step13_chain_admin_privacy_config_reachability_test.sql",
+      "version": "20261006200731",
+      "name": "step13_chain_admin_privacy_config_reachability_test",
+      "sql_bytes": 334,
+      "sha256": "70d6ac588b948545810b26d84e68b5ab22e82e398d385f6cb1bbbdd510bbe071",
+      "git_blob_sha": "35f11dc91cbb96dac697ad71ee5a2afe17731d01"
+    },
+    {
+      "filename": "20261006201023_step13_documentation_versioned_source_gate.sql",
+      "version": "20261006201023",
+      "name": "step13_documentation_versioned_source_gate",
+      "sql_bytes": 1879,
+      "sha256": "4b74e845760b8512bed5aed51502b9219bbe1ee9206f350f2ab802ff61ffae27",
+      "git_blob_sha": "b9df919723e07f5e8e6c683b4c4a862def7cf9bc"
+    },
+    {
+      "filename": "20261006201103_step13_documentation_versioned_source_gate_test.sql",
+      "version": "20261006201103",
+      "name": "step13_documentation_versioned_source_gate_test",
+      "sql_bytes": 321,
+      "sha256": "89b1a02c9fa95f997885e6c2f2288360b888bc693cf0cee77b87ba454b05c925",
+      "git_blob_sha": "24e41bc4725979a67306f80e3c30d489fa6c9815"
+    },
+    {
+      "filename": "20261006203904_step13_documentation_draft_integrity_test.sql",
+      "version": "20261006203904",
+      "name": "step13_documentation_draft_integrity_test",
+      "sql_bytes": 349,
+      "sha256": "ed106380deff49fba2953181428047028567b953a472be9c52cfaea4258ef406",
+      "git_blob_sha": "806293c413d64ee4277f0ef764e8eada57664596"
+    },
+    {
+      "filename": "20261006204112_step13_offline_conflict_fk_indexes.sql",
+      "version": "20261006204112",
+      "name": "step13_offline_conflict_fk_indexes",
+      "sql_bytes": 440,
+      "sha256": "7a00f6c8f969e5f504fc1aad148be89af2d0992966239c0acd2e42ecfe2a7942",
+      "git_blob_sha": "a365a45185fe610aefc7dd6c82db0c9131e4ac99"
+    },
+    {
+      "filename": "20261006204614_step13_master_acceptance_coverage_unit.sql",
+      "version": "20261006204614",
+      "name": "step13_master_acceptance_coverage_unit",
+      "sql_bytes": 5591,
+      "sha256": "f93a155c686e9da23da28c68852e6038d9f6bbf75080d2f01ab9af39ed444432",
+      "git_blob_sha": "7f10858a1e99d5200d8aedb01a4b65de613e03c0"
+    },
+    {
+      "filename": "20261006204653_step13_master_acceptance_coverage_integration.sql",
+      "version": "20261006204653",
+      "name": "step13_master_acceptance_coverage_integration",
+      "sql_bytes": 1296,
+      "sha256": "6276dd6febc403bcbacf41e952718a29751290ad63cb5b819ccea2425a1e8d35",
+      "git_blob_sha": "59051ea9bec286b5eb055a182180ffead84bb07c"
+    },
+    {
+      "filename": "20261006204809_step13_master_acceptance_coverage_e2e.sql",
+      "version": "20261006204809",
+      "name": "step13_master_acceptance_coverage_e2e",
+      "sql_bytes": 1631,
+      "sha256": "b24e4f0e3c423654ef1a851cc3ca2b0bdfbcfa37699f6d72173266afccd1d65e",
+      "git_blob_sha": "a5f543d0b0c06beea74aa52494d5099bc0a70a51"
+    },
+    {
+      "filename": "20261006204831_step13_master_acceptance_coverage_chaos.sql",
+      "version": "20261006204831",
+      "name": "step13_master_acceptance_coverage_chaos",
+      "sql_bytes": 1537,
+      "sha256": "1510fd7776dbe70a623d2a617079e8d427b44494989ab95ca4e30d33591b4898",
+      "git_blob_sha": "e204633bf2e2476cc01e847dc16d153e773d138b"
+    },
+    {
+      "filename": "20261006204912_step13_master_acceptance_coverage_audit.sql",
+      "version": "20261006204912",
+      "name": "step13_master_acceptance_coverage_audit",
+      "sql_bytes": 1107,
+      "sha256": "66f5b21e8add5f768d9113ece9e06f7791470cece15acbfadda00e305b617143",
+      "git_blob_sha": "62d27e88d402914b6a8e7ad130ab43e840a217fc"
+    },
+    {
+      "filename": "20261006205300_step13_master_acceptance_coverage_security.sql",
+      "version": "20261006205300",
+      "name": "step13_master_acceptance_coverage_security",
+      "sql_bytes": 1764,
+      "sha256": "274684af98fb01dcfa8e58a576da318a6341a842db73a172fb2d6a8ee69512eb",
+      "git_blob_sha": "e7f4d8a5aa2506f01fc3feec6d3911e0f5be470e"
+    },
+    {
+      "filename": "20261006205435_step13_master_acceptance_coverage_additional.sql",
+      "version": "20261006205435",
+      "name": "step13_master_acceptance_coverage_additional",
+      "sql_bytes": 1093,
+      "sha256": "74c5048414361f2b7adc8d481fb6d2fdd7ef95c462cda380bfa3562a9e284d70",
+      "git_blob_sha": "27e172e48de0c0ffad0fbc77ebec90466dfb3535"
+    },
+    {
+      "filename": "20261006210648_release4a_recipe_cost_foundation.sql",
+      "version": "20261006210648",
+      "name": "release4a_recipe_cost_foundation",
+      "sql_bytes": 4792,
+      "sha256": "2eea9d99e68455e1fc579ca30408069b4e6ec393ee1e3380a47c83694e0c6b14",
+      "git_blob_sha": "9aae7900a6066bf272c3e2392b1e87bfbc1fccb9"
+    },
+    {
+      "filename": "20261006210822_release4a_recipe_cost_authoritative_api.sql",
+      "version": "20261006210822",
+      "name": "release4a_recipe_cost_authoritative_api",
+      "sql_bytes": 8770,
+      "sha256": "3b27e8607d6f1c2c75f791aaaf838d5e77c09bfd898c49bdf60ff19296afa4ff",
+      "git_blob_sha": "b95c114df7cc0f92444257303528c000594655f5"
+    },
+    {
+      "filename": "20261006211043_release4a_food_cost_calculation.sql",
+      "version": "20261006211043",
+      "name": "release4a_food_cost_calculation",
+      "sql_bytes": 5651,
+      "sha256": "eddc5ae812d1aa3acf3eddfe3569bf19387820700796cae6d60c4548dca7ea73",
+      "git_blob_sha": "94afe2e832cd20590353b1c5b48a6a3cc078db78"
+    },
+    {
+      "filename": "20261006211226_release4a_food_cost_snapshots.sql",
+      "version": "20261006211226",
+      "name": "release4a_food_cost_snapshots",
+      "sql_bytes": 5834,
+      "sha256": "b5c4c6fc5e65faf86c4c62c5a8c3c81eb3bfde5db58cdd05f9f1edf49e81ffb9",
+      "git_blob_sha": "b33977ef06b8602d467f46d69116386a6dc224e5"
+    },
+    {
+      "filename": "20261006211319_release4a_food_cost_test_catalog.sql",
+      "version": "20261006211319",
+      "name": "release4a_food_cost_test_catalog",
+      "sql_bytes": 694,
+      "sha256": "1e81e34bc0fa639f47976bdfdca819be1e0be834ea45ab3f0a49195b1824407f",
+      "git_blob_sha": "9e9b99e4bfe117e5edea3c9a433deb6850742065"
+    },
+    {
+      "filename": "20261006211427_release4a_cost_history_fk_indexes.sql",
+      "version": "20261006211427",
+      "name": "release4a_cost_history_fk_indexes",
+      "sql_bytes": 259,
+      "sha256": "a7bd442adada7ad44f7bd1e781ee1c2a1f5c3f750c802f20220c16aade265790",
+      "git_blob_sha": "d120312269de8f8b201173f96a5622de70321289"
+    },
+    {
+      "filename": "20261006211530_release4a_menu_engineering_classification.sql",
+      "version": "20261006211530",
+      "name": "release4a_menu_engineering_classification",
+      "sql_bytes": 902,
+      "sha256": "c2ba2eca89569ce20d96cc0834293b6b90a3d13c61327d1566652f63de3ed64b",
+      "git_blob_sha": "1a66602cc5ec1b7a0c8264f28eb21877b1f98854"
+    },
+    {
+      "filename": "20261006211736_release4a_menu_engineering_report.sql",
+      "version": "20261006211736",
+      "name": "release4a_menu_engineering_report",
+      "sql_bytes": 5851,
+      "sha256": "ce405fc4d2a11c6a49bdf59c0bb79ef47c5289950d545fc717e16deb4d9347d2",
+      "git_blob_sha": "4efb201f0699fa28dc5cc7b5a44400cc02efefe6"
+    },
+    {
+      "filename": "20261006211851_release4a_menu_engineering_test_catalog.sql",
+      "version": "20261006211851",
+      "name": "release4a_menu_engineering_test_catalog",
+      "sql_bytes": 323,
+      "sha256": "7a36b710697d4eae9655d99e5f86b828d6fd712ca12ad831ebd7c2f4c3f56a0f",
+      "git_blob_sha": "a9b86e2a26767920ec5f70605f43f215d3f06280"
+    },
+    {
+      "filename": "20261006212016_release4b_multi_menu_promotion_schema.sql",
+      "version": "20261006212016",
+      "name": "release4b_multi_menu_promotion_schema",
+      "sql_bytes": 10032,
+      "sha256": "be7d101dc3599cf8e254653d77c78f4efba353202cb167c1b3014907397ff2b0",
+      "git_blob_sha": "ebe79c3e42aa5446232b26e11316678cd9780b12"
+    },
+    {
+      "filename": "20261006212237_release4b_promotion_target_fk_indexes.sql",
+      "version": "20261006212237",
+      "name": "release4b_promotion_target_fk_indexes",
+      "sql_bytes": 420,
+      "sha256": "e7ed03bd68a7b58be5154f9af1f5c2d7cbbf8da0793226b43ccf5bb09ee0c74b",
+      "git_blob_sha": "9db6c33d34b756bb50e09509798db08627c92962"
+    },
+    {
+      "filename": "20261006212311_release4b_menu_schedule_engine.sql",
+      "version": "20261006212311",
+      "name": "release4b_menu_schedule_engine",
+      "sql_bytes": 2110,
+      "sha256": "705dc399c85df0372ce805cad55370211fc3b67d93bc605ec100dc6fd0ae0ac5",
+      "git_blob_sha": "d5ce2a7f6fe67b2c4ac5a0df5a3116ff8ccac021"
+    },
+    {
+      "filename": "20261006212441_release4b_public_multi_menu_api.sql",
+      "version": "20261006212441",
+      "name": "release4b_public_multi_menu_api",
+      "sql_bytes": 10043,
+      "sha256": "6575be06c3f2c421e25bf681734406f7abd12e9337da6498e33fdd111e5e80a7",
+      "git_blob_sha": "65a4b410a99c80a1d0849e21ece2b6e25a29ccde"
+    },
+    {
+      "filename": "20261006212553_release4b_public_menu_single_venue_resolution_fix.sql",
+      "version": "20261006212553",
+      "name": "release4b_public_menu_single_venue_resolution_fix",
+      "sql_bytes": 7957,
+      "sha256": "39103302d531d9f1fa1095790ed2641a037b961be46aab94d44a5dd4dcfd1d65",
+      "git_blob_sha": "47d40c576cfff44e5d97919b164f7aade416aa38"
+    },
+    {
+      "filename": "20261006212638_release4b_public_menu_test_catalog.sql",
+      "version": "20261006212638",
+      "name": "release4b_public_menu_test_catalog",
+      "sql_bytes": 555,
+      "sha256": "94cc7696a4594edf7257197af047bc50ad31096e60c4ccffb7a13ffdbd90567b",
+      "git_blob_sha": "a9f05f55f326ef4982b8ac5acfe8573228ee0726"
+    },
+    {
+      "filename": "20261006212732_release4b_authoritative_menu_editor.sql",
+      "version": "20261006212732",
+      "name": "release4b_authoritative_menu_editor",
+      "sql_bytes": 6593,
+      "sha256": "66997a331ef8fdbd46c35e31fb06db2f7dc58d338f213148282718606ca05969",
+      "git_blob_sha": "f3f7dc0aac51272563b4731421b25965ec19a2fc"
+    },
+    {
+      "filename": "20261006213309_release4b_menu_editor_test_catalog.sql",
+      "version": "20261006213309",
+      "name": "release4b_menu_editor_test_catalog",
+      "sql_bytes": 311,
+      "sha256": "6b7a7032e310fdbe6a0ec55e5ddd159a54264d0e2a174a17f78001f857a7c237",
+      "git_blob_sha": "f3bdd9e5722cdf484c6c75428019ea6d5a735bbd"
+    },
+    {
+      "filename": "20261006213357_release4b_authoritative_promotion_editor.sql",
+      "version": "20261006213357",
+      "name": "release4b_authoritative_promotion_editor",
+      "sql_bytes": 6546,
+      "sha256": "00e92dd26eb084b4644c5d8917419f98d1002f89ae11a0978794ed42ddddbb98",
+      "git_blob_sha": "652e1764d53f3d53c90083280fe17cb182c72c1a"
+    },
+    {
+      "filename": "20261006213453_release4b_promotion_editor_test_catalog.sql",
+      "version": "20261006213453",
+      "name": "release4b_promotion_editor_test_catalog",
+      "sql_bytes": 327,
+      "sha256": "91ec2d753afc0f0af1e4fa0849bad20d314e651c9e9616cd251b5fab23ff64e1",
+      "git_blob_sha": "261f5223c8a9dc0c95141931a04bf1e64c0accb3"
+    },
+    {
+      "filename": "20261006213736_release4c_message_queue_foundation.sql",
+      "version": "20261006213736",
+      "name": "release4c_message_queue_foundation",
+      "sql_bytes": 11743,
+      "sha256": "8ff7a4a60c7f67e7f82eee77747aeee4ecb4210dd536ecc53172a3b20d986624",
+      "git_blob_sha": "d3761c2f9c51cca69b781fdc313c9e0e15f8a1ff"
+    },
+    {
+      "filename": "20261006213900_release4c_message_configuration_api.sql",
+      "version": "20261006213900",
+      "name": "release4c_message_configuration_api",
+      "sql_bytes": 7895,
+      "sha256": "f61681b7f3f764a26a8b102f2ccd8b188164f0fd56be89398dc1fec0b52a5d44",
+      "git_blob_sha": "35e9471d1db8d6b9d441ffae7335d00267a7df86"
+    },
+    {
+      "filename": "20261006214101_release4c_reservation_message_outbox.sql",
+      "version": "20261006214101",
+      "name": "release4c_reservation_message_outbox",
+      "sql_bytes": 9788,
+      "sha256": "a544642ffaae9988ae60e87cbcdc23e5600815c5d9770515bfecde0576cb2b47",
+      "git_blob_sha": "84d227460b2ad2c5b1508362b6faef36aa639208"
+    },
+    {
+      "filename": "20261006214356_release4c_reminder_scheduler.sql",
+      "version": "20261006214356",
+      "name": "release4c_reminder_scheduler",
+      "sql_bytes": 14354,
+      "sha256": "38af61f34c02da1500a6d2d6b56657c773cb4460c849fcc0926162798162f658",
+      "git_blob_sha": "39ea86cc7b704def9a6c8cafcfc61456dd1165e2"
+    },
+    {
+      "filename": "20261006214658_release4c_message_delivery_state_machine.sql",
+      "version": "20261006214658",
+      "name": "release4c_message_delivery_state_machine",
+      "sql_bytes": 10741,
+      "sha256": "5784336bb984dbe1557dcdd6e8319c779d68274538118aab2b0fea649af123a9",
+      "git_blob_sha": "0129cc65a46d80557c025004ec3e318e7a0eecfd"
+    },
+    {
+      "filename": "20261006214805_release4c_delivery_event_canonical_replay.sql",
+      "version": "20261006214805",
+      "name": "release4c_delivery_event_canonical_replay",
+      "sql_bytes": 2685,
+      "sha256": "8d8dc3f9f70c42dc786a9951bbbe2fd9de56e629e743c7b3b5fabbef857a14df",
+      "git_blob_sha": "ed164768221fc6f9e8653cbd5c7fa6810bc259bb"
+    },
+    {
+      "filename": "20261006214928_release4c_message_templates.sql",
+      "version": "20261006214928",
+      "name": "release4c_message_templates",
+      "sql_bytes": 17665,
+      "sha256": "117082ba5dad3e83fa0cb1993c14a64f735e05599adb93883865326afb8ac5f5",
+      "git_blob_sha": "60a0a673524cfbc990430a46f172c880699939af"
+    },
+    {
+      "filename": "20261006215747_release4c_message_worker_scheduler.sql",
+      "version": "20261006215747",
+      "name": "release4c_message_worker_scheduler",
+      "sql_bytes": 2572,
+      "sha256": "8bba7baad747a841b6de05226d7691c594f4dd1917f7b9659694902045d9e42b",
+      "git_blob_sha": "28005bc23cd8008fb06ce7581ef4ee000f53647a"
+    },
+    {
+      "filename": "20261006215951_release4c_message_test_catalog.sql",
+      "version": "20261006215951",
+      "name": "release4c_message_test_catalog",
+      "sql_bytes": 1197,
+      "sha256": "fa5c7af91f5c95c3bf4fe69b59c860eb0bb16e2cee13b3ee5550c402fbb52e0c",
+      "git_blob_sha": "eb3ce0fc6ea59112633e99bd6c67daba0735d1d6"
+    },
+    {
+      "filename": "20261006220223_release4d_reservation_status_extension.sql",
+      "version": "20261006220223",
+      "name": "release4d_reservation_status_extension",
+      "sql_bytes": 194,
+      "sha256": "0146ab2d639c1bede348ba484b48cb612cb1c27f4cc4c5dd0508e92aaec96706",
+      "git_blob_sha": "8140135e8fbc09a4aade35ae9290dadfc657bad6"
+    },
+    {
+      "filename": "20261006220345_release4d_booking_commercial_policy.sql",
+      "version": "20261006220345",
+      "name": "release4d_booking_commercial_policy",
+      "sql_bytes": 14481,
+      "sha256": "1b935af43c7a61dc2e92e0da4b6ba57d744df5133c36065b5272b9f648515784",
+      "git_blob_sha": "e19fdc785543636edd2e467216acc6ff50e475ce"
+    },
+    {
+      "filename": "20261006220446_release4d_booking_policy_weekday_validation_fix.sql",
+      "version": "20261006220446",
+      "name": "release4d_booking_policy_weekday_validation_fix",
+      "sql_bytes": 5258,
+      "sha256": "067fe9ee7d012d3b29324527d44970c0f2a8b7c06fdab40b82a1b731eb7ff635",
+      "git_blob_sha": "25e27ebc52a9744d3e8b1a802ac5d92788b80e1e"
+    },
+    {
+      "filename": "20261006220714_release4d_booking_policy_idempotency_order_fix.sql",
+      "version": "20261006220714",
+      "name": "release4d_booking_policy_idempotency_order_fix",
+      "sql_bytes": 5257,
+      "sha256": "95e4dbf7aeed465c8b660a2659de817bf3642845818045deb024e86c3d1c9bbe",
+      "git_blob_sha": "4d6427fc4f1fbf0410161b12267b16b20642f471"
+    },
+    {
+      "filename": "20261006221238_release4_feature_gate_foundation.sql",
+      "version": "20261006221238",
+      "name": "release4_feature_gate_foundation",
+      "sql_bytes": 5744,
+      "sha256": "d07a10266fca81f0040b517df3d91a5f4e993fd34e6e4fde29902885d03ed70e",
+      "git_blob_sha": "c34ce43d7a5748a244ac0138306d821154dd6e5f"
+    },
+    {
+      "filename": "20261006221417_release4c_email_and_feature_gates.sql",
+      "version": "20261006221417",
+      "name": "release4c_email_and_feature_gates",
+      "sql_bytes": 15079,
+      "sha256": "c1d1685b4827af761b8959c2ffb0328c6404871cdd65078c9de45a6b19fec2e3",
+      "git_blob_sha": "969927e4f3cb4c3dc767735c8c6c0fdbb4d39958"
+    },
+    {
+      "filename": "20261006221710_release4c_message_worker_unification.sql",
+      "version": "20261006221710",
+      "name": "release4c_message_worker_unification",
+      "sql_bytes": 18683,
+      "sha256": "5650151435eacdd11e0717f220d3075d59604904ff1e4d7bfaede6675cc38c66",
+      "git_blob_sha": "2e6a495c4c3793483cf8da0fadeb8d665b8013a5"
+    },
+    {
+      "filename": "20261006221914_release4c_messaging_acceptance_tests.sql",
+      "version": "20261006221914",
+      "name": "release4c_messaging_acceptance_tests",
+      "sql_bytes": 456,
+      "sha256": "f8b9d6bf699d91caa70254be57599a7158c60fec95579e96c39228300bea7f78",
+      "git_blob_sha": "9ea8bbc72a3005780aa5529981dc9c692c82387e"
+    },
+    {
+      "filename": "20261006222240_release4c_resend_email_adapter_contract.sql",
+      "version": "20261006222240",
+      "name": "release4c_resend_email_adapter_contract",
+      "sql_bytes": 8116,
+      "sha256": "5646e1d2ac70eafe595224c1e4d76db4984b003cc00cf6d2475a734475f8ede0",
+      "git_blob_sha": "4584281f6fb415db216b49f05d8c3911633ab287"
+    },
+    {
+      "filename": "20261006222510_release4c_messaging_tick_cron.sql",
+      "version": "20261006222510",
+      "name": "release4c_messaging_tick_cron",
+      "sql_bytes": 4522,
+      "sha256": "52c92a9113177bacf3c1fd9789304568eaa2c7806d856ccbe32ec97fed049011",
+      "git_blob_sha": "0e9a3ecff4bb175e40829c70058265db18f20916"
+    },
+    {
+      "filename": "20261006222616_release4c_message_final_internal_tests.sql",
+      "version": "20261006222616",
+      "name": "release4c_message_final_internal_tests",
+      "sql_bytes": 638,
+      "sha256": "1eef87777f84245e9e65f2dff547c3efc4ea465e2fab22417f02505872228ca8",
+      "git_blob_sha": "8356613e9531459b1ac7390f14c0b37224ab5725"
+    },
+    {
+      "filename": "20261006222747_release4c_worker_edge_reachability_test.sql",
+      "version": "20261006222747",
+      "name": "release4c_worker_edge_reachability_test",
+      "sql_bytes": 363,
+      "sha256": "b1b1f0e78e7030ea0f5997e1460f15bf98d5bec0c4169cbe7cdfd608221b1164",
+      "git_blob_sha": "68bad888846e07fba6b77c7c95f8a9d9c8456399"
+    },
+    {
+      "filename": "20261006223152_release4_feature_gate_enforcement_existing_modules.sql",
+      "version": "20261006223152",
+      "name": "release4_feature_gate_enforcement_existing_modules",
+      "sql_bytes": 42583,
+      "sha256": "3dcc3ac224488d1059c623bb4f1c1dca597994345454b95409def3dfc3d2c627",
+      "git_blob_sha": "25ef81c648f2467e9b3164115f99bd9570bc0038"
+    },
+    {
+      "filename": "20261006223243_release4_feature_gate_default_deny_test.sql",
+      "version": "20261006223243",
+      "name": "release4_feature_gate_default_deny_test",
+      "sql_bytes": 339,
+      "sha256": "97880e2df5cf73659c04a297ac5a4d470b88872430799416abbd4a2e5f5e6598",
+      "git_blob_sha": "568470322ceeecc78a5ae7c43748e8c436d1027a"
+    },
+    {
+      "filename": "20261006223813_release4c_remove_legacy_messaging_tick_overload.sql",
+      "version": "20261006223813",
+      "name": "release4c_remove_legacy_messaging_tick_overload",
+      "sql_bytes": 178,
+      "sha256": "776fa7ec4d0da63e07201543af4d5394bd6e90c533ffef95a0f69b96b0c779f5",
+      "git_blob_sha": "de1a2553cfdc86b58d72e673a6eda2d60a99552e"
+    },
+    {
+      "filename": "20261007033741_release4c_message_worker_state_machine.sql",
+      "version": "20261007033741",
+      "name": "release4c_message_worker_state_machine",
+      "sql_bytes": 10067,
+      "sha256": "27f72034ad92942a4e5fae6f18d50973373c214e644ca3bf6ebd6205c7c87a04",
+      "git_blob_sha": "8dda75c815cfdc8e6a6e365931e7ac5ef4949da4"
+    },
+    {
+      "filename": "20261007034220_release4c_remove_redundant_worker_overloads.sql",
+      "version": "20261007034220",
+      "name": "release4c_remove_redundant_worker_overloads",
+      "sql_bytes": 583,
+      "sha256": "eb9d66bf714b28df878bda41b5304d708c2f78b371d2180124ecae2b27efecf7",
+      "git_blob_sha": "d27be2360e33c26de7691e6cedd986885645d2dc"
+    },
+    {
+      "filename": "20261007034412_release4d_reservation_deposit_foundation.sql",
+      "version": "20261007034412",
+      "name": "release4d_reservation_deposit_foundation",
+      "sql_bytes": 7369,
+      "sha256": "6417b1fe9d51c97a4cb96c59b1afa6b40dbb82ebc278fc0db4e552f86b6431f8",
+      "git_blob_sha": "fcbf81e6ab4449fb769c96d0f4cb97f276f972a4"
+    },
+    {
+      "filename": "20261007034748_release4d_public_booking_deposit_integration.sql",
+      "version": "20261007034748",
+      "name": "release4d_public_booking_deposit_integration",
+      "sql_bytes": 10199,
+      "sha256": "dded3853fb03a18095491245309afddda90fe0ddb0a2de4d2852d29dd60249f7",
+      "git_blob_sha": "b6c5780d3fdcf453840470ffb2cdba7d4671cb1c"
+    },
+    {
+      "filename": "20261007034935_release4d_public_booking_phone_validation_fix.sql",
+      "version": "20261007034935",
+      "name": "release4d_public_booking_phone_validation_fix",
+      "sql_bytes": 8611,
+      "sha256": "9e48824ea26eea0d1a4040b1c5e4f027834c8400fa7ed22cbef55ab38fe18d2f",
+      "git_blob_sha": "6ea7c952fcf1ee3c5671c9dc5f3833e734c5de4b"
+    },
+    {
+      "filename": "20261007035005_release4d_deposit_policy_test_catalog.sql",
+      "version": "20261007035005",
+      "name": "release4d_deposit_policy_test_catalog",
+      "sql_bytes": 486,
+      "sha256": "59e48ce45d228a4697e62bb915ce04c7b74b29c56c832fe142b733c2959603c2",
+      "git_blob_sha": "e82e0e00b6b03bbd952130869d1f088d304b4ac6"
+    },
+    {
+      "filename": "20261007035037_release4d_deposit_provider_state_machine.sql",
+      "version": "20261007035037",
+      "name": "release4d_deposit_provider_state_machine",
+      "sql_bytes": 9739,
+      "sha256": "ac75e18c9820509a7b686307e93e6e7b1be319ccc2570a46d4dfbd32361b3b24",
+      "git_blob_sha": "f68df94241fe244326d61e7589d0b017fb5eab92"
+    },
+    {
+      "filename": "20261007035127_release4d_deposit_public_idempotency_fix.sql",
+      "version": "20261007035127",
+      "name": "release4d_deposit_public_idempotency_fix",
+      "sql_bytes": 2752,
+      "sha256": "4e87d0f5e67c1804d6d08f93cda74d1409800feb36ee909fbb75bd782510e00e",
+      "git_blob_sha": "d982631f4fe9c5e5e5b1f4754a90c47ac16b91db"
+    },
+    {
+      "filename": "20261007035208_release4d_deposit_callback_test_catalog.sql",
+      "version": "20261007035208",
+      "name": "release4d_deposit_callback_test_catalog",
+      "sql_bytes": 490,
+      "sha256": "122a51ec7a7025e6c135cbfb48b0a1b5054435d5899d6df2f4e1f051b6cc8f4a",
+      "git_blob_sha": "a08d56f310e71cfbac3bac206db51a6a8a64d66a"
+    },
+    {
+      "filename": "20261007035236_release4d_deposit_expiry_runner.sql",
+      "version": "20261007035236",
+      "name": "release4d_deposit_expiry_runner",
+      "sql_bytes": 2337,
+      "sha256": "17d60f75d4056d046ae68964ecd7da47ce1a93d964097ffd69176349cb15f8a1",
+      "git_blob_sha": "f6a24ad6ea13cca852a06c249847023093b933e4"
+    },
+    {
+      "filename": "20261007035512_release4c_confirmation_outbox_test_catalog.sql",
+      "version": "20261007035512",
+      "name": "release4c_confirmation_outbox_test_catalog",
+      "sql_bytes": 345,
+      "sha256": "33d409526e973307021f79ca61385aceae742b7d3df8770f39f0bf3fdaee1f30",
+      "git_blob_sha": "ec5995e5605ea7162ef9aa615c47dc4982c23a7c"
+    },
+    {
+      "filename": "20261007035540_release4d_deposit_expiry_edge_tests.sql",
+      "version": "20261007035540",
+      "name": "release4d_deposit_expiry_edge_tests",
+      "sql_bytes": 467,
+      "sha256": "000ccba9fd5c4d57e6eb75ef352816f51db0326afd54761762a3a31142f2a6fc",
+      "git_blob_sha": "f7ba10d47cdbce11d499adc997c068a31289a455"
+    },
+    {
+      "filename": "20261007035606_release4c_message_delivery_lifecycle.sql",
+      "version": "20261007035606",
+      "name": "release4c_message_delivery_lifecycle",
+      "sql_bytes": 9876,
+      "sha256": "816c079d843aeab253af881fd705af80f8cca89a7895917d126d3afc56c55402",
+      "git_blob_sha": "3aef9f8b876e69e2e1504183081dce0298ed9600"
+    },
+    {
+      "filename": "20261007035653_release4d_waitlist_foundation.sql",
+      "version": "20261007035653",
+      "name": "release4d_waitlist_foundation",
+      "sql_bytes": 4906,
+      "sha256": "7e603d197d0985eee3a314a89feec4653f97f78e7ec88f6b5960a00d66432812",
+      "git_blob_sha": "3cdd23e614259a704fb35c1cd856263c6b742662"
+    },
+    {
+      "filename": "20261007035800_release4d_waitlist_service_fk_index.sql",
+      "version": "20261007035800",
+      "name": "release4d_waitlist_service_fk_index",
+      "sql_bytes": 132,
+      "sha256": "6bd35f1ac0dd9166646c9eed21d0ee052d9b26c9ed45bdcacfe5443dcf983a72",
+      "git_blob_sha": "1f322f83bebdeeddb95a3bc0ecc0d9905a2abc96"
+    },
+    {
+      "filename": "20261007035829_release4d_waitlist_candidate_offer_api.sql",
+      "version": "20261007035829",
+      "name": "release4d_waitlist_candidate_offer_api",
+      "sql_bytes": 9887,
+      "sha256": "f19ecfab0057a02595cf31ab909eaabe6e62c738d56b275a468890467248dd66",
+      "git_blob_sha": "51425385ab925ee3d11a828a2d6c31b70fe4da55"
+    },
+    {
+      "filename": "20261007035855_release4d_waitlist_priority_test_catalog.sql",
+      "version": "20261007035855",
+      "name": "release4d_waitlist_priority_test_catalog",
+      "sql_bytes": 336,
+      "sha256": "da1e3ced46b4c57e33dc014b581fcb111e0ecd61abea981245250b3f68f84cd6",
+      "git_blob_sha": "2ba9854f78bead13ae76a71a1d470290f765dc03"
+    },
+    {
+      "filename": "20261007035927_release4d_waitlist_atomic_acceptance.sql",
+      "version": "20261007035927",
+      "name": "release4d_waitlist_atomic_acceptance",
+      "sql_bytes": 7491,
+      "sha256": "d759657c774e36e4a0c9f332eb54f2244b455f0b50ec11526769b2ed8b700bbe",
+      "git_blob_sha": "08ae3ad19a288c7e23c21d77f259e73780f03e26"
+    },
+    {
+      "filename": "20261007040004_release4d_waitlist_acceptance_note_column_fix.sql",
+      "version": "20261007040004",
+      "name": "release4d_waitlist_acceptance_note_column_fix",
+      "sql_bytes": 538,
+      "sha256": "dd96050c8ba92887446309c4b04d9e207c185ec8cfb4ee295a4a70bad7646f75",
+      "git_blob_sha": "aee4a95641be93d4e6e1a3f7def734dac468fad1"
+    },
+    {
+      "filename": "20261007040102_release4d_waitlist_last_slot_test_catalog.sql",
+      "version": "20261007040102",
+      "name": "release4d_waitlist_last_slot_test_catalog",
+      "sql_bytes": 305,
+      "sha256": "0372424f74f3610dcec9534b5925788b124104c865ffb9a7d9807970b19e6f51",
+      "git_blob_sha": "c11963a43982e85487cb6463fd58ae79625e4e43"
+    },
+    {
+      "filename": "20261007040130_release4d_waitlist_public_entry_api.sql",
+      "version": "20261007040130",
+      "name": "release4d_waitlist_public_entry_api",
+      "sql_bytes": 5243,
+      "sha256": "8114b168d56848c9444f6f9ee0ec34ff55c3e3a8734795df22aec1edaf1eb649",
+      "git_blob_sha": "6030bc77075f0c739ceff430fe64011b57a6a011"
+    },
+    {
+      "filename": "20261007040140_release4d_waitlist_offer_expiry.sql",
+      "version": "20261007040140",
+      "name": "release4d_waitlist_offer_expiry",
+      "sql_bytes": 1694,
+      "sha256": "deca6ef36a01c02a2d0fbef9304ba01e734e83cf9f743fd36a669ec90b57e39c",
+      "git_blob_sha": "9eab54730e52fe3ce62e1a180ee40e9717e6246c"
+    },
+    {
+      "filename": "20261007040203_release4d_waitlist_lifecycle_test_catalog.sql",
+      "version": "20261007040203",
+      "name": "release4d_waitlist_lifecycle_test_catalog",
+      "sql_bytes": 436,
+      "sha256": "b075e0eded73cb053f11fdd392a4b9d68eaca93443305d92f50dd627f76c340f",
+      "git_blob_sha": "0b8ef09b11c6f80fc2e3f2783663c1e9b54579d5"
+    },
+    {
+      "filename": "20261007040221_release4c_message_delivery_test_catalog.sql",
+      "version": "20261007040221",
+      "name": "release4c_message_delivery_test_catalog",
+      "sql_bytes": 303,
+      "sha256": "9702b8b130e69bc0460ca30dd9a950decb6c9dfc75e95d6b93ad491b309b0d62",
+      "git_blob_sha": "068fa91bd9fd89d8c530638224be545b2a2092c6"
+    },
+    {
+      "filename": "20261007040239_release4d_waitlist_edge_test_catalog.sql",
+      "version": "20261007040239",
+      "name": "release4d_waitlist_edge_test_catalog",
+      "sql_bytes": 294,
+      "sha256": "21151a5cf29a1c2a7a71cc24e1164165dcbbf6f73b2ec56bb7dd5ffb7dfd7abf",
+      "git_blob_sha": "b3854f3d77981d8d6ff18c15e210a2d6cf3980e9"
+    },
+    {
+      "filename": "20261007040350_release4c_reminder_scheduler_cron.sql",
+      "version": "20261007040350",
+      "name": "release4c_reminder_scheduler_cron",
+      "sql_bytes": 829,
+      "sha256": "2be563a0b9b2fd7a0414bd1bd56733c17588b5d06df812440253f7b3ba473ae3",
+      "git_blob_sha": "d7faeeedd07227cde90932530afae01da430220f"
+    },
+    {
+      "filename": "20261007040523_release4e_takeaway_core_model.sql",
+      "version": "20261007040523",
+      "name": "release4e_takeaway_core_model",
+      "sql_bytes": 9407,
+      "sha256": "d3eb319e3634db2e8bd1c5aa199105d8cf97ca4dff301fe4194d6f33c505d336",
+      "git_blob_sha": "f86e0b94394ef29eb618b0a6371f66dd981c7611"
+    },
+    {
+      "filename": "20261007040635_release4c_message_worker_cron.sql",
+      "version": "20261007040635",
+      "name": "release4c_message_worker_cron",
+      "sql_bytes": 240,
+      "sha256": "bc83f075bc306de8208b1e274fdaaa3e3081981cdd30bee0ed1986043dcc2d51",
+      "git_blob_sha": "e7aa267d1ce88506795fc7e50a91bb552c1c68e3"
+    },
+    {
+      "filename": "20261007040701_release4e_kitchen_board_takeaway.sql",
+      "version": "20261007040701",
+      "name": "release4e_kitchen_board_takeaway",
+      "sql_bytes": 4310,
+      "sha256": "7890504687daeee6350ae77c151108a22c112d9c1bf7ac0e876355c9635aa234",
+      "git_blob_sha": "785d0563c64728a65c98287b081a9148f04a69b4"
+    },
+    {
+      "filename": "20261007040802_release4e_takeaway_slot_admin_api.sql",
+      "version": "20261007040802",
+      "name": "release4e_takeaway_slot_admin_api",
+      "sql_bytes": 2776,
+      "sha256": "f762d2ffd6c46d070b1fcfe8cea2e9c2587be0e07406a2d7a96fd25ccc0bf025",
+      "git_blob_sha": "ffb69d73878c71efbe4244f940f780278ed7b460"
+    },
+    {
+      "filename": "20261007040838_release4d_deposit_callback_edge_security_test.sql",
+      "version": "20261007040838",
+      "name": "release4d_deposit_callback_edge_security_test",
+      "sql_bytes": 333,
+      "sha256": "83a1fc9091b0d5354ae4bf65754f52b84ac231380ebb17679b5b475cadaa1d0c",
+      "git_blob_sha": "d8a34d8f341b09e55fdcc8ad18af2d3d05add4c8"
+    },
+    {
+      "filename": "20261007040839_release4e_takeaway_authoritative_order_api.sql",
+      "version": "20261007040839",
+      "name": "release4e_takeaway_authoritative_order_api",
+      "sql_bytes": 4637,
+      "sha256": "cf59c9aa4f5eef9a9584f70de13177f9a144cf4b0ca8d576aaa7987143c06f86",
+      "git_blob_sha": "c54741d5fe1f2994d286b645ed8256b54537b601"
+    },
+    {
+      "filename": "20261007040918_release4e_takeaway_atomicity_test_catalog.sql",
+      "version": "20261007040918",
+      "name": "release4e_takeaway_atomicity_test_catalog",
+      "sql_bytes": 579,
+      "sha256": "a2db1ad095c9b3101f7375dc9947bcf86733846d95a02e0cbac1ecb8b112e511",
+      "git_blob_sha": "5963f18db8ecf29b2d6497eba22f2acde2bb7fc4"
+    },
+    {
+      "filename": "20261007041032_release4c_outbox_test_catalog.sql",
+      "version": "20261007041032",
+      "name": "release4c_outbox_test_catalog",
+      "sql_bytes": 499,
+      "sha256": "b3713f9b61d2807f0fdd615b64f65fd915a3202d428033eeb6ed361da0b60da9",
+      "git_blob_sha": "6abf96486f1e2c40180fb8ecac2c6874e67c7cb1"
+    },
+    {
+      "filename": "20261007041206_release4c_message_worker_state_machine.sql",
+      "version": "20261007041206",
+      "name": "release4c_message_worker_state_machine",
+      "sql_bytes": 16762,
+      "sha256": "8b6cc5194d8d68c504e73d2434c1cd8c718a0fe6b04fc05443093324fb1b4d3a",
+      "git_blob_sha": "7dcc6627744b4e9e74b60a6473dcc52f6985f621"
+    },
+    {
+      "filename": "20261007041441_release4e_takeaway_status_lifecycle.sql",
+      "version": "20261007041441",
+      "name": "release4e_takeaway_status_lifecycle",
+      "sql_bytes": 4686,
+      "sha256": "1cbe355bafb6c3eec62986c841527b674507ec78c09dd87f46a681932c48c04c",
+      "git_blob_sha": "1b2ed13772603f47404fa18cb1b22ad07cea1bd4"
+    },
+    {
+      "filename": "20261007041739_release4c_message_worker_retry_reconcile_fix.sql",
+      "version": "20261007041739",
+      "name": "release4c_message_worker_retry_reconcile_fix",
+      "sql_bytes": 3897,
+      "sha256": "3bf96dca7fc5410c732ce7d914c2dd8312c8598d2da52397de44a6eddbf42374",
+      "git_blob_sha": "cc891dfae0e0e1ed12946b76e9aa827f6058a87b"
+    },
+    {
+      "filename": "20261007041909_release4c_worker_test_catalog.sql",
+      "version": "20261007041909",
+      "name": "release4c_worker_test_catalog",
+      "sql_bytes": 491,
+      "sha256": "d109036e840c6e9f7656a4800c03fdf29a8441433a2e7f51a6e66ab5a058f964",
+      "git_blob_sha": "6ace9c5df76247c4808b8417ea645c9f23330721"
+    },
+    {
+      "filename": "20261007041938_release4e_takeaway_venue_settings.sql",
+      "version": "20261007041938",
+      "name": "release4e_takeaway_venue_settings",
+      "sql_bytes": 6756,
+      "sha256": "edf8c472dc32abd5b785abbeeae5cf790c8073201999713410b36f87422f663b",
+      "git_blob_sha": "99f36dc9765ac14ac32c40e2a2839453e467d2a9"
+    },
+    {
+      "filename": "20261007042033_release4e_takeaway_slot_settings_enforcement.sql",
+      "version": "20261007042033",
+      "name": "release4e_takeaway_slot_settings_enforcement",
+      "sql_bytes": 3695,
+      "sha256": "645e2a4078c5207c91907c5a1bcf0742c4ae3b8a13f97760dab168e78cfd3df8",
+      "git_blob_sha": "e85c6d1e3a9f7c97878b5ff37bb1d4615136fd5b"
+    },
+    {
+      "filename": "20261007042047_release4c_reminder_exactly_once_test.sql",
+      "version": "20261007042047",
+      "name": "release4c_reminder_exactly_once_test",
+      "sql_bytes": 348,
+      "sha256": "eb1d9855cedf6760cc6d44bed8b9dd52f663da311f2fa256e8a03bb5f2e12b97",
+      "git_blob_sha": "f9d8868ba7b5d9a332f3e6756a10bf08c05ac2f6"
+    },
+    {
+      "filename": "20261007042207_release4e_takeaway_staff_approval_request_layer.sql",
+      "version": "20261007042207",
+      "name": "release4e_takeaway_staff_approval_request_layer",
+      "sql_bytes": 7785,
+      "sha256": "1ab53f30e0f090041bce93953ae13bdcf3442dde45b08319bd471e1c419fc866",
+      "git_blob_sha": "97f04031550a031e4e4b78617fb116f4341c3159"
+    },
+    {
+      "filename": "20261007042258_release4c_remove_legacy_message_rpc_overloads.sql",
+      "version": "20261007042258",
+      "name": "release4c_remove_legacy_message_rpc_overloads",
+      "sql_bytes": 749,
+      "sha256": "97691b8aa7206a3c1ae317c930a6d965ecefa87cefd6d1f08e959c0b0f6c3395",
+      "git_blob_sha": "64f7097cc8c9e94592c1874f1a996e70cf864513"
+    },
+    {
+      "filename": "20261007042312_release4e_takeaway_request_preview.sql",
+      "version": "20261007042312",
+      "name": "release4e_takeaway_request_preview",
+      "sql_bytes": 3970,
+      "sha256": "8a5fabf257d8e514d6815607a7e1914a56956854e54779c67c15a3296193f335",
+      "git_blob_sha": "ae91a6ecc13464322f5e3b9fc099c396ad910044"
+    },
+    {
+      "filename": "20261007042352_release4e_takeaway_direct_staff_approval_branch.sql",
+      "version": "20261007042352",
+      "name": "release4e_takeaway_direct_staff_approval_branch",
+      "sql_bytes": 7484,
+      "sha256": "9fc3b4a52c29821e03fcf6cdf20ffc86f736287a46c2d9fb48ccf0c2d4797731",
+      "git_blob_sha": "c73933c7dab1afbe4c09ee4cbacadf8bf4e3a674"
+    },
+    {
+      "filename": "20261007042357_release4c_unify_messaging_cron.sql",
+      "version": "20261007042357",
+      "name": "release4c_unify_messaging_cron",
+      "sql_bytes": 473,
+      "sha256": "66f38f8e3f4e0d0188e9b2611fd27d605fba8ca33ffae2fc6888624d4d266bd2",
+      "git_blob_sha": "a4b560292d812dc75ca22e7b536d9921c209e626"
+    },
+    {
+      "filename": "20261007042437_release4e_takeaway_staff_approval_actions.sql",
+      "version": "20261007042437",
+      "name": "release4e_takeaway_staff_approval_actions",
+      "sql_bytes": 8793,
+      "sha256": "dab27c7562f7c4bcbb10e626874532d8133725c5bda08f268edba95f684f6c78",
+      "git_blob_sha": "7c4754dd0390635460f37db623383065251378f6"
+    },
+    {
+      "filename": "20261007043309_release4_unit_allergen_test_catalog.sql",
+      "version": "20261007043309",
+      "name": "release4_unit_allergen_test_catalog",
+      "sql_bytes": 341,
+      "sha256": "91d074824c9061fcf8402d38c30cb40a94e80e18e03662923316aaa400957e29",
+      "git_blob_sha": "01f114f76c9fbf3968bdae1330124952cc7995a8"
+    },
+    {
+      "filename": "20261007043432_release4_unit_variant_test_catalog.sql",
+      "version": "20261007043432",
+      "name": "release4_unit_variant_test_catalog",
+      "sql_bytes": 307,
+      "sha256": "4bc1dc5c47d444e8223ba1396ee8642e185a74f4be5a8075c65a4002895e724d",
+      "git_blob_sha": "d8dea62a41a79bc5541ab171da8b7b1c6fc82567"
+    },
+    {
+      "filename": "20261007043640_release4_unit_totals_test_catalog.sql",
+      "version": "20261007043640",
+      "name": "release4_unit_totals_test_catalog",
+      "sql_bytes": 312,
+      "sha256": "4a7066bd7d13c2fac7f09d1c79e20a4e86ba332de26167387a3322c6717e83f8",
+      "git_blob_sha": "978de6d98662f7f8eee156ceb36057f614cf34da"
+    },
+    {
+      "filename": "20261007043742_release4_unit_discount_test_catalog.sql",
+      "version": "20261007043742",
+      "name": "release4_unit_discount_test_catalog",
+      "sql_bytes": 326,
+      "sha256": "b9aa9d7a1fb92cafb5e0ff682f7e21576c92f44ad9caa75cfcec4a60ab9f2136",
+      "git_blob_sha": "56250a8b8284155e2aacb5d2409097877e9d70b2"
+    },
+    {
+      "filename": "20261007045032_release4_unit_booking_pacing_test_catalog.sql",
+      "version": "20261007045032",
+      "name": "release4_unit_booking_pacing_test_catalog",
+      "sql_bytes": 291,
+      "sha256": "495bfcb0f6cdacd9751c644dd75b39ca8d66f7b081092b7ae655271cf59e85a2",
+      "git_blob_sha": "096420cf0c0894dc30ccb8d90ffb2ecab09bf87f"
+    },
+    {
+      "filename": "20261007045238_release4_unit_tips_test_catalog.sql",
+      "version": "20261007045238",
+      "name": "release4_unit_tips_test_catalog",
+      "sql_bytes": 287,
+      "sha256": "df272e41702f9990bf69f6355466d4f85df375d6c2ea28381035111e74938f8b",
+      "git_blob_sha": "5f1503a609be1ba251cdcae0e2c29c94fe35fc78"
+    },
+    {
+      "filename": "20261007045503_release4_navigation_telemetry_separation.sql",
+      "version": "20261007045503",
+      "name": "release4_navigation_telemetry_separation",
+      "sql_bytes": 2314,
+      "sha256": "41a5d6f22fe57b8b9cdffd2865f2c861c3d0a44ab18cd012bedcd46e0a1cd250",
+      "git_blob_sha": "83589caf78f92744c4baeb698a2589ce9c010eb9"
+    },
+    {
+      "filename": "20261007045857_release4_payment_webhook_out_of_order_test.sql",
+      "version": "20261007045857",
+      "name": "release4_payment_webhook_out_of_order_test",
+      "sql_bytes": 303,
+      "sha256": "b6d1acc85a3cb4db5f9a8463bb232dffb9ec0133304aa214fa46d5dcfa708615",
+      "git_blob_sha": "10fb0f2aae7a187ccefe3c9fee59cf8dc588c175"
+    },
+    {
+      "filename": "20261007050203_release4_customer_audit_attribution.sql",
+      "version": "20261007050203",
+      "name": "release4_customer_audit_attribution",
+      "sql_bytes": 4603,
+      "sha256": "056c5a0f3e97d57c409aadfbe6ca080b572fb903fdd22df1a99d254ec617aa74",
+      "git_blob_sha": "648b896fb5e6b80c50f862849067ed8b292fd861"
+    },
+    {
+      "filename": "20261007050304_release4_customer_audit_test_catalog.sql",
+      "version": "20261007050304",
+      "name": "release4_customer_audit_test_catalog",
+      "sql_bytes": 310,
+      "sha256": "9f1915583d08bb445270e4aa70d291f5a68d6e07164ca9d670bb60a2085779a4",
+      "git_blob_sha": "274824e76be3402d94ecd6e83e0530c600dc4df4"
+    },
+    {
+      "filename": "20261007051315_step13_backup_replica_rate_limit_recovery_test.sql",
+      "version": "20261007051315",
+      "name": "step13_backup_replica_rate_limit_recovery_test",
+      "sql_bytes": 316,
+      "sha256": "55e6a48d2be7c5f749aad82b40a5ddb4e5453d56b375707bb7ca0a8f0342c6b7",
+      "git_blob_sha": "1871cf0f8c2a6785259024ce02fd606c60fcdf51"
+    },
+    {
+      "filename": "20261007052142_release4c_confirmation_outbox_test_catalog.sql",
+      "version": "20261007052142",
+      "name": "release4c_confirmation_outbox_test_catalog",
+      "sql_bytes": 357,
+      "sha256": "bf83737264c6ba7592d875de2015d2c5915e61a0620b8d9df2020faa0bd9936c",
+      "git_blob_sha": "8786f10fed0e04329e0b57d9038972b7d2aef415"
+    },
+    {
+      "filename": "20261007052246_release4c_message_delivery_worker.sql",
+      "version": "20261007052246",
+      "name": "release4c_message_delivery_worker",
+      "sql_bytes": 12175,
+      "sha256": "c63b69537096bff09b87c20c3cafd9ed966eb7a5f7114f35fdf61de7211e0efa",
+      "git_blob_sha": "85ef01cd245814950b2732c060997df0b0b80360"
+    },
+    {
+      "filename": "20261007052444_release4c_message_template_resolution_fix.sql",
+      "version": "20261007052444",
+      "name": "release4c_message_template_resolution_fix",
+      "sql_bytes": 4108,
+      "sha256": "6b43d0a6903b2b951c86411b630e445fe17827b6222dca42e38048cd9fd069f4",
+      "git_blob_sha": "80b9256c33a52dfc62395883af7518a12598c789"
+    },
+    {
+      "filename": "20261007052512_release4c_message_claim_payload_fix.sql",
+      "version": "20261007052512",
+      "name": "release4c_message_claim_payload_fix",
+      "sql_bytes": 3306,
+      "sha256": "f1eb3b97c67d9e891d72626d1f67a19b9d28f0bd7edd7c573cd7874d1e358d18",
+      "git_blob_sha": "32e1e60ae68f80623ad7afac8db0386e1d542ac4"
+    },
+    {
+      "filename": "20261007052800_release4c_outbox_fail_closed_no_channel.sql",
+      "version": "20261007052800",
+      "name": "release4c_outbox_fail_closed_no_channel",
+      "sql_bytes": 2710,
+      "sha256": "28857b6d01adeb9411f15189ba08efe621c93fe5660a85062def60a8f2a4373b",
+      "git_blob_sha": "8969554a1fdd9be22f7cdbff5358e54963f77615"
+    },
+    {
+      "filename": "20261007052917_release4c_message_worker_test_catalog.sql",
+      "version": "20261007052917",
+      "name": "release4c_message_worker_test_catalog",
+      "sql_bytes": 686,
+      "sha256": "9dccbdc0b31346562788c7698fda4e93c827306b61c5935ef15ef6f30fc8a32d",
+      "git_blob_sha": "b2109e1825971a4bcce3bce4ed3f583507e3ad92"
+    },
+    {
+      "filename": "20261007053219_release4c_message_state_machine_unification.sql",
+      "version": "20261007053219",
+      "name": "release4c_message_state_machine_unification",
+      "sql_bytes": 11039,
+      "sha256": "bd39e864c2d6920e18a89659b28fdeb6f2bff2f153843312d9451ef8d1786bdc",
+      "git_blob_sha": "9430d0b9a8e04f87cceab10d1c0f41ceca172a36"
+    },
+    {
+      "filename": "20261007053408_release4c_reminder_delivery_test_catalog.sql",
+      "version": "20261007053408",
+      "name": "release4c_reminder_delivery_test_catalog",
+      "sql_bytes": 628,
+      "sha256": "0eab04a135315cc498f706667dc1e07d9af58e7ee8fd6f29023dc006cfa950f2",
+      "git_blob_sha": "0fe5b395403d2dc633477f12f0ecd33b4d9cc35f"
+    },
+    {
+      "filename": "20261007054229_release4a_food_cost_concurrency_test_catalog.sql",
+      "version": "20261007054229",
+      "name": "release4a_food_cost_concurrency_test_catalog",
+      "sql_bytes": 310,
+      "sha256": "f950a83e189c367158bcffeb8a35b6e37690c77e448982f6509c2d15ea51d3f7",
+      "git_blob_sha": "9afe3a2dc07c19e2096a0bd81ed8022d61e3a4b5"
+    },
+    {
+      "filename": "20261007070453_release4c_message_outbox_test_catalog.sql",
+      "version": "20261007070453",
+      "name": "release4c_message_outbox_test_catalog",
+      "sql_bytes": 308,
+      "sha256": "6fe7ddef22a2f69d75568db2ddbbc7c6e28be909aa8b9ed75ab6a81d5133b93d",
+      "git_blob_sha": "2023ec2584cedf68f68eb619a612156ad9621fe9"
+    },
+    {
+      "filename": "20261007071114_release4c_messaging_worker_tests.sql",
+      "version": "20261007071114",
+      "name": "release4c_messaging_worker_tests",
+      "sql_bytes": 650,
+      "sha256": "b826e5c151945796f0fc1bd541a7af25bc17eca9ecfc00c78598d180fb42adea",
+      "git_blob_sha": "71cf6eaa61068b06f6037e542db76baa6cf196d4"
+    },
+    {
+      "filename": "20261007071336_release4_offline_user_revoked_chaos_test.sql",
+      "version": "20261007071336",
+      "name": "release4_offline_user_revoked_chaos_test",
+      "sql_bytes": 308,
+      "sha256": "2121c9446bb4d2a0d6fe40ae22dd3c8d34f571aef61a0d8a81481d0120772b93",
+      "git_blob_sha": "2e0b0db3e1bf35ecbf82064d4d01512ae9e88cb3"
+    },
+    {
+      "filename": "20261007071858_release4c_messaging_feature_guards.sql",
+      "version": "20261007071858",
+      "name": "release4c_messaging_feature_guards",
+      "sql_bytes": 11891,
+      "sha256": "46a601bc374b22e7d6149b3cb4fbc127bc762ced3b1ed240ac7d6e9286e19729",
+      "git_blob_sha": "38265e1842169403deafcb1e20b620ef5abdc8c0"
+    },
+    {
+      "filename": "20261007072004_release4c_message_delivery_worker_api.sql",
+      "version": "20261007072004",
+      "name": "release4c_message_delivery_worker_api",
+      "sql_bytes": 9457,
+      "sha256": "f05eebd9b565211706ee395d0f4f80fe3b6b2d857aee339a59c97515d1c25aa0",
+      "git_blob_sha": "09805ab0c2d993254c6347a4910d46a763d0185c"
+    },
+    {
+      "filename": "20261007072142_release4c_message_payload_template_fix.sql",
+      "version": "20261007072142",
+      "name": "release4c_message_payload_template_fix",
+      "sql_bytes": 3560,
+      "sha256": "2094313b50cc94e685af35fd634f67e5ef2ead715572f6be52991a4a81dde6f0",
+      "git_blob_sha": "9abd46c5fc1615543e0fb2198e1befaccef6d60d"
+    },
+    {
+      "filename": "20261007072343_release4c_remove_redundant_message_worker_overloads.sql",
+      "version": "20261007072343",
+      "name": "release4c_remove_redundant_message_worker_overloads",
+      "sql_bytes": 421,
+      "sha256": "6dad59568dc5ef760eabab0948a240bad10a9248535e87c411dafbac9d1c36cd",
+      "git_blob_sha": "4b1dc2473dbbac6a2008723d96090cf682a78519"
+    },
+    {
+      "filename": "20261007072542_release4c_align_message_configuration_with_canonical_worker.sql",
+      "version": "20261007072542",
+      "name": "release4c_align_message_configuration_with_canonical_worker",
+      "sql_bytes": 8308,
+      "sha256": "08b178a3c813518572d0e26530ef90ffd5af4af35d8cce0c0a8112216c47ea59",
+      "git_blob_sha": "3a82c62e5dbc477d22a41e7a88e84694faf1f757"
+    },
+    {
+      "filename": "20261007073051_release4c_message_outbox_test_catalog.sql",
+      "version": "20261007073051",
+      "name": "release4c_message_outbox_test_catalog",
+      "sql_bytes": 312,
+      "sha256": "36fc091676537c8a5ea1e043fe61e4a8d988abbb4d8756b658bc534c6bceff0e",
+      "git_blob_sha": "155d29ae807d1b3318b01ae419cb6d140672c56b"
+    },
+    {
+      "filename": "20261007073219_release4c_reservation_message_contact_preferences.sql",
+      "version": "20261007073219",
+      "name": "release4c_reservation_message_contact_preferences",
+      "sql_bytes": 6662,
+      "sha256": "51db68284e1f9f14755a91be9750b6c4df86c697033e72245a8597028fdf9918",
+      "git_blob_sha": "987f81379ccdb49c50f3e1ba9da7e30bd8a7ce4c"
+    },
+    {
+      "filename": "20261007073339_release4c_message_contact_preference_test.sql",
+      "version": "20261007073339",
+      "name": "release4c_message_contact_preference_test",
+      "sql_bytes": 352,
+      "sha256": "99ccc5536862f735c241280a8bd7aa859d91fbe80791b9fe177d46e396b43921",
+      "git_blob_sha": "bf14038f42660dc483298d8553bc85fa8ec84ca3"
+    },
+    {
+      "filename": "20261007073520_release4b_public_menu_feature_guard.sql",
+      "version": "20261007073520",
+      "name": "release4b_public_menu_feature_guard",
+      "sql_bytes": 8669,
+      "sha256": "5e2735371659f893a8e252e06c53bc2e3c33b7a22165ec9e5a732ed9ade47904",
+      "git_blob_sha": "c774ca84362787e568c2227ddd2681195a307d7d"
+    },
+    {
+      "filename": "20261007073538_release4c_reminder_retry_test_catalog.sql",
+      "version": "20261007073538",
+      "name": "release4c_reminder_retry_test_catalog",
+      "sql_bytes": 485,
+      "sha256": "359b192625e9afd2997d0813f85af0362219ef59b181187931d30deb22817ef6",
+      "git_blob_sha": "34b2dcd08aabb0b5cf65db17da14fde0f44e8f43"
+    },
+    {
+      "filename": "20261007073709_release4c_message_cron_orchestration.sql",
+      "version": "20261007073709",
+      "name": "release4c_message_cron_orchestration",
+      "sql_bytes": 679,
+      "sha256": "b57836200815dad883001676b33442f6617a967ca9418973bc9af8d1512c09f5",
+      "git_blob_sha": "0b84836efa296d269b91a0b0de3222008d42da26"
+    },
+    {
+      "filename": "20261007074041_release4c_restore_unified_messaging_cron.sql",
+      "version": "20261007074041",
+      "name": "release4c_restore_unified_messaging_cron",
+      "sql_bytes": 163,
+      "sha256": "32db423a86a9fe63ab4a94594e12c284405971b62439be02cf8b08a5649194d6",
+      "git_blob_sha": "31b1c6c28db844afa6cb35a1959dead5857e0a9b"
+    },
+    {
+      "filename": "20261007074128_release4c_messaging_orchestration_test_catalog.sql",
+      "version": "20261007074128",
+      "name": "release4c_messaging_orchestration_test_catalog",
+      "sql_bytes": 310,
+      "sha256": "9049dbf969e5656055d6a4b4dc19a9ef4e0548d045503fef75793253e4492056",
+      "git_blob_sha": "5fdfcb53c2b727b130bc1e56f5bb3c1c828f507d"
+    },
+    {
+      "filename": "20261007120232_release4d_no_show_grace_engine.sql",
+      "version": "20261007120232",
+      "name": "release4d_no_show_grace_engine",
+      "sql_bytes": 8272,
+      "sha256": "aa89e60db29c2db19433184ab985aec7491eb7918a22c7f2c3dd901d45a30147",
+      "git_blob_sha": "88faf5ba7ed84d7a7177d67eeaebbba3a4439375"
+    },
+    {
+      "filename": "20261007120520_release4d_no_show_regression_probe.sql",
+      "version": "20261007120520",
+      "name": "release4d_no_show_regression_probe",
+      "sql_bytes": 6940,
+      "sha256": "c19b5c173dd1e9440d900e87bcbbd9c2ee101cc32b89931ecd03c6e49d108ca7",
+      "git_blob_sha": "125e2a0ad434b1b4fc50519fed22cd64c9e52eb7"
+    },
+    {
+      "filename": "20261007120728_release4d_no_show_scheduler_index.sql",
+      "version": "20261007120728",
+      "name": "release4d_no_show_scheduler_index",
+      "sql_bytes": 175,
+      "sha256": "a46ab01ff293049df21cf10990ba625fe9aefc09e199b553b2623bdc8c1730ac",
+      "git_blob_sha": "1c607dab7faa0215e2f406c7fdeb887ef96d965f"
+    },
+    {
+      "filename": "20261007121034_release4d_no_show_deposit_policy_queue.sql",
+      "version": "20261007121034",
+      "name": "release4d_no_show_deposit_policy_queue",
+      "sql_bytes": 7755,
+      "sha256": "23c1d2ad064d24e1ad6853b12b8f9c2fb361377cd366048f2d0ce32b6f11f7cd",
+      "git_blob_sha": "08fee7751caab6e2036537ef9d57d88105a44594"
+    },
+    {
+      "filename": "20261007121107_release4d_no_show_deposit_policy_probe.sql",
+      "version": "20261007121107",
+      "name": "release4d_no_show_deposit_policy_probe",
+      "sql_bytes": 6831,
+      "sha256": "02d4ffa1d29e8818a448b326a32bf42f182c177ab56834e64e3c6d5503b5ece1",
+      "git_blob_sha": "3240a91e7effa0325f8a1102c481f51f0dee9ff4"
+    },
+    {
+      "filename": "20261007121404_release4d_no_show_deposit_provider_state_machine.sql",
+      "version": "20261007121404",
+      "name": "release4d_no_show_deposit_provider_state_machine",
+      "sql_bytes": 14386,
+      "sha256": "515bc100b10690e87520d4ae6144e7d783fd1ac9c48201d7af9719937134c7c2",
+      "git_blob_sha": "1c518d3279b3c042a82e3198c2df2bc37a1fa18b"
+    },
+    {
+      "filename": "20261007121613_release4d_no_show_deposit_provider_hardening.sql",
+      "version": "20261007121613",
+      "name": "release4d_no_show_deposit_provider_hardening",
+      "sql_bytes": 8428,
+      "sha256": "7c15464d801beb03c3e9a4ed9fededd96f9d011fdfc3fed904517913d9fd2951",
+      "git_blob_sha": "4e3a4456c75cc496a8fe7945d320028173925c3c"
+    },
+    {
+      "filename": "20261007121732_release4d_no_show_deposit_provider_probe.sql",
+      "version": "20261007121732",
+      "name": "release4d_no_show_deposit_provider_probe",
+      "sql_bytes": 7678,
+      "sha256": "02e8bbff868d01e874610db5af6861c91e6cb563a2998d3c2a4c31aba18efdd3",
+      "git_blob_sha": "24d882596d8005ff7d8070beb31ea80ada134944"
+    },
+    {
+      "filename": "20261007122126_release4d_notification_single_version_trigger.sql",
+      "version": "20261007122126",
+      "name": "release4d_notification_single_version_trigger",
+      "sql_bytes": 76,
+      "sha256": "702fd1cc865129255dd55ddc2d120f699ed504780e9894afa41ed1b1b4d5830d",
+      "git_blob_sha": "9d5e6e958e8e9776c9f7abe751526ee0febad89d"
+    },
+    {
+      "filename": "20261007122328_release4d_notification_center_e2e_probe.sql",
+      "version": "20261007122328",
+      "name": "release4d_notification_center_e2e_probe",
+      "sql_bytes": 7478,
+      "sha256": "c937a58ab19c6272619c9620a3b21713127a235d6a0ec0780cba73ad6e573cbf",
+      "git_blob_sha": "be599232b889853e841cc8fecc1a7ff5d875396c"
+    },
+    {
+      "filename": "20261007122509_release4d_notification_center_e2e_probe.sql",
+      "version": "20261007122509",
+      "name": "release4d_notification_center_e2e_probe",
+      "sql_bytes": 7607,
+      "sha256": "40c04fcfcda2a19435297f899e422007f2ebf1fcc0658a3d17fe1c3f6c4ae0c5",
+      "git_blob_sha": "d8d288424545f2869711855d3e0d480d23c068f7"
+    },
+    {
+      "filename": "20261007122634_release4d_conflict_center_api.sql",
+      "version": "20261007122634",
+      "name": "release4d_conflict_center_api",
+      "sql_bytes": 2895,
+      "sha256": "7e3bf60458ca293db52260dda84fb684f18e88a62310a72872c8c6d3ec596a6f",
+      "git_blob_sha": "62b56aeecad4e35dfb71aca71dbcd1645fff5bfb"
+    },
+    {
+      "filename": "20261007122720_release4d_conflict_center_e2e_probe.sql",
+      "version": "20261007122720",
+      "name": "release4d_conflict_center_e2e_probe",
+      "sql_bytes": 6951,
+      "sha256": "3c43524c965c5892ddfb2054f8ab0934bdf801905bab96ad3e883752f94e7526",
+      "git_blob_sha": "2973e8a299fe183838fc6432e8ea1b71cfaa5e2a"
+    },
+    {
+      "filename": "20261007122934_release4d_command_palette_scope_hardening.sql",
+      "version": "20261007122934",
+      "name": "release4d_command_palette_scope_hardening",
+      "sql_bytes": 5106,
+      "sha256": "62940371a6923a873687be3d85e08abce590803f018455ffd4189d31fd706230",
+      "git_blob_sha": "a78356f1056e83d2e9707311e645093714033897"
+    },
+    {
+      "filename": "20261007123009_release4d_command_palette_e2e_probe.sql",
+      "version": "20261007123009",
+      "name": "release4d_command_palette_e2e_probe",
+      "sql_bytes": 4724,
+      "sha256": "1bf2a6dcc1f08adb7f7460694a4080a70093f42a4d2ea99f07579888ceb530db",
+      "git_blob_sha": "ce2113ef871b0d64b1e9af68db66c4c4cdd39555"
+    },
+    {
+      "filename": "20261007123410_release4d_staff_venue_context.sql",
+      "version": "20261007123410",
+      "name": "release4d_staff_venue_context",
+      "sql_bytes": 5612,
+      "sha256": "048d934ef633260ed3ea4223811982ef67f75f9fe6b0188bf7b3356d8af494d2",
+      "git_blob_sha": "5516a0647f2c139b02b582f5e00e8f66706cfe4d"
+    },
+    {
+      "filename": "20261007123552_release4d_staff_venue_context_e2e_probe.sql",
+      "version": "20261007123552",
+      "name": "release4d_staff_venue_context_e2e_probe",
+      "sql_bytes": 6697,
+      "sha256": "be7d23209aa591805a74bf07d0ec6f84e178c480af0d71d816ee5a2ef42e44b9",
+      "git_blob_sha": "fbfff3d3b8ab921d761cab55df28c657e2e9a4ff"
+    },
+    {
+      "filename": "20261007123649_release4d_staff_venue_context_probe_deferred_fix.sql",
+      "version": "20261007123649",
+      "name": "release4d_staff_venue_context_probe_deferred_fix",
+      "sql_bytes": 6607,
+      "sha256": "aff90049e7eebecd71395ac9da1fb5f8f14afa2150cb9865c3512a2c8d899115",
+      "git_blob_sha": "e52a6c64e41cd010d6e24f05a7eb9babe6a49fad"
+    },
+    {
+      "filename": "20261007123733_release4d_staff_venue_context_probe_constraint_fix.sql",
+      "version": "20261007123733",
+      "name": "release4d_staff_venue_context_probe_constraint_fix",
+      "sql_bytes": 6583,
+      "sha256": "f866f16b27de1a050f02ae023eeedfc6ccd69e0a3338b6007dc33b0d92f30687",
+      "git_blob_sha": "6d614757a9e1affbfd2c33181ae96837e24f8c3b"
+    },
+    {
+      "filename": "20261007124014_release4d_menu_venue_override_e2e_probe.sql",
+      "version": "20261007124014",
+      "name": "release4d_menu_venue_override_e2e_probe",
+      "sql_bytes": 6128,
+      "sha256": "a5177b976378313ece8d19fdcb4596ee4c47d043da1c2d3afb141e9e1c47a3b7",
+      "git_blob_sha": "f84d99b3aa5af75fc8315691b985bd3cacac28be"
+    },
+    {
+      "filename": "20261007124252_release4d_enable_multi_venue_e2e_probe.sql",
+      "version": "20261007124252",
+      "name": "release4d_enable_multi_venue_e2e_probe",
+      "sql_bytes": 7594,
+      "sha256": "2c1d90c1dd59f6406571c947fbb9592688f31f6f140c6d7fa1ab50008dfe60ce",
+      "git_blob_sha": "62e38219d105c4f96c94cf3f1e76d77a92d186da"
+    },
+    {
+      "filename": "20261007124525_release4d_database_unavailable_chaos_harness.sql",
+      "version": "20261007124525",
+      "name": "release4d_database_unavailable_chaos_harness",
+      "sql_bytes": 5035,
+      "sha256": "ded2b9715038ea5d72d0ae7d7373107076a0151e492d2bee28e54d65e32f342b",
+      "git_blob_sha": "fdb1e98da490f8f9a13bf97f604c503e94ed2f71"
+    },
+    {
+      "filename": "20261007124840_release4d_no_show_provider_fk_indexes.sql",
+      "version": "20261007124840",
+      "name": "release4d_no_show_provider_fk_indexes",
+      "sql_bytes": 282,
+      "sha256": "49820376db45ca99937b3e9d24ad72225b579ff7f7452427902367646fef4829",
+      "git_blob_sha": "db61603631d8bb7c93479f00421f9bb939a47727"
+    },
+    {
+      "filename": "20261007161816_release4d_staff_logout_session.sql",
+      "version": "20261007161816",
+      "name": "release4d_staff_logout_session",
+      "sql_bytes": 2285,
+      "sha256": "ae92f080fd09e5631f34a81c2cf91a827ad3eb2747742f4735dc08a00c8225ec",
+      "git_blob_sha": "5c95fc42b61552cf857a0fe30aa8f98ea645297b"
+    },
+    {
+      "filename": "20261007161844_release4d_staff_logout_probe.sql",
+      "version": "20261007161844",
+      "name": "release4d_staff_logout_probe",
+      "sql_bytes": 3055,
+      "sha256": "ddef5c84d3b67b0430488ad09b07b2610ad7340da1ab8e2bf6f2e8b88c43ba15",
+      "git_blob_sha": "91693ce105f69bb655b0ffe197611659a074d903"
+    },
+    {
+      "filename": "20261007161940_release4d_staff_logout_probe_fix.sql",
+      "version": "20261007161940",
+      "name": "release4d_staff_logout_probe_fix",
+      "sql_bytes": 2915,
+      "sha256": "f4ea5c4ec8cc98393efa76d2ab8fd5ed0f0fd498259d32a9112eae4679b3ffbb",
+      "git_blob_sha": "59215d87dcc41b38e1d612351227832f09fc39bb"
+    },
+    {
+      "filename": "20261007162736_release4d_initial_setup_recovery_state.sql",
+      "version": "20261007162736",
+      "name": "release4d_initial_setup_recovery_state",
+      "sql_bytes": 4356,
+      "sha256": "d9daf9c55da5d6abbca1af96f48e8f963a6fe773776f3b218ba33e6d038b9dcf",
+      "git_blob_sha": "677de97db35b6b696d9542a93faca3819add4e1f"
+    },
+    {
+      "filename": "20261007162834_release4d_initial_setup_recovery_probe.sql",
+      "version": "20261007162834",
+      "name": "release4d_initial_setup_recovery_probe",
+      "sql_bytes": 3289,
+      "sha256": "5ba5c0063bccef914a975d96bee28fe31bbfe3ad9df6f367226f1a4fe10178d9",
+      "git_blob_sha": "1852059a889cf11841e0ba6272918a9460aecc46"
+    },
+    {
+      "filename": "20261007162848_release4d_command_palette_staff_paths.sql",
+      "version": "20261007162848",
+      "name": "release4d_command_palette_staff_paths",
+      "sql_bytes": 5070,
+      "sha256": "824510ea0968fb719c8acfedfa4c6331fe260fba417ff13863977d0e90f85018",
+      "git_blob_sha": "07f699882f62746825a18754f73b89a212da6be9"
+    },
+    {
+      "filename": "20261007170054_release4d_offline_authorization_issuance.sql",
+      "version": "20261007170054",
+      "name": "release4d_offline_authorization_issuance",
+      "sql_bytes": 5113,
+      "sha256": "8398f3a0793a33f1dff45e6a665b775a4b5cdfee5e1ff36fa4be2ac9b37df724",
+      "git_blob_sha": "9cb051cfbb85e26d04f17e57864b7eded053d0b2"
+    },
+    {
+      "filename": "20261007170113_release4d_offline_authorization_issuance_probe.sql",
+      "version": "20261007170113",
+      "name": "release4d_offline_authorization_issuance_probe",
+      "sql_bytes": 3435,
+      "sha256": "4e4da7c6c569f79972b546423bf2fdde0d2c5b034d98114de20e43a02343279a",
+      "git_blob_sha": "6cf2d35f2ced92303caaa9c1aebce38be2750821"
+    },
+    {
+      "filename": "20261007170137_release4d_offline_authorization_interval_fix.sql",
+      "version": "20261007170137",
+      "name": "release4d_offline_authorization_interval_fix",
+      "sql_bytes": 4029,
+      "sha256": "5bdd8a8c85d969680e49458201007bdf65a2e151c6a3bbcfc89ab18c68d39d09",
+      "git_blob_sha": "3ef5bc9e5f968501eecafedcefbfe52f41c63328"
+    },
+    {
+      "filename": "20261007172501_release4d_public_booking_availability.sql",
+      "version": "20261007172501",
+      "name": "release4d_public_booking_availability",
+      "sql_bytes": 5472,
+      "sha256": "3c4b1b245960e247b7937cd32853943330410a9faf1e409bdc3fbf261b152074",
+      "git_blob_sha": "720970dc9e7e72779bdc9268b0e16c6f145f7213"
+    },
+    {
+      "filename": "20261007172609_release4d_public_booking_availability_probe.sql",
+      "version": "20261007172609",
+      "name": "release4d_public_booking_availability_probe",
+      "sql_bytes": 5846,
+      "sha256": "d6bab48ce1c3c4f426673378cd2a5b9c0d90bf28141ff51488a118a8b16545f5",
+      "git_blob_sha": "55728e681242ea7e14ddfb2f63f4804d68d0b981"
+    },
+    {
+      "filename": "20261007172656_release4d_public_booking_availability_probe_fix.sql",
+      "version": "20261007172656",
+      "name": "release4d_public_booking_availability_probe_fix",
+      "sql_bytes": 5582,
+      "sha256": "be61a0bfffb11c6045418f5318df4e58ca3f0efc7510630bdfce27e002ddfcce",
+      "git_blob_sha": "27be3c65ccd6852a4d4509af33be1bc0c1fc28da"
+    },
+    {
+      "filename": "20261007173829_release4d_public_reservation_edge_contract_test.sql",
+      "version": "20261007173829",
+      "name": "release4d_public_reservation_edge_contract_test",
+      "sql_bytes": 421,
+      "sha256": "bd2cebc433bb6a0910b8fd857a2a3cf375048c5af4043c5c3435224d2e6f4e30",
+      "git_blob_sha": "3bbc28ee0a9bbe7e501fcda934878abb4a7e70c6"
+    },
+    {
+      "filename": "20261007174231_release4d_public_waitlist_edge_hardening_test.sql",
+      "version": "20261007174231",
+      "name": "release4d_public_waitlist_edge_hardening_test",
+      "sql_bytes": 453,
+      "sha256": "9dc351995ae72462475486e43045d85dec6f43c97590d1ea254b22ff9e6ef844",
+      "git_blob_sha": "cd06fa2a51f4b42d9be910edbbae15e11eb595f3"
+    },
+    {
+      "filename": "20261007175252_release4d_waitlist_offer_messaging_bridge.sql",
+      "version": "20261007175252",
+      "name": "release4d_waitlist_offer_messaging_bridge",
+      "sql_bytes": 17741,
+      "sha256": "64c23d8e5f10b9eff84f4c094406919f9ed2fcb61b781d3231ad2e936d92db11",
+      "git_blob_sha": "380310c87f52566ca16744a80826554950e22aa6"
+    },
+    {
+      "filename": "20261007175504_release4d_waitlist_offer_messaging_bridge_probe.sql",
+      "version": "20261007175504",
+      "name": "release4d_waitlist_offer_messaging_bridge_probe",
+      "sql_bytes": 8981,
+      "sha256": "929c406396e78de152014288df03458a927f8b1721584fdcc65ef318886f47ea",
+      "git_blob_sha": "c5dbee2697f1cc9427c9bed2d50ab1df15533122"
+    },
+    {
+      "filename": "20261007175546_release4d_waitlist_offer_messaging_bridge_probe_expiry_fix.sql",
+      "version": "20261007175546",
+      "name": "release4d_waitlist_offer_messaging_bridge_probe_expiry_fix",
+      "sql_bytes": 617,
+      "sha256": "a4cc91e81c7e3d24922b84c3b0600a91bc4c48ecfd2707c2c00d8323ec0b5065",
+      "git_blob_sha": "cf996efb44d90b505110ec19e8b39d3a87abae18"
+    },
+    {
+      "filename": "20261007183328_release4d_accounts_center_read_model.sql",
+      "version": "20261007183328",
+      "name": "release4d_accounts_center_read_model",
+      "sql_bytes": 1853,
+      "sha256": "601a103cc4d384339865801361f120b4bbd835ca3e81b189b803374fa4c04091",
+      "git_blob_sha": "b4b49928cc499296437c60b8d91ddd656cd36d30"
+    },
+    {
+      "filename": "20261007185420_release4d_cash_workspace_read_model.sql",
+      "version": "20261007185420",
+      "name": "release4d_cash_workspace_read_model",
+      "sql_bytes": 2025,
+      "sha256": "3f7b11f191c340d5565b92418e1c29141e4095e62d6c3352e4043f760a4a2090",
+      "git_blob_sha": "02c3815fa0b9993d1a455d91e047442d9692d185"
+    },
+    {
+      "filename": "20261007185721_release4d_cash_workspace_services.sql",
+      "version": "20261007185721",
+      "name": "release4d_cash_workspace_services",
+      "sql_bytes": 1438,
+      "sha256": "7b653e1284f5928ad33ed1d0268f6fe445711b963e9c7328f02cc7e6fe492fe6",
+      "git_blob_sha": "c766fbd2100812d0997f2ef8ea5a2e0f0258fac7"
+    },
+    {
+      "filename": "20261007191828_release4d_host_services_read_model.sql",
+      "version": "20261007191828",
+      "name": "release4d_host_services_read_model",
+      "sql_bytes": 879,
+      "sha256": "8fe61f062683978afdc0dad76f5a0ad51c8564c9fec76608e006b34103532c97",
+      "git_blob_sha": "c6195a6d64f5eca6775d910b68b2d28adfef213d"
+    },
+    {
+      "filename": "20261007195927_release4d_operational_staff_workspace.sql",
+      "version": "20261007195927",
+      "name": "release4d_operational_staff_workspace",
+      "sql_bytes": 2635,
+      "sha256": "0b388b8f48f629a41374df9af2aea6ca2ee5a4b29e703506427bede2bf200fcd",
+      "git_blob_sha": "7843cb640f7a5e84d064b062d70bd66c227489cc"
+    },
+    {
+      "filename": "20261007200306_release4d_menu_admin_workspace.sql",
+      "version": "20261007200306",
+      "name": "release4d_menu_admin_workspace",
+      "sql_bytes": 3121,
+      "sha256": "3b0bf5775ba138ca0a0fdf210049721adc7ef7707882818100abf3265da370a9",
+      "git_blob_sha": "777ce847bb3ac2838077fc3090f29bea4b436533"
+    },
+    {
+      "filename": "20261007200924_release4d_dish_admin_detail.sql",
+      "version": "20261007200924",
+      "name": "release4d_dish_admin_detail",
+      "sql_bytes": 3508,
+      "sha256": "b423e8daa0a1493f33ac3dd27c27a29963af1460d2a094ce67b895544e2d2d3e",
+      "git_blob_sha": "959204e4fe5e73b145c86d6acc1c67ee52f04f30"
+    },
+    {
+      "filename": "20261007201419_release4d_catalog_version_price_history.sql",
+      "version": "20261007201419",
+      "name": "release4d_catalog_version_price_history",
+      "sql_bytes": 2223,
+      "sha256": "51f1188bd6d6b85bbe27e0b82ce707095b7fed3716bd17487b284a64d8b1ce92",
+      "git_blob_sha": "625891d8d362954a286d227d152e06b7c3e987d7"
+    },
+    {
+      "filename": "20261007201534_release4d_catalog_authoritative_crud.sql",
+      "version": "20261007201534",
+      "name": "release4d_catalog_authoritative_crud",
+      "sql_bytes": 15722,
+      "sha256": "cf0e17a2a8d2a749e66bf502e81b9b5eb9756996eaf9c3bb69d28de590374dad",
+      "git_blob_sha": "4e93d891fc324d6ef24515fab76f268c3f190edc"
+    },
+    {
+      "filename": "20261007201600_release4d_menu_admin_workspace_catalog_refs.sql",
+      "version": "20261007201600",
+      "name": "release4d_menu_admin_workspace_catalog_refs",
+      "sql_bytes": 3026,
+      "sha256": "bd13a85215d7da873d91b15ba7e42f47c4d7c1b09bd39c741751c22789a9515c",
+      "git_blob_sha": "9b1f2e1be6180d300f20f259848565bf70c699db"
+    },
+    {
+      "filename": "20261007201638_release4d_catalog_crud_probe.sql",
+      "version": "20261007201638",
+      "name": "release4d_catalog_crud_probe",
+      "sql_bytes": 5616,
+      "sha256": "644410dcd97916141174092af565e8185c69b78b5917268744a19b02b2ff5346",
+      "git_blob_sha": "6d2954578d4a68fbfb587e75d63bb93d039923e1"
+    },
+    {
+      "filename": "20261007205402_release4d_menu_experience_runtime_alignment.sql",
+      "version": "20261007205402",
+      "name": "release4d_menu_experience_runtime_alignment",
+      "sql_bytes": 10325,
+      "sha256": "561860030701187c54d08997272d0e2e3ba6c57305f94813421db6442864cc70",
+      "git_blob_sha": "6c47b0f97c5bd352fd96176d04aa9ceafb216da7"
+    },
+    {
+      "filename": "20261007205427_release4d_menu_experience_probe.sql",
+      "version": "20261007205427",
+      "name": "release4d_menu_experience_probe",
+      "sql_bytes": 5666,
+      "sha256": "365288bddd650b0a0666a4945ff7a56181a83d7d39a9307c9daaa6fb186fc684",
+      "git_blob_sha": "8772765f604893d52a7aecbad09b8d860fc14ea5"
+    },
+    {
+      "filename": "20261007211240_release4d_account_workspace_item_version.sql",
+      "version": "20261007211240",
+      "name": "release4d_account_workspace_item_version",
+      "sql_bytes": 2821,
+      "sha256": "5e60e3b6a17626286cfb892f858561cbc5da84206235237bc848a59166158371",
+      "git_blob_sha": "d36e6bb04f6292767737d3bc5ef7612b97c08187"
+    },
+    {
+      "filename": "20261007211524_release4d_returnable_order_items.sql",
+      "version": "20261007211524",
+      "name": "release4d_returnable_order_items",
+      "sql_bytes": 2970,
+      "sha256": "6dcccccf41e88bed327a8cb42f60368e60dca46eb5d7ec9321540e1b426954cb",
+      "git_blob_sha": "0b1332cf70892275c3fd1d499b1db55a5889159d"
+    },
+    {
+      "filename": "20261007212719_release4d_advanced_order_account_contract_probe.sql",
+      "version": "20261007212719",
+      "name": "release4d_advanced_order_account_contract_probe",
+      "sql_bytes": 2506,
+      "sha256": "1aef9b8ade4ed1e6f33e1bca1830bb0815de1accf646f41c29b4380f50441ed8",
+      "git_blob_sha": "35770078d1914e0a4197433f517ac29acf32d448"
+    },
+    {
+      "filename": "20261007212742_release4d_advanced_order_account_contract_probe_fix.sql",
+      "version": "20261007212742",
+      "name": "release4d_advanced_order_account_contract_probe_fix",
+      "sql_bytes": 2390,
+      "sha256": "333d2c5afda76ae4059f065b6bf5f919d68bcb12147593be56fd38ff6f608601",
+      "git_blob_sha": "b3e00741d2420806152d353c2009bbf4a8d42b2a"
+    },
+    {
+      "filename": "20261007213333_release4d_print_operations_workspace.sql",
+      "version": "20261007213333",
+      "name": "release4d_print_operations_workspace",
+      "sql_bytes": 15127,
+      "sha256": "2b61ae2754d58a98810e9da8e3be48fab32ce09bad76587c6381e786033cc292",
+      "git_blob_sha": "d7da57dab95d85bb4879546361a6dfa25ea8e6cb"
+    },
+    {
+      "filename": "20261007215048_release4d_print_claimable_jobs.sql",
+      "version": "20261007215048",
+      "name": "release4d_print_claimable_jobs",
+      "sql_bytes": 1476,
+      "sha256": "91ecc022d519bb5df7b53755203117062dec8f8ef5732d6b48a658bf677def71",
+      "git_blob_sha": "1fd8c44f1685c862abaafc44568dd3463757a772"
+    },
+    {
+      "filename": "20261007215119_release4d_print_claimable_probe.sql",
+      "version": "20261007215119",
+      "name": "release4d_print_claimable_probe",
+      "sql_bytes": 4341,
+      "sha256": "15af7495f17efa817dee58780c725506f7ea1d7cc15e4c1d6578d8e25a91844a",
+      "git_blob_sha": "a9babe1ecbdc7234008584245e50e2b81b430ace"
+    },
+    {
+      "filename": "20261007215159_release4d_print_claimable_probe_fix.sql",
+      "version": "20261007215159",
+      "name": "release4d_print_claimable_probe_fix",
+      "sql_bytes": 3859,
+      "sha256": "628642eaad5f02f84a476a61f92cf38f5b8b08e60f735c0fa0463771b0b092e5",
+      "git_blob_sha": "25847c3eef847e2fed394cf38752512a8f416f36"
+    },
+    {
+      "filename": "20261007220300_release4d_room_editor_workspace_crud.sql",
+      "version": "20261007220300",
+      "name": "release4d_room_editor_workspace_crud",
+      "sql_bytes": 10315,
+      "sha256": "9d5084999d4dc10518a6b74407f4e3eba06bfe8cc46a60f833fd255b50797972",
+      "git_blob_sha": "ff8287ea3ca72ece15beebfed1c4811c0c9e9d8a"
+    },
+    {
+      "filename": "20261007220950_release4d_room_editor_advanced_probe.sql",
+      "version": "20261007220950",
+      "name": "release4d_room_editor_advanced_probe",
+      "sql_bytes": 5086,
+      "sha256": "b413d257ab534589a2a7855cebff85cc6202ee6ee3f001e77eb901bcb24dcd23",
+      "git_blob_sha": "3f5d614d87c071ef5884d570af3388f02f315359"
+    },
+    {
+      "filename": "20261007221034_release4d_room_editor_advanced_probe_feature_fix.sql",
+      "version": "20261007221034",
+      "name": "release4d_room_editor_advanced_probe_feature_fix",
+      "sql_bytes": 4598,
+      "sha256": "76ecfbc98ab02819338cc52795b072b102ef64ebb34db297c398f7288f391d56",
+      "git_blob_sha": "3d2a99e52b92087858e134ff5f3f1016d76fa943"
+    },
+    {
+      "filename": "20261007221150_release4d_room_editor_feature_hardening.sql",
+      "version": "20261007221150",
+      "name": "release4d_room_editor_feature_hardening",
+      "sql_bytes": 9213,
+      "sha256": "d62be727587568de3c3a7b1072cbe37ebf1d7401ccd82968fba21328310cc78f",
+      "git_blob_sha": "1b38b969a149fc15205b1047b4a7a852ed4ba207"
+    },
+    {
+      "filename": "20261008051809_beta_readiness_separation.sql",
+      "version": "20261008051809",
+      "name": "beta_readiness_separation",
+      "sql_bytes": 7298,
+      "sha256": "08bbebfb7aa401036ba4c44b0c1846b56f8b8a5fb5823260e4dbc2553a874b65",
+      "git_blob_sha": "2c12689399e8cd9e8f00ec4a689d468f3bbaea29"
+    },
+    {
+      "filename": "20261008052116_beta_status_documentation_gate.sql",
+      "version": "20261008052116",
+      "name": "beta_status_documentation_gate",
+      "sql_bytes": 3305,
+      "sha256": "2df101ba21f766a25781ab6fd37572cc6bd427732d6ccf38eb0930766eac1d34",
+      "git_blob_sha": "b0f2b8a381fca3d04bd37d32a55ba6591da73411"
+    },
+    {
+      "filename": "20261008075652_public_site_storytelling_content.sql",
+      "version": "20261008075652",
+      "name": "public_site_storytelling_content",
+      "sql_bytes": 9072,
+      "sha256": "803e3b5235fada974807edc8c705089a1153e022670b39c9a36437249ee0db6b",
+      "git_blob_sha": "b254c28f489bc6d627adc75cb416fc95b072f363"
+    },
+    {
+      "filename": "20261008081614_staff_identifier_suffix_contract.sql",
+      "version": "20261008081614",
+      "name": "staff_identifier_suffix_contract",
+      "sql_bytes": 3735,
+      "sha256": "d53129bac767f53b162f69a9779959331790199a71d132a82e7d95408f3c4064",
+      "git_blob_sha": "20798127a3ba78190605ead6f030758f55b7fac2"
+    },
+    {
+      "filename": "20261008081654_staff_identifier_probe_fix.sql",
+      "version": "20261008081654",
+      "name": "staff_identifier_probe_fix",
+      "sql_bytes": 1675,
+      "sha256": "10c9b5b4c304489b7890b9ad15036115e5cc268c1f6dd139b7792b0d97854b90",
+      "git_blob_sha": "d969da58732bff34e3a9d0630c6210ff8498f43e"
+    },
+    {
+      "filename": "20261008082821_full_auth_shift_mode_and_admin_ownership.sql",
+      "version": "20261008082821",
+      "name": "full_auth_shift_mode_and_admin_ownership",
+      "sql_bytes": 19695,
+      "sha256": "726f623eef278eb6705ee2450a93e9e3185c296b1a10a4d5995eae7df22e025e",
+      "git_blob_sha": "5e659afdd233a08c5118180623ee7d52d0e178b8"
+    },
+    {
+      "filename": "20261008083034_shift_and_service_requirement_contracts.sql",
+      "version": "20261008083034",
+      "name": "shift_and_service_requirement_contracts",
+      "sql_bytes": 5416,
+      "sha256": "489620ee8deb2413f73e15a548a1131a43b5088f6bbae628f92be58defd17916",
+      "git_blob_sha": "cee6912a45492f656e2f4cb8247990084f0fed34"
+    },
+    {
+      "filename": "20261008083103_service_configuration_contract.sql",
+      "version": "20261008083103",
+      "name": "service_configuration_contract",
+      "sql_bytes": 3151,
+      "sha256": "cadb99f7e599bf114b2ac3365d8ca8e0f637a2fa0c1108d321f834ee1d2b3cf6",
+      "git_blob_sha": "ea983e64065628e8509bea05003f401ab2196b9b"
+    },
+    {
+      "filename": "20261008083224_service_configuration_contract_probe_fix.sql",
+      "version": "20261008083224",
+      "name": "service_configuration_contract_probe_fix",
+      "sql_bytes": 2919,
+      "sha256": "ebf131da5727c542cb8fdc8d46e020a111dbbf3e88e4b41fe0e29cf876eba44e",
+      "git_blob_sha": "ecd1c2f3e7019ad8e41933b442f8c983ac5c16c6"
+    },
+    {
+      "filename": "20261008085101_navigation_telemetry_anon_surface_hardening.sql",
+      "version": "20261008085101",
+      "name": "navigation_telemetry_anon_surface_hardening",
+      "sql_bytes": 421,
+      "sha256": "3b56ded3cb3c74aa1f17400de7e4284994dbf0f7fbe858a23451221287a5edb8",
+      "git_blob_sha": "8a77655df896974738b4496ff5b1ef4d9da03553"
+    },
+    {
+      "filename": "20261008090122_menu_service_assignment_contract.sql",
+      "version": "20261008090122",
+      "name": "menu_service_assignment_contract",
+      "sql_bytes": 13931,
+      "sha256": "89935a97e99bf5b5e8b769b8079d38044c43ddc95bd2b7996ce6f9185ec4b9c5",
+      "git_blob_sha": "05e874e21ce2e04ecb41ec6c612c9a8be6241a5f"
+    },
+    {
+      "filename": "20261008091023_step11_public_menu_index_contract.sql",
+      "version": "20261008091023",
+      "name": "step11_public_menu_index_contract",
+      "sql_bytes": 1622,
+      "sha256": "40ffe06d8111704cce220c68321be2547ca6f3286ebb11a6a00c17f65ff535a6",
+      "git_blob_sha": "f19de8018d0aae96bf4bf9735b3232bd1b367622"
+    },
+    {
+      "filename": "20261008091039_step11_public_menu_index_uuid_fix.sql",
+      "version": "20261008091039",
+      "name": "step11_public_menu_index_uuid_fix",
+      "sql_bytes": 1375,
+      "sha256": "0ee7c606d45f066bc6ed5fd18a81f68dbd29379c07b73a521e3eb34e5dbad9de",
+      "git_blob_sha": "dd3a27da50d851aa50d9e5481ec35657b95e04f0"
+    },
+    {
+      "filename": "20261008091803_step11_public_navigation_contract.sql",
+      "version": "20261008091803",
+      "name": "step11_public_navigation_contract",
+      "sql_bytes": 3092,
+      "sha256": "f062bd3163cc63047e63b6949f49258521b633290677fa2747b8237d141cb49b",
+      "git_blob_sha": "844153e4a1c3296350c29e2d67c8c24954538258"
+    },
+    {
+      "filename": "20261008092502_step11_public_page_metadata_secure.sql",
+      "version": "20261008092502",
+      "name": "step11_public_page_metadata_secure",
+      "sql_bytes": 5477,
+      "sha256": "64beb83b5b57e23f4ad211e210802bd025511b7c110c6fc149e2becfc2112264",
+      "git_blob_sha": "85b15168feff7d20c7d5053cf49236ff6e17be0c"
+    },
+    {
+      "filename": "20261008092732_step11_public_metadata_regression_suite.sql",
+      "version": "20261008092732",
+      "name": "step11_public_metadata_regression_suite",
+      "sql_bytes": 3048,
+      "sha256": "9643aa50f40895eecbed3e82cbc1a40a689072d95e5aeb2bb34032205b25a9a2",
+      "git_blob_sha": "c723f703d7e547265c261a3364bb09617461d6a1"
+    },
+    {
+      "filename": "20261008092819_step11_public_sitemap_entries_contract.sql",
+      "version": "20261008092819",
+      "name": "step11_public_sitemap_entries_contract",
+      "sql_bytes": 1984,
+      "sha256": "eee599407f21d99967c402ec04541805ed0d8252656ae18a161fe61b9c3ed6bc",
+      "git_blob_sha": "f17b74f6df0a5f1de23767e4684ed26a12f70209"
+    },
+    {
+      "filename": "20261008092901_step11_public_sitemap_regression_suite.sql",
+      "version": "20261008092901",
+      "name": "step11_public_sitemap_regression_suite",
+      "sql_bytes": 1478,
+      "sha256": "ea8c0a4ce86da64921eb3a686e3ed2521754fff44c422cddc1ec429f53dc3494",
+      "git_blob_sha": "fd29bd86c481e302d623acfdb1b563efff23793b"
+    },
+    {
+      "filename": "20261008100820_step11_booking_ready_public_visibility.sql",
+      "version": "20261008100820",
+      "name": "step11_booking_ready_public_visibility",
+      "sql_bytes": 2643,
+      "sha256": "519480c9f87a424964e4976b23a5964628055869bff6ff51d4e09f170e0d58df",
+      "git_blob_sha": "9e422717b42b2cc6893927fc9afc4c7f562bb22d"
+    },
+    {
+      "filename": "20261008100925_step11_booking_visibility_regression.sql",
+      "version": "20261008100925",
+      "name": "step11_booking_visibility_regression",
+      "sql_bytes": 1872,
+      "sha256": "90d2be1c724ee60f40bc3a16b3dbf463e7024ae58571300f497794114a366168",
+      "git_blob_sha": "a056a17f93eb6ed40c9d259097a4666c822587e7"
+    },
+    {
+      "filename": "20261008101420_step11_booking_availability_dst_gap_guard.sql",
+      "version": "20261008101420",
+      "name": "step11_booking_availability_dst_gap_guard",
+      "sql_bytes": 1514,
+      "sha256": "aa65ecd5759331b3da380a28c070b19c60908900a9edbee4ca942a29bb1334c8",
+      "git_blob_sha": "dadf54bda27587955d826db62a7b64169da79141"
+    },
+    {
+      "filename": "20261008101941_step11_booking_privacy_public_readiness.sql",
+      "version": "20261008101941",
+      "name": "step11_booking_privacy_public_readiness",
+      "sql_bytes": 1118,
+      "sha256": "b7841d3b100cd56ce7f116c370b3640d01746452399502efc4a545c41cfde871",
+      "git_blob_sha": "e8438eca43ba7c5c95d7401e83e84206557cf252"
+    },
+    {
+      "filename": "20261008102214_step11_booking_privacy_authoritative_rpc_guard.sql",
+      "version": "20261008102214",
+      "name": "step11_booking_privacy_authoritative_rpc_guard",
+      "sql_bytes": 1989,
+      "sha256": "6c484ea6f6abe9903fa7d2166e9154d011f010149d78eb36af0331818fd4ba49",
+      "git_blob_sha": "675acb0d30c9f6b61c982efa18ebdc42a2fc0a26"
+    },
+    {
+      "filename": "20261008133446_step11_booking_availability_server_test_privacy_rolling_dates.sql",
+      "version": "20261008133446",
+      "name": "step11_booking_availability_server_test_privacy_rolling_dates",
+      "sql_bytes": 1314,
+      "sha256": "d1627017528b3dbc650263737404d14ae6fb8577e7e2062b019fabf5bcf357cd",
+      "git_blob_sha": "2ccf15d1b320c46c1d4017a49e1f39c3f5c41e49"
+    },
+    {
+      "filename": "20261008134210_step11_public_booking_transactional_rollback_regression.sql",
+      "version": "20261008134210",
+      "name": "step11_public_booking_transactional_rollback_regression",
+      "sql_bytes": 4422,
+      "sha256": "555545dc56ed29b6b60465e23c14d60085aab6c848ae365afda6b2f7c16df8dd",
+      "git_blob_sha": "18821514aac270f29b7d828cb07518d512a966ee"
+    },
+    {
+      "filename": "20261008134229_step11_public_booking_regression_fix_coalesce.sql",
+      "version": "20261008134229",
+      "name": "step11_public_booking_regression_fix_coalesce",
+      "sql_bytes": 295,
+      "sha256": "722ca44fc1208b11022946a48a84d1d4c57d58a0e2f14a3a36e42cc6f4714d04",
+      "git_blob_sha": "ea4060c99ee339e139f091132b41040c4475f820"
+    },
+    {
+      "filename": "20261008163112_step11_public_rpc_permission_manifest.sql",
+      "version": "20261008163112",
+      "name": "step11_public_rpc_permission_manifest",
+      "sql_bytes": 1593,
+      "sha256": "eaaa188e228f1bbb025b940b82f19a43aeca29b760f6f73bd2c51c8b69a50120",
+      "git_blob_sha": "f77346b34c34a4ced77f3089b7480fc8d2df411d"
+    },
+    {
+      "filename": "20261008163715_step11_notification_probe_expiring_fixture_fix.sql",
+      "version": "20261008163715",
+      "name": "step11_notification_probe_expiring_fixture_fix",
+      "sql_bytes": 1054,
+      "sha256": "533726aa7a4c485db44758ddac4dadcba55bc7c7115d3e879095a55307e46388",
+      "git_blob_sha": "4d3c63080be41cbaef961e74b57429f1e619f125"
+    },
+    {
+      "filename": "20261008181605_core_edition_payment_and_print_denial.sql",
+      "version": "20261008181605",
+      "name": "core_edition_payment_and_print_denial",
+      "sql_bytes": 5552,
+      "sha256": "ffe4d024c6611632ea07a78a636422889f6e40c5985ec0c169f745672c5c3509",
+      "git_blob_sha": "09087bcf464d614d382a4f6319c4348d08da6c21"
+    },
+    {
+      "filename": "20261009001127_fix_account_workspace_order_items_sort.sql",
+      "version": "20261009001127",
+      "name": "fix_account_workspace_order_items_sort",
+      "sql_bytes": 2864,
+      "sha256": "9fec07e668afa02eeca799ed70e78eec1d6e0b730d3935844be26636a94c04d5",
+      "git_blob_sha": "1902e0c177a98cc51f70db4b99eacfbeae399192"
+    },
+    {
+      "filename": "20261011064417_cleanup_terminal_rehearsal_snapshots_after_backup_finalization.sql",
+      "version": "20261011064417",
+      "name": "cleanup_terminal_rehearsal_snapshots_after_backup_finalization",
+      "sql_bytes": 1657,
+      "sha256": "b19ede7b6ada21be21286a3fceff71ffe8ad7a56468bfccb1be47325ecdc6cc1",
+      "git_blob_sha": "ca64581b1177ced0efaa261f3d140531c2a415e2"
+    },
+    {
+      "filename": "20261011064608_list_failed_continuity_storage_cleanup_with_restore_guards.sql",
+      "version": "20261011064608",
+      "name": "list_failed_continuity_storage_cleanup_with_restore_guards",
+      "sql_bytes": 980,
+      "sha256": "49e9a2027a129dad1ead58d1146d905b0fcdd650796caf0e839f9d74d409a1a1",
+      "git_blob_sha": "961dae6650f16a0e9f6f51b43f40098c502452ae"
+    },
+    {
+      "filename": "20261011073505_audit_professional_catalog_filters_noise.sql",
+      "version": "20261011073505",
+      "name": "audit_professional_catalog_filters_noise",
+      "sql_bytes": 9742,
+      "sha256": "a1a651463d2f1bb2b3d9c3afd57d5de964f23cbd8d260adb69719f690555a968",
+      "git_blob_sha": "6cd0b6fce21fbfef613dccf37074257acdc8276b"
+    },
+    {
+      "filename": "20261011074105_audit_event_catalog_canonical_seed.sql",
+      "version": "20261011074105",
+      "name": "audit_event_catalog_canonical_seed",
+      "sql_bytes": 15727,
+      "sha256": "85281ccd658422e01143b945c8e43aa101f248939fc6f749642429ec77eb8230",
+      "git_blob_sha": "ea72f89dc4f0f89a28b2482b5e985e5175ba835e"
+    },
+    {
+      "filename": "20261011074842_audit_safe_device_assignment_diff_fields.sql",
+      "version": "20261011074842",
+      "name": "audit_safe_device_assignment_diff_fields",
+      "sql_bytes": 2441,
+      "sha256": "295b0ea8b84046dec9d044e773160f7b64e922f81ae38982820f2479a9fb569d",
+      "git_blob_sha": "4ac5df78f3e9c3d78759d8559936ca0b2b2bddb5"
+    },
+    {
+      "filename": "20261011075739_audit_privacy_sensitive_read_and_catalog_truth.sql",
+      "version": "20261011075739",
+      "name": "audit_privacy_sensitive_read_and_catalog_truth",
+      "sql_bytes": 4054,
+      "sha256": "cf964678b600b78c3e7cc5e439f3b12c05a6c145d4a38b2158636446bc48a471",
+      "git_blob_sha": "25320dde4a130c30dbdc41d87bc1d49a1ef5b413"
+    },
+    {
+      "filename": "20261011075935_audit_secure_superadmin_export_with_stepup.sql",
+      "version": "20261011075935",
+      "name": "audit_secure_superadmin_export_with_stepup",
+      "sql_bytes": 4691,
+      "sha256": "ff20135c62f83dd3e136aa859f2acd9d69ce814a8662a6221444299e814dde00",
+      "git_blob_sha": "35b93991324e1703e0a1410fcda6c4a081d857f8"
+    },
+    {
+      "filename": "20261011080213_audit_trusted_stepup_denial_source.sql",
+      "version": "20261011080213",
+      "name": "audit_trusted_stepup_denial_source",
+      "sql_bytes": 2164,
+      "sha256": "70aa3fc9af2baff41bce8a8640cc15691147ff61a133fcb91e520cddebb3744d",
+      "git_blob_sha": "12d52085c1dfb9df1a6b80c41f04af840060b634"
+    },
+    {
+      "filename": "20261011080554_audit_future_month_partition_rotation_no_data_loss.sql",
+      "version": "20261011080554",
+      "name": "audit_future_month_partition_rotation_no_data_loss",
+      "sql_bytes": 1691,
+      "sha256": "cc6b890b306154628325e8d8d397f7d71a7a7f4de6df2050297b73edbbc6b523",
+      "git_blob_sha": "300e2347a67ec0f3db86e3d844422a460fcaf8f9"
+    },
+    {
+      "filename": "20261011081547_technical_logs_redacted_superadmin_search.sql",
+      "version": "20261011081547",
+      "name": "technical_logs_redacted_superadmin_search",
+      "sql_bytes": 3610,
+      "sha256": "05b6ffdfb411b0cc262809c85ff1e2c396d5c586a6b48a6fa55a2b6262f18784",
+      "git_blob_sha": "fd66e811eac913e277264a804e9d6adbb94d1039"
+    },
+    {
+      "filename": "20261011082028_technical_health_logs_approved_retention_only.sql",
+      "version": "20261011082028",
+      "name": "technical_health_logs_approved_retention_only",
+      "sql_bytes": 1716,
+      "sha256": "5f9cad677142d28ce8a7a7d4d015ca7dd547f2f9d8372e6b42e2032d6439cf2b",
+      "git_blob_sha": "5c57e5396c581a65adedcffc411a90d09e6a87af"
+    },
+    {
+      "filename": "20261011134204_technical_auth_native_audit_redacted_read.sql",
+      "version": "20261011134204",
+      "name": "technical_auth_native_audit_redacted_read",
+      "sql_bytes": 4177,
+      "sha256": "77784026c9b846253de2b59feb6b1eee7a4a31d44c2cd909ce0446f7b58b838d",
+      "git_blob_sha": "50f8b9e5bd035da2c86e26a80510f3c079d973dd"
+    },
+    {
+      "filename": "20261011135611_reconcile_core_public_rpc_and_staff_identifier_contracts.sql",
+      "version": "20261011135611",
+      "name": "reconcile_core_public_rpc_and_staff_identifier_contracts",
+      "sql_bytes": 8879,
+      "sha256": "2ef305ccb97719a901a62b20631e817918f5d86c7c9c8bbbf48d9f0d1202b452",
+      "git_blob_sha": "c62765d2acf7e81261e941347b3b01fd00bdfb66"
+    },
+    {
+      "filename": "20261011152001_audit_archive_encrypted_primary_replica_checkpoint.sql",
+      "version": "20261011152001",
+      "name": "audit_archive_encrypted_primary_replica_checkpoint",
+      "sql_bytes": 9015,
+      "sha256": "2fd0c19d755795f03e45bd79056f616132215f6afcaf2de9c8cb9b3d521008cc",
+      "git_blob_sha": "3402d2fb5c977cddf86ba5980b18a2daa9992b42"
+    },
+    {
+      "filename": "20261011152612_audit_archive_checkpoint_readback_service_only.sql",
+      "version": "20261011152612",
+      "name": "audit_archive_checkpoint_readback_service_only",
+      "sql_bytes": 856,
+      "sha256": "2308b970e07b740f343b4ddec8ab985bdbd89bed19cf0cc08153edfd8c029bf8",
+      "git_blob_sha": "595d0c528c49e8d59a45a7e435696c8505a31cf9"
+    },
+    {
+      "filename": "20261011153016_audit_archive_independent_restore_verification_log.sql",
+      "version": "20261011153016",
+      "name": "audit_archive_independent_restore_verification_log",
+      "sql_bytes": 3137,
+      "sha256": "0a957d7b0438add45cdf85c2c6871834fd4a67716aa2d558e6f2840102704162",
+      "git_blob_sha": "8387817616698a14adc0b18d5af1ea8526814bb7"
+    },
+    {
+      "filename": "20261011153304_audit_archive_automatic_rotation_and_daily_recovery_test.sql",
+      "version": "20261011153304",
+      "name": "audit_archive_automatic_rotation_and_daily_recovery_test",
+      "sql_bytes": 1410,
+      "sha256": "be05f6cf0b86f177594011bbe712419ce0f8164030418bb2d43dc11339e2e151",
+      "git_blob_sha": "2c78b13de3a277c62b13c27100becf4ef88ea960"
+    },
+    {
+      "filename": "20261011153810_audit_auth_provider_readiness_without_false_failure_labels.sql",
+      "version": "20261011153810",
+      "name": "audit_auth_provider_readiness_without_false_failure_labels",
+      "sql_bytes": 1037,
+      "sha256": "e279a0bbeab1c05fb73afad75a0e8e179d6136795ae29c3d97a705eaf09327ee",
+      "git_blob_sha": "447b73525b33a40e55656494979d95adb7002c0d"
+    },
+    {
+      "filename": "20261011155756_audit_auth_gateway_rejected_login_mfa_service_only.sql",
+      "version": "20261011155756",
+      "name": "audit_auth_gateway_rejected_login_mfa_service_only",
+      "sql_bytes": 2880,
+      "sha256": "75e5729a105f88cd0c132c847962288528a75fd4cc4b047390a58f0abb64a1a2",
+      "git_blob_sha": "168d3a8a18dbd9f851d24e3aa8accf1e5c09a036"
+    },
+    {
+      "filename": "20261011160726_audit_retention_immutable_approval_gate_and_gateway_coverage.sql",
+      "version": "20261011160726",
+      "name": "audit_retention_immutable_approval_gate_and_gateway_coverage",
+      "sql_bytes": 4045,
+      "sha256": "fd5871f3783e8179e4355ece1a80ad32141c50251a8c9ab73ea98812b7126ad4",
+      "git_blob_sha": "91e686c27450dd86aebd5f54b952e4d79143c054"
+    },
+    {
+      "filename": "20261011175254_audit_certification_fail_closed_release_gates.sql",
+      "version": "20261011175254",
+      "name": "audit_certification_fail_closed_release_gates",
+      "sql_bytes": 3810,
+      "sha256": "784121d600e89990820dfe2c59c509c445f5a63a6266458519d26eeaa4bd7ed3",
+      "git_blob_sha": "092c08a149deddf3a834d1bac99766dda9ff051c"
+    },
+    {
+      "filename": "20261011221212_staff_identifier_custom_email_domain.sql",
+      "version": "20261011221212",
+      "name": "staff_identifier_custom_email_domain",
+      "sql_bytes": 4450,
+      "sha256": "26b13a564976dc324475c571e94d13d11f7023f243c7680e5009f643d8859a22",
+      "git_blob_sha": "3d0869abf7bf5915a616593dac2b53aba1356675"
+    },
+    {
+      "filename": "20261012075338_restore_dev_audit_capture_keep_immutability.sql",
+      "version": "20261012075338",
+      "name": "restore_dev_audit_capture_keep_immutability",
+      "sql_bytes": 572,
+      "sha256": "eb6d486f13fb01f86686d515a7674a617f98cf6f13b2132a82fdb6c6d5e27efc",
+      "git_blob_sha": "74ce5d38afe10386983854e493535525d5d1dca9"
+    }
+  ]
+}
