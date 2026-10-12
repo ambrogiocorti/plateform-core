@@ -31,7 +31,7 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 1
-          ref: '0a1dafd1554c2459abd4e9ce27de486909961378'
+          ref: '0648911ec6ed3b61f589e2e7475ba2d5f31064dd'
 
       - name: Restore original tracked bytes
         run: |
@@ -78,6 +78,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           # Canonical historical SQL blobs are intentionally never auto-formatted.
           node node_modules/prettier/bin/prettier.cjs --check tests/database/harness.ts
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          node node_modules/prettier/bin/prettier.cjs --check tests/e2e/cash.spec.ts tests/e2e/staff-operations.spec.ts tests/e2e/interface.spec.ts tests/e2e/configuration.spec.ts
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Full source, security contracts, SQL fixtures, Edge and build checks
