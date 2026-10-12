@@ -55,6 +55,7 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
   const secondary = el('section', { class: 'stack cashier-secondary' });
 
   let selectedAccountId: string | null = null;
+  let accountRevision = 0;
   let searchRevision = 0;
   let searchTimer: ReturnType<typeof setTimeout> | undefined;
 
@@ -104,6 +105,7 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
   }
 
   async function loadAccount(accountId: string): Promise<void> {
+    const revision = ++accountRevision;
     selectedAccountId = accountId;
     accountWorkspace.replaceChildren(
       el('p', { class: 'loading', role: 'status' }, 'Caricamento conto…'),
@@ -116,6 +118,9 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
         z.object({ items: z.array(recentPaymentSchema), has_more: z.boolean() }),
       ),
     ]);
+    // A slower request for the previously selected account must never
+    // overwrite the more recent account's balance or payment controls.
+    if (revision !== accountRevision || selectedAccountId !== accountId) return;
     if (workspace.account.venue_id !== venueId) {
       selectedAccountId = null;
       accountWorkspace.replaceChildren(
