@@ -1,18 +1,26 @@
 import { describe, expect, it } from 'vitest';
-import { accountSettlementState, mayResolveManualPayment } from '../../src/services/account-settlement';
+import {
+  accountSettlementState,
+  mayResolveManualPayment,
+} from '../../src/services/account-settlement';
 
 describe('account closure depends on authoritative financial state', () => {
   it('permits only a zero remainder with no pending provider/manual payment', () => {
-    expect(accountSettlementState('OPEN', { remaining_cents: 0, pending_cents: 0 }))
-      .toBe('BALANCED');
-    expect(accountSettlementState('OPEN', { remaining_cents: 100, pending_cents: 0 }))
-      .toBe('BALANCE_DUE');
-    expect(accountSettlementState('OPEN', { remaining_cents: 0, pending_cents: 100 }))
-      .toBe('PENDING');
-    expect(accountSettlementState('OPEN', { remaining_cents: -1, pending_cents: 0 }))
-      .toBe('BALANCE_DUE');
-    expect(accountSettlementState('CLOSED', { remaining_cents: 0, pending_cents: 0 }))
-      .toBe('CLOSED');
+    expect(accountSettlementState('OPEN', { remaining_cents: 0, pending_cents: 0 })).toBe(
+      'BALANCED',
+    );
+    expect(accountSettlementState('OPEN', { remaining_cents: 100, pending_cents: 0 })).toBe(
+      'BALANCE_DUE',
+    );
+    expect(accountSettlementState('OPEN', { remaining_cents: 0, pending_cents: 100 })).toBe(
+      'PENDING',
+    );
+    expect(accountSettlementState('OPEN', { remaining_cents: -1, pending_cents: 0 })).toBe(
+      'BALANCE_DUE',
+    );
+    expect(accountSettlementState('CLOSED', { remaining_cents: 0, pending_cents: 0 })).toBe(
+      'CLOSED',
+    );
   });
 });
 
