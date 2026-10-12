@@ -16,8 +16,8 @@ export async function loadSetupFacts(venueId: string): Promise<SetupFacts> {
   const rows = await Promise.all(
     setupDefinitions.map(async (step) => {
       const shared = step.key === 'categories' || step.key === 'dishes';
-      const filters =
-        step.key === 'services' || step.key === 'cash_registers' ? {} : { active: 'true' };
+      // Inactive rows do not enable a service, payment post or operational area.
+      const filters = { active: 'true' };
       const result = await readPage(step.key, identity, {
         ...(shared ? {} : { venue: venueId }),
         filters,
