@@ -133,7 +133,7 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
     const { account, balance } = workspace;
     const refreshSelected = async () => {
       if (selectedAccountId === account.id) await loadAccount(account.id);
-      await refreshSecondary();
+      await Promise.all([refreshSecondary(), searchAccounts()]);
     };
 
     const primaryActions = el('div', { class: 'cashier-primary-actions' });
