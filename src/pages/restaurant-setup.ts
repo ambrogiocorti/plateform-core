@@ -36,7 +36,10 @@ export async function loadSetupFacts(
 
 export async function restaurantSetupPage(context: StaffContext): Promise<HTMLElement> {
   if (context.profile.role !== 'ADMIN')
-    return emptyState('Accesso non autorizzato', 'La preparazione del ristorante è riservata agli Admin.');
+    return emptyState(
+      'Accesso non autorizzato',
+      'La preparazione del ristorante è riservata agli Admin.',
+    );
   const venue = context.venue;
   if (!venue)
     return emptyState('Nessuna sede', 'Crea o seleziona una sede autorizzata per procedere.');
