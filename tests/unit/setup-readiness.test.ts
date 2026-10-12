@@ -38,6 +38,24 @@ describe('minimum restaurant configuration guide', () => {
     expect(status.completed).toBe(status.total);
   });
 
+  it('never certifies catalog readiness or exposes editable routes to venue-only admins', () => {
+    const result = evaluateSetup({
+      ...empty,
+      rooms: true,
+      room_layouts: true,
+      tables: true,
+      services: true,
+      stations: true,
+      categories: 'MANAGED_BY_CHAIN',
+      dishes: 'MANAGED_BY_CHAIN',
+      cash_registers: true,
+    });
+    expect(result.completed).toBe(6);
+    expect(result.basicsConfigured).toBe(false);
+    expect(result.next?.key).toBe('categories');
+    expect(result.next?.requiresChain).toBe(true);
+  });
+
   it('keeps navigation within the available admin configuration screens', () => {
     expect(new Set(setupDefinitions.map((step) => step.key)).size).toBe(8);
     for (const step of setupDefinitions) {
