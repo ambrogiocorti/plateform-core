@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { evaluateSetup, setupDefinitions } from '../../src/services/setup-readiness';
 import type { SetupFacts } from '../../src/services/setup-readiness';
 
-const empty = Object.fromEntries(setupDefinitions.map((step) => [step.key, false])) as unknown as SetupFacts;
+const empty = Object.fromEntries(
+  setupDefinitions.map((step) => [step.key, false]),
+) as unknown as SetupFacts;
 
 describe('minimum restaurant configuration guide', () => {
   it('never describes an empty installation as configured', () => {
@@ -31,7 +33,9 @@ describe('minimum restaurant configuration guide', () => {
   });
 
   it('completes only when all eight real prerequisites have been checked', () => {
-    const all = Object.fromEntries(setupDefinitions.map((step) => [step.key, true])) as unknown as SetupFacts;
+    const all = Object.fromEntries(
+      setupDefinitions.map((step) => [step.key, true]),
+    ) as unknown as SetupFacts;
     const status = evaluateSetup(all);
     expect(status.basicsConfigured).toBe(true);
     expect(status.next).toBeNull();
