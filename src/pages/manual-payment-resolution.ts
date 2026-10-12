@@ -1,25 +1,10 @@
 import { z } from 'zod';
 import { rpc } from '../api/client';
 import { button, dialog, el, toast } from '../components/dom';
-import { permittedPaymentMethod } from '../services/commercial-scope';
+import { mayResolveManualPayment } from '../services/account-settlement';
+import type { ManualPendingPayment } from '../services/account-settlement';
+export { mayResolveManualPayment } from '../services/account-settlement';
 import { formatMoney } from '../services/money';
-
-export interface ManualPendingPayment {
-  id: string;
-  method: string;
-  status: string;
-  amount_cents: number;
-  tip_cents: number;
-  register_name: string;
-}
-
-export function mayResolveManualPayment(payment: ManualPendingPayment): boolean {
-  return (
-    payment.status === 'PENDING' &&
-    ['CASH', 'CARD_POS', 'SATISPAY_POS'].includes(payment.method) &&
-    permittedPaymentMethod(payment.method)
-  );
-}
 
 /**
  * Recover a previously CREATED payment without starting a second payment.
