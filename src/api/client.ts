@@ -46,6 +46,8 @@ const messages: Record<string, string> = {
   FEATURE_NOT_LICENSED: 'La funzionalità deve essere abilitata dal responsabile tecnico.',
   MULTI_VENUE_DISABLED: 'La gestione di più sedi non è abilitata.',
   LAYOUT_IN_SERVICE: 'Completa il servizio della sala prima di modificare il layout.',
+  USE_ROOM_EDITOR:
+    'Per attivare o modificare la piantina apri Editor sala. Qui puoi soltanto creare o rinominare un layout.',
   TABLE_LIMIT: 'Hai raggiunto il limite dei tavoli attivi per questa sede.',
   DISH_LIMIT: 'Hai raggiunto il limite dei piatti attivi.',
   USER_LIMIT: 'Hai raggiunto il limite degli utenti attivi.',
