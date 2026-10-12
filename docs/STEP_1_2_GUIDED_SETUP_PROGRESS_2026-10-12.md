@@ -42,6 +42,7 @@ La pagina `/preparazione` controlla anche, **attraverso SELECT RLS** e senza scr
 2. Almeno un profilo `WAITER` attivo, assegnato alla sede con assegnazione attiva.
 3. Un `KITCHEN_ADMIN` assegnato oppure un `KITCHEN_STAFF` assegnato anche a una stazione attiva.
 4. Un `PASS` attivo e assegnato alla stessa sede.
+5. Un profilo `CASHIER` attivo assegnato alla sede e a una cassa attiva tramite `cashier_assignments`.
 
 Le regole menu seguono l'effettivo `public.get_public_menu(uuid)` verificato in sola lettura: `venue_dish_settings` è **facoltativo**; `coalesce(enabled, true)`, schedule `ALWAYS/DATE/WEEKDAYS/RANGE`, disponibilità giornaliera e catalogo con categorie attive. Nessun risultato può essere dichiarato positivo per mera esistenza di righe non utilizzabili. L'Admin VENUE può leggere il catalogo mediante policy `catalog_read` ma non modificare il catalogo globale.
 
@@ -51,7 +52,7 @@ Le regole menu seguono l'effettivo `public.get_public_menu(uuid)` verificato in 
 
 Nuova rotta Admin `/menu-sede` per ogni sede autorizzata, raggiungibile dalla navigazione, dal Centro operativo e dall'avvio guidato.
 
-- Pagina di catalogo con paginazione server-side da 25 piatti, filtrata su prodotti attivi e letta con RLS.
+- Pagina di catalogo con paginazione server-side da 25 piatti, filtrata su prodotti attivi e categoria scelta, letta con RLS.
 - Mostra categoria, prezzo di catalogo, stato locale, scorte e stazione di preparazione; riconosce override disabilitati, scorte giornaliere scadute o a zero, stazioni non attive e categorie non attive.
 - Riutilizza l'editor esistente `venueDishDialog`: salva `enabled`, prezzo locale, disponibilità giornaliera e stazione con la RPC server `save_venue_dish`.
 - La RPC è già protetta da `private.authorize(p_venue, ADMIN)`, controllo di versione, idempotenza, transazione, stazioni valide e storico prezzi (funzione originale controllata nel catalogo PostgreSQL).
