@@ -77,6 +77,20 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           Write-Host "Formatting changes: $($paths.Count); migration digests unchanged."
 
+      - name: Exclude protected GitHub workflow files from the bot-created PR
+        # GITHUB_TOKEN can commit source formatting, but cannot push updates to
+        # .github/workflows/* without an independent workflows permission.
+        # Workflow formatting must be reviewed and committed separately.
+        run: |
+          git restore --source=HEAD --worktree -- .github/workflows
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $remainingWorkflowChanges = @(git diff --name-only -- .github/workflows)
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if ($remainingWorkflowChanges.Count -gt 0) {
+            Write-Error "Protected workflow files are still modified; refusing PR."
+            exit 1
+          }
+
       - name: Open a review-only formatting pull request
         id: proposal
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8
@@ -91,8 +105,11 @@ jobs:
             Prettier version locked in package-lock.json.
             - npm run format:check passed in the formatting workspace.
             - npm run check:migrations passed; SQL migrations and digest manifest unchanged.
+            - GitHub workflow YAML is excluded from this bot PR because its token lacks
+              workflows permission. Those files require a separate reviewed change.
             - Review the diff before merging. This is NOT a successful CI/full release gate.
-            - After merge rerun the manual Windows CI quick and then full suites.
+            - After resolving workflow YAML formatting separately, rerun the manual
+              Windows CI quick and then full suites.
           draft: true
           delete-branch: false
           add-paths: "."
