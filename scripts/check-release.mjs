@@ -152,7 +152,7 @@ export function releaseProblems(matrix, evidence, digest, now = Date.now()) {
   if (
     !Array.isArray(matrix.sections) ||
     matrix.sections.length !== MASTER_SECTION_COUNT ||
-    new Set(matrix.sections.map((row) => row.section)).size !== 151 ||
+    new Set(matrix.sections.map((row) => row.section)).size !== MASTER_SECTION_COUNT ||
     Array.from({ length: MASTER_SECTION_COUNT }, (_, i) => i).some(
       (i) => !matrix.sections.some((row) => row.section === i && expectedSections(row)),
     )
