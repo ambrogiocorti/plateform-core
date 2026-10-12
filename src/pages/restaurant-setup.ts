@@ -37,10 +37,11 @@ export async function loadSetupFacts(
 export async function restaurantSetupPage(context: StaffContext): Promise<HTMLElement> {
   if (context.profile.role !== 'ADMIN')
     return emptyState('Accesso non autorizzato', 'La preparazione del ristorante è riservata agli Admin.');
-  if (!context.venue)
+  const venue = context.venue;
+  if (!venue)
     return emptyState('Nessuna sede', 'Crea o seleziona una sede autorizzata per procedere.');
 
-  const venueId = context.venue.id;
+  const venueId = venue.id;
   const view = el('div', { class: 'stack restaurant-setup' });
 
   async function refresh(): Promise<void> {
@@ -57,7 +58,7 @@ export async function restaurantSetupPage(context: StaffContext): Promise<HTMLEl
       'header',
       { class: 'card stack' },
       el('p', { class: 'eyebrow' }, 'AVVIO GUIDATO'),
-      el('h2', {}, `Prepara ${context.venue.name}`),
+      el('h2', {}, `Prepara ${venue.name}`),
       el('p', { class: 'muted' }, explanation),
       el(
         'p',
