@@ -164,7 +164,7 @@ export async function menuEngineeringPage(context: StaffContext): Promise<HTMLEl
               { p_dish: dish.dish_id, p_venue: venue.id },
               costSchema,
             );
-            const popup = dialog(
+            dialog(
               `Food cost · ${dish.name}`,
               el(
                 'p',
@@ -184,7 +184,7 @@ export async function menuEngineeringPage(context: StaffContext): Promise<HTMLEl
                 ),
               ),
             );
-            return popup;
+
           },
           'secondary',
         ),
