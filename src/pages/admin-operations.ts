@@ -176,6 +176,7 @@ function renderOverview(context: StaffContext, data: AdminOverview): HTMLElement
     'nav',
     { class: 'admin-quick-actions', 'aria-label': 'Aree operative' },
     button('AVVIO GUIDATO', () => context.navigate('/preparazione'), 'secondary'),
+    button('MENU SEDE', () => context.navigate('/menu-sede'), 'secondary'),
     button('SALA', () => context.navigate('/sala'), 'secondary'),
     button('ACCOGLIENZA', () => context.navigate('/accoglienza'), 'secondary'),
     button('CUCINA', () => context.navigate('/cucina'), 'secondary'),
