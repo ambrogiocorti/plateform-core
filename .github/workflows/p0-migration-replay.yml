@@ -1,6 +1,6 @@
 # P0 isolated replay candidate — read-only exercise in disposable in-memory PostgreSQL.
 # NEVER queries or mutates the live Supabase project or deployment.
-name: Plateform P0 migration replay (local only)
+name: Plateform P0 development-parity replay (local only)
 
 on:
   workflow_dispatch:
@@ -31,7 +31,7 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 1
-          ref: '1bcee69d404476bfbfd568a7c535bfeea0d5a0f6'
+          ref: '0a1dafd1554c2459abd4e9ce27de486909961378'
 
       - name: Preserve original LF migration bytes in checkout
         run: |
@@ -49,11 +49,15 @@ jobs:
       - name: Verify all 481 candidate migration hashes
         run: npm.cmd run check:migrations
 
-      - name: Replay SQL in isolated PGlite and enforce Step 11 security contract
+      - name: Validate only modified TypeScript harness formatting
+        run: node node_modules/prettier/bin/prettier.cjs --check tests/database/harness.ts
+
+      - name: Replay canonical SQL with separately disclosed dev-only audit fixture
         run: npm.cmd run check:step11-assets
 
-      - name: Run isolated database regression suite
+      - name: Run isolated database regression suite (not a clean deployment certificate)
         run: npm.cmd run test:db
 
 # This tests a pinned unmerged PR candidate, not the trusted production branch.
+# Out-of-band trigger fixture is local ONLY; strict clean replay is still blocked.
 # No Supabase tokens, network database URLs, production secrets or deployments.
