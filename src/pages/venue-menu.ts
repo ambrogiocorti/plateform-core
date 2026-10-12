@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { readPage, readRows } from '../api/client';
-import { button, el, emptyState, status } from '../components/dom';
+import { button, el, emptyState, showError, status } from '../components/dom';
 import { formatMoney } from '../services/money';
 import { venueDishSetupState } from '../services/venue-menu-status';
 import { venueDishDialog } from './catalog';
@@ -57,6 +57,14 @@ export async function venueMenuPage(context: StaffContext): Promise<HTMLElement>
   const categoryNames = new Map(categories.map((category) => [category.id, category.name]));
   const stationNames = new Map(stations.map((station) => [station.id, station.name]));
   const activeStations = new Set(stations.map((station) => station.id));
+  const categoryFilter = el(
+    'select',
+    { 'aria-label': 'Filtra per categoria' },
+    el('option', { value: '' }, 'Tutte le categorie'),
+    ...categories.map((category) =>
+      el('option', { value: category.id }, category.name),
+    ),
+  );
   function venueLocalDate(): string {
     const parts = new Intl.DateTimeFormat('en', {
       timeZone: venue.timezone,
@@ -80,7 +88,10 @@ export async function venueMenuPage(context: StaffContext): Promise<HTMLElement>
     const currentRevision = ++revision;
     const localDate = venueLocalDate();
     const result = await readPage('dishes', dishSchema, {
-      filters: { active: 'true' },
+      filters: {
+        active: 'true',
+        ...(categoryFilter.value ? { category_id: categoryFilter.value } : {}),
+      },
       after: reset ? null : cursor,
       limit: 25,
     });
@@ -161,6 +172,9 @@ export async function venueMenuPage(context: StaffContext): Promise<HTMLElement>
       );
   }
 
+  categoryFilter.addEventListener('change', () => {
+    void load(true).catch(showError);
+  });
   context.refresh = async () => load(true);
   const root = el(
     'div',
@@ -184,6 +198,7 @@ export async function venueMenuPage(context: StaffContext): Promise<HTMLElement>
         : null,
       button('Configurazione stazioni', () => context.navigate('/gestione?modulo=stations'), 'secondary'),
     ),
+    el('label', { class: 'field' }, 'Categoria', categoryFilter),
     feedback,
     rows,
     loadMore,
