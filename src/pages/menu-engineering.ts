@@ -119,7 +119,7 @@ export async function menuEngineeringPage(context: StaffContext): Promise<HTMLEl
         el(
           'p',
           { class: 'muted' },
-          'Food cost e margini calcolati dal server come valori teorici al termine del periodo. Il margine lordo non è utile netto e non include tutti i costi operativi.',
+          'Food cost e margini sono stime teoriche calcolate dal server alla fine del periodo, NON utile netto. Le metriche per piatto considerano unità non annullate e sconti; finché i rimborsi non sono riconciliati per piatto, non rappresentano ricavi netti dopo rimborsi.',
         ),
       ),
     );
@@ -141,7 +141,7 @@ export async function menuEngineeringPage(context: StaffContext): Promise<HTMLEl
         el(
           'p',
           {},
-          `${dish.units_sold} unità vendute · ${dish.voided_units} annullate · Ricavi netti ${money(dish.net_revenue_cents)}`,
+          `${dish.units_sold} unità non annullate · ${dish.voided_units} annullate · Ricavi prima dei rimborsi ${money(dish.net_revenue_cents)}`,
         ),
         dish.food_cost_complete && dish.food_cost_cents !== null
           ? el(
