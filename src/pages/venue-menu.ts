@@ -126,9 +126,19 @@ export async function venueMenuPage(context: StaffContext): Promise<HTMLElement>
               { class: 'muted' },
               stationId ? `Stazione: ${stationNames.get(stationId) ?? 'non attiva'}` : 'Nessuna stazione assegnata',
             ),
-            status(labels[current]),
+            status(
+              categoryNames.has(dish.category_id)
+                ? labels[current]
+                : 'Categoria non attiva: richiede Admin di catena',
+            ),
           ),
-          button('Configura per questa sede', () => venueDishDialog(context, dish), 'secondary'),
+          stations.length
+            ? button(
+                'Configura per questa sede',
+                () => venueDishDialog(context, dish),
+                'secondary',
+              )
+            : el('span', { class: 'muted' }, 'Configura prima una stazione'),
         ),
       );
     }
