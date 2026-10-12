@@ -32,7 +32,7 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 1
-          ref: '0e10008d29420ee4e0101764bd23cf55174399a0'
+          ref: 'ece6580ca0542a8c4f0c96cb97547da449ccc765'
 
       - name: Restore original source bytes
         run: |
