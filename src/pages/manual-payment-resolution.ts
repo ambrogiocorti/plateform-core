@@ -52,26 +52,37 @@ export function resolveManualPayment(
     ),
   );
   const resultSchema = z.object({ id: z.uuid(), status: z.string() });
+  let submitting = false;
+  const confirmed = button('Incasso verificato', () => conclude(true));
+  const failed = button('Pagamento sicuramente non riuscito', () => conclude(false), 'secondary');
 
   async function conclude(success: boolean): Promise<void> {
-    const result = await rpc(
-      'confirm_manual_payment',
-      { p_payment: payment.id, p_success: success },
-      resultSchema,
-    );
-    editor.close();
-    toast(
-      result.status === 'COMPLETED'
-        ? 'Incasso verificato e registrato.'
-        : result.status === 'FAILED'
-          ? 'Pagamento non riuscito registrato.'
-          : `Il pagamento risulta ${result.status}. Controlla lo storico prima di procedere.`,
-    );
-    await onComplete();
+    if (submitting) return;
+    submitting = true;
+    confirmed.disabled = true;
+    failed.disabled = true;
+    try {
+      const result = await rpc(
+        'confirm_manual_payment',
+        { p_payment: payment.id, p_success: success },
+        resultSchema,
+      );
+      editor.close();
+      toast(
+        result.status === 'COMPLETED'
+          ? 'Incasso verificato e registrato.'
+          : result.status === 'FAILED'
+            ? 'Pagamento non riuscito registrato.'
+            : `Il pagamento risulta ${result.status}. Controlla lo storico prima di procedere.`,
+      );
+      await onComplete();
+    } catch (error) {
+      submitting = false;
+      confirmed.disabled = false;
+      failed.disabled = false;
+      throw error;
+    }
   }
 
-  editor.append(
-    button('Incasso verificato', () => conclude(true)),
-    button('Pagamento sicuramente non riuscito', () => conclude(false), 'secondary'),
-  );
+  editor.append(confirmed, failed);
 }
