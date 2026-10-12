@@ -84,7 +84,7 @@ function renderOverview(context: StaffContext, data: AdminOverview): HTMLElement
       label: 'Chiamate nuove',
       value: data.calls.new,
       description: 'Richieste clienti da prendere in carico',
-      path: '/notifiche',
+      path: '/eccezioni',
       severity: 'warning',
     },
     {
@@ -177,6 +177,7 @@ function renderOverview(context: StaffContext, data: AdminOverview): HTMLElement
     { class: 'admin-quick-actions', 'aria-label': 'Aree operative' },
     button('AVVIO GUIDATO', () => context.navigate('/preparazione'), 'secondary'),
     button('MENU SEDE', () => context.navigate('/menu-sede'), 'secondary'),
+    button('ECCEZIONI', () => context.navigate('/eccezioni'), 'secondary'),
     button('SALA', () => context.navigate('/sala'), 'secondary'),
     button('ACCOGLIENZA', () => context.navigate('/accoglienza'), 'secondary'),
     button('CUCINA', () => context.navigate('/cucina'), 'secondary'),
