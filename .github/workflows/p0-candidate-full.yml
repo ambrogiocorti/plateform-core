@@ -1,0 +1,98 @@
+# P0 comprehensive isolated candidate tests; not live staging or release certification.
+# Historical SQL must stay byte-identical to the recovered remote migration archive.
+name: Plateform P0 candidate full validation (local)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: plateform-p0-candidate-full
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    if: github.repository == 'ambrogiocorti/plateform-core' && github.ref == 'refs/heads/main'
+    runs-on: [self-hosted, Windows, X64, plateform-local]
+    timeout-minutes: 120
+    defaults:
+      run:
+        shell: powershell
+    env:
+      CI: 'true'
+      GIT_CONFIG_COUNT: '1'
+      GIT_CONFIG_KEY_0: core.autocrlf
+      GIT_CONFIG_VALUE_0: 'false'
+    steps:
+      - name: Checkout exact audited P0 candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+          ref: '0a1dafd1554c2459abd4e9ce27de486909961378'
+
+      - name: Restore original tracked bytes
+        run: |
+          git -c core.autocrlf=false checkout-index --all --force
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Node.js 24.13 for candidate
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24.13.0'
+
+      - name: Install pinned dependencies
+        run: npm.cmd ci --no-audit --no-fund
+
+      - name: Resolve OpenSSL for real HTTPS print-bridge unit test
+        run: |
+          $found = Get-Command openssl.exe -ErrorAction SilentlyContinue
+          if ($found) {
+            $binary = $found.Source
+          } else {
+            $gitExe = (Get-Command git.exe -ErrorAction Stop).Source
+            $gitRoot = Split-Path -Parent (Split-Path -Parent $gitExe)
+            $locations = @(
+              (Join-Path $gitRoot 'ucrt64\bin\openssl.exe'),
+              (Join-Path $gitRoot 'mingw64\bin\openssl.exe'),
+              (Join-Path $gitRoot 'usr\bin\openssl.exe'),
+              (Join-Path $env:ProgramFiles 'OpenSSL-Win64\bin\openssl.exe')
+            )
+            $binary = $locations |
+              Where-Object { Test-Path -LiteralPath $_ -PathType Leaf } |
+              Select-Object -First 1
+          }
+          if (-not $binary) {
+            Write-Error 'OpenSSL required for print-bridge unit tests; do not skip.'
+            exit 1
+          }
+          & $binary version
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Add-Content -LiteralPath $env:GITHUB_PATH -Value (Split-Path -Parent $binary)
+
+      - name: Verify exact 481-migration inventory and modified harness formatting
+        run: |
+          npm.cmd run check:migrations
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          # Canonical historical SQL blobs are intentionally never auto-formatted.
+          node node_modules/prettier/bin/prettier.cjs --check tests/database/harness.ts
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Full source, security contracts, SQL fixtures, Edge and build checks
+        run: npm.cmd run check
+
+      - name: Install Chromium browser for isolated E2E
+        run: npx.cmd playwright install chromium
+
+      - name: Verify public and staff browser build assembly
+        run: node scripts/check-step11-build-assembly.mjs --browser-node
+
+      - name: Execute Playwright local browser regression
+        run: npm.cmd run test:e2e
+
+# Only pinned Git candidate + local PGlite / Vite / Playwright fixtures.
+# The audit-pause trigger remains a Development-only fixture: strict clean SQL
+# replay, external PostgreSQL/Supabase parity, real JWT/RLS/Storage and recovery
+# gates are separate P0 blockers, regardless of this workflow result.
