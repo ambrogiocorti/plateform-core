@@ -57,23 +57,28 @@ export async function venueMenuPage(context: StaffContext): Promise<HTMLElement>
   const categoryNames = new Map(categories.map((category) => [category.id, category.name]));
   const stationNames = new Map(stations.map((station) => [station.id, station.name]));
   const activeStations = new Set(stations.map((station) => station.id));
-  const parts = new Intl.DateTimeFormat('en', {
-    timeZone: venue.timezone,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).formatToParts(new Date());
-  const localDate = ['year', 'month', 'day']
-    .map((part) => parts.find((item) => item.type === part)?.value)
-    .join('-');
+  function venueLocalDate(): string {
+    const parts = new Intl.DateTimeFormat('en', {
+      timeZone: venue.timezone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).formatToParts(new Date());
+    return ['year', 'month', 'day']
+      .map((part) => parts.find((item) => item.type === part)?.value)
+      .join('-');
+  }
 
   const rows = el('section', { class: 'stack', 'aria-label': 'Piatti del catalogo' });
   const feedback = el('p', { class: 'muted', role: 'status', 'aria-live': 'polite' });
   let cursor: string | null = null;
   let displayed = 0;
+  let revision = 0;
   const loadMore = button('Carica altri piatti', async () => load(false), 'secondary');
 
   async function load(reset: boolean): Promise<void> {
+    const currentRevision = ++revision;
+    const localDate = venueLocalDate();
     const result = await readPage('dishes', dishSchema, {
       filters: { active: 'true' },
       after: reset ? null : cursor,
@@ -89,6 +94,7 @@ export async function venueMenuPage(context: StaffContext): Promise<HTMLElement>
           }),
         ])
       : [[], []];
+    if (currentRevision !== revision) return;
     const byDish = new Map(overrides.map((override) => [override.dish_id, override]));
     const primaryByDish = new Map(
       assignments
