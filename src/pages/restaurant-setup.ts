@@ -224,7 +224,7 @@ export async function restaurantSetupPage(context: StaffContext): Promise<HTMLEl
               operations.orderableRoutedDishes === null
                 ? 'Richiede accesso al catalogo da parte di un Admin di catena.'
                 : `${operations.orderableRoutedDishes} piatti visibili oggi, non esauriti e collegati a una stazione attiva.`,
-            path: '/gestione?modulo=dishes',
+            path: '/menu-sede',
           },
           {
             label: 'Cameriere assegnato alla sede',
@@ -277,6 +277,7 @@ export async function restaurantSetupPage(context: StaffContext): Promise<HTMLEl
           { class: 'muted' },
           'La presenza degli elementi non assicura ancora che un cameriere, la cucina, il Pass e la cassa possano completare un servizio. Crea gli account necessari, assegna sedi e ruoli, collega piatti e stazioni e verifica i flussi reali.',
         ),
+        button('Personalizza menu e disponibilità per questa sede', () => context.navigate('/menu-sede'), 'secondary'),
         button('Gestisci staff e assegnazioni', () => context.navigate('/staff'), 'secondary'),
         button('Apri centro operativo', () => context.navigate('/operazioni'), 'secondary'),
       ),
