@@ -286,3 +286,14 @@ test('Admin verifies identity before exporting and rectifies contacts with a bou
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: '.local/screenshots/privacy-mobile.png' });
 });
+
+test('CORE Admin does not see unlicensed food-cost navigation or economic API calls', async ({
+  page,
+}) => {
+  const calls = await fixture(page, 'ADMIN');
+  await page.goto('http://localhost:5174/operazioni');
+  await expect(page.getByRole('link', { name: 'Food cost e margini' })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'FOOD COST' })).toHaveCount(0);
+  expect(calls.some((call) => call.name === 'get_menu_engineering')).toBe(false);
+  expect(calls.some((call) => call.name === 'get_dish_food_cost')).toBe(false);
+});

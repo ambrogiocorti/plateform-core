@@ -8,6 +8,7 @@ export interface StaffContext {
   venues: Venue[];
   venue: Venue | null;
   multiVenue: boolean;
+  licensedFeatures?: ReadonlySet<string>;
   navigate: (path: string) => void;
   refresh?: () => Promise<void>;
 }
@@ -26,6 +27,7 @@ export async function loadContext(
     venues,
     venue: venues.find((venue) => venue.id === selected) ?? venues[0] ?? null,
     multiVenue: flags.some((flag) => flag.name === 'MULTI_VENUE' && flag.licensed),
+    licensedFeatures: new Set(flags.filter((flag) => flag.licensed).map((flag) => flag.name)),
     navigate,
   };
 }
