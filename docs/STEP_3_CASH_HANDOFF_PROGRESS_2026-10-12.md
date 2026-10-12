@@ -30,3 +30,12 @@ Lettura senza modifiche dal catalogo PostgreSQL Development:
 - Cronologia SQL riproducibile, backup/restore, Security/RLS e Gate P0 prima di qualunque rilascio commerciale.
 
 **Divieto:** non pubblicare come nuova versione CORE, non caricare dati demo nel Development, non modificare pagamenti reali e non produrre pacchetti finché la roadmap completa e i gate non sono verificati.
+
+
+## Macro-passo successivo — Triage delle anomalie fra più operatori
+
+Il nuovo pannello `/eccezioni` è collegato al Centro operativo Admin. Consente di individuare chiamate clienti in ritardo, consegne già prese in carico ma non completate e verifiche contabili pendenti **senza inventare permessi per altri operatori**. Mostra i dati della sola sede autorizzata tramite PostgREST RLS e contratti RPC già esistenti, e rimanda alla Sala, allo Staff, alla Cucina o alla Cassa per l'intervento. Le soglie visive 5/10 minuti non sono SLA contrattuali né modificano automaticamente gli stati.
+
+Riferimento: `docs/STEP_2_3_SERVICE_EXCEPTION_PROGRESS_2026-10-12.md`.
+
+**Gate ancora aperti:** multiutente/multisede in staging, passaggio turno con claim già aperto, reale incasso POS, quadratura, stampante, test e completamento del rollout. Il prodotto non è ancora certificato.
