@@ -22,10 +22,10 @@ jobs:
       run:
         shell: powershell
     env:
-      CI: "true"
-      GIT_CONFIG_COUNT: "1"
+      CI: 'true'
+      GIT_CONFIG_COUNT: '1'
       GIT_CONFIG_KEY_0: core.autocrlf
-      GIT_CONFIG_VALUE_0: "false"
+      GIT_CONFIG_VALUE_0: 'false'
     steps:
       - name: Checkout reviewed main without persisted credentials
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -114,8 +114,8 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           base: main
           branch: ci/prettier-normalize-baseline
-          title: "style(ci): normalize Plateform sources with pinned Prettier"
-          commit-message: "style: apply repository Prettier 3.9.6 formatting"
+          title: 'style(ci): normalize Plateform sources with pinned Prettier'
+          commit-message: 'style: apply repository Prettier 3.9.6 formatting'
           body: |
             Mechanical formatting proposal created from trusted main using the exact
             Prettier version locked in package-lock.json.
@@ -128,7 +128,7 @@ jobs:
               Windows CI quick and then full suites.
           draft: true
           delete-branch: false
-          add-paths: "."
+          add-paths: '.'
 
       - name: Show proposed PR
         env:
