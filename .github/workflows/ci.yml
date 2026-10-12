@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       suite:
-        description: "Choose the checks to run on the local Windows runner"
+        description: 'Choose the checks to run on the local Windows runner'
         required: true
         type: choice
         default: quick
@@ -30,11 +30,11 @@ jobs:
       run:
         shell: powershell
     env:
-      CI: "true"
+      CI: 'true'
       # Override Git for Windows autocrlf without mutating the PC user profile.
-      GIT_CONFIG_COUNT: "1"
+      GIT_CONFIG_COUNT: '1'
       GIT_CONFIG_KEY_0: core.autocrlf
-      GIT_CONFIG_VALUE_0: "false"
+      GIT_CONFIG_VALUE_0: 'false'
     steps:
       - name: Checkout trusted main (no persisted credentials)
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
