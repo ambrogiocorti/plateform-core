@@ -43,10 +43,7 @@ export function classifyMigrationPromotion(appliedRows, candidateRows) {
   const pending = candidate
     .filter((row) => !appliedVersions.has(row.version))
     .sort((a, b) => a.version.localeCompare(b.version));
-  const latestApplied = applied.reduce(
-    (max, row) => (row.version > max ? row.version : max),
-    '',
-  );
+  const latestApplied = applied.reduce((max, row) => (row.version > max ? row.version : max), '');
   const backfilled = pending.filter((row) => row.version <= latestApplied);
   const status = conflicts.length
     ? 'BLOCKED_APPLIED_HISTORY_DIVERGENCE'
@@ -82,9 +79,7 @@ async function run() {
     assert.equal(baseline.deploy_authorized, false);
     assert.equal(
       classifyMigrationPromotion(
-        remoteFixture.map((row, i) =>
-          i === 0 ? { ...row, sha256: '0'.repeat(64) } : row,
-        ),
+        remoteFixture.map((row, i) => (i === 0 ? { ...row, sha256: '0'.repeat(64) } : row)),
         manifest,
       ).status,
       'BLOCKED_APPLIED_HISTORY_DIVERGENCE',
@@ -97,23 +92,23 @@ async function run() {
       'BLOCKED_APPLIED_HISTORY_DIVERGENCE',
     );
     assert.equal(
-      classifyMigrationPromotion(
-        remoteFixture,
-        [...manifest.filter((row) => !prospective.has(row.version)), {
-          version: '20261013180000', name: 'future', sha256: '2'.repeat(64),
-        }],
-      ).status,
+      classifyMigrationPromotion(remoteFixture, [
+        ...manifest.filter((row) => !prospective.has(row.version)),
+        {
+          version: '20261013180000',
+          name: 'future',
+          sha256: '2'.repeat(64),
+        },
+      ]).status,
       'READY_FOR_DISPOSABLE_STAGING_ONLY',
     );
     assert.throws(
-      () => classifyMigrationPromotion([{ ...remoteFixture[0] }, { ...remoteFixture[0] }], manifest),
+      () =>
+        classifyMigrationPromotion([{ ...remoteFixture[0] }, { ...remoteFixture[0] }], manifest),
       /APPLIED_INVALID_OR_DUPLICATE/,
     );
     console.log('MIGRATION_PROMOTION_FAIL_CLOSED_SELF_TEST=PASSED');
-    console.log(
-      'CURRENT_SOURCE_PROMOTION_CLASSIFICATION=' +
-        JSON.stringify(baseline),
-    );
+    console.log('CURRENT_SOURCE_PROMOTION_CLASSIFICATION=' + JSON.stringify(baseline));
     return;
   }
   if (process.argv[2] !== '--applied-json' || !process.argv[3]) {
@@ -127,9 +122,6 @@ async function run() {
   if (result.status !== 'READY_FOR_DISPOSABLE_STAGING_ONLY') process.exitCode = 2;
 }
 
-if (
-  process.argv[1] &&
-  pathToFileURL(resolve(process.argv[1])).href === import.meta.url
-) {
+if (process.argv[1] && pathToFileURL(resolve(process.argv[1])).href === import.meta.url) {
   await run();
 }
