@@ -1,0 +1,74 @@
+# Trusted branch verification only. No production secrets, database credentials,
+# migrations on remote resources, backups, restore, provider calls, or deployments.
+# This is NOT a go-live or commercial release gate.
+name: Plateform two-phase candidate verification
+
+on:
+  push:
+    branches:
+      - plateform/two-phase-completion-20261013
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: plateform-two-phase-candidate
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    if: github.repository == 'ambrogiocorti/plateform-core' && github.ref == 'refs/heads/plateform/two-phase-completion-20261013'
+    runs-on: [self-hosted, Windows, X64, plateform-local]
+    timeout-minutes: 120
+    defaults:
+      run:
+        shell: powershell
+    env:
+      CI: 'true'
+      GIT_CONFIG_COUNT: '1'
+      GIT_CONFIG_KEY_0: core.autocrlf
+      GIT_CONFIG_VALUE_0: 'false'
+    steps:
+      - name: Checkout exact branch commit without persisted credentials
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+          ref: ${{ github.sha }}
+
+      - name: Restore byte-for-byte source files from Git
+        run: |
+          git -c core.autocrlf=false checkout-index --all --force
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git diff --exit-code
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Use Node.js 24.13
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24.13.0'
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm.cmd ci --no-audit --no-fund
+
+      - name: Verify 480 canonical migration files against SHA-256 manifest
+        run: npm.cmd run check:migrations
+
+      - name: Run comprehensive isolated source, database, Edge and build tests
+        run: npm.cmd run check
+
+      - name: Install local Chromium for Playwright
+        run: npx.cmd playwright install chromium
+
+      - name: Verify assembled public and staff builds
+        run: node scripts/check-step11-build-assembly.mjs --browser-node
+
+      - name: Run browser end-to-end regression
+        run: npm.cmd run test:e2e
+
+# IMPORTANT: Local PGlite/browser regressions do not prove remote Supabase
+# installation parity, multi-device operation, independent backup/restore,
+# hardware printing, sandbox payments or production security. Never mark
+# any server-side release_gate PASS on the basis of this workflow alone.
