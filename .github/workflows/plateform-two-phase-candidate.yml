@@ -50,6 +50,9 @@ jobs:
           node-version: '24.13.0'
           cache: npm
 
+      - name: Verify fail-closed restore target detection without secrets
+        run: node scripts/check-restore-target-occupancy.mjs
+
       - name: Install locked dependencies
         run: npm.cmd ci --no-audit --no-fund
 
