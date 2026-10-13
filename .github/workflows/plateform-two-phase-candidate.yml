@@ -66,6 +66,21 @@ jobs:
           npm run test:db
           npm run build
 
+      - name: Install Deno for real Edge Function checks
+        uses: denoland/setup-deno@v2.0.5
+        with:
+          deno-version: v2.9.6
+
+      - name: Validate all Edge modules and run isolated Edge tests
+        run: |
+          mapfile -t modules < <(find supabase/functions -mindepth 2 -maxdepth 2 -name index.ts -not -path '*/_*/*' | sort)
+          if [ "${#modules[@]}" -lt 5 ]; then
+            echo "EDGE_MODULE_INVENTORY_UNEXPECTED"
+            exit 1
+          fi
+          deno check --config supabase/functions/deno.json "${modules[@]}"
+          deno test --config supabase/functions/deno.json --allow-env supabase/functions/_tests
+
       - name: Install headless Chromium with system dependencies
         run: npx playwright install --with-deps chromium
 
