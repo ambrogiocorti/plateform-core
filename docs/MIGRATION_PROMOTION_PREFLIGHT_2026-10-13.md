@@ -13,7 +13,7 @@ Eseguire sul progetto autorizzato:
 
 ```sql
 SELECT version, name,
-       encode(digest(convert_to(array_to_string(statements, E'\\n'), 'UTF8'), 'sha256'), 'hex') AS sha256
+       encode(digest(convert_to(array_to_string(statements, E'\n'), 'UTF8'), 'sha256'), 'hex') AS sha256
 FROM supabase_migrations.schema_migrations
 ORDER BY version;
 ```
