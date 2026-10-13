@@ -22,7 +22,7 @@
     "test:edge": "node scripts/run-edge.mjs test",
     "check": "npm run check:migrations && npm run check:core-edition && npm run check:core-server-policy && npm run check:core-edge-guards && npm run check:core-release-profile && npm run check:waiter-ux && npm run check:step11 && npm run typecheck && npm run lint && npm run check:edge && npm run test:edge && npm test && npm run build",
     "requirements": "node scripts/check-requirements.mjs",
-    "build:pages": "node scripts/report-dependency-audit.mjs && npm run check:migrations && node scripts/check-continuity-bootstrap-recovery.mjs && node scripts/check-restore-target-occupancy.mjs && npm run build && node scripts/build-site.mjs",
+    "build:pages": "node scripts/report-dependency-audit.mjs && npm run check:migrations && node scripts/check-continuity-bootstrap-recovery.mjs && node scripts/check-restore-target-occupancy.mjs && npm run test:unit && npm run test:db && npm run build && node scripts/build-site.mjs",
     "release:check": "node scripts/check-release.mjs",
     "release:zip": "node scripts/package-release.mjs",
     "print:bridge": "node tools/print-bridge/start.ts",
