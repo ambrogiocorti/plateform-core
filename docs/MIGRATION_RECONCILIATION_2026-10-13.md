@@ -56,3 +56,12 @@ No production or development database migration, DDL, data deletion, or deployme
 5. No automatic release-gate PASS or production deploy as a consequence of recovery.
 
 **Status:** SOURCE HISTORY RECOVERED IN FEATURE BRANCH; BOOTSTRAP / RESTORE / GO-LIVE NOT CERTIFIED.
+
+## Post-recovery independent byte verification
+After writing the Git tree, read its `supabase/migrations/` subtree via the Git Trees API and compared each Git blob SHA-1 to the **independently computed Git blob SHA-1 in PostgreSQL**: `sha1(UTF8('blob ' + byte_length + '\\0') || UTF8(array_to_string(statements, E'\\n')))`. The NUL was represented using a bytea value in PostgreSQL, not the invalid `chr(0)` text sequence.
+
+Result on 2026-10-13:
+```json
+{"git_files":480,"remote_files":480,"git_only":0,"remote_only":0,"name_mismatches":0,"byte_mismatches":0,"bad_versions":[]}
+```
+This verifies **actual version, name and byte identity for every SQL file**, not merely the stated SHA-256 manifest. It does not test a replay from zero or validate current service data backups.
