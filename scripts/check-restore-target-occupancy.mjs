@@ -28,9 +28,14 @@ for (const prefix of ['restore-test-worker', 'restore-worker']) {
   assert.ok(!config.includes("to_regclass('public.restaurant_profile')"));
   assert.ok(start.includes("blocked ? 'BLOCKED' : 'READY'"));
   assert.ok(start.includes('process.exit(blocked ? 2 : 0)'));
-  const claimIndex = start.indexOf(prefix === 'restore-worker' ? 'claimRestore(config)' : 'claimRestoreTest(config)');
-  const blockIndex = start.indexOf("if (prerequisite.targetOccupied === true)");
-  assert.ok(blockIndex > 0 && claimIndex > blockIndex, 'must reject occupied target before claiming a job');
+  const claimIndex = start.indexOf(
+    prefix === 'restore-worker' ? 'claimRestore(config)' : 'claimRestoreTest(config)',
+  );
+  const blockIndex = start.indexOf('if (prerequisite.targetOccupied === true)');
+  assert.ok(
+    blockIndex > 0 && claimIndex > blockIndex,
+    'must reject occupied target before claiming a job',
+  );
   assert.ok(start.includes("reason: 'RESTORE_TARGET_NOT_EMPTY'"));
 }
 console.log('RESTORE_TARGET_OCCUPANCY_FAIL_CLOSED=PASSED');

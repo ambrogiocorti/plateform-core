@@ -65,7 +65,11 @@ export async function ingredientCostDialog(
   const effectiveFrom = new Date().toISOString();
   const popup = dialog(
     `Costo ingrediente · ${String(ingredient.name)}`,
-    el('p', { class: 'muted' }, 'Registra una nuova quotazione storica per questa sede. La quotazione precedente verrà chiusa dalla procedura server.'),
+    el(
+      'p',
+      { class: 'muted' },
+      'Registra una nuova quotazione storica per questa sede. La quotazione precedente verrà chiusa dalla procedura server.',
+    ),
     cost.root,
     el('label', {}, 'Unità di acquisto', unit),
     source.root,
@@ -80,15 +84,19 @@ export async function ingredientCostDialog(
         toast(error instanceof Error ? error.message : 'Costo non valido.', true);
         return;
       }
-      await rpc('set_ingredient_cost', {
-        p_ingredient: ingredientId,
-        p_venue: venue.id,
-        p_cost_micros: costMicros,
-        p_purchase_unit: unit.value,
-        p_effective_from: effectiveFrom,
-        p_source: source.input.value.trim() || null,
-        p_key: idempotencyKey,
-      }, z.object({ id: z.uuid() }));
+      await rpc(
+        'set_ingredient_cost',
+        {
+          p_ingredient: ingredientId,
+          p_venue: venue.id,
+          p_cost_micros: costMicros,
+          p_purchase_unit: unit.value,
+          p_effective_from: effectiveFrom,
+          p_source: source.input.value.trim() || null,
+          p_key: idempotencyKey,
+        },
+        z.object({ id: z.uuid() }),
+      );
       popup.close();
       toast('Costo di acquisto registrato nello storico della sede.');
       await context.refresh?.();
@@ -106,10 +114,14 @@ export async function dishFoodCostDialog(
     return;
   }
   const dishId = z.uuid().parse(dish.id);
-  const data = await rpc('get_dish_food_cost', {
-    p_dish: dishId,
-    p_venue: venue.id,
-  }, foodCostSchema);
+  const data = await rpc(
+    'get_dish_food_cost',
+    {
+      p_dish: dishId,
+      p_venue: venue.id,
+    },
+    foodCostSchema,
+  );
   const lines = el(
     'ul',
     {},
@@ -125,19 +137,35 @@ export async function dishFoodCostDialog(
   const popup = dialog(
     `Food cost · ${String(dish.name)}`,
     el('p', {}, `Righe ricetta: ${data.recipe_lines}`),
-    el('p', {}, complete ? `Costo totale: ${formatMoney(data.food_cost_cents ?? 0)}` : 'Ricetta o costi incompleti: aggiungi quantità e quotazioni per tutti gli ingredienti.'),
-    complete ? el('p', {}, `Incidenza: ${data.food_cost_percentage ?? 0}% · Margine lordo: ${formatMoney(data.gross_margin_cents ?? 0)}`) : null,
+    el(
+      'p',
+      {},
+      complete
+        ? `Costo totale: ${formatMoney(data.food_cost_cents ?? 0)}`
+        : 'Ricetta o costi incompleti: aggiungi quantità e quotazioni per tutti gli ingredienti.',
+    ),
+    complete
+      ? el(
+          'p',
+          {},
+          `Incidenza: ${data.food_cost_percentage ?? 0}% · Margine lordo: ${formatMoney(data.gross_margin_cents ?? 0)}`,
+        )
+      : null,
     lines,
   );
   if (complete) {
     const idempotencyKey = crypto.randomUUID();
     popup.append(
       button('Registra snapshot del margine', async () => {
-        await rpc('snapshot_dish_food_cost', {
-          p_dish: dishId,
-          p_venue: venue.id,
-          p_key: idempotencyKey,
-        }, z.object({ id: z.uuid() }));
+        await rpc(
+          'snapshot_dish_food_cost',
+          {
+            p_dish: dishId,
+            p_venue: venue.id,
+            p_key: idempotencyKey,
+          },
+          z.object({ id: z.uuid() }),
+        );
         popup.close();
         toast('Snapshot del food cost registrato.');
         await context.refresh?.();

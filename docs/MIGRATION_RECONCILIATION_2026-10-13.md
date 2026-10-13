@@ -1,11 +1,13 @@
 # Reconciliation of Supabase migration sources — 2026-10-13
 
 ## Scope
-Recovered the exact SQL text stored in `supabase_migrations.schema_migrations.statements` on Plateform's *development* database (`abdxvlykasqmknexxhjo`), written only to the isolated Git branch `plateform/two-phase-completion-20261013`.
+
+Recovered the exact SQL text stored in `supabase_migrations.schema_migrations.statements` on Plateform's _development_ database (`abdxvlykasqmknexxhjo`), written only to the isolated Git branch `plateform/two-phase-completion-20261013`.
 
 No production or development database migration, DDL, data deletion, or deployment was performed by this recovery.
 
 ## Before
+
 - Applied remote migrations: **480**.
 - Local tracked manifest: **134** SQL migrations.
 - In remote history but absent from Git: **347**.
@@ -15,6 +17,7 @@ No production or development database migration, DDL, data deletion, or deployme
 - Comparison used SHA-256 of PostgreSQL `array_to_string(statements, E'\\n')` converted to UTF-8.
 
 ## Recovery
+
 - Committed all **371** remote SQL variants missing or differing from Git's tracked files, on a feature branch only.
 - Kept unchanged local SQL files when their SHA-256 matched remote.
 - Regenerated `supabase/migration-manifest.json` from all **480** remote versions, names, and SHA-256 digests.
@@ -23,6 +26,7 @@ No production or development database migration, DDL, data deletion, or deployme
 - A simple high-risk secret-pattern scan of the remote SQL history identified no matches for secret keys, live Stripe keys, private-key headers or embedded PostgreSQL credential URLs. This is not a substitute for secret scanning in CI.
 
 ## Files with different SQL SHA-256 despite matching version/name
+
 - `20261004224216_step11_branding_accessibility_contrast.sql`
 - `20261004224445_step11_branding_theme_default_contrast_fix.sql`
 - `20261004231459_step9_analytics_station_throughput_fix.sql`
@@ -49,6 +53,7 @@ No production or development database migration, DDL, data deletion, or deployme
 - `20261006051256_step12_backup_requester_index.sql`
 
 ## Required verification before release
+
 1. Run `npm ci`, `npm run check:migrations`, `npm run local:verify` on a trusted checkout of this branch (Node >=24.13.0).
 2. Run `npm run reconcile:migrations` against the same development database via a **read-only** PostgreSQL account, and confirm `SYNCED` with 480 versions and no mismatches.
 3. Provision a disposable independent staging project and replay the 480 SQL files **in order**; check extensions, roles, RLS, grants, Edge Functions, Auth and Storage. Certain remote migrations may depend on historical state or Supabase-managed objects; merely matching the stored SQL and hash is not a successful bootstrap test.
@@ -58,13 +63,25 @@ No production or development database migration, DDL, data deletion, or deployme
 **Status:** SOURCE HISTORY RECOVERED IN FEATURE BRANCH; BOOTSTRAP / RESTORE / GO-LIVE NOT CERTIFIED.
 
 ## Post-recovery independent byte verification
+
 After writing the Git tree, read its `supabase/migrations/` subtree via the Git Trees API and compared each Git blob SHA-1 to the **independently computed Git blob SHA-1 in PostgreSQL**: `sha1(UTF8('blob ' + byte_length + '\\0') || UTF8(array_to_string(statements, E'\\n')))`. The NUL was represented using a bytea value in PostgreSQL, not the invalid `chr(0)` text sequence.
 
 Result on 2026-10-13:
+
 ```json
-{"git_files":480,"remote_files":480,"git_only":0,"remote_only":0,"name_mismatches":0,"byte_mismatches":0,"bad_versions":[]}
+{
+  "git_files": 480,
+  "remote_files": 480,
+  "git_only": 0,
+  "remote_only": 0,
+  "name_mismatches": 0,
+  "byte_mismatches": 0,
+  "bad_versions": []
+}
 ```
+
 This verifies **actual version, name and byte identity for every SQL file**, not merely the stated SHA-256 manifest. It does not test a replay from zero or validate current service data backups.
 
 ## Exact duplicate resolution (no new DB migration)
+
 The previously local-only `20261012120000_staff_identifier_custom_email_domain.sql` was compared directly with the SQL text stored in remote applied version `20261011221212_staff_identifier_custom_email_domain`. Both payloads are exactly **4450 characters and byte-identical** (`byteIdentical=true`). Because the same migration body is already applied and recorded under the earlier canonical version, the redundant local file has been removed from `supabase/pending-migrations` on this branch, without introducing a new schema revision. Its original source remains accessible in commit `5c5dde901d9494b99d4abb19443582045b8f4fe5`.

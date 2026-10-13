@@ -29,7 +29,12 @@ export async function compositionDialog(
       });
       include.checked = !!link;
       removable.checked = link?.removable === true;
-      const quantity = field('Quantità per porzione', 'recipe-quantity', 'number', String(link?.quantity ?? ''));
+      const quantity = field(
+        'Quantità per porzione',
+        'recipe-quantity',
+        'number',
+        String(link?.quantity ?? ''),
+      );
       quantity.input.min = '0.000001';
       quantity.input.step = 'any';
       const unit = el(
@@ -43,20 +48,41 @@ export async function compositionDialog(
         el('option', { value: 'PIECE' }, 'pezzi'),
       );
       unit.value = String(link?.unit ?? '');
-      const yieldFactor = field('Resa (0–1, facoltativa)', 'recipe-yield', 'number', String(link?.yield_factor ?? ''));
+      const yieldFactor = field(
+        'Resa (0–1, facoltativa)',
+        'recipe-yield',
+        'number',
+        String(link?.yield_factor ?? ''),
+      );
       yieldFactor.input.min = '0.000001';
       yieldFactor.input.max = '1';
       yieldFactor.input.step = 'any';
-      const waste = field('Scarto % (0–99, facoltativo)', 'recipe-waste', 'number', String(link?.waste_percentage ?? ''));
+      const waste = field(
+        'Scarto % (0–99, facoltativo)',
+        'recipe-waste',
+        'number',
+        String(link?.waste_percentage ?? ''),
+      );
       waste.input.min = '0';
       waste.input.max = '99.999';
       waste.input.step = 'any';
       const root = el(
         'div',
         { class: 'stack' },
-        el('div', { class: 'row' }, el('label', {}, include, String(i.name)), el('label', {}, removable, 'Rimovibile')),
+        el(
+          'div',
+          { class: 'row' },
+          el('label', {}, include, String(i.name)),
+          el('label', {}, removable, 'Rimovibile'),
+        ),
       );
-      if (foodCostEnabled) root.append(quantity.root, el('label', {}, 'Unità ricetta', unit), yieldFactor.root, waste.root);
+      if (foodCostEnabled)
+        root.append(
+          quantity.root,
+          el('label', {}, 'Unità ricetta', unit),
+          yieldFactor.root,
+          waste.root,
+        );
       return {
         id: z.uuid().parse(i.id),
         include,
@@ -166,9 +192,14 @@ export async function compositionDialog(
         for (const line of checks.filter((c) => c.include.checked)) {
           const quantity = line.quantity.value.trim();
           const unit = line.unit.value;
-          if (Boolean(quantity) !== Boolean(unit) ||
-            ((!quantity || !unit) && (line.yieldFactor.value.trim() || line.waste.value.trim()))) {
-            toast('Per ogni ingrediente inserisci sia quantità che unità; resa e scarto richiedono una quantità.', true);
+          if (
+            Boolean(quantity) !== Boolean(unit) ||
+            ((!quantity || !unit) && (line.yieldFactor.value.trim() || line.waste.value.trim()))
+          ) {
+            toast(
+              'Per ogni ingrediente inserisci sia quantità che unità; resa e scarto richiedono una quantità.',
+              true,
+            );
             return;
           }
         }
@@ -187,7 +218,9 @@ export async function compositionDialog(
                 ? {
                     quantity: Number(c.quantity.value),
                     unit: c.unit.value,
-                    ...(c.yieldFactor.value.trim() ? { yield_factor: Number(c.yieldFactor.value) } : {}),
+                    ...(c.yieldFactor.value.trim()
+                      ? { yield_factor: Number(c.yieldFactor.value) }
+                      : {}),
                     ...(c.waste.value.trim() ? { waste_percentage: Number(c.waste.value) } : {}),
                   }
                 : {}),

@@ -145,7 +145,9 @@ export async function configurationPage(context: StaffContext): Promise<HTMLElem
   const [entity, definition] = module;
   const [rows, hasFoodCost] = await Promise.all([
     readRows(entity, recordSchema, definition.shared ? undefined : context.venue?.id),
-    entity === 'dishes' || entity === 'ingredients' ? foodCostLicensed(context) : Promise.resolve(false),
+    entity === 'dishes' || entity === 'ingredients'
+      ? foodCostLicensed(context)
+      : Promise.resolve(false),
   ]);
   const view = el(
     'div',
@@ -204,7 +206,11 @@ export async function configurationPage(context: StaffContext): Promise<HTMLElem
             { class: 'configuration-row' },
             el('strong', {}, String(row.name ?? row.code ?? 'Elemento')),
             entity === 'dishes'
-              ? button('Ingredienti e varianti', () => compositionDialog(context, row, hasFoodCost), 'secondary')
+              ? button(
+                  'Ingredienti e varianti',
+                  () => compositionDialog(context, row, hasFoodCost),
+                  'secondary',
+                )
               : null,
             entity === 'dishes'
               ? button('Sede e disponibilità', () => venueDishDialog(context, row), 'secondary')
@@ -213,7 +219,11 @@ export async function configurationPage(context: StaffContext): Promise<HTMLElem
               ? button('Food cost e margine', () => dishFoodCostDialog(context, row), 'secondary')
               : null,
             entity === 'ingredients' && hasFoodCost
-              ? button('Registra costo acquisto', () => ingredientCostDialog(context, row), 'secondary')
+              ? button(
+                  'Registra costo acquisto',
+                  () => ingredientCostDialog(context, row),
+                  'secondary',
+                )
               : null,
             entity === 'dishes'
               ? button(
