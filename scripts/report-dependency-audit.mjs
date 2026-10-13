@@ -38,5 +38,10 @@ console.log('PLATEFORM_NPM_AUDIT=' + JSON.stringify({
   critical: Number(parsed.metadata.vulnerabilities.critical ?? 0),
   affected,
 }));
-// This is an information-gathering stage, NOT a passing release gate.
-// Once classified, enforce an explicit fail-closed security policy.
+// Production/release candidate preview fails closed on high/critical advisories.
+const high = Number(parsed.metadata.vulnerabilities.high ?? 0);
+const critical = Number(parsed.metadata.vulnerabilities.critical ?? 0);
+if (high > 0 || critical > 0 || affected.length) {
+  console.error('DEPENDENCY_AUDIT_HIGH_OR_CRITICAL_BLOCKED');
+  process.exitCode = 1;
+}
