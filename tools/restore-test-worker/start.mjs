@@ -209,6 +209,18 @@ if (mode === '--check') {
   process.exit(blocked ? 2 : 0);
 }
 if (mode !== '--once') throw new Error('USAGE: restore-test-worker --check|--once');
+// Do not claim or change a queued restore job when the destination is occupied.
+if (prerequisite.targetOccupied === true) {
+  await rm(prerequisite.temp, { recursive: true, force: true });
+  console.error(
+    JSON.stringify({
+      status: 'BLOCKED',
+      reason: 'RESTORE_TARGET_NOT_EMPTY',
+      targetProjectRef: config.targetProjectRef,
+    }),
+  );
+  process.exit(2);
+}
 const job = await claimRestoreTest(config);
 if (!job) {
   await rm(prerequisite.temp, { recursive: true, force: true });
