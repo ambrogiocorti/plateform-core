@@ -54,6 +54,9 @@ jobs:
           node scripts/check-continuity-bootstrap-recovery.mjs
           node scripts/check-restore-target-occupancy.mjs
 
+      - name: Enforce repository formatting (historical SQL excluded)
+        run: npm run format:check
+
       - name: Unit, PGlite, source contracts and TypeScript
         run: |
           npm run lint
