@@ -55,26 +55,8 @@ jobs:
       - name: Confirm allowed change-set and commit without touching historical SQL
         run: |
           set -euo pipefail
-          cat > /tmp/allowed-files.txt <<'END_ALLOWED'
-docs/CI_EVIDENCE_2026-10-13.md
-docs/CONTINUITY_REHEARSAL_BOOTSTRAP_2026-10-13.md
-docs/DEPENDENCY_SECURITY_2026-10-13.md
-docs/FOOD_COST_UI_2026-10-13.md
-docs/MIGRATION_RECONCILIATION_2026-10-13.md
-docs/TWO_PHASE_COMPLETION_2026-10-13.md
-scripts/check-continuity-bootstrap-recovery.mjs
-scripts/check-restore-target-occupancy.mjs
-scripts/report-dependency-audit.mjs
-src/api/client.ts
-src/pages/catalog.ts
-src/pages/configuration.ts
-src/pages/food-cost.ts
-tests/database/food-cost.test.ts
-tests/e2e/staff-operations.spec.ts
-tests/unit/food-cost.test.ts
-END_ALLOWED
+          printf '%s\n' 'docs/CI_EVIDENCE_2026-10-13.md' 'docs/CONTINUITY_REHEARSAL_BOOTSTRAP_2026-10-13.md' 'docs/DEPENDENCY_SECURITY_2026-10-13.md' 'docs/FOOD_COST_UI_2026-10-13.md' 'docs/MIGRATION_RECONCILIATION_2026-10-13.md' 'docs/TWO_PHASE_COMPLETION_2026-10-13.md' 'scripts/check-continuity-bootstrap-recovery.mjs' 'scripts/check-restore-target-occupancy.mjs' 'scripts/report-dependency-audit.mjs' 'src/api/client.ts' 'src/pages/catalog.ts' 'src/pages/configuration.ts' 'src/pages/food-cost.ts' 'tests/database/food-cost.test.ts' 'tests/e2e/staff-operations.spec.ts' 'tests/unit/food-cost.test.ts' | LC_ALL=C sort > /tmp/allowed-sorted.txt
           git diff --name-only | LC_ALL=C sort > /tmp/changed-files.txt
-          LC_ALL=C sort /tmp/allowed-files.txt > /tmp/allowed-sorted.txt
           diff -u /tmp/allowed-sorted.txt /tmp/changed-files.txt
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
