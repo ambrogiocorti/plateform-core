@@ -9,6 +9,7 @@ import { readRows, rpc } from '../api/client';
 import { button, dialog, el, emptyState, field, toast } from '../components/dom';
 import type { StaffContext } from './staff-context';
 import { assetUploadControl } from './branding';
+import { dishFoodCostDialog, foodCostLicensed, ingredientCostDialog } from './food-cost';
 
 interface ConfigField {
   key: string;
@@ -142,11 +143,10 @@ export async function configurationPage(context: StaffContext): Promise<HTMLElem
       'Seleziona un modulo compreso nel tuo ambito di gestione.',
     );
   const [entity, definition] = module;
-  const rows = await readRows(
-    entity,
-    recordSchema,
-    definition.shared ? undefined : context.venue?.id,
-  );
+  const [rows, hasFoodCost] = await Promise.all([
+    readRows(entity, recordSchema, definition.shared ? undefined : context.venue?.id),
+    entity === 'dishes' || entity === 'ingredients' ? foodCostLicensed() : Promise.resolve(false),
+  ]);
   const view = el(
     'div',
     { class: 'stack' },
@@ -204,10 +204,16 @@ export async function configurationPage(context: StaffContext): Promise<HTMLElem
             { class: 'configuration-row' },
             el('strong', {}, String(row.name ?? row.code ?? 'Elemento')),
             entity === 'dishes'
-              ? button('Ingredienti e varianti', () => compositionDialog(context, row), 'secondary')
+              ? button('Ingredienti e varianti', () => compositionDialog(context, row, hasFoodCost), 'secondary')
               : null,
             entity === 'dishes'
               ? button('Sede e disponibilità', () => venueDishDialog(context, row), 'secondary')
+              : null,
+            entity === 'dishes' && hasFoodCost
+              ? button('Food cost e margine', () => dishFoodCostDialog(context, row), 'secondary')
+              : null,
+            entity === 'ingredients' && hasFoodCost
+              ? button('Registra costo acquisto', () => ingredientCostDialog(context, row), 'secondary')
               : null,
             entity === 'dishes'
               ? button(

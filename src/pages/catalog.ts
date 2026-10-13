@@ -7,6 +7,7 @@ const record = z.record(z.string(), z.unknown());
 export async function compositionDialog(
   context: StaffContext,
   dish: Record<string, unknown>,
+  foodCostEnabled = false,
 ): Promise<void> {
   const id = z.uuid().parse(dish.id);
   const [ingredients, links, tags, tagLinks, groups, options] = await Promise.all([
@@ -28,16 +29,43 @@ export async function compositionDialog(
       });
       include.checked = !!link;
       removable.checked = link?.removable === true;
+      const quantity = field('Quantità per porzione', 'recipe-quantity', 'number', String(link?.quantity ?? ''));
+      quantity.input.min = '0.000001';
+      quantity.input.step = 'any';
+      const unit = el(
+        'select',
+        { 'aria-label': `Unità per ${String(i.name)}` },
+        el('option', { value: '' }, 'Unità non impostata'),
+        el('option', { value: 'G' }, 'g'),
+        el('option', { value: 'KG' }, 'kg'),
+        el('option', { value: 'ML' }, 'ml'),
+        el('option', { value: 'L' }, 'l'),
+        el('option', { value: 'PIECE' }, 'pezzi'),
+      );
+      unit.value = String(link?.unit ?? '');
+      const yieldFactor = field('Resa (0–1, facoltativa)', 'recipe-yield', 'number', String(link?.yield_factor ?? ''));
+      yieldFactor.input.min = '0.000001';
+      yieldFactor.input.max = '1';
+      yieldFactor.input.step = 'any';
+      const waste = field('Scarto % (0–99, facoltativo)', 'recipe-waste', 'number', String(link?.waste_percentage ?? ''));
+      waste.input.min = '0';
+      waste.input.max = '99.999';
+      waste.input.step = 'any';
+      const root = el(
+        'div',
+        { class: 'stack' },
+        el('div', { class: 'row' }, el('label', {}, include, String(i.name)), el('label', {}, removable, 'Rimovibile')),
+      );
+      if (foodCostEnabled) root.append(quantity.root, el('label', {}, 'Unità ricetta', unit), yieldFactor.root, waste.root);
       return {
         id: z.uuid().parse(i.id),
         include,
         removable,
-        root: el(
-          'div',
-          { class: 'row' },
-          el('label', {}, include, String(i.name)),
-          el('label', {}, removable, 'Rimovibile'),
-        ),
+        root,
+        quantity: quantity.input,
+        unit,
+        yieldFactor: yieldFactor.input,
+        waste: waste.input,
       };
     });
   const tagChecks = tags.map((t) => {
@@ -134,6 +162,17 @@ export async function compositionDialog(
   popup.append(
     button('Salva composizione', async () => {
       if ([...popup.querySelectorAll('input')].some((i) => !i.reportValidity())) return;
+      if (foodCostEnabled) {
+        for (const line of checks.filter((c) => c.include.checked)) {
+          const quantity = line.quantity.value.trim();
+          const unit = line.unit.value;
+          if (Boolean(quantity) !== Boolean(unit) ||
+            ((!quantity || !unit) && (line.yieldFactor.value.trim() || line.waste.value.trim()))) {
+            toast('Per ogni ingrediente inserisci sia quantità che unità; resa e scarto richiedono una quantità.', true);
+            return;
+          }
+        }
+      }
       await rpc(
         'save_dish_composition',
         {
@@ -141,7 +180,18 @@ export async function compositionDialog(
           p_version: dish.version,
           p_ingredients: checks
             .filter((c) => c.include.checked)
-            .map((c) => ({ ingredient_id: c.id, removable: c.removable.checked })),
+            .map((c) => ({
+              ingredient_id: c.id,
+              removable: c.removable.checked,
+              ...(foodCostEnabled && c.quantity.value.trim()
+                ? {
+                    quantity: Number(c.quantity.value),
+                    unit: c.unit.value,
+                    ...(c.yieldFactor.value.trim() ? { yield_factor: Number(c.yieldFactor.value) } : {}),
+                    ...(c.waste.value.trim() ? { waste_percentage: Number(c.waste.value) } : {}),
+                  }
+                : {}),
+            })),
           p_tags: tagChecks.filter((t) => t.input.checked).map((t) => t.id),
           p_variants: groupEditors.map((g) => ({
             id: g.id,
