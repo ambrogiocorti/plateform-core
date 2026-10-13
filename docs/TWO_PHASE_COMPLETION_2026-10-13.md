@@ -39,8 +39,8 @@ Comprende completamento step 7–13 e requisiti delle release avanzate.
 | Voce | Stato | Evidenza / blocco |
 | --- | --- | --- |
 | Rilettura baseline remota | DONE | Query read-only 13/10/2026 |
-| Branch di lavoro | DONE | `plateform/two-phase-completion-20261013` |
-| Coerenza migrazioni | BLOCKED | 480 remote; confrontare identificatori/hash con sorgenti |
+| Branch di lavoro | DONE | `plateform/two-phase-completion-20261013`, commit sorgenti `6654118c76bc554e0de8ab53e2ce7f28126f7377` |
+| Coerenza migrazioni (sorgenti) | BYTE-VERIFIED | 480/480 versioni, nomi e blob SHA-1 Git esattamente corrispondenti al SQL remoto; ripristino su nuova installazione ancora PENDING |
 | Audit trigger di sospensione | VERIFIED DISABLED | Verificare test append-only e altre policy |
 | Backup recuperabile | BLOCKED | 0 record nel catalogo corrente; non implica assenza assoluta di oggetti |
 | Test flusso operativo | PENDING | Mancano E2E sulla release candidata |
@@ -50,3 +50,7 @@ Comprende completamento step 7–13 e requisiti delle release avanzate.
 
 ## Regole di sicurezza
 Nessuna eliminazione di dati/oggetti, modifica production, attivazione di pagamenti o disattivazione protezioni senza verifica delle dipendenze e rollback. Non dichiarare riuscito un test mai eseguito.
+## Aggiornamento tecnico verificato — 13/10/2026
+La riconciliazione del codice SQL storico è stata realizzata sul branch: 347 file mancanti recuperati, 24 divergenze sostituite con SQL applicato, 1 migration non applicata preservata in `supabase/pending-migrations/`. Il confronto **byte-per-byte** ha confrontato gli SHA-1 Git blob di tutti i 480 SQL in Git con gli SHA-1 calcolati sul testo SQL storico in PostgreSQL usando il prefisso binario Git `blob <size>\\0`: **git_only=0, remote_only=0, name_mismatches=0, byte_mismatches=0**. Evidenza completa: `docs/MIGRATION_RECONCILIATION_2026-10-13.md`.
+
+Il recovery delle migrazioni sorgenti **non** chiude il gate di ricostruzione su staging né quello backup/restore. Non cambiare `commercial_release_ready`.
