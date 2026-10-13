@@ -5,9 +5,9 @@ import {
   parseTargetOccupancy,
 } from '../tools/continuity/target-occupancy.mjs';
 
-assert.equal(parseTargetOccupancy('occupied\\n'), true);
-assert.equal(parseTargetOccupancy('empty\\n'), false);
-for (const output of ['', 'f', 't', 'false', 'ready', 'empty\\noccupied', '0']) {
+assert.equal(parseTargetOccupancy('occupied\n'), true);
+assert.equal(parseTargetOccupancy('empty\n'), false);
+for (const output of ['', 'f', 't', 'false', 'ready', 'empty\noccupied', '0']) {
   assert.throws(() => parseTargetOccupancy(output), /RESTORE_TARGET_OCCUPANCY_UNVERIFIED/);
 }
 for (const required of [
