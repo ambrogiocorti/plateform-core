@@ -111,7 +111,7 @@ async function bootstrap() {
   const sandbox = await mkdtemp(join(tmpdir(), 'plateform-bootstrap-'));
   const dir = join(sandbox, 'supabase');
   const env = { ...process.env, SUPABASE_ACCESS_TOKEN: '' };
-  let started = false;
+  let attemptedStart = false;
   try {
     await mkdir(dir);
     await cp('supabase/migrations', join(dir, 'migrations'), { recursive: true });
@@ -127,8 +127,8 @@ async function bootstrap() {
     console.log('Il comando seguente opera soltanto su un container Docker locale temporaneo.');
     await runCapture('docker', ['info', '--format', '{{.ServerVersion}}']);
     const cliArgs = ['--yes', `supabase@${cliVersion}`, '--workdir', sandbox];
+    attemptedStart = true;
     await run('npx', [...cliArgs, 'db', 'start'], env);
-    started = true;
     const query = [
       'select',
       "(select count(*) from supabase_migrations.schema_migrations)::text",
@@ -147,7 +147,7 @@ async function bootstrap() {
     assert.equal(result, '482|7|true|true', 'POSTGRESQL_BOOTSTRAP_INCOMPLETE');
     console.log('PLATEFORM_LOCAL_POSTGRES_BOOTSTRAP=PASS');
   } finally {
-    if (started) {
+    if (attemptedStart) {
       try {
         await run('npx', [
           '--yes', `supabase@${cliVersion}`, '--workdir', sandbox,
