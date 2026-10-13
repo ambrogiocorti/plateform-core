@@ -56,7 +56,10 @@ jobs:
       - name: Install locked dependencies
         run: npm.cmd ci --no-audit --no-fund
 
-      - name: Verify 480 canonical migration files against SHA-256 manifest
+      - name: Ensure bootstrap recovery is versioned and the replay has no hidden fixture
+        run: node scripts/check-continuity-bootstrap-recovery.mjs
+
+      - name: Verify 481 candidate migration files against SHA-256 manifest
         run: npm.cmd run check:migrations
 
       - name: Run comprehensive isolated source, database, Edge and build tests

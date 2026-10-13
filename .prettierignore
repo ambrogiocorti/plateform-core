@@ -6,3 +6,6 @@ MASTER_PROMPT_PLATEFORM_COMMERCIALE.md
 coverage
 playwright-report
 test-results
+# Historical SQL bytes and SHA-256 manifest must never be auto-formatted.
+supabase/migrations/
+supabase/migration-manifest.json
