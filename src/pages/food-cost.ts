@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { readRows, rpc } from '../api/client';
+import { client, readRows, rpc, safeError } from '../api/client';
 import { button, dialog, el, field, toast } from '../components/dom';
 import { formatMoney } from '../services/money';
 import { parsePurchaseCostMicros } from '../services/food-cost';
@@ -16,14 +16,23 @@ const foodCostSchema = z.object({
   lines: z.array(record),
 });
 
-export async function foodCostLicensed(): Promise<boolean> {
+export async function foodCostLicensed(context: StaffContext): Promise<boolean> {
+  if (!context.venue) return false;
   const flags = await readRows(
     'feature_flags',
     z.object({ name: z.string(), licensed: z.boolean() }),
     undefined,
     { name: 'FOOD_COST' },
   );
-  return flags.some((flag) => flag.licensed && flag.name === 'FOOD_COST');
+  if (!flags.some((flag) => flag.licensed && flag.name === 'FOOD_COST')) return false;
+  const { data, error } = await client()
+    .from('venue_features')
+    .select('enabled')
+    .eq('venue_id', context.venue.id)
+    .eq('name', 'FOOD_COST')
+    .maybeSingle();
+  if (error) throw safeError(error);
+  return data?.enabled === true;
 }
 
 export async function ingredientCostDialog(

@@ -145,7 +145,7 @@ export async function configurationPage(context: StaffContext): Promise<HTMLElem
   const [entity, definition] = module;
   const [rows, hasFoodCost] = await Promise.all([
     readRows(entity, recordSchema, definition.shared ? undefined : context.venue?.id),
-    entity === 'dishes' || entity === 'ingredients' ? foodCostLicensed() : Promise.resolve(false),
+    entity === 'dishes' || entity === 'ingredients' ? foodCostLicensed(context) : Promise.resolve(false),
   ]);
   const view = el(
     'div',
