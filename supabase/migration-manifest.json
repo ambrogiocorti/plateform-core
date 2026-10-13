@@ -2881,6 +2881,12 @@
       "sha256": "26b13a564976dc324475c571e94d13d11f7023f243c7680e5009f643d8859a22"
     },
     {
+      "filename": "20261012075300_audit_pause_legacy_compatibility.sql",
+      "version": "20261012075300",
+      "name": "audit_pause_legacy_compatibility",
+      "sha256": "b0ee7af53e134fb81d7df1934b49cd734800f3b669e9ef707b90ed4f9b420a33"
+    },
+    {
       "filename": "20261012075338_restore_dev_audit_capture_keep_immutability.sql",
       "version": "20261012075338",
       "name": "restore_dev_audit_capture_keep_immutability",
