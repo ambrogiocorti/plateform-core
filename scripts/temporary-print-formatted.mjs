@@ -10,10 +10,8 @@ for (const file of [
     ...(await resolveConfig(file)),
     filepath: file,
   });
-  console.log(
-    'PLATEFORM_FORMATTED_FILE:' +
-      file +
-      ':' +
-      Buffer.from(formatted, 'utf8').toString('base64'),
-  );
+  const encoded = Buffer.from(formatted, 'utf8').toString('base64');
+  for (let i = 0; i < encoded.length; i += 800) {
+    console.log('PLATEFORM_FORMATTED_CHUNK:' + file + ':' + i / 800 + ':' + encoded.slice(i, i + 800));
+  }
 }
