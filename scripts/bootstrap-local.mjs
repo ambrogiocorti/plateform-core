@@ -28,10 +28,7 @@ export function disposableConfig(config, projectId, databasePort) {
   assert.match(config, /^project_id\s*=\s*"[^"]+"/m);
   assert.match(config, /\[db\]\s*\nport\s*=\s*\d+/);
   let result = config.replace(/^project_id\s*=\s*"[^"]+"/m, `project_id = "${projectId}"`);
-  result = result.replace(
-    /(\[db\]\s*\nport\s*=\s*)\d+/,
-    (_, prefix) => prefix + databasePort,
-  );
+  result = result.replace(/(\[db\]\s*\nport\s*=\s*)\d+/, (_, prefix) => prefix + databasePort);
   result = result.replace(
     /(\[api\]\s*\n(?:[^\n]*\n)*?port\s*=\s*)\d+/,
     (_, prefix) => prefix + (databasePort + 1),
@@ -74,11 +71,13 @@ async function runCapture(program, args) {
     child.on('error', reject);
     child.on('close', resolveCode);
   });
-  if (code !== 0) throw new Error(`${program.toUpperCase()}_FAILED_EXIT_${code}: ${stderr.slice(-900)}`);
+  if (code !== 0)
+    throw new Error(`${program.toUpperCase()}_FAILED_EXIT_${code}: ${stderr.slice(-900)}`);
   return stdout.trim();
 }
 
 async function verifySource() {
+  await import('./check-migrations.mjs');
   const manifest = JSON.parse(await readFile('supabase/migration-manifest.json', 'utf8'));
   assert.equal(manifest.migrations.length, 482, 'CANDIDATE_MIGRATION_COUNT_CHANGED');
   const names = new Set(manifest.migrations.map((m) => m.filename));
@@ -98,7 +97,10 @@ export async function selfTest() {
   assert.ok(after.includes('[api]\nenabled = true\nport = 31998'));
   assert.ok(after.includes('[db]\nport = 31997'));
   assert.ok(!after.includes('project_id = "plateform-development"'));
-  assert.throws(() => ensureLocalOnlyArgs(['--db-url', 'postgres://unsafe']), /REMOTE_OR_DESTRUCTIVE_FLAG/);
+  assert.throws(
+    () => ensureLocalOnlyArgs(['--db-url', 'postgres://unsafe']),
+    /REMOTE_OR_DESTRUCTIVE_FLAG/,
+  );
   assert.throws(() => ensureLocalOnlyArgs(['db reset', '--linked']), /REMOTE_OR_DESTRUCTIVE_FLAG/);
   console.log('DISPOSABLE_BOOTSTRAP_SAFETY_SELF_TEST=PASSED');
 }
@@ -131,7 +133,7 @@ async function bootstrap() {
     await run('npx', [...cliArgs, 'db', 'start'], env);
     const query = [
       'select',
-      "(select count(*) from supabase_migrations.schema_migrations)::text",
+      '(select count(*) from supabase_migrations.schema_migrations)::text',
       "|| '|' || (select count(*) from pg_class c join pg_namespace n on n.oid=c.relnamespace",
       "where n.nspname='private' and c.relname like 'continuity_rehearsal_%'",
       "and c.relkind in ('r','p'))::text",
@@ -139,9 +141,20 @@ async function bootstrap() {
       "|| '|' || (to_regclass('storage.objects') is not null)::text;",
     ].join(' ');
     const result = await runCapture('docker', [
-      'exec', `supabase_db_${projectId}`,
-      'psql', '-X', '-A', '-t', '-v', 'ON_ERROR_STOP=1', '-U', 'postgres', '-d', 'postgres',
-      '-c', query,
+      'exec',
+      `supabase_db_${projectId}`,
+      'psql',
+      '-X',
+      '-A',
+      '-t',
+      '-v',
+      'ON_ERROR_STOP=1',
+      '-U',
+      'postgres',
+      '-d',
+      'postgres',
+      '-c',
+      query,
     ]);
     console.log(`LOCAL_BOOTSTRAP_CATALOG=${result}`);
     assert.equal(result, '482|7|true|true', 'POSTGRESQL_BOOTSTRAP_INCOMPLETE');
@@ -149,10 +162,20 @@ async function bootstrap() {
   } finally {
     if (attemptedStart) {
       try {
-        await run('npx', [
-          '--yes', `supabase@${cliVersion}`, '--workdir', sandbox,
-          'stop', '--project-id', projectId, '--no-backup',
-        ], env);
+        await run(
+          'npx',
+          [
+            '--yes',
+            `supabase@${cliVersion}`,
+            '--workdir',
+            sandbox,
+            'stop',
+            '--project-id',
+            projectId,
+            '--no-backup',
+          ],
+          env,
+        );
       } catch (error) {
         console.error('TEMPORARY_CONTAINER_CLEANUP_FAILED: remove only ' + projectId);
         console.error(String(error));

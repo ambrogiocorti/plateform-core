@@ -16,6 +16,7 @@ Il secondo comando scarica temporaneamente via `npx` la CLI Supabase fissata all
 Non copia né legge `.env.local` e forza `SUPABASE_ACCESS_TOKEN` vuoto nel sottoprocesso. Non esegue `db push`, `db reset`, `--linked` o `--db-url`. **Non eseguire manualmente comandi di reset sul tuo Development o Restore Test.**
 
 ## Limiti
+
 - Il percorso `--self-test` verifica le protezioni dello script e l'inventario locale; non avvia Docker.
 - Il percorso `--run` è la prova PostgreSQL reale ma richiede esecuzione e uscita PASS sulla macchina host. Non è stato eseguito durante la creazione di questo file.
 - Il test non certifica staging HTTPS reale, backup/restore di dati e Storage, stampanti, pagamenti e autorizzazioni remote.
