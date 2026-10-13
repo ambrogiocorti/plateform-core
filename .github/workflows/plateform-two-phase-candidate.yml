@@ -51,6 +51,8 @@ jobs:
         run: |
           node scripts/report-dependency-audit.mjs
           npm run check:migrations
+          npm run check:migration-promotion
+          npm run check:continuity-isolated
           node scripts/check-continuity-bootstrap-recovery.mjs
           node scripts/check-restore-target-occupancy.mjs
 
