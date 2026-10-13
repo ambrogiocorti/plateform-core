@@ -54,3 +54,6 @@ Nessuna eliminazione di dati/oggetti, modifica production, attivazione di pagame
 La riconciliazione del codice SQL storico è stata realizzata sul branch: 347 file mancanti recuperati, 24 divergenze sostituite con SQL applicato, 1 migration non applicata preservata in `supabase/pending-migrations/`. Il confronto **byte-per-byte** ha confrontato gli SHA-1 Git blob di tutti i 480 SQL in Git con gli SHA-1 calcolati sul testo SQL storico in PostgreSQL usando il prefisso binario Git `blob <size>\\0`: **git_only=0, remote_only=0, name_mismatches=0, byte_mismatches=0**. Evidenza completa: `docs/MIGRATION_RECONCILIATION_2026-10-13.md`.
 
 Il recovery delle migrazioni sorgenti **non** chiude il gate di ricostruzione su staging né quello backup/restore. Non cambiare `commercial_release_ready`.
+
+### Risoluzione migrazione local-only
+Verificato il contenuto della versione locale `20261012120000` rispetto alla migrazione già applicata `20261011221212`: 4450 caratteri identici (byte-for-byte). Il duplicato locale è stato rimosso dalla coda pending su questo branch; non è stato eseguito SQL, né falsificato lo storico remoto.

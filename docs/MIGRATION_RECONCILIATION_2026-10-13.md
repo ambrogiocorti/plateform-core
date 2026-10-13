@@ -65,3 +65,6 @@ Result on 2026-10-13:
 {"git_files":480,"remote_files":480,"git_only":0,"remote_only":0,"name_mismatches":0,"byte_mismatches":0,"bad_versions":[]}
 ```
 This verifies **actual version, name and byte identity for every SQL file**, not merely the stated SHA-256 manifest. It does not test a replay from zero or validate current service data backups.
+
+## Exact duplicate resolution (no new DB migration)
+The previously local-only `20261012120000_staff_identifier_custom_email_domain.sql` was compared directly with the SQL text stored in remote applied version `20261011221212_staff_identifier_custom_email_domain`. Both payloads are exactly **4450 characters and byte-identical** (`byteIdentical=true`). Because the same migration body is already applied and recorded under the earlier canonical version, the redundant local file has been removed from `supabase/pending-migrations` on this branch, without introducing a new schema revision. Its original source remains accessible in commit `5c5dde901d9494b99d4abb19443582045b8f4fe5`.
