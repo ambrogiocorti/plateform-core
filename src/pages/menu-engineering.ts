@@ -61,8 +61,9 @@ const costSchema = z.object({
 export async function menuEngineeringPage(context: StaffContext): Promise<HTMLElement> {
   if (context.profile.role !== 'ADMIN')
     return emptyState('Accesso non autorizzato', 'Il food cost è riservato agli Admin.');
-  const venue = context.venue;
-  if (!venue) return emptyState('Nessuna sede', 'Seleziona una sede autorizzata.');
+  const selectedVenue = context.venue;
+  if (!selectedVenue) return emptyState('Nessuna sede', 'Seleziona una sede autorizzata.');
+  const venue = selectedVenue;
 
   if (!(await foodCostLicensed(context)))
     return emptyState(

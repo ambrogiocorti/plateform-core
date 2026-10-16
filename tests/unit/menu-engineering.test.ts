@@ -27,7 +27,7 @@ describe('menu engineering date boundaries', () => {
       ['2025-01-01', '2026-10-13'],
       ['2026-10-13', '2026-99-99'],
       ['tomorrow', '2026-10-13'],
-    ]) {
+    ] as const) {
       expect(validMenuEngineeringPeriod(start, end)).toBe(false);
     }
   });

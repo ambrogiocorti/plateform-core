@@ -46,8 +46,9 @@ export async function venueMenuPage(context: StaffContext): Promise<HTMLElement>
       'Accesso non autorizzato',
       'La configurazione dei piatti per sede è riservata agli Admin.',
     );
-  const venue = context.venue;
-  if (!venue) return emptyState('Nessuna sede', 'Seleziona la sede autorizzata.');
+  const selectedVenue = context.venue;
+  if (!selectedVenue) return emptyState('Nessuna sede', 'Seleziona la sede autorizzata.');
+  const venue = selectedVenue;
 
   let [categories, stations] = await Promise.all([
     readRows('categories', categorySchema, undefined, { active: 'true' }),

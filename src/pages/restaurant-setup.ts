@@ -129,9 +129,10 @@ export async function restaurantSetupPage(context: StaffContext): Promise<HTMLEl
       'Accesso non autorizzato',
       'La preparazione del ristorante è riservata agli Admin.',
     );
-  const venue = context.venue;
-  if (!venue)
+  const selectedVenue = context.venue;
+  if (!selectedVenue)
     return emptyState('Nessuna sede', 'Crea o seleziona una sede autorizzata per procedere.');
+  const venue = selectedVenue;
 
   const venueId = venue.id;
   const view = el('div', { class: 'stack restaurant-setup' });

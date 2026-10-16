@@ -41,6 +41,18 @@ delle migrazioni o modificare il database remoto.
 
 ## Stato e lavoro ancora necessario
 
+Il primo candidato integrato `42ec85a` ha superato nell'ambiente Vercel **121
+test unitari e 166 test database PGlite (4 skipped)**. La fase TypeScript ha
+rilevato riferimenti nullable nelle funzioni annidate di tre pagine e una
+tupla di test non costante: corretti mantenendo esplicita la sede selezionata
+dopo il controllo iniziale. L'esito finale sullo SHA corretto è registrato
+nella [PR #41](https://github.com/ambrogiocorti/plateform-core/pull/41).
+
+Verifiche read-only PostgreSQL Development: RLS attiva sulle sette tabelle
+operative consultate; le sei RPC utilizzate sono disponibili agli utenti
+autenticati e non eseguibili da anon. Il parametro storico food cost coincide
+esattamente con il confine del report per i cambi DST del 29 marzo e 25 ottobre 2026. Queste letture non sostituiscono un login Auth o un E2E PostgREST.
+
 I moduli integrati sono codice reale collegato alle API esistenti; la presenza
 delle pagine e i controlli locali non certificano un servizio del ristorante.
 I gate della roadmap non vengono promossi automaticamente.
