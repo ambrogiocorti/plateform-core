@@ -8,7 +8,7 @@ const register = 'a0000000-0000-4000-8000-000000000010',
   session = 'a0000000-0000-4000-8000-000000000011';
 const approval = 'a0000000-0000-4000-8000-000000000012',
   grant = 'a0000000-0000-4000-8000-000000000013';
-async function cashFixture(page: Page, pendingApproval = false) {
+async function cashFixture(page: Page, pendingApproval = false, showActiveAccount = false) {
   const role = pendingApproval ? 'ADMIN' : 'CASHIER';
   await page.addInitScript(
     ({ id }) => {
@@ -106,6 +106,22 @@ async function cashFixture(page: Page, pendingApproval = false) {
         },
       ];
     else if (name === 'feature_flags') data = [{ name: 'MULTI_VENUE', licensed: false }];
+    else if (name === 'search_accounts')
+      data = {
+        items: showActiveAccount
+          ? [
+              {
+                id: 'a0000000-0000-4000-8000-000000000021',
+                account_name: 'Conto Rossi',
+                table_name: 'Tavolo 4',
+                covers: 3,
+                status: 'OPEN',
+                created_at: '2026-10-12T17:15:00Z',
+              },
+            ]
+          : [],
+        has_more: false,
+      };
     else if (name === 'cash_registers')
       data = [{ id: register, name: 'Cassa principale', code: 'C1', status: 'OPEN' }];
     else if (name === 'service_sessions')
@@ -147,6 +163,17 @@ async function cashFixture(page: Page, pendingApproval = false) {
   });
   return commands;
 }
+
+test('Cashier sees the active-account queue without typing a search', async ({ page }) => {
+  const commands = await cashFixture(page, false, true);
+  await page.goto('http://localhost:5174/cassa');
+  await expect(page.getByRole('button', { name: /Tavolo 4 · Conto Rossi/ })).toBeVisible();
+  expect(commands.find((row) => row.name === 'search_accounts')?.body).toMatchObject({
+    p_search: '',
+    p_status: 'ACTIVE',
+    p_limit: 20,
+  });
+});
 
 test('Cashier enters a real count and sends the immutable reconciliation command', async ({
   page,

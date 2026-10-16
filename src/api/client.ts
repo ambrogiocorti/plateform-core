@@ -282,6 +282,7 @@ export async function readRows<T>(
     'ingredient_allergens',
     'venue_dish_settings',
     'dish_station_assignments',
+    'step_deliveries',
     'service_booking_rules',
     'staff_venue_assignments',
     'station_staff_assignments',

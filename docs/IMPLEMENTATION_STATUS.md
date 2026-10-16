@@ -1,5 +1,11 @@
 # Plateform — stato di implementazione
 
+> **Aggiornamento prevalente — 16 ottobre 2026.** Il candidato integra ora
+> avvio guidato, menu della sede, anomalie di servizio e miglioramenti alla
+> cassa/consegne della PR #38. Verifiche, limiti e blocchi correnti sono in
+> [OPERATIONAL_INTEGRATION_2026-10-16.md](OPERATIONAL_INTEGRATION_2026-10-16.md).
+> La piattaforma resta incompleta e il rilascio commerciale resta NO-GO.
+
 > **Aggiornamento prevalente — 8 ottobre 2026.** I conteggi di seguito sono
 > checkpoint storici e non descrivono lo stato corrente del progetto remoto.
 > Supabase Development contiene **455** migrazioni applicate; il sorgente locale

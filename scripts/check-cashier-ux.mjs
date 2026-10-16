@@ -4,6 +4,8 @@ const read = (path) => fs.readFileSync(new URL(`../${path}`, import.meta.url), '
 const cash = read('src/pages/cash.ts');
 const payment = read('src/pages/account-payments.ts');
 const provider = read('src/pages/provider-payments.ts');
+const manualPayment = read('src/pages/manual-payment-resolution.ts');
+const settlement = read('src/services/account-settlement.ts');
 const css = read('styles/staff.css');
 
 const checks = [
@@ -58,12 +60,13 @@ const checks = [
   ],
   [
     'operatività secondaria cassa preservata',
-    [
-      'set_cash_register_open',
-      'open_service_session',
-      'reconciliationDialog',
-      'confirm_manual_payment',
-    ].every((value) => cash.includes(value)),
+    ['set_cash_register_open', 'open_service_session', 'reconciliationDialog'].every((value) =>
+      cash.includes(value),
+    ) &&
+      cash.includes('resolveManualPayment') &&
+      manualPayment.includes("'confirm_manual_payment'") &&
+      manualPayment.includes('if (!mayResolveManualPayment(payment)) return') &&
+      settlement.includes('permittedPaymentMethod(payment.method)'),
   ],
   [
     'desktop-first responsive e target touch',

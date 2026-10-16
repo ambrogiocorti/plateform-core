@@ -365,27 +365,6 @@ export async function kitchenPage(context: StaffContext): Promise<HTMLElement> {
       );
     }
 
-    if (first.can_deliver && first.step_status === 'READY') {
-      card.append(
-        el(
-          'div',
-          { class: 'kds-delivery-actions' },
-          button(
-            'PRENDI IN CARICO',
-            async () => {
-              await command('deliver_step', { p_step: step, p_served: false });
-              await context.refresh?.();
-            },
-            'secondary',
-          ),
-          button('CONSEGNATO', async () => {
-            await command('deliver_step', { p_step: step, p_served: true });
-            await context.refresh?.();
-          }),
-        ),
-      );
-    }
-
     grid.append(card);
   }
 
