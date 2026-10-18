@@ -16,13 +16,9 @@ unset PGHOST PGHOSTADDR PGSERVICE PGDATABASE DATABASE_URL SUPABASE_DB_URL
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 P=(psql -X -q -h "$SOCKET" -p "$PORT" -U postgres -v ON_ERROR_STOP=1)
-# Reuse the PGlite harness fixture (Supabase-owned schemas and API roles).
-node -e "
-const s=require('fs').readFileSync('tests/database/harness.ts','utf8');
-const a=s.indexOf('await db.exec(\`')+15,b=s.indexOf('\`);',a);
-let sql=s.slice(a,b).replace(/^\s*create role (\w+) nologin( bypassrls)?;/gm,
- (_,r,x)=>'do \$r\$ begin if not exists (select 1 from pg_roles where rolname=\''+r+'\') then create role '+r+' nologin'+(x||'')+'; end if; end \$r\$;');
-require('fs').writeFileSync('$WORK/prelude.sql','create schema if not exists extensions;\ncreate extension if not exists pgcrypto with schema extensions;\n'+sql);"
+# Reuse the shared Supabase host fixture (also used by the PGlite harness).
+{ printf 'create schema if not exists extensions;\ncreate extension if not exists pgcrypto with schema extensions;\n'
+  cat supabase/tests/host-fixture.sql; } >"$WORK/prelude.sql"
 "${P[@]}" -c "drop database if exists $DB" -c "create database $DB"
 "${P[@]}" -d "$DB" -f "$WORK/prelude.sql" >/dev/null
 n=0

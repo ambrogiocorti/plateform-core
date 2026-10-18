@@ -35,17 +35,9 @@ create unique index if not exists objects_bucket_name on storage.objects(bucket_
 `;
 
 export async function platformPrelude(repoRoot, { migrationHistory = true } = {}) {
-  const source = await readFile(new URL('tests/database/harness.ts', repoRoot), 'utf8');
-  const start = source.indexOf('await db.exec(`') + 15;
-  const end = source.indexOf('`);', start);
-  if (start < 15 || end < 0) throw new Error('HARNESS_PRELUDE_NOT_FOUND');
-  let sql = source
-    .slice(start, end)
-    .replace(
-      /^\s*create role (\w+) nologin( bypassrls)?;/gm,
-      (_, role, extra) =>
-        `do $r$ begin if not exists (select 1 from pg_roles where rolname='${role}') then create role ${role} nologin${extra ?? ''}; end if; end $r$;`,
-    );
+  // Shared Supabase host fixture (also used by PGlite and the PostgreSQL replay).
+  // Its role creation is already idempotent for a real cluster.
+  let sql = await readFile(new URL('supabase/tests/host-fixture.sql', repoRoot), 'utf8');
   if (!migrationHistory) {
     // A brand-new Supabase project has no migration history yet: the backup
     // restores supabase_migrations from its own history artifacts.
