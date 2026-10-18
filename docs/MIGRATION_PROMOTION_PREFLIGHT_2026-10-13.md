@@ -15,7 +15,10 @@ Eseguire sul progetto autorizzato:
 
 ```sql
 SELECT version, name,
-       encode(digest(convert_to(array_to_string(statements, E'\n'), 'UTF8'), 'sha256'), 'hex') AS sha256
+       encode(digest(convert_to(array_to_string(statements, E'\n'), 'UTF8'), 'sha256'), 'hex') AS sha256,
+       -- Storico scritto dalla Supabase CLI: istruzioni separate, senza ';' finale.
+       encode(digest(convert_to(translate(array_to_string(statements, ''),
+         ';' || chr(9) || chr(10) || chr(11) || chr(12) || chr(13) || ' ', ''), 'UTF8'), 'sha256'), 'hex') AS normalized_sha256
 FROM supabase_migrations.schema_migrations
 ORDER BY version;
 ```

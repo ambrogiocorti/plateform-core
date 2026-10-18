@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -6,6 +7,16 @@ import { pathToFileURL } from 'node:url';
 const validVersion = /^\d{14}$/;
 const validSha = /^[a-f0-9]{64}$/;
 const validName = /^[a-z0-9_]+$/;
+
+// The Supabase CLI records a migration as separate statements without their
+// trailing semicolons, so array_to_string(statements, E'\n') never equals the
+// file bytes (0/485 on CLI 2.120.0). Removing every semicolon and ASCII
+// whitespace on both sides makes the two comparable (485/485). SQL equivalent:
+// translate(array_to_string(statements, ''), ';'||chr(9)||chr(10)||chr(11)||chr(12)||chr(13)||' ', '')
+const ignored = /[;\t\n\v\f\r ]/g;
+export function normalizedSha256(sql) {
+  return createHash('sha256').update(String(sql).replace(ignored, ''), 'utf8').digest('hex');
+}
 
 function inventory(rows, label) {
   if (!Array.isArray(rows)) throw new Error(`${label}_ARRAY_REQUIRED`);
@@ -20,8 +31,15 @@ function inventory(rows, label) {
     ) {
       throw new Error(`${label}_INVALID_OR_DUPLICATE`);
     }
+    if (row.normalized_sha256 !== undefined && !validSha.test(String(row.normalized_sha256)))
+      throw new Error(`${label}_INVALID_OR_DUPLICATE`);
     versions.add(row.version);
-    return { version: row.version, name: row.name, sha256: row.sha256 };
+    return {
+      version: row.version,
+      name: row.name,
+      sha256: row.sha256,
+      normalized_sha256: row.normalized_sha256,
+    };
   });
 }
 
@@ -34,16 +52,11 @@ function inventory(rows, label) {
  * name and SHA-256 and the version it must precede is already applied; it is
  * then recorded with `migration repair`, never executed out of order.
  *
- * cliHistorySha256 maps a version to the history digest the Supabase CLI
- * records for it (statements split, trailing semicolons dropped), so a
- * version pushed or repaired by the CLI is not mistaken for divergence.
+ * An applied row matches its file by exact SHA-256 (history written as one
+ * statement, as on Development) or by normalized_sha256 (history written by
+ * the Supabase CLI), when both sides carry it.
  */
-export function classifyMigrationPromotion(
-  appliedRows,
-  candidateRows,
-  compatRows = [],
-  cliHistorySha256 = {},
-) {
+export function classifyMigrationPromotion(appliedRows, candidateRows, compatRows = []) {
   const applied = inventory(appliedRows, 'APPLIED');
   const candidate = inventory(candidateRows, 'CANDIDATE');
   const byVersion = new Map(candidate.map((row) => [row.version, row]));
@@ -53,7 +66,8 @@ export function classifyMigrationPromotion(
       return (
         !target ||
         target.name !== row.name ||
-        (target.sha256 !== row.sha256 && cliHistorySha256[row.version] !== row.sha256)
+        (target.sha256 !== row.sha256 &&
+          !(row.normalized_sha256 && target.normalized_sha256 === row.normalized_sha256))
       );
     })
     .map((row) => row.version);
@@ -103,20 +117,28 @@ export function classifyMigrationPromotion(
 }
 
 async function run() {
-  const manifest = JSON.parse(
-    await readFile(resolve('supabase/migration-manifest.json'), 'utf8'),
-  ).migrations;
+  const manifest = await Promise.all(
+    JSON.parse(await readFile(resolve('supabase/migration-manifest.json'), 'utf8')).migrations.map(
+      async (row) => ({
+        ...row,
+        normalized_sha256: normalizedSha256(
+          await readFile(resolve('supabase/migrations', row.filename), 'utf8'),
+        ),
+      }),
+    ),
+  );
   const compatRows = JSON.parse(
     await readFile(resolve('supabase/migration-bootstrap-compat.json'), 'utf8'),
   ).migrations;
-  const cliHistory = JSON.parse(
-    await readFile(resolve('supabase/migration-cli-history-hashes.json'), 'utf8'),
-  ).history_sha256;
   if (process.argv[2] === '--self-test') {
-    assert.equal(manifest.length, 483, 'expected candidate migration count');
     const prospective = new Set(['20261006100100', '20261012075300']);
-    // Forward-dated candidate migrations, not yet applied anywhere.
-    const forward = new Set(['20261018103000']);
+    // Forward-dated candidate migrations: everything after the last version
+    // applied on Development, so new migrations need no edit here.
+    const lastDevelopmentVersion = '20261012075338';
+    const forward = new Set(
+      manifest.map((row) => row.version).filter((version) => version > lastDevelopmentVersion),
+    );
+    assert.ok(forward.has('20261018103000'), 'expected candidate migration');
     const remoteFixture = manifest.filter(
       (row) => !prospective.has(row.version) && !forward.has(row.version),
     );
@@ -159,40 +181,44 @@ async function run() {
     );
     assert.equal(repaired.status, 'READY_FOR_DISPOSABLE_STAGING_ONLY');
     assert.deepEqual(repaired.pending_versions, [...forward]);
-    // History written by `supabase migration repair` / `db push` (CLI digests).
+    // History written by `supabase migration repair` / `db push`: the raw digest
+    // differs from the file (statements split, no semicolons), the normalized one
+    // matches. A real statement change still diverges.
+    const cliRow = (version, normalized) => ({
+      ...manifest.find((row) => row.version === version),
+      sha256: '5'.repeat(64),
+      normalized_sha256:
+        normalized ?? manifest.find((row) => row.version === version).normalized_sha256,
+    });
     const cliRecorded = classifyMigrationPromotion(
-      [
-        ...remoteFixture,
-        ...[...prospective, ...forward].map((version) => ({
-          ...manifest.find((row) => row.version === version),
-          sha256: cliHistory[version],
-        })),
-      ],
+      [...remoteFixture, ...[...prospective, ...forward].map((version) => cliRow(version))],
       manifest,
       compatRows,
-      cliHistory,
     );
     assert.equal(cliRecorded.status, 'READY_FOR_DISPOSABLE_STAGING_ONLY');
     assert.equal(cliRecorded.pending_count, 0);
     assert.equal(
       classifyMigrationPromotion(
-        [
-          ...remoteFixture,
-          { ...manifest.find((row) => row.version === '20261018103000'), sha256: '4'.repeat(64) },
-        ],
+        [...remoteFixture, cliRow('20261018103000', '4'.repeat(64))],
         manifest,
         compatRows,
-        cliHistory,
       ).status,
       'BLOCKED_APPLIED_HISTORY_DIVERGENCE',
     );
+    assert.equal(
+      normalizedSha256('BEGIN;\nSELECT 1;\nCOMMIT;\n'),
+      normalizedSha256(['BEGIN', 'SELECT 1', 'COMMIT'].join('\n')),
+    );
+    assert.notEqual(normalizedSha256('SELECT 1'), normalizedSha256('SELECT 2'));
     // Fresh installation: empty history replays everything in order.
     const fresh = classifyMigrationPromotion([], manifest, compatRows);
     assert.equal(fresh.status, 'READY_FOR_DISPOSABLE_STAGING_ONLY');
     assert.equal(fresh.pending_count, manifest.length);
     assert.equal(
       classifyMigrationPromotion(
-        remoteFixture.map((row, i) => (i === 0 ? { ...row, sha256: '0'.repeat(64) } : row)),
+        remoteFixture.map((row, i) =>
+          i === 0 ? { ...row, sha256: '0'.repeat(64), normalized_sha256: '0'.repeat(64) } : row,
+        ),
         manifest,
       ).status,
       'BLOCKED_APPLIED_HISTORY_DIVERGENCE',
@@ -229,7 +255,7 @@ async function run() {
   }
   const data = JSON.parse(await readFile(resolve(process.argv[3]), 'utf8'));
   const applied = Array.isArray(data) ? data : data.migrations;
-  const result = classifyMigrationPromotion(applied, manifest, compatRows, cliHistory);
+  const result = classifyMigrationPromotion(applied, manifest, compatRows);
   console.log(JSON.stringify(result, null, 2));
   // The script never runs DDL and never issues an approval for production.
   // Exit 3: run supabase/tests/bootstrap-compat-preflight.sql, then record
