@@ -28,16 +28,43 @@ Realtime fra dispositivi, Edge Functions, MFA, riconciliazione migrazioni.
 | 5   | §92            | `get_operational_statistics` rifiutava tutto (`FEATURE_NOT_LICENSED`) senza `ADVANCED_ANALYTICS`: su un'installazione CORE la pagina Statistiche di Admin e Cassa era inutilizzabile | Nessun incasso, scontrino medio o venduto consultabile               | **Corretto**                              |
 | 6   | 10 / §6, §8    | Nessuna interfaccia per creare, modificare o disattivare sedi: `create_venue`/`update_venue` esistevano solo come RPC                                                                | Un cliente multi-sede non può aggiungere la seconda sede senza SQL   | **Corretto** (pagina Super Admin `/sedi`) |
 | 7   | 11 / §14, §126 | Il salvataggio del branding con un colore a basso contrasto falliva con “Verifica la connessione” (il vincolo WCAG del server non veniva spiegato)                                   | L'Admin non capisce perché il sito non si aggiorna                   | **Corretto**                              |
-| 8   | 8 / §112       | Conflict Center offre “Annulla richiesta” e “Segna verificato”, non “Modifica ordine” / “Annulla item” dell'esempio                                                                  | L'Admin deve correggere l'ordine dalla vista conto                   | Aperto                                    |
-| 9   | 8 / §110       | Offline non provabile in locale: lo snapshot firmato arriva dalla Edge Function `offline-authorization`                                                                              | —                                                                    | Bloccato (Edge Functions)                 |
-| 10  | 10             | Lo switcher sede aggiorna solo `sessionStorage`; `set_operational_venue` (sede del dispositivo lato server) non è mai chiamata                                                       | Device Management mostra la sede iniziale del dispositivo            | Aperto                                    |
-| 11  | 11             | Upload logo/immagini e invio prenotazione online passano da Edge Functions (`asset-upload`, `reservation`)                                                                           | —                                                                    | Non verificato (Edge Functions)           |
-| 12  | 11             | Sul sito pubblico compare “Aggiornamenti da verificare” quando Realtime è degradato                                                                                                  | Messaggio tecnico visibile ai clienti                                | Aperto (scelta di prodotto)               |
+| 8   | 8 / §112       | Conflict Center offre “Annulla richiesta” e “Segna verificato”, non “Modifica ordine” / “Annulla item” dell'esempio                                                                  | L'Admin deve correggere l'ordine dalla vista conto                   | **Corretto** (seconda tornata) |
+| 9   | 8 / §110       | Offline non provabile in locale: lo snapshot firmato arriva dalla Edge Function `offline-authorization`                                                                              | —                                                                    | **Provato** (Edge Function servita) |
+| 10  | 10             | Lo switcher sede aggiorna solo `sessionStorage`; `set_operational_venue` (sede del dispositivo lato server) non è mai chiamata                                                       | Device Management mostra la sede iniziale del dispositivo            | **Corretto** (seconda tornata) |
+| 11  | 11             | Upload logo/immagini e invio prenotazione online passano da Edge Functions (`asset-upload`, `reservation`)                                                                           | —                                                                    | Prenotazione **provata**; upload aperto (Storage) |
+| 12  | 11             | Sul sito pubblico compare “Aggiornamenti da verificare” quando Realtime è degradato                                                                                                  | Messaggio tecnico visibile ai clienti                                | **Corretto** (seconda tornata) |
 | 13  | 7 / §90        | Epson ePOS e print bridge esclusi dall'edizione CORE (`docs/CORE_COMMERCIAL_EDITION.md`)                                                                                             | Solo stampa browser/PDF                                              | Non previsto in CORE                      |
+| 14  | 8 / §110       | Il service worker installato durante la sessione non mostrava mai “È disponibile un aggiornamento”: il controllo leggeva `registration.installing`, già vuoto a installazione finita | Lo staff resta sulla versione vecchia fino a un ricaricamento completo | **Corretto** (seconda tornata) |
 
 Verificato senza difetti nel browser reale: menu della sede, accoglienza, sala, conti, cassa,
 conflitti (vuoto), dispositivi, stampe, approvazioni comande, editor sala, pianificazione,
 configurazione, sito e branding, regole del servizio, privacy, staff, notifiche per tutti i ruoli.
+
+## Seconda tornata (sera del 18/10, senza GitHub)
+
+Su richiesta di Ambrogio il lavoro è proseguito in locale; ogni commit è salvato anche come
+bundle git in `/mnt/project-files/backup-codice/plateform-steps-7-12.bundle`.
+
+- **Conflict Center §112** — nuova migrazione `20261018140000_conflict_center_order_correction.sql`:
+  `resolve_order_conflict` (solo ADMIN della sede) invia l'ordine corretto tramite `place_order`
+  e chiude il conflitto nella stessa transazione, audit `OFFLINE_CONFLICT_CORRECTED`; l'evento
+  offline originale resta non eseguito. In `src/pages/offline.ts` ogni ordine rifiutato mostra le
+  righe con “Annulla item” e il pulsante “Modifica ordine” (dialogo precompilato, piatti esauriti
+  esclusi); annullare l'unica riga chiude il conflitto come annullato.
+- **Switcher sede** — `selectVenue()` in `src/pages/staff-context.ts` chiama
+  `set_operational_venue` prima di cambiare scheda; una nuova scheda riapre la sede salvata sul
+  dispositivo. Usato anche dalla command palette.
+- **Sito pubblico** — nessuna etichetta tecnica per i visitatori quando Realtime è degradato; solo
+  un avviso se sono davvero offline. Pagina tavolo QR con messaggi comprensibili.
+- **PWA** — corretto l'avviso di aggiornamento (`src/services/pwa.ts`).
+- **Stack locale** — `tests/e2e-live/stack` ora serve le Edge Functions `offline-authorization` e
+  `reservation` con il Deno del repository dietro il gateway; chiave di firma offline P-256
+  generata solo per lo stack.
+- **Nuovi test browser**: `step8-conflict-center-live` (2), `step8-offline-live` (offline vero:
+  coda IndexedDB, riconnessione, un ordine sincronizzato e uno in conflitto corretto dall'Admin),
+  `step8-pwa-release-live` (due build di rilascio: installazione, avvio senza rete,
+  aggiornamento su richiesta), `step11-booking-live` (2: prenotazione confermata e richiesta di
+  gruppo tramite la Edge Function).
 
 ## Modifiche
 
