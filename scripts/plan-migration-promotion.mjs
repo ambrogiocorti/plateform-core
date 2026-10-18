@@ -69,10 +69,10 @@ async function run() {
     await readFile(resolve('supabase/migration-manifest.json'), 'utf8'),
   ).migrations;
   if (process.argv[2] === '--self-test') {
-    assert.equal(manifest.length, 483, 'expected candidate migration count');
+    assert.equal(manifest.length, 484, 'expected candidate migration count');
     const prospective = new Set(['20261006100100', '20261012075300']);
     // Forward-dated candidate migrations, not yet applied anywhere.
-    const forward = new Set(['20261018103000']);
+    const forward = new Set(['20261018103000', '20261018114500']);
     const remoteFixture = manifest.filter(
       (row) => !prospective.has(row.version) && !forward.has(row.version),
     );

@@ -1,5 +1,6 @@
 import { readFile, rm, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { loadConfig, checkPrerequisites } from './config.mjs';
 import { claimBackup, finishBackup, finishBackupSuccess } from './protocol.mjs';
 import { dumpDatabase } from './dump.mjs';
@@ -8,6 +9,7 @@ import { assertStorageBackupSnapshot, storageMetadataState } from './storage-met
 import { encryptVerified, hmacSha256Text, sha256Text } from './crypto.mjs';
 import { backupArtifactReference, prepareBackupDirectory } from './filesystem.mjs';
 import { removeReplicaDirectory, replicateBackupDirectory } from './replica.mjs';
+import { captureManagedOverlay, securitySurfaceState } from './managed-surface.mjs';
 
 function safeError(error) {
   const raw = error instanceof Error ? error.message : 'BACKUP_WORKER_FAILED';
@@ -20,7 +22,17 @@ async function processJob(config, job) {
     leaseToken = String(job.lease_token);
   const directory = await prepareBackupDirectory(config.backupRoot, id);
   try {
+    const surfaceBefore = await securitySurfaceState(config.psql, config.databaseUrl);
     const db = await dumpDatabase(config, directory);
+    const overlay = await captureManagedOverlay(
+      config.psql,
+      config.databaseUrl,
+      join(directory, 'managed_overlay.sql'),
+      join(directory, 'schedules.sql'),
+    );
+    const surface = await securitySurfaceState(config.psql, config.databaseUrl);
+    if (surface.hashes.aggregate_sha256 !== surfaceBefore.hashes.aggregate_sha256)
+      throw new Error('DATABASE_SNAPSHOT_CHANGED_DURING_BACKUP');
     const { createClient } = await import('@supabase/supabase-js');
     const storageBefore = await storageMetadataState(config.psql, config.databaseUrl);
     const storage = await exportStorage(config, directory, createClient);
@@ -32,6 +44,8 @@ async function processJob(config, job) {
       db.data,
       db.historySchema,
       db.historyData,
+      join(directory, 'managed_overlay.sql'),
+      join(directory, 'schedules.sql'),
       ...storage.objects.map((row) => row.path),
     ];
     const encrypted = [];
@@ -71,6 +85,14 @@ async function processJob(config, job) {
           latest_version: db.migrationLatestVersion,
           aggregate_sha256: db.migrationAggregateSha256,
         },
+        managed_overlay: {
+          policy: 'managed-overlay-v1',
+          files: encrypted.filter((row) =>
+            ['managed_overlay.sql.enc', 'schedules.sql.enc'].includes(row.file),
+          ),
+          ...overlay,
+        },
+        security_surface: { policy: 'security-surface-v1', ...surface.hashes },
         auth: {
           source_artifact: 'data.sql.enc',
           user_count: db.authUserCount,
@@ -118,7 +140,9 @@ async function processJob(config, job) {
       !parsed.components?.database ||
       !parsed.components?.migrations ||
       !parsed.components?.auth ||
-      !parsed.components?.storage
+      !parsed.components?.storage ||
+      parsed.components?.managed_overlay?.files?.length !== 2 ||
+      !/^[0-9a-f]{64}$/.test(String(parsed.components?.security_surface?.aggregate_sha256 ?? ''))
     )
       throw new Error('BACKUP_MANIFEST_VERIFY_FAILED');
     const replica = await replicateBackupDirectory(directory, config.replicaRoot, id);
@@ -144,6 +168,8 @@ async function processJob(config, job) {
         replica_hash: replica.aggregateSha256,
         manifest: true,
         manifest_auth: true,
+        managed_overlay: true,
+        security_surface: true,
       },
       checksum,
       sizeBytes,
@@ -190,17 +216,23 @@ async function processJob(config, job) {
   }
 }
 
-const mode = process.argv[2] ?? '--check';
-const config = loadConfig();
-const prerequisite = await checkPrerequisites(config);
-if (mode === '--check') {
-  console.log(JSON.stringify({ status: 'READY', ...prerequisite }));
-  process.exit(0);
+// Exported so the local disaster-recovery rehearsal can drive the exact same job
+// pipeline against a disposable PostgreSQL; the CLI below is unchanged.
+export { processJob };
+
+if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
+  const mode = process.argv[2] ?? '--check';
+  const config = loadConfig();
+  const prerequisite = await checkPrerequisites(config);
+  if (mode === '--check') {
+    console.log(JSON.stringify({ status: 'READY', ...prerequisite }));
+    process.exit(0);
+  }
+  if (mode !== '--once') throw new Error('USAGE: backup-worker --check|--once');
+  const job = await claimBackup(config);
+  if (!job) {
+    console.log(JSON.stringify({ status: 'IDLE' }));
+    process.exit(0);
+  }
+  console.log(JSON.stringify(await processJob(config, job)));
 }
-if (mode !== '--once') throw new Error('USAGE: backup-worker --check|--once');
-const job = await claimBackup(config);
-if (!job) {
-  console.log(JSON.stringify({ status: 'IDLE' }));
-  process.exit(0);
-}
-console.log(JSON.stringify(await processJob(config, job)));

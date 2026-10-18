@@ -22,6 +22,21 @@ Restore per sede o per singola componente non è offerto come operazione sicura 
 
 Il gate commerciale `backup_restore_database_auth_storage` richiede evidenze reali. Non registrarvi un successo simulato. `npm run continuity:rehearsal` orchestra host preflight → backup reale → restore-test reale e produce l’evidenza di certificazione; se manca la richiesta restore-test Super Admin si ferma senza bypassare step-up. `npm run check:step12-rehearsal` applica inoltre il fail-closed sulla baseline corrente (migration count/version/hash, backup reale integro, restore-test completo e RPO/RTO documentati; misure production/cutover restano gate di go-live). Fonte: [backup Supabase](https://supabase.com/docs/guides/platform/backups).
 
+## Prova locale end-to-end del 18 ottobre 2026
+
+`npm run continuity:local-dr` esegue backup → restore test → distruzione → ripristino da sola replica su un PostgreSQL 16 usa-e-getta, usando le pipeline reali dei worker (dettagli e limiti in `tools/local-dr-rehearsal/README.md`, rapporto in `docs/STEP12_BACKUP_RESTORE_LOCALE_2026-10-18.md`). La prova ha trovato e il codice ora corregge:
+
+1. il fingerprint dello stato `private` generava SQL non valido: **ogni backup reale falliva** prima del dump;
+2. un progetto Supabase nuovo ha `ALTER DEFAULT PRIVILEGES` che concedono tutto ad `anon`/`authenticated`: il restore riapriva privilegi revocati dalle migrazioni (bloccato in modo fail-closed dal guard audit A.1). Il restore azzera i default del target nella stessa transazione;
+3. le policy RLS su `storage.objects` e il trigger `continuity_bucket_private_guard` su `storage.buckets` non sono nel dump (schemi gestiti esclusi): ora vengono salvati come _managed overlay_ cifrato e riapplicati;
+4. le schedulazioni `pg_cron` non sono nel dump: salvate a parte, si riattivano solo al cutover;
+5. l'upload Storage in upsert riscrive i metadati: il restore riapplica le righe `storage.objects` ripristinate;
+6. il restore worker reale non passava `latest_version` alla verifica della history: falliva sempre.
+
+Nuovi gate di restore: `managed_overlay` e `security_surface` (grant, default privileges, RLS, policy, trigger, event trigger, publication identici alla sorgente). I backup precedenti al formato `managed-overlay-v1` non superano più il restore test: vanno sostituiti da un backup nuovo.
+
+Per la perdita totale dell'installazione sorgente esiste ora `tools/disaster-restore/` (ripristino offline da copia primaria o replica, registrato come `CUTOVER_REQUIRED`).
+
 ## Auth nel dump logico canonico
 
 Plateform usa il percorso documentato da Supabase: `supabase db dump` produce `roles.sql`, `schema.sql` e `data.sql`. I dati Auth sono preservati nel `data.sql`; non viene creato un secondo dump Auth che rischierebbe di duplicare `auth.users` durante il restore.
