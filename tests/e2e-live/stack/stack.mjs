@@ -102,7 +102,7 @@ const gotrueEnv = (database) => ({
 });
 
 // Edge Functions the browser suite needs, served by the repository's Deno behind the gateway.
-const functionPorts = { 'offline-authorization': 54341 };
+const functionPorts = { 'offline-authorization': 54341, reservation: 54342 };
 const ports = {
   gateway: 54321,
   postgrest: 54330,
