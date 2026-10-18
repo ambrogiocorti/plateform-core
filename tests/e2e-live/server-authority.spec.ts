@@ -1,50 +1,11 @@
 import { expect, test } from '@playwright/test';
-import { randomBytes, randomUUID } from 'node:crypto';
-import { anonKey, ids, password, sql, stack, staff } from './stack/seed.mjs';
-import { reset } from './stack/stack.mjs';
+import { randomUUID } from 'node:crypto';
+import { anonKey, ids, sql, stack, staff } from './stack/seed.mjs';
+import { session } from './support/api';
+import { reset } from './stack/active.mjs';
 
 // Server-side authority over the real HTTP surface (GoTrue JWT → PostgREST → RLS/RPC guards).
 // The browser hides these actions per role; here we call them directly to prove the UI is not the gate.
-
-type Member = (typeof staff)[keyof typeof staff];
-
-async function session(member: Member) {
-  const login = await fetch(`${stack.gateway}/auth/v1/token?grant_type=password`, {
-    method: 'POST',
-    headers: { apikey: anonKey, 'content-type': 'application/json' },
-    body: JSON.stringify({ email: member.email, password }),
-  });
-  expect(login.status).toBe(200);
-  const { access_token: token } = (await login.json()) as { access_token: string };
-  const call = async (name: string, args: Record<string, unknown>) => {
-    const response = await fetch(`${stack.gateway}/rest/v1/rpc/${name}`, {
-      method: 'POST',
-      headers: {
-        apikey: anonKey,
-        authorization: `Bearer ${token}`,
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify(args),
-    });
-    const text = await response.text();
-    return { status: response.status, body: text ? (JSON.parse(text) as unknown) : null };
-  };
-  const read = async (table: string) => {
-    const response = await fetch(`${stack.gateway}/rest/v1/${table}?select=id`, {
-      headers: { apikey: anonKey, authorization: `Bearer ${token}` },
-    });
-    return { status: response.status, body: (await response.json()) as unknown };
-  };
-  const completed = await call('complete_staff_login', {
-    p_device_name: `${member.role} e2e`,
-    p_platform: 'Linux',
-    p_app_version: '0.1.0',
-    p_device: null,
-    p_device_token: randomBytes(32).toString('base64url'),
-  });
-  expect(completed.status).toBe(200);
-  return { call, read };
-}
 
 test.beforeEach(async () => {
   await reset();

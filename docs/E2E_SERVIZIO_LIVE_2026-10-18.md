@@ -83,6 +83,7 @@ riparte da una copia pulita. Lo script rifiuta URL di database non locali.
 
 ## Prove mancanti e rischi
 
+- (Aggiornato: Realtime, step-up, MFA e concorrenza coperti in [E2E_REALTIME_EDGE_MFA_2026-10-18.md](E2E_REALTIME_EDGE_MFA_2026-10-18.md).)
 - Realtime e Edge Functions non coperti: aggiornamento live tra dispositivi, step-up (sconti, storni,
   chiusura forzata), pagamenti provider. Servono Supabase locale completo o staging.
 - PostgreSQL 16 invece di 17; gateway sostitutivo invece di Kong.

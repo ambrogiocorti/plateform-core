@@ -258,6 +258,15 @@ export async function up() {
   const { anonKey } = await import('./seed.mjs');
   mkdirSync(join(root, 'tests/e2e-live/.stack'), { recursive: true });
   writeFileSync(join(root, 'tests/e2e-live/.stack/anon.key'), anonKey);
+  writeFileSync(
+    join(root, 'tests/e2e-live/.stack/env.json'),
+    JSON.stringify({
+      mode: 'native',
+      supabaseUrl: 'http://127.0.0.1:54321',
+      dbUrl: url(db),
+      anonKey,
+    }),
+  );
   console.log(`E2E stack ready: gateway http://127.0.0.1:54321, database ${url(db)}`);
 }
 

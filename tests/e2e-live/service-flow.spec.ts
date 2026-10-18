@@ -1,33 +1,16 @@
 import { expect, test } from '@playwright/test';
-import type { Browser, Page } from '@playwright/test';
-import { password, sql, staff } from './stack/seed.mjs';
-import { reset } from './stack/stack.mjs';
+import type { Browser } from '@playwright/test';
+import { sql, staff } from './stack/seed.mjs';
+import { reset } from './stack/active.mjs';
+import { device as signIn, open, type Member } from './support/devices';
 
-// Real end-to-end service on the disposable local stack: GoTrue password login, PostgREST RPC,
-// PostgreSQL RLS and triggers. Each role runs in its own browser context (separate device:
-// own storage, own GoTrue session, own registered device). Realtime is not served locally, so
-// devices reload to observe changes made by colleagues; that is a stack limit, not app behavior.
+// Real end-to-end service: GoTrue password login, PostgREST RPC, PostgreSQL RLS and triggers.
+// Each role runs in its own browser context (separate device). Devices navigate explicitly
+// between steps so the flow also holds where Realtime is not served (native stack);
+// live propagation between devices is proven separately in realtime.spec.ts.
 
-type Member = (typeof staff)[keyof typeof staff];
-
-async function device(browser: Browser, member: Member): Promise<Page> {
-  const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
-  const page = await context.newPage();
-  page.on('pageerror', (error) => console.log(`[${member.role}] pageerror`, error.message));
-  await page.goto('/login');
-  await page.getByLabel('Identificativo staff').fill(member.email);
-  await page.getByLabel('Password').fill(password);
-  await page.getByRole('button', { name: 'Accedi al servizio' }).click();
-  await expect(
-    page.getByText(`${member.name} · ${member.role.replaceAll('_', ' ')}`),
-  ).toBeVisible();
-  await expect(page).toHaveURL(new RegExp(`${member.landing}$`));
-  return page;
-}
-
-async function open(page: Page, path: string) {
-  await page.goto(path);
-  await expect(page.locator('main')).toBeVisible();
+async function device(browser: Browser, member: Member) {
+  return (await signIn(browser, member)).page;
 }
 
 test.beforeEach(async () => {

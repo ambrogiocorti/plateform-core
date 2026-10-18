@@ -16,16 +16,22 @@ export function sign(payload) {
   const body = `${encode({ alg: 'HS256', typ: 'JWT' })}.${encode(payload)}`;
   return `${body}.${createHmac('sha256', stack.jwtSecret).update(body).digest('base64url')}`;
 }
-export const serviceKey = sign({
-  role: 'service_role',
-  iss: 'supabase',
-  iat: 1700000000,
-  exp: 4100000000,
-});
-export const anonKey = sign({ role: 'anon', iss: 'supabase', iat: 1700000000, exp: 4100000000 });
+// On the Supabase CLI stack the keys come from `supabase status`; the native stack signs its own.
+export const serviceKey =
+  process.env.E2E_SERVICE_KEY ??
+  sign({ role: 'service_role', iss: 'supabase', iat: 1700000000, exp: 4100000000 });
+export const anonKey =
+  process.env.E2E_ANON_KEY ??
+  sign({ role: 'anon', iss: 'supabase', iat: 1700000000, exp: 4100000000 });
 
 export const password = 'E2e-Servizio-2026!';
 export const staff = {
+  admin: {
+    email: 'admin@staff.e2e.test',
+    name: 'Anna Admin',
+    role: 'ADMIN',
+    landing: '/operazioni',
+  },
   waiter: {
     email: 'cameriere@staff.e2e.test',
     name: 'Marco Cameriere',

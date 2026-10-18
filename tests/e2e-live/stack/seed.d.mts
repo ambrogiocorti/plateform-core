@@ -1,7 +1,7 @@
 export interface StaffMember {
   email: string;
   name: string;
-  role: 'WAITER' | 'KITCHEN_STAFF' | 'PASS' | 'CASHIER';
+  role: 'ADMIN' | 'WAITER' | 'KITCHEN_STAFF' | 'PASS' | 'CASHIER';
   landing: string;
 }
 export const stack: { gateway: string; dbUrl: string; jwtSecret: string };
@@ -9,6 +9,7 @@ export const anonKey: string;
 export const serviceKey: string;
 export const password: string;
 export const staff: {
+  admin: StaffMember;
   waiter: StaffMember;
   kitchen: StaffMember;
   pass: StaffMember;
