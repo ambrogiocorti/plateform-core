@@ -193,8 +193,16 @@ test('multi-sede: il Super Admin crea una sede, lo switcher la mostra solo a chi
   const switcher = admin.getByLabel('Sede operativa');
   await expect(switcher.locator('option')).toHaveText(['Sede centrale', 'Sede Navigli']);
   await switcher.selectOption({ label: 'Sede Navigli' });
+  // La scelta è salvata dal server sul dispositivo registrato (Device Management, offline).
+  const adminDevice = `select d.venue_id from public.registered_devices d join auth.users u on u.id=d.user_id where u.email='${staff.admin.email}' and d.revoked_at is null`;
+  await expect.poll(() => sql(adminDevice)).toBe(second);
   await open(admin, '/sala');
   await expect(admin.getByText('Tavolo 1')).toHaveCount(0);
+  // Una nuova scheda dello stesso dispositivo riapre la sede salvata.
+  const tab = await admin.context().newPage();
+  await tab.goto('/sala');
+  await expect(tab.getByLabel('Sede operativa')).toHaveValue(second);
+  await tab.close();
 
   // Cameriere VENUE della sede centrale: nessuno switcher, la nuova sede non è leggibile.
   const waiter = await device(browser, staff.waiter);

@@ -19,7 +19,7 @@ import { client } from '../../src/api/client';
 import { lockedPage, lockSession, editPin } from '../../src/auth/lock';
 import { watchLive } from '../../src/realtime/live';
 import type { ConnectionState } from '../../src/realtime/live';
-import { loadContext } from '../../src/pages/staff-context';
+import { loadContext, selectVenue } from '../../src/pages/staff-context';
 import type { StaffContext } from '../../src/pages/staff-context';
 import type { UserRole } from '../../src/types/domain';
 import {
@@ -268,8 +268,12 @@ async function render(): Promise<void> {
   if (venueControl) {
     venueControl.value = context.venue?.id ?? '';
     venueControl.addEventListener('change', () => {
-      sessionStorage.setItem('plateform-venue', venueControl.value);
-      navigate('/');
+      selectVenue(venueControl.value)
+        .then(() => navigate('/'))
+        .catch((error: unknown) => {
+          venueControl.value = context.venue?.id ?? '';
+          showError(error);
+        });
     });
   }
   const shell = el(
@@ -667,12 +671,13 @@ function openPalette(): void {
             ...hits.map((hit) =>
               button(
                 `${hit.label} · ${labels[hit.kind] ?? hit.kind}`,
-                () => {
+                async () => {
                   if (
                     hit.venue_id &&
+                    hit.venue_id !== currentContext?.venue?.id &&
                     currentContext?.venues.some((venue) => venue.id === hit.venue_id)
                   )
-                    sessionStorage.setItem('plateform-venue', hit.venue_id);
+                    await selectVenue(hit.venue_id);
                   popup.close();
                   navigate(hit.path);
                 },
