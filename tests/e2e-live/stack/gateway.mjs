@@ -1,0 +1,61 @@
+// Minimal local stand-in for the Supabase API gateway (Kong) on the disposable e2e stack.
+// Routes /rest/v1 -> PostgREST and /auth/v1 -> GoTrue. Realtime, Storage and Edge Functions
+// are not served here: the browser suite must not claim to exercise them.
+import http from 'node:http';
+
+const port = Number(process.env.E2E_GATEWAY_PORT ?? 54321);
+const routes = [
+  ['/rest/v1', Number(process.env.E2E_POSTGREST_PORT ?? 54330)],
+  ['/auth/v1', Number(process.env.E2E_GOTRUE_PORT ?? 9999)],
+];
+const cors = {
+  'access-control-allow-origin': '*',
+  'access-control-allow-headers':
+    'authorization, x-client-info, apikey, content-type, prefer, accept-profile, content-profile, range, x-plateform-request-id, x-plateform-impersonation, x-supabase-api-version, x-plateform-client, x-plateform-release',
+  'access-control-allow-methods': 'GET, POST, PATCH, PUT, DELETE, OPTIONS, HEAD',
+  'access-control-expose-headers': 'content-range, x-supabase-api-version',
+};
+
+http
+  .createServer((request, response) => {
+    const route = routes.find(
+      ([prefix]) => request.url?.startsWith(prefix + '/') || request.url === prefix,
+    );
+    if (request.method === 'OPTIONS') {
+      response.writeHead(204, {
+        ...cors,
+        'access-control-allow-headers':
+          request.headers['access-control-request-headers'] ?? cors['access-control-allow-headers'],
+      });
+      response.end();
+      return;
+    }
+    if (!route) {
+      response.writeHead(404, { ...cors, 'content-type': 'application/json' });
+      response.end(JSON.stringify({ message: 'not served by local e2e gateway' }));
+      return;
+    }
+    const [prefix, target] = route;
+    const headers = { ...request.headers, host: `127.0.0.1:${target}` };
+    delete headers.apikey;
+    const upstream = http.request(
+      {
+        host: '127.0.0.1',
+        port: target,
+        method: request.method,
+        path: request.url.slice(prefix.length) || '/',
+        headers,
+      },
+      (reply) => {
+        const out = { ...reply.headers, ...cors };
+        response.writeHead(reply.statusCode ?? 502, out);
+        reply.pipe(response);
+      },
+    );
+    upstream.on('error', (error) => {
+      response.writeHead(502, { ...cors, 'content-type': 'application/json' });
+      response.end(JSON.stringify({ message: error.message }));
+    });
+    request.pipe(upstream);
+  })
+  .listen(port, '127.0.0.1', () => console.log(`e2e gateway on ${port}`));
