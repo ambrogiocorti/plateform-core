@@ -2911,6 +2911,12 @@
       "sha256": "63c070344be5cda25708ccbeb9df3e8322b2b275b1682f5f0a747ede33f94f4c"
     },
     {
+      "filename": "20261018130000_statistics_core_metrics_without_advanced_license.sql",
+      "version": "20261018130000",
+      "name": "statistics_core_metrics_without_advanced_license",
+      "sha256": "149bdd8abf9c275dacf9280f48d3e4b211a5e83bed0f5bc3935137422a617ba8"
+    },
+    {
       "filename": "20261018130100_step_notifications_follow_step_lifecycle.sql",
       "version": "20261018130100",
       "name": "step_notifications_follow_step_lifecycle",

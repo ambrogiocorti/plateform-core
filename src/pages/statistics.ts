@@ -47,20 +47,24 @@ const statisticsSchema = z.object({
   ),
   registers: z.array(aggregate.extend({ id: z.uuid(), name: z.string() })),
   services: z.array(aggregate.extend({ name: z.string() })),
-  average_stay_seconds: z.number().nullable(),
-  cancelled_items: z.number().int(),
-  operational_errors: z.number().int(),
-  incidents: z.number().int(),
-  open_incidents: z.number().int(),
-  capacity_services: z.array(
-    z.object({
-      id: z.uuid(),
-      name: z.string(),
-      capacity_covers: z.number().int().nullable(),
-      used_covers: z.number().int(),
-      utilization_percent: z.number().nullable(),
-    }),
-  ),
+  advanced: z.boolean(),
+  // Present only with the ADVANCED_ANALYTICS licence (§94); §92 base metrics above are always returned.
+  average_stay_seconds: z.number().nullable().optional(),
+  cancelled_items: z.number().int().optional(),
+  operational_errors: z.number().int().optional(),
+  incidents: z.number().int().optional(),
+  open_incidents: z.number().int().optional(),
+  capacity_services: z
+    .array(
+      z.object({
+        id: z.uuid(),
+        name: z.string(),
+        capacity_covers: z.number().int().nullable(),
+        used_covers: z.number().int(),
+        utilization_percent: z.number().nullable(),
+      }),
+    )
+    .optional(),
 });
 const duration = (seconds: number | null) =>
   seconds === null
@@ -125,11 +129,15 @@ export async function statisticsPage(context: StaffContext): Promise<HTMLElement
         ['No-show', snapshot.no_shows],
         ['Chiamate', snapshot.calls],
         ['Resi', snapshot.returns],
-        ['Permanenza media secondi', snapshot.average_stay_seconds ?? ''],
-        ['Piatti annullati', snapshot.cancelled_items],
-        ['Errori operativi', snapshot.operational_errors],
-        ['Incidenti', snapshot.incidents],
-        ['Incidenti aperti', snapshot.open_incidents],
+        ...(snapshot.advanced
+          ? [
+              ['Permanenza media secondi', snapshot.average_stay_seconds ?? ''],
+              ['Piatti annullati', snapshot.cancelled_items ?? ''],
+              ['Errori operativi', snapshot.operational_errors ?? ''],
+              ['Incidenti', snapshot.incidents ?? ''],
+              ['Incidenti aperti', snapshot.open_incidents ?? ''],
+            ]
+          : []),
         [],
         ['Giorno', 'Movimenti centesimi', 'Mance centesimi'],
         ...snapshot.daily.map((row) => [row.local_date, row.amount_cents, row.tip_cents]),
@@ -340,8 +348,9 @@ export async function statisticsPage(context: StaffContext): Promise<HTMLElement
           `${row.slot_time.slice(0, 5)} · ${row.reservations} gruppi · ${row.covers} coperti`,
         ),
       );
-    if (data.capacity_services.length) bookings.append(el('h3', {}, 'Utilizzo capacità servizi'));
-    for (const service of data.capacity_services)
+    const capacity = data.capacity_services ?? [];
+    if (capacity.length) bookings.append(el('h3', {}, 'Utilizzo capacità servizi'));
+    for (const service of capacity)
       bookings.append(
         el(
           'p',
@@ -356,17 +365,25 @@ export async function statisticsPage(context: StaffContext): Promise<HTMLElement
       { class: 'card stack' },
       el('h2', {}, 'Cucina, consegne e chiamate'),
       el('p', {}, `Preparazione media: ${duration(data.preparation_seconds)}`),
-      el('p', {}, `Permanenza media al tavolo: ${duration(data.average_stay_seconds)}`),
-      el(
-        'p',
-        {},
-        `${data.returns} resi · ${data.cancelled_items} piatti annullati · ${data.calls} chiamate clienti`,
-      ),
-      el(
-        'p',
-        {},
-        `${data.operational_errors} errori operativi · ${data.incidents} incidenti nel periodo · ${data.open_incidents} incidenti aperti`,
-      ),
+      ...(data.advanced
+        ? [
+            el(
+              'p',
+              {},
+              `Permanenza media al tavolo: ${duration(data.average_stay_seconds ?? null)}`,
+            ),
+            el(
+              'p',
+              {},
+              `${data.returns} resi · ${data.cancelled_items ?? 0} piatti annullati · ${data.calls} chiamate clienti`,
+            ),
+            el(
+              'p',
+              {},
+              `${data.operational_errors ?? 0} errori operativi · ${data.incidents ?? 0} incidenti nel periodo · ${data.open_incidents ?? 0} incidenti aperti`,
+            ),
+          ]
+        : [el('p', {}, `${data.returns} resi · ${data.calls} chiamate clienti`)]),
       el(
         'p',
         {},
@@ -382,6 +399,14 @@ export async function statisticsPage(context: StaffContext): Promise<HTMLElement
         ),
       );
     result.append(bookings, operations);
+    if (!data.advanced)
+      result.append(
+        el(
+          'p',
+          { class: 'muted' },
+          'Capacità dei servizi, permanenza media, piatti annullati, errori operativi e incidenti sono inclusi nella licenza Analytics avanzate.',
+        ),
+      );
   }
   const view = el(
     'div',

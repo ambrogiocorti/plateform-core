@@ -77,6 +77,7 @@ const navigation: {
   { path: '/food-cost', label: 'Food cost e margini', roles: ['ADMIN'], section: 'CONFIGURAZIONE' },
   { path: '/servizio', label: 'Servizio', roles: ['WAITER'] },
   { path: '/salute', label: 'Operational Health', roles: ['SUPER_ADMIN'] },
+  { path: '/sedi', label: 'Sedi', roles: ['SUPER_ADMIN'] },
   { path: '/accoglienza', label: 'Accoglienza', roles: ['ADMIN', 'HOST'], section: 'OPERATIVITÀ' },
   {
     path: '/sala',
@@ -485,6 +486,8 @@ async function render(): Promise<void> {
       content = await (await import('../../src/pages/privacy')).privacyPage(context);
     else if (pageLink.path === '/audit')
       content = await (await import('../../src/pages/audit')).auditPage();
+    else if (pageLink.path === '/sedi')
+      content = await (await import('../../src/pages/venues')).venuesPage(context);
     else if (pageLink.path === '/statistiche')
       content = await (await import('../../src/pages/statistics')).statisticsPage(context);
     else if (pageLink.path === '/conflitti')

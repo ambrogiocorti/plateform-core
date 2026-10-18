@@ -37,5 +37,11 @@ export default defineConfig({
       env: environment,
       reuseExistingServer: !process.env.CI,
     },
+    {
+      command: 'npm run dev:public',
+      url: 'http://localhost:5173',
+      env: environment,
+      reuseExistingServer: !process.env.CI,
+    },
   ],
 });

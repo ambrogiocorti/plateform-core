@@ -58,6 +58,10 @@ const messages: Record<string, string> = {
   INVALID_FOOD_COST_REQUEST: 'Seleziona un piatto e una sede validi per il food cost.',
   INVALID_FOOD_COST_SNAPSHOT: 'Impossibile registrare lo snapshot: aggiorna la ricetta e riprova.',
   MULTI_VENUE_DISABLED: 'La gestione di più sedi non è abilitata.',
+  INVALID_VENUE:
+    'Controlla i dati della sede: nome, indirizzo web (solo minuscole, numeri e trattini), codice, indirizzo, telefono e fuso orario.',
+  VENUE_LIMIT: 'Hai raggiunto il numero massimo di sedi attive previsto per l’installazione.',
+  FIRST_VENUE_REQUIRED: 'Deve restare attiva almeno una sede.',
   LAYOUT_IN_SERVICE: 'Completa il servizio della sala prima di modificare il layout.',
   USE_ROOM_EDITOR:
     'Per attivare o modificare la piantina apri Editor sala. Qui puoi soltanto creare o rinominare un layout.',

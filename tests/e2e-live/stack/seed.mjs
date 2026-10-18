@@ -57,6 +57,13 @@ export const staff = {
     role: 'KITCHEN_ADMIN',
     landing: '/cucina',
   },
+  // SUPER_ADMIN always needs aal2 (private.authenticated_role): the suite enrols a real TOTP.
+  superAdmin: {
+    email: 'tecnico@staff.e2e.test',
+    name: 'Tina Tecnica',
+    role: 'SUPER_ADMIN',
+    landing: '/salute',
+  },
 };
 export const ids = {
   venue: '10000000-0000-4000-8000-0000000000e1',
@@ -130,11 +137,13 @@ export async function seed() {
       ${Object.entries(staff)
         .map(
           ([key, m]) =>
-            `('${users[key]}','${m.name}','${m.role}','${m.role === 'ADMIN' ? 'CHAIN' : 'VENUE'}')`,
+            `('${users[key]}','${m.name}','${m.role}','${['ADMIN', 'SUPER_ADMIN'].includes(m.role) ? 'CHAIN' : 'VENUE'}')`,
         )
         .join(',')};
     insert into public.staff_venue_assignments(user_id,venue_id)
-      select id,'${ids.venue}' from public.staff_profiles where id in (${Object.values(users)
+      select id,'${ids.venue}' from public.staff_profiles where role<>'SUPER_ADMIN' and id in (${Object.values(
+        users,
+      )
         .map((id) => `'${id}'`)
         .join(',')});
     insert into public.rooms(id,venue_id,name) values('${ids.room}','${ids.venue}','Sala principale');
