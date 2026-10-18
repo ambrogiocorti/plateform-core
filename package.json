@@ -27,6 +27,7 @@
     "release:zip": "node scripts/package-release.mjs",
     "print:bridge": "node tools/print-bridge/start.ts",
     "check:migrations": "node scripts/check-migrations.mjs",
+    "check:security-pg": "node scripts/check-security-pg.mjs",
     "check:runtime": "node scripts/check-runtime-configuration.mjs",
     "check:edge-http": "node scripts/check-edge-http.mjs",
     "check:gateway": "node scripts/check-gateway-rate-limit.mjs",

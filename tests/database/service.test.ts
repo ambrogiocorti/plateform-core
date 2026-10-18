@@ -190,15 +190,11 @@ describe('Authoritative service workflows', () => {
       tableWaiter,
       table,
     ]);
-    expect(
-      (await db.query('select private.responsible_waiter($1) waiter', [table])).rows[0],
-    ).toEqual({
+    expect(await responsibleWaiter(table)).toEqual({
       waiter: tableWaiter,
     });
     await db.query("select public.assign_waiter($1,$2,'RUNNER',null,null)", [ids.venue, runner]);
-    expect(
-      (await db.query('select private.responsible_waiter($1) waiter', [table])).rows[0],
-    ).toEqual({
+    expect(await responsibleWaiter(table)).toEqual({
       waiter: tableWaiter,
     });
     expect(
@@ -558,10 +554,17 @@ describe('Authoritative service workflows', () => {
         .rows[0],
     ).toMatchObject({ result: { account_id: account.id, table_id: target } });
     await identity(db, ids.waiter);
-    expect(
-      (await db.query('select private.responsible_waiter($1) as waiter', [target])).rows[0],
-    ).toEqual({ waiter: ids.waiter });
+    expect(await responsibleWaiter(target)).toEqual({ waiter: ids.waiter });
   });
+
+  // responsible_waiter is an internal helper, not executable by API roles:
+  // observe it as the owner while keeping the caller's JWT claims.
+  async function responsibleWaiter(table: string) {
+    await db.exec('reset role');
+    const row = (await db.query('select private.responsible_waiter($1) waiter', [table])).rows[0];
+    await db.exec('set role authenticated');
+    return row;
+  }
 
   async function submit(account: string, key = orderKey, overrides = {}) {
     const state = await db.query<{ version: number }>(
