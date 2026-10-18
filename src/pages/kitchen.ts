@@ -27,6 +27,82 @@ const itemSchema = z.object({
   allergens: z.array(z.object({ code: z.string(), name: z.string() })),
 });
 
+const returnableSchema = z.object({
+  enabled: z.boolean(),
+  items: z.array(
+    z.object({
+      id: z.uuid(),
+      version: z.number(),
+      dish_name: z.string(),
+      quantity: z.number().int(),
+      step_number: z.number().int(),
+      table_name: z.string(),
+      account_name: z.string().nullable(),
+      served_at: z.string(),
+    }),
+  ),
+});
+
+// §65: RIFARE rimanda il piatto in cucina; l'annullamento economico passa sempre dall'Admin.
+function openReturnDialog(
+  context: StaffContext,
+  item: { id: string; version: number; dish_name: string },
+): void {
+  const popup = dialog('Errore ordine', el('p', {}, item.dish_name));
+  const key = crypto.randomUUID();
+  for (const action of ['REMAKE', 'CANCEL_REQUEST'])
+    popup.append(
+      button(
+        action === 'REMAKE' ? 'Rifare il piatto' : 'Richiedi annullamento Admin',
+        async () => {
+          await rpc(
+            'return_order_item',
+            { p_item: item.id, p_action: action, p_version: item.version, p_key: key },
+            z.record(z.string(), z.unknown()),
+          );
+          popup.close();
+          await context.refresh?.();
+        },
+        'secondary',
+      ),
+    );
+}
+
+function servedReturnsPanel(
+  context: StaffContext,
+  returnable: z.infer<typeof returnableSchema>,
+): HTMLElement | null {
+  if (!returnable.enabled) return null;
+  const panel = el(
+    'section',
+    { class: 'card stack', 'aria-label': 'Piatti serviti di recente' },
+    el('h2', {}, 'Piatti serviti di recente'),
+    el(
+      'p',
+      { class: 'muted' },
+      'Se un piatto torna indietro dal tavolo per errore ordine, scegli se rifarlo o chiederne l’annullamento all’Admin.',
+    ),
+  );
+  if (!returnable.items.length)
+    panel.append(el('p', { class: 'muted' }, 'Nessun piatto servito nelle ultime ore.'));
+  for (const item of returnable.items)
+    panel.append(
+      el(
+        'article',
+        { class: 'row between', 'data-returnable-item': item.id },
+        el(
+          'span',
+          {},
+          `${item.table_name} · STEP ${item.step_number} · ${item.quantity} × ${item.dish_name} · servito alle ${new Date(
+            item.served_at,
+          ).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}`,
+        ),
+        button('Piatto tornato indietro', () => openReturnDialog(context, item), 'quiet'),
+      ),
+    );
+  return panel;
+}
+
 const kitchenAdminOverviewSchema = z.object({
   summary: z.object({
     steps: z.number().int(),
@@ -211,10 +287,14 @@ export async function kitchenPage(context: StaffContext): Promise<HTMLElement> {
   if (!context.venue)
     return emptyState('Nessuna sede', 'Verifica le assegnazioni del tuo account.');
 
-  const [items, adminOverview] = await Promise.all([
+  const canReturn = ['PASS', 'KITCHEN_ADMIN'].includes(context.profile.role);
+  const [items, adminOverview, returnable] = await Promise.all([
     rpc('get_kitchen_board', { p_venue: context.venue.id }, z.array(itemSchema)),
     context.profile.role === 'KITCHEN_ADMIN'
       ? rpc('get_kitchen_admin_overview', { p_venue: context.venue.id }, kitchenAdminOverviewSchema)
+      : Promise.resolve(null),
+    canReturn
+      ? rpc('get_returnable_items', { p_venue: context.venue.id }, returnableSchema)
       : Promise.resolve(null),
   ]);
 
@@ -311,30 +391,7 @@ export async function kitchenPage(context: StaffContext): Promise<HTMLElement> {
 
       if (['PASS', 'KITCHEN_ADMIN'].includes(context.profile.role) && item.status === 'READY') {
         line.append(
-          button(
-            'Piatto tornato indietro',
-            () => {
-              const popup = dialog('Errore ordine', el('p', {}, item.dish_name));
-              const key = crypto.randomUUID();
-              for (const action of ['REMAKE', 'CANCEL_REQUEST'])
-                popup.append(
-                  button(
-                    action === 'REMAKE' ? 'Rifare il piatto' : 'Richiedi annullamento Admin',
-                    async () => {
-                      await rpc(
-                        'return_order_item',
-                        { p_item: item.id, p_action: action, p_version: item.version, p_key: key },
-                        z.record(z.string(), z.unknown()),
-                      );
-                      popup.close();
-                      await context.refresh?.();
-                    },
-                    'secondary',
-                  ),
-                );
-            },
-            'quiet',
-          ),
+          button('Piatto tornato indietro', () => openReturnDialog(context, item), 'quiet'),
         );
       }
       card.append(line);
@@ -377,6 +434,7 @@ export async function kitchenPage(context: StaffContext): Promise<HTMLElement> {
           ? 'Gli step pronti o in coordinamento compariranno qui in tempo reale.'
           : 'Le comande pertinenti alla tua postazione compariranno qui in tempo reale.',
       );
-  if (!adminOverview) return board;
-  return el('div', { class: 'stack' }, kitchenAdminPanel(adminOverview, board), board);
+  const served = returnable ? servedReturnsPanel(context, returnable) : null;
+  if (!adminOverview) return served ? el('div', { class: 'stack' }, board, served) : board;
+  return el('div', { class: 'stack' }, kitchenAdminPanel(adminOverview, board), board, served);
 }

@@ -43,9 +43,9 @@ const checks = [
   ],
   [
     'overview non scompare con KDS vuota',
-    source.includes('if (!adminOverview) return board') &&
+    source.includes('if (!adminOverview) return served') &&
       source.includes(
-        "return el('div', { class: 'stack' }, kitchenAdminPanel(adminOverview, board), board)",
+        "return el('div', { class: 'stack' }, kitchenAdminPanel(adminOverview, board), board, served)",
       ),
   ],
   [

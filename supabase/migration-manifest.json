@@ -2909,6 +2909,24 @@
       "version": "20261018120000",
       "name": "security_policy_predicates_and_venue_references",
       "sha256": "63c070344be5cda25708ccbeb9df3e8322b2b275b1682f5f0a747ede33f94f4c"
+    },
+    {
+      "filename": "20261018130100_step_notifications_follow_step_lifecycle.sql",
+      "version": "20261018130100",
+      "name": "step_notifications_follow_step_lifecycle",
+      "sha256": "e507474ede703b1b6ea3cdeb91d30b9f0d16b45d9c1b2f9afd3ff852c14d4426"
+    },
+    {
+      "filename": "20261018130200_returnable_served_items.sql",
+      "version": "20261018130200",
+      "name": "returnable_served_items",
+      "sha256": "4717e2df9107538da134305b7d126f57d11e358cdfad655d70c23bd783e64e15"
+    },
+    {
+      "filename": "20261018130300_kitchen_print_ticket_per_order_and_audit.sql",
+      "version": "20261018130300",
+      "name": "kitchen_print_ticket_per_order_and_audit",
+      "sha256": "2bc88abae18b6c50498846de907ea5d2405e994c003f69c1fae901af18a4fcb2"
     }
   ]
 }
