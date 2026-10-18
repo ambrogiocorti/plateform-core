@@ -79,9 +79,9 @@ async function runCapture(program, args) {
 async function verifySource() {
   await import('./check-migrations.mjs');
   const manifest = JSON.parse(await readFile('supabase/migration-manifest.json', 'utf8'));
-  assert.equal(manifest.migrations.length, 482, 'CANDIDATE_MIGRATION_COUNT_CHANGED');
+  assert.equal(manifest.migrations.length, 483, 'CANDIDATE_MIGRATION_COUNT_CHANGED');
   const names = new Set(manifest.migrations.map((m) => m.filename));
-  assert.equal(names.size, 482, 'DUPLICATE_MIGRATION_FILE');
+  assert.equal(names.size, 483, 'DUPLICATE_MIGRATION_FILE');
   assert.ok(names.has('20261006100100_continuity_rehearsal_schema_recovery.sql'));
   assert.ok(names.has('20261012075300_audit_pause_legacy_compatibility.sql'));
   return manifest;
@@ -157,7 +157,7 @@ async function bootstrap() {
       query,
     ]);
     console.log(`LOCAL_BOOTSTRAP_CATALOG=${result}`);
-    assert.equal(result, '482|7|true|true', 'POSTGRESQL_BOOTSTRAP_INCOMPLETE');
+    assert.equal(result, '483|7|true|true', 'POSTGRESQL_BOOTSTRAP_INCOMPLETE');
     console.log('PLATEFORM_LOCAL_POSTGRES_BOOTSTRAP=PASS');
   } finally {
     if (attemptedStart) {

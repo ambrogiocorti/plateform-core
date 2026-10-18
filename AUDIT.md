@@ -31,6 +31,18 @@ Il registro ha protezioni contro UPDATE, DELETE e TRUNCATE e non concede scrittu
 browser. La dashboard e `search_audit` richiedono Super Admin autenticato con MFA.
 Admin e Cashier non possono consultare il registro tecnico completo.
 
+Dal Macro-step A.1 (migrazione `20261018103000_audit_append_only_partition_guards`)
+la tabella padre e ogni partizione hanno i trigger `audit_immutable` e `audit_no_truncate`
+in modalità `ENABLE ALWAYS` (attivi anche con `session_replication_role=replica`);
+le partizioni non concedono alcun privilegio a `anon`, `authenticated` e `service_role`
+(in particolare niente `TRUNCATE` né `TRIGGER`, che consentirebbe di agganciare un trigger
+di scarto). Il vecchio trigger di sospensione `plateform_dev_pause_audit` e la sua funzione
+sono rimossi. `private.audit_append_only_violations()` elenca ogni deviazione e alimenta
+`get_audit_certification_gates`; un event trigger DDL rifiuta disattivazione o rimozione
+delle protezioni, trigger `BEFORE INSERT`, regole, `DETACH`/`DROP` di partizioni e
+privilegi impropri, dove la piattaforma consente event trigger. Dettagli e prove in
+`docs/A1_AUDIT_APPEND_ONLY_2026-10-18.md`.
+
 Questi controlli governano gli accessi dell'applicazione. L'accesso amministrativo diretto
 all'infrastruttura PostgreSQL richiede anche controlli operativi e copie esterne verificabili;
 queste copie non sono ancora configurate nell'ambiente disponibile.
@@ -54,11 +66,14 @@ le richieste di differenza e gli snapshot già conclusi non vengono riscritti.
 
 `tests/database/audit-search.test.ts` verifica filtri, cursori, ruoli e MFA.
 `tests/database/reconciliation.test.ts` verifica immutabilità e contesto delle correzioni.
+`tests/database/audit-append-only.test.ts` e `tools/audit-local-pg/` verificano le protezioni
+append-only su PGlite e su PostgreSQL locale usa e getta.
 I test usano PostgreSQL PGlite con Auth fixture; non attestano lo stack Supabase completo.
 
 Webhook/provider, sync offline, conflitti, stampa e retention hanno eventi server. Restano
 da verificare la copertura completa dei fallimenti Auth e degli eventi del master, oltre
-a backup/restore, rotazione delle partizioni e archivio storico senza perdita,
-protezione delle copie esterne e prove di carico con milioni di eventi. La tabella è
-partizionata per timestamp con partizione di default; nessun job di rotazione è ancora attivo.
+a backup/restore, archivio storico senza perdita, protezione delle copie esterne e prove
+di carico con milioni di eventi. La tabella è partizionata per mese con partizione di
+default; il job `plateform-audit-future-partitions` crea solo partizioni future e applica
+le stesse protezioni, senza spostare o eliminare eventi storici.
 Telemetry è separata dall'audit e non può sostituirlo.

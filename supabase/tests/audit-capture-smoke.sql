@@ -11,16 +11,21 @@ BEGIN
   IF NOT EXISTS (
     SELECT 1 FROM pg_trigger
     WHERE tgrelid = 'public.audit_log'::regclass
-      AND tgname = 'audit_immutable' AND tgenabled = 'O'
+      AND tgname = 'audit_immutable' AND tgenabled IN ('O', 'A')
   ) THEN
     RAISE EXCEPTION 'AUDIT_IMMUTABILITY_GUARD_NOT_ENABLED';
   END IF;
+  -- Parent and every partition; after A.1 the trigger must not exist at all.
   IF EXISTS (
     SELECT 1 FROM pg_trigger
-    WHERE tgrelid = 'public.audit_log'::regclass
+    WHERE tgrelid IN (SELECT relid FROM pg_partition_tree('public.audit_log'::regclass))
       AND tgname = 'plateform_dev_pause_audit' AND tgenabled <> 'D'
   ) THEN
     RAISE EXCEPTION 'AUDIT_PAUSE_TRIGGER_STILL_ACTIVE';
+  END IF;
+  -- Full read-only invariant check, once migration 20261018103000 is applied.
+  IF to_regprocedure('private.assert_audit_append_only(boolean)') IS NOT NULL THEN
+    PERFORM private.assert_audit_append_only(true);
   END IF;
   BEGIN
     INSERT INTO public.audit_log
