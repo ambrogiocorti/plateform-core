@@ -2899,6 +2899,12 @@
       "sha256": "0d87bbfd89d590b801a58a0d0351543599084ce71e2ffccf87210d43edee48f3"
     },
     {
+      "filename": "20261018114500_continuity_offline_disaster_restore_registration.sql",
+      "version": "20261018114500",
+      "name": "continuity_offline_disaster_restore_registration",
+      "sha256": "92c7006f1bd671f7d3b060a32fdac52c3159a2a4da25b861e7f2d9dacfb28cdc"
+    },
+    {
       "filename": "20261018120000_security_policy_predicates_and_venue_references.sql",
       "version": "20261018120000",
       "name": "security_policy_predicates_and_venue_references",
