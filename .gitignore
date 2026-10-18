@@ -24,3 +24,4 @@ tools/print-bridge/tls/
 
 # Local live e2e stack (anon key of the disposable stack)
 tests/e2e-live/.stack/
+supabase/.branches/
