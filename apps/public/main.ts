@@ -535,10 +535,11 @@ async function render(): Promise<void> {
         },
         state: (state) => {
           const label = document.getElementById('public-connection');
+          // Visitors see a message only when they are actually offline: a degraded Realtime
+          // channel does not change what the page shows, which was read when it was loaded.
           if (label) {
-            label.hidden = state === 'LIVE';
-            label.textContent =
-              state === 'OFFLINE' ? 'MODALITÀ OFFLINE' : 'Aggiornamenti da verificare';
+            label.hidden = state !== 'OFFLINE';
+            label.textContent = 'Sei offline: orari e menu potrebbero non essere aggiornati.';
           }
         },
       });

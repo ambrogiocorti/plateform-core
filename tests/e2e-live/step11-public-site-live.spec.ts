@@ -67,6 +67,16 @@ for (const viewport of [
       expect(await page.title(), path).toContain('Trattoria E2E');
     }
     expect(errors).toEqual([]);
+    // Realtime non è servito dallo stack: il visitatore non vede messaggi tecnici di stato;
+    // vede un avviso solo se è davvero offline.
+    await page.waitForTimeout(3000);
+    await expect(page.getByText('Aggiornamenti da verificare')).toHaveCount(0);
+    await expect(page.locator('#public-connection')).toBeHidden();
+    await page.context().setOffline(true);
+    await expect(
+      page.getByText('Sei offline: orari e menu potrebbero non essere aggiornati.'),
+    ).toBeVisible();
+    await page.context().setOffline(false);
 
     // Menu pubblico dal catalogo reale, con prezzo in euro e allergeni dagli ingredienti.
     await page.goto(`${publicBase}/menu`);
