@@ -97,6 +97,8 @@
     "check:runbook-reconciliation": "node scripts/check-runbook-post-restore-reconciliation.mjs",
     "check:step12-rehearsal": "node scripts/check-step12-real-rehearsal.mjs",
     "continuity:rehearsal": "node scripts/run-step12-real-rehearsal.mjs",
+    "continuity:local-dr": "node tools/local-dr-rehearsal/run.mjs",
+    "disaster-restore:check": "node tools/disaster-restore/start.mjs --check",
     "finalize:step12": "node scripts/finalize-step12.mjs",
     "check:step11-booking": "node --experimental-strip-types scripts/check-step11-booking-client.mjs",
     "check:step11-prerender": "node scripts/check-step11-prerender.mjs",

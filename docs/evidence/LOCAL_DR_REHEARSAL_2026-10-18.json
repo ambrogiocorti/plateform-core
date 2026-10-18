@@ -1,0 +1,450 @@
+{
+  "kind": "LOCAL_DR_REHEARSAL",
+  "gates": {
+    "backup_registered_succeeded": {
+      "ok": true,
+      "detail": {
+        "status": "SUCCEEDED",
+        "schema_version": "20261018114500",
+        "size_bytes": 6494166,
+        "object_count": 2
+      }
+    },
+    "restore_test_registered_succeeded": {
+      "ok": true,
+      "detail": {
+        "status": "SUCCEEDED",
+        "mode": "TEST",
+        "verified_at": "2026-10-18T11:15:42.015599+00:00",
+        "last_restore_test_at": "2026-10-18T11:15:42.015599+00:00"
+      }
+    },
+    "restore_test_tables_identical": {
+      "ok": true,
+      "detail": {
+        "tables": 161,
+        "rows": 1547,
+        "differences": []
+      }
+    },
+    "restore_test_audit_identical": {
+      "ok": true,
+      "detail": {
+        "events": 74,
+        "sha256": "52eb51e29511e5629a29534c26230c08607cc1d2075264c4f4f7951fe7cb3f92"
+      }
+    },
+    "restore_test_security_surface_identical": {
+      "ok": true,
+      "detail": {
+        "cron_jobs": {
+          "missing_after_restore": [
+            "plateform-daily-backup|*/5 * * * *",
+            "plateform-continuity-alerts|*/10 * * * *",
+            "plateform-health-snapshot|*/5 * * * *",
+            "plateform-data-retention|17 3 * * *",
+            "plateform-reservation-messaging|* * * * *",
+            "plateform-reservation-deposit-expiry|* * * * *",
+            "plateform-waitlist-offer-expiry|* * * * *",
+            "plateform-takeaway-request-expiry|* * * * *",
+            "plateform-reservation-no-show|* * * * *",
+            "plateform-reservation-deposit-no-show-refunds|* * * * *",
+            "plateform-audit-future-partitions|5 0 20 * *",
+            "plateform-health-log-retention|43 3 * * *",
+            "plateform-audit-archive-encrypted|*/15 * * * *",
+            "plateform-audit-archive-recovery-verify|17 3 * * *"
+          ],
+          "added_after_restore": []
+        }
+      }
+    },
+    "disaster_source_destroyed": {
+      "ok": true,
+      "detail": {
+        "primary_backup_removed": true
+      }
+    },
+    "disaster_restore_gates": {
+      "ok": true,
+      "detail": {
+        "database": true,
+        "migrations": true,
+        "auth": true,
+        "private_state": true,
+        "storage": true,
+        "storage_metadata": true,
+        "manifest": true,
+        "manifest_auth": true,
+        "rls": true,
+        "accounts": true,
+        "payments": true,
+        "audit": true,
+        "sessions": true,
+        "devices": true,
+        "managed_overlay": true,
+        "security_surface": true
+      }
+    },
+    "disaster_restore_registered_cutover_required": {
+      "ok": true,
+      "detail": {
+        "backup": {
+          "status": "SUCCEEDED",
+          "integrity_verified": true,
+          "reconciled_by": "DISASTER_RESTORE"
+        },
+        "restore": {
+          "status": "CUTOVER_REQUIRED",
+          "mode": "RESTORE",
+          "requested_by": "20000000-0000-4000-8000-000000000002",
+          "target_reference": "local://plateform_recovered"
+        }
+      }
+    },
+    "recovered_tables_identical": {
+      "ok": true,
+      "detail": {
+        "compared_tables": 158,
+        "differences": []
+      }
+    },
+    "recovered_audit_prefix_identical": {
+      "ok": true,
+      "detail": {
+        "events_before": 74,
+        "events_after": 79,
+        "appended_by_recovery": [
+          "BACKUP_SUCCEEDED",
+          "DISASTER_RESTORE_VERIFIED",
+          "RESTORE_JOBS_UPDATE",
+          "BACKUP_METADATA_UPDATE",
+          "RESTORE_JOBS_INSERT"
+        ]
+      }
+    },
+    "rpo_post_backup_activity_absent": {
+      "ok": true,
+      "detail": {
+        "note": "Writes after the backup are lost by design; RPO = time since last successful backup."
+      }
+    },
+    "recovered_audit_append_only": {
+      "ok": true,
+      "detail": {
+        "events": 79,
+        "sha256": "2b69a02205213fb23f9c72270251cbfeb4391d6756654716ff34282f0ea7e998",
+        "partitions": 5,
+        "violations": 0,
+        "event_triggers": 2,
+        "pause_trigger": 0,
+        "actions": {
+          "INCIDENTS_UPDATE": 2,
+          "CASH_REGISTERS_INSERT": 1,
+          "STAFF_PROFILES_INSERT": 5,
+          "STATIONS_INSERT": 1,
+          "SYSTEM_LIMITS_INSERT": 1,
+          "DISH_INGREDIENTS_INSERT": 1,
+          "RESTAURANT_SETTINGS_INSERT": 1,
+          "STAFF_VENUE_ASSIGNMENTS_INSERT": 4,
+          "ACCOUNTS_INSERT": 2,
+          "TABLE_ASSIGNMENTS_INSERT": 1,
+          "TABLES_INSERT": 1,
+          "ACCOUNTS_UPDATE": 6,
+          "PAYMENTS_INSERT": 1,
+          "VENUE_DISH_SETTINGS_UPDATE": 1,
+          "BACKUP_SUCCEEDED": 1,
+          "SERVICE_SESSIONS_INSERT": 1,
+          "DISHES_INSERT": 1,
+          "RESTORE_JOBS_UPDATE": 1,
+          "APPLICATION_RELEASES_INSERT": 1,
+          "INCIDENTS_INSERT": 2,
+          "ORDER_STEPS_INSERT": 1,
+          "ORDER_ITEMS_INSERT": 1,
+          "CATEGORIES_INSERT": 1,
+          "ACCOUNT_CODE_ROTATED": 2,
+          "CASHIER_ASSIGNMENTS_INSERT": 1,
+          "ZONES_INSERT": 1,
+          "BACKUP_SCHEDULED": 1,
+          "BACKUP_METADATA_INSERT": 1,
+          "FEATURE_FLAGS_INSERT": 8,
+          "CASH_REGISTER_SESSIONS_INSERT": 1,
+          "TIPS_INSERT": 1,
+          "ROOMS_INSERT": 1,
+          "PRINT_DEVICES_INSERT": 1,
+          "VENUE_SETTINGS_INSERT": 1,
+          "VENUE_DISH_SETTINGS_INSERT": 1,
+          "VENUES_INSERT": 1,
+          "ORDERS_INSERT": 1,
+          "ROOM_LAYOUTS_INSERT": 1,
+          "TABLES_UPDATE": 3,
+          "BACKUP_METADATA_UPDATE": 2,
+          "RESTORE_JOBS_INSERT": 1,
+          "DISH_STATION_ASSIGNMENTS_INSERT": 1,
+          "CASH_JOURNAL_INSERT": 1,
+          "ALLERGENS_INSERT": 1,
+          "INGREDIENT_ALLERGENS_INSERT": 1,
+          "PAYMENTS_UPDATE": 1,
+          "INCIDENT_EVENTS_INSERT": 4,
+          "DISASTER_RESTORE_VERIFIED": 1,
+          "RESTAURANT_PROFILE_INSERT": 1,
+          "INGREDIENTS_INSERT": 1
+        }
+      }
+    },
+    "recovered_audit_mutation_rejected": {
+      "ok": true,
+      "detail": {
+        "attempts": 7,
+        "rejected": 7
+      }
+    },
+    "recovered_security_surface_identical": {
+      "ok": true,
+      "detail": {
+        "cron_jobs": {
+          "missing_after_restore": [
+            "plateform-daily-backup|*/5 * * * *",
+            "plateform-continuity-alerts|*/10 * * * *",
+            "plateform-health-snapshot|*/5 * * * *",
+            "plateform-data-retention|17 3 * * *",
+            "plateform-reservation-messaging|* * * * *",
+            "plateform-reservation-deposit-expiry|* * * * *",
+            "plateform-waitlist-offer-expiry|* * * * *",
+            "plateform-takeaway-request-expiry|* * * * *",
+            "plateform-reservation-no-show|* * * * *",
+            "plateform-reservation-deposit-no-show-refunds|* * * * *",
+            "plateform-audit-future-partitions|5 0 20 * *",
+            "plateform-health-log-retention|43 3 * * *",
+            "plateform-audit-archive-encrypted|*/15 * * * *",
+            "plateform-audit-archive-recovery-verify|17 3 * * *"
+          ],
+          "added_after_restore": []
+        }
+      }
+    },
+    "recovered_public_menu_served": {
+      "ok": true,
+      "detail": {
+        "dishes": "1"
+      }
+    },
+    "recovered_runtime_sessions_invalidated": {
+      "ok": true,
+      "detail": {
+        "before": 5,
+        "after": {
+          "staff_sessions": 0,
+          "auth_sessions": 0,
+          "refresh_tokens": 0
+        }
+      }
+    },
+    "fail_closed_checks": {
+      "ok": true,
+      "detail": {
+        "occupied_target": "REJECTED",
+        "wrong_key": "REJECTED",
+        "tampered_manifest": "REJECTED",
+        "tampered_ciphertext": "REJECTED"
+      }
+    },
+    "cutover_schedules_rearmed": {
+      "ok": true,
+      "detail": {
+        "expected": 14,
+        "active": 14
+      }
+    }
+  },
+  "findings": [],
+  "migrations": {
+    "count": 484,
+    "latest": "20261018114500_continuity_offline_disaster_restore_registration.sql"
+  },
+  "seed": {
+    "accountId": "dd81326d-a828-473a-894a-dfa3f895d1ff",
+    "paymentId": "4ec6f914-6931-4074-9ce0-b8122881acfa",
+    "objects": 2
+  },
+  "backup": {
+    "id": "365ef955-c305-42fa-a06b-989de3e7d666",
+    "status": "SUCCEEDED",
+    "sizeBytes": 6494166,
+    "objectCount": 2,
+    "replicaFiles": 11,
+    "replicaHash": "391a21127a412d1820b6ec247b36b0dc54c2692eda4742ddf91935d35253f5d5",
+    "reconciledCommit": false
+  },
+  "restore_test": {
+    "id": "c8f76476-aac7-46e5-b60b-a26acf7a4e83",
+    "status": "SUCCEEDED",
+    "target": "localrestoretest",
+    "verification": {
+      "database": true,
+      "auth": true,
+      "auth_user_count": 5,
+      "rls": true,
+      "accounts": true,
+      "payments": true,
+      "audit": true,
+      "sessions": true,
+      "devices": true,
+      "managed_overlay": true,
+      "managed_policy_count": 2,
+      "managed_trigger_count": 1,
+      "schedules_quiesced": true,
+      "security_surface": true,
+      "security_surface_hash": "10588eac3aae805fa52f69feac6d59c1a9217b32959bbc98cefc93196c346623",
+      "migrations": true,
+      "migration_count": 484,
+      "migration_latest_version": "20261018114500",
+      "migration_hash": "4b0bc026dc796e4be3c9969c164eb99ca037c748f8e479fa62a19b68089151c9",
+      "private_state": true,
+      "private_durable_rows": 346,
+      "private_durable_hash": "8c999ab218d9941dbef6beea2b228370198ff59c006bcbfaa3c6a47fd7f1b38b",
+      "storage_metadata": true,
+      "storage_bucket_count": 4,
+      "storage_object_count": 2,
+      "storage_metadata_hash": "8d31299e1b03aedf5a740eef8924616014fe13b9e2682417aa8642b997df70f6",
+      "storage": true,
+      "manifest": true,
+      "manifest_auth": true
+    }
+  },
+  "disaster_restore": {
+    "backupId": "365ef955-c305-42fa-a06b-989de3e7d666",
+    "restoredFrom": {
+      "fileCount": 11,
+      "aggregateSha256": "391a21127a412d1820b6ec247b36b0dc54c2692eda4742ddf91935d35253f5d5",
+      "sizeBytes": 6500940
+    },
+    "verification": {
+      "database": true,
+      "auth": true,
+      "auth_user_count": 5,
+      "rls": true,
+      "accounts": true,
+      "payments": true,
+      "audit": true,
+      "sessions": true,
+      "devices": true,
+      "managed_overlay": true,
+      "managed_policy_count": 2,
+      "managed_trigger_count": 1,
+      "schedules_quiesced": true,
+      "security_surface": true,
+      "security_surface_hash": "10588eac3aae805fa52f69feac6d59c1a9217b32959bbc98cefc93196c346623",
+      "migrations": true,
+      "migration_count": 484,
+      "migration_latest_version": "20261018114500",
+      "migration_hash": "4b0bc026dc796e4be3c9969c164eb99ca037c748f8e479fa62a19b68089151c9",
+      "private_state": true,
+      "private_durable_rows": 346,
+      "private_durable_hash": "8c999ab218d9941dbef6beea2b228370198ff59c006bcbfaa3c6a47fd7f1b38b",
+      "storage_metadata": true,
+      "storage_bucket_count": 4,
+      "storage_object_count": 2,
+      "storage_metadata_hash": "8d31299e1b03aedf5a740eef8924616014fe13b9e2682417aa8642b997df70f6",
+      "storage": true,
+      "manifest": true,
+      "manifest_auth": true,
+      "restored_from_copy_sha256": "391a21127a412d1820b6ec247b36b0dc54c2692eda4742ddf91935d35253f5d5"
+    },
+    "registration": {
+      "id": "5d19ff5f-a2fe-4d99-929f-199171ba8bcb",
+      "status": "CUTOVER_REQUIRED",
+      "backup_id": "365ef955-c305-42fa-a06b-989de3e7d666",
+      "deduplicated": false
+    },
+    "schedulesPending": [
+      {
+        "name": "plateform-audit-archive-encrypted",
+        "schedule": "*/15 * * * *",
+        "active": true
+      },
+      {
+        "name": "plateform-audit-archive-recovery-verify",
+        "schedule": "17 3 * * *",
+        "active": true
+      },
+      {
+        "name": "plateform-audit-future-partitions",
+        "schedule": "5 0 20 * *",
+        "active": true
+      },
+      {
+        "name": "plateform-continuity-alerts",
+        "schedule": "*/10 * * * *",
+        "active": true
+      },
+      {
+        "name": "plateform-daily-backup",
+        "schedule": "*/5 * * * *",
+        "active": true
+      },
+      {
+        "name": "plateform-data-retention",
+        "schedule": "17 3 * * *",
+        "active": true
+      },
+      {
+        "name": "plateform-health-log-retention",
+        "schedule": "43 3 * * *",
+        "active": true
+      },
+      {
+        "name": "plateform-health-snapshot",
+        "schedule": "*/5 * * * *",
+        "active": true
+      },
+      {
+        "name": "plateform-reservation-deposit-expiry",
+        "schedule": "* * * * *",
+        "active": true
+      },
+      {
+        "name": "plateform-reservation-deposit-no-show-refunds",
+        "schedule": "* * * * *",
+        "active": true
+      },
+      {
+        "name": "plateform-reservation-messaging",
+        "schedule": "* * * * *",
+        "active": true
+      },
+      {
+        "name": "plateform-reservation-no-show",
+        "schedule": "* * * * *",
+        "active": true
+      },
+      {
+        "name": "plateform-takeaway-request-expiry",
+        "schedule": "* * * * *",
+        "active": true
+      },
+      {
+        "name": "plateform-waitlist-offer-expiry",
+        "schedule": "* * * * *",
+        "active": true
+      }
+    ]
+  },
+  "measured": {
+    "rto_local_ms": 2421,
+    "note": "Local disposable PostgreSQL 16; not a production RTO. Hosted Supabase timings must be measured in staging.",
+    "backup_size_bytes": 6494166,
+    "replica_files": 11
+  },
+  "result": "PASSED",
+  "timings_ms": {
+    "source: create installation from all migrations": 11099,
+    "source: seed restaurant data through RPCs": 800,
+    "backup: enqueue + claim through control plane": 55,
+    "source: fingerprint at backup time": 270,
+    "backup: worker job (dump, encrypt, HMAC, replica, finish)": 1739,
+    "restore test: worker job (decrypt, restore, 16 gates)": 2305,
+    "disaster: destroy source database, storage and primary backup": 64,
+    "disaster restore: replica → empty installation (16 gates)": 2205,
+    "total": 20693
+  }
+}
