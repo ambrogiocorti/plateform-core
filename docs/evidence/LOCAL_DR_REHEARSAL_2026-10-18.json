@@ -6,7 +6,7 @@
       "detail": {
         "status": "SUCCEEDED",
         "schema_version": "20261018114500",
-        "size_bytes": 6494166,
+        "size_bytes": 6494157,
         "object_count": 2
       }
     },
@@ -15,8 +15,8 @@
       "detail": {
         "status": "SUCCEEDED",
         "mode": "TEST",
-        "verified_at": "2026-10-18T11:15:42.015599+00:00",
-        "last_restore_test_at": "2026-10-18T11:15:42.015599+00:00"
+        "verified_at": "2026-10-18T11:16:52.124137+00:00",
+        "last_restore_test_at": "2026-10-18T11:16:52.124137+00:00"
       }
     },
     "restore_test_tables_identical": {
@@ -31,7 +31,7 @@
       "ok": true,
       "detail": {
         "events": 74,
-        "sha256": "52eb51e29511e5629a29534c26230c08607cc1d2075264c4f4f7951fe7cb3f92"
+        "sha256": "e87b112d961aec003a24ba185ed574b8421642afc76981ab1b510f007c047ebf"
       }
     },
     "restore_test_security_surface_identical": {
@@ -117,8 +117,8 @@
           "BACKUP_SUCCEEDED",
           "DISASTER_RESTORE_VERIFIED",
           "RESTORE_JOBS_UPDATE",
-          "BACKUP_METADATA_UPDATE",
-          "RESTORE_JOBS_INSERT"
+          "RESTORE_JOBS_INSERT",
+          "BACKUP_METADATA_UPDATE"
         ]
       }
     },
@@ -132,7 +132,7 @@
       "ok": true,
       "detail": {
         "events": 79,
-        "sha256": "2b69a02205213fb23f9c72270251cbfeb4391d6756654716ff34282f0ea7e998",
+        "sha256": "6242ee8c189885b12b589aa111e8dc58a5b033604d6318ce26e5edc0163b722b",
         "partitions": 5,
         "violations": 0,
         "event_triggers": 2,
@@ -257,26 +257,34 @@
     }
   },
   "findings": [],
+  "environment": {
+    "generated_at": "2026-10-18T11:16:37.026Z",
+    "git_commit": "c7a0802b26634207c3729783b1fa2668ac6a95ab",
+    "git_worktree_clean": true,
+    "postgres": "PostgreSQL 16.15 (Ubuntu 16.15-0ubuntu0.24.04.1) on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, 64-bit",
+    "node": "v22.22.0",
+    "target": "disposable local PostgreSQL 16 cluster (Unix socket only), deleted after the run"
+  },
   "migrations": {
     "count": 484,
     "latest": "20261018114500_continuity_offline_disaster_restore_registration.sql"
   },
   "seed": {
-    "accountId": "dd81326d-a828-473a-894a-dfa3f895d1ff",
-    "paymentId": "4ec6f914-6931-4074-9ce0-b8122881acfa",
+    "accountId": "6529c13f-fa77-4b3a-b128-8b3444ab66f8",
+    "paymentId": "558f8fe8-fe16-4efd-a3e2-1a155ae86678",
     "objects": 2
   },
   "backup": {
-    "id": "365ef955-c305-42fa-a06b-989de3e7d666",
+    "id": "c5d261bd-22e6-4ff2-bf03-8c5dfcbbada2",
     "status": "SUCCEEDED",
-    "sizeBytes": 6494166,
+    "sizeBytes": 6494157,
     "objectCount": 2,
     "replicaFiles": 11,
-    "replicaHash": "391a21127a412d1820b6ec247b36b0dc54c2692eda4742ddf91935d35253f5d5",
+    "replicaHash": "74136b739be0bb7b176e5d2baa369f2f4a7917c89efc544484fe07346f369899",
     "reconciledCommit": false
   },
   "restore_test": {
-    "id": "c8f76476-aac7-46e5-b60b-a26acf7a4e83",
+    "id": "eaa0b94f-0b63-4163-b31a-482c6b4c4558",
     "status": "SUCCEEDED",
     "target": "localrestoretest",
     "verification": {
@@ -301,22 +309,22 @@
       "migration_hash": "4b0bc026dc796e4be3c9969c164eb99ca037c748f8e479fa62a19b68089151c9",
       "private_state": true,
       "private_durable_rows": 346,
-      "private_durable_hash": "8c999ab218d9941dbef6beea2b228370198ff59c006bcbfaa3c6a47fd7f1b38b",
+      "private_durable_hash": "13cec161236c37336259c8d63d727615b236b7743188c71a8c8827c6aeb30622",
       "storage_metadata": true,
       "storage_bucket_count": 4,
       "storage_object_count": 2,
-      "storage_metadata_hash": "8d31299e1b03aedf5a740eef8924616014fe13b9e2682417aa8642b997df70f6",
+      "storage_metadata_hash": "39bdf0e27139415ed041d5e1beb62fa7fca9b8bd4b3f74c5b9b6fcbd432ad036",
       "storage": true,
       "manifest": true,
       "manifest_auth": true
     }
   },
   "disaster_restore": {
-    "backupId": "365ef955-c305-42fa-a06b-989de3e7d666",
+    "backupId": "c5d261bd-22e6-4ff2-bf03-8c5dfcbbada2",
     "restoredFrom": {
       "fileCount": 11,
-      "aggregateSha256": "391a21127a412d1820b6ec247b36b0dc54c2692eda4742ddf91935d35253f5d5",
-      "sizeBytes": 6500940
+      "aggregateSha256": "74136b739be0bb7b176e5d2baa369f2f4a7917c89efc544484fe07346f369899",
+      "sizeBytes": 6500931
     },
     "verification": {
       "database": true,
@@ -340,20 +348,20 @@
       "migration_hash": "4b0bc026dc796e4be3c9969c164eb99ca037c748f8e479fa62a19b68089151c9",
       "private_state": true,
       "private_durable_rows": 346,
-      "private_durable_hash": "8c999ab218d9941dbef6beea2b228370198ff59c006bcbfaa3c6a47fd7f1b38b",
+      "private_durable_hash": "13cec161236c37336259c8d63d727615b236b7743188c71a8c8827c6aeb30622",
       "storage_metadata": true,
       "storage_bucket_count": 4,
       "storage_object_count": 2,
-      "storage_metadata_hash": "8d31299e1b03aedf5a740eef8924616014fe13b9e2682417aa8642b997df70f6",
+      "storage_metadata_hash": "39bdf0e27139415ed041d5e1beb62fa7fca9b8bd4b3f74c5b9b6fcbd432ad036",
       "storage": true,
       "manifest": true,
       "manifest_auth": true,
-      "restored_from_copy_sha256": "391a21127a412d1820b6ec247b36b0dc54c2692eda4742ddf91935d35253f5d5"
+      "restored_from_copy_sha256": "74136b739be0bb7b176e5d2baa369f2f4a7917c89efc544484fe07346f369899"
     },
     "registration": {
-      "id": "5d19ff5f-a2fe-4d99-929f-199171ba8bcb",
+      "id": "9b4c32d2-db61-44e3-a8ae-20e15425e04c",
       "status": "CUTOVER_REQUIRED",
-      "backup_id": "365ef955-c305-42fa-a06b-989de3e7d666",
+      "backup_id": "c5d261bd-22e6-4ff2-bf03-8c5dfcbbada2",
       "deduplicated": false
     },
     "schedulesPending": [
@@ -430,21 +438,21 @@
     ]
   },
   "measured": {
-    "rto_local_ms": 2421,
+    "rto_local_ms": 2329,
     "note": "Local disposable PostgreSQL 16; not a production RTO. Hosted Supabase timings must be measured in staging.",
-    "backup_size_bytes": 6494166,
+    "backup_size_bytes": 6494157,
     "replica_files": 11
   },
   "result": "PASSED",
   "timings_ms": {
-    "source: create installation from all migrations": 11099,
-    "source: seed restaurant data through RPCs": 800,
-    "backup: enqueue + claim through control plane": 55,
-    "source: fingerprint at backup time": 270,
-    "backup: worker job (dump, encrypt, HMAC, replica, finish)": 1739,
-    "restore test: worker job (decrypt, restore, 16 gates)": 2305,
-    "disaster: destroy source database, storage and primary backup": 64,
-    "disaster restore: replica → empty installation (16 gates)": 2205,
-    "total": 20693
+    "source: create installation from all migrations": 10070,
+    "source: seed restaurant data through RPCs": 667,
+    "backup: enqueue + claim through control plane": 47,
+    "source: fingerprint at backup time": 208,
+    "backup: worker job (dump, encrypt, HMAC, replica, finish)": 1593,
+    "restore test: worker job (decrypt, restore, 16 gates)": 2415,
+    "disaster: destroy source database, storage and primary backup": 52,
+    "disaster restore: replica → empty installation (16 gates)": 2151,
+    "total": 19321
   }
 }
