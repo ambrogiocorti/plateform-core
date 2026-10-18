@@ -140,6 +140,15 @@ const navigation: {
   },
 ];
 
+// Operational roles land on their working surface, not on the first shared menu entry
+// (Stampe/Sala come first in the sidebar order for cooks, Pass and cashiers).
+const roleLanding: Partial<Record<UserRole, string>> = {
+  KITCHEN_ADMIN: '/cucina',
+  KITCHEN_STAFF: '/cucina',
+  PASS: '/pass',
+  CASHIER: '/cassa',
+};
+
 const staffBase = import.meta.env.BASE_URL;
 const staffHref = (path: string) => staffBase + path.replace(/^\//, '');
 const staffPath = () => location.pathname.slice(staffBase.length - 1) || '/';
@@ -223,8 +232,10 @@ async function render(): Promise<void> {
       entry.roles.includes(profile.role) &&
       (entry.path !== '/food-cost' || context.licensedFeatures?.has('FOOD_COST')),
   );
-  if (staffPath() === '/' || staffPath() === '/login')
-    history.replaceState(null, '', staffHref(links[0]?.path ?? '/operazioni'));
+  if (staffPath() === '/' || staffPath() === '/login') {
+    const landing = links.find((entry) => entry.path === roleLanding[profile.role]) ?? links[0];
+    history.replaceState(null, '', staffHref(landing?.path ?? '/operazioni'));
+  }
   const pageLink = links.find(
     (entry) => staffPath() === entry.path || staffPath().startsWith(`${entry.path}/`),
   );
