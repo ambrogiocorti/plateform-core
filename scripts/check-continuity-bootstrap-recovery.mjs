@@ -4,7 +4,7 @@ const manifest = JSON.parse(await readFile('supabase/migration-manifest.json', '
 const harness = await readFile('tests/database/harness.ts', 'utf8');
 const file = '20261006100100_continuity_rehearsal_schema_recovery.sql';
 const index = manifest.migrations.findIndex((row) => row.filename === file);
-assert.equal(manifest.migrations.length, 482);
+assert.ok(manifest.migrations.length >= 483);
 assert.ok(index >= 0 && index < manifest.migrations.length - 1);
 assert.ok(manifest.migrations[index + 1].version > '20261006100100');
 assert.ok(manifest.migrations.findIndex((x) => x.version === '20261006100248') > index);

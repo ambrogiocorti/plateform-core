@@ -1,0 +1,29 @@
+{
+  "_comment": "Replay-only bootstrap compatibility migrations. They sort before versions already applied on Development because they recreate objects that were created there out of band. Fresh installations run them in order; an installation whose history already contains required_before must record them with 'supabase migration repair --status applied' only after supabase/tests/bootstrap-compat-preflight.sql passes read-only. See docs/MIGRATION_REPLAY_RECONCILIATION_2026-10-18.md.",
+  "migrations": [
+    {
+      "version": "20261006100100",
+      "name": "continuity_rehearsal_schema_recovery",
+      "sha256": "717e90fe74866ec0693f67bd4fddd974ee1a7ca3b71dbb29dd5493f578263776",
+      "required_before": "20261006100248",
+      "recreates_out_of_band_objects": [
+        "private.continuity_rehearsal_blob",
+        "private.continuity_rehearsal_key",
+        "private.continuity_rehearsal_snapshot_manifest",
+        "private.continuity_rehearsal_snapshot_rows",
+        "private.continuity_rehearsal_snapshot_tables",
+        "private.continuity_rehearsal_transfer_chunks",
+        "private.continuity_rehearsal_transfer_key"
+      ],
+      "reason": "20261006100248 alters seven rehearsal tables created only out of band on Development."
+    },
+    {
+      "version": "20261012075300",
+      "name": "audit_pause_legacy_compatibility",
+      "sha256": "b0ee7af53e134fb81d7df1934b49cd734800f3b669e9ef707b90ed4f9b420a33",
+      "required_before": "20261012075338",
+      "recreates_out_of_band_objects": ["public.audit_log trigger plateform_dev_pause_audit"],
+      "reason": "20261012075338 disables a Development-only audit pause trigger; the shim creates it disabled with a pass-through function so a clean replay can run that statement. 20261018103000 then removes it."
+    }
+  ]
+}

@@ -48,7 +48,7 @@ Comprende completamento step 7–13 e requisiti delle release avanzate.
 | Rilettura baseline remota      | DONE              | Query read-only 13/10/2026                                                                                                         |
 | Branch di lavoro               | DONE              | `plateform/two-phase-completion-20261013`, commit sorgenti `6654118c76bc554e0de8ab53e2ce7f28126f7377`                              |
 | Coerenza migrazioni (sorgenti) | BYTE-VERIFIED     | 480/480 versioni, nomi e blob SHA-1 Git esattamente corrispondenti al SQL remoto; ripristino su nuova installazione ancora PENDING |
-| Audit trigger di sospensione   | VERIFIED DISABLED | Verificare test append-only e altre policy                                                                                         |
+| Audit trigger di sospensione   | REMOVED IN SOURCE | Migrazione `20261018103000` (A.1) lo rimuove; da applicare e verificare su Supabase, vedi `A1_AUDIT_APPEND_ONLY_2026-10-18.md`     |
 | Backup recuperabile            | BLOCKED           | 0 record nel catalogo corrente; non implica assenza assoluta di oggetti                                                            |
 | Test flusso operativo          | PENDING           | Mancano E2E sulla release candidata                                                                                                |
 | Macro-step A                   | IN PROGRESS       | Non certificato                                                                                                                    |

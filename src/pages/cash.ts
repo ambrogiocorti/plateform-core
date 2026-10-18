@@ -91,12 +91,12 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
         'quiet',
       );
       open.classList.add('cashier-search-result');
-      open.setAttribute('role', 'listitem');
       open.append(
         el('span', { class: 'cashier-search-result-meta' }, `${account.covers} coperti`),
         status(account.status),
       );
-      searchResults.append(open);
+      // The list item wraps the button so assistive technology still announces it as actionable.
+      searchResults.append(el('div', { role: 'listitem', class: 'cashier-search-item' }, open));
     }
     searchFeedback.textContent = result.items.length
       ? `${result.items.length} conti ${query ? 'trovati' : 'attivi'}${result.has_more ? ' · cerca per tavolo o nome per altri risultati' : ''}.`
@@ -433,27 +433,31 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
       pendingSection.append(card);
     }
 
-    secondary.replaceChildren(
+    // Keep the panel open across refreshes, and open it while no accounting service is running:
+    // opening the register and the service are the cashier's first actions of the day.
+    const operations = el(
+      'details',
+      { class: 'cashier-operations' },
+      el('summary', {}, 'Postazioni, servizi e verifiche'),
       el(
-        'details',
-        { class: 'cashier-operations' },
-        el('summary', {}, 'Postazioni, servizi e verifiche'),
-        el(
-          'div',
-          { class: 'stack cashier-operations-body' },
-          registers.length
-            ? registerGrid
-            : emptyState(
-                'Nessuna cassa configurata',
-                'L’amministratore può aggiungere le postazioni e assegnare gli operatori.',
-              ),
-          servicesSection,
-          history,
-          more,
-          pendingSection,
-        ),
+        'div',
+        { class: 'stack cashier-operations-body' },
+        registers.length
+          ? registerGrid
+          : emptyState(
+              'Nessuna cassa configurata',
+              'L’amministratore può aggiungere le postazioni e assegnare gli operatori.',
+            ),
+        servicesSection,
+        history,
+        more,
+        pendingSection,
       ),
     );
+    operations.open =
+      secondary.querySelector<HTMLDetailsElement>('details.cashier-operations')?.open === true ||
+      !services.length;
+    secondary.replaceChildren(operations);
   }
 
   function openService(registerId: string, registerName: string): void {

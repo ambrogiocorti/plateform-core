@@ -1,5 +1,12 @@
 # Plateform — stato di implementazione
 
+> **Aggiornamento — 18 ottobre 2026 (Macro-step A.1, audit append-only).**
+> Migrazione `20261018103000` e test dedicati sul branch
+> `plateform/a1-audit-append-only-inbac1`: IMPLEMENTATO e verificato su PGlite
+> e PostgreSQL 16 locale usa e getta; **NON VERIFICATO** su Supabase
+> Development/staging, dove la migrazione non è stata applicata. Vedere
+> [A1_AUDIT_APPEND_ONLY_2026-10-18.md](A1_AUDIT_APPEND_ONLY_2026-10-18.md).
+
 > **Aggiornamento prevalente — 16 ottobre 2026.** Il candidato integra ora
 > avvio guidato, menu della sede, anomalie di servizio e miglioramenti alla
 > cassa/consegne della PR #38. Verifiche, limiti e blocchi correnti sono in

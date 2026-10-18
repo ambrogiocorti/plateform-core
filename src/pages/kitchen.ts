@@ -23,7 +23,8 @@ const itemSchema = z.object({
   can_deliver: z.boolean(),
   removed_ingredients: z.array(z.string()),
   variants: z.array(z.object({ group: z.string(), option: z.string() })),
-  allergens: z.array(z.string()),
+  // Server snapshot from order_items.allergen_snapshot: [{ code, name }] frozen at order time.
+  allergens: z.array(z.object({ code: z.string(), name: z.string() })),
 });
 
 const kitchenAdminOverviewSchema = z.object({
@@ -285,7 +286,7 @@ export async function kitchenPage(context: StaffContext): Promise<HTMLElement> {
               el(
                 'p',
                 { class: 'kitchen-allergens', role: 'note' },
-                `ALLERGENI: ${item.allergens.join(' · ')}`,
+                `ALLERGENI: ${item.allergens.map((allergen) => allergen.name).join(' · ')}`,
               ),
             ]
           : []),

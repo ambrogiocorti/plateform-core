@@ -71,7 +71,8 @@ jobs:
             || '|' || (to_regclass('storage.objects') IS NOT NULL)::text;
           ")
           echo "LOCAL_BOOTSTRAP_CATALOG=$got"
-          test "$got" = "482|7|true|true"
+          expected="$(node -p "require('./supabase/migration-manifest.json').migrations.length")|7|true|true"
+          test "$got" = "$expected"
           echo "PLATEFORM_ISOLATED_POSTGRES_BOOTSTRAP=PASS"
 
       - name: Report non-sensitive diagnostics on failure
