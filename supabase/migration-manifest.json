@@ -2891,6 +2891,12 @@
       "version": "20261012075338",
       "name": "restore_dev_audit_capture_keep_immutability",
       "sha256": "eb6d486f13fb01f86686d515a7674a617f98cf6f13b2132a82fdb6c6d5e27efc"
+    },
+    {
+      "filename": "20261018103000_audit_append_only_partition_guards.sql",
+      "version": "20261018103000",
+      "name": "audit_append_only_partition_guards",
+      "sha256": "0d87bbfd89d590b801a58a0d0351543599084ce71e2ffccf87210d43edee48f3"
     }
   ]
 }
