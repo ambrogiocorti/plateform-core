@@ -2933,6 +2933,12 @@
       "version": "20261018130300",
       "name": "kitchen_print_ticket_per_order_and_audit",
       "sha256": "2bc88abae18b6c50498846de907ea5d2405e994c003f69c1fae901af18a4fcb2"
+    },
+    {
+      "filename": "20261018140000_conflict_center_order_correction.sql",
+      "version": "20261018140000",
+      "name": "conflict_center_order_correction",
+      "sha256": "d49ce09ca58b2ca16a2e1949a96f49b2abb280c372809e4fd82d0f7d25effdb5"
     }
   ]
 }
