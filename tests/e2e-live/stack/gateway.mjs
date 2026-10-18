@@ -1,6 +1,7 @@
 // Minimal local stand-in for the Supabase API gateway (Kong) on the disposable e2e stack.
-// Routes /rest/v1 -> PostgREST and /auth/v1 -> GoTrue. Realtime, Storage and Edge Functions
-// are not served here: the browser suite must not claim to exercise them.
+// Routes /rest/v1 -> PostgREST, /auth/v1 -> GoTrue and /functions/v1/<name> -> that Edge Function
+// when the stack serves it (E2E_FUNCTION_PORTS). Realtime and Storage are not served here: the
+// browser suite must not claim to exercise them.
 import http from 'node:http';
 
 const port = Number(process.env.E2E_GATEWAY_PORT ?? 54321);
@@ -8,6 +9,8 @@ const routes = [
   ['/rest/v1', Number(process.env.E2E_POSTGREST_PORT ?? 54330)],
   ['/auth/v1', Number(process.env.E2E_GOTRUE_PORT ?? 9999)],
 ];
+for (const [name, target] of Object.entries(JSON.parse(process.env.E2E_FUNCTION_PORTS ?? '{}')))
+  routes.push([`/functions/v1/${name}`, target]);
 const cors = {
   'access-control-allow-origin': '*',
   'access-control-allow-headers':
@@ -36,7 +39,11 @@ http
       return;
     }
     const [prefix, target] = route;
-    const headers = { ...request.headers, host: `127.0.0.1:${target}` };
+    const headers = {
+      ...request.headers,
+      host: `127.0.0.1:${target}`,
+      'x-forwarded-for': '127.0.0.1',
+    };
     delete headers.apikey;
     const upstream = http.request(
       {

@@ -3,7 +3,7 @@
 // Commands: install | up | reset | down. Data lives under E2E_STACK_DIR (default /tmp/plateform-e2e)
 // and is recreated from a template database on every `reset`. It never targets remote databases.
 import { execFileSync, spawn } from 'node:child_process';
-import { createHash } from 'node:crypto';
+import { createHash, generateKeyPairSync, randomBytes } from 'node:crypto';
 import { readdirSync } from 'node:fs';
 import { existsSync, mkdirSync, readFileSync, writeFileSync, chmodSync } from 'node:fs';
 import { join, resolve } from 'node:path';
@@ -101,7 +101,14 @@ const gotrueEnv = (database) => ({
   GOTRUE_RATE_LIMIT_TOKEN_REFRESH: '1000',
 });
 
-const ports = { gateway: 54321, postgrest: 54330, gotrue: 9999 };
+// Edge Functions the browser suite needs, served by the repository's Deno behind the gateway.
+const functionPorts = { 'offline-authorization': 54341 };
+const ports = {
+  gateway: 54321,
+  postgrest: 54330,
+  gotrue: 9999,
+  ...Object.fromEntries(Object.entries(functionPorts).map(([name, port]) => [`fn-${name}`, port])),
+};
 
 function stop(name) {
   const file = join(dir, `${name}.pid`);
@@ -253,16 +260,78 @@ export async function up() {
   startPostgres();
   await buildTemplate();
   stop('gateway');
-  daemon('gateway', process.execPath, [join(import.meta.dirname, 'gateway.mjs')]);
+  daemon('gateway', process.execPath, [join(import.meta.dirname, 'gateway.mjs')], {
+    E2E_FUNCTION_PORTS: JSON.stringify(functionPorts),
+  });
   await reset();
-  const { anonKey } = await import('./seed.mjs');
+  const { anonKey, serviceKey } = await import('./seed.mjs');
   mkdirSync(join(root, 'tests/e2e-live/.stack'), { recursive: true });
   writeFileSync(join(root, 'tests/e2e-live/.stack/anon.key'), anonKey);
+  startFunctions(anonKey, serviceKey);
   console.log(`E2E stack ready: gateway http://127.0.0.1:54321, database ${url(db)}`);
 }
 
+// A disposable P-256 key for offline authorization snapshots on this stack only: the private
+// half goes to the Edge Function, the public half to the staff dev server (live config).
+function offlineSigningKey() {
+  const file = join(root, 'tests/e2e-live/.stack/offline-signing.jwk.json');
+  if (!existsSync(file)) {
+    const { privateKey } = generateKeyPairSync('ec', { namedCurve: 'P-256' });
+    writeFileSync(file, JSON.stringify(privateKey.export({ format: 'jwk' })));
+  }
+  const jwk = JSON.parse(readFileSync(file, 'utf8'));
+  writeFileSync(
+    join(root, 'tests/e2e-live/.stack/offline-public.jwk.json'),
+    JSON.stringify([{ kty: jwk.kty, crv: jwk.crv, x: jwk.x, y: jwk.y }]),
+  );
+  return JSON.stringify(jwk);
+}
+
+function startFunctions(anonKey, serviceKey) {
+  const signing = offlineSigningKey();
+  for (const [name, port] of Object.entries(functionPorts)) {
+    stop(`fn-${name}`);
+    daemon(
+      `fn-${name}`,
+      process.execPath,
+      [
+        join(root, 'node_modules/deno/bin.cjs'),
+        'run',
+        '--allow-env',
+        '--allow-net',
+        '--allow-read',
+        '--config',
+        join(root, 'supabase/functions/deno.json'),
+        '--preload',
+        join(import.meta.dirname, 'deno-serve-port.ts'),
+        join(root, `supabase/functions/${name}/index.ts`),
+      ],
+      {
+        DENO_DIR: join(root, '.local/deno'),
+        FUNCTION_PORT: String(port),
+        SUPABASE_URL: 'http://127.0.0.1:54321',
+        SUPABASE_ANON_KEY: anonKey,
+        SUPABASE_SERVICE_ROLE_KEY: serviceKey,
+        OFFLINE_SIGNING_PRIVATE_JWK: signing,
+        ENVIRONMENT: 'development',
+        RELEASE_VERSION: '0.1.0',
+        TELEMETRY_ENABLED: 'false',
+        ALLOWED_ORIGINS: 'http://localhost:5173,http://localhost:5174',
+        TRUSTED_CLIENT_IP_HEADER: 'x-forwarded-for',
+        RATE_LIMIT_SECRET: randomBytes(32).toString('base64url'),
+      },
+    );
+  }
+}
+
 export function down() {
-  for (const name of ['postgrest', 'gotrue', 'gateway']) stop(name);
+  for (const name of [
+    'postgrest',
+    'gotrue',
+    'gateway',
+    ...Object.keys(functionPorts).map((name) => `fn-${name}`),
+  ])
+    stop(name);
   try {
     run(join(pgBin, 'pg_ctl'), ['-D', join(dir, 'data'), '-m', 'fast', 'stop']);
   } catch {
