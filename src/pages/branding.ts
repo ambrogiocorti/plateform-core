@@ -3,6 +3,7 @@ import { client, readRows, rpc, safeError } from '../api/client';
 import { button, el, field, toast } from '../components/dom';
 import type { StaffContext } from './staff-context';
 import { safeImageUrl } from '../config/environment';
+import { safeAccent, safeBackground } from '../services/public-site';
 
 type Bucket = 'branding' | 'dishes' | 'gallery' | 'documents';
 export function assetUploadControl(
@@ -301,6 +302,26 @@ export async function brandingPage(context: StaffContext): Promise<HTMLElement> 
     button('Salva sito e branding', async () => {
       if (inputs.some((entry) => !entry.input.reportValidity())) return;
       for (const entry of inputs) entry.target[entry.key] = entry.input.value;
+      // Same WCAG AA rule as private.branding_contrast_valid: explain it before the server refuses.
+      const background = String(
+        brand.background_color || (darkMode.checked ? '#111315' : '#f4f0e8'),
+      );
+      if (!safeBackground(background, darkMode.checked)) {
+        toast(
+          darkMode.checked
+            ? 'Lo sfondo è troppo chiaro per il tema scuro: il testo non sarebbe leggibile.'
+            : 'Lo sfondo è troppo scuro per il tema chiaro: il testo non sarebbe leggibile.',
+          true,
+        );
+        return;
+      }
+      if (brand.accent_color && !safeAccent(String(brand.accent_color), background)) {
+        toast(
+          'Il colore principale non ha contrasto sufficiente con lo sfondo (minimo 4,5:1): scegline uno più chiaro o più scuro.',
+          true,
+        );
+        return;
+      }
       brand.font_heading = headingFont.value;
       brand.font_body = bodyFont.value;
       brand.layout = layout.value;

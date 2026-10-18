@@ -180,13 +180,14 @@ describe('configuration and operational floor boundaries', () => {
       ),
     ).rejects.toThrow('FEATURE_NOT_LICENSED');
   });
-  it('does not expose unlicensed advanced statistics to the technical Super Admin in CORE', async () => {
+  it('does not expose restaurant statistics to the technical Super Admin in CORE', async () => {
     await identity(db, ids.superAdmin);
+    // §93: authorization is checked before the licence, so nothing about the licence leaks.
     await expect(
       db.query('select public.get_operational_statistics($1,current_date,current_date)', [
         ids.venue,
       ]),
-    ).rejects.toThrow('FEATURE_NOT_LICENSED');
+    ).rejects.toThrow('FORBIDDEN');
   });
   it('exposes technical counts and real probe history without financial amounts', async () => {
     await identity(db, ids.superAdmin);
@@ -224,18 +225,30 @@ describe('configuration and operational floor boundaries', () => {
       expect.objectContaining({ component: 'STORAGE', status: 'UNAVAILABLE' }),
     ]);
   });
-  it('keeps advanced statistics disabled in the CORE database, even without events', async () => {
+  it('serves only §92 base statistics in the CORE database, even without events', async () => {
     await db.exec('reset role');
     const flag = await db.query<{ licensed: boolean }>(
       "select licensed from public.feature_flags where name='ADVANCED_ANALYTICS'",
     );
     expect(flag.rows).toEqual([{ licensed: false }]);
     await identity(db, ids.admin);
-    await expect(
-      db.query('select public.get_operational_statistics($1,current_date,current_date)', [
-        ids.venue,
-      ]),
-    ).rejects.toThrow('FEATURE_NOT_LICENSED');
+    const data = (
+      await db.query<{ r: Record<string, unknown> }>(
+        'select public.get_operational_statistics($1,current_date,current_date) r',
+        [ids.venue],
+      )
+    ).rows[0]!.r;
+    expect(data.advanced).toBe(false);
+    expect(data.receipts_cents).toBe(0);
+    for (const key of [
+      'capacity_services',
+      'average_stay_seconds',
+      'cancelled_items',
+      'operational_errors',
+      'incidents',
+      'open_incidents',
+    ])
+      expect(data).not.toHaveProperty(key);
   });
   it('cannot bypass the table quota by reactivating an archived table', async () => {
     await db.exec('reset role');
