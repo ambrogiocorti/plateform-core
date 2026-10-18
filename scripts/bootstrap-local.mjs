@@ -79,7 +79,7 @@ async function runCapture(program, args) {
 async function verifySource() {
   await import('./check-migrations.mjs');
   const manifest = JSON.parse(await readFile('supabase/migration-manifest.json', 'utf8'));
-  assert.equal(manifest.migrations.length, 483, 'CANDIDATE_MIGRATION_COUNT_CHANGED');
+  assert.equal(manifest.migrations.length, 484, 'CANDIDATE_MIGRATION_COUNT_CHANGED');
   const names = new Set(manifest.migrations.map((m) => m.filename));
   assert.equal(names.size, 484, 'DUPLICATE_MIGRATION_FILE');
   assert.ok(names.has('20261006100100_continuity_rehearsal_schema_recovery.sql'));
