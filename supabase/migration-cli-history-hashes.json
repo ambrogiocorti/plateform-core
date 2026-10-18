@@ -1,0 +1,9 @@
+{
+  "_comment": "SHA-256 of array_to_string(statements, E'\\n') as recorded in supabase_migrations.schema_migrations by Supabase CLI 2.120.0 (db push / migration repair split statements and drop their trailing semicolons). The 480 Development versions were recorded as whole files, so their history hash equals the file hash in migration-manifest.json and they need no entry here. Measured on local PostgreSQL 16 on 2026-10-18; regenerate with the procedure in docs/MIGRATION_REPLAY_RECONCILIATION_2026-10-18.md whenever a non-Development migration is added.",
+  "cli_version": "2.120.0",
+  "history_sha256": {
+    "20261006100100": "41f52bef3bdd7fa495e420d2860234a151a0a31a1cbe375710b5ece1088096ef",
+    "20261012075300": "41f2ef16071ebec35910dc156be505ad042539672e9e27b2980f6786e8c267c6",
+    "20261018103000": "99b16b5b89147907bfe2d10e4a31c92a388f2d2a77513fb3c7694114bc71ebdd"
+  }
+}

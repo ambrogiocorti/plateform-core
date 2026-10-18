@@ -32,4 +32,8 @@ La procedura non interpreta un esito `READY_FOR_DISPOSABLE_STAGING_ONLY` come au
 
 `node scripts/plan-migration-promotion.mjs --self-test` verifica con fixture deterministiche quattro scenari: backfill delle due migrazioni candidate, alterazione dello storico, versione remota sconosciuta e futura migrazione valida, oltre alla duplicazione dello storico. La fixture usa i 480 record **derivati dal manifest**, non è una nuova lettura live di Supabase. Non sostituisce il confronto SQL reale.
 
+## Aggiornamento 18 ottobre 2026 — migrazioni retrodatate
+
+Le due migrazioni retrodatate sono ora elencate, con SHA-256, in `supabase/migration-bootstrap-compat.json`. Il planner le accetta solo se il file non è cambiato e se la migrazione che compensano è già applicata: lo stato diventa `READY_FOR_DISPOSABLE_STAGING_AFTER_COMPAT_REPAIR` (exit code 3). Su un'installazione esistente vanno registrate con `supabase migration repair --status applied`, solo dopo `supabase/tests/bootstrap-compat-preflight.sql` (sola lettura) con esito positivo; non vanno eseguite con `db push --include-all`. Le nuove installazioni le eseguono in ordine. Procedura ed evidenze: `docs/MIGRATION_REPLAY_RECONCILIATION_2026-10-18.md`.
+
 **Gate:** il rilascio resta NO-GO finché un piano di upgrade compatibile con il database popolato non viene verificato su staging indipendente.
