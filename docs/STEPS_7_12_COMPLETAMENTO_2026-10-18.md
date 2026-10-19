@@ -19,22 +19,26 @@ Realtime fra dispositivi, Edge Functions, MFA, riconciliazione migrazioni.
 
 ## Lacune trovate e stato
 
-| #   | Step / §       | Lacuna verificata                                                                                                                                                                    | Effetto in servizio                                                    | Stato                                             |
-| --- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------- | ------------------------------------------------- |
-| 1   | 7 / §65        | Il reso era proponibile solo su piatti `READY`. Un piatto rimandato indietro dal tavolo è già `SERVED` e spariva da Pass e Kitchen Admin, anche se il server lo accettava            | Impossibile RIFARE o annullare il caso più frequente                   | **Corretto**                                      |
-| 2   | 7 / §56        | Le notifiche `STEP_PREPARED` (Pass) e `STEP_READY` (cameriere) restavano `NEW` per sempre dopo il servizio                                                                           | Centro notifiche pieno di avvisi già gestiti; le critiche si perdono   | **Corretto**                                      |
-| 3   | 7 / §66        | La stampa automatica creava un job per ogni riga d'ordine                                                                                                                            | Un ordine di 5 piatti = 5 comande separate in cucina                   | **Corretto**                                      |
-| 4   | 7 / §91        | I job automatici (nuovo ordine, RIFARE) non registravano `PRINT_REQUESTED`                                                                                                           | Audit stampe incompleto sul percorso principale                        | **Corretto**                                      |
-| 5   | §92            | `get_operational_statistics` rifiutava tutto (`FEATURE_NOT_LICENSED`) senza `ADVANCED_ANALYTICS`: su un'installazione CORE la pagina Statistiche di Admin e Cassa era inutilizzabile | Nessun incasso, scontrino medio o venduto consultabile                 | **Corretto**                                      |
-| 6   | 10 / §6, §8    | Nessuna interfaccia per creare, modificare o disattivare sedi: `create_venue`/`update_venue` esistevano solo come RPC                                                                | Un cliente multi-sede non può aggiungere la seconda sede senza SQL     | **Corretto** (pagina Super Admin `/sedi`)         |
-| 7   | 11 / §14, §126 | Il salvataggio del branding con un colore a basso contrasto falliva con “Verifica la connessione” (il vincolo WCAG del server non veniva spiegato)                                   | L'Admin non capisce perché il sito non si aggiorna                     | **Corretto**                                      |
-| 8   | 8 / §112       | Conflict Center offre “Annulla richiesta” e “Segna verificato”, non “Modifica ordine” / “Annulla item” dell'esempio                                                                  | L'Admin deve correggere l'ordine dalla vista conto                     | **Corretto** (seconda tornata)                    |
-| 9   | 8 / §110       | Offline non provabile in locale: lo snapshot firmato arriva dalla Edge Function `offline-authorization`                                                                              | —                                                                      | **Provato** (Edge Function servita)               |
-| 10  | 10             | Lo switcher sede aggiorna solo `sessionStorage`; `set_operational_venue` (sede del dispositivo lato server) non è mai chiamata                                                       | Device Management mostra la sede iniziale del dispositivo              | **Corretto** (seconda tornata)                    |
-| 11  | 11             | Upload logo/immagini e invio prenotazione online passano da Edge Functions (`asset-upload`, `reservation`)                                                                           | —                                                                      | Prenotazione **provata**; upload aperto (Storage) |
-| 12  | 11             | Sul sito pubblico compare “Aggiornamenti da verificare” quando Realtime è degradato                                                                                                  | Messaggio tecnico visibile ai clienti                                  | **Corretto** (seconda tornata)                    |
-| 13  | 7 / §90        | Epson ePOS e print bridge esclusi dall'edizione CORE (`docs/CORE_COMMERCIAL_EDITION.md`)                                                                                             | Solo stampa browser/PDF                                                | Non previsto in CORE                              |
-| 14  | 8 / §110       | Il service worker installato durante la sessione non mostrava mai “È disponibile un aggiornamento”: il controllo leggeva `registration.installing`, già vuoto a installazione finita | Lo staff resta sulla versione vecchia fino a un ricaricamento completo | **Corretto** (seconda tornata)                    |
+| #   | Step / §       | Lacuna verificata                                                                                                                                                                    | Effetto in servizio                                                     | Stato                                     |
+| --- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------- | ----------------------------------------- |
+| 1   | 7 / §65        | Il reso era proponibile solo su piatti `READY`. Un piatto rimandato indietro dal tavolo è già `SERVED` e spariva da Pass e Kitchen Admin, anche se il server lo accettava            | Impossibile RIFARE o annullare il caso più frequente                    | **Corretto**                              |
+| 2   | 7 / §56        | Le notifiche `STEP_PREPARED` (Pass) e `STEP_READY` (cameriere) restavano `NEW` per sempre dopo il servizio                                                                           | Centro notifiche pieno di avvisi già gestiti; le critiche si perdono    | **Corretto**                              |
+| 3   | 7 / §66        | La stampa automatica creava un job per ogni riga d'ordine                                                                                                                            | Un ordine di 5 piatti = 5 comande separate in cucina                    | **Corretto**                              |
+| 4   | 7 / §91        | I job automatici (nuovo ordine, RIFARE) non registravano `PRINT_REQUESTED`                                                                                                           | Audit stampe incompleto sul percorso principale                         | **Corretto**                              |
+| 5   | §92            | `get_operational_statistics` rifiutava tutto (`FEATURE_NOT_LICENSED`) senza `ADVANCED_ANALYTICS`: su un'installazione CORE la pagina Statistiche di Admin e Cassa era inutilizzabile | Nessun incasso, scontrino medio o venduto consultabile                  | **Corretto**                              |
+| 6   | 10 / §6, §8    | Nessuna interfaccia per creare, modificare o disattivare sedi: `create_venue`/`update_venue` esistevano solo come RPC                                                                | Un cliente multi-sede non può aggiungere la seconda sede senza SQL      | **Corretto** (pagina Super Admin `/sedi`) |
+| 7   | 11 / §14, §126 | Il salvataggio del branding con un colore a basso contrasto falliva con “Verifica la connessione” (il vincolo WCAG del server non veniva spiegato)                                   | L'Admin non capisce perché il sito non si aggiorna                      | **Corretto**                              |
+| 8   | 8 / §112       | Conflict Center offre “Annulla richiesta” e “Segna verificato”, non “Modifica ordine” / “Annulla item” dell'esempio                                                                  | L'Admin deve correggere l'ordine dalla vista conto                      | **Corretto** (seconda tornata)            |
+| 9   | 8 / §110       | Offline non provabile in locale: lo snapshot firmato arriva dalla Edge Function `offline-authorization`                                                                              | —                                                                       | **Provato** (Edge Function servita)       |
+| 10  | 10             | Lo switcher sede aggiorna solo `sessionStorage`; `set_operational_venue` (sede del dispositivo lato server) non è mai chiamata                                                       | Device Management mostra la sede iniziale del dispositivo               | **Corretto** (seconda tornata)            |
+| 11  | 11             | Upload logo/immagini e invio prenotazione online passano da Edge Functions (`asset-upload`, `reservation`)                                                                           | —                                                                       | **Provati** (upload in terza tornata)     |
+| 12  | 11             | Sul sito pubblico compare “Aggiornamenti da verificare” quando Realtime è degradato                                                                                                  | Messaggio tecnico visibile ai clienti                                   | **Corretto** (seconda tornata)            |
+| 13  | 7 / §90        | Epson ePOS e print bridge esclusi dall'edizione CORE (`docs/CORE_COMMERCIAL_EDITION.md`)                                                                                             | Solo stampa browser/PDF                                                 | Non previsto in CORE                      |
+| 14  | 8 / §110       | Il service worker installato durante la sessione non mostrava mai “È disponibile un aggiornamento”: il controllo leggeva `registration.installing`, già vuoto a installazione finita | Lo staff resta sulla versione vecchia fino a un ricaricamento completo  | **Corretto** (seconda tornata)            |
+| 15  | 11 / §21       | Un piatto salvato da Configurazione senza descrizione ha `description = null`: il menu intero falliva la validazione (sito pubblico, menu QR, dialogo ordine del cameriere)          | Sito “non disponibile” e ordini bloccati dopo una modifica del catalogo | **Corretto** (terza tornata)              |
+| 16  | 11 / §126      | Il link “Vai al contenuto” non spostava il focus: il salto a `#main` scatenava `popstate` e la pagina veniva ridisegnata                                                             | Chi usa la tastiera deve scorrere tutto il menu di navigazione          | **Corretto** (terza tornata)              |
+| 17  | 11 / §127      | `icon.svg` conteneva l'intero poster del marchio (2,4 MB): scaricato da ogni visitatore e ogni dispositivo staff                                                                     | Primo accesso lento e 1,8 MB di dati mobili per visita                  | **Corretto** (14 KB, terza tornata)       |
+| 18  | 11 / §127      | Sul menu pubblico il footer “saltava” quando arrivavano i piatti (CLS 0,42, soglia buona 0,1)                                                                                        | Tocchi sbagliati su telefono, punteggio Web Vitals scarso               | **Corretto** (terza tornata)              |
 
 Verificato senza difetti nel browser reale: menu della sede, accoglienza, sala, conti, cassa,
 conflitti (vuoto), dispositivi, stampe, approvazioni comande, editor sala, pianificazione,
@@ -65,6 +69,35 @@ bundle git in `/mnt/project-files/backup-codice/plateform-steps-7-12.bundle`.
   `step8-pwa-release-live` (due build di rilascio: installazione, avvio senza rete,
   aggiornamento su richiesta), `step11-booking-live` (2: prenotazione confermata e richiesta di
   gruppo tramite la Edge Function).
+
+## Terza tornata (19/10, senza GitHub)
+
+- **Upload di logo, foto e foto dei piatti** — lo stack locale ora avvia il vero
+  `supabase/storage-api` (v1.28.0, Docker, archiviazione su file) dietro il gateway, con lo stesso
+  schema `storage` e gli stessi permessi di Supabase, e serve la Edge Function `asset-upload`. Il
+  gateway risponde anche in HTTPS con una CA locale, perché il server accetta solo indirizzi
+  `https://` per le immagini. Nuovo test `step11-assets-live` (2): upload dall'Admin, file
+  salvato e restituito identico, immagini visibili sul sito pubblico e nel menu, file non validi
+  rifiutati, nessuna scrittura diretta nei bucket da anonimi o staff, cameriere rifiutato.
+  Gli errori di upload ora mostrano il motivo (prima: “Verifica la connessione”) e ogni
+  pulsante di upload ha un nome accessibile distinto.
+- **Accessibilità (WCAG 2.2 A/AA)** — nuovo test `accessibility-live`: axe-core su tutte le pagine
+  del sito (desktop e telefono) e su 20 schermate staff per 5 ruoli, zero violazioni; prove da
+  tastiera del link “Vai al contenuto” su sito e app staff. Le pagine “non disponibile” hanno
+  ora un titolo principale (h1). I controlli automatici coprono circa un terzo dei criteri WCAG:
+  lettori di schermo e percorsi completi da tastiera restano da provare a mano.
+- **Velocità** — nuovo test `performance-live` sulle build di rilascio servite compresse, primo
+  accesso da telefono simulato (4G lenta, CPU 4×), soglie Core Web Vitals “buone”:
+
+  | Pagina         | LCP   | CLS | Dati scaricati |
+  | -------------- | ----- | --- | -------------- |
+  | Sito: home     | 1,2 s | 0   | 111 KB         |
+  | Sito: menu     | 1,8 s | 0   | 112 KB         |
+  | Sito: prenota  | 1,3 s | 0   | 111 KB         |
+  | Staff: accesso | 1,1 s | 0   | 121 KB         |
+
+  L'API locale risponde più in fretta di una regione Supabase reale: su staging i tempi saranno
+  più alti e vanno rimisurati.
 
 ## Modifiche
 
@@ -139,6 +172,12 @@ typecheck, lint, `check:migrations` (490), `check:core-edition`, `check:kitchen-
 `test:db` 190 (4 saltati), build, `test:e2e` 21/21 e suite browser sullo stack reale **16/16**
 (2,2 min, cache Vite fredda).
 
+**Terza tornata (19/10), rieseguito tutto sullo stesso albero di lavoro dei commit finali:**
+format, typecheck, lint, `check:migrations`, `check:core-edition`, `check:kitchen-admin-ux`,
+`check:waiter-ux`, `check:step7/8/11/12`, `check:edge`, `test:edge` 13, `test:unit` 122,
+`test:db` 190 (4 saltati), build, `test:e2e` 21/21 e suite browser sullo stack reale con
+storage-api **27/27** (4,1 min).
+
 La suite browser completa falliva 3 test che passavano da soli: i due dev server (staff e
 pubblico) condividevano `node_modules/.vite` e si invalidavano a vicenda i moduli pre-compilati
 (risposte 504 “Outdated Optimize Dep” durante il test). Ora `vite.staff.config.ts` e
@@ -147,8 +186,8 @@ pubblico) condividevano `node_modules/.vite` e si invalidavano a vicenda i modul
 ## Rischi e prove mancanti
 
 - Nessuna prova su Supabase ospitato, staging o production; PostgreSQL 16 locale invece di 17.
-- Edge Functions non servite: step-up, upload asset, prenotazione online, offline-authorization e
-  telemetria non sono provati qui.
+- Edge Functions servite in locale con il Deno del repository (offline, prenotazione, upload),
+  non con il runtime ospitato di Supabase. Storage provato con storage-api su file, non su S3.
 - Stampa provata solo con il driver browser in Chromium headless (`window.print` neutralizzato):
   nessuna stampante fisica.
 - Il raggruppamento della comanda usa `created_at = now()` della transazione: righe aggiunte in
@@ -157,8 +196,8 @@ pubblico) condividevano `node_modules/.vite` e si invalidavano a vicenda i modul
 
 ## Prossimo step
 
-1. Servire le Edge Functions nello stack locale (thread “Servizio completo”) e riprendere offline
-   (step 8), upload asset e prenotazione online (step 11) nel browser.
-2. Conflict Center: azioni “Modifica ordine” e “Annulla item” (§112).
-3. Switcher sede → `set_operational_venue`.
-4. Staging HTTPS e ripetizione di queste suite contro Supabase reale prima di qualunque GO.
+1. Staging Supabase (servono le conferme di Ambrogio) e staging HTTPS con domini separati.
+2. Ripetere su staging tutte le suite browser, compresi velocità e upload, e la prova su tablet e
+   telefoni veri.
+3. Prove manuali di accessibilità con lettore di schermo (VoiceOver/TalkBack).
+4. Caricare i commit locali su GitHub e aggiornare la PR #48 quando Ambrogio lo decide.
