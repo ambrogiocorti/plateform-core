@@ -102,6 +102,11 @@
   color: var(--muted);
   white-space: pre-line;
 }
+/* Content arrives after the shell: keeping the footer below the fold avoids a visible layout shift. */
+#main {
+  min-height: 100vh;
+  min-height: 100svh;
+}
 .public-footer {
   padding: 55px 6vw;
   border-top: 1px solid var(--border);
