@@ -70,6 +70,11 @@ const messages: Record<string, string> = {
   USER_LIMIT: 'Hai raggiunto il limite degli utenti attivi.',
   DEVICE_LIMIT: 'Hai raggiunto il limite dei dispositivi autorizzati.',
   STORAGE_LIMIT: 'Lo spazio disponibile per i file è esaurito.',
+  INVALID_ASSET: 'Il file non è un’immagine PNG, JPEG o WebP valida.',
+  INVALID_ASSET_URL: 'Immagini e link devono usare un indirizzo sicuro che inizia con https://.',
+  RATE_LIMITED: 'Troppe richieste ravvicinate. Attendi qualche minuto e riprova.',
+  ASSET_RECOVERY_REQUIRED:
+    'Il caricamento non si è concluso. Riprova: se il problema resta, contatta l’assistenza.',
   LIMIT_BELOW_CURRENT_USAGE: 'Il limite non può essere inferiore alle risorse già utilizzate.',
   PRINT_RECONCILIATION_REQUIRED:
     'Verifica il documento fisico e l’esito della stampa prima di proseguire.',

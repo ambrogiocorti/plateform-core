@@ -55,7 +55,11 @@ export type StaffProfile = z.infer<typeof staffProfileSchema>;
 export const menuDishSchema = z.object({
   id: z.uuid(),
   name: z.string(),
-  description: z.string(),
+  // Optional in the catalog: a dish saved without one comes back as null.
+  description: z
+    .string()
+    .nullable()
+    .transform((value) => value ?? ''),
   image_path: z.string().nullable(),
   beverage: z.boolean(),
   category_id: z.uuid(),

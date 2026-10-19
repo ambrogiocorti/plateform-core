@@ -9,7 +9,11 @@ import type { Venue } from '../types/domain';
 const item = z.object({
   id: z.uuid(),
   name: z.string(),
-  description: z.string(),
+  // Optional in the catalog: a dish saved without one comes back as null.
+  description: z
+    .string()
+    .nullable()
+    .transform((value) => value ?? ''),
   image_path: z.string().nullable(),
   beverage: z.boolean(),
   price_cents: z.number().int().nonnegative(),
