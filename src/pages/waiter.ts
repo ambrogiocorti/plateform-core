@@ -431,7 +431,14 @@ export async function waiterPage(context: StaffContext): Promise<HTMLElement> {
                   { class: 'row waiter-actions' },
                   table.open_accounts > 0
                     ? button('Nuovo ordine', () => quickOrder(context, table))
-                    : button('Nuovo conto', () => openAccountCreation(context, table)),
+                    : table.technical_status === 'TO_RESET'
+                      ? // A closed table must be reset before a new account (TABLE_NEEDS_RESET).
+                        button('Tavolo riapparecchiato', async () => {
+                          await command('set_table_available', { p_table: table.id });
+                          toast(`${table.name}: pronto per nuovi clienti.`);
+                          await context.refresh?.();
+                        })
+                      : button('Nuovo conto', () => openAccountCreation(context, table)),
                   button('Apri conto', () => openTableAccount(context, table), 'secondary'),
                   button(
                     'Dettagli tavolo',

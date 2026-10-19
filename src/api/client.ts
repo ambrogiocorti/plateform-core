@@ -120,6 +120,8 @@ const messages: Record<string, string> = {
   CUSTOMER_SESSION_REQUIRED: 'Inserisci il codice attuale del conto per accedere.',
   TABLE_CAPACITY_INSUFFICIENT: 'Il tavolo o gruppo selezionato non ha posti sufficienti.',
   TABLE_STILL_IN_USE: 'Il tavolo è ancora in uso.',
+  TABLE_NEEDS_RESET:
+    'Il tavolo è da riapparecchiare: segnalo come riapparecchiato prima di aprire un nuovo conto.',
   TABLE_GROUP_IN_SERVICE: 'Completa il servizio del gruppo prima di separare i tavoli.',
   TABLE_ALREADY_RESERVED: 'Il tavolo è già assegnato a un’altra prenotazione.',
   TARGET_TABLE_NOT_AVAILABLE: 'Il tavolo di destinazione non è disponibile.',

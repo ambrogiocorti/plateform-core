@@ -99,11 +99,9 @@ async function ensureUser(member) {
   return (await response.json()).id;
 }
 
-export async function seed() {
-  const users = {};
-  for (const [key, member] of Object.entries(staff)) users[key] = await ensureUser(member);
-  if (sql(`select count(*) from public.venues where id='${ids.venue}'`) !== '0') return users;
-  sql(`begin;
+/** Minimum restaurant configuration for one service, shared with tests/e2e-staging. */
+export function fixtureSql(users) {
+  return `begin;
     insert into public.restaurant_profile(name,public_base_url,staff_base_url,staff_identity_domain)
       values('Trattoria E2E','http://localhost:5173','http://localhost:5174','staff.e2e.test');
     insert into public.restaurant_settings(id) values(true) on conflict do nothing;
@@ -149,7 +147,14 @@ export async function seed() {
     insert into public.station_staff_assignments values('${ids.venue}','${ids.station}','${users.kitchen}',true);
     insert into public.cash_registers(id,venue_id,name,code,status) values('${ids.register}','${ids.venue}','Cassa sala','R1','CLOSED');
     insert into public.cashier_assignments(venue_id,cash_register_id,user_id) values('${ids.venue}','${ids.register}','${users.cashier}');
-    commit;`);
+    commit;`;
+}
+
+export async function seed() {
+  const users = {};
+  for (const [key, member] of Object.entries(staff)) users[key] = await ensureUser(member);
+  if (sql(`select count(*) from public.venues where id='${ids.venue}'`) !== '0') return users;
+  sql(fixtureSql(users));
   return users;
 }
 
