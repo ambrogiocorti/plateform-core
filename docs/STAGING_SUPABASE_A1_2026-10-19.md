@@ -96,14 +96,15 @@ pulsante "Verifica e accedi" e non diceva che il codice era sbagliato (ora è in
 chiuso (`TO_RESET`) mostrava "Nuovo conto" che falliva con un errore di connessione generico (ora
 la scheda offre "Tavolo riapparecchiato" e l'errore `TABLE_NEEDS_RESET` è spiegato).
 
-**Lacuna:** il database invoca 7 Edge Functions senza sorgente nel repository
-(`reservation-message-worker`, `reservation-deposit-no-show-worker`, `continuity-retention-worker`,
-`continuity-backup-worker`, `audit-archive-worker`, `audit-archive-verify`,
+**Lacuna:** il database invoca 6 Edge Functions senza sorgente nel repository
+(`reservation-message-worker`, `reservation-deposit-no-show-worker`, `continuity-retention-worker`, `audit-archive-worker`, `audit-archive-verify`,
 `database-unavailable-chaos-probe`); su una nuova installazione quei lavori automatici non possono
 girare.
+Il backup vero e proprio non è fra queste: gira sull'host continuity (`tools/backup-worker`) e il
+suo indirizzo è configurato per installazione in `continuity_worker_runtime_config.function_url`.
 
 ## Prove mancanti
 
-Le 7 Edge Functions senza sorgente, pagamenti Stripe/Satispay in sandbox, Storage (upload logo e
+Le 6 Edge Functions senza sorgente, pagamenti Stripe/Satispay in sandbox, Storage (upload logo e
 foto), Realtime senza ricarica pagina, backup/restore su Supabase ospitato, frontend pubblicato in
 HTTPS e dispositivi reali. Il rilascio resta **NO-GO**.
