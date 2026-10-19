@@ -2909,6 +2909,12 @@
       "version": "20261018120000",
       "name": "security_policy_predicates_and_venue_references",
       "sha256": "63c070344be5cda25708ccbeb9df3e8322b2b275b1682f5f0a747ede33f94f4c"
+    },
+    {
+      "filename": "20261019090000_installation_edge_function_urls.sql",
+      "version": "20261019090000",
+      "name": "installation_edge_function_urls",
+      "sha256": "b333075c17cca59f1cbc903c732eeae07918f3cf31dcaf49823f017332a0a9da"
     }
   ]
 }
