@@ -12,7 +12,7 @@ import {
 } from '../services/public-booking-contract';
 import type { SearchKey } from '../services/public-booking-contract';
 import {
-  externalPaymentProvidersIncluded,
+  onlineBookingDepositsIncluded,
   permittedBookingSlots,
   requiresExcludedDeposit,
 } from '../services/commercial-scope';
@@ -276,7 +276,7 @@ export async function bookingPage(venue: Venue, privacyUrl?: string): Promise<HT
       const result = bookingResult.parse(data);
       submitted = true;
       if (result.status === 'PENDING_DEPOSIT') {
-        if (!externalPaymentProvidersIncluded) {
+        if (!onlineBookingDepositsIncluded) {
           form.replaceChildren(
             el('h2', {}, 'Prenotazione non ancora confermata'),
             el(

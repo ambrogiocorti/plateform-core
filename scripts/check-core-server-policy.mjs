@@ -86,6 +86,36 @@ for (const pattern of [
 ])
   check(`required policy: ${pattern}`, () => assert.match(sql, pattern));
 
+// 20261019100000 (owner decision, 2026-10-19) supersedes the unconditional provider denial of
+// the migration above: Stripe/Satispay follow the installation licences, deposits stay denied.
+const licenceFile = '20261019100000_payment_providers_by_license.sql';
+const licenceSql = readFileSync(`supabase/migrations/${licenceFile}`, 'utf8');
+check('provider licence migration is versioned in the manifest', () => {
+  const manifest = JSON.parse(readFileSync('supabase/migration-manifest.json', 'utf8'));
+  const row = manifest.migrations.find((entry) => entry.filename === licenceFile);
+  assert.ok(row, 'the provider licence migration must be versioned');
+  const hash = createHash('sha256').update(readFileSync(`supabase/migrations/${licenceFile}`));
+  assert.equal(row.sha256, hash.digest('hex'));
+});
+for (const pattern of [
+  /when p_method in \('CASH','CARD_POS'\) then true/,
+  /when p_method='STRIPE' then private\.feature_licensed\('STRIPE'\)/,
+  /when p_method in \('SATISPAY_API','SATISPAY_POS'\) then private\.feature_licensed\('SATISPAY_API'\)/,
+  /else false/,
+  /new\.name='BOOKING_DEPOSITS' and new\.licensed then\s*raise exception 'CORE_PROVIDER_LICENSE_FORBIDDEN'/,
+  /core_edition_payment_guard\(\)[\s\S]*?not private\.payment_method_licensed\(new\.method::text\)[\s\S]*?PAYMENT_METHOD_UNLICENSED/,
+  /core_edition_register_methods_guard\(\)[\s\S]*?m\.method is null or not private\.payment_method_licensed/,
+  /core_edition_new_provider_operation_guard\(\)[\s\S]*?not private\.payment_method_licensed\(new\.method::text\)/,
+  /PROVIDER_STILL_CONFIGURED/,
+  /PROVIDER_OPERATIONS_PENDING/,
+  /revoke all on function private\.payment_method_licensed\(text\) from public,anon,authenticated/,
+])
+  check(`provider licence policy: ${pattern}`, () => assert.match(licenceSql, pattern));
+check('provider licence migration leaves print guards and history untouched', () => {
+  const code = licenceSql.replace(/--[^\n]*/g, '');
+  assert.doesNotMatch(code, /print/i);
+  assert.doesNotMatch(code, /\b(?:DELETE FROM|TRUNCATE|DROP)\b/i);
+});
 check('all function scopes have fixed search path', () => {
   const functions = sql.match(/CREATE OR REPLACE FUNCTION/g) ?? [];
   const secured = sql.match(/RETURNS trigger LANGUAGE plpgsql SET search_path\s*=\s*''/g) ?? [];

@@ -25,8 +25,10 @@ const checks = [
     app.includes('...context.venues.map((venue) =>'),
   ],
   [
-    'selezione sede è persistita per sessione',
-    app.includes("sessionStorage.setItem('plateform-venue', venueControl.value)"),
+    'selezione sede confermata dal server e persistita per sessione',
+    /await rpc\('set_operational_venue', \{ p_venue: venue \}, venueContextSchema\);\s*sessionStorage\.setItem\('plateform-venue', venue\);/.test(
+      context,
+    ) && app.includes('selectVenue(venueControl.value)'),
   ],
   [
     'aggregato statistiche solo CHAIN multi-sede',
@@ -54,7 +56,7 @@ const checks = [
   [
     'palette cambia sede solo se già autorizzata',
     app.includes('currentContext?.venues.some((venue) => venue.id === hit.venue_id)') &&
-      app.includes("sessionStorage.setItem('plateform-venue', hit.venue_id)"),
+      app.includes('await selectVenue(hit.venue_id);'),
   ],
   [
     'ricerca operativa resta scoped alla sede corrente',

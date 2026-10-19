@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { printLines } from '../shared/print-document.ts';
 import {
   externalPaymentProvidersIncluded,
+  onlineBookingDepositsIncluded,
   epsonPrintingIncluded,
   permittedPaymentMethod,
   permittedPaymentMethods,
@@ -18,17 +19,15 @@ function check(test) {
   count++;
 }
 
-check(() => assert.equal(externalPaymentProvidersIncluded, false));
+// Since 2026-10-19 Stripe and Satispay are in the edition (still licence-gated by the server);
+// online booking deposits and Epson drivers are not.
+check(() => assert.equal(externalPaymentProvidersIncluded, true));
+check(() => assert.equal(onlineBookingDepositsIncluded, false));
 check(() => assert.equal(epsonPrintingIncluded, false));
-check(() =>
-  assert.deepEqual(
-    permittedPaymentMethods(['CASH', 'CARD_POS', 'STRIPE', 'SATISPAY_POS', 'SATISPAY_API']),
-    ['CASH', 'CARD_POS'],
-  ),
-);
-for (const valid of ['CASH', 'CARD_POS'])
-  check(() => assert.equal(permittedPaymentMethod(valid), true));
-for (const invalid of ['STRIPE', 'SATISPAY_POS', 'SATISPAY_API', '', 'BOGUS'])
+const providerMethods = ['CASH', 'CARD_POS', 'STRIPE', 'SATISPAY_POS', 'SATISPAY_API'];
+check(() => assert.deepEqual(permittedPaymentMethods(providerMethods), providerMethods));
+for (const valid of providerMethods) check(() => assert.equal(permittedPaymentMethod(valid), true));
+for (const invalid of ['', 'BOGUS', 'stripe'])
   check(() => assert.equal(permittedPaymentMethod(invalid), false));
 check(() => assert.deepEqual(permittedPrintDrivers(), ['BROWSER']));
 check(() => assert.equal(permittedPrintDriver('BROWSER'), true));
@@ -98,7 +97,7 @@ check(() => assert.match(operationalSettings, /permittedPrintDrivers\(\)/));
 check(() => assert.match(operationalSettings, /permittedPrintDriver\(device\.driver\)/));
 check(() => assert.match(publicBooking, /permittedBookingSlots\(confirmedSlots\)/));
 check(() => assert.match(publicBooking, /confirmedSlots\.some\(requiresExcludedDeposit\)/));
-check(() => assert.match(publicBooking, /if \(!externalPaymentProvidersIncluded\)/));
+check(() => assert.match(publicBooking, /if \(!onlineBookingDepositsIncluded\)/));
 check(() => assert.match(publicBooking, /Non inviare un’altra richiesta/));
 check(() =>
   assert.match(printing, /\.filter\(\(device\) => permittedPrintDriver\(device\.driver\)\)/),
@@ -119,7 +118,7 @@ check(() =>
     /manual\(payment\.method\) &&\s*permittedPaymentMethod\(payment\.method\)/,
   ),
 );
-check(() => assert.match(accountFinance, /Operazione storica con metodo escluso dalla CORE/));
+check(() => assert.match(accountFinance, /Operazione con un metodo non più disponibile/));
 check(() =>
   assert.match(
     accountFinance,

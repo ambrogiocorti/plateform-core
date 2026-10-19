@@ -1,9 +1,13 @@
 /**
- * Product boundary for the initial cash/POS + browser/PDF commercial edition.
- * Provider payments and Epson drivers require a separately certified release.
- * This is presentation gating only: database licensing must also deny access.
+ * Product boundary for the first commercial edition: cash, external POS, Stripe and Satispay
+ * (provider payments since the 2026-10-19 decision) and browser/PDF printing. Providers still
+ * need the installation licence and the venue's keys: the database refuses unlicensed methods
+ * (20261019100000_payment_providers_by_license.sql). Online booking deposits and Epson drivers
+ * stay outside the edition. This is presentation gating only.
  */
-export const externalPaymentProvidersIncluded = false;
+export const externalPaymentProvidersIncluded = true;
+/** No Edge Function collects deposits yet (`reservation-deposit` does not exist). */
+export const onlineBookingDepositsIncluded = false;
 export const epsonPrintingIncluded = false;
 
 export function permittedPaymentMethod(method: string): boolean {
@@ -36,13 +40,13 @@ export type CoreBookingSlot = { status_if_booked?: string; deposit?: unknown };
  */
 export function requiresExcludedDeposit(slot: CoreBookingSlot): boolean {
   return (
-    !externalPaymentProvidersIncluded &&
+    !onlineBookingDepositsIncluded &&
     (slot.status_if_booked === 'PENDING_DEPOSIT' || slot.deposit != null)
   );
 }
 
 export function permittedBookingSlots<T extends CoreBookingSlot>(slots: readonly T[]): T[] {
-  return externalPaymentProvidersIncluded
+  return onlineBookingDepositsIncluded
     ? [...slots]
     : slots.filter(
         (slot) =>

@@ -67,7 +67,7 @@ export async function paymentDialog(
     method.disabled = allowed.length === 0;
     paymentMethodNotice.textContent = allowed.length
       ? ''
-      : 'Questa cassa non ha metodi utilizzabili nell’edizione CORE: abilita Contanti o POS esterno nelle impostazioni.';
+      : 'Questa cassa non ha metodi di pagamento attivi: abilitali nelle impostazioni della cassa.';
   };
   register.addEventListener('change', updateMethods);
   updateMethods();
@@ -83,7 +83,7 @@ export async function paymentDialog(
   editor.append(
     button('Prepara pagamento', async () => {
       if (!permittedPaymentMethod(method.value)) {
-        toast('Configura una cassa con contanti o POS esterno per effettuare l’incasso.', true);
+        toast('Configura un metodo di pagamento sulla cassa per effettuare l’incasso.', true);
         return;
       }
       const result = await rpc(

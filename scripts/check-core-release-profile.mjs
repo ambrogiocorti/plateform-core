@@ -57,7 +57,7 @@ const check = (cb) => {
 };
 const core = structuredClone(allVerified);
 for (const section of excludedCoreSections) core.sections[section].status = 'out_of_scope_core';
-check(() => assert.deepEqual(excludedCoreSections, [79, 80, 90]));
+check(() => assert.deepEqual(excludedCoreSections, [90]));
 check(() => assert.equal(releaseProblems(core, evidence(), digest).length, 0));
 check(() => assert.ok(releaseProblems(core, evidence('FULL'), digest).length > 0));
 const altered = structuredClone(core);

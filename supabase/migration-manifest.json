@@ -2945,6 +2945,12 @@
       "version": "20261019090000",
       "name": "installation_edge_function_urls",
       "sha256": "b333075c17cca59f1cbc903c732eeae07918f3cf31dcaf49823f017332a0a9da"
+    },
+    {
+      "filename": "20261019100000_payment_providers_by_license.sql",
+      "version": "20261019100000",
+      "name": "payment_providers_by_license",
+      "sha256": "45e93645c51378cd0492885730ff42ec587a6e5d980b2b0725d950e17402a43e"
     }
   ]
 }

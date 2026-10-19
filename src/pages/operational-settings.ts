@@ -146,7 +146,7 @@ export async function operationalSettingsPage(context: StaffContext): Promise<HT
     el(
       'p',
       { class: 'muted' },
-      'Edizione CORE: incassi in contanti o POS carta esterno, senza collegamento al provider. Verifica l’esito sul terminale prima di confermare.',
+      'Contanti e POS esterno: verifica l’esito sul terminale prima di confermare. Stripe e Satispay richiedono la licenza dell’installazione e le chiavi del ristorante configurate dal tecnico.',
     ),
     pay.root,
     el('label', {}, 'Sconti', discount),
