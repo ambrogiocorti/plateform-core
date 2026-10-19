@@ -6,6 +6,7 @@ import {
   dialog,
   field,
   emptyState,
+  enableSkipLink,
   loading,
   showError,
 } from '../../src/components/dom';
@@ -743,6 +744,7 @@ document.addEventListener('keydown', (event) => {
     }
   }
 });
+enableSkipLink();
 window.addEventListener('popstate', () => {
   void render().catch(showError);
 });

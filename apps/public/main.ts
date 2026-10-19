@@ -2,7 +2,14 @@ import { registerPwa } from '../../src/services/pwa';
 import '../../styles/public.css';
 import { z } from 'zod';
 import { rpc } from '../../src/api/client';
-import { button, el, emptyState, loading, showError } from '../../src/components/dom';
+import {
+  button,
+  el,
+  emptyState,
+  enableSkipLink,
+  loading,
+  showError,
+} from '../../src/components/dom';
 import { watchLive } from '../../src/realtime/live';
 import { environment, safeImageUrl } from '../../src/config/environment';
 import { menuDishSchema, publicSiteSchema } from '../../src/types/domain';
@@ -213,6 +220,7 @@ async function render(): Promise<void> {
         emptyState(
           'Il nostro sito sta arrivando',
           'Stiamo preparando uno spazio dedicato alla nostra cucina. Torna presto a trovarci.',
+          'h1',
         ),
       ),
     );
@@ -373,6 +381,7 @@ async function render(): Promise<void> {
       emptyState(
         'Sede non disponibile',
         'Il collegamento del menu si riferisce a una sede non valida o non più attiva.',
+        'h1',
       ),
     );
     if (site.multi_venue) main.append(el('a', { href: '/sedi' }, 'Visualizza le sedi'));
@@ -429,7 +438,7 @@ async function render(): Promise<void> {
         el(
           'section',
           { class: 'public-section' },
-          emptyState('Sede non disponibile', 'La sede richiesta non è attiva o non esiste.'),
+          emptyState('Sede non disponibile', 'La sede richiesta non è attiva o non esiste.', 'h1'),
         ),
       );
     } else {
@@ -474,6 +483,7 @@ async function render(): Promise<void> {
       emptyState(
         'Prenotazioni online non disponibili',
         'La sede richiesta non accetta prenotazioni online. Contatta il ristorante o scegli un’altra sede.',
+        'h1',
       ),
     );
   } else if (path.startsWith('/tavolo/')) {
@@ -490,7 +500,11 @@ async function render(): Promise<void> {
       el(
         'section',
         { class: 'public-section' },
-        emptyState('Pagina non disponibile', 'Torna alla home o contattaci per informazioni.'),
+        emptyState(
+          'Pagina non disponibile',
+          'Torna alla home o contattaci per informazioni.',
+          'h1',
+        ),
         el('a', { href: '/' }, 'Torna alla home'),
       ),
     );
@@ -914,6 +928,7 @@ function failed(error: unknown): void {
   );
   if (import.meta.env.DEV) showError(error);
 }
+enableSkipLink();
 document.addEventListener('click', (event) => {
   const target = event.target instanceof Element ? event.target.closest('a') : null;
   if (

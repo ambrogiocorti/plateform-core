@@ -130,6 +130,7 @@
     "zod": "4.6.5"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.13.0",
     "@electric-sql/pglite": "0.5.8",
     "@eslint/js": "10.0.1",
     "@playwright/test": "1.63.0",
