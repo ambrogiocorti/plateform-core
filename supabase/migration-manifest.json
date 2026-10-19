@@ -2939,6 +2939,12 @@
       "version": "20261018140000",
       "name": "conflict_center_order_correction",
       "sha256": "d49ce09ca58b2ca16a2e1949a96f49b2abb280c372809e4fd82d0f7d25effdb5"
+    },
+    {
+      "filename": "20261019090000_installation_edge_function_urls.sql",
+      "version": "20261019090000",
+      "name": "installation_edge_function_urls",
+      "sha256": "b333075c17cca59f1cbc903c732eeae07918f3cf31dcaf49823f017332a0a9da"
     }
   ]
 }
