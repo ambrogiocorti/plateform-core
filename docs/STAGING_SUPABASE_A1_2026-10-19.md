@@ -75,7 +75,36 @@ sono ancora pubblicate).
 - Lo schema temporaneo `staging_loader` usato per il caricamento è stato eliminato.
 - Le migrazioni della PR #48 (`20261018130000`…`20261018140000`) non sono applicate sullo staging.
 
+## Edge Functions e flusso reale (pomeriggio 19/10)
+
+- Pubblicate sullo staging le 13 Edge Functions del repository con
+  `tools/staging-api/deploy_functions.sh` (import locali risolti in modo transitivo, `verify_jwt` da
+  `supabase/config.toml`). Segreti di staging impostati (`ENVIRONMENT=staging`, `PAYMENTS_MODE=test`,
+  `RATE_LIMIT_SECRET` casuale); secret Vault `plateform_edge_functions_base_url` creato.
+- Suite `tests/e2e-staging` (`playwright.staging.config.ts`): frontend staff locale su Vite contro
+  GoTrue, PostgREST, RPC ed Edge Functions reali dello staging. Ristorante "Trattoria E2E" con 5
+  utenti di prova; password casuale a ogni esecuzione.
+
+| Test                                                                                                                                                       | Esito                                |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------ |
+| Servizio completo a 4 dispositivi: tavolo, ordine, cucina, Pass, consegna, cassa, chiusura conto, quadratura e chiusura postazione, tavolo riapparecchiato | **PASS**, due esecuzioni consecutive |
+| Admin: password, iscrizione TOTP reale, codice errato rifiutato, accesso `aal2`                                                                            | **PASS**                             |
+| Prenotazione online: disponibilità anon, Edge Function `reservation`, idempotenza, gruppo `REQUESTED`, payload non valido 400                              | **PASS**                             |
+
+Difetti trovati e corretti (commit `8e64e98`): dopo un codice MFA errato il messaggio copriva il
+pulsante "Verifica e accedi" e non diceva che il codice era sbagliato (ora è in linea); un tavolo
+chiuso (`TO_RESET`) mostrava "Nuovo conto" che falliva con un errore di connessione generico (ora
+la scheda offre "Tavolo riapparecchiato" e l'errore `TABLE_NEEDS_RESET` è spiegato).
+
+**Lacuna:** il database invoca 6 Edge Functions senza sorgente nel repository
+(`reservation-message-worker`, `reservation-deposit-no-show-worker`, `continuity-retention-worker`, `audit-archive-worker`, `audit-archive-verify`,
+`database-unavailable-chaos-probe`); su una nuova installazione quei lavori automatici non possono
+girare.
+Il backup vero e proprio non è fra queste: gira sull'host continuity (`tools/backup-worker`) e il
+suo indirizzo è configurato per installazione in `continuity_worker_runtime_config.function_url`.
+
 ## Prove mancanti
 
-Edge Functions pubblicate sullo staging, Auth/MFA reali, Storage, Realtime, backup/restore su
-Supabase ospitato, browser E2E sul flusso di servizio. Il rilascio resta **NO-GO**.
+Le 6 Edge Functions senza sorgente, pagamenti Stripe/Satispay in sandbox, Storage (upload logo e
+foto), Realtime senza ricarica pagina, backup/restore su Supabase ospitato, frontend pubblicato in
+HTTPS e dispositivi reali. Il rilascio resta **NO-GO**.

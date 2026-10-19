@@ -33,4 +33,5 @@ export const ids: Record<
 >;
 export function sign(payload: Record<string, unknown>): string;
 export function sql(text: string): string;
+export function fixtureSql(users: Record<keyof typeof staff, string>): string;
 export function seed(): Promise<Record<keyof typeof staff, string>>;
