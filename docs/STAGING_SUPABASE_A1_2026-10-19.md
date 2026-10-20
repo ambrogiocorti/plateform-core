@@ -103,8 +103,40 @@ girare.
 Il backup vero e proprio non è fra queste: gira sull'host continuity (`tools/backup-worker`) e il
 suo indirizzo è configurato per installazione in `continuity_worker_runtime_config.function_url`.
 
+## Pagamenti in sandbox (20/10)
+
+- Stripe in modalità test (chiavi `sk_test_` e segreto webhook nei segreti delle Edge Functions,
+  mai nel repository). Satispay sandbox attivato con un codice di attivazione: chiave RSA generata
+  in locale, registrata su `staging.authservices.satispay.com` (verifica firma: ruolo `DEVICE`),
+  `SATISPAY_KEY_ID` e `SATISPAY_PRIVATE_KEY_PKCS8` salvati come segreti senza mostrarli. Il primo
+  codice è stato rifiutato da Satispay (403, già usato o scaduto); il secondo ha funzionato.
+- Suite `tests/e2e-staging/payments-stripe.spec.ts`, **PASS due volte di fila**: licenza `STRIPE`
+  attivata dal Super Admin con TOTP e conferma password (Edge Function `step-up`), cassa con
+  Stripe, Checkout Session reale pagata con la carta di prova 4242, esito confermato dal **webhook
+  firmato** e dalla rilettura della sessione, conto chiuso, rimborso parziale di 5,00 € autorizzato
+  dall'Admin con conferma password e confermato da Stripe (`PARTIALLY_REFUNDED`).
+- `payments-satispay.spec.ts`: licenza `SATISPAY_API`, pagamento `MATCH_CODE` creato dal server con
+  firma RSA, pagina Satispay sandbox con QR da 34,50 €. Pagamento, callback e rimborso richiedono
+  l'app Satispay sandbox sul telefono: **non ancora provati**.
+
+Difetti trovati:
+
+- `payment-return` non era in `supabase/config.toml`, quindi veniva pubblicata con `verify_jwt`
+  attivo: dopo aver pagato il cliente vedeva `Missing authorization header`. Corretto.
+- Supabase ospitato restituisce le risposte delle funzioni su `*.supabase.co` come testo semplice:
+  la pagina HTML di ritorno appariva come codice. Ora è un messaggio in testo semplice; per una
+  pagina curata serve un dominio personalizzato o il sito pubblico.
+- `finish_provider_operation`: una seconda verifica con esito invariato lascia l'operazione
+  `IN_FLIGHT` con il lease attivo per 45 secondi, quindi webhook e callback in quell'intervallo
+  ricevono `OPERATION_IN_PROGRESS` e Stripe ritarda il nuovo tentativo. Segnalato al thread
+  "Completare gli step dal 7 al 12", che gestisce il codice dei pagamenti.
+- Con la valuta adattiva di Stripe attiva, un browser non italiano vede l'importo in dollari: da
+  valutare nelle impostazioni Stripe del ristorante.
+- Ogni sessione di prova registra un dispositivo: la suite revoca quelli delle esecuzioni precedenti
+  per non raggiungere il limite dell'installazione.
+
 ## Prove mancanti
 
-Le 6 Edge Functions senza sorgente, pagamenti Stripe/Satispay in sandbox, Storage (upload logo e
+Le 6 Edge Functions senza sorgente, pagamento/callback/rimborso Satispay sandbox, Storage (upload logo e
 foto), Realtime senza ricarica pagina, backup/restore su Supabase ospitato, frontend pubblicato in
 HTTPS e dispositivi reali. Il rilascio resta **NO-GO**.
