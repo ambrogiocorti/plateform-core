@@ -147,8 +147,16 @@ Difetti trovati:
 - Ogni sessione di prova registra un dispositivo: la suite revoca quelli delle esecuzioni precedenti
   per non raggiungere il limite dell'installazione.
 
+## Storage (20/10)
+
+`tests/e2e-staging/assets.spec.ts`, **PASS** su Supabase Storage reale: l'Admin carica logo, foto
+della galleria e foto del piatto tramite l'Edge Function `asset-upload`; un file falso viene
+rifiutato prima dello storage; gli URL pubblici restituiscono esattamente i byte caricati; il menu
+pubblico (anon) espone la foto del piatto; anonimi e staff non possono scrivere direttamente nei
+bucket e il cameriere non può caricare file nemmeno tramite la funzione. L'Admin di prova dello
+staging ora ha visibilità di catena, come nel fixture locale (il sito del brand è della catena).
+
 ## Prove mancanti
 
-Le 6 Edge Functions senza sorgente, Storage (upload logo e
-foto), Realtime senza ricarica pagina, backup/restore su Supabase ospitato, frontend pubblicato in
+Le 6 Edge Functions senza sorgente, Realtime senza ricarica pagina, backup/restore su Supabase ospitato, frontend pubblicato in
 HTTPS e dispositivi reali. Il rilascio resta **NO-GO**.

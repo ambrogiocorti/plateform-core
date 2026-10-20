@@ -93,7 +93,8 @@ export async function seed() {
   if (sql(`select count(*) from public.venues where id='${ids.venue}'`) === '0')
     sql(fixtureSql(users));
   sql(`insert into public.staff_profiles(id,display_name,role,scope)
-      values('${users.admin}','${admin.name}','ADMIN','VENUE') on conflict (id) do nothing;
+      values('${users.admin}','${admin.name}','ADMIN','CHAIN')
+      on conflict (id) do update set scope='CHAIN';
     insert into public.staff_venue_assignments(user_id,venue_id)
       values('${users.admin}','${ids.venue}') on conflict do nothing;
     insert into public.staff_profiles(id,display_name,role,scope)
