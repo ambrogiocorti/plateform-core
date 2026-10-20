@@ -93,6 +93,8 @@ test('upload Admin: logo e galleria salvati nello storage e pubblicati con il si
   expect(logo).toMatch(publicUrl);
   await upload(admin, 'nuova foto della galleria', 'sala.jpg', 'image/jpeg', jpeg);
   await expect.poll(objects).toBe('2');
+  // The picture joins the gallery only once asset-upload has answered, after the object exists.
+  await expect(admin.getByRole('button', { name: 'Rimuovi dalla galleria' })).toHaveCount(1);
   await admin.getByRole('button', { name: 'Salva sito e branding' }).click();
   await expect(admin.getByText('Sito aggiornato.')).toBeVisible();
 

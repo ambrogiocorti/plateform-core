@@ -66,3 +66,23 @@ verify_jwt = false
 
 [functions.public-telemetry]
 verify_jwt = false
+
+# Scheduled workers called by pg_net: no Supabase session; the worker token is the authority.
+[functions.reservation-message-worker]
+verify_jwt = false
+
+[functions.reservation-deposit-no-show-worker]
+verify_jwt = false
+
+[functions.continuity-retention-worker]
+verify_jwt = false
+
+[functions.audit-archive-worker]
+verify_jwt = false
+
+[functions.audit-archive-verify]
+verify_jwt = false
+
+# On-demand harness, shared-token authenticated, refuses ENVIRONMENT=production.
+[functions.database-unavailable-chaos-probe]
+verify_jwt = false

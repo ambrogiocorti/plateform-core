@@ -204,4 +204,47 @@ describe('Append-only audit log (Macro-step A.1)', () => {
       await db.exec('rollback; reset role');
     }
   });
+  it('counts a recovery proof ending on an earlier batch of the current chain', async () => {
+    const chain = (n: number) => String(n).repeat(64);
+    const current = async () => {
+      await identity(db, ids.superAdmin);
+      const gate = (
+        await db.query<{ g: { archive_recovery_current: boolean } }>(
+          'select public.get_audit_certification_gates() as g',
+        )
+      ).rows[0]!.g;
+      await db.exec('reset role');
+      return gate.archive_recovery_current;
+    };
+    await db.exec('begin');
+    try {
+      await db.exec('create table auth.audit_log_entries(id uuid primary key)');
+      for (const n of [1, 2]) {
+        await db.query(
+          `insert into private.audit_archive_batches(batch_no,starting_at,starting_id,ending_at,ending_id,row_count,
+             payload_sha256,plaintext_sha256,previous_chain_sha256,chain_sha256,object_path)
+           values($1,now(),gen_random_uuid(),now(),gen_random_uuid(),10,$2,$2,$3,$4,$5)`,
+          [n, 'a'.repeat(64), n === 1 ? '0'.repeat(64) : chain(1), chain(n), `v1/batch-${n}.bin`],
+        );
+      }
+      await db.query(
+        'update private.audit_archive_cursor set last_batch=2,last_chain_sha256=$1 where id',
+        [chain(2)],
+      );
+      // Verified up to batch 1; batch 2 was sealed afterwards on the same chain.
+      await db.query(
+        "insert into private.audit_archive_verification_runs(result,checked_batches,checked_rows,final_chain_sha256) values('PASS',1,10,$1)",
+        [chain(1)],
+      );
+      expect(await current()).toBe(true);
+      // A proof whose chain matches no sealed batch is never current.
+      await db.query(
+        "insert into private.audit_archive_verification_runs(result,checked_batches,checked_rows,final_chain_sha256) values('PASS',1,10,$1)",
+        [chain(9)],
+      );
+      expect(await current()).toBe(false);
+    } finally {
+      await db.exec('rollback; reset role');
+    }
+  });
 });

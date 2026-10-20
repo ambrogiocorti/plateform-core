@@ -2957,6 +2957,18 @@
       "version": "20261020090000",
       "name": "provider_duplicate_read_releases_lease",
       "sha256": "79f6015538c0b465447402b94633efb7754fbf32b5bdc7ebaba19138f9734dd3"
+    },
+    {
+      "filename": "20261020100000_audit_recovery_proof_covers_chain_prefix.sql",
+      "version": "20261020100000",
+      "name": "audit_recovery_proof_covers_chain_prefix",
+      "sha256": "31020823582b6a8729d397f0ea55515cbeec4dbae1d9e87ff6d0822107ea0774"
+    },
+    {
+      "filename": "20261020110000_continuity_alerts_wrapper_definer.sql",
+      "version": "20261020110000",
+      "name": "continuity_alerts_wrapper_definer",
+      "sha256": "923371ca08320fb0e07d5c71830ab1abdae41f3ac5927ba4d9fd98321d6d38b1"
     }
   ]
 }

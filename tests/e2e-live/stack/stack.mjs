@@ -110,6 +110,13 @@ const functionPorts = {
   'offline-authorization': 54341,
   reservation: 54342,
   'asset-upload': 54343,
+  // Scheduled workers, invoked by the specs exactly as pg_net would (tests/e2e-live/workers-live.spec.ts).
+  'reservation-message-worker': 54344,
+  'reservation-deposit-no-show-worker': 54345,
+  'continuity-retention-worker': 54346,
+  'audit-archive-worker': 54347,
+  'audit-archive-verify': 54348,
+  'database-unavailable-chaos-probe': 54349,
 };
 const ports = {
   gateway: 54321,
@@ -214,6 +221,8 @@ async function startStorage(database) {
     ANON_KEY: anonKey,
     SERVICE_KEY: serviceKey,
     STORAGE_BACKEND: 'file',
+    // Hosted Supabase's global upload limit (50 MB); buckets without their own limit fall back to it.
+    FILE_SIZE_LIMIT: '52428800',
     FILE_STORAGE_BACKEND_PATH: '/var/lib/storage',
     TENANT_ID: 'stub',
     REGION: 'local',
@@ -449,9 +458,24 @@ function localCertificate() {
   return { ca, cert, key };
 }
 
+// Disposable worker secrets, new on every `up`: the functions get them as env, the specs read them
+// from tests/e2e-live/.stack/workers.json (git-ignored), like the Vault secrets pg_net would send.
+function workerSecrets() {
+  const secrets = {
+    messageWorkerToken: randomBytes(32).toString('hex'),
+    noShowDepositWorkerToken: randomBytes(32).toString('hex'),
+    databaseChaosProbeToken: randomBytes(32).toString('hex'),
+  };
+  writeFileSync(join(root, 'tests/e2e-live/.stack/workers.json'), JSON.stringify(secrets));
+  return secrets;
+}
+
 function startFunctions(anonKey, serviceKey) {
   const signing = offlineSigningKey();
   const tls = localCertificate();
+  const workers = workerSecrets();
+  const archiveKeyId = `e2e-${randomBytes(4).toString('hex')}`,
+    archiveKey = randomBytes(32).toString('base64');
   for (const [name, port] of Object.entries(functionPorts)) {
     stop(`fn-${name}`);
     daemon(
@@ -486,6 +510,14 @@ function startFunctions(anonKey, serviceKey) {
         ALLOWED_ORIGINS: 'http://localhost:5173,http://localhost:5174',
         TRUSTED_CLIENT_IP_HEADER: 'x-forwarded-for',
         RATE_LIMIT_SECRET: randomBytes(32).toString('base64url'),
+        MESSAGE_WORKER_TOKEN: workers.messageWorkerToken,
+        NO_SHOW_DEPOSIT_WORKER_TOKEN: workers.noShowDepositWorkerToken,
+        DATABASE_CHAOS_PROBE_TOKEN: workers.databaseChaosProbeToken,
+        // Never contacts a provider; only the venue-configured MOCK adapter "sends".
+        MESSAGE_DELIVERY_MODE: 'dry_run',
+        PUBLIC_BASE_URL: 'https://localhost:5173',
+        AUDIT_ARCHIVE_KEY_ID: archiveKeyId,
+        AUDIT_ARCHIVE_ENCRYPTION_KEY: archiveKey,
       },
     );
   }
