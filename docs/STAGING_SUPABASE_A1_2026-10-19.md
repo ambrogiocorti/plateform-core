@@ -138,6 +138,12 @@ Difetti trovati:
   valutare nelle impostazioni Stripe del ristorante.
 - Supabase limita gli accessi con password per indirizzo IP (HTTP 429): la suite, che accede con
   molti utenti dalla stessa macchina, attende e riprova.
+- La conferma password (`step-up`) accetta 5 conferme per utente ogni 10 minuti: è una protezione
+  voluta, quindi due giri completi della suite vanno distanziati.
+- Durante i giri ravvicinati sono comparsi alcuni errori generici e passeggeri ("Operazione non
+  completata") su creazione conto e riapparecchio tavolo; rilanciati, gli stessi passaggi sono
+  riusciti. La causa non è stata isolata: ora la suite registra il codice di ogni rifiuto del
+  server.
 - Ogni sessione di prova registra un dispositivo: la suite revoca quelli delle esecuzioni precedenti
   per non raggiungere il limite dell'installazione.
 

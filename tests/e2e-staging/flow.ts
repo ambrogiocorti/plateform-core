@@ -12,6 +12,14 @@ export async function device(browser: Browser, member: Member): Promise<Page> {
   const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
   const page = await context.newPage();
   page.on('pageerror', (error) => console.log(`[${member.role}] pageerror`, error.message));
+  // Server refusals are logged with their code, so a failed run says why.
+  page.on('response', async (response) => {
+    if (response.status() >= 400 && /\/rest\/v1\/rpc\/|\/functions\/v1\//.test(response.url()))
+      console.log(
+        `[${member.role}] ${response.status()} ${new URL(response.url()).pathname}`,
+        (await response.text().catch(() => '')).slice(0, 200),
+      );
+  });
   await login(page, member);
   await expect(page).toHaveURL(new RegExp(`${member.landing}$`));
   return page;
