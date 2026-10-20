@@ -95,6 +95,17 @@ export async function seed() {
   sql(`insert into public.staff_profiles(id,display_name,role,scope)
       values('${users.admin}','${admin.name}','ADMIN','VENUE') on conflict (id) do nothing;
     insert into public.staff_venue_assignments(user_id,venue_id)
-      values('${users.admin}','${ids.venue}') on conflict do nothing;`);
+      values('${users.admin}','${ids.venue}') on conflict do nothing;
+    insert into public.staff_profiles(id,display_name,role,scope)
+      values('${users.superAdmin}','${staff.superAdmin.name}','SUPER_ADMIN','CHAIN')
+      on conflict (id) do nothing;`);
+  // Every browser context registers a device; earlier runs' devices are revoked so the suite
+  // never reaches the installation's device limit (an admin would do this in Dispositivi).
+  sql(`update public.registered_devices set revoked_at=now()
+    where revoked_at is null and user_id in (select id from auth.users where email like '%@staff.e2e.test')`);
+  // Portions are counted per day: each run restocks today's portions, as the kitchen would.
+  sql(`update public.venue_dish_settings
+    set availability=50, availability_date=(now() at time zone 'Europe/Rome')::date
+    where venue_id='${ids.venue}'`);
   return users;
 }

@@ -45,6 +45,10 @@ verify_jwt = false
 [functions.satispay-callback]
 verify_jwt = false
 
+# Customer's browser lands here after Stripe/Satispay: no Supabase session to present.
+[functions.payment-return]
+verify_jwt = false
+
 [functions.offline-authorization]
 verify_jwt = false
 
