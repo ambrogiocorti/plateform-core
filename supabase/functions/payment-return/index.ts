@@ -8,14 +8,17 @@ Deno.serve((request: Request) => {
   const operation = url.searchParams.get('payment') ?? '';
   if (!uuid.test(operation)) return new Response('Richiesta non valida.', { status: 400 });
 
-  const body = `<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Plateform &middot; Pagamento</title></head><body><main><h1>Plateform</h1><p>Il pagamento &egrave; in fase di verifica.</p><p>Puoi tornare a Plateform: lo stato definitivo viene confermato dal server.</p></main></body></html>`;
+  // Hosted Supabase serves Edge Function responses on *.supabase.co as text/plain (HTML is
+  // only rendered on a custom domain), so the guest gets a readable plain-text message.
+  const body =
+    'Plateform\n\nIl pagamento è in fase di verifica.\n' +
+    'Puoi tornare a Plateform: lo stato definitivo viene confermato dal server.\n';
   return new Response(body, {
     status: 200,
     headers: {
-      'Content-Type': 'text/html; charset=utf-8',
+      'Content-Type': 'text/plain; charset=utf-8',
       'Cache-Control': 'no-store',
-      'Content-Security-Policy':
-        "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; frame-ancestors 'none'",
+      'Content-Security-Policy': "default-src 'none'; frame-ancestors 'none'",
       'X-Content-Type-Options': 'nosniff',
       'Referrer-Policy': 'no-referrer',
     },

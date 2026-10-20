@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
-import type { Browser, Page } from '@playwright/test';
-import { password, sql, staff } from './stack.mjs';
+import { sql, staff } from './stack.mjs';
+import { closeDay, device, open, resetTable } from './flow';
 
 // Copy of tests/e2e-live/service-flow.spec.ts run against hosted Supabase STAGING (GoTrue,
 // PostgREST, Realtime, Edge Functions all real). Keep the two in step.
@@ -8,73 +8,6 @@ import { password, sql, staff } from './stack.mjs';
 // PostgreSQL RLS and triggers. Each role runs in its own browser context (separate device:
 // own storage, own GoTrue session, own registered device). Realtime is not served locally, so
 // devices reload to observe changes made by colleagues; that is a stack limit, not app behavior.
-
-type Member = (typeof staff)[keyof typeof staff];
-
-async function device(browser: Browser, member: Member): Promise<Page> {
-  const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
-  const page = await context.newPage();
-  page.on('pageerror', (error) => console.log(`[${member.role}] pageerror`, error.message));
-  await page.goto('/login');
-  await page.getByLabel('Identificativo staff').fill(member.email);
-  await page.getByLabel('Password').fill(password);
-  await page.getByRole('button', { name: 'Accedi al servizio' }).click();
-  await expect(
-    page.getByText(`${member.name} · ${member.role.replaceAll('_', ' ')}`),
-  ).toBeVisible();
-  await expect(page).toHaveURL(new RegExp(`${member.landing}$`));
-  return page;
-}
-
-async function open(page: Page, path: string) {
-  await page.goto(path);
-  await expect(page.locator('main')).toBeVisible();
-}
-
-// Fine giornata: quadratura del servizio contabile (solo POS, contante = fondo iniziale) e
-// chiusura della postazione. Staging is persistent, so a run left open by a previous failure
-// is closed first; a normal run closes its own day at the end.
-async function expandOperations(cashier: Page) {
-  const operations = cashier.locator('details.cashier-operations');
-  await expect(operations).toBeVisible();
-  if ((await operations.getAttribute('open')) === null) await operations.locator('summary').click();
-}
-
-async function closeDay(cashier: Page) {
-  await open(cashier, '/cassa');
-  await expandOperations(cashier);
-  await expect(cashier.locator('article', { hasText: 'Cassa sala' })).toBeVisible();
-  const closing = cashier.getByRole('button', { name: 'Quadratura e chiusura' });
-  if (await closing.count()) {
-    await closing.first().click();
-    const dialog = cashier.getByRole('dialog', { name: 'Chiudi servizio contabile' });
-    await dialog.getByLabel('Contante reale contato').fill('100,00');
-    await dialog.getByRole('button', { name: 'Conferma conteggio e chiudi' }).click();
-    await expect(cashier.getByText('Servizio chiuso e quadratura salvata.')).toBeVisible();
-    await open(cashier, '/cassa');
-    await expandOperations(cashier);
-  }
-  const registerCard = cashier.locator('article', { hasText: 'Cassa sala' });
-  const closeRegister = registerCard.getByRole('button', { name: 'Chiudi postazione' });
-  if (await closeRegister.count()) {
-    await closeRegister.click();
-    await expect(registerCard.getByRole('button', { name: 'Apri postazione' })).toBeVisible();
-  }
-}
-
-// A closed table is TO_RESET until the waiter confirms it is set again for new guests.
-async function resetTable(waiter: Page) {
-  await open(waiter, '/servizio');
-  const card = waiter.locator('article.waiter-table-card', { hasText: 'Tavolo 1' });
-  const reset = card.getByRole('button', { name: 'Tavolo riapparecchiato' });
-  const ready = card.getByRole('button', { name: 'Nuovo conto' });
-  await expect(reset.or(ready)).toBeVisible();
-  if (await reset.isVisible()) {
-    await reset.click();
-    await expect(waiter.getByText('Tavolo 1: pronto per nuovi clienti.')).toBeVisible();
-  }
-  await expect(ready).toBeVisible();
-}
 
 test('servizio completo: tavolo → ordine → cucina → Pass → consegna → cassa → chiusura', async ({
   browser,
