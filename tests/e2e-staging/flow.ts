@@ -265,7 +265,10 @@ export async function stepUp(page: Page) {
   await dialog.getByRole('button', { name: 'Conferma identità' }).click();
 }
 
-export async function licenseProvider(page: Page, name: 'STRIPE' | 'SATISPAY_API') {
+export async function licenseProvider(
+  page: Page,
+  name: 'STRIPE' | 'SATISPAY_API' | 'RESERVATION_MESSAGING',
+) {
   if (sql(`select licensed from public.feature_flags where name='${name}'`) === 'true') return;
   await open(page, '/salute');
   const row = page
