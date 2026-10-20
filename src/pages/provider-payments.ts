@@ -74,9 +74,12 @@ export async function providerPaymentDialog(
           const url = new URL(result.checkout_url);
           if (
             url.protocol !== 'https:' ||
-            !['checkout.stripe.com', 'online.satispay.com', 'staging-online.satispay.com'].includes(
-              url.hostname,
-            ) ||
+            ![
+              'checkout.stripe.com',
+              'online.satispay.com',
+              'staging-online.satispay.com',
+              'staging.online.satispay.com',
+            ].includes(url.hostname) ||
             url.port ||
             url.username ||
             url.password

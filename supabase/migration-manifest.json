@@ -2951,6 +2951,12 @@
       "version": "20261019100000",
       "name": "payment_providers_by_license",
       "sha256": "45e93645c51378cd0492885730ff42ec587a6e5d980b2b0725d950e17402a43e"
+    },
+    {
+      "filename": "20261020090000_provider_duplicate_read_releases_lease.sql",
+      "version": "20261020090000",
+      "name": "provider_duplicate_read_releases_lease",
+      "sha256": "79f6015538c0b465447402b94633efb7754fbf32b5bdc7ebaba19138f9734dd3"
     }
   ]
 }

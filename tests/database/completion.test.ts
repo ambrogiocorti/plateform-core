@@ -531,6 +531,48 @@ describe('completion: authoritative catalog, editor, planning and equal shares',
         ).rows[0]!.n,
       ).toBe(1);
     });
+    it('blocks revoking the Stripe licence while an online charge is pending', async () => {
+      await onlinePayment();
+      await db.exec('reset role');
+      await db.query(
+        "update public.venue_settings set payment_methods=array['CASH']::public.payment_method[] where venue_id=$1",
+        [ids.venue],
+      );
+      await db.query(
+        "update public.cash_registers set payment_methods=array['CASH']::public.payment_method[] where id=$1",
+        [register],
+      );
+      await expect(
+        db.query("update public.feature_flags set licensed=false where name='STRIPE'"),
+      ).rejects.toThrow('PROVIDER_OPERATIONS_PENDING');
+    });
+    it('releases the lease when a repeated read finds the event already recorded', async () => {
+      const { operation } = await onlinePayment();
+      await db.exec('reset role; set role service_role');
+      const claim = async () =>
+        (
+          await db.query<{ r: { lease_token: string } }>(
+            'select public.claim_provider_operation($1) r',
+            [operation],
+          )
+        ).rows[0]!.r.lease_token;
+      const read = (lease: string) =>
+        db.query<{ r: { state: string } }>(
+          "select public.finish_provider_operation($1,$2,'cs_test_dup','WAITING',3103,'EUR','read:cs_test_dup:WAITING',null) r",
+          [operation, lease],
+        );
+      await read(await claim());
+      expect((await read(await claim())).rows[0]!.r.state).toBe('WAITING');
+      const row = (
+        await db.query<{ state: string; lease_token: string | null }>(
+          'select state,lease_token from public.provider_operations where id=$1',
+          [operation],
+        )
+      ).rows[0]!;
+      expect(row).toEqual({ state: 'WAITING', lease_token: null });
+      // The webhook or the cashier's check can claim again at once.
+      expect(await claim()).toBeTruthy();
+    });
     it('rejects a provider result with a different amount', async () => {
       const { operation } = await onlinePayment();
       await db.exec('reset role; set role service_role');
