@@ -161,15 +161,15 @@ staging ora ha visibilità di catena, come nel fixture locale (il sito del brand
 Le 6 Edge Functions riscritte nel repo (head e604f30, migrazioni 495/495) sono pubblicate su staging. Chiavi generate e salvate
 solo in Vault e nei secret delle funzioni, mai stampate.
 
-| Funzione | Esito |
-|---|---|
-| Tutte e 6 | senza chiave o con chiave sbagliata: **401** (continuity-retention-worker risponde 400 se il corpo non è valido, 401 se il corpo è valido) |
-| reservation-message-worker | coda vuota **IDLE**; job EMAIL con adattatore MOCK **SENT** (`tests/e2e-staging/messages.spec.ts`, licenza RESERVATION_MESSAGING data dal super admin con conferma password); cron ogni minuto |
-| reservation-deposit-no-show-worker | **IDLE** dal cron (caparre non in licenza) |
-| continuity-retention-worker | **IDLE** con stato avvisi (`continuity_active` 4, nessun ritardo) |
-| audit-archive-worker | 5 lotti sigillati, 2041 righe; arretrato oltre la tolleranza 0 |
-| audit-archive-verify | **PASS** su 5 lotti / 2041 righe; condizione `archive_recovery_current` vera |
-| database-unavailable-chaos-probe | **PASS** registrato in `private.release_test_results` |
+| Funzione                           | Esito                                                                                                                                                                                          |
+| ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Tutte e 6                          | senza chiave o con chiave sbagliata: **401** (continuity-retention-worker risponde 400 se il corpo non è valido, 401 se il corpo è valido)                                                     |
+| reservation-message-worker         | coda vuota **IDLE**; job EMAIL con adattatore MOCK **SENT** (`tests/e2e-staging/messages.spec.ts`, licenza RESERVATION_MESSAGING data dal super admin con conferma password); cron ogni minuto |
+| reservation-deposit-no-show-worker | **IDLE** dal cron (caparre non in licenza)                                                                                                                                                     |
+| continuity-retention-worker        | **IDLE** con stato avvisi (`continuity_active` 4, nessun ritardo)                                                                                                                              |
+| audit-archive-worker               | 5 lotti sigillati, 2041 righe; arretrato oltre la tolleranza 0                                                                                                                                 |
+| audit-archive-verify               | **PASS** su 5 lotti / 2041 righe; condizione `archive_recovery_current` vera                                                                                                                   |
+| database-unavailable-chaos-probe   | **PASS** registrato in `private.release_test_results`                                                                                                                                          |
 
 Nota per la configurazione: `MESSAGE_DELIVERY_MODE` va impostato (`dry_run` o `live`). Se manca, il worker si ferma di proposito
 e risponde 400 SERVICE_UNAVAILABLE senza prendere job. Su staging è `dry_run`: nessun provider reale viene contattato, i job MOCK
