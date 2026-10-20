@@ -12,15 +12,33 @@ export async function device(browser: Browser, member: Member): Promise<Page> {
   const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
   const page = await context.newPage();
   page.on('pageerror', (error) => console.log(`[${member.role}] pageerror`, error.message));
-  await page.goto('/login');
-  await page.getByLabel('Identificativo staff').fill(member.email);
-  await page.getByLabel('Password').fill(password);
-  await page.getByRole('button', { name: 'Accedi al servizio' }).click();
-  await expect(
-    page.getByText(`${member.name} · ${member.role.replaceAll('_', ' ')}`),
-  ).toBeVisible();
+  await login(page, member);
   await expect(page).toHaveURL(new RegExp(`${member.landing}$`));
   return page;
+}
+
+// Hosted GoTrue limits password sign-ins per IP (HTTP 429). A suite logs in many staff members
+// from one machine, so a refused login waits for the window and tries again.
+async function login(page: Page, member: Member) {
+  const signedIn = page.getByText(`${member.name} · ${member.role.replaceAll('_', ' ')}`);
+  for (let attempt = 1; ; attempt++) {
+    let status = 0;
+    const watch = (response: { url(): string; status(): number }) => {
+      if (response.url().includes('/auth/v1/token')) status = response.status();
+    };
+    page.on('response', watch);
+    await page.goto('/login');
+    await page.getByLabel('Identificativo staff').fill(member.email);
+    await page.getByLabel('Password').fill(password);
+    await page.getByRole('button', { name: 'Accedi al servizio' }).click();
+    const refused = page.getByRole('alert').filter({ hasText: /\S/ });
+    await expect(signedIn.or(refused)).toBeVisible({ timeout: 30_000 });
+    page.off('response', watch);
+    if (await signedIn.isVisible()) return;
+    if (attempt === 4 || status !== 429) await expect(signedIn).toBeVisible();
+    console.log(`[${member.role}] login rate-limited (429), retrying in 60s`);
+    await page.waitForTimeout(60_000);
+  }
 }
 
 function base32(secret: string): Buffer {
@@ -53,11 +71,19 @@ export async function mfaDevice(browser: Browser, member: Member): Promise<Page>
   await page.getByRole('button', { name: 'Accedi al servizio' }).click();
   await page.getByText('Inserimento manuale').click();
   const secret = (await page.locator('details code').textContent())!.trim();
-  await page.getByLabel('Codice di autenticazione').fill(totp(secret));
-  await page.getByRole('button', { name: 'Verifica e accedi' }).click();
-  await expect(
-    page.getByText(`${member.name} · ${member.role.replaceAll('_', ' ')}`),
-  ).toBeVisible();
+  const signedIn = page.getByText(`${member.name} · ${member.role.replaceAll('_', ' ')}`);
+  // GoTrue also rate-limits MFA verifications per IP: a refused attempt waits and retries
+  // with a fresh code.
+  for (let attempt = 1; ; attempt++) {
+    await page.getByLabel('Codice di autenticazione').fill(totp(secret));
+    await page.getByRole('button', { name: 'Verifica e accedi' }).click();
+    const refused = page.getByRole('alert').filter({ hasText: /\S/ });
+    await expect(signedIn.or(refused).first()).toBeVisible({ timeout: 30_000 });
+    if ((await signedIn.isVisible()) || attempt === 3) break;
+    console.log(`[${member.role}] MFA verification refused, retrying in 60s`);
+    await page.waitForTimeout(60_000);
+  }
+  await expect(signedIn).toBeVisible();
   return page;
 }
 
@@ -172,30 +198,59 @@ export async function orderAtTable(waiter: Page, name: string): Promise<string> 
   return waiter.url().split('/').at(-1)!;
 }
 
-/** Kitchen prepares, Pass releases, waiter delivers the whole order of Tavolo 1. */
+/**
+ * Kitchen prepares, Pass releases, waiter delivers the whole order of Tavolo 1. Each stage is
+ * skipped when an interrupted run already completed it.
+ */
 export async function serveOrder(waiter: Page, kitchen: Page, pass: Page) {
-  await open(kitchen, '/cucina');
-  for (const dish of ['2 × Carbonara', '1 × Tiramisù']) {
-    const line = kitchen.locator('section.kitchen-line', { hasText: dish });
-    await line.getByRole('button', { name: 'RICEVUTO → PREPARA' }).click();
-    await expect(line.getByRole('button', { name: 'SEGNA PRONTO' })).toBeVisible();
-    await line.getByRole('button', { name: 'SEGNA PRONTO' }).click();
-    await expect(line.getByText('READY')).toBeVisible();
+  const stage = () =>
+    sql(`select string_agg(distinct i.status::text, ',') from public.order_items i
+      join public.orders o on o.id=i.order_id join public.accounts a on a.id=o.account_id
+      where a.status<>'CLOSED' and a.table_id='40000000-0000-4000-8000-0000000000e4'`);
+  if (!/^READY$|SERVED|DELIVER/.test(stage())) {
+    await open(kitchen, '/cucina');
+    for (const dish of ['2 × Carbonara', '1 × Tiramisù']) {
+      const line = kitchen.locator('section.kitchen-line', { hasText: dish });
+      const start = line.getByRole('button', { name: 'RICEVUTO → PREPARA' });
+      const ready = line.getByRole('button', { name: 'SEGNA PRONTO' });
+      await expect(start.or(ready).or(line.getByText('READY'))).toBeVisible();
+      if (await start.isVisible()) {
+        await start.click();
+        await expect(ready).toBeVisible();
+      }
+      if (await ready.isVisible()) await ready.click();
+      await expect(line.getByText('READY')).toBeVisible();
+    }
   }
   await open(pass, '/pass');
-  await expect(pass.getByText('2/2 piatti pronti')).toBeVisible();
-  await pass.getByRole('button', { name: 'AVVISA E LIBERA LO STEP' }).click();
-  await expect(pass.getByRole('button', { name: 'AVVISA E LIBERA LO STEP' })).toHaveCount(0);
+  const release = pass.getByRole('button', { name: 'AVVISA E LIBERA LO STEP' });
+  await expect(
+    release.or(pass.getByText('Pass libero')).or(pass.locator('.kds-ticket-meta')).first(),
+  ).toBeVisible();
+  if (await release.isVisible()) {
+    await expect(pass.getByText('2/2 piatti pronti')).toBeVisible();
+    await release.click();
+    await expect(release).toHaveCount(0);
+  }
   await open(waiter, '/servizio');
   const delivery = waiter.locator('article.waiter-delivery-card', { hasText: 'Tavolo 1' });
-  await delivery.getByRole('button', { name: 'Prendi in carico' }).click();
-  await expect(waiter.getByText('Tavolo 1: consegna presa in carico.')).toBeVisible();
-  await delivery.getByRole('button', { name: 'Conferma consegna al tavolo' }).click();
+  const take = delivery.getByRole('button', { name: 'Prendi in carico' });
+  const confirm = delivery.getByRole('button', { name: 'Conferma consegna al tavolo' });
+  await expect(take.or(confirm)).toBeVisible();
+  if (await take.isVisible()) {
+    await take.click();
+    await expect(waiter.getByText('Tavolo 1: consegna presa in carico.')).toBeVisible();
+  }
+  await confirm.click();
   await waiter.getByRole('button', { name: 'Sì, piatti consegnati' }).click();
   await expect(waiter.getByText('Tavolo 1: step servito.')).toBeVisible();
 }
 
-/** Re-enters the password in the step-up dialog (sensitive actions). */
+/**
+ * Re-enters the password in the step-up dialog (sensitive actions). The step-up Edge Function
+ * allows 5 confirmations per user and IP every 10 minutes, so back-to-back suite runs must be
+ * spaced out.
+ */
 export async function stepUp(page: Page) {
   const dialog = page.getByRole('dialog', { name: 'Conferma la tua identità' });
   await dialog.getByLabel('La tua password').fill(password);

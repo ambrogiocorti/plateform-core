@@ -15,7 +15,7 @@ import {
 // Stripe in TEST mode on hosted staging: licence granted by the SUPER_ADMIN with step-up, a real
 // Checkout Session paid with Stripe's test card, the ledger confirmed by the server (webhook or
 // re-read of the session), then a partial refund authorised by the ADMIN with step-up.
-test.setTimeout(360_000);
+test.setTimeout(600_000);
 
 async function payOnStripeCheckout(page: Page, url: string) {
   await page.goto(url);
@@ -92,7 +92,7 @@ test('Stripe test: licenza, Checkout con carta di prova, esito server, rimborso 
       console.log(`stripe webhook confirmed payment: ${byWebhook}`);
       // The cashier's check re-reads Stripe; a final outcome refreshes the account view.
       await online.getByRole('button', { name: 'Verifica esito' }).click();
-      await expect(confirmed.or(cashier.getByText('PAID', { exact: true }))).toBeVisible();
+      await expect.poll(pending, { timeout: 20_000 }).toBe(false);
     }
     if (await online.isVisible())
       await online.getByRole('button', { name: 'Torna al conto' }).click();

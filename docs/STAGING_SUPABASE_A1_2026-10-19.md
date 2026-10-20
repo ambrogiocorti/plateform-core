@@ -115,9 +115,12 @@ suo indirizzo è configurato per installazione in `continuity_worker_runtime_con
   Stripe, Checkout Session reale pagata con la carta di prova 4242, esito confermato dal **webhook
   firmato** e dalla rilettura della sessione, conto chiuso, rimborso parziale di 5,00 € autorizzato
   dall'Admin con conferma password e confermato da Stripe (`PARTIALLY_REFUNDED`).
-- `payments-satispay.spec.ts`: licenza `SATISPAY_API`, pagamento `MATCH_CODE` creato dal server con
-  firma RSA, pagina Satispay sandbox con QR da 34,50 €. Pagamento, callback e rimborso richiedono
-  l'app Satispay sandbox sul telefono: **non ancora provati**.
+- `payments-satispay.spec.ts` (in due passaggi, perché il QR va pagato da una persona con l'app
+  Satispay sandbox), **PASS**: licenza `SATISPAY_API`, pagamento `MATCH_CODE` creato dal server con
+  firma RSA, QR pagato da Ambrogio con l'app sandbox, esito confermato in automatico dalla
+  **callback Satispay** (senza intervento della cassa), conto chiuso, rimborso parziale di 5,00 €
+  autorizzato dall'Admin con conferma password e confermato da Satispay (`PARTIALLY_REFUNDED`).
+  Un primo QR lasciato scadere è stato registrato correttamente come `FAILED`.
 
 Difetti trovati:
 
@@ -129,14 +132,17 @@ Difetti trovati:
 - `finish_provider_operation`: una seconda verifica con esito invariato lascia l'operazione
   `IN_FLIGHT` con il lease attivo per 45 secondi, quindi webhook e callback in quell'intervallo
   ricevono `OPERATION_IN_PROGRESS` e Stripe ritarda il nuovo tentativo. Segnalato al thread
-  "Completare gli step dal 7 al 12", che gestisce il codice dei pagamenti.
+  "Completare gli step dal 7 al 12", corretto con la migrazione `20261020090000` (applicata e
+  verificata sullo staging, 493/493).
 - Con la valuta adattiva di Stripe attiva, un browser non italiano vede l'importo in dollari: da
   valutare nelle impostazioni Stripe del ristorante.
+- Supabase limita gli accessi con password per indirizzo IP (HTTP 429): la suite, che accede con
+  molti utenti dalla stessa macchina, attende e riprova.
 - Ogni sessione di prova registra un dispositivo: la suite revoca quelli delle esecuzioni precedenti
   per non raggiungere il limite dell'installazione.
 
 ## Prove mancanti
 
-Le 6 Edge Functions senza sorgente, pagamento/callback/rimborso Satispay sandbox, Storage (upload logo e
+Le 6 Edge Functions senza sorgente, Storage (upload logo e
 foto), Realtime senza ricarica pagina, backup/restore su Supabase ospitato, frontend pubblicato in
 HTTPS e dispositivi reali. Il rilascio resta **NO-GO**.
