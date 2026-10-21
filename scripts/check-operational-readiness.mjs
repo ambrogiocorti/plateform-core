@@ -117,7 +117,8 @@ for (const method of ['CASH', 'CARD_POS', 'STRIPE', 'SATISPAY_API', 'SATISPAY_PO
   check(`manual recovery respects ${method} product boundary`, () => {
     assert.equal(
       mayResolveManualPayment({ method, status: 'PENDING' }),
-      ['CASH', 'CARD_POS'].includes(method),
+      // Satispay at the counter is confirmed by the operator like an external POS.
+      ['CASH', 'CARD_POS', 'SATISPAY_POS'].includes(method),
     );
     assert.equal(mayResolveManualPayment({ method, status: 'COMPLETED' }), false);
   });
