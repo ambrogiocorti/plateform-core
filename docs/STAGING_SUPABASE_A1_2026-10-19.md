@@ -175,7 +175,14 @@ Nota per la configurazione: `MESSAGE_DELIVERY_MODE` va impostato (`dry_run` o `l
 e risponde 400 SERVICE_UNAVAILABLE senza prendere job. Su staging è `dry_run`: nessun provider reale viene contattato, i job MOCK
 risultano inviati. In produzione andrà messo `live` solo quando ogni ristorante collega il proprio canale.
 
+## Realtime (21/10)
+
+`tests/e2e-staging/realtime.spec.ts`, PASS 3 volte (2 di fila con pulizia finale). Cucina e Pass restano aperti senza ricaricare
+né navigare: l'ordine del cameriere compare in cucina e lo step pronto compare al Pass entro 10 s, sotto il controllo di riserva
+ogni 30 s di `src/realtime/live.ts`, quindi arriva dal segnale Realtime. Entrambi gli schermi mostrano "Aggiornamenti connessi".
+Il test incassa e chiude il proprio conto e chiude la giornata, così lo staging resta pulito.
+
 ## Prove mancanti
 
-Realtime senza ricarica pagina, backup/restore (rinviato da Ambrogio il 21/10: si fa sul server del ristorante; fino ad allora la pubblicazione resta bloccata su questo punto), frontend pubblicato in
+Backup/restore (rinviato da Ambrogio il 21/10: si fa sul server del ristorante; fino ad allora la pubblicazione resta bloccata su questo punto), frontend pubblicato in
 HTTPS e dispositivi reali. Il rilascio resta **NO-GO**.
