@@ -2,7 +2,7 @@ import { randomBytes } from 'node:crypto';
 import { defineConfig } from '@playwright/test';
 
 // Live browser suite against a hosted Supabase STAGING project (PLATEFORM_STAGING_REF).
-// The staff app runs locally on Vite and talks to the real staging Auth/REST/Realtime.
+// The staff and public apps run locally on Vite and talks to the real staging Auth/REST/Realtime.
 // The anon key comes from E2E_STAGING_ANON_KEY; one random staff password per run is shared
 // with workers through the environment (tests/e2e-staging/stack.mjs).
 process.env.E2E_STAGING_PASSWORD ??= `St-${randomBytes(18).toString('base64url')}`;
@@ -37,6 +37,12 @@ export default defineConfig({
     trace: 'retain-on-failure',
   },
   webServer: [
+    {
+      command: 'npm run dev:public',
+      url: 'http://localhost:5173',
+      env: environment,
+      reuseExistingServer: false,
+    },
     {
       command: 'npm run dev:staff',
       url: 'http://localhost:5174',

@@ -267,7 +267,7 @@ export async function stepUp(page: Page) {
 
 export async function licenseProvider(
   page: Page,
-  name: 'STRIPE' | 'SATISPAY_API' | 'RESERVATION_MESSAGING',
+  name: 'STRIPE' | 'SATISPAY_API' | 'RESERVATION_MESSAGING' | 'BOOKING_DEPOSITS',
 ) {
   if (sql(`select licensed from public.feature_flags where name='${name}'`) === 'true') return;
   await open(page, '/salute');
