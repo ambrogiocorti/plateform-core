@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { readRows, rpc } from '../api/client';
 import { button, dialog, el, field, toast } from '../components/dom';
+import { largeGroupDepositSection } from './large-group-deposit';
 import type { StaffContext } from './staff-context';
 const record = z.record(z.string(), z.unknown());
 export async function planningPage(context: StaffContext): Promise<HTMLElement> {
@@ -394,6 +395,8 @@ export async function planningPage(context: StaffContext): Promise<HTMLElement> 
       );
     }),
   );
-  view.append(shiftSection, booking, formSection);
+  view.append(shiftSection, booking);
+  if (context.profile.role === 'ADMIN') view.append(await largeGroupDepositSection(context));
+  view.append(formSection);
   return view;
 }

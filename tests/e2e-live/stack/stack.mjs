@@ -117,6 +117,8 @@ const functionPorts = {
   'audit-archive-worker': 54347,
   'audit-archive-verify': 54348,
   'database-unavailable-chaos-probe': 54349,
+  // Large-group booking deposit checkout/status (tests/e2e-live/large-group-deposit-live.spec.ts).
+  'reservation-deposit': 54352,
 };
 const ports = {
   gateway: 54321,
@@ -516,6 +518,8 @@ function startFunctions(anonKey, serviceKey) {
         // Never contacts a provider; only the venue-configured MOCK adapter "sends".
         MESSAGE_DELIVERY_MODE: 'dry_run',
         PUBLIC_BASE_URL: 'https://localhost:5173',
+        // No provider keys on this stack: a checkout start would fail closed before any call.
+        DEPOSIT_RETURN_URL: 'https://localhost:5173/prenota',
         AUDIT_ARCHIVE_KEY_ID: archiveKeyId,
         AUDIT_ARCHIVE_ENCRYPTION_KEY: archiveKey,
       },

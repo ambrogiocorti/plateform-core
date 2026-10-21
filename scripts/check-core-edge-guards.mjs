@@ -29,6 +29,39 @@ let checked = 1;
   );
   checked += 3;
 }
+// Large-group booking deposits (2026-10-21): the guest function runs begin_reservation_deposit,
+// whose licence + provider gate (BOOKING_DEPOSITS, a licensed provider offered by the venue)
+// raises before the provider is contacted; confirmation only follows a provider read.
+{
+  const file = 'supabase/functions/_shared/deposits.ts';
+  const source = readFileSync(file, 'utf8').replace(/\r\n/g, '\n');
+  const body = source.slice(source.indexOf('export async function startCheckout('));
+  const gateAt = body.indexOf("deps.rpc('begin_reservation_deposit'");
+  const createAt = body.indexOf('deps.gateway.create(');
+  const readAt = body.indexOf('deps.gateway.read(');
+  assert.ok(gateAt >= 0 && createAt > gateAt && readAt > gateAt, `${file}: gate before provider`);
+  assert.match(
+    body,
+    /if \(error\) \{\s*if \(message\(error\) !== 'DEPOSIT_NOT_PENDING'\) throw databaseError\(error\);/,
+    `${file}: a refused gate stops the checkout`,
+  );
+  const entry = readFileSync('supabase/functions/reservation-deposit/index.ts', 'utf8');
+  assert.match(
+    entry,
+    /await rateLimit\(`reservation-deposit-ip:/,
+    'deposit function is rate limited',
+  );
+  const migration = readFileSync(
+    'supabase/migrations/20261021090000_large_group_booking_deposits.sql',
+    'utf8',
+  );
+  assert.match(
+    migration,
+    /if not private\.booking_deposits_ready\(v_deposit\.venue_id\) then\s*raise exception 'BOOKING_DEPOSITS_DISABLED'/,
+    'checkout start must require licence, venue feature and provider',
+  );
+  checked += 4;
+}
 const checks = [
   {
     file: 'supabase/functions/print-authorization/index.ts',

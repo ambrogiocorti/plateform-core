@@ -13,6 +13,11 @@ necessità di un account/negozio sandbox e dell'activation code staging forniti 
   quindi rilegge la risorsa Stripe autorevole prima di aggiornare il ledger.
 - `satispay-callback`: endpoint pubblico (`verify_jwt=false`) protetto da token callback e
   rate limit; la callback non determina lo stato, ma innesca una GET firmata a Satispay.
+- `reservation-deposit` (dal 21 ottobre 2026): endpoint pubblico (`verify_jwt=false`) per la
+  caparra di garanzia dei gruppi numerosi; l'autorità è il token monouso della prenotazione,
+  verificato dal database. Usa le stesse chiavi provider della sede; `stripe-webhook` (eventi
+  `checkout.session.*` con `metadata.deposit_id`) e `satispay-callback` (`?deposit=`) rileggono
+  il pagamento prima di confermare la prenotazione.
 
 ## Secrets richiesti per il sandbox
 
@@ -28,6 +33,7 @@ SATISPAY_API_BASE_URL=https://staging.authservices.satispay.com
 SATISPAY_KEY_ID=<sandbox-key-id>
 SATISPAY_PRIVATE_KEY_PKCS8=<private-key-pkcs8-pem>
 SATISPAY_CALLBACK_TOKEN=<random-secret>
+DEPOSIT_RETURN_URL=https://<sito-pubblico>/prenota
 ```
 
 Per una futura installazione multi-sede è supportato anche il suffisso

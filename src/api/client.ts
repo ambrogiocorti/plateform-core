@@ -146,6 +146,18 @@ const messages: Record<string, string> = {
   BOOKING_SLOT_UNAVAILABLE: 'L’orario selezionato non è prenotabile.',
   BOOKING_DATE_UNAVAILABLE: 'La data selezionata non è prenotabile per questo servizio.',
   BOOKING_IN_PAST: 'Scegli un orario futuro.',
+  BOOKING_DEPOSITS_DISABLED:
+    'La caparra online non è disponibile in questo momento. Contatta il ristorante.',
+  DEPOSIT_EXPIRED: 'Il tempo per pagare la caparra è scaduto e il tavolo è stato liberato.',
+  DEPOSIT_NOT_PENDING: 'La caparra è già stata gestita: aggiorna lo stato del pagamento.',
+  DEPOSIT_PROVIDER_UNAVAILABLE:
+    'Il metodo di pagamento scelto non è disponibile per la caparra di questa sede.',
+  DEPOSIT_PROVIDER_ALREADY_SELECTED:
+    'Il pagamento è già stato avviato con un altro metodo: completa quello o contatta il ristorante.',
+  DEPOSIT_THRESHOLD_ABOVE_AUTO_CONFIRM:
+    'La soglia supera il gruppo massimo confermato automaticamente: alza prima quel limite in Capacità.',
+  INVALID_LARGE_GROUP_DEPOSIT:
+    'Controlla soglia (almeno 2 persone), importo (da 1 a 1000 euro) e ore di preavviso (0–720).',
   NONEXISTENT_LOCAL_TIME: 'Questo orario non esiste nel fuso orario della sede. Scegline un altro.',
   CONTACT_RESTAURANT_FOR_LARGE_PARTY:
     'Per questo numero di persone è necessario contattare direttamente il ristorante.',

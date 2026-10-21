@@ -8,9 +8,14 @@ import {
   addCalendarDays,
   bookableSlots,
   depositNextAction,
+  depositNotice,
+  depositOutcomeView,
+  depositReturnId,
+  depositTokenKey,
+  euro,
   venueLocalToday,
 } from '../services/public-booking-contract';
-import type { SearchKey } from '../services/public-booking-contract';
+import type { PublicSlot, SearchKey } from '../services/public-booking-contract';
 import {
   onlineBookingDepositsIncluded,
   permittedBookingSlots,
@@ -65,7 +70,12 @@ const slotSchema = z.object({
   reason: z.string().optional(),
   status_if_booked: z.enum(['RESERVED', 'REQUESTED', 'PENDING_DEPOSIT']).optional(),
   deposit: z
-    .object({ amount_cents: z.number(), currency: z.string(), expiry_minutes: z.number() })
+    .object({
+      amount_cents: z.number(),
+      currency: z.string(),
+      expiry_minutes: z.number(),
+      providers: z.array(z.enum(['STRIPE', 'SATISPAY'])).optional(),
+    })
     .optional(),
 });
 const availabilitySchema = z.object({
@@ -86,6 +96,7 @@ const bookingResult = z.discriminatedUnion('status', [
       currency: z.literal('EUR'),
       expires_at: z.iso.datetime({ offset: true }),
       access_token: z.string().min(32),
+      providers: z.array(z.enum(['STRIPE', 'SATISPAY'])).default([]),
     }),
   }),
 ]);
@@ -96,6 +107,73 @@ const checkoutResult = z.object({
   checkout_url: z.string().nullable(),
 });
 
+const depositStatusSchema = z.object({
+  deposit_id: z.uuid(),
+  outcome: z.enum(['CONFIRMED', 'PENDING', 'FAILED', 'EXPIRED', 'RECONCILIATION_REQUIRED']),
+  amount_cents: z.number().int().positive(),
+  service_date: z.string().nullable(),
+  slot_time: z.string().nullable(),
+  party_size: z.number().int().nullable(),
+});
+
+const providerName = (provider: 'STRIPE' | 'SATISPAY') =>
+  provider === 'STRIPE' ? 'carta (Stripe)' : 'Satispay';
+
+function phoneLink(venue: Venue): HTMLElement {
+  return el('a', { href: `tel:${venue.phone.replace(/[^+0-9]/g, '')}` }, venue.phone);
+}
+
+function readDepositToken(depositId: string): string | null {
+  try {
+    return sessionStorage.getItem(depositTokenKey(depositId));
+  } catch {
+    return null;
+  }
+}
+
+/** Back from Stripe/Satispay: only the server's verified outcome is shown, never the redirect. */
+async function depositReturnPage(venue: Venue, depositId: string): Promise<HTMLElement> {
+  const view = el('section', { class: 'booking-form card', 'aria-labelledby': 'deposit-outcome' });
+  const token = readDepositToken(depositId);
+  if (!token) {
+    view.append(
+      el('h2', { id: 'deposit-outcome' }, 'Stato del pagamento non disponibile qui'),
+      el(
+        'p',
+        {},
+        'Questo browser non conserva i dati della richiesta. Contatta il ristorante per conoscere lo stato della prenotazione; non inviarne un’altra.',
+      ),
+      phoneLink(venue),
+    );
+    return view;
+  }
+  const title = el('h2', { id: 'deposit-outcome' }, 'Verifica del pagamento in corso…');
+  const body = el('p', { role: 'status', 'aria-live': 'polite' }, '');
+  const check = async () => {
+    body.textContent = 'Verifica del pagamento con il ristorante in corso…';
+    try {
+      const { data, error } = await client().functions.invoke('reservation-deposit', {
+        body: { action: 'status', deposit_id: depositId, access_token: token },
+      });
+      if (error) await bookingFailure(error);
+      const shown = depositOutcomeView(depositStatusSchema.parse(data), depositId);
+      title.textContent = shown.title;
+      body.textContent = shown.body;
+      refresh.hidden = shown.final;
+    } catch (error) {
+      title.textContent = 'Impossibile verificare il pagamento';
+      body.textContent =
+        'Riprova tra poco o contatta il ristorante. Non inviare un’altra prenotazione.';
+      refresh.hidden = false;
+      throw error;
+    }
+  };
+  const refresh = button('Aggiorna lo stato del pagamento', check, 'secondary');
+  view.append(title, body, refresh, phoneLink(venue));
+  await check().catch(() => undefined);
+  return view;
+}
+
 /** A public booking is online-only; a lost response is never presented as success. */
 export async function bookingPage(venue: Venue, privacyUrl?: string): Promise<HTMLElement> {
   if (!venue.reservations_enabled || !privacyUrl || !privacyUrl.startsWith('https://'))
@@ -103,6 +181,8 @@ export async function bookingPage(venue: Venue, privacyUrl?: string): Promise<HT
       'Prenotazioni online non disponibili',
       'Contatta il ristorante per prenotare.',
     );
+  const returningDeposit = depositReturnId(window.location.search);
+  if (returningDeposit) return await depositReturnPage(venue, returningDeposit);
 
   const configuration = await rpc(
     'get_booking_configuration',
@@ -137,6 +217,18 @@ export async function bookingPage(venue: Venue, privacyUrl?: string): Promise<HT
   const time = el('select', { 'aria-label': 'Orario' });
   time.required = true;
   const status = el('p', { role: 'status', 'aria-live': 'polite', class: 'muted' });
+  // Large groups: the deposit terms of the chosen time, before anything is sent.
+  const depositInfo = el('p', { class: 'deposit-terms', id: 'booking-deposit-terms' });
+  depositInfo.hidden = true;
+  let offered: PublicSlot[] = [];
+  const showDepositTerms = () => {
+    const chosen = offered.find((slot) => slot.time === time.value);
+    depositInfo.hidden = !chosen?.deposit;
+    depositInfo.textContent = chosen?.deposit ? depositNotice(chosen.deposit) : '';
+    if (chosen?.deposit) time.setAttribute('aria-describedby', depositInfo.id);
+    else time.removeAttribute('aria-describedby');
+  };
+  time.addEventListener('change', showDepositTerms);
   let sequence = 0;
   let verifiedKey: SearchKey | undefined;
   let submitted = false;
@@ -147,6 +239,8 @@ export async function bookingPage(venue: Venue, privacyUrl?: string): Promise<HT
     time.disabled = true;
     time.replaceChildren(el('option', { value: '' }, 'Verifica prima la disponibilità'));
     status.textContent = '';
+    offered = [];
+    showDepositTerms();
   };
   resetTime();
   const checkAvailability = button(
@@ -186,13 +280,25 @@ export async function bookingPage(venue: Venue, privacyUrl?: string): Promise<HT
         return;
       }
       verifiedKey = key;
+      offered = slots;
       time.disabled = false;
       time.replaceChildren(
         el('option', { value: '' }, 'Seleziona un orario'),
-        ...slots.map((slot) => el('option', { value: slot.time }, slot.time)),
+        ...slots.map((slot) =>
+          el(
+            'option',
+            { value: slot.time },
+            slot.deposit
+              ? `${slot.time} · caparra di garanzia ${euro(slot.deposit.amount_cents)}`
+              : slot.time,
+          ),
+        ),
       );
       time.value = '';
       status.textContent = `${slots.length} orari disponibili. Selezionane uno per continuare.`;
+      if (slots.some((slot) => slot.deposit))
+        status.textContent +=
+          ' Per un gruppo di queste dimensioni il ristorante chiede una caparra di garanzia.';
     },
     'secondary',
   );
@@ -208,6 +314,7 @@ export async function bookingPage(venue: Venue, privacyUrl?: string): Promise<HT
     el('div', { class: 'field' }, el('label', {}, 'Servizio', service)),
     checkAvailability,
     el('div', { class: 'field' }, el('label', {}, 'Orario', time)),
+    depositInfo,
     status,
   );
   const answers = new Map(configuration.fields.map((entry) => [entry.id, bookingField(entry)]));
@@ -288,25 +395,39 @@ export async function bookingPage(venue: Venue, privacyUrl?: string): Promise<HT
           );
           return;
         }
+        try {
+          sessionStorage.setItem(depositTokenKey(result.deposit.id), result.deposit.access_token);
+        } catch {
+          // Without session storage the outcome is still settled by the server; the guest is
+          // told to call the restaurant on return.
+        }
+        const deadline = new Date(result.deposit.expires_at).toLocaleTimeString('it-IT', {
+          hour: '2-digit',
+          minute: '2-digit',
+          timeZone: venue.timezone,
+        });
         form.replaceChildren(
-          el('h2', {}, 'Caparra necessaria per completare la prenotazione'),
+          el('h2', {}, 'Manca solo la caparra di garanzia'),
           el(
             'p',
             {},
-            `Importo: ${(result.deposit.amount_cents / 100).toLocaleString('it-IT', { style: 'currency', currency: 'EUR' })}. Il tavolo non è ancora confermato.`,
+            `Per il tuo gruppo il ristorante chiede ${euro(result.deposit.amount_cents)} come garanzia, da pagare entro le ${deadline}. Il tavolo è confermato solo dopo la verifica del pagamento.`,
           ),
           el(
             'p',
-            { role: 'status' },
-            'Il pagamento deve essere confermato dal ristorante dopo la verifica del provider.',
+            { class: 'muted' },
+            'Non è un anticipo sul conto: la caparra ti viene restituita automaticamente quando vi presentate e viene trattenuta solo se non vi presentate. Se cancelli, contatta il ristorante.',
           ),
         );
         let checkoutStarted = false;
         const checkoutStatus = el('p', { role: 'status', 'aria-live': 'polite' });
-        for (const provider of ['STRIPE', 'SATISPAY'] as const) {
+        if (!result.deposit.providers.length)
+          checkoutStatus.textContent =
+            'Il pagamento online non è disponibile in questo momento. Contatta il ristorante: non inviare un’altra richiesta.';
+        for (const provider of result.deposit.providers) {
           form.append(
             button(
-              `Paga la caparra con ${provider === 'STRIPE' ? 'Stripe' : 'Satispay'}`,
+              `Paga la caparra con ${providerName(provider)}`,
               async () => {
                 if (checkoutStarted) return;
                 checkoutStarted = true; // A second provider must not race the first request.
@@ -326,11 +447,12 @@ export async function bookingPage(venue: Venue, privacyUrl?: string): Promise<HT
                   const next = depositNextAction(checkout, result.deposit.id, provider);
                   if (next.action === 'AWAIT_CONFIRMATION') {
                     checkoutStatus.textContent =
-                      'Pagamento rilevato. La conferma della prenotazione dipende dalla verifica del ristorante.';
+                      'Pagamento ricevuto e verificato: il tuo tavolo è prenotato.';
                   } else if (next.action === 'FAILED') {
                     checkoutStatus.textContent =
                       'Pagamento non riuscito. Contatta il ristorante per verificare la prenotazione.';
                   } else if (next.action === 'REDIRECT') {
+                    checkoutStatus.textContent = 'Apertura della pagina di pagamento…';
                     window.location.assign(next.url);
                   } else {
                     checkoutStatus.textContent =
@@ -342,11 +464,11 @@ export async function bookingPage(venue: Venue, privacyUrl?: string): Promise<HT
                   throw error;
                 }
               },
-              'secondary',
+              provider === result.deposit.providers[0] ? 'primary' : 'secondary',
             ),
           );
         }
-        form.append(checkoutStatus);
+        form.append(checkoutStatus, phoneLink(venue));
       } else {
         form.replaceChildren(
           el('p', { class: 'eyebrow' }, 'A presto'),

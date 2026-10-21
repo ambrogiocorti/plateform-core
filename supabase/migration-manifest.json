@@ -2969,6 +2969,12 @@
       "version": "20261020110000",
       "name": "continuity_alerts_wrapper_definer",
       "sha256": "923371ca08320fb0e07d5c71830ab1abdae41f3ac5927ba4d9fd98321d6d38b1"
+    },
+    {
+      "filename": "20261021090000_large_group_booking_deposits.sql",
+      "version": "20261021090000",
+      "name": "large_group_booking_deposits",
+      "sha256": "94a13270be4d30728758504646de966b4b693123f82a0bcd2d80c427775178e5"
     }
   ]
 }

@@ -39,6 +39,11 @@ verify_jwt = false
 [functions.payments]
 verify_jwt = true
 
+# Guest pays a large-group booking deposit: no Supabase session, the one-time deposit access
+# token (checked by the database) is the authority.
+[functions.reservation-deposit]
+verify_jwt = false
+
 [functions.stripe-webhook]
 verify_jwt = false
 

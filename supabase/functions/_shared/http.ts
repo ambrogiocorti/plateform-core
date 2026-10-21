@@ -297,6 +297,11 @@ export function endpoint<T>(
         'INVALID_PROVIDER_REFUND',
         'PROVIDER_RECONCILIATION_REQUIRED',
         'PROVIDER_REQUEST_FAILED',
+        'DEPOSIT_EXPIRED',
+        'DEPOSIT_NOT_PENDING',
+        'BOOKING_DEPOSITS_DISABLED',
+        'DEPOSIT_PROVIDER_UNAVAILABLE',
+        'DEPOSIT_PROVIDER_ALREADY_SELECTED',
       ];
       const code = allowed.includes(rawCode)
         ? rawCode
@@ -340,6 +345,11 @@ export function endpoint<T>(
                     'PAYMENT_NOT_PENDING',
                     'INVALID_PROVIDER_REFUND',
                     'PROVIDER_RECONCILIATION_REQUIRED',
+                    'DEPOSIT_EXPIRED',
+                    'DEPOSIT_NOT_PENDING',
+                    'BOOKING_DEPOSITS_DISABLED',
+                    'DEPOSIT_PROVIDER_UNAVAILABLE',
+                    'DEPOSIT_PROVIDER_ALREADY_SELECTED',
                   ].includes(code)
                 ? 409
                 : [

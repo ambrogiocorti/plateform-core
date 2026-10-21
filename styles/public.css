@@ -381,3 +381,16 @@
     animation-iteration-count: 1 !important;
   }
 }
+
+/* Large-group booking deposit terms, shown before the request is sent. */
+.deposit-terms {
+  margin: 0 0 18px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+  border-radius: 8px;
+  background: var(--surface);
+}
+.deposit-terms[hidden] {
+  display: none;
+}

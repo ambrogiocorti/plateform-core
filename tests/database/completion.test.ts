@@ -585,11 +585,11 @@ describe('completion: authoritative catalog, editor, planning and equal shares',
     });
   });
 
-  it('refuses to license online booking deposits even to database owner', async () => {
+  it('refuses to license online booking deposits without a provider licence, even to the database owner', async () => {
     await db.exec('reset role');
     await expect(
       db.query("update public.feature_flags set licensed=true where name='BOOKING_DEPOSITS'"),
-    ).rejects.toThrow('CORE_PROVIDER_LICENSE_FORBIDDEN');
+    ).rejects.toThrow('BOOKING_DEPOSITS_PROVIDER_LICENCE_REQUIRED');
   });
 
   it('refuses Stripe as a venue payment method without the licence', async () => {

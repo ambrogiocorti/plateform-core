@@ -20,9 +20,10 @@ function check(test) {
 }
 
 // Since 2026-10-19 Stripe and Satispay are in the edition (still licence-gated by the server);
-// online booking deposits and Epson drivers are not.
+// since 2026-10-21 so is the large-group booking deposit (licence + provider gate on the server);
+// Epson drivers are not.
 check(() => assert.equal(externalPaymentProvidersIncluded, true));
-check(() => assert.equal(onlineBookingDepositsIncluded, false));
+check(() => assert.equal(onlineBookingDepositsIncluded, true));
 check(() => assert.equal(epsonPrintingIncluded, false));
 const providerMethods = ['CASH', 'CARD_POS', 'STRIPE', 'SATISPAY_POS', 'SATISPAY_API'];
 check(() => assert.deepEqual(permittedPaymentMethods(providerMethods), providerMethods));
@@ -33,37 +34,37 @@ check(() => assert.deepEqual(permittedPrintDrivers(), ['BROWSER']));
 check(() => assert.equal(permittedPrintDriver('BROWSER'), true));
 for (const invalid of ['EPOS', 'BRIDGE', '', 'BOGUS'])
   check(() => assert.equal(permittedPrintDriver(invalid), false));
+const deposit = { amount_cents: 2000, currency: 'EUR', expiry_minutes: 45, providers: ['STRIPE'] };
 const bookingSlots = [
   { time: '19:00', status_if_booked: 'RESERVED' },
   { time: '19:30', status_if_booked: 'REQUESTED' },
-  { time: '20:00', status_if_booked: 'PENDING_DEPOSIT' },
+  { time: '20:00', status_if_booked: 'PENDING_DEPOSIT', deposit },
 ];
+// Large groups see the slot with its deposit terms; smaller groups are unchanged.
 check(() =>
   assert.deepEqual(
     permittedBookingSlots(bookingSlots).map((entry) => entry.time),
-    ['19:00', '19:30'],
+    ['19:00', '19:30', '20:00'],
   ),
 );
 check(() => assert.equal(bookingSlots.length, 3, 'caller input must not be mutated'));
+// A PENDING_DEPOSIT slot without its terms cannot be shown to the guest.
 check(() =>
   assert.deepEqual(
     permittedBookingSlots([{ time: '20:00', status_if_booked: 'PENDING_DEPOSIT' }]),
     [],
   ),
 );
+// A deposit on a RESERVED/REQUESTED slot is an inconsistent answer: never offered.
 check(() =>
   assert.deepEqual(
-    permittedBookingSlots([
-      { time: '20:30', status_if_booked: 'RESERVED', deposit: { amount_cents: 1000 } },
-    ]),
+    permittedBookingSlots([{ time: '20:30', status_if_booked: 'RESERVED', deposit }]),
     [],
   ),
 );
 check(() =>
   assert.deepEqual(
-    permittedBookingSlots([
-      { time: '20:45', status_if_booked: 'REQUESTED', deposit: { amount_cents: 1000 } },
-    ]),
+    permittedBookingSlots([{ time: '20:45', status_if_booked: 'REQUESTED', deposit }]),
     [],
   ),
 );
@@ -71,11 +72,9 @@ check(() =>
   assert.deepEqual(permittedBookingSlots([{ time: '21:00', status_if_booked: 'UNKNOWN' }]), []),
 );
 check(() => assert.deepEqual(permittedBookingSlots([{ time: '21:15' }]), []));
+// With deposits in the edition nothing is "excluded" any more.
 check(() =>
-  assert.equal(
-    requiresExcludedDeposit({ status_if_booked: 'RESERVED', deposit: { amount_cents: 1000 } }),
-    true,
-  ),
+  assert.equal(requiresExcludedDeposit({ status_if_booked: 'PENDING_DEPOSIT', deposit }), false),
 );
 check(() => assert.equal(requiresExcludedDeposit({ status_if_booked: 'RESERVED' }), false));
 
@@ -99,6 +98,16 @@ check(() => assert.match(publicBooking, /permittedBookingSlots\(confirmedSlots\)
 check(() => assert.match(publicBooking, /confirmedSlots\.some\(requiresExcludedDeposit\)/));
 check(() => assert.match(publicBooking, /if \(!onlineBookingDepositsIncluded\)/));
 check(() => assert.match(publicBooking, /Non inviare un’altra richiesta/));
+// The guest pays through the server function, sees the terms first and only the server's outcome.
+check(() => assert.match(publicBooking, /functions\.invoke\('reservation-deposit'/));
+check(() => assert.match(publicBooking, /depositNotice\(chosen\.deposit\)/));
+check(() => assert.match(publicBooking, /for \(const provider of result\.deposit\.providers\)/));
+check(() => assert.match(publicBooking, /depositOutcomeView\(depositStatusSchema\.parse\(data\)/));
+check(() => assert.doesNotMatch(publicBooking, /searchParams\.get\('(?:paid|success|status)'\)/));
+const planningPage = readFileSync('src/pages/planning.ts', 'utf8');
+const depositSettings = readFileSync('src/pages/large-group-deposit.ts', 'utf8');
+check(() => assert.match(planningPage, /context\.profile\.role === 'ADMIN'/));
+check(() => assert.match(depositSettings, /rpc\(\s*'configure_large_group_deposit'/));
 check(() =>
   assert.match(printing, /\.filter\(\(device\) => permittedPrintDriver\(device\.driver\)\)/),
 );
