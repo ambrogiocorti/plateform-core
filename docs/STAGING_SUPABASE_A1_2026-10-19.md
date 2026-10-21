@@ -177,5 +177,5 @@ risultano inviati. In produzione andrà messo `live` solo quando ogni ristorante
 
 ## Prove mancanti
 
-Realtime senza ricarica pagina, backup/restore su Supabase ospitato, frontend pubblicato in
+Realtime senza ricarica pagina, backup/restore (rinviato da Ambrogio il 21/10: si fa sul server del ristorante; fino ad allora la pubblicazione resta bloccata su questo punto), frontend pubblicato in
 HTTPS e dispositivi reali. Il rilascio resta **NO-GO**.
