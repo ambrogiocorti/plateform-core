@@ -182,6 +182,22 @@ né navigare: l'ordine del cameriere compare in cucina e lo step pronto compare 
 ogni 30 s di `src/realtime/live.ts`, quindi arriva dal segnale Realtime. Entrambi gli schermi mostrano "Aggiornamenti connessi".
 Il test incassa e chiude il proprio conto e chiude la giornata, così lo staging resta pulito.
 
+## Caparra gruppi numerosi (21/10)
+
+Head 249819e, migrazione 20261021090000 applicata (496/496); pubblicate reservation-deposit, reservation, stripe-webhook,
+satispay-callback. `DEPOSIT_RETURN_URL` punta per ora alla pagina `payment-return` (manca il sito pubblico HTTPS): dopo il
+pagamento l'ospite vede "pagamento in fase di verifica" e non torna da solo a `/prenota`.
+
+- `supabase/tests/core_booking.live.sql` (id staging al posto di quelli Development): **PASS**, tutto in ROLLBACK.
+- Licenza BOOKING_DEPOSITS data dal super admin con conferma password; regola dall'Admin in Pianificazione: 25 € da 6 persone,
+  rimborso se cancellano 24 h prima (servizio di prova "Cena gruppi", conferma automatica fino a 12).
+- `tests/e2e-staging/deposits-stripe.spec.ts`, Stripe test: gruppo di 8 dal sito pubblico → PENDING_DEPOSIT → Checkout con
+  carta 4242 → webhook → RESERVED/COMPLETED (`cs_test_`); ARRIVED → SEATED → worker → **REFUNDED 25 €**, azione COMPLETED;
+  no-show → **RETAINED**, nessun rimborso; caparra non pagata → dopo i 45 minuti reali **EXPIRED/EXPIRED** (la scadenza non è
+  modificabile, by design). Tutti PASS.
+- `tests/e2e-staging/deposits-satispay.spec.ts`: la creazione del pagamento Satispay sandbox funziona (pagina QR); manca il
+  pagamento con l'app da parte di Ambrogio, poi conferma e rimborso.
+
 ## Prove mancanti
 
 Backup/restore (rinviato da Ambrogio il 21/10: si fa sul server del ristorante; fino ad allora la pubblicazione resta bloccata su questo punto), frontend pubblicato in
