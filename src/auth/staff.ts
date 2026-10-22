@@ -178,7 +178,11 @@ export function loginPage(onComplete: () => Promise<void>): HTMLElement {
     el(
       'section',
       { class: 'login-story' },
-      el('a', { href: '/', class: 'brand' }, 'Plateform'),
+      el(
+        'a',
+        { href: import.meta.env.BASE_URL.replace(/staff\/$/, ''), class: 'brand' },
+        'Plateform',
+      ),
       el(
         'div',
         {},

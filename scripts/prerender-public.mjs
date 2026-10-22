@@ -119,8 +119,10 @@ export async function prerenderPublic({
   siteOrigin,
   supabaseUrl,
   publishableKey,
+  base = '/',
   fetcher = fetch,
 }) {
+  if (!/^\/(?:[a-z0-9-]+\/)*$/.test(base)) throw Error('PUBLIC_BASE_INVALID');
   if (
     !isHttpsUrl(siteOrigin) ||
     !isHttpsUrl(supabaseUrl) ||
@@ -163,6 +165,9 @@ export async function prerenderPublic({
     throw Error('PUBLIC_RPC_INVALID_PAYLOAD');
   if (sitemap.indexable !== (home.robots === 'index,follow'))
     throw Error('PUBLIC_INDEXING_MISMATCH');
+  // A sub-folder site (a temporary GitHub Pages link) is never indexed: search engines must
+  // learn the restaurant's own domain, not the temporary one.
+  if (sitemap.indexable && base !== '/') throw Error('PUBLIC_SUBFOLDER_SITE_MUST_NOT_BE_INDEXED');
   if (sitemap.indexable && home.canonical_url !== siteOrigin + '/')
     throw Error('PUBLIC_ORIGIN_MISMATCH');
   const routes = sitemap.indexable ? sitemap.urls : [{ path: '/', loc: null }];
@@ -200,7 +205,10 @@ export async function prerenderPublic({
         p_slug: path.slice(6),
         p_venue: site.venues[0]?.id,
       });
-    const body = renderPublicBody(path, site, { legacyMenu, publishedMenu });
+    const body = renderPublicBody(path, site, { legacyMenu, publishedMenu }).replace(
+      /href="\/(?!\/)/g,
+      `href="${base}`,
+    );
     const tags =
       `<meta name="robots" content="${escape(metadata.robots)}">` +
       (metadata.canonical_url
@@ -242,6 +250,9 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     siteOrigin: process.env.PUBLIC_SITE_ORIGIN,
     supabaseUrl: process.env.VITE_SUPABASE_URL,
     publishableKey: process.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+    base: process.env.VITE_PUBLIC_BASE_URL
+      ? new URL(process.env.VITE_PUBLIC_BASE_URL).pathname.replace(/\/?$/, '/')
+      : '/',
   });
   console.log('PLATEFORM_PUBLIC_PRERENDER', outcome);
 }

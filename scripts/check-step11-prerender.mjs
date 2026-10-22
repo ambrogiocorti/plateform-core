@@ -148,4 +148,51 @@ await assert.rejects(
   /UNSUPPORTED_SITEMAP_ROUTE/,
 );
 count++;
+// A temporary sub-folder site (GitHub Pages project link) must never be indexed, and its
+// prerendered links must carry the folder.
+await writeFile(join(root, 'index.html'), template);
+await assert.rejects(
+  () =>
+    prerenderPublic({
+      distDir: root,
+      siteOrigin: origin,
+      supabaseUrl: 'https://project.supabase.co',
+      publishableKey: 'sb_publishable_test',
+      base: '/plateform/',
+      fetcher,
+    }),
+  /PUBLIC_SUBFOLDER_SITE_MUST_NOT_BE_INDEXED/,
+);
+count++;
+const noindexFetcher = async (url, options) => {
+  const fn = url.split('/').pop();
+  if (fn === 'get_public_sitemap_entries')
+    return { ok: true, json: async () => ({ indexable: false, urls: [] }) };
+  if (fn === 'get_public_page_metadata')
+    return {
+      ok: true,
+      json: async () => ({
+        path: '/',
+        title: 'Titolo',
+        description: '',
+        canonical_url: null,
+        robots: 'noindex,nofollow',
+      }),
+    };
+  return fetcher(url, options);
+};
+await writeFile(join(root, 'index.html'), template);
+await prerenderPublic({
+  distDir: root,
+  siteOrigin: 'https://ambrogiocorti.github.io',
+  supabaseUrl: 'https://project.supabase.co',
+  publishableKey: 'sb_publishable_test',
+  base: '/plateform/',
+  fetcher: noindexFetcher,
+});
+const folderHome = await readFile(join(root, 'index.html'), 'utf8');
+test(() => assert.match(folderHome, /href="\/plateform\/menu"/));
+test(() => assert.doesNotMatch(folderHome, /href="\/menu"/));
+const folderRobots = await readFile(join(root, 'robots.txt'), 'utf8');
+test(() => assert.match(folderRobots, /Disallow: \/\n/));
 console.log(`STEP11_RECOVERED_PRERENDER=PASS (${count} assertions)`);

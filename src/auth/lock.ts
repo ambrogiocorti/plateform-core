@@ -73,7 +73,11 @@ export function lockedPage(info: Requirements, onChange: () => Promise<void>): H
   return el(
     'main',
     { id: 'main', class: 'login-panel' },
-    el('a', { href: '/', class: 'brand' }, 'Plateform'),
+    el(
+      'a',
+      { href: import.meta.env.BASE_URL.replace(/staff\/$/, ''), class: 'brand' },
+      'Plateform',
+    ),
     form,
   );
 }

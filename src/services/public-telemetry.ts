@@ -1,8 +1,10 @@
 import { client } from '../api/client';
 import { publicMetricContext } from './public-site';
+import { publicAppPath } from './public-base';
 
 const sent = new Set<string>();
-const firstDocumentRoute = publicMetricContext(location.pathname, location.search)?.key ?? null;
+const firstDocumentRoute =
+  publicMetricContext(publicAppPath(location.pathname), location.search)?.key ?? null;
 
 type MetricName = 'TTFB' | 'FCP' | 'LCP' | 'CLS' | 'INP';
 
@@ -13,7 +15,7 @@ function dispatch(body: Record<string, unknown>): void {
 }
 
 export function recordPublicPageView(venueId?: string): void {
-  const context = publicMetricContext(location.pathname, location.search);
+  const context = publicMetricContext(publicAppPath(location.pathname), location.search);
   if (!context) return;
   const key = `view:${context.key}`;
   if (sent.has(key)) return;
@@ -45,7 +47,7 @@ function recordMetric(
 
 export function observePublicPerformance(venueId?: string): () => void {
   const observers: PerformanceObserver[] = [];
-  const context = publicMetricContext(location.pathname, location.search);
+  const context = publicMetricContext(publicAppPath(location.pathname), location.search);
   // Navigation and paint timings refer to the original HTML document only,
   // not every client-side route subsequently rendered in that document.
   const documentLoad = context?.key === firstDocumentRoute;
