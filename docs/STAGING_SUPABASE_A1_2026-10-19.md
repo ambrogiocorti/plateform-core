@@ -195,8 +195,10 @@ pagamento l'ospite vede "pagamento in fase di verifica" e non torna da solo a `/
   carta 4242 → webhook → RESERVED/COMPLETED (`cs_test_`); ARRIVED → SEATED → worker → **REFUNDED 25 €**, azione COMPLETED;
   no-show → **RETAINED**, nessun rimborso; caparra non pagata → dopo i 45 minuti reali **EXPIRED/EXPIRED** (la scadenza non è
   modificabile, by design). Tutti PASS.
-- `tests/e2e-staging/deposits-satispay.spec.ts`: la creazione del pagamento Satispay sandbox funziona (pagina QR); manca il
-  pagamento con l'app da parte di Ambrogio, poi conferma e rimborso.
+- `tests/e2e-staging/deposits-satispay.spec.ts`: la creazione del pagamento Satispay sandbox funziona (pagina QR). Il
+  pagamento con l'app non è stato fatto: il 22/10 l'app sandbox di Ambrogio dava errore di certificato (lato Satispay) e il
+  link per reinstallarla non è più disponibile. **Ambrogio ha deciso di saltare questa prova** (22/10), perché i pagamenti
+  Satispay (incasso, conferma automatica, rimborso) sono già verificati il 20/10. La prova resta pronta da rilanciare.
 
 ## Prove mancanti
 
