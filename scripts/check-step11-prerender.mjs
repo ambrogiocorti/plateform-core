@@ -150,20 +150,23 @@ await assert.rejects(
 count++;
 // A temporary sub-folder site (GitHub Pages project link) must never be indexed, and its
 // prerendered links must carry the folder.
+// Even when the restaurant already set its own (indexable) domain, the folder build stays
+// noindex and carries no canonical or sitemap.
 await writeFile(join(root, 'index.html'), template);
-await assert.rejects(
-  () =>
-    prerenderPublic({
-      distDir: root,
-      siteOrigin: origin,
-      supabaseUrl: 'https://project.supabase.co',
-      publishableKey: 'sb_publishable_test',
-      base: '/plateform/',
-      fetcher,
-    }),
-  /PUBLIC_SUBFOLDER_SITE_MUST_NOT_BE_INDEXED/,
-);
-count++;
+const folderIndexable = await prerenderPublic({
+  distDir: root,
+  siteOrigin: 'https://ambrogiocorti.github.io',
+  supabaseUrl: 'https://project.supabase.co',
+  publishableKey: 'sb_publishable_test',
+  base: '/plateform/',
+  fetcher,
+});
+test(() => assert.deepEqual(folderIndexable, { route_count: 1, indexable: false }));
+const folderIndexableHome = await readFile(join(root, 'index.html'), 'utf8');
+test(() => assert.match(folderIndexableHome, /<meta name="robots" content="noindex,nofollow">/));
+test(() => assert.doesNotMatch(folderIndexableHome, /rel="canonical"/));
+const folderIndexableRobots = await readFile(join(root, 'robots.txt'), 'utf8');
+test(() => assert.equal(folderIndexableRobots, 'User-agent: *\nDisallow: /\n'));
 const noindexFetcher = async (url, options) => {
   const fn = url.split('/').pop();
   if (fn === 'get_public_sitemap_entries')
