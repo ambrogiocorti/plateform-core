@@ -98,6 +98,7 @@ test('WCAG app staff: accesso e schermate principali per ruolo', async ({ browse
         '/menu-sede',
         '/sito',
         '/staff',
+        '/editor',
         '/dispositivi',
         '/stampe',
         '/privacy',
