@@ -1,13 +1,18 @@
 # Publishes the public site and the staff area on GitHub Pages at
 # https://<owner>.github.io/<repository>/ (staff under /staff/).
 # Manual only: publishing is the owner's decision. Needs Pages enabled with
-# "GitHub Actions" as source and these repository variables (public values,
-# no secrets): PLATEFORM_SUPABASE_URL, PLATEFORM_SUPABASE_PUBLISHABLE_KEY,
-# PLATEFORM_OFFLINE_PUBLIC_KEYS_JWK. The folder site is never indexed.
+# "GitHub Actions" as source. The browser configuration below is public by
+# design (URL, publishable key, offline-receipt public key) and can be
+# overridden with repository variables. The folder site is never indexed.
 name: Plateform GitHub Pages
 
 on:
   workflow_dispatch:
+    inputs:
+      ref:
+        description: Branch or commit to publish
+        required: true
+        default: plateform/steps-7-12-completion-y2bvpd
 
 permissions:
   contents: read
@@ -27,13 +32,15 @@ jobs:
       VITE_PUBLIC_BASE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
       VITE_STAFF_BASE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/staff/
       PUBLIC_SITE_ORIGIN: https://${{ github.repository_owner }}.github.io
-      VITE_SUPABASE_URL: ${{ vars.PLATEFORM_SUPABASE_URL }}
-      VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.PLATEFORM_SUPABASE_PUBLISHABLE_KEY }}
-      VITE_OFFLINE_PUBLIC_KEYS_JWK: ${{ vars.PLATEFORM_OFFLINE_PUBLIC_KEYS_JWK }}
+      # plateform-production (ref xzateqavvaparjoybbhr).
+      VITE_SUPABASE_URL: ${{ vars.PLATEFORM_SUPABASE_URL || 'https://xzateqavvaparjoybbhr.supabase.co' }}
+      VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.PLATEFORM_SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_lzxUoPlNBdEvFcuG987Y7Q_YxEx7JZ-' }}
+      VITE_OFFLINE_PUBLIC_KEYS_JWK: ${{ vars.PLATEFORM_OFFLINE_PUBLIC_KEYS_JWK || '[{"kty":"EC","crv":"P-256","x":"3oW3zCsVr60PTD5moATzX44UYzBHUWjLF3LlH0-PbWQ","y":"DQXnap9zLQYoVTOI-6JPbE69q3ifP3GrHX2gGWnI1C8"}]' }}
     steps:
       - name: Checkout without persistent credentials
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
+          ref: ${{ inputs.ref }}
           persist-credentials: false
           fetch-depth: 1
 

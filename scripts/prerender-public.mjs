@@ -156,8 +156,15 @@ export async function prerenderPublic({
     if (!result.ok) throw Error(`PUBLIC_RPC_FAILED:${name}:${result.status}`);
     return result.json();
   }
-  const [site, sitemap, home] = await Promise.all([
-    rpc('get_public_site'),
+  const site = await rpc('get_public_site');
+  if (site === null) {
+    // A fresh install has no restaurant yet: publish the app shell (the staff area is how the
+    // restaurant gets configured) and keep the public site out of search engines.
+    await writeFile(join(distDir, 'robots.txt'), 'User-agent: *\nDisallow: /\n');
+    await rm(join(distDir, 'sitemap.xml'), { force: true });
+    return { route_count: 0, indexable: false, configured: false };
+  }
+  const [sitemap, home] = await Promise.all([
     rpc('get_public_sitemap_entries'),
     rpc('get_public_page_metadata', { p_path: '/' }),
   ]);
