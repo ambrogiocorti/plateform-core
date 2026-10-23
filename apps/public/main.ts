@@ -2,7 +2,14 @@ import { registerPwa } from '../../src/services/pwa';
 import '../../styles/public.css';
 import { z } from 'zod';
 import { rpc } from '../../src/api/client';
-import { button, el, emptyState, loading, showError } from '../../src/components/dom';
+import {
+  button,
+  el,
+  emptyState,
+  enableSkipLink,
+  loading,
+  showError,
+} from '../../src/components/dom';
 import { watchLive } from '../../src/realtime/live';
 import { environment, safeImageUrl } from '../../src/config/environment';
 import { menuDishSchema, publicSiteSchema } from '../../src/types/domain';
@@ -26,13 +33,14 @@ import {
   observePublicPerformance,
   recordPublicPageView,
 } from '../../src/services/public-telemetry';
+import { publicAppPath, withPublicBase } from '../../src/services/public-base';
 
 try {
   const storedRoute = sessionStorage.getItem('plateform-route-public');
   if (storedRoute !== null) {
     sessionStorage.removeItem('plateform-route-public');
-    const recovered = safeRecoveredPublicRoute(storedRoute, location.origin);
-    if (recovered) history.replaceState(null, '', recovered);
+    const recovered = safeRecoveredPublicRoute(publicAppPath(storedRoute), location.origin);
+    if (recovered) history.replaceState(null, '', withPublicBase(recovered));
   }
 } catch {
   // Storage may be unavailable in a privacy-restricted browser. Serve /.
@@ -41,6 +49,22 @@ try {
 const root = document.getElementById('app');
 if (!root) throw new Error('Missing application root');
 const app: HTMLElement = root;
+if (import.meta.env.BASE_URL !== '/') {
+  // Pages build links as app paths ("/menu"); under a sub-folder the browser needs the folder too.
+  const prefixLinks = () => {
+    for (const link of app.querySelectorAll<HTMLAnchorElement>('a[href^="/"]:not([href^="//"])')) {
+      const href = link.getAttribute('href') ?? '';
+      if (!href.startsWith(import.meta.env.BASE_URL))
+        link.setAttribute('href', withPublicBase(href));
+    }
+  };
+  new MutationObserver(prefixLinks).observe(app, {
+    childList: true,
+    subtree: true,
+    attributes: true,
+    attributeFilter: ['href'],
+  });
+}
 let revision = 0;
 let pageLifetime = new AbortController();
 let stopLive: (() => void) | undefined;
@@ -90,7 +114,8 @@ function setMeta(name: string, content: string, property = false): void {
 }
 function applyMetadata(site: PublicSite, venue?: Venue): void {
   const explicitlySelectedVenue =
-    location.pathname.startsWith('/sedi/') || new URLSearchParams(location.search).has('sede');
+    publicAppPath(location.pathname).startsWith('/sedi/') ||
+    new URLSearchParams(location.search).has('sede');
   const invalidVenueContext = explicitlySelectedVenue && !venue;
   const pageLabels: Record<string, string> = {
     '/menu': 'Menu',
@@ -101,9 +126,9 @@ function applyMetadata(site: PublicSite, venue?: Venue): void {
     '/contatti': 'Contatti',
   };
   const configuredTitle = textValue(site.content, 'seo_title', site.name);
-  const pageLabel = location.pathname.startsWith('/sedi/')
+  const pageLabel = publicAppPath(location.pathname).startsWith('/sedi/')
     ? (venue?.name ?? 'Sede')
-    : pageLabels[location.pathname];
+    : pageLabels[publicAppPath(location.pathname)];
   document.title = pageLabel ? `${pageLabel} · ${configuredTitle}` : configuredTitle;
   const description = textValue(
     site.content,
@@ -116,9 +141,10 @@ function applyMetadata(site: PublicSite, venue?: Venue): void {
   setMeta('og:type', 'website', true);
   const canonicalUrl = canonicalPublicUrl(
     site,
-    location.pathname,
+    publicAppPath(location.pathname),
     location.search,
     location.origin,
+    import.meta.env.BASE_URL,
   );
   setMeta('og:url', canonicalUrl, true);
   const hero = safeImageUrl(site.content.hero_image_url);
@@ -138,7 +164,7 @@ function applyMetadata(site: PublicSite, venue?: Venue): void {
   robots.content = 'noindex,nofollow'; // Opt in only after authoritative metadata RPC confirms indexability.
   const previous = document.getElementById('restaurant-structured-data');
   previous?.remove();
-  if (!location.pathname.startsWith('/tavolo/') && !invalidVenueContext) {
+  if (!publicAppPath(location.pathname).startsWith('/tavolo/') && !invalidVenueContext) {
     const structured = document.createElement('script');
     structured.id = 'restaurant-structured-data';
     structured.type = 'application/ld+json';
@@ -146,7 +172,7 @@ function applyMetadata(site: PublicSite, venue?: Venue): void {
       '@context': 'https://schema.org',
       '@type': 'Restaurant',
       name: site.name,
-      url: new URL('/', location.origin).toString(),
+      url: new URL(withPublicBase('/'), location.origin).toString(),
       image: hero || logoForStructuredData(site),
       telephone: venue?.phone ?? site.venues[0]?.phone,
       address: venue?.address ?? site.venues[0]?.address,
@@ -157,7 +183,7 @@ function applyMetadata(site: PublicSite, venue?: Venue): void {
               name: venue.name,
               telephone: venue.phone,
               address: venue.address,
-              url: new URL(`/sedi/${venue.slug}`, location.origin).toString(),
+              url: new URL(withPublicBase(`/sedi/${venue.slug}`), location.origin).toString(),
             })),
           }
         : {}),
@@ -183,7 +209,7 @@ function startPublicRender(focusAfterNavigation = false): void {
     });
 }
 function route(path: string): void {
-  history.pushState(null, '', path);
+  history.pushState(null, '', withPublicBase(path));
   startPublicRender(true);
 }
 
@@ -213,17 +239,19 @@ async function render(): Promise<void> {
         emptyState(
           'Il nostro sito sta arrivando',
           'Stiamo preparando uno spazio dedicato alla nostra cucina. Torna presto a trovarci.',
+          'h1',
         ),
       ),
     );
     return;
   }
   applyBrand(site);
-  const venue = selectedVenue(site, location.pathname, location.search);
+  const venue = selectedVenue(site, publicAppPath(location.pathname), location.search);
   applyMetadata(site, venue);
   const invalidVenueContext =
     !venue &&
-    (location.pathname.startsWith('/sedi/') || new URLSearchParams(location.search).has('sede'));
+    (publicAppPath(location.pathname).startsWith('/sedi/') ||
+      new URLSearchParams(location.search).has('sede'));
   if (invalidVenueContext) {
     // Invalid/archived venue URLs are never indexable and must not receive a
     // canonical address or structured data belonging to another venue.
@@ -232,8 +260,8 @@ async function render(): Promise<void> {
     const robots = document.head.querySelector<HTMLMetaElement>('meta[name="robots"]');
     if (robots) robots.content = 'noindex,nofollow';
   }
-  if (!location.pathname.startsWith('/tavolo/') && !invalidVenueContext) {
-    const pathForSeo = location.pathname;
+  if (!publicAppPath(location.pathname).startsWith('/tavolo/') && !invalidVenueContext) {
+    const pathForSeo = publicAppPath(location.pathname);
     const seoRevision = current;
     void rpc(
       'get_public_page_metadata',
@@ -251,7 +279,7 @@ async function render(): Promise<void> {
       }),
     )
       .then((metadata) => {
-        if (seoRevision !== revision || metadata.path !== location.pathname) return;
+        if (seoRevision !== revision || metadata.path !== publicAppPath(location.pathname)) return;
         document.title = metadata.title;
         setMeta('description', metadata.description);
         setMeta('og:title', metadata.title, true);
@@ -278,7 +306,11 @@ async function render(): Promise<void> {
         if (seoRevision === revision && robots) robots.content = 'noindex,nofollow';
       });
   }
-  const reservationVenue = resolveBookingVenue(site, location.pathname, location.search);
+  const reservationVenue = resolveBookingVenue(
+    site,
+    publicAppPath(location.pathname),
+    location.search,
+  );
   const bookingEnabled = sectionEnabled(site, 'booking') && Boolean(reservationVenue);
   const links = [
     { path: '/', label: 'Home', current: '/' },
@@ -327,8 +359,8 @@ async function render(): Promise<void> {
         'a',
         {
           href: link.path,
-          ...(location.pathname === link.current ||
-          (link.current === '/sedi' && location.pathname.startsWith('/sedi/'))
+          ...(publicAppPath(location.pathname) === link.current ||
+          (link.current === '/sedi' && publicAppPath(location.pathname).startsWith('/sedi/'))
             ? { 'aria-current': 'page' }
             : {}),
         },
@@ -362,7 +394,7 @@ async function render(): Promise<void> {
   stopPerformance?.();
   stopPerformance = observePublicPerformance(venue?.id);
   recordPublicPageView(venue?.id);
-  const path = location.pathname;
+  const path = publicAppPath(location.pathname);
   if (path === '/') main.append(home(site, venue, bookingEnabled ? reservationVenue : undefined));
   else if (path === '/menu') main.append(await menu(site, venue));
   else if (path.startsWith('/menu/') && venue) {
@@ -373,6 +405,7 @@ async function render(): Promise<void> {
       emptyState(
         'Sede non disponibile',
         'Il collegamento del menu si riferisce a una sede non valida o non più attiva.',
+        'h1',
       ),
     );
     if (site.multi_venue) main.append(el('a', { href: '/sedi' }, 'Visualizza le sedi'));
@@ -429,7 +462,7 @@ async function render(): Promise<void> {
         el(
           'section',
           { class: 'public-section' },
-          emptyState('Sede non disponibile', 'La sede richiesta non è attiva o non esiste.'),
+          emptyState('Sede non disponibile', 'La sede richiesta non è attiva o non esiste.', 'h1'),
         ),
       );
     } else {
@@ -474,6 +507,7 @@ async function render(): Promise<void> {
       emptyState(
         'Prenotazioni online non disponibili',
         'La sede richiesta non accetta prenotazioni online. Contatta il ristorante o scegli un’altra sede.',
+        'h1',
       ),
     );
   } else if (path.startsWith('/tavolo/')) {
@@ -490,7 +524,11 @@ async function render(): Promise<void> {
       el(
         'section',
         { class: 'public-section' },
-        emptyState('Pagina non disponibile', 'Torna alla home o contattaci per informazioni.'),
+        emptyState(
+          'Pagina non disponibile',
+          'Torna alla home o contattaci per informazioni.',
+          'h1',
+        ),
         el('a', { href: '/' }, 'Torna alla home'),
       ),
     );
@@ -522,7 +560,7 @@ async function render(): Promise<void> {
         topics: ['PUBLIC'],
         refresh: async () => {
           if (
-            location.pathname === '/prenota' ||
+            publicAppPath(location.pathname) === '/prenota' ||
             document.activeElement?.matches('input,select,textarea')
           ) {
             const notice = document.getElementById('public-refresh');
@@ -535,10 +573,11 @@ async function render(): Promise<void> {
         },
         state: (state) => {
           const label = document.getElementById('public-connection');
+          // Visitors see a message only when they are actually offline: a degraded Realtime
+          // channel does not change what the page shows, which was read when it was loaded.
           if (label) {
-            label.hidden = state === 'LIVE';
-            label.textContent =
-              state === 'OFFLINE' ? 'MODALITÀ OFFLINE' : 'Aggiornamenti da verificare';
+            label.hidden = state !== 'OFFLINE';
+            label.textContent = 'Sei offline: orari e menu potrebbero non essere aggiornati.';
           }
         },
       });
@@ -598,7 +637,7 @@ function applyBrand(site: PublicSite): void {
   } else {
     // A previously configured favicon must not survive its removal.
     const icon = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
-    if (icon) icon.href = '/icon.svg';
+    if (icon) icon.href = withPublicBase('/icon.svg');
   }
 }
 
@@ -781,7 +820,7 @@ function venuePicker(site: PublicSite, venue: Venue, bookingOnly: boolean): HTML
   );
   select.value = venue.slug;
   select.addEventListener('change', () =>
-    route(`${location.pathname}?sede=${encodeURIComponent(select.value)}`),
+    route(`${publicAppPath(location.pathname)}?sede=${encodeURIComponent(select.value)}`),
   );
   return select;
 }
@@ -913,12 +952,13 @@ function failed(error: unknown): void {
   );
   if (import.meta.env.DEV) showError(error);
 }
+enableSkipLink();
 document.addEventListener('click', (event) => {
   const target = event.target instanceof Element ? event.target.closest('a') : null;
   if (
     !(target instanceof HTMLAnchorElement) ||
     target.origin !== location.origin ||
-    !isClientSidePublicPath(target.pathname) ||
+    !isClientSidePublicPath(publicAppPath(target.pathname)) ||
     (target.target !== '' && target.target !== '_self') ||
     target.hasAttribute('download') ||
     event.ctrlKey ||
@@ -930,7 +970,7 @@ document.addEventListener('click', (event) => {
   )
     return;
   event.preventDefault();
-  route(target.pathname + target.search);
+  route(publicAppPath(target.pathname) + target.search);
 });
 window.addEventListener('popstate', () => startPublicRender());
 startPublicRender();

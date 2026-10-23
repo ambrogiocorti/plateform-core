@@ -1,3 +1,4 @@
+import { withPublicBase } from './public-base';
 import type { PublicSite, Venue } from '../types/domain';
 
 export type PublicPath =
@@ -64,6 +65,7 @@ export function canonicalPublicUrl(
   pathname: string,
   search: string,
   origin: string,
+  base = '/',
 ): string {
   const contextual = new Set(['/menu', '/ristorante', '/gallery', '/prenota', '/contatti']);
   const venue = selectedVenue(site, pathname, search);
@@ -72,7 +74,7 @@ export function canonicalPublicUrl(
   const namedMenu = /^\/menu\/[a-z0-9]+(?:-[a-z0-9]+)*$/.test(pathname);
   const path =
     contextual.has(pathname) || namedMenu ? venueAwarePath(pathname, site, venue) : pathname;
-  return new URL(path, origin).toString();
+  return new URL(withPublicBase(path, base), origin).toString();
 }
 
 export function normalizePublicPath(

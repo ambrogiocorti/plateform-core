@@ -119,8 +119,10 @@ export async function prerenderPublic({
   siteOrigin,
   supabaseUrl,
   publishableKey,
+  base = '/',
   fetcher = fetch,
 }) {
+  if (!/^\/(?:[a-z0-9-]+\/)*$/.test(base)) throw Error('PUBLIC_BASE_INVALID');
   if (
     !isHttpsUrl(siteOrigin) ||
     !isHttpsUrl(supabaseUrl) ||
@@ -154,8 +156,15 @@ export async function prerenderPublic({
     if (!result.ok) throw Error(`PUBLIC_RPC_FAILED:${name}:${result.status}`);
     return result.json();
   }
-  const [site, sitemap, home] = await Promise.all([
-    rpc('get_public_site'),
+  const site = await rpc('get_public_site');
+  if (site === null) {
+    // A fresh install has no restaurant yet: publish the app shell (the staff area is how the
+    // restaurant gets configured) and keep the public site out of search engines.
+    await writeFile(join(distDir, 'robots.txt'), 'User-agent: *\nDisallow: /\n');
+    await rm(join(distDir, 'sitemap.xml'), { force: true });
+    return { route_count: 0, indexable: false, configured: false };
+  }
+  const [sitemap, home] = await Promise.all([
     rpc('get_public_sitemap_entries'),
     rpc('get_public_page_metadata', { p_path: '/' }),
   ]);
@@ -163,9 +172,11 @@ export async function prerenderPublic({
     throw Error('PUBLIC_RPC_INVALID_PAYLOAD');
   if (sitemap.indexable !== (home.robots === 'index,follow'))
     throw Error('PUBLIC_INDEXING_MISMATCH');
-  if (sitemap.indexable && home.canonical_url !== siteOrigin + '/')
-    throw Error('PUBLIC_ORIGIN_MISMATCH');
-  const routes = sitemap.indexable ? sitemap.urls : [{ path: '/', loc: null }];
+  // A sub-folder site (a temporary GitHub Pages link) is never indexed, even when the restaurant
+  // already set its own domain: search engines must learn that domain, not the temporary link.
+  const indexed = sitemap.indexable && base === '/';
+  if (indexed && home.canonical_url !== siteOrigin + '/') throw Error('PUBLIC_ORIGIN_MISMATCH');
+  const routes = indexed ? sitemap.urls : [{ path: '/', loc: null }];
   const html = await readFile(join(distDir, 'index.html'), 'utf8');
   if (!html.includes('<div id="app"></div>')) throw Error('PUBLIC_HTML_MOUNT_MISSING');
   const unique = new Set();
@@ -181,12 +192,12 @@ export async function prerenderPublic({
     )
       throw Error('UNSUPPORTED_SITEMAP_ROUTE');
     unique.add(path);
-    if (sitemap.indexable && entry.loc !== siteOrigin + path) throw Error('SITEMAP_CROSS_ORIGIN');
+    if (indexed && entry.loc !== siteOrigin + path) throw Error('SITEMAP_CROSS_ORIGIN');
     const metadata = path === '/' ? home : await rpc('get_public_page_metadata', { p_path: path });
     if (
       metadata.path !== path ||
       metadata.robots !== (sitemap.indexable ? 'index,follow' : 'noindex,nofollow') ||
-      (sitemap.indexable && metadata.canonical_url !== entry.loc)
+      (indexed && metadata.canonical_url !== entry.loc)
     )
       throw Error('PUBLIC_METADATA_MISMATCH');
     let legacyMenu = [],
@@ -200,10 +211,13 @@ export async function prerenderPublic({
         p_slug: path.slice(6),
         p_venue: site.venues[0]?.id,
       });
-    const body = renderPublicBody(path, site, { legacyMenu, publishedMenu });
+    const body = renderPublicBody(path, site, { legacyMenu, publishedMenu }).replace(
+      /href="\/(?!\/)/g,
+      `href="${base}`,
+    );
     const tags =
-      `<meta name="robots" content="${escape(metadata.robots)}">` +
-      (metadata.canonical_url
+      `<meta name="robots" content="${indexed ? escape(metadata.robots) : 'noindex,nofollow'}">` +
+      (indexed && metadata.canonical_url
         ? `<link rel="canonical" href="${escape(metadata.canonical_url)}">`
         : '') +
       `<meta property="og:title" content="${escape(metadata.title)}">` +
@@ -220,7 +234,7 @@ export async function prerenderPublic({
     await mkdir(destination, { recursive: true });
     await writeFile(join(destination, 'index.html'), output);
   }
-  if (sitemap.indexable) {
+  if (indexed) {
     await writeFile(
       join(distDir, 'robots.txt'),
       `User-agent: *\nDisallow: /staff/\nDisallow: /tavolo/\nSitemap: ${siteOrigin}/sitemap.xml\n`,
@@ -234,7 +248,7 @@ export async function prerenderPublic({
     await writeFile(join(distDir, 'robots.txt'), 'User-agent: *\nDisallow: /\n');
     await rm(join(distDir, 'sitemap.xml'), { force: true });
   }
-  return { route_count: unique.size, indexable: sitemap.indexable };
+  return { route_count: unique.size, indexable: indexed };
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const outcome = await prerenderPublic({
@@ -242,6 +256,9 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     siteOrigin: process.env.PUBLIC_SITE_ORIGIN,
     supabaseUrl: process.env.VITE_SUPABASE_URL,
     publishableKey: process.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+    base: process.env.VITE_PUBLIC_BASE_URL
+      ? new URL(process.env.VITE_PUBLIC_BASE_URL).pathname.replace(/\/?$/, '/')
+      : '/',
   });
   console.log('PLATEFORM_PUBLIC_PRERENDER', outcome);
 }

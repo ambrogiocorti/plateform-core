@@ -39,10 +39,19 @@ verify_jwt = false
 [functions.payments]
 verify_jwt = true
 
+# Guest pays a large-group booking deposit: no Supabase session, the one-time deposit access
+# token (checked by the database) is the authority.
+[functions.reservation-deposit]
+verify_jwt = false
+
 [functions.stripe-webhook]
 verify_jwt = false
 
 [functions.satispay-callback]
+verify_jwt = false
+
+# Customer's browser lands here after Stripe/Satispay: no Supabase session to present.
+[functions.payment-return]
 verify_jwt = false
 
 [functions.offline-authorization]
@@ -61,4 +70,24 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.public-telemetry]
+verify_jwt = false
+
+# Scheduled workers called by pg_net: no Supabase session; the worker token is the authority.
+[functions.reservation-message-worker]
+verify_jwt = false
+
+[functions.reservation-deposit-no-show-worker]
+verify_jwt = false
+
+[functions.continuity-retention-worker]
+verify_jwt = false
+
+[functions.audit-archive-worker]
+verify_jwt = false
+
+[functions.audit-archive-verify]
+verify_jwt = false
+
+# On-demand harness, shared-token authenticated, refuses ENVIRONMENT=production.
+[functions.database-unavailable-chaos-probe]
 verify_jwt = false

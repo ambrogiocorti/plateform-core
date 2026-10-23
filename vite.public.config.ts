@@ -18,6 +18,9 @@ export default defineConfig(({ command, mode }) => {
     plugins: [plateformPwa('public', base, staffBase), plateformSecurity('public', env)],
     root: fileURLToPath(new URL('./apps/public', import.meta.url)),
     envDir: '../..',
+    // Separate dependency caches: staff and public dev servers run together in the live suite and
+    // a shared node_modules/.vite makes each one invalidate the other's pre-bundled modules.
+    cacheDir: fileURLToPath(new URL('./node_modules/.vite/public', import.meta.url)),
     publicDir: '../../assets/public',
     server: { port: 5173, strictPort: true, fs: { allow: ['../..'] } },
     build: { outDir: '../../dist/public', emptyOutDir: true, sourcemap: false, target: 'es2022' },

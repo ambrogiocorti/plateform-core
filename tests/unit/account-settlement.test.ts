@@ -33,10 +33,12 @@ describe('manual pending recovery never creates an additional payment', () => {
     method: 'CARD_POS',
     status: 'PENDING',
   };
-  it('allows resuming only pending CORE manual cash/POS payments', () => {
+  it('allows resuming only pending manual cash/POS payments, never online ones', () => {
     expect(mayResolveManualPayment(payment)).toBe(true);
     expect(mayResolveManualPayment({ ...payment, method: 'CASH' })).toBe(true);
-    for (const method of ['STRIPE', 'SATISPAY_API', 'SATISPAY_POS']) {
+    // Satispay at the counter is confirmed by the operator like an external POS.
+    expect(mayResolveManualPayment({ ...payment, method: 'SATISPAY_POS' })).toBe(true);
+    for (const method of ['STRIPE', 'SATISPAY_API']) {
       expect(mayResolveManualPayment({ ...payment, method })).toBe(false);
     }
   });

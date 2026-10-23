@@ -299,7 +299,7 @@ async function editConfiguration(
     );
     editor.append(
       image.root,
-      assetUploadControl('dishes', existing.id, null, (url) => {
+      assetUploadControl('dishes', existing.id, null, 'fotografia del piatto', (url) => {
         image.input.value = url ?? '';
       }),
     );

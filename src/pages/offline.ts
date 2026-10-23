@@ -12,7 +12,8 @@ import {
   clearOffline,
 } from '../offline/store';
 import type { StaffContext } from './staff-context';
-import { staffProfileSchema, venueSchema } from '../types/domain';
+import { menuDishSchema, orderLineSchema, staffProfileSchema, venueSchema } from '../types/domain';
+import type { OrderLine } from '../types/domain';
 import { accountWorkspaceSchema } from '../types/accounts';
 import { orderDialog } from './accounts';
 import { floorView } from '../components/floor-view';
@@ -329,6 +330,15 @@ export async function conflictPage(context: StaffContext): Promise<HTMLElement> 
     { status: 'OPEN' },
   );
   const view = el('div', { class: 'stack' });
+  // Nomi dei piatti per le righe degli ordini rifiutati: letti una volta sola dal menu della sede.
+  const dishNames = new Map<string, string>();
+  if (context.venue && conflicts.length)
+    for (const dish of await rpc(
+      'get_public_menu',
+      { p_venue: context.venue.id },
+      z.array(menuDishSchema),
+    ))
+      dishNames.set(dish.id, dish.name);
   for (const conflict of conflicts) {
     const events = await readRows(
       'offline_sync_events',
@@ -430,6 +440,12 @@ export async function conflictPage(context: StaffContext): Promise<HTMLElement> 
       );
     else if (resourceType === 'tables')
       card.append(button('Apri sala aggiornata', () => context.navigate('/sala'), 'secondary'));
+    const rejectedLines =
+      event?.operation === 'CREATE_ORDER'
+        ? z.array(orderLineSchema).safeParse(event.payload.items)
+        : null;
+    if (rejectedLines?.success && resourceId)
+      card.append(orderCorrection(context, conflict, rejectedLines.data, dishNames, reasonLabels));
     card.append(
       button('Gestisci conflitto', () => {
         const reason = field('Motivo della risoluzione', 'reason');
@@ -473,4 +489,99 @@ export async function conflictPage(context: StaffContext): Promise<HTMLElement> 
   }
   if (!conflicts.length) view.append(el('p', {}, 'Nessun conflitto da risolvere.'));
   return view;
+}
+
+// §112: l'Admin corregge un ordine offline rifiutato invece di farlo ricreare al cameriere.
+// "Modifica ordine" riapre l'ordine con le righe inviate; "Annulla item" lo reinvia senza quel
+// piatto. In entrambi i casi il server crea l'ordine e chiude il conflitto nella stessa transazione.
+function orderCorrection(
+  context: StaffContext,
+  conflict: { id: string; reason_code: string },
+  lines: OrderLine[],
+  dishNames: Map<string, string>,
+  reasonLabels: Record<string, string>,
+): HTMLElement {
+  const reason = reasonLabels[conflict.reason_code] ?? conflict.reason_code;
+  const send = async (items: OrderLine[], note: string) => {
+    await rpc(
+      'resolve_order_conflict',
+      {
+        p_conflict: conflict.id,
+        p_items: items,
+        p_reason: `${note} · ${reason}`,
+        p_key: crypto.randomUUID(),
+      },
+      z.object({ id: z.uuid(), order_id: z.uuid() }),
+    );
+    toast('Ordine corretto inviato alla cucina. Conflitto risolto.');
+    await context.refresh?.();
+  };
+  const list = el('ul', { class: 'stack', 'aria-label': 'Righe dell’ordine rifiutato' });
+  lines.forEach((line, index) => {
+    const name = dishNames.get(line.dish_id) ?? 'Piatto non più a menu';
+    const rest = lines.filter((_, position) => position !== index);
+    list.append(
+      el(
+        'li',
+        { class: 'row between' },
+        el('span', {}, `${line.quantity} × ${name} · step ${line.step}`),
+        button(
+          'Annulla item',
+          () => {
+            const popup = dialog(
+              `Annulla ${name}`,
+              el(
+                'p',
+                {},
+                rest.length
+                  ? `L’ordine sarà inviato alla cucina senza ${name}.`
+                  : 'È l’unica riga: l’ordine non sarà inviato e il conflitto verrà chiuso come annullato.',
+              ),
+            );
+            popup.append(
+              button(
+                'Conferma',
+                async () => {
+                  if (rest.length) await send(rest, `Annullato ${name}`);
+                  else {
+                    await rpc(
+                      'resolve_sync_conflict',
+                      {
+                        p_conflict: conflict.id,
+                        p_action: 'DISCARD',
+                        p_reason: `Annullato ${name} · ${reason}`,
+                        p_key: crypto.randomUUID(),
+                      },
+                      z.object({ id: z.uuid() }),
+                    );
+                    toast('Ordine annullato. Conflitto chiuso.');
+                    await context.refresh?.();
+                  }
+                  popup.close();
+                },
+                'danger',
+              ),
+            );
+          },
+          'secondary',
+        ),
+      ),
+    );
+  });
+  return el(
+    'div',
+    { class: 'stack' },
+    el('h3', {}, 'Ordine rifiutato'),
+    list,
+    button('Modifica ordine', () =>
+      orderDialog(
+        context,
+        '',
+        0,
+        (items) => send(items, 'Ordine modificato dall’Admin'),
+        lines,
+        'Modifica ordine',
+      ),
+    ),
+  );
 }

@@ -13,6 +13,11 @@ necessità di un account/negozio sandbox e dell'activation code staging forniti 
   quindi rilegge la risorsa Stripe autorevole prima di aggiornare il ledger.
 - `satispay-callback`: endpoint pubblico (`verify_jwt=false`) protetto da token callback e
   rate limit; la callback non determina lo stato, ma innesca una GET firmata a Satispay.
+- `reservation-deposit` (dal 21 ottobre 2026): endpoint pubblico (`verify_jwt=false`) per la
+  caparra di garanzia dei gruppi numerosi; l'autorità è il token monouso della prenotazione,
+  verificato dal database. Usa le stesse chiavi provider della sede; `stripe-webhook` (eventi
+  `checkout.session.*` con `metadata.deposit_id`) e `satispay-callback` (`?deposit=`) rileggono
+  il pagamento prima di confermare la prenotazione.
 
 ## Secrets richiesti per il sandbox
 
@@ -28,6 +33,7 @@ SATISPAY_API_BASE_URL=https://staging.authservices.satispay.com
 SATISPAY_KEY_ID=<sandbox-key-id>
 SATISPAY_PRIVATE_KEY_PKCS8=<private-key-pkcs8-pem>
 SATISPAY_CALLBACK_TOKEN=<random-secret>
+DEPOSIT_RETURN_URL=https://<sito-pubblico>/prenota
 ```
 
 Per una futura installazione multi-sede è supportato anche il suffisso
@@ -82,3 +88,15 @@ Eseguire su sandbox, senza mock:
 - Solo dopo il pass abilitare la feature flag e il metodo di pagamento sulla sede/cassa.
 
 Il sandbox provider è un gate dello Step 6, non un controllo rinviabile al go-live.
+
+## Messaggi delle prenotazioni (reservation-message-worker)
+
+- `MESSAGE_DELIVERY_MODE` è obbligatoria: `dry_run` (nessuna chiamata ai provider, i job MOCK risultano
+  inviati) oppure `live`. Se manca, ogni chiamata risponde `SERVICE_UNAVAILABLE` senza prendere job.
+- `MESSAGE_WORKER_TOKEN` deve coincidere con il segreto Vault `plateform_message_worker_token`.
+- Provider opzionali, anche per sede con suffisso `_<UUID sede senza trattini, maiuscolo>`:
+  `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_MESSAGING_SERVICE_SID` (SMS/WhatsApp),
+  `RESEND_API_KEY`, `RESEND_FROM` (email), `TELEGRAM_BOT_TOKEN`. Senza chiavi un job reale resta in
+  riprova con `PROVIDER_NOT_CONFIGURED`.
+- `continuity-retention-worker` non ha un cron nel database: lo chiama l'host continuity, che esegue anche la
+  cancellazione reale dei backup scaduti.

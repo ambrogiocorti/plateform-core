@@ -86,6 +86,68 @@ for (const pattern of [
 ])
   check(`required policy: ${pattern}`, () => assert.match(sql, pattern));
 
+// 20261019100000 (owner decision, 2026-10-19) supersedes the unconditional provider denial of
+// the migration above: Stripe/Satispay follow the installation licences, deposits stay denied.
+const licenceFile = '20261019100000_payment_providers_by_license.sql';
+const licenceSql = readFileSync(`supabase/migrations/${licenceFile}`, 'utf8');
+check('provider licence migration is versioned in the manifest', () => {
+  const manifest = JSON.parse(readFileSync('supabase/migration-manifest.json', 'utf8'));
+  const row = manifest.migrations.find((entry) => entry.filename === licenceFile);
+  assert.ok(row, 'the provider licence migration must be versioned');
+  const hash = createHash('sha256').update(readFileSync(`supabase/migrations/${licenceFile}`));
+  assert.equal(row.sha256, hash.digest('hex'));
+});
+for (const pattern of [
+  /when p_method in \('CASH','CARD_POS'\) then true/,
+  /when p_method='STRIPE' then private\.feature_licensed\('STRIPE'\)/,
+  /when p_method in \('SATISPAY_API','SATISPAY_POS'\) then private\.feature_licensed\('SATISPAY_API'\)/,
+  /else false/,
+  // Historical: superseded by the licence-based deposit gate of 20261021090000 (checked below).
+  /new\.name='BOOKING_DEPOSITS' and new\.licensed then\s*raise exception 'CORE_PROVIDER_LICENSE_FORBIDDEN'/,
+  /core_edition_payment_guard\(\)[\s\S]*?not private\.payment_method_licensed\(new\.method::text\)[\s\S]*?PAYMENT_METHOD_UNLICENSED/,
+  /core_edition_register_methods_guard\(\)[\s\S]*?m\.method is null or not private\.payment_method_licensed/,
+  /core_edition_new_provider_operation_guard\(\)[\s\S]*?not private\.payment_method_licensed\(new\.method::text\)/,
+  /PROVIDER_STILL_CONFIGURED/,
+  /PROVIDER_OPERATIONS_PENDING/,
+  /revoke all on function private\.payment_method_licensed\(text\) from public,anon,authenticated/,
+])
+  check(`provider licence policy: ${pattern}`, () => assert.match(licenceSql, pattern));
+check('provider licence migration leaves print guards and history untouched', () => {
+  const code = licenceSql.replace(/--[^\n]*/g, '');
+  assert.doesNotMatch(code, /print/i);
+  assert.doesNotMatch(code, /\b(?:DELETE FROM|TRUNCATE|DROP)\b/i);
+});
+// 20261021090000 (owner decision, 2026-10-21): the large-group booking deposit may be licensed,
+// but only together with a licensed provider, and the server asks it only when the venue can
+// collect it. Epson/print guards stay untouched.
+const depositFile = '20261021090000_large_group_booking_deposits.sql';
+const depositSql = readFileSync(`supabase/migrations/${depositFile}`, 'utf8');
+check('deposit licence migration is versioned in the manifest', () => {
+  const manifest = JSON.parse(readFileSync('supabase/migration-manifest.json', 'utf8'));
+  const row = manifest.migrations.find((entry) => entry.filename === depositFile);
+  assert.ok(row, 'the deposit licence migration must be versioned');
+  const hash = createHash('sha256').update(readFileSync(`supabase/migrations/${depositFile}`));
+  assert.equal(row.sha256, hash.digest('hex'));
+});
+for (const pattern of [
+  /core_edition_license_guard\(\)[\s\S]*?new\.name='BOOKING_DEPOSITS' and new\.licensed\s*and not \(private\.feature_licensed\('STRIPE'\) or private\.feature_licensed\('SATISPAY_API'\)\) then\s*raise exception 'BOOKING_DEPOSITS_PROVIDER_LICENCE_REQUIRED'/,
+  /BOOKING_DEPOSITS_STILL_LICENSED/,
+  /BOOKING_DEPOSITS_PENDING/,
+  /create trigger booking_deposit_licence_revocation before update of licensed on public\.feature_flags/,
+  /private\.booking_deposits_ready\(p_venue uuid\)[\s\S]*?venue_feature_enabled\(p_venue,'BOOKING_DEPOSITS'\)\s*and cardinality\(private\.booking_deposit_providers\(p_venue\)\)>0/,
+  /where private\.feature_licensed\(p\.method\)/,
+  /if not private\.booking_deposits_ready\(v\.id\) then\s*raise exception 'BOOKING_DEPOSITS_DISABLED'/,
+  /if not private\.booking_deposits_ready\(p_venue\) then\s*v_available:=false;\s*v_reason:='BOOKING_DEPOSITS_DISABLED'/,
+  /if not v_provider=any\(private\.booking_deposit_providers\(v_deposit\.venue_id\)\) then\s*raise exception 'DEPOSIT_PROVIDER_UNAVAILABLE'/,
+  /revoke all on function public\.get_reservation_deposit_status\(uuid,text\) from public,anon,authenticated/,
+  /deposit_no_show_action='RETAIN'/,
+])
+  check(`deposit licence policy: ${pattern}`, () => assert.match(depositSql, pattern));
+check('deposit licence migration leaves print guards and history untouched', () => {
+  const code = depositSql.replace(/--[^\n]*/g, '');
+  assert.doesNotMatch(code, /print/i);
+  assert.doesNotMatch(code, /\b(?:DELETE FROM|TRUNCATE|DROP TABLE|DROP TYPE)\b/i);
+});
 check('all function scopes have fixed search path', () => {
   const functions = sql.match(/CREATE OR REPLACE FUNCTION/g) ?? [];
   const secured = sql.match(/RETURNS trigger LANGUAGE plpgsql SET search_path\s*=\s*''/g) ?? [];

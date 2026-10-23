@@ -1,7 +1,7 @@
 -- Disposable local stack only (PostgreSQL 16 + GoTrue + PostgREST).
 -- Reproduces the Supabase-owned roles/schemas the migrations rely on.
--- pg_cron, Vault and Storage are SQL-shape fixtures (same contract as tests/database/harness.ts):
--- they do NOT validate scheduling, encryption or object transport.
+-- pg_cron, Vault and (without Docker) Storage are SQL-shape fixtures (same contract as
+-- tests/database/harness.ts): they do NOT validate scheduling, encryption or object transport.
 create role anon nologin noinherit;
 create role authenticated nologin noinherit;
 create role service_role nologin noinherit bypassrls;
@@ -57,10 +57,19 @@ alter default privileges in schema public grant execute on functions to anon,aut
 alter default privileges in schema public grant all on tables to anon,authenticated,service_role;
 alter default privileges in schema public grant all on sequences to anon,authenticated,service_role;
 grant usage on schema public to anon, authenticated, service_role;
+-- storage stub -- (dropped when the stack runs the real storage-api, which owns this schema)
 create schema storage;
 create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]);
 create table storage.objects(id uuid primary key default gen_random_uuid(),bucket_id text references storage.buckets(id),name text,metadata jsonb);
 alter table storage.objects enable row level security;
 grant usage on schema storage to anon,authenticated,service_role;
 grant select on storage.objects to anon,authenticated;
+-- end storage stub --
 create publication supabase_realtime;
+-- after storage-api --
+-- Real storage only: the grants Supabase's image gives its API roles.
+grant usage on schema storage to anon,authenticated,service_role;
+grant all on all tables in schema storage to anon,authenticated,service_role;
+grant all on all sequences in schema storage to anon,authenticated,service_role;
+grant execute on all functions in schema storage to anon,authenticated,service_role;
+alter default privileges in schema storage grant all on tables to anon,authenticated,service_role;

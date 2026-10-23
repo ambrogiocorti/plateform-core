@@ -50,8 +50,26 @@ export function field(
 export function status(label: string): HTMLElement {
   return el('span', { class: 'status' }, label.replaceAll('_', ' '));
 }
-export function emptyState(title: string, description: string): HTMLElement {
-  return el('section', { class: 'empty-state' }, el('h2', {}, title), el('p', {}, description));
+/** `h1` when the state is the whole page, so every page keeps exactly one main heading. */
+export function emptyState(
+  title: string,
+  description: string,
+  heading: 'h1' | 'h2' = 'h2',
+): HTMLElement {
+  return el('section', { class: 'empty-state' }, el(heading, {}, title), el('p', {}, description));
+}
+/** Moves focus to the page content without a #main fragment jump, which fires popstate and
+ * makes the routers re-render the page instead of moving focus. */
+export function enableSkipLink(): void {
+  document.addEventListener('click', (event) => {
+    const link = event.target instanceof Element ? event.target.closest('a.skip-link') : null;
+    const main = document.getElementById('main');
+    if (!link || !main) return;
+    event.preventDefault();
+    if (!main.hasAttribute('tabindex')) main.setAttribute('tabindex', '-1');
+    main.focus();
+    main.scrollIntoView();
+  });
 }
 export function loading(): HTMLElement {
   return el('p', { role: 'status', class: 'loading' }, 'Caricamento…');

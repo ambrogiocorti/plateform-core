@@ -45,6 +45,25 @@ export const staff = {
     role: 'CASHIER',
     landing: '/cassa',
   },
+  admin: {
+    email: 'admin@staff.e2e.test',
+    name: 'Anna Admin',
+    role: 'ADMIN',
+    landing: '/operazioni',
+  },
+  kitchenAdmin: {
+    email: 'capocuoco@staff.e2e.test',
+    name: 'Carlo Capocuoco',
+    role: 'KITCHEN_ADMIN',
+    landing: '/cucina',
+  },
+  // SUPER_ADMIN always needs aal2 (private.authenticated_role): the suite enrols a real TOTP.
+  superAdmin: {
+    email: 'tecnico@staff.e2e.test',
+    name: 'Tina Tecnica',
+    role: 'SUPER_ADMIN',
+    landing: '/salute',
+  },
 };
 export const ids = {
   venue: '10000000-0000-4000-8000-0000000000e1',
@@ -99,24 +118,30 @@ async function ensureUser(member) {
   return (await response.json()).id;
 }
 
-export async function seed() {
-  const users = {};
-  for (const [key, member] of Object.entries(staff)) users[key] = await ensureUser(member);
-  if (sql(`select count(*) from public.venues where id='${ids.venue}'`) !== '0') return users;
-  sql(`begin;
+/** Minimum restaurant configuration for one service, shared with tests/e2e-staging. */
+export function fixtureSql(users) {
+  return `begin;
     insert into public.restaurant_profile(name,public_base_url,staff_base_url,staff_identity_domain)
       values('Trattoria E2E','http://localhost:5173','http://localhost:5174','staff.e2e.test');
-    insert into public.restaurant_settings(id) values(true) on conflict do nothing;
+    -- MFA for ADMIN is enforced server-side (private.authenticated_role); this disposable stack
+    -- has no TOTP authenticator, so ADMIN MFA is turned off here only. MFA has its own suite.
+    insert into public.restaurant_settings(id,admin_mfa_required) values(true,false)
+      on conflict(id) do update set admin_mfa_required=false;
     insert into public.system_limits(id) values(true) on conflict do nothing;
     insert into public.venues(id,name,slug,code,address,phone)
       values('${ids.venue}','Sede centrale','sede-centrale','C1','Via Roma 1, Milano','+390200000001');
     insert into public.venue_settings(venue_id) values('${ids.venue}') on conflict do nothing;
     insert into public.staff_profiles(id,display_name,role,scope) values
       ${Object.entries(staff)
-        .map(([key, m]) => `('${users[key]}','${m.name}','${m.role}','VENUE')`)
+        .map(
+          ([key, m]) =>
+            `('${users[key]}','${m.name}','${m.role}','${['ADMIN', 'SUPER_ADMIN'].includes(m.role) ? 'CHAIN' : 'VENUE'}')`,
+        )
         .join(',')};
     insert into public.staff_venue_assignments(user_id,venue_id)
-      select id,'${ids.venue}' from public.staff_profiles where id in (${Object.values(users)
+      select id,'${ids.venue}' from public.staff_profiles where role<>'SUPER_ADMIN' and id in (${Object.values(
+        users,
+      )
         .map((id) => `'${id}'`)
         .join(',')});
     insert into public.rooms(id,venue_id,name) values('${ids.room}','${ids.venue}','Sala principale');
@@ -146,10 +171,18 @@ export async function seed() {
       ('${ids.venue}','${ids.tiramisu}',50,(now() at time zone 'Europe/Rome')::date,'${ids.station}');
     insert into public.dish_station_assignments values
       ('${ids.venue}','${ids.carbonara}','${ids.station}',true),('${ids.venue}','${ids.tiramisu}','${ids.station}',true);
-    insert into public.station_staff_assignments values('${ids.venue}','${ids.station}','${users.kitchen}',true);
+    insert into public.station_staff_assignments values('${ids.venue}','${ids.station}','${users.kitchen}',true),
+      ('${ids.venue}','${ids.station}','${users.kitchenAdmin}',true);
     insert into public.cash_registers(id,venue_id,name,code,status) values('${ids.register}','${ids.venue}','Cassa sala','R1','CLOSED');
     insert into public.cashier_assignments(venue_id,cash_register_id,user_id) values('${ids.venue}','${ids.register}','${users.cashier}');
-    commit;`);
+    commit;`;
+}
+
+export async function seed() {
+  const users = {};
+  for (const [key, member] of Object.entries(staff)) users[key] = await ensureUser(member);
+  if (sql(`select count(*) from public.venues where id='${ids.venue}'`) !== '0') return users;
+  sql(fixtureSql(users));
   return users;
 }
 

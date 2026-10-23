@@ -148,4 +148,72 @@ await assert.rejects(
   /UNSUPPORTED_SITEMAP_ROUTE/,
 );
 count++;
+// A temporary sub-folder site (GitHub Pages project link) must never be indexed, and its
+// prerendered links must carry the folder.
+// Even when the restaurant already set its own (indexable) domain, the folder build stays
+// noindex and carries no canonical or sitemap.
+await writeFile(join(root, 'index.html'), template);
+const folderIndexable = await prerenderPublic({
+  distDir: root,
+  siteOrigin: 'https://ambrogiocorti.github.io',
+  supabaseUrl: 'https://project.supabase.co',
+  publishableKey: 'sb_publishable_test',
+  base: '/plateform/',
+  fetcher,
+});
+test(() => assert.deepEqual(folderIndexable, { route_count: 1, indexable: false }));
+const folderIndexableHome = await readFile(join(root, 'index.html'), 'utf8');
+test(() => assert.match(folderIndexableHome, /<meta name="robots" content="noindex,nofollow">/));
+test(() => assert.doesNotMatch(folderIndexableHome, /rel="canonical"/));
+const folderIndexableRobots = await readFile(join(root, 'robots.txt'), 'utf8');
+test(() => assert.equal(folderIndexableRobots, 'User-agent: *\nDisallow: /\n'));
+const noindexFetcher = async (url, options) => {
+  const fn = url.split('/').pop();
+  if (fn === 'get_public_sitemap_entries')
+    return { ok: true, json: async () => ({ indexable: false, urls: [] }) };
+  if (fn === 'get_public_page_metadata')
+    return {
+      ok: true,
+      json: async () => ({
+        path: '/',
+        title: 'Titolo',
+        description: '',
+        canonical_url: null,
+        robots: 'noindex,nofollow',
+      }),
+    };
+  return fetcher(url, options);
+};
+await writeFile(join(root, 'index.html'), template);
+await prerenderPublic({
+  distDir: root,
+  siteOrigin: 'https://ambrogiocorti.github.io',
+  supabaseUrl: 'https://project.supabase.co',
+  publishableKey: 'sb_publishable_test',
+  base: '/plateform/',
+  fetcher: noindexFetcher,
+});
+const folderHome = await readFile(join(root, 'index.html'), 'utf8');
+test(() => assert.match(folderHome, /href="\/plateform\/menu"/));
+test(() => assert.doesNotMatch(folderHome, /href="\/menu"/));
+const folderRobots = await readFile(join(root, 'robots.txt'), 'utf8');
+test(() => assert.match(folderRobots, /Disallow: \/\n/));
+// A fresh install (no restaurant configured yet) publishes the untouched app shell, never indexed.
+await writeFile(join(root, 'index.html'), template);
+const fresh = await prerenderPublic({
+  distDir: root,
+  siteOrigin: 'https://ambrogiocorti.github.io',
+  supabaseUrl: 'https://project.supabase.co',
+  publishableKey: 'sb_publishable_test',
+  base: '/plateform/',
+  fetcher: async (url) =>
+    url.endsWith('/get_public_site')
+      ? { ok: true, json: async () => null }
+      : { ok: false, status: 400 },
+});
+test(() => assert.deepEqual(fresh, { route_count: 0, indexable: false, configured: false }));
+const freshHome = await readFile(join(root, 'index.html'), 'utf8');
+test(() => assert.equal(freshHome, template));
+const freshRobots = await readFile(join(root, 'robots.txt'), 'utf8');
+test(() => assert.equal(freshRobots, 'User-agent: *\nDisallow: /\n'));
 console.log(`STEP11_RECOVERED_PRERENDER=PASS (${count} assertions)`);

@@ -1,59 +1,59 @@
 import { z } from 'zod';
-import { client, readRows, rpc, safeError } from '../api/client';
+import { client, readRows, rpc, safeEdgeError } from '../api/client';
 import { button, el, field, toast } from '../components/dom';
 import type { StaffContext } from './staff-context';
 import { safeImageUrl } from '../config/environment';
+import { safeAccent, safeBackground } from '../services/public-site';
 
 type Bucket = 'branding' | 'dishes' | 'gallery' | 'documents';
 export function assetUploadControl(
   bucket: Bucket,
   resource: string | null,
   venue: string | null,
+  purpose: string,
   onUploaded: (url: string | null) => void,
 ): HTMLElement {
+  // Several uploads share a page: each control is named after what it uploads.
   const input = el('input', {
     type: 'file',
     accept: bucket === 'documents' ? '.pdf' : 'image/png,image/jpeg,image/webp',
-    'aria-label': 'File da caricare',
+    'aria-label': `File: ${purpose}`,
   });
   let key = crypto.randomUUID();
   input.addEventListener('change', () => {
     key = crypto.randomUUID();
   });
-  return el(
-    'div',
-    { class: 'field' },
-    input,
-    button(
-      'Carica file',
-      async () => {
-        const file = input.files?.[0];
-        if (!file || file.size < 1 || file.size > 5242880) {
-          toast('Scegli un file fino a 5 MB.', true);
-          return;
-        }
-        const bytes = new Uint8Array(await file.arrayBuffer());
-        let binary = '';
-        for (let start = 0; start < bytes.length; start += 8192)
-          binary += String.fromCharCode(...bytes.subarray(start, start + 8192));
-        const { data, error } = await client().functions.invoke('asset-upload', {
-          body: {
-            bucket,
-            resource_id: resource,
-            venue_id: venue,
-            mime: file.type,
-            content_base64: btoa(binary),
-            idempotency_key: key,
-          },
-        });
-        if (error) throw safeError(error);
-        const result = z.object({ id: z.uuid(), url: z.url().nullable() }).parse(data);
-        onUploaded(result.url);
-        toast('File caricato. Salva la configurazione per pubblicarlo.');
-      },
-      'secondary',
-    ),
+  const upload = button(
+    'Carica file',
+    async () => {
+      const file = input.files?.[0];
+      if (!file || file.size < 1 || file.size > 5242880) {
+        toast('Scegli un file fino a 5 MB.', true);
+        return;
+      }
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      let binary = '';
+      for (let start = 0; start < bytes.length; start += 8192)
+        binary += String.fromCharCode(...bytes.subarray(start, start + 8192));
+      const { data, error } = await client().functions.invoke('asset-upload', {
+        body: {
+          bucket,
+          resource_id: resource,
+          venue_id: venue,
+          mime: file.type,
+          content_base64: btoa(binary),
+          idempotency_key: key,
+        },
+      });
+      if (error) throw await safeEdgeError(error);
+      const result = z.object({ id: z.uuid(), url: z.url().nullable() }).parse(data);
+      onUploaded(result.url);
+      toast('File caricato. Salva la configurazione per pubblicarlo.');
+    },
+    'secondary',
   );
+  upload.setAttribute('aria-label', `Carica file: ${purpose}`);
+  return el('div', { class: 'field' }, input, upload);
 }
 
 export async function brandingPage(context: StaffContext): Promise<HTMLElement> {
@@ -142,7 +142,7 @@ export async function brandingPage(context: StaffContext): Promise<HTMLElement> 
   const logo = field('Logo', 'logo_url', 'url', String(brand.logo_url ?? ''));
   visual.append(
     logo.root,
-    assetUploadControl('branding', null, null, (url) => {
+    assetUploadControl('branding', null, null, 'logo', (url) => {
       logo.input.value = url ?? '';
     }),
   );
@@ -150,7 +150,7 @@ export async function brandingPage(context: StaffContext): Promise<HTMLElement> 
   const favicon = field('Favicon', 'favicon_url', 'url', String(brand.favicon_url ?? ''));
   visual.append(
     favicon.root,
-    assetUploadControl('branding', null, null, (url) => {
+    assetUploadControl('branding', null, null, 'favicon', (url) => {
       favicon.input.value = url ?? '';
     }),
   );
@@ -177,7 +177,7 @@ export async function brandingPage(context: StaffContext): Promise<HTMLElement> 
   );
   editorial.append(
     hero.root,
-    assetUploadControl('branding', null, null, (url) => {
+    assetUploadControl('branding', null, null, 'fotografia iniziale', (url) => {
       hero.input.value = url ?? '';
     }),
   );
@@ -241,7 +241,7 @@ export async function brandingPage(context: StaffContext): Promise<HTMLElement> 
   renderGallery();
   gallery.append(
     galleryList,
-    assetUploadControl('gallery', null, null, (url) => {
+    assetUploadControl('gallery', null, null, 'nuova foto della galleria', (url) => {
       if (url) {
         pictures.push({ url, alt: `Fotografia del ristorante ${pictures.length + 1}` });
         renderGallery();
@@ -301,6 +301,26 @@ export async function brandingPage(context: StaffContext): Promise<HTMLElement> 
     button('Salva sito e branding', async () => {
       if (inputs.some((entry) => !entry.input.reportValidity())) return;
       for (const entry of inputs) entry.target[entry.key] = entry.input.value;
+      // Same WCAG AA rule as private.branding_contrast_valid: explain it before the server refuses.
+      const background = String(
+        brand.background_color || (darkMode.checked ? '#111315' : '#f4f0e8'),
+      );
+      if (!safeBackground(background, darkMode.checked)) {
+        toast(
+          darkMode.checked
+            ? 'Lo sfondo è troppo chiaro per il tema scuro: il testo non sarebbe leggibile.'
+            : 'Lo sfondo è troppo scuro per il tema chiaro: il testo non sarebbe leggibile.',
+          true,
+        );
+        return;
+      }
+      if (brand.accent_color && !safeAccent(String(brand.accent_color), background)) {
+        toast(
+          'Il colore principale non ha contrasto sufficiente con lo sfondo (minimo 4,5:1): scegline uno più chiaro o più scuro.',
+          true,
+        );
+        return;
+      }
       brand.font_heading = headingFont.value;
       brand.font_body = bodyFont.value;
       brand.layout = layout.value;

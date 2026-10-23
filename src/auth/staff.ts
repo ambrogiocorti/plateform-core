@@ -4,7 +4,7 @@ import { client, rpc, safeError } from '../api/client';
 import { environment } from '../config/environment';
 import { staffProfileSchema } from '../types/domain';
 import type { StaffProfile } from '../types/domain';
-import { el, button, field, showError } from '../components/dom';
+import { el, button, field } from '../components/dom';
 
 const requirementsSchema = z.object({
   role: z.string(),
@@ -178,7 +178,11 @@ export function loginPage(onComplete: () => Promise<void>): HTMLElement {
     el(
       'section',
       { class: 'login-story' },
-      el('a', { href: '/', class: 'brand' }, 'Plateform'),
+      el(
+        'a',
+        { href: import.meta.env.BASE_URL.replace(/staff\/$/, ''), class: 'brand' },
+        'Plateform',
+      ),
       el(
         'div',
         {},
@@ -244,15 +248,19 @@ async function showMfa(container: HTMLElement, onVerified: () => Promise<void>):
   code.input.maxLength = 6;
   code.input.autocomplete = 'one-time-code';
   code.input.required = true;
+  // Inline like the password step: a toast would cover this button on short screens.
+  const feedback = el('p', { role: 'alert', class: 'muted' });
   const verify = button('Verifica e accedi', async () => {
     if (!code.input.reportValidity()) return;
+    feedback.textContent = '';
     const { error: verificationError } = await client().auth.mfa.challengeAndVerify({
       factorId,
       code: code.input.value,
     });
     code.input.value = '';
     if (verificationError) {
-      showError(new Error('MFA_REQUIRED'));
+      feedback.textContent = 'Codice non valido o scaduto. Inserisci il codice attuale dell’app.';
+      code.input.focus();
       return;
     }
     await onVerified();
@@ -262,6 +270,7 @@ async function showMfa(container: HTMLElement, onVerified: () => Promise<void>):
     el('h2', {}, 'Verifica la tua identità.'),
     instructions,
     code.root,
+    feedback,
     verify,
   );
   code.input.focus();

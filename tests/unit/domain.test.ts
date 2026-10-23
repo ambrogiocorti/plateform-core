@@ -7,6 +7,7 @@ import {
   splitEqually,
 } from '../../src/services/money';
 import { canTransition, stateMachines } from '../../src/services/state-machine';
+import { menuDishSchema } from '../../src/types/domain';
 
 describe('Financial presentation uses exact integer arithmetic', () => {
   it('parses Italian decimals exactly and rejects ambiguous precision', () => {
@@ -51,5 +52,26 @@ describe('Operational boundaries', () => {
     expect(canTransition(stateMachines.reservation, 'REQUESTED', 'SEATED')).toBe(false);
     expect(canTransition(stateMachines.payment, 'FAILED', 'COMPLETED')).toBe(false);
     expect(canTransition(stateMachines.order, 'IN_PREPARATION', 'READY')).toBe(true);
+  });
+});
+
+describe('Menu payloads', () => {
+  it('accepts a dish saved without description, so the whole menu still renders', () => {
+    const dish = menuDishSchema.parse({
+      id: '40000000-0000-4000-8000-0000000000e8',
+      name: 'Carbonara',
+      description: null,
+      image_path: null,
+      beverage: false,
+      category_id: '40000000-0000-4000-8000-0000000000e7',
+      category_name: 'Primi',
+      price_cents: 1400,
+      availability: null,
+      ingredients: [],
+      allergens: [],
+      dietary_tags: [],
+      variant_groups: [],
+    });
+    expect(dish.description).toBe('');
   });
 });

@@ -1,6 +1,24 @@
 import { z } from 'zod';
-import { client } from '../api/client';
+import { ApplicationError, client, safeEdgeError } from '../api/client';
 import { button, dialog, el, field } from '../components/dom';
+
+// A wrong password is the one step-up failure the person fixes on the spot, so say so plainly.
+export async function stepUpError(error: unknown): Promise<ApplicationError> {
+  const failure = await safeEdgeError(error);
+  const context =
+    error !== null && typeof error === 'object' && 'context' in error ? error.context : null;
+  const payload: unknown =
+    context instanceof Response
+      ? await context
+          .clone()
+          .json()
+          .catch(() => null)
+      : null;
+  const code = z.object({ code: z.string() }).safeParse(payload);
+  return code.success && code.data.code === 'UNAUTHORIZED'
+    ? new ApplicationError('UNAUTHORIZED', failure.requestId, 'Password non corretta.')
+    : failure;
+}
 
 export function stepUp(action: string, resource: string | null = null): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -24,7 +42,7 @@ export function stepUp(action: string, resource: string | null = null): Promise<
         const { data, error } = await client().functions.invoke('step-up', {
           body: { password: secret, action, resource_id: resource },
         });
-        if (error) throw error;
+        if (error) throw await stepUpError(error);
         const grant = z.object({ grant_id: z.uuid() }).parse(data);
         completed = true;
         confirmation.close();

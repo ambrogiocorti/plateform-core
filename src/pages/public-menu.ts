@@ -9,7 +9,11 @@ import type { Venue } from '../types/domain';
 const item = z.object({
   id: z.uuid(),
   name: z.string(),
-  description: z.string(),
+  // Optional in the catalog: a dish saved without one comes back as null.
+  description: z
+    .string()
+    .nullable()
+    .transform((value) => value ?? ''),
   image_path: z.string().nullable(),
   beverage: z.boolean(),
   price_cents: z.number().int().nonnegative(),
@@ -44,7 +48,7 @@ export async function publishedMenuIndex(
 
 export async function publishedMenuPage(slug: string, venue: Venue): Promise<HTMLElement> {
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug) || slug.length > 80)
-    return emptyState('Menu non disponibile', 'La carta richiesta non è valida.');
+    return emptyState('Menu non disponibile', 'La carta richiesta non è valida.', 'h1');
   const result = await rpc(
     'get_public_menu_by_slug',
     { p_slug: slug, p_venue: venue.id },

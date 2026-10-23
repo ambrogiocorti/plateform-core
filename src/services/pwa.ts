@@ -29,12 +29,14 @@ export async function registerPwa(): Promise<void> {
     document.body.append(notice);
   }
   offerUpdate();
-  registration.addEventListener('updatefound', () =>
-    registration.installing?.addEventListener('statechange', () => {
-      if (registration.installing?.state === 'installed' && navigator.serviceWorker.controller)
-        offerUpdate();
-    }),
-  );
+  // Once installed the worker moves from registration.installing to registration.waiting, so
+  // its state is read from the worker itself, not from the registration slot.
+  registration.addEventListener('updatefound', () => {
+    const worker = registration.installing;
+    worker?.addEventListener('statechange', () => {
+      if (worker.state === 'installed' && navigator.serviceWorker.controller) offerUpdate();
+    });
+  });
   let refreshed = false;
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if (!refreshed) {

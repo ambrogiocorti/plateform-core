@@ -419,147 +419,180 @@ describe('completion: authoritative catalog, editor, planning and equal shares',
     expect(workspace.orders[0]!.items[0]!.quantity).toBe(2);
   });
 
-  // The historical provider-workflow suite belongs to a separately certified
-  // FULL database profile. It must not run against a CORE schema where the
-  // provider-license guard is intentionally fail-closed (tracking: issue #4).
-  // The CORE negative tests below remain mandatory and executable.
-  describe.runIf(process.env.PLATEFORM_TEST_EDITION === 'FULL')(
-    'FULL-only provider state transitions (requires non-CORE database profile)',
-    () => {
-      async function onlinePayment() {
-        const account = await createOrder();
-        await db.exec(
-          "reset role; update public.feature_flags set licensed=true where name='STRIPE'",
-        );
-        await db.query(
-          "update public.venue_settings set payment_methods=array['CASH','STRIPE']::public.payment_method[] where venue_id=$1",
-          [ids.venue],
-        );
-        await db.query(
-          "update public.cash_registers set payment_methods=array['CASH','STRIPE']::public.payment_method[] where id=$1",
-          [register],
-        );
-        await identity(db, ids.cashier);
-        await db.query('select public.set_cash_register_open($1,true)', [register]);
-        await db.query('select public.open_service_session($1,null,$2,0,$3)', [
-          ids.venue,
-          register,
-          crypto.randomUUID(),
-        ]);
-        const payment = (
-          await db.query<{ r: { id: string } }>(
-            "select public.create_payment($1,$2,3003,100,'STRIPE',$3,'[]',null) r",
-            [account, register, crypto.randomUUID()],
-          )
-        ).rows[0]!.r.id;
-        const operation = (
+  // Stripe/Satispay are in the first release behind the installation licences (2026-10-19).
+  describe('licensed provider state transitions', () => {
+    async function onlinePayment() {
+      const account = await createOrder();
+      await db.exec(
+        "reset role; update public.feature_flags set licensed=true where name='STRIPE'",
+      );
+      await db.query(
+        "update public.venue_settings set payment_methods=array['CASH','STRIPE']::public.payment_method[] where venue_id=$1",
+        [ids.venue],
+      );
+      await db.query(
+        "update public.cash_registers set payment_methods=array['CASH','STRIPE']::public.payment_method[] where id=$1",
+        [register],
+      );
+      await identity(db, ids.cashier);
+      await db.query('select public.set_cash_register_open($1,true)', [register]);
+      await db.query('select public.open_service_session($1,null,$2,0,$3)', [
+        ids.venue,
+        register,
+        crypto.randomUUID(),
+      ]);
+      const payment = (
+        await db.query<{ r: { id: string } }>(
+          "select public.create_payment($1,$2,3003,100,'STRIPE',$3,'[]',null) r",
+          [account, register, crypto.randomUUID()],
+        )
+      ).rows[0]!.r.id;
+      const operation = (
+        await db.query<{ r: { id: string } }>(
+          'select public.prepare_provider_operation($1,null) r',
+          [payment],
+        )
+      ).rows[0]!.r.id;
+      return { account, payment, operation };
+    }
+    it('allows only the server to claim and confirm online charges', async () => {
+      const { operation } = await onlinePayment();
+      await expect(
+        db.query('select public.claim_provider_operation($1)', [operation]),
+      ).rejects.toThrow('permission denied');
+    });
+    it('keeps unknown outcomes reserved and reuses the provider command', async () => {
+      const { payment, operation, account } = await onlinePayment();
+      await db.exec('reset role; set role service_role');
+      const op = (
+        await db.query<{ r: { lease_token: string; amount_cents: number } }>(
+          'select public.claim_provider_operation($1) r',
+          [operation],
+        )
+      ).rows[0]!.r;
+      expect(op.amount_cents).toBe(3103);
+      await db.query('select public.release_provider_lease($1,$2)', [operation, op.lease_token]);
+      await identity(db, ids.cashier);
+      expect(
+        (
           await db.query<{ r: { id: string } }>(
             'select public.prepare_provider_operation($1,null) r',
             [payment],
           )
-        ).rows[0]!.r.id;
-        return { account, payment, operation };
-      }
-      it('allows only the server to claim and confirm online charges', async () => {
-        const { operation } = await onlinePayment();
-        await expect(
-          db.query('select public.claim_provider_operation($1)', [operation]),
-        ).rejects.toThrow('permission denied');
-      });
-      it('keeps unknown outcomes reserved and reuses the provider command', async () => {
-        const { payment, operation, account } = await onlinePayment();
-        await db.exec('reset role; set role service_role');
-        const op = (
-          await db.query<{ r: { lease_token: string; amount_cents: number } }>(
-            'select public.claim_provider_operation($1) r',
-            [operation],
+        ).rows[0]!.r.id,
+      ).toBe(operation);
+      expect(
+        (
+          await db.query<{ r: { pending_cents: number } }>(
+            'select public.get_account_balance($1) r',
+            [account],
           )
-        ).rows[0]!.r;
-        expect(op.amount_cents).toBe(3103);
-        await db.query('select public.release_provider_lease($1,$2)', [operation, op.lease_token]);
-        await identity(db, ids.cashier);
-        expect(
-          (
-            await db.query<{ r: { id: string } }>(
-              'select public.prepare_provider_operation($1,null) r',
-              [payment],
-            )
-          ).rows[0]!.r.id,
-        ).toBe(operation);
-        expect(
-          (
-            await db.query<{ r: { pending_cents: number } }>(
-              'select public.get_account_balance($1) r',
-              [account],
-            )
-          ).rows[0]!.r.pending_cents,
-        ).toBe(3003);
-      });
-      it('deduplicates verified receipts and never downgrades completed payments', async () => {
-        const { operation, payment } = await onlinePayment();
-        await db.exec('reset role; set role service_role');
-        const lease = (
+        ).rows[0]!.r.pending_cents,
+      ).toBe(3003);
+    });
+    it('deduplicates verified receipts and never downgrades completed payments', async () => {
+      const { operation, payment } = await onlinePayment();
+      await db.exec('reset role; set role service_role');
+      const lease = (
+        await db.query<{ r: { lease_token: string } }>(
+          'select public.claim_provider_operation($1) r',
+          [operation],
+        )
+      ).rows[0]!.r.lease_token;
+      const finish = () =>
+        db.query(
+          "select public.finish_provider_operation($1,null,'cs_test_123','COMPLETED',3103,'EUR','event-paid',null)",
+          [operation],
+        );
+      await db.query(
+        "select public.finish_provider_operation($1,$2,'cs_test_123','WAITING',3103,'EUR','event-wait',null)",
+        [operation, lease],
+      );
+      await finish();
+      await finish();
+      await db.query(
+        "select public.finish_provider_operation($1,null,'cs_test_123','WAITING',3103,'EUR','late-wait',null)",
+        [operation],
+      );
+      await identity(db, ids.cashier);
+      expect(
+        (
+          await db.query<{ status: string }>('select status from public.payments where id=$1', [
+            payment,
+          ])
+        ).rows[0]!.status,
+      ).toBe('COMPLETED');
+      expect(
+        (
+          await db.query<{ n: number }>(
+            'select count(*)::int n from public.cash_journal where payment_id=$1',
+            [payment],
+          )
+        ).rows[0]!.n,
+      ).toBe(1);
+    });
+    it('blocks revoking the Stripe licence while an online charge is pending', async () => {
+      await onlinePayment();
+      await db.exec('reset role');
+      await db.query(
+        "update public.venue_settings set payment_methods=array['CASH']::public.payment_method[] where venue_id=$1",
+        [ids.venue],
+      );
+      await db.query(
+        "update public.cash_registers set payment_methods=array['CASH']::public.payment_method[] where id=$1",
+        [register],
+      );
+      await expect(
+        db.query("update public.feature_flags set licensed=false where name='STRIPE'"),
+      ).rejects.toThrow('PROVIDER_OPERATIONS_PENDING');
+    });
+    it('releases the lease when a repeated read finds the event already recorded', async () => {
+      const { operation } = await onlinePayment();
+      await db.exec('reset role; set role service_role');
+      const claim = async () =>
+        (
           await db.query<{ r: { lease_token: string } }>(
             'select public.claim_provider_operation($1) r',
             [operation],
           )
         ).rows[0]!.r.lease_token;
-        const finish = () =>
-          db.query(
-            "select public.finish_provider_operation($1,null,'cs_test_123','COMPLETED',3103,'EUR','event-paid',null)",
-            [operation],
-          );
-        await db.query(
-          "select public.finish_provider_operation($1,$2,'cs_test_123','WAITING',3103,'EUR','event-wait',null)",
+      const read = (lease: string) =>
+        db.query<{ r: { state: string } }>(
+          "select public.finish_provider_operation($1,$2,'cs_test_dup','WAITING',3103,'EUR','read:cs_test_dup:WAITING',null) r",
           [operation, lease],
         );
-        await finish();
-        await finish();
-        await db.query(
-          "select public.finish_provider_operation($1,null,'cs_test_123','WAITING',3103,'EUR','late-wait',null)",
+      await read(await claim());
+      expect((await read(await claim())).rows[0]!.r.state).toBe('WAITING');
+      const row = (
+        await db.query<{ state: string; lease_token: string | null }>(
+          'select state,lease_token from public.provider_operations where id=$1',
           [operation],
-        );
-        await identity(db, ids.cashier);
-        expect(
-          (
-            await db.query<{ status: string }>('select status from public.payments where id=$1', [
-              payment,
-            ])
-          ).rows[0]!.status,
-        ).toBe('COMPLETED');
-        expect(
-          (
-            await db.query<{ n: number }>(
-              'select count(*)::int n from public.cash_journal where payment_id=$1',
-              [payment],
-            )
-          ).rows[0]!.n,
-        ).toBe(1);
-      });
-      it('rejects a provider result with a different amount', async () => {
-        const { operation } = await onlinePayment();
-        await db.exec('reset role; set role service_role');
-        await expect(
-          db.query(
-            "select public.finish_provider_operation($1,null,'cs_wrong','COMPLETED',1,'EUR','wrong-amount',null)",
-            [operation],
-          ),
-        ).rejects.toThrow('PROVIDER_VERIFICATION_FAILED');
-      });
-    },
-  );
-
-  it.each(['STRIPE', 'SATISPAY_API', 'BOOKING_DEPOSITS'])(
-    'CORE refuses to relicense excluded capability %s even to database owner',
-    async (capability) => {
-      await db.exec('reset role');
+        )
+      ).rows[0]!;
+      expect(row).toEqual({ state: 'WAITING', lease_token: null });
+      // The webhook or the cashier's check can claim again at once.
+      expect(await claim()).toBeTruthy();
+    });
+    it('rejects a provider result with a different amount', async () => {
+      const { operation } = await onlinePayment();
+      await db.exec('reset role; set role service_role');
       await expect(
-        db.query('update public.feature_flags set licensed=true where name=$1', [capability]),
-      ).rejects.toThrow('CORE_PROVIDER_LICENSE_FORBIDDEN');
-    },
-  );
+        db.query(
+          "select public.finish_provider_operation($1,null,'cs_wrong','COMPLETED',1,'EUR','wrong-amount',null)",
+          [operation],
+        ),
+      ).rejects.toThrow('PROVIDER_VERIFICATION_FAILED');
+    });
+  });
 
-  it('CORE refuses Stripe as a venue payment method', async () => {
+  it('refuses to license online booking deposits without a provider licence, even to the database owner', async () => {
+    await db.exec('reset role');
+    await expect(
+      db.query("update public.feature_flags set licensed=true where name='BOOKING_DEPOSITS'"),
+    ).rejects.toThrow('BOOKING_DEPOSITS_PROVIDER_LICENCE_REQUIRED');
+  });
+
+  it('refuses Stripe as a venue payment method without the licence', async () => {
     await db.exec('reset role');
     await expect(
       db.query(
@@ -569,24 +602,47 @@ describe('completion: authoritative catalog, editor, planning and equal shares',
     ).rejects.toThrow('CORE_REGISTER_PAYMENT_METHODS_FORBIDDEN');
   });
 
-  it('CORE refuses Satispay as a cash-register payment method', async () => {
-    await db.exec('reset role');
-    await expect(
-      db.query(
-        'update public.cash_registers set payment_methods=array[$1::public.payment_method] where id=$2',
-        ['SATISPAY_API', register],
-      ),
-    ).rejects.toThrow('CORE_REGISTER_PAYMENT_METHODS_FORBIDDEN');
-  });
+  it.each(['SATISPAY_API', 'SATISPAY_POS'])(
+    'refuses %s as a cash-register payment method without the Satispay licence',
+    async (method) => {
+      await db.exec('reset role');
+      await expect(
+        db.query(
+          'update public.cash_registers set payment_methods=array[$1::public.payment_method] where id=$2',
+          [method, register],
+        ),
+      ).rejects.toThrow('CORE_REGISTER_PAYMENT_METHODS_FORBIDDEN');
+    },
+  );
 
-  it('CORE rejects direct provider-operation insertion even with service privileges', async () => {
+  it('rejects provider-operation insertion without the licence even with service privileges', async () => {
     await db.exec('reset role; set role service_role');
     await expect(
       db.query(
         "insert into public.provider_operations(venue_id,payment_id,kind,method,amount_cents) values($1,$2,'PAYMENT','STRIPE',100)",
         [ids.venue, crypto.randomUUID()],
       ),
-    ).rejects.toThrow('CORE_PROVIDER_OPERATION_FORBIDDEN');
+    ).rejects.toThrow('PAYMENT_METHOD_UNLICENSED');
+  });
+
+  it('accepts Satispay on a register once licensed and blocks revoking it while configured', async () => {
+    await db.exec(
+      "reset role; update public.feature_flags set licensed=true where name='SATISPAY_API'",
+    );
+    await db.query(
+      "update public.cash_registers set payment_methods=array['CASH','SATISPAY_API']::public.payment_method[] where id=$1",
+      [register],
+    );
+    await db.exec('savepoint revoke_while_configured');
+    await expect(
+      db.query("update public.feature_flags set licensed=false where name='SATISPAY_API'"),
+    ).rejects.toThrow('PROVIDER_STILL_CONFIGURED');
+    await db.exec('rollback to savepoint revoke_while_configured');
+    await db.query(
+      "update public.cash_registers set payment_methods=array['CASH']::public.payment_method[] where id=$1",
+      [register],
+    );
+    await db.query("update public.feature_flags set licensed=false where name='SATISPAY_API'");
   });
 
   it('prevents the generic configuration form from changing a room in service', async () => {

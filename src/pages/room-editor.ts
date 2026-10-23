@@ -34,6 +34,12 @@ export async function roomEditorPage(context: StaffContext): Promise<HTMLElement
     context.venue?.id,
     { room_id: layout.room_id, active: 'true' },
   );
+  const rooms = await readRows(
+    'rooms',
+    z.object({ id: z.uuid(), name: z.string() }),
+    context.venue?.id,
+  );
+  const roomName = (id: string) => rooms.find((r) => r.id === id)?.name ?? 'Sala';
   let currentLayout = layout;
   const history = new History({ elements: layout.elements, tables });
   const selected = new Set<string>();
@@ -45,7 +51,13 @@ export async function roomEditorPage(context: StaffContext): Promise<HTMLElement
   const picker = el(
     'select',
     { 'aria-label': 'Layout' },
-    ...layouts.map((l) => el('option', { value: l.id }, l.name + (l.active ? ' · Attivo' : ''))),
+    ...layouts.map((l) =>
+      el(
+        'option',
+        { value: l.id },
+        `${roomName(l.room_id)} · ${l.name}` + (l.active ? ' · in uso' : ' · non in uso'),
+      ),
+    ),
   );
   picker.value = layout.id;
   picker.addEventListener('change', () => context.navigate(`/editor?layout=${picker.value}`));
@@ -60,16 +72,37 @@ export async function roomEditorPage(context: StaffContext): Promise<HTMLElement
     'aria-label': 'Proprietà selezione',
   });
   const count = el('p', { role: 'status' });
-  const view = el('div', { class: 'stack' }, el('div', { class: 'row' }, picker, count));
+  const view = el(
+    'div',
+    { class: 'stack' },
+    el(
+      'p',
+      { class: 'muted' },
+      'Trascina un tavolo per spostarlo. Toccalo per cambiare numero e posti. Premi Salva quando hai finito.',
+    ),
+    el('div', { class: 'row' }, el('label', {}, 'Sala', picker), count),
+  );
+  const simpleTools = el('div', {
+    class: 'row editor-tools',
+    role: 'toolbar',
+    'aria-label': 'Azioni sala',
+  });
   const tools = el('div', {
     class: 'row editor-tools',
     role: 'toolbar',
     'aria-label': 'Strumenti disegno',
   });
+  // Walls, decorations and view controls are rarely needed: they stay out of the way.
+  const advanced = el(
+    'details',
+    { class: 'card' },
+    el('summary', {}, 'Strumenti avanzati (muri, porte, decorazioni, zoom)'),
+    tools,
+  );
   const names: Record<string, string> = {
     SELECT: 'Seleziona',
     PAN: 'Sposta vista',
-    TABLE: 'Tavolo',
+    TABLE: 'Tavolo nel punto scelto',
     WALL: 'Muro',
     DOOR: 'Porta',
     WINDOW: 'Finestra',
@@ -136,7 +169,15 @@ export async function roomEditorPage(context: StaffContext): Promise<HTMLElement
   );
   function updateInspector(): void {
     inspector.replaceChildren(
-      el('h3', {}, selected.size ? `Selezione: ${selected.size}` : 'Proprietà'),
+      el(
+        'h3',
+        {},
+        selected.size > 1
+          ? `${selected.size} elementi selezionati`
+          : selected.size
+            ? 'Modifica'
+            : 'Tocca un tavolo per modificarlo',
+      ),
     );
     const id = [...selected][0],
       element = history.current.elements.find((e) => e.id === id),
@@ -203,12 +244,25 @@ export async function roomEditorPage(context: StaffContext): Promise<HTMLElement
     );
     zone.value = table?.zone_id ?? '';
     const color = field('Colore', 'color', 'color', element?.color ?? '#b88a55');
-    inspector.append(name.root, ...fields.map((f) => f.root));
-    if (table) inspector.append(number.root, seats.root, shape, zone);
+    const geometry = el(
+      'details',
+      {},
+      el('summary', {}, 'Posizione e dimensioni'),
+      ...fields.map((f) => f.root),
+    );
+    inspector.append(name.root);
+    if (table)
+      inspector.append(
+        number.root,
+        seats.root,
+        el('label', {}, 'Forma', shape),
+        zones.length ? el('label', {}, 'Zona', zone) : el('span'),
+      );
     else inspector.append(color.root);
+    inspector.append(geometry);
     inspector.append(
       button(
-        'Applica proprietà',
+        'Applica modifiche',
         () => {
           if ([...inspector.querySelectorAll('input')].some((i) => !i.reportValidity())) return;
           const next = structuredClone(history.current);
@@ -429,9 +483,53 @@ export async function roomEditorPage(context: StaffContext): Promise<HTMLElement
     ids.forEach((id) => selected.add(id));
     draw();
   }
+  // Places a new table on the first free spot of a regular grid, so nobody has to aim.
+  function addTable(): void {
+    const next = structuredClone(history.current);
+    const width = 120,
+      height = 100,
+      gap = 60;
+    const free = (x: number, y: number) =>
+      next.tables.every(
+        (t) =>
+          x + width + gap / 2 <= t.position_x ||
+          t.position_x + t.width + gap / 2 <= x ||
+          y + height + gap / 2 <= t.position_y ||
+          t.position_y + t.height + gap / 2 <= y,
+      );
+    let spot = {
+      x: Math.max(0, (layout.width - width) / 2),
+      y: Math.max(0, (layout.height - height) / 2),
+    };
+    search: for (let y = gap; y + height <= layout.height; y += height + gap)
+      for (let x = gap; x + width <= layout.width; x += width + gap)
+        if (free(x, y)) {
+          spot = { x, y };
+          break search;
+        }
+    const number = Math.max(0, ...next.tables.map((t) => t.number)) + 1;
+    const fresh = crypto.randomUUID();
+    next.tables.push({
+      id: fresh,
+      version: null,
+      name: `Tavolo ${number}`,
+      number,
+      seats: next.tables.at(-1)?.seats ?? 4,
+      zone_id: null,
+      shape: next.tables.at(-1)?.shape ?? 'ROUND',
+      position_x: spot.x,
+      position_y: spot.y,
+      width,
+      height,
+      rotation: 0,
+    });
+    history.commit(next);
+    selected.clear();
+    selected.add(fresh);
+    draw();
+  }
   tools.append(
     button('Duplica', duplicate, 'secondary'),
-    button('Elimina selezione', remove, 'quiet'),
     button(
       'Porta avanti',
       () => {
@@ -480,8 +578,18 @@ export async function roomEditorPage(context: StaffContext): Promise<HTMLElement
   });
   let saveKey = crypto.randomUUID(),
     savePayload: Drawing | null = null;
-  tools.append(
-    button('Salva layout', async () => {
+  simpleTools.append(
+    button('Aggiungi tavolo', addTable),
+    button('Elimina selezionati', remove, 'secondary'),
+    button(
+      'Annulla ultima modifica',
+      () => {
+        history.undo();
+        draw();
+      },
+      'quiet',
+    ),
+    button('Salva', async () => {
       if (!savePayload) {
         savePayload = structuredClone(history.current);
       }
@@ -500,9 +608,25 @@ export async function roomEditorPage(context: StaffContext): Promise<HTMLElement
       history.current = { elements: result.layout.elements, tables: result.tables };
       savePayload = null;
       saveKey = crypto.randomUUID();
-      toast('Layout salvato.');
+      // A saved room is meant to be used: switch it on unless it already is.
+      if (!currentLayout.active) {
+        await rpc(
+          'activate_room_layout',
+          { p_layout: layout.id, p_version: currentLayout.version, p_key: crypto.randomUUID() },
+          z.object({ id: z.uuid() }),
+        );
+        // Activation bumps the layout version: reload it so the next save does not conflict.
+        const [activated] = await readRows('room_layouts', layoutSchema, context.venue?.id, {
+          id: layout.id,
+        });
+        currentLayout = activated ?? { ...currentLayout, active: true };
+        toast('Sala salvata e messa in uso.');
+        await context.refresh?.();
+      } else toast('Sala salvata.');
       draw();
     }),
+  );
+  tools.append(
     button(
       'Attiva layout',
       async () => {
@@ -518,7 +642,8 @@ export async function roomEditorPage(context: StaffContext): Promise<HTMLElement
     ),
   );
   view.append(
-    tools,
+    simpleTools,
+    advanced,
     el('div', { class: 'editor-grid' }, el('div', { class: 'canvas-scroll' }, svg), inspector),
   );
   draw();

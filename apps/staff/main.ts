@@ -6,12 +6,15 @@ import {
   dialog,
   field,
   emptyState,
+  enableSkipLink,
   loading,
   showError,
+  toast,
 } from '../../src/components/dom';
 import { environment } from '../../src/config/environment';
 import { activeProfile, loginPage, signOut, requirements } from '../../src/auth/staff';
 import { openAccessSecurity } from '../../src/auth/access-security';
+import { emailLinkPage, readEmailLink } from '../../src/auth/recovery';
 import { stepUp } from '../../src/auth/step-up';
 import { rpc } from '../../src/api/client';
 import { z } from 'zod';
@@ -19,7 +22,7 @@ import { client } from '../../src/api/client';
 import { lockedPage, lockSession, editPin } from '../../src/auth/lock';
 import { watchLive } from '../../src/realtime/live';
 import type { ConnectionState } from '../../src/realtime/live';
-import { loadContext } from '../../src/pages/staff-context';
+import { loadContext, selectVenue } from '../../src/pages/staff-context';
 import type { StaffContext } from '../../src/pages/staff-context';
 import type { UserRole } from '../../src/types/domain';
 import {
@@ -77,6 +80,7 @@ const navigation: {
   { path: '/food-cost', label: 'Food cost e margini', roles: ['ADMIN'], section: 'CONFIGURAZIONE' },
   { path: '/servizio', label: 'Servizio', roles: ['WAITER'] },
   { path: '/salute', label: 'Operational Health', roles: ['SUPER_ADMIN'] },
+  { path: '/sedi', label: 'Sedi', roles: ['SUPER_ADMIN'] },
   { path: '/accoglienza', label: 'Accoglienza', roles: ['ADMIN', 'HOST'], section: 'OPERATIVITÀ' },
   {
     path: '/sala',
@@ -157,6 +161,10 @@ if (recoveredRoute && recoveredRoute.startsWith(staffBase)) {
   sessionStorage.removeItem('plateform-route-staff');
   history.replaceState(null, '', recoveredRoute);
 }
+// A password-recovery or invite e-mail lands here with its tokens in the fragment: take them out
+// of the address bar at once, then let the person choose a password.
+let pendingEmailLink = readEmailLink(location.hash, location.search);
+if (pendingEmailLink) history.replaceState(null, '', location.pathname);
 function navigate(path: string): void {
   history.pushState(null, '', staffHref(path));
   void render().catch(showError);
@@ -187,6 +195,19 @@ async function render(): Promise<void> {
   if (!navigator.onLine) {
     disconnectLive();
     app.replaceChildren(await (await import('../../src/pages/offline')).offlinePage());
+    return;
+  }
+  if (pendingEmailLink) {
+    const link = pendingEmailLink;
+    pendingEmailLink = null;
+    disconnectLive();
+    app.replaceChildren(
+      await emailLinkPage(link, async (message) => {
+        history.replaceState(null, '', staffHref('/login'));
+        await render();
+        toast(message);
+      }),
+    );
     return;
   }
   const {
@@ -267,8 +288,12 @@ async function render(): Promise<void> {
   if (venueControl) {
     venueControl.value = context.venue?.id ?? '';
     venueControl.addEventListener('change', () => {
-      sessionStorage.setItem('plateform-venue', venueControl.value);
-      navigate('/');
+      selectVenue(venueControl.value)
+        .then(() => navigate('/'))
+        .catch((error: unknown) => {
+          venueControl.value = context.venue?.id ?? '';
+          showError(error);
+        });
     });
   }
   const shell = el(
@@ -485,6 +510,8 @@ async function render(): Promise<void> {
       content = await (await import('../../src/pages/privacy')).privacyPage(context);
     else if (pageLink.path === '/audit')
       content = await (await import('../../src/pages/audit')).auditPage();
+    else if (pageLink.path === '/sedi')
+      content = await (await import('../../src/pages/venues')).venuesPage(context);
     else if (pageLink.path === '/statistiche')
       content = await (await import('../../src/pages/statistics')).statisticsPage(context);
     else if (pageLink.path === '/conflitti')
@@ -664,12 +691,13 @@ function openPalette(): void {
             ...hits.map((hit) =>
               button(
                 `${hit.label} · ${labels[hit.kind] ?? hit.kind}`,
-                () => {
+                async () => {
                   if (
                     hit.venue_id &&
+                    hit.venue_id !== currentContext?.venue?.id &&
                     currentContext?.venues.some((venue) => venue.id === hit.venue_id)
                   )
-                    sessionStorage.setItem('plateform-venue', hit.venue_id);
+                    await selectVenue(hit.venue_id);
                   popup.close();
                   navigate(hit.path);
                 },
@@ -735,6 +763,7 @@ document.addEventListener('keydown', (event) => {
     }
   }
 });
+enableSkipLink();
 window.addEventListener('popstate', () => {
   void render().catch(showError);
 });

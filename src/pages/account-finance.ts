@@ -185,7 +185,7 @@ export async function accountPaymentHistory(
           el(
             'p',
             { class: 'muted' },
-            'Operazione storica con metodo escluso dalla CORE: consultazione consentita; nuove rettifiche e richieste al provider non disponibili.',
+            'Operazione con un metodo non più disponibile: consultazione consentita; nuove rettifiche e richieste al provider non disponibili.',
           ),
         );
       if (
@@ -304,7 +304,7 @@ async function refundDialog(
       el(
         'p',
         {},
-        'Questo metodo appartiene a un provider escluso dalla versione CORE. La transazione storica resta visibile ma non può essere rimborsata da questa edizione.',
+        'Questo metodo di pagamento non è disponibile in questa installazione. La transazione resta visibile ma non può essere rimborsata da qui.',
       ),
     );
     return;

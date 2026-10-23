@@ -102,6 +102,11 @@
   color: var(--muted);
   white-space: pre-line;
 }
+/* Content arrives after the shell: keeping the footer below the fold avoids a visible layout shift. */
+#main {
+  min-height: 100vh;
+  min-height: 100svh;
+}
 .public-footer {
   padding: 55px 6vw;
   border-top: 1px solid var(--border);
@@ -375,4 +380,17 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
   }
+}
+
+/* Large-group booking deposit terms, shown before the request is sent. */
+.deposit-terms {
+  margin: 0 0 18px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+  border-radius: 8px;
+  background: var(--surface);
+}
+.deposit-terms[hidden] {
+  display: none;
 }

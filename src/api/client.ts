@@ -58,6 +58,10 @@ const messages: Record<string, string> = {
   INVALID_FOOD_COST_REQUEST: 'Seleziona un piatto e una sede validi per il food cost.',
   INVALID_FOOD_COST_SNAPSHOT: 'Impossibile registrare lo snapshot: aggiorna la ricetta e riprova.',
   MULTI_VENUE_DISABLED: 'La gestione di più sedi non è abilitata.',
+  INVALID_VENUE:
+    'Controlla i dati della sede: nome, indirizzo web (solo minuscole, numeri e trattini), codice, indirizzo, telefono e fuso orario.',
+  VENUE_LIMIT: 'Hai raggiunto il numero massimo di sedi attive previsto per l’installazione.',
+  FIRST_VENUE_REQUIRED: 'Deve restare attiva almeno una sede.',
   LAYOUT_IN_SERVICE: 'Completa il servizio della sala prima di modificare il layout.',
   USE_ROOM_EDITOR:
     'Per attivare o modificare la piantina apri Editor sala. Qui puoi soltanto creare o rinominare un layout.',
@@ -66,6 +70,11 @@ const messages: Record<string, string> = {
   USER_LIMIT: 'Hai raggiunto il limite degli utenti attivi.',
   DEVICE_LIMIT: 'Hai raggiunto il limite dei dispositivi autorizzati.',
   STORAGE_LIMIT: 'Lo spazio disponibile per i file è esaurito.',
+  INVALID_ASSET: 'Il file non è un’immagine PNG, JPEG o WebP valida.',
+  INVALID_ASSET_URL: 'Immagini e link devono usare un indirizzo sicuro che inizia con https://.',
+  RATE_LIMITED: 'Troppe richieste ravvicinate. Attendi qualche minuto e riprova.',
+  ASSET_RECOVERY_REQUIRED:
+    'Il caricamento non si è concluso. Riprova: se il problema resta, contatta l’assistenza.',
   LIMIT_BELOW_CURRENT_USAGE: 'Il limite non può essere inferiore alle risorse già utilizzate.',
   PRINT_RECONCILIATION_REQUIRED:
     'Verifica il documento fisico e l’esito della stampa prima di proseguire.',
@@ -120,6 +129,8 @@ const messages: Record<string, string> = {
   CUSTOMER_SESSION_REQUIRED: 'Inserisci il codice attuale del conto per accedere.',
   TABLE_CAPACITY_INSUFFICIENT: 'Il tavolo o gruppo selezionato non ha posti sufficienti.',
   TABLE_STILL_IN_USE: 'Il tavolo è ancora in uso.',
+  TABLE_NEEDS_RESET:
+    'Il tavolo è da riapparecchiare: segnalo come riapparecchiato prima di aprire un nuovo conto.',
   TABLE_GROUP_IN_SERVICE: 'Completa il servizio del gruppo prima di separare i tavoli.',
   TABLE_ALREADY_RESERVED: 'Il tavolo è già assegnato a un’altra prenotazione.',
   TARGET_TABLE_NOT_AVAILABLE: 'Il tavolo di destinazione non è disponibile.',
@@ -135,6 +146,18 @@ const messages: Record<string, string> = {
   BOOKING_SLOT_UNAVAILABLE: 'L’orario selezionato non è prenotabile.',
   BOOKING_DATE_UNAVAILABLE: 'La data selezionata non è prenotabile per questo servizio.',
   BOOKING_IN_PAST: 'Scegli un orario futuro.',
+  BOOKING_DEPOSITS_DISABLED:
+    'La caparra online non è disponibile in questo momento. Contatta il ristorante.',
+  DEPOSIT_EXPIRED: 'Il tempo per pagare la caparra è scaduto e il tavolo è stato liberato.',
+  DEPOSIT_NOT_PENDING: 'La caparra è già stata gestita: aggiorna lo stato del pagamento.',
+  DEPOSIT_PROVIDER_UNAVAILABLE:
+    'Il metodo di pagamento scelto non è disponibile per la caparra di questa sede.',
+  DEPOSIT_PROVIDER_ALREADY_SELECTED:
+    'Il pagamento è già stato avviato con un altro metodo: completa quello o contatta il ristorante.',
+  DEPOSIT_THRESHOLD_ABOVE_AUTO_CONFIRM:
+    'La soglia supera il gruppo massimo confermato automaticamente: alza prima quel limite in Capacità.',
+  INVALID_LARGE_GROUP_DEPOSIT:
+    'Controlla soglia (almeno 2 persone), importo (da 1 a 1000 euro) e ore di preavviso (0–720).',
   NONEXISTENT_LOCAL_TIME: 'Questo orario non esiste nel fuso orario della sede. Scegline un altro.',
   CONTACT_RESTAURANT_FOR_LARGE_PARTY:
     'Per questo numero di persone è necessario contattare direttamente il ristorante.',

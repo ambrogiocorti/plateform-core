@@ -4,7 +4,12 @@ export type PublicSlot = {
   available: boolean;
   reason?: string;
   status_if_booked?: 'RESERVED' | 'REQUESTED' | 'PENDING_DEPOSIT';
-  deposit?: { amount_cents: number; currency: string; expiry_minutes: number };
+  deposit?: {
+    amount_cents: number;
+    currency: string;
+    expiry_minutes: number;
+    providers?: ('STRIPE' | 'SATISPAY')[];
+  };
 };
 export type PublicAvailability = {
   venue_id: string;
@@ -105,4 +110,79 @@ export function depositNextAction(
   if (result.state === 'FAILED') return { action: 'FAILED' };
   if (!result.checkout_url) return { action: 'PROCESSING' };
   return { action: 'REDIRECT', url: verifiedPaymentUrl(result.checkout_url, provider) };
+}
+
+export function euro(cents: number): string {
+  return (cents / 100).toLocaleString('it-IT', { style: 'currency', currency: 'EUR' });
+}
+
+/** What the guest of a large group reads before sending the request. */
+export function depositNotice(deposit: { amount_cents: number; expiry_minutes: number }): string {
+  return `Per i gruppi numerosi il ristorante chiede una caparra di garanzia di ${euro(deposit.amount_cents)}, da pagare online entro ${deposit.expiry_minutes} minuti dall’invio. Non è un anticipo sul conto: ti viene restituita automaticamente quando vi presentate; la trattiene solo in caso di mancata presentazione.`;
+}
+
+/** Session-only memory of the guest's deposit token across the provider redirect. */
+export const depositTokenKey = (depositId: string) => `plateform:caparra:${depositId}`;
+
+const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+/** The provider sends the guest back to /prenota?deposito=<id>; anything else is ignored. */
+export function depositReturnId(search: string): string | null {
+  const values = new URLSearchParams(search).getAll('deposito');
+  return values.length === 1 && uuidPattern.test(values[0]!) ? values[0]!.toLowerCase() : null;
+}
+
+export type DepositOutcome =
+  'CONFIRMED' | 'PENDING' | 'FAILED' | 'EXPIRED' | 'RECONCILIATION_REQUIRED';
+export type DepositStatusResult = {
+  deposit_id: string;
+  outcome: DepositOutcome;
+  amount_cents: number;
+  service_date: string | null;
+  slot_time: string | null;
+  party_size: number | null;
+};
+
+/** The server's verified outcome, in words. Only CONFIRMED means the table is booked. */
+export function depositOutcomeView(
+  result: DepositStatusResult,
+  depositId: string,
+): { title: string; body: string; final: boolean } {
+  if (result.deposit_id !== depositId) throw new Error('INVALID_DEPOSIT_CONTEXT');
+  const when =
+    result.service_date && result.slot_time
+      ? ` per il ${new Date(`${result.service_date}T12:00:00Z`).toLocaleDateString('it-IT', { day: 'numeric', month: 'long', timeZone: 'UTC' })} alle ${result.slot_time}`
+      : '';
+  switch (result.outcome) {
+    case 'CONFIRMED':
+      return {
+        title: 'Il tuo tavolo è prenotato.',
+        body: `Caparra di garanzia di ${euro(result.amount_cents)} ricevuta${when}. Ti verrà restituita automaticamente quando vi presentate.`,
+        final: true,
+      };
+    case 'PENDING':
+      return {
+        title: 'Pagamento in verifica',
+        body: 'Il ristorante non ha ancora ricevuto la conferma del pagamento. Il tavolo non è ancora confermato: aggiorna lo stato tra qualche istante.',
+        final: false,
+      };
+    case 'FAILED':
+      return {
+        title: 'Pagamento non riuscito',
+        body: 'La caparra non è stata pagata e il tavolo non è confermato. Contatta il ristorante per prenotare.',
+        final: true,
+      };
+    case 'EXPIRED':
+      return {
+        title: 'Tempo per il pagamento scaduto',
+        body: 'La caparra non è arrivata in tempo e il tavolo è stato liberato. Puoi inviare una nuova richiesta.',
+        final: true,
+      };
+    default:
+      return {
+        title: 'Pagamento arrivato dopo la scadenza',
+        body: 'Il ristorante ha ricevuto il pagamento dopo la scadenza e lo verificherà: verrai contattato per la conferma o il rimborso.',
+        final: true,
+      };
+  }
 }

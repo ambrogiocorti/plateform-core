@@ -61,9 +61,9 @@ describe('commercial release gate', () => {
       'Verifica locale mancante: core_server_policy_source.',
     );
     record.local_checks.core_server_policy_source = 'passed';
-    delete record.integration_checks.server_denies_stripe_satispay_and_epson;
+    delete record.integration_checks.server_denies_unlicensed_providers_and_epson;
     expect(releaseProblems(reduced, record, digest)).toContain(
-      'Collaudo reale mancante: server_denies_stripe_satispay_and_epson.',
+      'Collaudo reale mancante: server_denies_unlicensed_providers_and_epson.',
     );
     reduced.sections[91]!.status = 'out_of_scope_core';
     expect(releaseProblems(reduced, record, digest)).toContain(

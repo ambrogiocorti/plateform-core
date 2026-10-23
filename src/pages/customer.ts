@@ -132,10 +132,10 @@ export async function customerPage(publicTable: string, signal: AbortSignal): Pr
             if (label)
               label.textContent =
                 state === 'OFFLINE'
-                  ? 'MODALITÀ OFFLINE'
+                  ? 'Sei offline: il conto si aggiornerà quando torna la connessione.'
                   : state === 'LIVE'
                     ? 'Conto connesso'
-                    : 'Aggiornamenti da verificare';
+                    : 'Aggiornamento automatico in pausa: ricarica la pagina per vedere le novità.';
           },
         });
       });
@@ -216,11 +216,7 @@ async function customerContent(
     { class: 'stack' },
     el('p', { class: 'eyebrow' }, 'Il tuo tavolo'),
     el('h1', {}, account.name),
-    el(
-      'p',
-      { 'data-connection': '', class: 'muted', role: 'status' },
-      'Aggiornamenti da verificare',
-    ),
+    el('p', { 'data-connection': '', class: 'muted', role: 'status' }, 'Collegamento al conto…'),
     el(
       'div',
       { class: 'customer-account-summary' },

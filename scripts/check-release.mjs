@@ -13,22 +13,30 @@ export const requiredIntegrationChecks = [
 ];
 /** The CORE edition still requires real end-to-end cash/POS/PDF testing and
  * *negative* server-side tests proving the absent integrations cannot run.
- * It is not sufficient to hide the Stripe/Satispay/Epson controls in the UI.
+ * It is not sufficient to hide the Epson controls in the UI. Stripe and Satispay
+ * are in the first release (owner decision, 2026-10-19): they need the sandbox
+ * test and proof that the server refuses them without the installation licence.
+ * The large-group booking deposit is in the release too (owner decision, 2026-10-21):
+ * staging must prove it is refused without the BOOKING_DEPOSITS licence or a licensed
+ * provider offered by the venue, and that a licensed sandbox deposit confirms, refunds
+ * on an honoured booking and is retained on a no-show.
  */
 export const requiredCoreIntegrationChecks = [
   'supabase_auth_rls_realtime_storage',
   'concurrent_booking_stock_payments',
   'cash_pos_manual_payment_and_refund_e2e',
-  'server_denies_stripe_satispay_and_epson',
+  'stripe_satispay_sandbox',
+  'server_denies_unlicensed_providers_and_epson',
   'core_edge_functions_http_jwt_denial',
-  'server_denies_online_booking_deposits',
+  'server_gates_booking_deposits_by_licence_and_provider',
+  'large_group_deposit_sandbox_e2e',
   'core_booking_without_deposit_sql_live',
   'browser_pdf_output_verified',
   'pwa_offline_revocation_and_conflicts',
   'backup_restore_database_auth_storage',
   'accessibility_mobile_and_load',
 ];
-export const excludedCoreSections = [79, 80, 90];
+export const excludedCoreSections = [90];
 export const requiredDocuments = [
   'README.md',
   'ARCHITECTURE.md',

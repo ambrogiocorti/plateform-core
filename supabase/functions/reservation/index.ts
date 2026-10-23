@@ -34,8 +34,28 @@ Deno.serve(
       p_rate_key: addressKey,
     });
     if (error) throw new Error(error.message);
+    // Large groups (admin threshold) get PENDING_DEPOSIT plus the one-time deposit access token;
+    // the table is only confirmed once a verified provider result settles the deposit.
     const result = z
-      .object({ id: z.uuid(), status: z.enum(['RESERVED', 'REQUESTED']) })
+      .discriminatedUnion('status', [
+        z.object({ id: z.uuid(), status: z.enum(['RESERVED', 'REQUESTED']) }).strict(),
+        z
+          .object({
+            id: z.uuid(),
+            status: z.literal('PENDING_DEPOSIT'),
+            deposit: z
+              .object({
+                id: z.uuid(),
+                amount_cents: z.number().int().positive(),
+                currency: z.literal('EUR'),
+                expires_at: z.string(),
+                access_token: z.string().regex(/^[0-9a-f]{64}$/),
+                providers: z.array(z.enum(['STRIPE', 'SATISPAY'])).min(1),
+              })
+              .strict(),
+          })
+          .strict(),
+      ])
       .parse(data);
     return result;
   }),

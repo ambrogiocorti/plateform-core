@@ -6,12 +6,20 @@ await mkdir('dist/site', { recursive: true });
 await cp('dist/public', 'dist/site', { recursive: true });
 await cp('dist/staff', 'dist/site/staff', { recursive: true });
 await writeFile('dist/site/.nojekyll', '');
+// A GitHub Pages project site lives under a folder (/plateform/); a custom domain at "/".
+const folder = (value, fallback) =>
+  value ? new URL(value).pathname.replace(/\/?$/, '/') : fallback;
+const base = folder(process.env.VITE_PUBLIC_BASE_URL, '/');
+const staffBase = folder(process.env.VITE_STAFF_BASE_URL, '/staff/');
+if (staffBase !== `${base}staff/`)
+  throw new Error(`VITE_STAFF_BASE_URL deve finire con ${base}staff/`);
 const fallback = `<!doctype html><html lang="it"><head><meta charset="utf-8"><title>Plateform</title></head><body><script>
+const base=${JSON.stringify(base)},staffBase=${JSON.stringify(staffBase)};
 const path=location.pathname+location.search+location.hash;
-const staffPath=location.pathname==='/staff'||location.pathname.startsWith('/staff/');
+const staffPath=location.pathname===staffBase.slice(0,-1)||location.pathname.startsWith(staffBase);
 if(staffPath)sessionStorage.setItem('plateform-route-staff',path);
 else sessionStorage.setItem('plateform-route-public',path);
-location.replace(staffPath?'/staff/':'/');
+location.replace(staffPath?staffBase:base);
 </script><noscript>Apri la home per continuare.</noscript></body></html>`;
 await writeFile('dist/site/404.html', fallback);
 if (process.env.PAGES_CUSTOM_DOMAIN) {
@@ -19,7 +27,7 @@ if (process.env.PAGES_CUSTOM_DOMAIN) {
   await writeFile('dist/site/CNAME', process.env.PAGES_CUSTOM_DOMAIN + '\n');
 }
 const staff = await readFile('dist/site/staff/index.html', 'utf8');
-if (!staff.includes('/staff/assets/'))
+if (!staff.includes(`${staffBase}assets/`))
   throw new Error('La build GitHub Pages richiede VITE_STAFF_BASE_URL=https://dominio/staff/');
 
 // Build-time public pages are generated from anonymous server RPCs only.
@@ -29,5 +37,6 @@ await import('./prerender-public.mjs').then(({ prerenderPublic }) =>
     siteOrigin: process.env.PUBLIC_SITE_ORIGIN,
     supabaseUrl: process.env.VITE_SUPABASE_URL,
     publishableKey: process.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+    base,
   }),
 );

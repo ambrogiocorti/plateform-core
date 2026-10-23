@@ -1,9 +1,14 @@
 /**
- * Product boundary for the initial cash/POS + browser/PDF commercial edition.
- * Provider payments and Epson drivers require a separately certified release.
- * This is presentation gating only: database licensing must also deny access.
+ * Product boundary for the first commercial edition: cash, external POS, Stripe and Satispay
+ * (provider payments since the 2026-10-19 decision), the large-group booking deposit (2026-10-21)
+ * and browser/PDF printing. Providers and deposits still need the installation licences and the
+ * venue's keys: the database refuses unlicensed methods (20261019100000) and asks a deposit only
+ * with BOOKING_DEPOSITS plus a licensed provider the venue offers (20261021090000). Epson drivers
+ * stay outside the edition. This is presentation gating only.
  */
-export const externalPaymentProvidersIncluded = false;
+export const externalPaymentProvidersIncluded = true;
+/** Large groups pay a guarantee through the `reservation-deposit` Edge Function. */
+export const onlineBookingDepositsIncluded = true;
 export const epsonPrintingIncluded = false;
 
 export function permittedPaymentMethod(method: string): boolean {
@@ -36,17 +41,18 @@ export type CoreBookingSlot = { status_if_booked?: string; deposit?: unknown };
  */
 export function requiresExcludedDeposit(slot: CoreBookingSlot): boolean {
   return (
-    !externalPaymentProvidersIncluded &&
+    !onlineBookingDepositsIncluded &&
     (slot.status_if_booked === 'PENDING_DEPOSIT' || slot.deposit != null)
   );
 }
 
+/** Known statuses only. A deposit object on a RESERVED/REQUESTED slot is inconsistent and is
+ * never offered; a PENDING_DEPOSIT slot needs its deposit terms and the edition to include it. */
 export function permittedBookingSlots<T extends CoreBookingSlot>(slots: readonly T[]): T[] {
-  return externalPaymentProvidersIncluded
-    ? [...slots]
-    : slots.filter(
-        (slot) =>
-          (slot.status_if_booked === 'RESERVED' || slot.status_if_booked === 'REQUESTED') &&
-          !requiresExcludedDeposit(slot),
-      );
+  return slots.filter((slot) =>
+    slot.status_if_booked === 'PENDING_DEPOSIT'
+      ? onlineBookingDepositsIncluded && slot.deposit != null
+      : (slot.status_if_booked === 'RESERVED' || slot.status_if_booked === 'REQUESTED') &&
+        slot.deposit == null,
+  );
 }

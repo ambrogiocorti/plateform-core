@@ -57,7 +57,19 @@ const check = (cb) => {
 };
 const core = structuredClone(allVerified);
 for (const section of excludedCoreSections) core.sections[section].status = 'out_of_scope_core';
-check(() => assert.deepEqual(excludedCoreSections, [79, 80, 90]));
+check(() => assert.deepEqual(excludedCoreSections, [90]));
+// Deposits are licence-gated since 2026-10-21: the old "always denied" gate must not come back,
+// and both the licence/provider denial and the sandbox flow are required evidence.
+check(() =>
+  assert.ok(!requiredCoreIntegrationChecks.includes('server_denies_online_booking_deposits')),
+);
+for (const gate of [
+  'server_gates_booking_deposits_by_licence_and_provider',
+  'large_group_deposit_sandbox_e2e',
+  'core_booking_without_deposit_sql_live',
+  'server_denies_unlicensed_providers_and_epson',
+])
+  check(() => assert.ok(requiredCoreIntegrationChecks.includes(gate), gate));
 check(() => assert.equal(releaseProblems(core, evidence(), digest).length, 0));
 check(() => assert.ok(releaseProblems(core, evidence('FULL'), digest).length > 0));
 const altered = structuredClone(core);

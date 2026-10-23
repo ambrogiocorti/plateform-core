@@ -10,9 +10,24 @@ const dir = await mkdtemp(join(tmpdir(), 'plateform-telemetry-e2e-'));
 try {
   const telemetry = (await readFile('src/services/public-telemetry.ts', 'utf8'))
     .replace("from '../api/client'", "from './test-client.ts'")
-    .replace("from './public-site'", "from './public-site.ts'");
+    .replace("from './public-site'", "from './public-site.ts'")
+    .replace("from './public-base'", "from './public-base.ts'");
   await writeFile(join(dir, 'public-telemetry.ts'), telemetry);
-  await writeFile(join(dir, 'public-site.ts'), await readFile('src/services/public-site.ts'));
+  await writeFile(
+    join(dir, 'public-site.ts'),
+    (await readFile('src/services/public-site.ts', 'utf8')).replace(
+      "from './public-base'",
+      "from './public-base.ts'",
+    ),
+  );
+  // Outside Vite there is no import.meta.env: the site is served from the root folder.
+  await writeFile(
+    join(dir, 'public-base.ts'),
+    (await readFile('src/services/public-base.ts', 'utf8')).replaceAll(
+      'import.meta.env.BASE_URL',
+      "'/'",
+    ),
+  );
   await writeFile(
     join(dir, 'test-client.ts'),
     `

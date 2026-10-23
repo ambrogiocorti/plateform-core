@@ -162,6 +162,8 @@ export async function orderDialog(
   account: string,
   version: number,
   submit?: (items: OrderLine[]) => Promise<void>,
+  initial: OrderLine[] = [],
+  title = 'Nuovo ordine',
 ): Promise<void> {
   const dishes = await rpc(
     'get_public_menu',
@@ -171,22 +173,26 @@ export async function orderDialog(
   const cart = new Map<string, OrderLine>();
   const summary = el('p', { class: 'muted' }, 'Seleziona le pietanze da inviare.');
   const key = crypto.randomUUID();
-  const editor = dialog('Nuovo ordine');
+  const editor = dialog(title);
   for (const dish of dishes) {
-    const quantity = field('Quantità', `qty-${dish.id}`, 'number', '0');
+    // Un piatto esaurito non viene riproposto: l'ordine corretto parte senza di esso.
+    const preset =
+      dish.availability === 0 ? undefined : initial.find((entry) => entry.dish_id === dish.id);
+    const quantity = field('Quantità', `qty-${dish.id}`, 'number', String(preset?.quantity ?? 0));
     quantity.input.min = '0';
     quantity.input.max = String(Math.min(dish.availability ?? 999, 999));
     if (dish.availability === 0) quantity.input.disabled = true;
-    const step = field('Step', `step-${dish.id}`, 'number', '1');
+    const step = field('Step', `step-${dish.id}`, 'number', String(preset?.step ?? 1));
     step.input.min = '1';
     step.input.max = '99';
     const line: OrderLine = {
       dish_id: dish.id,
-      quantity: 0,
-      step: 1,
-      removed_ingredients: [],
-      variant_options: [],
+      quantity: preset?.quantity ?? 0,
+      step: preset?.step ?? 1,
+      removed_ingredients: [...(preset?.removed_ingredients ?? [])],
+      variant_options: [...(preset?.variant_options ?? [])],
     };
+    if (line.quantity > 0) cart.set(dish.id, line);
     const update = () => {
       line.quantity = Number(quantity.input.value);
       line.step = Number(step.input.value);
@@ -216,6 +222,7 @@ export async function orderDialog(
     );
     for (const ingredient of dish.ingredients.filter((ingredient) => ingredient.removable)) {
       const check = el('input', { type: 'checkbox' });
+      check.checked = line.removed_ingredients.includes(ingredient.id);
       check.addEventListener('change', () => {
         line.removed_ingredients = check.checked
           ? [...line.removed_ingredients, ingredient.id]
@@ -233,6 +240,7 @@ export async function orderDialog(
       );
       for (const option of group.options) {
         const check = el('input', { type: 'checkbox' });
+        check.checked = line.variant_options.includes(option.id);
         check.addEventListener('change', () => {
           line.variant_options = check.checked
             ? [...line.variant_options, option.id]
