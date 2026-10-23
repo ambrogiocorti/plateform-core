@@ -9,10 +9,12 @@ import {
   enableSkipLink,
   loading,
   showError,
+  toast,
 } from '../../src/components/dom';
 import { environment } from '../../src/config/environment';
 import { activeProfile, loginPage, signOut, requirements } from '../../src/auth/staff';
 import { openAccessSecurity } from '../../src/auth/access-security';
+import { emailLinkPage, readEmailLink } from '../../src/auth/recovery';
 import { stepUp } from '../../src/auth/step-up';
 import { rpc } from '../../src/api/client';
 import { z } from 'zod';
@@ -159,6 +161,10 @@ if (recoveredRoute && recoveredRoute.startsWith(staffBase)) {
   sessionStorage.removeItem('plateform-route-staff');
   history.replaceState(null, '', recoveredRoute);
 }
+// A password-recovery or invite e-mail lands here with its tokens in the fragment: take them out
+// of the address bar at once, then let the person choose a password.
+let pendingEmailLink = readEmailLink(location.hash);
+if (pendingEmailLink) history.replaceState(null, '', location.pathname + location.search);
 function navigate(path: string): void {
   history.pushState(null, '', staffHref(path));
   void render().catch(showError);
@@ -189,6 +195,19 @@ async function render(): Promise<void> {
   if (!navigator.onLine) {
     disconnectLive();
     app.replaceChildren(await (await import('../../src/pages/offline')).offlinePage());
+    return;
+  }
+  if (pendingEmailLink) {
+    const link = pendingEmailLink;
+    pendingEmailLink = null;
+    disconnectLive();
+    app.replaceChildren(
+      await emailLinkPage(link, async (message) => {
+        history.replaceState(null, '', staffHref('/login'));
+        await render();
+        toast(message);
+      }),
+    );
     return;
   }
   const {
