@@ -1,13 +1,22 @@
 import { client, safeError } from '../api/client';
 import { el, field } from '../components/dom';
 
-/** What an e-mail link (password recovery or invitation) carried in the URL fragment. */
+/** What an e-mail link (password recovery or invitation) carried in the URL. */
 export type EmailLink =
-  { kind: 'session'; accessToken: string; refreshToken: string } | { kind: 'expired' };
+  | { kind: 'session'; accessToken: string; refreshToken: string }
+  | { kind: 'token'; tokenHash: string; type: 'recovery' | 'invite' }
+  | { kind: 'expired' };
 
-/** GoTrue sends recovery and invite links back as `#access_token=…&type=recovery`. The client
- * keeps detectSessionInUrl off, so only these two link types are ever read from the URL. */
-export function readEmailLink(hash: string): EmailLink | null {
+/** Two link shapes are accepted. `?token_hash=…&type=recovery` (our e-mail template) is only
+ * redeemed when the person presses a button, so a mail scanner that opens the link cannot use it
+ * up. `#access_token=…&type=recovery` is GoTrue's default redirect. The client keeps
+ * detectSessionInUrl off, so nothing else is ever read from the URL. */
+export function readEmailLink(hash: string, search = ''): EmailLink | null {
+  const query = new URLSearchParams(search.replace(/^\?/, ''));
+  const queryType = query.get('type');
+  const tokenHash = query.get('token_hash');
+  if (tokenHash && (queryType === 'recovery' || queryType === 'invite'))
+    return { kind: 'token', tokenHash, type: queryType };
   const params = new URLSearchParams(hash.replace(/^#/, ''));
   if (params.get('error_code') === 'otp_expired' || params.get('error') === 'access_denied')
     return { kind: 'expired' };
@@ -48,6 +57,12 @@ function notice(title: string, text: string): HTMLElement {
   );
 }
 
+const invalidLink = () =>
+  notice(
+    'Link non valido',
+    'Il link è già stato usato o non è più valido. Chiedi all’amministratore di inviartene uno nuovo.',
+  );
+
 /** Lands an e-mail link: the person chooses a password, then signs in normally (MFA included). */
 export async function emailLinkPage(
   link: EmailLink,
@@ -58,15 +73,43 @@ export async function emailLinkPage(
       'Link scaduto',
       'Il link per scegliere la password non è più valido. Chiedi all’amministratore di inviartene uno nuovo.',
     );
+  if (link.kind === 'token') {
+    const feedback = el('p', { role: 'alert', class: 'muted' });
+    const proceed = el('button', { type: 'button', class: 'button primary' }, 'Continua');
+    const page = layout(
+      el(
+        'div',
+        { class: 'login-form' },
+        el('p', { class: 'eyebrow' }, 'Area riservata'),
+        el('h2', {}, 'Scegli la tua password'),
+        el('p', { class: 'muted' }, 'Premi Continua per impostare la password del tuo account.'),
+        feedback,
+        proceed,
+      ),
+    );
+    proceed.addEventListener('click', () => {
+      proceed.disabled = true;
+      void client()
+        .auth.verifyOtp({ token_hash: link.tokenHash, type: link.type })
+        .then(({ error }) => {
+          page.replaceWith(error ? invalidLink() : passwordPage(onDone));
+        })
+        .catch((error: unknown) => {
+          feedback.textContent = safeError(error).message;
+          proceed.disabled = false;
+        });
+    });
+    return page;
+  }
   const { error: sessionError } = await client().auth.setSession({
     access_token: link.accessToken,
     refresh_token: link.refreshToken,
   });
-  if (sessionError)
-    return notice(
-      'Link non valido',
-      'Il link è già stato usato o non è più valido. Chiedi all’amministratore di inviartene uno nuovo.',
-    );
+  if (sessionError) return invalidLink();
+  return passwordPage(onDone);
+}
+
+function passwordPage(onDone: (message: string) => Promise<void>): HTMLElement {
   const password = field('Nuova password', 'new-password', 'password');
   password.input.required = true;
   password.input.minLength = 12;

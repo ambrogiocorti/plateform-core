@@ -163,8 +163,8 @@ if (recoveredRoute && recoveredRoute.startsWith(staffBase)) {
 }
 // A password-recovery or invite e-mail lands here with its tokens in the fragment: take them out
 // of the address bar at once, then let the person choose a password.
-let pendingEmailLink = readEmailLink(location.hash);
-if (pendingEmailLink) history.replaceState(null, '', location.pathname + location.search);
+let pendingEmailLink = readEmailLink(location.hash, location.search);
+if (pendingEmailLink) history.replaceState(null, '', location.pathname);
 function navigate(path: string): void {
   history.pushState(null, '', staffHref(path));
   void render().catch(showError);

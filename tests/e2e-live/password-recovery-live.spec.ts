@@ -78,3 +78,45 @@ test('an expired e-mail link says so instead of showing the login', async ({ pag
   await expect(page.getByRole('heading', { name: 'Link scaduto' })).toBeVisible();
   expect(page.url()).not.toContain('error_code');
 });
+
+test('a token link survives a mail scanner and is redeemed only by the button', async ({
+  browser,
+  page,
+}) => {
+  const response = await admin('generate_link', {
+    method: 'POST',
+    body: JSON.stringify({ type: 'recovery', email: member.email }),
+  });
+  expect(response.ok).toBe(true);
+  const link = (await response.json()) as {
+    hashed_token: string;
+    id?: string;
+    user?: { id: string };
+  };
+  const userId = link.user?.id ?? link.id;
+  const url = `http://localhost:5174/?token_hash=${link.hashed_token}&type=recovery`;
+  const next = `Nuova-Password-${Date.now()}`;
+  try {
+    // A scanner opens the link without pressing anything.
+    const scanner = await browser.newContext();
+    const scan = await scanner.newPage();
+    await scan.goto(url);
+    await expect(scan.getByRole('button', { name: 'Continua' })).toBeVisible();
+    await scanner.close();
+
+    await page.goto(url);
+    expect(page.url()).not.toContain('token_hash');
+    await page.getByRole('button', { name: 'Continua' }).click();
+    await page.getByLabel('Nuova password').fill(next);
+    await page.getByLabel('Ripeti la password').fill(next);
+    await page.getByRole('button', { name: 'Salva la password' }).click();
+    await expect(page.getByText('Password salvata.')).toBeVisible();
+    await page.getByLabel('Identificativo staff').fill(member.email);
+    await page.getByLabel('Password').fill(next);
+    await page.getByRole('button', { name: 'Accedi al servizio' }).click();
+    await expect(page).toHaveURL(new RegExp(`${member.landing}$`));
+  } finally {
+    if (userId)
+      await admin(`users/${userId}`, { method: 'PUT', body: JSON.stringify({ password }) });
+  }
+});
