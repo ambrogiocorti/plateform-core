@@ -1,0 +1,79 @@
+# Publishes the public site and the staff area on GitHub Pages at
+# https://<owner>.github.io/<repository>/ (staff under /staff/).
+# Manual only: publishing is the owner's decision. Needs Pages enabled with
+# "GitHub Actions" as source. The browser configuration below is public by
+# design (URL, publishable key, offline-receipt public key) and can be
+# overridden with repository variables. The folder site is never indexed.
+name: Plateform GitHub Pages
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Branch or commit to publish
+        required: true
+        default: plateform/steps-7-12-completion-y2bvpd
+
+permissions:
+  contents: read
+
+concurrency:
+  group: plateform-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: github.repository_owner == 'ambrogiocorti'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    env:
+      CI: 'true'
+      VITE_ENVIRONMENT: production
+      VITE_PUBLIC_BASE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
+      VITE_STAFF_BASE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/staff/
+      PUBLIC_SITE_ORIGIN: https://${{ github.repository_owner }}.github.io
+      # plateform-production (ref xzateqavvaparjoybbhr).
+      VITE_SUPABASE_URL: ${{ vars.PLATEFORM_SUPABASE_URL || 'https://xzateqavvaparjoybbhr.supabase.co' }}
+      VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.PLATEFORM_SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_lzxUoPlNBdEvFcuG987Y7Q_YxEx7JZ-' }}
+      VITE_OFFLINE_PUBLIC_KEYS_JWK: ${{ vars.PLATEFORM_OFFLINE_PUBLIC_KEYS_JWK || '[{"kty":"EC","crv":"P-256","x":"3oW3zCsVr60PTD5moATzX44UYzBHUWjLF3LlH0-PbWQ","y":"DQXnap9zLQYoVTOI-6JPbE69q3ifP3GrHX2gGWnI1C8"}]' }}
+    steps:
+      - name: Checkout without persistent credentials
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ inputs.ref }}
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Configure Node 24.13
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24.13.0'
+          cache: npm
+
+      - name: Install pinned dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Checks, tests and site build
+        run: npm run build:pages
+
+      - name: Configure Pages
+        uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5.0.0
+
+      - name: Upload site
+        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3.0.1
+        with:
+          path: dist/site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publish
+        id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
