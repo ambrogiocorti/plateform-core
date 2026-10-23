@@ -1,0 +1,36 @@
+
+insert into private.api_permission_manifest(function_identity,api_role) values
+  ('public.abort_restore_cutover(p_restore uuid, p_step_up uuid, p_reason text, p_key uuid)','authenticated'),
+  ('public.configure_continuity_targets(p_version bigint, p_rpo_target_minutes integer, p_rto_target_minutes integer, p_backup_retention_days integer, p_restore_test_interval_days integer, p_key uuid)','authenticated'),
+  ('public.confirm_restore(p_restore uuid, p_step_up uuid, p_reason text, p_key uuid)','authenticated'),
+  ('public.confirm_restore_cutover(p_restore uuid, p_step_up uuid, p_target_reference text, p_note text, p_key uuid)','authenticated'),
+  ('public.create_backup(p_purpose text, p_retention_days integer, p_key uuid)','authenticated'),
+  ('public.get_restore_preview(p_backup uuid)','authenticated'),
+  ('public.request_restore(p_backup uuid, p_key uuid)','authenticated'),
+  ('public.request_restore_test(p_backup uuid, p_step_up uuid, p_key uuid)','authenticated'),
+
+  ('public.cancel_manual_payment(p_payment uuid, p_reason text, p_step_up uuid)','authenticated'),
+  ('public.confirm_manual_payment(p_payment uuid, p_success boolean)','authenticated'),
+  ('public.create_payment(p_account uuid, p_register uuid, p_amount bigint, p_tip bigint, p_method payment_method, p_key uuid, p_items jsonb, p_share uuid)','authenticated'),
+  ('public.create_refund(p_payment uuid, p_amount bigint, p_tip bigint, p_reason text, p_step_up uuid, p_key uuid, p_register uuid)','authenticated'),
+  ('public.get_account_payments(p_account uuid, p_before_at timestamp with time zone, p_before_id uuid, p_limit integer)','authenticated'),
+  ('public.get_payment_registers(p_venue uuid)','authenticated'),
+  ('public.set_cash_register_open(p_register uuid, p_open boolean)','authenticated'),
+
+  ('public.assign_operational_staff(p_venue uuid, p_user uuid, p_kind text, p_resource uuid, p_active boolean)','authenticated'),
+  ('public.begin_impersonation(p_subject uuid, p_reason text, p_grant uuid, p_key uuid)','authenticated'),
+  ('public.begin_own_password_job(p_key uuid, p_grant uuid)','authenticated'),
+  ('public.begin_staff_admin_job(p_action text, p_values jsonb, p_key uuid, p_grant uuid)','authenticated'),
+  ('public.complete_staff_login(p_device_name text, p_platform text, p_app_version text, p_device uuid, p_device_token text)','authenticated'),
+  ('public.enable_impersonation_write(p_id uuid, p_confirm boolean, p_grant uuid)','authenticated'),
+  ('public.end_impersonation(p_id uuid)','authenticated'),
+  ('public.get_impersonation_context(p_id uuid)','authenticated'),
+  ('public.reset_staff_pin(p_user uuid, p_grant uuid)','authenticated'),
+  ('public.resume_staff_admin_job(p_job uuid, p_grant uuid)','authenticated'),
+  ('public.revoke_staff_session(p_session uuid, p_grant uuid)','authenticated'),
+  ('public.save_staff_reservation(p_venue uuid, p_id uuid, p_version bigint, p_values jsonb, p_answers jsonb, p_key uuid)','authenticated'),
+  ('public.set_staff_pin(p_pin text)','authenticated'),
+  ('public.suggest_staff_identifier(p_name text)','authenticated'),
+  ('public.unlock_staff_session(p_pin text)','authenticated'),
+  ('public.update_staff_access(p_user uuid, p_name text, p_role user_role, p_scope user_scope, p_venues uuid[], p_version bigint, p_reason text, p_grant uuid, p_key uuid)','authenticated')
+on conflict do nothing;

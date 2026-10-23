@@ -2,10 +2,11 @@ import { z } from 'zod';
 import { readPage, readRows, rpc } from '../api/client';
 import { button, dialog, el, emptyState, field, showError, status, toast } from '../components/dom';
 import { formatMoney, parseMoney } from '../services/money';
-import { permittedPaymentMethod } from '../services/commercial-scope';
 import { accountWorkspaceSchema } from '../types/accounts';
 import { accountPrintAction } from './printing';
 import { paymentDialog } from './account-payments';
+import { accountClosureActions } from './account-finance';
+import { mayResolveManualPayment, resolveManualPayment } from './manual-payment-resolution';
 import { command } from './staff-context';
 import type { StaffContext } from './staff-context';
 import { reconciliationDialog } from './reconciliation';
@@ -53,18 +54,19 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
   const secondary = el('section', { class: 'stack cashier-secondary' });
 
   let selectedAccountId: string | null = null;
+  let accountRevision = 0;
   let searchRevision = 0;
   let searchTimer: ReturnType<typeof setTimeout> | undefined;
 
   async function searchAccounts(): Promise<void> {
     const revision = ++searchRevision;
     const query = search.input.value.trim();
-    if (query.length < 2) {
+    if (query.length === 1) {
       searchResults.replaceChildren();
-      searchFeedback.textContent = query ? 'Digita almeno 2 caratteri.' : '';
+      searchFeedback.textContent = 'Digita almeno 2 caratteri.';
       return;
     }
-    searchFeedback.textContent = 'Ricerca conti…';
+    searchFeedback.textContent = query ? 'Ricerca conti…' : 'Caricamento conti attivi…';
     const result = await rpc(
       'search_accounts',
       {
@@ -97,11 +99,14 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
       searchResults.append(open);
     }
     searchFeedback.textContent = result.items.length
-      ? `${result.items.length} conti trovati${result.has_more ? ' · affina la ricerca per altri risultati' : ''}.`
-      : 'Nessun conto attivo corrisponde alla ricerca.';
+      ? `${result.items.length} conti ${query ? 'trovati' : 'attivi'}${result.has_more ? ' · cerca per tavolo o nome per altri risultati' : ''}.`
+      : query
+        ? 'Nessun conto attivo corrisponde alla ricerca.'
+        : 'Nessun conto attivo da incassare.';
   }
 
   async function loadAccount(accountId: string): Promise<void> {
+    const revision = ++accountRevision;
     selectedAccountId = accountId;
     accountWorkspace.replaceChildren(
       el('p', { class: 'loading', role: 'status' }, 'Caricamento conto…'),
@@ -114,6 +119,9 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
         z.object({ items: z.array(recentPaymentSchema), has_more: z.boolean() }),
       ),
     ]);
+    // A slower request for the previously selected account must never
+    // overwrite the more recent account's balance or payment controls.
+    if (revision !== accountRevision || selectedAccountId !== accountId) return;
     if (workspace.account.venue_id !== venueId) {
       selectedAccountId = null;
       accountWorkspace.replaceChildren(
@@ -125,7 +133,7 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
     const { account, balance } = workspace;
     const refreshSelected = async () => {
       if (selectedAccountId === account.id) await loadAccount(account.id);
-      await refreshSecondary();
+      await Promise.all([refreshSecondary(), searchAccounts()]);
     };
 
     const primaryActions = el('div', { class: 'cashier-primary-actions' });
@@ -141,6 +149,7 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
     primaryActions.append(
       pay,
       button('DIVIDI / PRODOTTI', () => context.navigate(`/conti/${account.id}`), 'secondary'),
+      accountClosureActions(context, account, balance, refreshSelected),
       await accountPrintAction(context, account.id),
     );
 
@@ -180,16 +189,24 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
     );
     if (!paymentPage.items.length)
       payments.append(el('p', { class: 'muted' }, 'Nessun pagamento registrato.'));
-    for (const payment of paymentPage.items)
-      payments.append(
-        el(
-          'div',
-          { class: 'cashier-line' },
-          el('span', {}, `${payment.method.replaceAll('_', ' ')} · ${payment.register_name}`),
-          el('strong', {}, formatMoney(payment.amount_cents + payment.tip_cents)),
-          status(payment.status),
-        ),
+    for (const payment of paymentPage.items) {
+      const entry = el(
+        'div',
+        { class: 'cashier-line' },
+        el('span', {}, `${payment.method.replaceAll('_', ' ')} · ${payment.register_name}`),
+        el('strong', {}, formatMoney(payment.amount_cents + payment.tip_cents)),
+        status(payment.status),
       );
+      if (mayResolveManualPayment(payment))
+        entry.append(
+          button(
+            'Riprendi verifica',
+            () => resolveManualPayment(payment, refreshSelected),
+            'secondary',
+          ),
+        );
+      payments.append(entry);
+    }
     if (paymentPage.has_more)
       payments.append(
         button('Storico completo', () => context.navigate(`/conti/${account.id}`), 'quiet'),
@@ -229,6 +246,15 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
             ),
           ]
         : []),
+      ...(account.unserved_items > 0
+        ? [
+            el(
+              'div',
+              { class: 'cashier-warning', role: 'status' },
+              `${account.unserved_items} piatti risultano ancora non serviti. La chiusura contabile è separata dalla consegna al tavolo.`,
+            ),
+          ]
+        : []),
       primaryActions,
       el('div', { class: 'cashier-account-details' }, products, payments),
     );
@@ -256,6 +282,7 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
         z.object({
           id: z.uuid(),
           account_id: z.uuid(),
+          cash_register_id: z.uuid(),
           method: z.string(),
           amount_cents: z.number(),
           tip_cents: z.number(),
@@ -372,12 +399,35 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
           `Conto ${formatMoney(payment.amount_cents)} · mancia ${formatMoney(payment.tip_cents)}`,
         ),
       );
-      if (permittedPaymentMethod(payment.method))
+      const pending = {
+        ...payment,
+        register_name:
+          registers.find((row) => row.id === payment.cash_register_id)?.name ??
+          'Cassa non disponibile',
+      };
+      if (mayResolveManualPayment(pending))
         card.append(
           button(
-            'Verifica esito',
-            () => manualPaymentVerification(payment.id, payment.account_id),
+            'Riprendi verifica manuale',
+            () =>
+              resolveManualPayment(pending, async () => {
+                await refreshSecondary();
+                if (selectedAccountId === payment.account_id) await loadAccount(payment.account_id);
+              }),
             'secondary',
+          ),
+        );
+      else
+        card.append(
+          el(
+            'p',
+            { class: 'muted' },
+            'Questo metodo non è confermabile manualmente nell’edizione CORE. Apri lo storico del conto per verificare le opzioni disponibili.',
+          ),
+          button(
+            'Apri storico conto',
+            () => context.navigate(`/conti/${payment.account_id}`),
+            'quiet',
           ),
         );
       pendingSection.append(card);
@@ -429,34 +479,6 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
         await refreshSecondary();
       }),
     );
-  }
-
-  function manualPaymentVerification(paymentId: string, accountId: string): void {
-    const confirm = dialog(
-      'Verifica l’incasso',
-      el(
-        'p',
-        {},
-        'Controlla il contante ricevuto o l’esito sul POS. Questa conferma registra il pagamento sul conto.',
-      ),
-    );
-    for (const success of [true, false])
-      confirm.append(
-        button(
-          success ? 'Incasso verificato' : 'Non incassato',
-          async () => {
-            await rpc(
-              'confirm_manual_payment',
-              { p_payment: paymentId, p_success: success },
-              z.object({ id: z.uuid(), status: z.string() }),
-            );
-            confirm.close();
-            await refreshSecondary();
-            if (selectedAccountId === accountId) await loadAccount(accountId);
-          },
-          success ? 'primary' : 'secondary',
-        ),
-      );
   }
 
   function moneyKpi(label: string, cents: number, extraClass = ''): HTMLElement {
@@ -525,17 +547,18 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
   accountWorkspace.append(
     emptyState(
       'Seleziona un conto',
-      'Cerca per tavolo, nome cliente o ID. Il conto resta aperto qui mentre registri l’incasso.',
+      'Seleziona un conto attivo dall’elenco oppure cerca per tavolo, nome cliente o ID.',
     ),
   );
 
   context.refresh = async () => {
     await Promise.all([
       refreshSecondary(),
+      searchAccounts(),
       selectedAccountId ? loadAccount(selectedAccountId) : Promise.resolve(),
     ]);
   };
 
-  await refreshSecondary();
+  await Promise.all([refreshSecondary(), searchAccounts()]);
   return view;
 }

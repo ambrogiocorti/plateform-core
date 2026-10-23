@@ -175,6 +175,40 @@ async function fixture(page: Page, role: 'ADMIN' | 'SUPER_ADMIN') {
             ]
           : [],
         backups: [],
+        restores: [],
+        backup_health: {
+          last_success_at: null,
+          last_failure_at: null,
+          last_restore_test_at: null,
+          last_backup_duration_seconds: null,
+          backup_age_minutes: null,
+          last_restore_test_duration_seconds: null,
+          rpo_within_target: false,
+          rto_last_test_within_target: null,
+          pending_count: 0,
+          failed_24h: 0,
+          expiring_7d: 0,
+          expired_unpurged_count: 0,
+          purge_in_progress_count: 0,
+          purge_failed_count: 0,
+          last_artifacts_purged_at: null,
+          latest_purge_error_code: null,
+          latest_status: null,
+          latest_integrity_verified: null,
+          latest_retention_until: null,
+          restore_pending_count: 0,
+          restore_failed_24h: 0,
+          latest_restore_status: null,
+          cron_active: false,
+          cron_schedule: null,
+        },
+        continuity_targets: {
+          rpo_target_minutes: 60,
+          rto_target_minutes: 120,
+          backup_retention_days: 30,
+          restore_test_interval_days: 7,
+          version: 1,
+        },
         releases: [],
         schema_version: null,
         incidents: [],
@@ -285,4 +319,15 @@ test('Admin verifies identity before exporting and rectifies contacts with a bou
   ).toBeGreaterThanOrEqual(44);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: '.local/screenshots/privacy-mobile.png' });
+});
+
+test('CORE Admin does not see unlicensed food-cost navigation or economic API calls', async ({
+  page,
+}) => {
+  const calls = await fixture(page, 'ADMIN');
+  await page.goto('http://localhost:5174/operazioni');
+  await expect(page.getByRole('link', { name: 'Food cost e margini' })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'FOOD COST' })).toHaveCount(0);
+  expect(calls.some((call) => call.name === 'get_menu_engineering')).toBe(false);
+  expect(calls.some((call) => call.name === 'get_dish_food_cost')).toBe(false);
 });

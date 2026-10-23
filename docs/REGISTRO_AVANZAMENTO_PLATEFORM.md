@@ -1,5 +1,12 @@
 # Plateform — registro di avanzamento
 
+> **Aggiornamento prevalente — 16 ottobre 2026.** Integrati avvio guidato,
+> menu della sede, anomalie del servizio, recupero incassi e consegne nel
+> candidato della PR #41. Stato corrente e limiti:
+> [OPERATIONAL_INTEGRATION_2026-10-16.md](OPERATIONAL_INTEGRATION_2026-10-16.md).
+> Le attestazioni storiche riportate sotto non chiudono i gate ancora aperti.
+> Macro-step A IN PROGRESS; nessuna release commerciale autorizzata.
+
 Aggiornamento: 5 ottobre 2026. **Versione commerciale non ancora pronta.** Fonte primaria: checkpoint corrente + Supabase development `abdxvlykasqmknexxhjo` + Definition of Done della Roadmap.
 
 | Step                               | Stato       | Nota corrente                                                                                                                                                                                                              |

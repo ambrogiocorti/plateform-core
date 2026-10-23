@@ -44,6 +44,19 @@ const messages: Record<string, string> = {
   INVALID_RETENTION: 'Inserisci tempi di conservazione compresi tra 1 e 3650 giorni.',
   CHAIN_SCOPE_REQUIRED: 'Questa configurazione richiede un amministratore della catena.',
   FEATURE_NOT_LICENSED: 'La funzionalità deve essere abilitata dal responsabile tecnico.',
+  INVALID_INGREDIENT_COST: 'Controlla prezzo, unità di acquisto, data di validità e fornitore.',
+  COST_EFFECTIVE_ORDER: 'La nuova quotazione deve essere successiva a quella attualmente valida.',
+  INGREDIENT_RECIPE_UNIT_MISMATCH:
+    'Questa unità non è compatibile con quella già usata nella ricetta.',
+  INGREDIENT_UNIT_DIMENSION_MISMATCH:
+    'La stessa materia prima ha unità incompatibili in un altro piatto.',
+  INGREDIENT_COST_UNIT_MISMATCH:
+    'L’unità di acquisto non è compatibile con le quantità delle ricette.',
+  INVALID_RECIPE_LINE: 'Controlla quantità, unità, resa e scarto di ciascun ingrediente.',
+  FOOD_COST_INCOMPLETE:
+    'Completa quantità e prezzi di ogni ingrediente prima di registrare lo snapshot.',
+  INVALID_FOOD_COST_REQUEST: 'Seleziona un piatto e una sede validi per il food cost.',
+  INVALID_FOOD_COST_SNAPSHOT: 'Impossibile registrare lo snapshot: aggiorna la ricetta e riprova.',
   MULTI_VENUE_DISABLED: 'La gestione di più sedi non è abilitata.',
   LAYOUT_IN_SERVICE: 'Completa il servizio della sala prima di modificare il layout.',
   USE_ROOM_EDITOR:
@@ -269,6 +282,7 @@ export async function readRows<T>(
     'ingredient_allergens',
     'venue_dish_settings',
     'dish_station_assignments',
+    'step_deliveries',
     'service_booking_rules',
     'staff_venue_assignments',
     'station_staff_assignments',

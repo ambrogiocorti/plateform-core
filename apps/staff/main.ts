@@ -71,6 +71,10 @@ const navigation: {
   section?: 'OPERATIVITÀ' | 'CONFIGURAZIONE';
 }[] = [
   { path: '/operazioni', label: 'Operazioni', roles: ['ADMIN'], section: 'OPERATIVITÀ' },
+  { path: '/eccezioni', label: 'Eccezioni servizio', roles: ['ADMIN'], section: 'OPERATIVITÀ' },
+  { path: '/preparazione', label: 'Avvio guidato', roles: ['ADMIN'], section: 'CONFIGURAZIONE' },
+  { path: '/menu-sede', label: 'Menu della sede', roles: ['ADMIN'], section: 'CONFIGURAZIONE' },
+  { path: '/food-cost', label: 'Food cost e margini', roles: ['ADMIN'], section: 'CONFIGURAZIONE' },
   { path: '/servizio', label: 'Servizio', roles: ['WAITER'] },
   { path: '/salute', label: 'Operational Health', roles: ['SUPER_ADMIN'] },
   { path: '/accoglienza', label: 'Accoglienza', roles: ['ADMIN', 'HOST'], section: 'OPERATIVITÀ' },
@@ -214,7 +218,11 @@ async function render(): Promise<void> {
       },
       Math.max(0, Date.parse(authInfo.full_auth_expires_at) - Date.now()) + 1000,
     );
-  const links = navigation.filter((entry) => entry.roles.includes(profile.role));
+  const links = navigation.filter(
+    (entry) =>
+      entry.roles.includes(profile.role) &&
+      (entry.path !== '/food-cost' || context.licensedFeatures?.has('FOOD_COST')),
+  );
   if (staffPath() === '/' || staffPath() === '/login')
     history.replaceState(null, '', staffHref(links[0]?.path ?? '/operazioni'));
   const pageLink = links.find(
@@ -422,6 +430,20 @@ async function render(): Promise<void> {
       content = await (
         await import('../../src/pages/admin-operations')
       ).adminOperationsPage(context);
+    else if (pageLink.path === '/eccezioni')
+      content = await (
+        await import('../../src/pages/service-exceptions')
+      ).serviceExceptionsPage(context);
+    else if (pageLink.path === '/preparazione')
+      content = await (
+        await import('../../src/pages/restaurant-setup')
+      ).restaurantSetupPage(context);
+    else if (pageLink.path === '/food-cost')
+      content = await (
+        await import('../../src/pages/menu-engineering')
+      ).menuEngineeringPage(context);
+    else if (pageLink.path === '/menu-sede')
+      content = await (await import('../../src/pages/venue-menu')).venueMenuPage(context);
     else if (pageLink.path === '/servizio')
       content = await (await import('../../src/pages/waiter')).waiterPage(context);
     else if (pageLink.path === '/sala')
