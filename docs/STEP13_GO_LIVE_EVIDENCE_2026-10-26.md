@@ -158,3 +158,61 @@ Un nuovo deployment Preview dello SHA `85b182f` risulta READY.
 Il rilascio commerciale rimane NO-GO: la protezione SSO del sito
 impedisce lo smoke HTTP pubblico senza credenziali Vercel e sono
 ancora mancanti backup/restore certificati e collaudi con provider reali.
+
+## Collaudo browser su stack reale isolato — aggiornamento finale
+
+Eseguita la suite `playwright.live.config.ts` contro uno stack usa e getta
+(PostgreSQL 18, GoTrue reale, PostgREST, Edge Functions Deno, Chromium).
+La creazione da zero ha applicato **496/496 migrazioni**. Lo stack
+non usa dati di Staging né di Production.
+
+**Evidenza complessiva:** 36 casi PASS in esecuzioni verificate,
+3 casi SKIP perché richiedono lo Storage API reale (upload branding,
+upload menu e archivio audit). In una singola esecuzione dei 39 test:
+35 PASS, 3 SKIP e un worker Playwright interrotto con `SIGKILL`
+prima dell'esecuzione del test PWA. I contatori del sandbox
+(`/sys/fs/cgroup/memory.events`) riportavano `oom_kill=1`.
+Il caso PWA, rieseguito **isolatamente**, ha dato **1/1 PASS**:
+installazione, avvio offline e aggiornamento su richiesta. Non si
+dichiara perciò una run monolitica 36/36 senza errori.
+
+I **6/6 casi operativi critici** sono PASS dopo un secondo bootstrap:
+prenotazione pubblica, caparra di gruppo con gate provider/licenza,
+ruoli e idempotenza server-side, e flusso tavolo → ordine → cucina →
+pass → consegna → cassa → chiusura. Entrambi i casi del Conflict
+Center sono PASS, con verifica database e audit. Restano esclusi da
+questa prova il provider di pagamento esterno reale, l'installazione
+su dispositivo fisico, lo Storage completo e il disaster recovery.
+
+### Miglioramenti versionati alla suite e al gate
+
+- `tests/e2e-live/stack/stack.mjs`: ad ogni reset del database
+  **soltanto usa e getta** riallinea la data di disponibilità scorte
+  al calendario locale della sede. Evita falsi blocchi
+  `AVAILABILITY_NOT_SET_TODAY` quando il template attraversa la
+  mezzanotte, senza modificare la regola di produzione.
+- Lo stesso bootstrap verifica che ogni Edge Function abbia
+  effettivamente aperto la porta, altrimenti fallisce prima
+  dell'avvio dei browser.
+- `tests/e2e-live/step8-conflict-center-live.spec.ts`: il secondo
+  messaggio di conferma si verifica sull'ultima notifica, mantenendo
+  le asserzioni separate sullo stato persistito e sull'audit.
+- `.github/workflows/staging-readiness.yml`: ora integra
+  PostgreSQL, GoTrue, PostgREST ed Edge Functions reali per i test
+  live usa e getta e richiede gli smoke HTTP CORS/denial.
+  L'esecuzione remota GitHub Actions va ancora confermata; i test
+  sull'host temporaneo non sostituiscono una pipeline completata.
+
+### Blocchi aperti (NO-GO)
+
+Il 26 ottobre l'audit read-only rileva **1 backup QUEUED in
+Staging e 2 in Production**, nessun backup `SUCCEEDED` con integrità
+verificata, nessun restore completato, nessun heartbeat recente di
+worker backup indipendente. Il backup con Auth + Storage e prova di
+ripristino su target isolato rimane requisito essenziale prima
+di gestire dati di clienti. Restano inoltre i tre scenari Storage
+non eseguiti, prove Stripe/Satispay sandbox, hardware e hosted
+multi-ruolo, evidenza delle tre revisioni complete.
+
+`npm run release:check` resta correttamente **NO-GO**. Production
+non è stata modificata e nessun merge in `main` è stato effettuato.
