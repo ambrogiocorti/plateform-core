@@ -10,8 +10,21 @@ const check = (fn) => {
   n++;
 };
 check(() => assert.deepEqual(verified, staging));
-check(() => assert.doesNotThrow(() => assertVercelBackendCsp({ supabaseUrl: project, configuration: verified })));
-check(() => assert.throws(() => assertVercelBackendCsp({ supabaseUrl: 'https://abdxvlykasqmknexxhjo.supabase.co', configuration: verified }), /VERCEL_CSP_BACKEND_ORIGIN_MISMATCH/));
+check(() =>
+  assert.doesNotThrow(() =>
+    assertVercelBackendCsp({ supabaseUrl: project, configuration: verified }),
+  ),
+);
+check(() =>
+  assert.throws(
+    () =>
+      assertVercelBackendCsp({
+        supabaseUrl: 'https://abdxvlykasqmknexxhjo.supabase.co',
+        configuration: verified,
+      }),
+    /VERCEL_CSP_BACKEND_ORIGIN_MISMATCH/,
+  ),
+);
 check(() => assert.equal(verified.framework, null));
 check(() => assert.equal(verified.outputDirectory, 'dist/site'));
 check(() => assert.equal(verified.installCommand, 'npm ci'));
