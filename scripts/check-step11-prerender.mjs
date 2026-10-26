@@ -3,6 +3,10 @@ import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { prerenderPublic, renderPublicBody } from './prerender-public.mjs';
+import {
+  mayUseUnindexedPreviewShell,
+  writeUnindexedPreviewShell,
+} from './public-prerender-fallback.mjs';
 const root = await mkdtemp(join(tmpdir(), 'plateform-prerender-'));
 const template =
   '<!doctype html><html><head><meta name="description" content="base"/><title>base</title></head><body><div id="app"></div><script type="module" src="/assets/index-abc.js"></script></body></html>';
@@ -216,4 +220,40 @@ const freshHome = await readFile(join(root, 'index.html'), 'utf8');
 test(() => assert.equal(freshHome, template));
 const freshRobots = await readFile(join(root, 'robots.txt'), 'utf8');
 test(() => assert.equal(freshRobots, 'User-agent: *\nDisallow: /\n'));
+// A temporary Vercel preview may compile with a disconnected backend, never
+// with a bad auth response, invalid payload, or on production.
+const previewEnv = { VERCEL: '1', VERCEL_ENV: 'preview' };
+const offline = new TypeError('fetch failed', {
+  cause: Object.assign(new Error('DNS failed'), { code: 'ENOTFOUND' }),
+});
+test(() => assert.equal(mayUseUnindexedPreviewShell(offline, previewEnv), true));
+test(() =>
+  assert.equal(
+    mayUseUnindexedPreviewShell(offline, { VERCEL: '1', VERCEL_ENV: 'production' }),
+    false,
+  ),
+);
+test(() =>
+  assert.equal(mayUseUnindexedPreviewShell(offline, { VERCEL_ENV: 'preview' }), false),
+);
+test(() =>
+  assert.equal(
+    mayUseUnindexedPreviewShell(new Error('PUBLIC_RPC_FAILED:get_public_site:403'), previewEnv),
+    false,
+  ),
+);
+test(() =>
+  assert.equal(
+    mayUseUnindexedPreviewShell(new Error('PUBLIC_RPC_INVALID_PAYLOAD'), previewEnv),
+    false,
+  ),
+);
+const shellRoot = await mkdtemp(join(tmpdir(), 'plateform-preview-shell-'));
+await writeFile(join(shellRoot, 'robots.txt'), 'User-agent: *\\nAllow: /\\n');
+await writeFile(join(shellRoot, 'sitemap.xml'), '<urlset/>');
+await writeUnindexedPreviewShell(shellRoot);
+const previewRobots = await readFile(join(shellRoot, 'robots.txt'), 'utf8');
+test(() => assert.equal(previewRobots, 'User-agent: *\\nDisallow: /\\n'));
+await assert.rejects(readFile(join(shellRoot, 'sitemap.xml'), 'utf8'), { code: 'ENOENT' });
+count++;
 console.log(`STEP11_RECOVERED_PRERENDER=PASS (${count} assertions)`);
