@@ -1,7 +1,5 @@
 import { cp, mkdir, rm, writeFile, readFile } from 'node:fs/promises';
-import {
-  runAtomicPublicPrerender,
-} from './public-prerender-fallback.mjs';
+import { runAtomicPublicPrerender } from './public-prerender-fallback.mjs';
 // A prior deployment can contain published menus or venue pages that have since
 // been withdrawn. Never let those HTML files survive into a later release.
 await rm('dist/site', { recursive: true, force: true });
