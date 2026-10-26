@@ -507,9 +507,8 @@ function startFunctions(anonKey, serviceKey) {
     stop(`fn-${name}`);
     daemon(
       `fn-${name}`,
-      process.execPath,
+      join(root, 'node_modules/deno/deno'),
       [
-        join(root, 'node_modules/deno/bin.cjs'),
         'run',
         '--allow-env',
         '--allow-net',
