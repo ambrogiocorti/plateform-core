@@ -10,6 +10,9 @@ export const browserFacingEndpoints = Object.freeze([
   'step-up',
   'offline-authorization',
   'reservation-deposit',
+  'payments',
+  'asset-upload',
+  'health-probe',
 ]);
 
 export async function verifyStagingEdgeCors({
