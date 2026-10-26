@@ -64,11 +64,14 @@ e [Protezione password compromesse](https://supabase.com/docs/guides/auth/passwo
 
 ## Preview Vercel isolata
 
-Create **sette variabili Vercel con target Preview e filtro Git branch**
+Create **otto variabili Vercel con target Preview e filtro Git branch**
 esclusivamente su `plateform/gpt6-prerender-preview-resilience-20261026`.
 Comprendono ambiente, URL del frontend, URL Supabase Staging,
-publishable key, origine pubblica e versione. Non è stata modificata
-nessuna variabile globale Production.
+publishable key, origine pubblica, versione e trust anchor offline.
+L'anteprima imposta `VITE_OFFLINE_PUBLIC_KEYS_JWK=[]`: la modalità offline
+è disabilitata per scelta di sicurezza finché la chiave pubblica della
+firma Staging non viene verificata. Non è stata modificata nessuna
+variabile globale Production.
 
 La CSP `vercel.json` del branch autorizza solo
 `https://qfgoatdabgnzozxuzxku.supabase.co` e il relativo WebSocket.
@@ -93,6 +96,10 @@ Le build Git/Vercel degli ultimi commit sono limitate dalla quota Free
 nuovo deployment HTTPS su Vercel.
 
 ## Stato commerciale
+
+Il comando `npm run release:check` è stato eseguito e ha rifiutato
+correttamente il rilascio per mancanza del dossier dei collaudi reali e
+delle tre revisioni integrali.
 
 **NO-GO.** Restano indispensabili le verifiche E2E hosted multi-ruolo,
 i controlli negativi delle funzioni privilegiate, Stripe e Satispay
