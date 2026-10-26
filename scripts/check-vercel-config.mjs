@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { createVercelConfiguration } from './vercel-configuration.mjs';
+import { assertVercelBackendCsp, createVercelConfiguration } from './vercel-configuration.mjs';
 const project = 'https://qfgoatdabgnzozxuzxku.supabase.co';
 const staging = createVercelConfiguration({ supabaseUrl: project, mode: 'staging' });
 const verified = JSON.parse(await readFile('vercel.json', 'utf8'));
@@ -10,6 +10,8 @@ const check = (fn) => {
   n++;
 };
 check(() => assert.deepEqual(verified, staging));
+check(() => assert.doesNotThrow(() => assertVercelBackendCsp({ supabaseUrl: project, configuration: verified })));
+check(() => assert.throws(() => assertVercelBackendCsp({ supabaseUrl: 'https://abdxvlykasqmknexxhjo.supabase.co', configuration: verified }), /VERCEL_CSP_BACKEND_ORIGIN_MISMATCH/));
 check(() => assert.equal(verified.framework, null));
 check(() => assert.equal(verified.outputDirectory, 'dist/site'));
 check(() => assert.equal(verified.installCommand, 'npm ci'));
