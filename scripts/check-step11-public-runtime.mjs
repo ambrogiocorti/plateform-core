@@ -1,5 +1,9 @@
 import assert from 'node:assert/strict';
-import {
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
+const {
   bookingVenue,
   canonicalPublicUrl,
   contrastRatio,
@@ -14,7 +18,30 @@ import {
   safePublicLink,
   selectedVenue,
   venueAwarePath,
-} from '../src/services/public-site.ts';
+} = await (async () => {
+  // The Vite module has extensionless imports and import.meta.env. Copy the
+  // actual implementation with Node-compatible specifiers for strip-types tests.
+  const dir = await mkdtemp(join(tmpdir(), 'plateform-public-runtime-'));
+  try {
+    await writeFile(
+      join(dir, 'public-site.ts'),
+      (await readFile('src/services/public-site.ts', 'utf8')).replace(
+        "from './public-base'",
+        "from './public-base.ts'",
+      ),
+    );
+    await writeFile(
+      join(dir, 'public-base.ts'),
+      (await readFile('src/services/public-base.ts', 'utf8')).replaceAll(
+        'import.meta.env.BASE_URL',
+        "'/'",
+      ),
+    );
+    return await import(pathToFileURL(join(dir, 'public-site.ts')).href);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+})();
 
 const site = {
   name: 'Plateform Test',
