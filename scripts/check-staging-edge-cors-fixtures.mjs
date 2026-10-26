@@ -1,8 +1,5 @@
 import assert from 'node:assert/strict';
-import {
-  browserFacingEndpoints,
-  verifyStagingEdgeCors,
-} from './verify-staging-edge-cors.mjs';
+import { browserFacingEndpoints, verifyStagingEdgeCors } from './verify-staging-edge-cors.mjs';
 
 const config = {
   origin: 'https://abcdefghijklmnopqrst.supabase.co',
@@ -32,7 +29,12 @@ const deny = await verifyStagingEdgeCors({
   fetcher: async () => ({ status: 403, headers: new Headers() }),
 });
 check(() => assert.equal(deny.passed, false));
-check(() => assert.equal(deny.results.every((item) => !item.pass), true));
+check(() =>
+  assert.equal(
+    deny.results.every((item) => !item.pass),
+    true,
+  ),
+);
 const mismatch = await verifyStagingEdgeCors({
   ...config,
   fetcher: async () => ({
