@@ -30,8 +30,9 @@ autorizza a sostituire URL o publishable key con valori non verificati.
   **production** o GitHub Pages continuano a fallire senza pubblicare un sito
   incompleto come release di produzione.
 - `scripts/check-step11-prerender.mjs` verifica le condizioni di fallback e
-  l'eliminazione della sitemap. I test del predicato sono stati riprodotti anche
-  con Node.js 22 in ambiente isolato (7 asserzioni riuscite). L'intera pipeline
+  l'eliminazione della sitemap. I test del predicato e della pubblicazione atomica sono stati riprodotti anche
+  con Node.js 22 in ambiente isolato (13 asserzioni riuscite: fallback, assenza
+  di output parziale e promozione solo dopo il successo). L'intera pipeline
   Node 24/Vercel va verificata sul commit proposto.
 
 ## Gate ancora aperti
