@@ -19,7 +19,7 @@
     "test:db": "vitest run tests/database",
     "test:e2e": "playwright test",
     "e2e:stack": "node tests/e2e-live/stack/stack.mjs",
-    "test:e2e:live": "node tests/e2e-live/stack/stack.mjs up && playwright test -c playwright.live.config.ts",
+    "test:e2e:live": "node tests/e2e-live/stack/stack.mjs up && node scripts/run-live-e2e-batches.mjs",
     "check:edge": "node scripts/run-edge.mjs check",
     "test:edge": "node scripts/run-edge.mjs test",
     "check": "npm run check:migrations && npm run check:core-edition && npm run check:core-server-policy && npm run check:core-edge-guards && npm run check:core-release-profile && npm run check:waiter-ux && npm run check:step11 && npm run typecheck && npm run lint && npm run check:edge && npm run test:edge && npm test && npm run build",
