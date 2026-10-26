@@ -127,10 +127,11 @@ test('Conflict Center: Annulla item e Modifica ordine reinviano l’ordine corre
   ).toHaveValue('0');
   await carbonara.getByLabel('Quantità').fill('2');
   await editor.getByRole('button', { name: 'Invia ordine' }).click();
+  // The earlier correction may still have its own toast; assert the latest
+  // notification and independently verify the new order's server state below.
   await expect(
-    admin.getByText('Ordine corretto inviato alla cucina. Conflitto risolto.'),
+    admin.getByText('Ordine corretto inviato alla cucina. Conflitto risolto.').last(),
   ).toBeVisible();
-  // The first toast may still be on screen: wait for the server state instead.
   await expect.poll(() => orderLines(second)).toBe('2xCarbonara@1:OFFLINE');
   expect(sql(`select status from public.sync_conflicts where id='${editOrder}'`)).toBe('RESOLVED');
   await expect(admin.getByText('Nessun conflitto da risolvere.')).toBeVisible();
