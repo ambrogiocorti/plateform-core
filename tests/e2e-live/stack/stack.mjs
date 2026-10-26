@@ -187,7 +187,10 @@ function startPostgres() {
 
 let dockerChecked;
 function realStorage() {
-  if (process.env.E2E_STORAGE === 'off') return false;
+  const storage = process.env.E2E_STORAGE;
+  if (storage === 'off') return false;
+  if (storage && !['auto', 'required'].includes(storage))
+    throw new Error('E2E_STORAGE_MODE_INVALID');
   if (dockerChecked === undefined)
     try {
       execFileSync('docker', ['info'], { stdio: 'ignore', timeout: 15000 });
@@ -195,6 +198,8 @@ function realStorage() {
     } catch {
       dockerChecked = false;
     }
+  if (!dockerChecked && storage === 'required')
+    throw new Error('E2E_STORAGE_REQUIRED_DOCKER_UNAVAILABLE');
   return dockerChecked;
 }
 
