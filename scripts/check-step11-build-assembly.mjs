@@ -60,6 +60,9 @@ globalThis.fetch=async (input,init)=>{
       timeout: 10000,
       env: {
         ...process.env,
+        // This is an isolated RPC mock, not a Vercel deployment. The real CSP
+        // guard is exercised in check-vercel-config.mjs and on Vercel builds.
+        VERCEL: '0',
         PUBLIC_SITE_ORIGIN: 'https://ristorante.example.org',
         VITE_SUPABASE_URL: 'https://project.supabase.co',
         VITE_SUPABASE_PUBLISHABLE_KEY: 'sb_publishable_test',
