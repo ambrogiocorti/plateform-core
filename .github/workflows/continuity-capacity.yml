@@ -1,0 +1,23 @@
+name: Continuity capacity guard static test
+
+on:
+  push:
+    paths:
+      - 'scripts/continuity-capacity-preflight.mjs'
+      - '.github/workflows/continuity-capacity.yml'
+  pull_request:
+    paths:
+      - 'scripts/continuity-capacity-preflight.mjs'
+      - '.github/workflows/continuity-capacity.yml'
+permissions:
+  contents: read
+jobs:
+  self-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node scripts/continuity-capacity-preflight.mjs --self-test
