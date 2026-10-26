@@ -12,18 +12,18 @@ Non è corretto sostituirli con test isolati o aggiornare i gate a PASS.
 
 ## Cosa è stato verificato
 
-| Area | Evidenza reale | Limite |
-| --- | --- | --- |
-| Sorgente | `npm ci` e `npm run check` **PASS**, Node 24.22.1, commit `667c62a` | Prove locali/sandbox |
-| Frontend browser | Playwright **21/21 PASS** nella validazione precedente della stessa PR; successiva conferma richiesta a ogni modifica | Fixture API per i flussi staff |
-| Edge | `check:edge` PASS, `test:edge` **74/74 PASS** nell'audit PR #49 | Test isolati, non provider live |
-| Unit/database | **339/339 PASS** nell'audit PR #49 | Database di test / PGlite |
-| Migrazioni | **496** su Staging e **496** su Production, stesse coppie versione/nome, ultima `20261021090000` | Non è una verifica degli hash né delle configurazioni esterne |
-| RPC pubbliche | Staging: Auth settings 200, sito pubblico 200, sitemap 200 e noindex | Non dimostra il ciclo ordini con staff autenticato |
-| Anon/Staff | GET diretto `staff_profiles` anon: 401 | Verifica una superficie, non tutta la matrice RLS |
-| Browser pubblico live | Build contro Supabase Staging, servita localmente con rewrite coerenti con Vercel: Home/Menu/Prenota/Staff HTTP 200, nessun `pageerror` Chromium | NON prova HTTP del nuovo deployment Vercel, protetto SSO |
-| Prerender | `npm run build:pages` contro Staging **PASS**, HTML ristorante E2E e robots noindex | Non equivale al go-live della build |
-| Audit database | Staging: trigger di sospensione audit assenti; trigger di immutabilità presenti e attivi | Non dimostra il ripristino/replay di un backup |
+| Area                  | Evidenza reale                                                                                                                                   | Limite                                                        |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------- |
+| Sorgente              | `npm ci` e `npm run check` **PASS**, Node 24.22.1, commit `667c62a`                                                                              | Prove locali/sandbox                                          |
+| Frontend browser      | Playwright **21/21 PASS** nella validazione precedente della stessa PR; successiva conferma richiesta a ogni modifica                            | Fixture API per i flussi staff                                |
+| Edge                  | `check:edge` PASS, `test:edge` **74/74 PASS** nell'audit PR #49                                                                                  | Test isolati, non provider live                               |
+| Unit/database         | **339/339 PASS** nell'audit PR #49                                                                                                               | Database di test / PGlite                                     |
+| Migrazioni            | **496** su Staging e **496** su Production, stesse coppie versione/nome, ultima `20261021090000`                                                 | Non è una verifica degli hash né delle configurazioni esterne |
+| RPC pubbliche         | Staging: Auth settings 200, sito pubblico 200, sitemap 200 e noindex                                                                             | Non dimostra il ciclo ordini con staff autenticato            |
+| Anon/Staff            | GET diretto `staff_profiles` anon: 401                                                                                                           | Verifica una superficie, non tutta la matrice RLS             |
+| Browser pubblico live | Build contro Supabase Staging, servita localmente con rewrite coerenti con Vercel: Home/Menu/Prenota/Staff HTTP 200, nessun `pageerror` Chromium | NON prova HTTP del nuovo deployment Vercel, protetto SSO      |
+| Prerender             | `npm run build:pages` contro Staging **PASS**, HTML ristorante E2E e robots noindex                                                              | Non equivale al go-live della build                           |
+| Audit database        | Staging: trigger di sospensione audit assenti; trigger di immutabilità presenti e attivi                                                         | Non dimostra il ripristino/replay di un backup                |
 
 ### Limite dei test sulle Edge Function
 
