@@ -48,10 +48,23 @@ const pass = await verifyStagingEdgeDenial({
 });
 check(() => assert.equal(pass.passed, true));
 check(() => assert.equal(pass.results.length, 12));
-check(() => assert.equal(visited.every((v) => v.init.method === 'POST'), true));
-check(() => assert.equal(visited.every((v) => !v.init.headers.Authorization), true));
 check(() =>
-  assert.equal(visited.every((v) => v.url.startsWith(source.origin + '/functions/v1/')), true),
+  assert.equal(
+    visited.every((v) => v.init.method === 'POST'),
+    true,
+  ),
+);
+check(() =>
+  assert.equal(
+    visited.every((v) => !v.init.headers.Authorization),
+    true,
+  ),
+);
+check(() =>
+  assert.equal(
+    visited.every((v) => v.url.startsWith(source.origin + '/functions/v1/')),
+    true,
+  ),
 );
 const bad = await verifyStagingEdgeDenial({
   ...source,
