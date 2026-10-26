@@ -13,21 +13,21 @@
 
 ## Verifiche effettivamente eseguite
 
-| Prova | Esito | Perimetro |
-|---|---|---|
-| `npm ci --no-audit --no-fund` | PASS | Dipendenze installate nel sandbox |
-| `npm run check:step11-prerender` | PASS — 39 asserzioni | Includes condizione di fallback e promozione atomica |
-| `npm run check:step11-runtime` | PASS | Routing pubblico e 13 asserzioni telemetria |
-| `npm run check:step11-build-assembly` | PASS — 16 asserzioni | Assemblaggio in temp con transport RPC isolato |
-| `npm run local:source-gates` | PASS | Inclusi check migrazioni, UX, steps 7–12, TypeScript, lint, Prettier |
-| `npm run check:edge` | PASS | Check sorgenti Edge Functions |
-| `npm run test:edge` | PASS — 74/74 | Deno test provider/worker |
-| `npm test` | PASS — 339/339 | 41 file Vitest unit/database PGlite |
-| `npm run build` | PASS | Build Vite public/staff |
-| `npm run test:e2e` | PASS — 21/21 | Chromium headless reale, frontend pubblico/staff con fixture di API; librerie installate con `playwright install-deps` |
-| `node scripts/report-dependency-audit.mjs` | PASS — high=0, critical=0 | npm audit, dopo aggiornamento Zod |
-| `npm run build:pages` con backend inesistente e `VERCEL_ENV=preview` | PASS | Pipeline completa; robots Disallow /, nessuna sitemap, shell client non prerenderizzata |
-| `node scripts/build-site.mjs` con lo stesso backend inesistente e `VERCEL_ENV=production` | FAIL atteso — `ENOTFOUND` | Fail-closed in produzione confermato |
+| Prova                                                                                     | Esito                     | Perimetro                                                                                                              |
+| ----------------------------------------------------------------------------------------- | ------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `npm ci --no-audit --no-fund`                                                             | PASS                      | Dipendenze installate nel sandbox                                                                                      |
+| `npm run check:step11-prerender`                                                          | PASS — 39 asserzioni      | Includes condizione di fallback e promozione atomica                                                                   |
+| `npm run check:step11-runtime`                                                            | PASS                      | Routing pubblico e 13 asserzioni telemetria                                                                            |
+| `npm run check:step11-build-assembly`                                                     | PASS — 16 asserzioni      | Assemblaggio in temp con transport RPC isolato                                                                         |
+| `npm run local:source-gates`                                                              | PASS                      | Inclusi check migrazioni, UX, steps 7–12, TypeScript, lint, Prettier                                                   |
+| `npm run check:edge`                                                                      | PASS                      | Check sorgenti Edge Functions                                                                                          |
+| `npm run test:edge`                                                                       | PASS — 74/74              | Deno test provider/worker                                                                                              |
+| `npm test`                                                                                | PASS — 339/339            | 41 file Vitest unit/database PGlite                                                                                    |
+| `npm run build`                                                                           | PASS                      | Build Vite public/staff                                                                                                |
+| `npm run test:e2e`                                                                        | PASS — 21/21              | Chromium headless reale, frontend pubblico/staff con fixture di API; librerie installate con `playwright install-deps` |
+| `node scripts/report-dependency-audit.mjs`                                                | PASS — high=0, critical=0 | npm audit, dopo aggiornamento Zod                                                                                      |
+| `npm run build:pages` con backend inesistente e `VERCEL_ENV=preview`                      | PASS                      | Pipeline completa; robots Disallow /, nessuna sitemap, shell client non prerenderizzata                                |
+| `node scripts/build-site.mjs` con lo stesso backend inesistente e `VERCEL_ENV=production` | FAIL atteso — `ENOTFOUND` | Fail-closed in produzione confermato                                                                                   |
 
 La build Preview è stata verificata con valori di configurazione **di test**, senza segreti e senza chiamare alcun progetto cliente. Il PASS indica soltanto che la shell di anteprima è pubblicabile in sicurezza, non che il frontend possa servire ordini senza backend.
 
