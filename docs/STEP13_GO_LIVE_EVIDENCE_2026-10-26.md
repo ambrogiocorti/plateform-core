@@ -144,3 +144,17 @@ I nuovi script includono **12 asserzioni** per i test di negazione
 e **7 asserzioni** per il preflight; entrambi sono inclusi nel gate
 `check:step11-deploy-config`. Non sono stati modificati i dati dei
 ristoranti né Production. Il NO-GO rimane in vigore.
+
+## Esito aggiornato: CORS Staging risolto
+
+Dopo la correzione di `ALLOWED_ORIGINS`, lo script versionato
+`scripts/verify-staging-edge-cors.mjs` ha restituito
+`STAGING_EDGE_CORS_PREFLIGHT=PASS (10/10)` contro il progetto Supabase
+Staging. Tutti e dieci i preflight hanno risposto HTTP 204 con origine
+Vercel esatta. La precedente evidenza 0/10 descrive il problema
+prima della correzione e non rappresenta lo stato corrente.
+
+Un nuovo deployment Preview dello SHA `85b182f` risulta READY.
+Il rilascio commerciale rimane NO-GO: la protezione SSO del sito
+impedisce lo smoke HTTP pubblico senza credenziali Vercel e sono
+ancora mancanti backup/restore certificati e collaudi con provider reali.
