@@ -355,6 +355,12 @@ export async function reset() {
   await sleep(300);
   psql('postgres', `drop database if exists ${db} with (force)`);
   psql('postgres', `create database ${db} template ${template}`);
+  // The template persists across midnight. Refresh disposable fixture stock dates
+  // to each venue's local calendar day on every reset, never on customer databases.
+  psql(db, `update public.venue_dish_settings s
+    set availability_date=(now() at time zone v.timezone)::date
+    from public.venues v
+    where s.venue_id=v.id and s.availability is not null`);
   daemon('gotrue', join(bin, 'auth'), [], gotrueEnv(db));
   daemon('postgrest', join(bin, 'postgrest'), [postgrestConfig(db)]);
   await waitFor('http://127.0.0.1:9999/health');
