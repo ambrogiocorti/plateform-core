@@ -1,4 +1,8 @@
-import { cp, mkdir, rm, writeFile, readFile } from 'node:fs/promises';
+import { cp, mkdir, rm, writeFile, readFile, rename } from 'node:fs/promises';
+import {
+  mayUseUnindexedPreviewShell,
+  writeUnindexedPreviewShell,
+} from './public-prerender-fallback.mjs';
 // A prior deployment can contain published menus or venue pages that have since
 // been withdrawn. Never let those HTML files survive into a later release.
 await rm('dist/site', { recursive: true, force: true });
@@ -30,13 +34,29 @@ const staff = await readFile('dist/site/staff/index.html', 'utf8');
 if (!staff.includes(`${staffBase}assets/`))
   throw new Error('La build GitHub Pages richiede VITE_STAFF_BASE_URL=https://dominio/staff/');
 
-// Build-time public pages are generated from anonymous server RPCs only.
-await import('./prerender-public.mjs').then(({ prerenderPublic }) =>
-  prerenderPublic({
-    distDir: 'dist/site',
+// Render into a separate directory: a network failure midway through the
+// sitemap must never leave a partially prerendered public website behind.
+const prerenderDir = 'dist/site-prerender';
+await rm(prerenderDir, { recursive: true, force: true });
+await cp('dist/site', prerenderDir, { recursive: true });
+try {
+  const { prerenderPublic } = await import('./prerender-public.mjs');
+  await prerenderPublic({
+    distDir: prerenderDir,
     siteOrigin: process.env.PUBLIC_SITE_ORIGIN,
     supabaseUrl: process.env.VITE_SUPABASE_URL,
     publishableKey: process.env.VITE_SUPABASE_PUBLISHABLE_KEY,
     base,
-  }),
-);
+  });
+  await rm('dist/site', { recursive: true, force: true });
+  await rename(prerenderDir, 'dist/site');
+} catch (error) {
+  await rm(prerenderDir, { recursive: true, force: true });
+  if (!mayUseUnindexedPreviewShell(error)) throw error;
+  // Preview only: publish the already-built client-rendered shell, unindexed.
+  // Do not call this a release gate or silently reuse stale HTML or sitemap.
+  await writeUnindexedPreviewShell('dist/site');
+  console.warn(
+    'PLATEFORM_PREVIEW_BACKEND_UNREACHABLE: noindex shell only; backend-dependent checks and production release are NOT verified.',
+  );
+}
