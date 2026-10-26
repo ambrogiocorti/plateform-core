@@ -41,13 +41,12 @@ const mismatch = await verifyStagingEdgeCors({
   }),
 });
 check(() => assert.equal(mismatch.passed, false));
-await check(() =>
-  assert.rejects(
-    verifyStagingEdgeCors({
-      ...config,
-      previewOrigin: 'http://127.0.0.1:5173',
-    }),
-    /PREVIEW_REQUIRES_EXACT_HTTPS_VERCEL_ORIGIN/,
-  ),
+await assert.rejects(
+  verifyStagingEdgeCors({
+    ...config,
+    previewOrigin: 'http://127.0.0.1:5173',
+  }),
+  /PREVIEW_REQUIRES_EXACT_HTTPS_VERCEL_ORIGIN/,
 );
+count++;
 console.log(`STAGING_EDGE_CORS_FIXTURES=PASS (${count} assertions)`);
