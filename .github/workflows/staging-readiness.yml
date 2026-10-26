@@ -53,6 +53,16 @@ jobs:
           node scripts/reconcile-migrations.mjs --dry-run
       - name: Real Node 24 application build
         run: npm run build:pages
+      - name: Check Staging browser CORS and deny unauthenticated requests (read-only)
+        env:
+          PLATEFORM_STAGING_URL: ${{ vars.STAGING_SUPABASE_URL }}
+          PLATEFORM_STAGING_PROJECT_REF: qfgoatdabgnzozxuzxku
+          PLATEFORM_PRODUCTION_PROJECT_REF: xzateqavvaparjoybbhr
+          PLATEFORM_STAGING_PUBLISHABLE_KEY: ${{ secrets.STAGING_SUPABASE_PUBLISHABLE_KEY }}
+          PLATEFORM_STAGING_PREVIEW_ORIGIN: ${{ inputs.staging_origin }}
+        run: |
+          npm run check:staging-edge-cors
+          npm run check:staging-edge-denial
       - name: Check live hosted HTTP headers and routing
         run: npm run check:staging-http
       - name: Keep failure evidence
