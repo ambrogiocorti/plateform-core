@@ -249,11 +249,11 @@ test(() =>
   ),
 );
 const shellRoot = await mkdtemp(join(tmpdir(), 'plateform-preview-shell-'));
-await writeFile(join(shellRoot, 'robots.txt'), 'User-agent: *\\nAllow: /\\n');
+await writeFile(join(shellRoot, 'robots.txt'), 'User-agent: *\nAllow: /\n');
 await writeFile(join(shellRoot, 'sitemap.xml'), '<urlset/>');
 await writeUnindexedPreviewShell(shellRoot);
 const previewRobots = await readFile(join(shellRoot, 'robots.txt'), 'utf8');
-test(() => assert.equal(previewRobots, 'User-agent: *\\nDisallow: /\\n'));
+test(() => assert.equal(previewRobots, 'User-agent: *\nDisallow: /\n'));
 await assert.rejects(readFile(join(shellRoot, 'sitemap.xml'), 'utf8'), { code: 'ENOENT' });
 count++;
 console.log(`STEP11_RECOVERED_PRERENDER=PASS (${count} assertions)`);
