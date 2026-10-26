@@ -1,10 +1,11 @@
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { prerenderPublic, renderPublicBody } from './prerender-public.mjs';
 import {
   mayUseUnindexedPreviewShell,
+  runAtomicPublicPrerender,
   writeUnindexedPreviewShell,
 } from './public-prerender-fallback.mjs';
 const root = await mkdtemp(join(tmpdir(), 'plateform-prerender-'));
@@ -256,4 +257,44 @@ const previewRobots = await readFile(join(shellRoot, 'robots.txt'), 'utf8');
 test(() => assert.equal(previewRobots, 'User-agent: *\nDisallow: /\n'));
 await assert.rejects(readFile(join(shellRoot, 'sitemap.xml'), 'utf8'), { code: 'ENOENT' });
 count++;
+// A failed fetch after rendering one route cannot leak partially generated HTML.
+const atomicRoot = await mkdtemp(join(tmpdir(), 'plateform-atomic-prerender-'));
+const atomicSite = join(atomicRoot, 'site');
+await mkdir(atomicSite);
+await writeFile(join(atomicSite, 'index.html'), 'original shell');
+const fallbackResult = await runAtomicPublicPrerender({
+  siteDir: atomicSite,
+  env: previewEnv,
+  render: async (tmp) => {
+    await writeFile(join(tmp, 'partial.html'), 'must never publish');
+    throw offline;
+  },
+});
+test(() => assert.equal(fallbackResult, 'preview-unindexed'));
+const atomicOriginal = await readFile(join(atomicSite, 'index.html'), 'utf8');
+test(() => assert.equal(atomicOriginal, 'original shell'));
+await assert.rejects(readFile(join(atomicSite, 'partial.html'), 'utf8'), { code: 'ENOENT' });
+count++;
+const atomicRobots = await readFile(join(atomicSite, 'robots.txt'), 'utf8');
+test(() => assert.equal(atomicRobots, 'User-agent: *\nDisallow: /\n'));
+await assert.rejects(
+  () =>
+    runAtomicPublicPrerender({
+      siteDir: atomicSite,
+      env: previewEnv,
+      render: () => {
+        throw new Error('PUBLIC_RPC_FAILED:get_public_site:403');
+      },
+    }),
+  /PUBLIC_RPC_FAILED/,
+);
+count++;
+const successful = await runAtomicPublicPrerender({
+  siteDir: atomicSite,
+  env: { VERCEL: '1', VERCEL_ENV: 'production' },
+  render: (tmp) => writeFile(join(tmp, 'index.html'), 'complete prerender'),
+});
+test(() => assert.equal(successful, 'prerendered'));
+const atomicNew = await readFile(join(atomicSite, 'index.html'), 'utf8');
+test(() => assert.equal(atomicNew, 'complete prerender'));
 console.log(`STEP11_RECOVERED_PRERENDER=PASS (${count} assertions)`);
