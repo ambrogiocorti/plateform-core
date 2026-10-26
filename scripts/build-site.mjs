@@ -1,5 +1,16 @@
 import { cp, mkdir, rm, writeFile, readFile } from 'node:fs/promises';
 import { runAtomicPublicPrerender } from './public-prerender-fallback.mjs';
+// Vercel serves static headers from vercel.json. Keep those origins tied to
+// the selected Supabase project; a preview configured with a different backend
+// must fail rather than appear online with a blocked or cross-environment API.
+if (process.env.VERCEL === '1') {
+  const { assertVercelBackendCsp } = await import('./vercel-configuration.mjs');
+  const configuration = JSON.parse(await readFile('vercel.json', 'utf8'));
+  assertVercelBackendCsp({
+    supabaseUrl: process.env.VITE_SUPABASE_URL,
+    configuration,
+  });
+}
 // A prior deployment can contain published menus or venue pages that have since
 // been withdrawn. Never let those HTML files survive into a later release.
 await rm('dist/site', { recursive: true, force: true });
