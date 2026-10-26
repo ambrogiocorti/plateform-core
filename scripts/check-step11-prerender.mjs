@@ -234,9 +234,7 @@ test(() =>
     false,
   ),
 );
-test(() =>
-  assert.equal(mayUseUnindexedPreviewShell(offline, { VERCEL_ENV: 'preview' }), false),
-);
+test(() => assert.equal(mayUseUnindexedPreviewShell(offline, { VERCEL_ENV: 'preview' }), false));
 test(() =>
   assert.equal(
     mayUseUnindexedPreviewShell(new Error('PUBLIC_RPC_FAILED:get_public_site:403'), previewEnv),
