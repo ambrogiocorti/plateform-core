@@ -24,6 +24,7 @@
 | `npm run test:edge` | PASS — 74/74 | Deno test provider/worker |
 | `npm test` | PASS — 339/339 | 41 file Vitest unit/database PGlite |
 | `npm run build` | PASS | Build Vite public/staff |
+| `npm run test:e2e` | PASS — 21/21 | Chromium headless reale, frontend pubblico/staff con fixture di API; librerie installate con `playwright install-deps` |
 | `node scripts/report-dependency-audit.mjs` | PASS — high=0, critical=0 | npm audit, dopo aggiornamento Zod |
 | `npm run build:pages` con backend inesistente e `VERCEL_ENV=preview` | PASS | Pipeline completa; robots Disallow /, nessuna sitemap, shell client non prerenderizzata |
 | `node scripts/build-site.mjs` con lo stesso backend inesistente e `VERCEL_ENV=production` | FAIL atteso — `ENOTFOUND` | Fail-closed in produzione confermato |
@@ -34,7 +35,9 @@ La build Preview è stata verificata con valori di configurazione **di test**, s
 
 - Il connettore Supabase della sessione restituisce `link_id must identify an eligible linked account`; non è stato possibile leggere o modificare Development o Staging.
 - L'account Free Vercel rifiuta un nuovo deployment API con quota giornaliera superata (HTTP 402). I test elencati sono stati eseguiti nella sandbox, **non** su un nuovo hostname pubblico Vercel.
-- Non ancora eseguiti in questa verifica: Playwright browser completo, E2E hosted Supabase con ruoli reali, Stripe/Satispay, recovery del backup su target indipendente, hardware/stampanti e revisioni integrali finali.
+- Non ancora eseguiti in questa verifica: E2E hosted Supabase con ruoli reali, Stripe/Satispay live sandbox, recovery del backup su target indipendente, hardware/stampanti e revisioni integrali finali.
 - Le PR #48 e #49 rimangono separate e draft; nessun merge in `main` o rilascio production.
+
+`npm run release:check` è stato eseguito e ha correttamente rifiutato il rilascio: `Release bloccata: manca il dossier dei collaudi reali e delle tre revisioni integrali.`
 
 **Decisione: IN PROGRESS / NO-GO.** Non cambiare il gate commerciale sulla base delle sole suite locali.
