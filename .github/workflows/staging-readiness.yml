@@ -10,7 +10,8 @@ permissions:
   contents: read
 jobs:
   verify:
-    runs-on: ubuntu-latest
+    # Pinned PostgreSQL 16 runner for the disposable 39-scenario HTTP/JWT suite.
+    runs-on: ubuntu-24.04
     timeout-minutes: 55
     environment: staging
     env:
@@ -43,6 +44,18 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Integrated public and staff browser regression
         run: npm run test:e2e
+      - name: Install isolated PostgreSQL and test-process cleanup utilities
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-16 postgresql-client-16 psmisc
+      - name: Integrated real GoTrue/PostgREST/PostgreSQL and Edge Function regression
+        env:
+          E2E_POSTGRES_BIN: /usr/lib/postgresql/16/bin
+          E2E_STORAGE: 'off'
+          CI: 'true'
+        run: npm run test:e2e:live
+        # Storage-backed upload/archives and external payment providers require
+        # separate hosted acceptance evidence: these are not covered by this job.
       - name: Verify remote migration history (read-only; fail on drift)
         env:
           SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
