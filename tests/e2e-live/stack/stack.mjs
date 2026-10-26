@@ -401,6 +401,17 @@ export async function up() {
     JSON.stringify({ real: realStorage(), image: realStorage() ? storageApi.image : null }),
   );
   startFunctions(anonKey, serviceKey);
+  // A successful spawn is not proof that Deno bound its port. Fail before the
+  // browser suite if any function crashed (e.g. a stale listener or bad config).
+  await Promise.all(
+    Object.entries(functionPorts).map(async ([name, port]) => {
+      try {
+        await waitFor(`http://127.0.0.1:${port}/`);
+      } catch {
+        throw new Error(`E2E_EDGE_FUNCTION_UNAVAILABLE:${name}`);
+      }
+    }),
+  );
   console.log(`E2E stack ready: gateway http://127.0.0.1:54321, database ${url(db)}`);
 }
 
