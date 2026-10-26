@@ -22,6 +22,10 @@ try {
     await mkdir(join(root, dir), { recursive: true });
   await cp(join(source, 'scripts/build-site.mjs'), join(root, 'scripts/build-site.mjs'));
   await cp(
+    join(source, 'scripts/public-prerender-fallback.mjs'),
+    join(root, 'scripts/public-prerender-fallback.mjs'),
+  );
+  await cp(
     join(source, 'scripts/prerender-public.mjs'),
     join(root, 'scripts/prerender-public.mjs'),
   );
