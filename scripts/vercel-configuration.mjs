@@ -82,3 +82,14 @@ export function createVercelConfiguration({ supabaseUrl, mode = 'staging' }) {
     ],
   };
 }
+
+/** Prevent serving a frontend tied to another installation's backend. */
+export function assertVercelBackendCsp({ supabaseUrl, configuration }) {
+  const expected = createVercelConfiguration({ supabaseUrl, mode: 'staging' });
+  const csp = (config) =>
+    config.headers
+      ?.find((group) => group.source === '/(.*)')
+      ?.headers?.find((header) => header.key === 'Content-Security-Policy')?.value;
+  if (!csp(configuration) || csp(configuration) !== csp(expected))
+    throw new Error('VERCEL_CSP_BACKEND_ORIGIN_MISMATCH');
+}
