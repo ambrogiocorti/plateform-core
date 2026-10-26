@@ -105,3 +105,42 @@ e distinguere il dataset reale dal collaudo.
 
 Non eseguire merge in `main`, deploy Production o attivazione di
 funzionalità a pagamento solo per rispettare una scadenza temporale.
+
+## Verifica HTTP aggiuntiva — autenticazione e CORS (26 ottobre)
+
+Su Supabase **Staging** è stato eseguito il nuovo controllo
+`npm run check:staging-edge-denial`, con chiave **publishable** e
+senza token di accesso: **12/12 funzioni protette hanno risposto HTTP 401**.
+Sono state incluse amministrazione, step-up, pagamenti, stampa, health
+e worker di continuità. Si tratta soltanto della verifica di accesso
+non autenticato; non sostituisce i test autenticati con ruoli e venue
+differenti.
+
+Il successivo controllo
+`npm run check:staging-edge-cors` ha dimostrato un blocco reale:
+**0/10 preflight CORS** dall'origine Vercel Preview hanno ricevuto
+autorizzazione. Le Edge Functions hanno restituito HTTP 403
+(`ORIGIN_FORBIDDEN`) anche per prenotazioni, pagamenti, upload
+e telemetria. Le origini locali `http://localhost:5173` e
+`http://localhost:5174` sono invece riconosciute dal backend.
+
+**Correzione operativa necessaria:** nelle Secrets delle Edge Functions
+del solo progetto `plateform-staging`, aggiornare `ALLOWED_ORIGINS`
+aggiungendo (senza eliminare gli altri valori) l'origine canonica:
+
+```text
+https://plateform-development-git-plateform-99a6ea-sambrogiocorti-5259.vercel.app
+```
+
+Non usare `*`, `*.vercel.app` o altre regole permissive.
+Gli strumenti Supabase attualmente collegati permettono l'audit e il
+deploy delle funzioni, ma non la gestione diretta delle Secrets:
+la modifica del valore di `ALLOWED_ORIGINS` richiede la dashboard
+Supabase o un canale amministrativo autorizzato. Fino alla verifica
+`STAGING_EDGE_CORS_PREFLIGHT=PASS (10/10)`, il frontend Staging non è
+operativamente collaudato via browser dalla preview Vercel.
+
+I nuovi script includono **12 asserzioni** per i test di negazione
+e **7 asserzioni** per il preflight; entrambi sono inclusi nel gate
+`check:step11-deploy-config`. Non sono stati modificati i dati dei
+ristoranti né Production. Il NO-GO rimane in vigore.
