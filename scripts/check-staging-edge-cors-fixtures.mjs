@@ -14,7 +14,7 @@ const check = (action) => {
   count++;
 };
 
-check(() => assert.equal(browserFacingEndpoints.length, 7));
+check(() => assert.equal(browserFacingEndpoints.length, 10));
 const pass = await verifyStagingEdgeCors({
   ...config,
   fetcher: async () => ({
@@ -23,7 +23,7 @@ const pass = await verifyStagingEdgeCors({
   }),
 });
 check(() => assert.equal(pass.passed, true));
-check(() => assert.equal(pass.results.length, 7));
+check(() => assert.equal(pass.results.length, 10));
 const deny = await verifyStagingEdgeCors({
   ...config,
   fetcher: async () => ({ status: 403, headers: new Headers() }),
