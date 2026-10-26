@@ -51,11 +51,12 @@ jobs:
       - name: Integrated real GoTrue/PostgREST/PostgreSQL and Edge Function regression
         env:
           E2E_POSTGRES_BIN: /usr/lib/postgresql/16/bin
-          E2E_STORAGE: 'off'
+          E2E_STORAGE: 'required'
           CI: 'true'
         run: npm run test:e2e:live
-        # Storage-backed upload/archives and external payment providers require
-        # separate hosted acceptance evidence: these are not covered by this job.
+        # The real Docker-backed Storage API MUST be available: all 39 scenarios,
+        # including uploads and audit archives, are required; providers and physical
+        # hardware still need separate hosted acceptance evidence.
       - name: Verify remote migration history (read-only; fail on drift)
         env:
           SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
