@@ -1,11 +1,12 @@
 import { z } from 'zod';
 import { readRows, rpc } from '../api/client';
 import { floorSchema, tableLabel, type FloorTable } from '../components/floor-view';
-import { button, el, emptyState, status, toast } from '../components/dom';
+import { button, dialog, el, emptyState, status, toast } from '../components/dom';
 import {
   groupWaiterSteps,
   isRunnerOnly,
   sortWaiterTables,
+  waiterDeliveryAction,
   type WaiterStepSummary,
 } from '../services/waiter-service';
 import { openAccountCreation } from './account-create';
@@ -22,6 +23,13 @@ const waiterCallSchema = z.object({
   created_at: z.string(),
   accepted_at: z.string().nullable(),
   completed_at: z.string().nullable(),
+});
+
+const deliveryClaimSchema = z.object({
+  step_id: z.uuid(),
+  waiter_id: z.uuid(),
+  claimed_at: z.string(),
+  served_at: z.string().nullable(),
 });
 
 const assignmentSchema = z.object({
@@ -130,7 +138,12 @@ async function openTableAccount(context: StaffContext, table: FloorTable): Promi
   context.navigate(`/conti/${account.id}`);
 }
 
-function deliveryCard(context: StaffContext, step: WaiterStepSummary): HTMLElement {
+function deliveryCard(
+  context: StaffContext,
+  step: WaiterStepSummary,
+  ownClaimedStepIds: ReadonlySet<string>,
+): HTMLElement {
+  const action = waiterDeliveryAction(step, ownClaimedStepIds);
   const card = el(
     'article',
     { class: 'card waiter-delivery-card stack' },
@@ -143,7 +156,13 @@ function deliveryCard(context: StaffContext, step: WaiterStepSummary): HTMLEleme
         el('p', { class: 'eyebrow' }, `STEP ${step.stepNumber}`),
         el('h2', {}, step.tableName),
       ),
-      status(step.status === 'READY' ? 'PRONTO PER IL SERVIZIO' : step.status),
+      status(
+        action === 'CONFIRM_SERVED'
+          ? 'CONSEGNA IN CARICO A TE'
+          : step.status === 'READY'
+            ? 'PRONTO PER IL SERVIZIO'
+            : step.status,
+      ),
     ),
     el('p', { class: 'muted service-timer' }, `Comanda aperta da ${elapsedLabel(step.createdAt)}`),
     el(
@@ -154,27 +173,46 @@ function deliveryCard(context: StaffContext, step: WaiterStepSummary): HTMLEleme
       ),
     ),
   );
-  if (step.status === 'READY' && step.canDeliver)
+  if (action === 'CLAIM') {
     card.append(
       el(
         'div',
-        { class: 'row waiter-actions' },
+        { class: 'stack' },
+        el(
+          'p',
+          { class: 'muted' },
+          'Prendi in carico lo step prima di segnalarlo consegnato. Il server impedisce di assegnare la stessa consegna a due persone.',
+        ),
         button('Prendi in carico', async () => {
           await command('deliver_step', { p_step: step.id, p_served: false });
           toast(`${step.tableName}: consegna presa in carico.`);
           await context.refresh?.();
         }),
-        button(
-          'Consegnato',
-          async () => {
-            await command('deliver_step', { p_step: step.id, p_served: true });
-            toast(`${step.tableName}: step servito.`);
-            await context.refresh?.();
-          },
-          'secondary',
-        ),
       ),
     );
+  } else if (action === 'CONFIRM_SERVED') {
+    card.append(
+      button('Conferma consegna al tavolo', () => {
+        const confirmation = dialog(
+          'Confermare la consegna',
+          el('p', {}, `${step.tableName} · Step ${step.stepNumber}`),
+          el(
+            'p',
+            {},
+            'Conferma solo dopo aver consegnato i piatti ai clienti. L’azione segna lo step come SERVED.',
+          ),
+        );
+        confirmation.append(
+          button('Sì, piatti consegnati', async () => {
+            await command('deliver_step', { p_step: step.id, p_served: true });
+            confirmation.close();
+            toast(`${step.tableName}: step servito.`);
+            await context.refresh?.();
+          }),
+        );
+      }),
+    );
+  }
   return card;
 }
 
@@ -185,7 +223,7 @@ export async function waiterPage(context: StaffContext): Promise<HTMLElement> {
       'Contatta l’amministratore per configurare il servizio.',
     );
 
-  const [floor, kitchenItems, calls, assignments] = await Promise.all([
+  const [floor, kitchenItems, calls, assignments, ownDeliveries] = await Promise.all([
     rpc('get_floor_workspace', { p_venue: context.venue.id }, floorSchema),
     rpc('get_kitchen_board', { p_venue: context.venue.id }, z.array(kitchenItemSchema)),
     readRows('waiter_calls', waiterCallSchema, context.venue.id, {
@@ -193,6 +231,10 @@ export async function waiterPage(context: StaffContext): Promise<HTMLElement> {
     }),
     readRows('table_assignments', assignmentSchema, context.venue.id, {
       waiter_id: context.profile.id,
+    }),
+    readRows('step_deliveries', deliveryClaimSchema, context.venue.id, {
+      waiter_id: context.profile.id,
+      served_at: null,
     }),
   ]);
 
@@ -203,6 +245,7 @@ export async function waiterPage(context: StaffContext): Promise<HTMLElement> {
     floor.tables.filter((table) => table.can_open_account === true),
   );
   const steps = groupWaiterSteps(kitchenItems);
+  const ownClaimedStepIds = new Set(ownDeliveries.map((delivery) => delivery.step_id));
   const readySteps = steps.filter((step) => step.status === 'READY' && step.canDeliver);
   const activeSteps = steps.filter((step) => step.status !== 'READY');
   const runnerOnly = isRunnerOnly(assignments, assignedTables.length);
@@ -263,7 +306,7 @@ export async function waiterPage(context: StaffContext): Promise<HTMLElement> {
         el(
           'div',
           { class: 'waiter-delivery-grid' },
-          ...readySteps.map((step) => deliveryCard(context, step)),
+          ...readySteps.map((step) => deliveryCard(context, step, ownClaimedStepIds)),
         ),
       );
     return root;
@@ -333,7 +376,7 @@ export async function waiterPage(context: StaffContext): Promise<HTMLElement> {
         el(
           'div',
           { class: 'waiter-delivery-grid' },
-          ...readySteps.map((step) => deliveryCard(context, step)),
+          ...readySteps.map((step) => deliveryCard(context, step, ownClaimedStepIds)),
         ),
       ),
     );
