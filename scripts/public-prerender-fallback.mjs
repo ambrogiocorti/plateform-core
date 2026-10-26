@@ -18,7 +18,6 @@ export function mayUseUnindexedPreviewShell(error, env = process.env) {
   let cause = error;
   for (let depth = 0; cause && depth < 5; depth++) {
     if (networkCodes.has(cause.code)) return true;
-    if (cause instanceof TypeError && cause.message === 'fetch failed') return true;
     cause = cause.cause;
   }
   return false;
