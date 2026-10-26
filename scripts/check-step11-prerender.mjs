@@ -228,6 +228,24 @@ const offline = new TypeError('fetch failed', {
   cause: Object.assign(new Error('DNS failed'), { code: 'ENOTFOUND' }),
 });
 test(() => assert.equal(mayUseUnindexedPreviewShell(offline, previewEnv), true));
+// A generic fetch failure can also mean a bad or untrusted TLS certificate.
+// Never silently render an unverified preview in that case.
+test(() =>
+  assert.equal(
+    mayUseUnindexedPreviewShell(
+      new TypeError('fetch failed', {
+        cause: Object.assign(new Error('TLS certificate rejected'), {
+          code: 'UNABLE_TO_VERIFY_LEAF_SIGNATURE',
+        }),
+      }),
+      previewEnv,
+    ),
+    false,
+  ),
+);
+test(() =>
+  assert.equal(mayUseUnindexedPreviewShell(new TypeError('fetch failed'), previewEnv), false),
+);
 test(() =>
   assert.equal(
     mayUseUnindexedPreviewShell(offline, { VERCEL: '1', VERCEL_ENV: 'production' }),
