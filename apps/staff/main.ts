@@ -412,7 +412,32 @@ async function render(): Promise<void> {
     el(
       'nav',
       { class: 'staff-mobile-dock', 'aria-label': 'Gestionale' },
-      ...mobileLinks.map((link) => navItem(link, true)),
+      ...mobileLinks.slice(0, 4).map((link) => navItem(link, true)),
+      links.length > 4
+        ? el(
+            'details',
+            { class: 'staff-mobile-more' },
+            el(
+              'summary',
+              { class: 'mobile-tab-link' },
+              el('span', { class: 'nav-glyph', 'aria-hidden': 'true' }, '☰'),
+              el('span', { class: 'nav-label' }, 'Altro'),
+            ),
+            el(
+              'div',
+              { class: 'staff-mobile-more-panel' },
+              el('p', { class: 'staff-mobile-more-title' }, 'Tutte le sezioni'),
+              ...sidebarGroups.flatMap((section) =>
+                section.links.length
+                  ? [
+                      el('p', { class: 'staff-mobile-more-group' }, section.label),
+                      ...section.links.map((link) => navItem(link)),
+                    ]
+                  : [],
+              ),
+            ),
+          )
+        : null,
     ),
   );
   const assistance = sessionStorage.getItem('plateform-impersonation');
