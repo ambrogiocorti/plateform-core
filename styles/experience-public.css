@@ -318,3 +318,9 @@ body { overflow-x: clip; letter-spacing: -0.012em; }
   html { scroll-behavior: auto; }
   .dish-public, .public-book-cta, .public-action-tile { transition: none; }
 }
+
+/* Keep the footer below the first viewport while asynchronously loading the
+   menu/booking RPC: an empty menu shell must never create visible CLS. */
+#app > main#main {
+  min-height: 100dvh;
+}
