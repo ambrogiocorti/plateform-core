@@ -71,15 +71,22 @@ function daemon(name, command, args, env = {}) {
 }
 
 async function waitFor(address) {
-  for (let attempt = 0; attempt < 100; attempt += 1) {
+  // GitHub-hosted runners can need more than 20 seconds to initialize
+  // PostgREST and its schema cache immediately after 496 migrations.
+  // Time-bound each probe so a stalled TCP connection cannot hang CI.
+  const deadline = Date.now() + 90000;
+  let lastError;
+  while (Date.now() < deadline) {
     try {
-      if ((await fetch(address)).status < 500) return;
-    } catch {
-      /* not ready yet */
+      const response = await fetch(address, { signal: AbortSignal.timeout(2500) });
+      if (response.status < 500) return;
+      lastError = `HTTP_${response.status}`;
+    } catch (error) {
+      lastError = error instanceof Error ? error.name : 'FETCH_FAILED';
     }
-    await sleep(200);
+    await sleep(300);
   }
-  throw new Error(`Timeout waiting for ${address}`);
+  throw new Error(`E2E_SERVICE_START_TIMEOUT:${new URL(address).pathname}:${lastError}`);
 }
 
 const gotrueEnv = (database) => ({
