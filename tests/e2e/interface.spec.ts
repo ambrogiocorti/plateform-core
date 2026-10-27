@@ -50,6 +50,8 @@ test('public home preserves the restaurant brand and hides disabled booking and 
   await expect(page.getByRole('link', { name: 'Prenota', exact: true })).toHaveCount(0);
   await expect(page.getByRole('link', { name: /staff/i })).toHaveCount(0);
   await expect(page.getByRole('combobox')).toHaveCount(0);
+  await expect(page.locator('#public-refresh')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Il menu è cambiato. Aggiorna' })).toHaveCount(0);
   await page.screenshot({ path: 'test-results/public-home.png', fullPage: true });
 });
 
