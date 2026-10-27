@@ -35,11 +35,13 @@ senza credenziali o dati dei progetti hosted.
   tra file senza escludere alcuno scenario.
 
 Per ripetere integralmente su host Linux con Docker e PostgreSQL:
+
 ```bash
 npm ci
 npx playwright install --with-deps chromium
 E2E_STORAGE=required E2E_POSTGRES_BIN=/usr/lib/postgresql/18/bin npm run test:e2e:live
 ```
+
 Il comando avvia lo stack isolato, fallisce subito se Docker/Storage non è
 disponibile, richiede listener Edge effettivi ed esegue tutti i file in batch.
 Non puntare mai questo stack a Staging o Production.
@@ -64,10 +66,10 @@ Non puntare mai questo stack a Staging o Production.
 
 Audit read-only su Supabase hosted, **27 ottobre 2026**:
 
-| Ambiente | Backup QUEUED | Backup con integrità verificata | Restore completati |
-| --- | ---: | ---: | ---: |
-| Staging | 1 | 0 | 0 |
-| Production | 2 | 0 | 0 |
+| Ambiente   | Backup QUEUED | Backup con integrità verificata | Restore completati |
+| ---------- | ------------: | ------------------------------: | -----------------: |
+| Staging    |             1 |                               0 |                  0 |
+| Production |             2 |                               0 |                  0 |
 
 Non risultano heartbeat recenti del worker backup esterno. Production
 non ha ancora bucket di archivio/replica continuità allineati a Staging.
@@ -82,6 +84,7 @@ di backup affidabile, non preserva adeguatamente la replica off-site
 e non può fornire evidenza di RPO/RTO garantiti.
 
 Per concludere lo Step 12 servono:
+
 1. host Linux continuo separato, replica indipendente e segreti inseriti
    tramite canale riservato: DB URL, server key, chiave AES-256;
 2. `npm run continuity:host-check`, `npm run backup:check`,
