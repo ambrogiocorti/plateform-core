@@ -79,3 +79,56 @@ dell'intera piattaforma.
 **Gate:** non effettuare merge, promozione ambienti, attivazione dominio o
 pubblicazione in produzione prima dei collaudi browser/staging e della
 riconciliazione delle migrazioni indipendentemente bloccate.
+
+## Continuazione: lista d’attesa end-to-end (branch della stessa PR)
+
+- Nuova pagina pubblica `/lista-attesa` con account facoltativo (nessun login
+  richiesto), scelta sede/servizio/orario, consenso privacy, validazioni e
+  idempotenza; l’esito `WAITING` è esplicitamente **non** una prenotazione.
+- Quando non ci sono posti prenotabili, la pagina `/prenota` suggerisce la
+  lista d’attesa. Licenza `WAITLIST`, disponibilità, servizio e date restano
+  verificati dalle RPC PostgreSQL: nessun inserimento aggira il blocco server.
+- L’Host consulta i candidati con `get_waitlist_candidates`, legge l’ordine
+  di priorità del server e propone il posto tramite `offer_waitlist_slot`.
+  Il collegamento d’accettazione contiene un token effimero nel **fragment**
+  dell’URL, non nella query string; va inviato individualmente al cliente.
+- `/lista-attesa/offerta` elimina subito il fragment dalla barra degli
+  indirizzi, esclude questa pagina da SEO e telemetria pubblica e chiama
+  l’Edge Function `waitlist` per accettare. `RESERVED` e `PENDING_DEPOSIT`
+  producono messaggi distinti, senza dichiarare completata una caparra.
+- La Edge Function usa il client `service_role` solo lato server, schema
+  richieste rigoroso, limiti per IP verificato e le RPC atomiche già presenti.
+  La funzione è pubblica ma la tabella non espone nuove policy anonime.
+- Correzione SQL append-only
+  `20261027183000_waitlist_acceptance_idempotent_replay.sql`: la funzione
+  atomica originaria viene confinata nello schema `private`; un wrapper
+  `public` accessibile **solo** a `service_role` permette di recuperare
+  l’esito di una conferma già eseguita se coincidono UUID, token e chiave
+  di idempotenza. È stato provato il caso reale di risposta persa, che la
+  vecchia implementazione rifiutava.
+- Aggiornati il router, le rewrite Vercel di staging e i relativi header
+  `noindex`/`no-store`, senza deploy.
+
+### Verifiche della continuazione
+
+- Typecheck, lint, formattazione, build Vite pubblico + staff: verificati.
+- Unit test Vitest: 131 superati, inclusi token riservati e slot notturni.
+- Database isolato PGlite: 169 superati e 4 saltati; nuovi test SQL per
+  permessi, doppia richiesta, priorità, token falsificato, conferma e retry.
+- `check:step11`: passato, incluse rewrite e header di staging (36 controlli
+  sulla configurazione Vercel).
+- Playwright: tre nuovi test della lista d’attesa caricati dalla suite, ma
+  **non eseguiti**; manca Chromium funzionante nell’ambiente.
+- `check:edge`: **non completato** perché l’ambiente non riesce a scaricare
+  il manifesto JSR `@supabase/functions-js` già richiesto da
+  `payment-return`. Le nuove funzioni devono ancora essere validate in una
+  CI con accesso a JSR e in staging.
+
+### Blocchi ancora aperti
+
+Nessuna Edge Function è stata distribuita, nessuna migrazione è stata
+applicata a Supabase remoto, nessun dato reale è stato modificato.
+Rimangono migrazioni da riconciliare nella PR di base, staging indipendente,
+prove browser e dispositivi, ripristino backup, provider esterni/hardware
+e verifica giuridico-commerciale. È disponibile il **flusso implementato nel
+codice**, non l’autorizzazione a vendere o andare in produzione.

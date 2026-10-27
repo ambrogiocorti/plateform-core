@@ -135,6 +135,11 @@ const messages: Record<string, string> = {
   BOOKING_SLOT_UNAVAILABLE: 'L’orario selezionato non è prenotabile.',
   BOOKING_DATE_UNAVAILABLE: 'La data selezionata non è prenotabile per questo servizio.',
   BOOKING_IN_PAST: 'Scegli un orario futuro.',
+  WAITLIST_DISABLED: 'La lista d’attesa non è abilitata per questa sede.',
+  WAITLIST_NO_COMPATIBLE_CAPACITY: 'Non ci sono posti compatibili da proporre in questo momento.',
+  WAITLIST_PRIORITY_CONFLICT: 'Un’altra richiesta ha priorità per questo posto.',
+  WAITLIST_NOT_WAITING: 'Questa richiesta non è più in attesa.',
+  WAITLIST_CAPACITY_LOST: 'Il posto è appena diventato indisponibile. Aggiorna le proposte.',
   NONEXISTENT_LOCAL_TIME: 'Questo orario non esiste nel fuso orario della sede. Scegline un altro.',
   CONTACT_RESTAURANT_FOR_LARGE_PARTY:
     'Per questo numero di persone è necessario contattare direttamente il ristorante.',

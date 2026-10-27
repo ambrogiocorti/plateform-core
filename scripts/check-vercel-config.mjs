@@ -18,6 +18,8 @@ check(() => assert.equal(Object.hasOwn(verified, 'public'), false));
 const paths = verified.rewrites.map((r) => r.source);
 check(() => assert.ok(paths.includes('/staff/:page([a-z0-9-]+)')));
 check(() => assert.ok(paths.includes('/menu/:slug([a-z0-9-]+)')));
+check(() => assert.ok(paths.includes('/lista-attesa')));
+check(() => assert.ok(paths.includes('/lista-attesa/offerta')));
 check(() => assert.ok(paths.includes('/tavolo/:token([a-zA-Z0-9-]+)')));
 check(() =>
   assert.equal(
@@ -55,6 +57,14 @@ check(() =>
 );
 check(() => assert.equal(global['X-Robots-Tag'], 'noindex, nofollow'));
 check(() => assert.equal(global['Strict-Transport-Security'], 'max-age=31536000'));
+check(() =>
+  assert.equal(
+    verified.headers
+      .find((r) => r.source === '/lista-attesa/offerta')
+      ?.headers.some((h) => h.key === 'Cache-Control' && h.value === 'private, no-store'),
+    true,
+  ),
+);
 check(() =>
   assert.equal(
     verified.headers.some(

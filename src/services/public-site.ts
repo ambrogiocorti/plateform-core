@@ -1,7 +1,15 @@
 import type { PublicSite, Venue } from '../types/domain';
 
 export type PublicPath =
-  '/' | '/menu' | '/ristorante' | '/gallery' | '/sedi' | '/prenota' | '/contatti';
+  | '/'
+  | '/menu'
+  | '/ristorante'
+  | '/gallery'
+  | '/sedi'
+  | '/prenota'
+  | '/contatti'
+  | '/lista-attesa'
+  | '/lista-attesa/offerta';
 
 export function selectedVenue(
   site: PublicSite,
@@ -65,7 +73,14 @@ export function canonicalPublicUrl(
   search: string,
   origin: string,
 ): string {
-  const contextual = new Set(['/menu', '/ristorante', '/gallery', '/prenota', '/contatti']);
+  const contextual = new Set([
+    '/menu',
+    '/ristorante',
+    '/gallery',
+    '/prenota',
+    '/contatti',
+    '/lista-attesa',
+  ]);
   const venue = selectedVenue(site, pathname, search);
   // Published menu QR pages share a slug across venues; the canonical URL must
   // preserve the selected venue to avoid merging different menus and prices.
@@ -84,9 +99,17 @@ export function normalizePublicPath(
   if (/^\/sedi\/[a-z0-9]+(?:-[a-z0-9]+)*$/.test(pathname)) return '/sedi/:venue';
   if (pathname.startsWith('/tavolo/') && pathname.split('/').filter(Boolean).length === 2)
     return '/tavolo/:id';
-  return ['/', '/menu', '/ristorante', '/gallery', '/sedi', '/prenota', '/contatti'].includes(
-    pathname,
-  )
+  return [
+    '/',
+    '/menu',
+    '/ristorante',
+    '/gallery',
+    '/sedi',
+    '/prenota',
+    '/contatti',
+    '/lista-attesa',
+    '/lista-attesa/offerta',
+  ].includes(pathname)
     ? (pathname as PublicPath)
     : null;
 }
@@ -99,11 +122,14 @@ export function publicMetricContext(
   pathname: string,
   search: string,
 ): {
-  path: Exclude<ReturnType<typeof normalizePublicPath>, '/tavolo/:id' | null>;
+  path: Exclude<
+    ReturnType<typeof normalizePublicPath>,
+    '/tavolo/:id' | '/lista-attesa/offerta' | null
+  >;
   key: string;
 } | null {
   const path = normalizePublicPath(pathname);
-  if (!path || path === '/tavolo/:id') return null;
+  if (!path || path === '/tavolo/:id' || path === '/lista-attesa/offerta') return null;
   // Retain only an allowlisted venue slug for deduplication. Arbitrary query
   // strings (tokens, phone numbers, email addresses, campaign metadata) must
   // never be copied into the analytics observer's long-lived Set keys.

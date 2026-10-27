@@ -39,6 +39,15 @@ try {
   // Storage may be unavailable in a privacy-restricted browser. Serve /.
 }
 
+// A waitlist offer URL contains an opaque one-use credential in its fragment.
+// Remove it from the address bar immediately, before any asynchronous work,
+// metadata updates or telemetry can run. The token remains only in memory.
+let pendingWaitlistOfferFragment = '';
+if (location.pathname === '/lista-attesa/offerta') {
+  pendingWaitlistOfferFragment = location.hash;
+  history.replaceState(history.state, '', `${location.pathname}${location.search}`);
+}
+
 const root = document.getElementById('app');
 if (!root) throw new Error('Missing application root');
 const app: HTMLElement = root;
@@ -99,6 +108,7 @@ function applyMetadata(site: PublicSite, venue?: Venue): void {
     '/gallery': 'Gallery',
     '/sedi': 'Sedi',
     '/prenota': 'Prenota',
+    '/lista-attesa': 'Lista d’attesa',
     '/contatti': 'Contatti',
   };
   const configuredTitle = textValue(site.content, 'seo_title', site.name);
@@ -139,7 +149,11 @@ function applyMetadata(site: PublicSite, venue?: Venue): void {
   robots.content = 'noindex,nofollow'; // Opt in only after authoritative metadata RPC confirms indexability.
   const previous = document.getElementById('restaurant-structured-data');
   previous?.remove();
-  if (!location.pathname.startsWith('/tavolo/') && !invalidVenueContext) {
+  if (
+    !location.pathname.startsWith('/tavolo/') &&
+    location.pathname !== '/lista-attesa/offerta' &&
+    !invalidVenueContext
+  ) {
     const structured = document.createElement('script');
     structured.id = 'restaurant-structured-data';
     structured.type = 'application/ld+json';
@@ -222,6 +236,10 @@ async function render(): Promise<void> {
   applyBrand(site);
   const venue = selectedVenue(site, location.pathname, location.search);
   applyMetadata(site, venue);
+  if (location.pathname === '/lista-attesa/offerta') {
+    failClosedPublicMetadata();
+    document.head.querySelector('meta[property="og:url"]')?.remove();
+  }
   const invalidVenueContext =
     !venue &&
     (location.pathname.startsWith('/sedi/') || new URLSearchParams(location.search).has('sede'));
@@ -233,7 +251,11 @@ async function render(): Promise<void> {
     const robots = document.head.querySelector<HTMLMetaElement>('meta[name="robots"]');
     if (robots) robots.content = 'noindex,nofollow';
   }
-  if (!location.pathname.startsWith('/tavolo/') && !invalidVenueContext) {
+  if (
+    !location.pathname.startsWith('/tavolo/') &&
+    location.pathname !== '/lista-attesa/offerta' &&
+    !invalidVenueContext
+  ) {
     const pathForSeo = location.pathname;
     const seoRevision = current;
     void rpc(
@@ -382,8 +404,10 @@ async function render(): Promise<void> {
   app.replaceChildren(header, main, footer(site));
   setupPublicNavigation(menuButton, navigation, header, lifetime.signal);
   stopPerformance?.();
-  stopPerformance = observePublicPerformance(venue?.id);
-  recordPublicPageView(venue?.id);
+  if (location.pathname !== '/lista-attesa/offerta') {
+    stopPerformance = observePublicPerformance(venue?.id);
+    recordPublicPageView(venue?.id);
+  }
   const path = location.pathname;
   if (path === '/') main.append(home(site, venue, bookingEnabled ? reservationVenue : undefined));
   else if (path === '/menu') main.append(await menu(site, venue));
@@ -504,6 +528,23 @@ async function render(): Promise<void> {
         'La sede richiesta non accetta prenotazioni online. Contatta il ristorante o scegli un’altra sede.',
       ),
     );
+  } else if (path === '/lista-attesa/offerta') {
+    const fragment = pendingWaitlistOfferFragment;
+    pendingWaitlistOfferFragment = '';
+    main.append((await import('../../src/pages/public-waitlist')).waitlistOfferPage(fragment));
+  } else if (path === '/lista-attesa' && reservationVenue && bookingEnabled) {
+    main.append(
+      await (
+        await import('../../src/pages/public-waitlist')
+      ).waitlistPage(
+        reservationVenue,
+        safePublicLink(textValue(site.content, 'privacy_url'), window.location.origin),
+      ),
+    );
+  } else if (path === '/lista-attesa') {
+    main.append(
+      emptyState('Lista d’attesa non disponibile', 'Contatta il ristorante per informazioni.'),
+    );
   } else if (path.startsWith('/tavolo/')) {
     stopLive?.();
     stopLive = undefined;
@@ -529,7 +570,7 @@ async function render(): Promise<void> {
     stopLive = undefined;
     liveKey = '';
   }
-  if (venue && !path.startsWith('/tavolo/')) {
+  if (venue && !path.startsWith('/tavolo/') && path !== '/lista-attesa/offerta') {
     const key = `${venue.id}:${path}`;
     const connection = el('p', {
       id: 'public-connection',

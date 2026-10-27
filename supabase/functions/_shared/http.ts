@@ -258,6 +258,18 @@ export function endpoint<T>(
         'BOOKING_SLOT_UNAVAILABLE',
         'BOOKING_DATE_UNAVAILABLE',
         'BOOKING_IN_PAST',
+        'WAITLIST_DISABLED',
+        'INVALID_WAITLIST_REQUEST',
+        'WAITLIST_DATE_UNAVAILABLE',
+        'WAITLIST_TIME_UNAVAILABLE',
+        'WAITLIST_IN_PAST',
+        'WAITLIST_ACCESS_DENIED',
+        'INVALID_WAITLIST_ACCEPTANCE',
+        'WAITLIST_NOT_OFFERED',
+        'WAITLIST_OFFER_EXPIRED',
+        'WAITLIST_CAPACITY_LOST',
+        'BOOKING_DEPOSITS_DISABLED',
+        'VENUE_UNAVAILABLE',
         'FORM_REQUIRED_FIELDS',
         'INVALID_FORM_OPTION',
         'INVALID_BOOKING_DETAILS',
@@ -324,6 +336,7 @@ export function endpoint<T>(
             ? 401
             : [
                   'FORBIDDEN',
+                  'WAITLIST_ACCESS_DENIED',
                   'STAFF_MANAGEMENT_FORBIDDEN',
                   'SCOPE_ESCALATION',
                   'VENUE_FORBIDDEN',
@@ -340,6 +353,9 @@ export function endpoint<T>(
                     'PAYMENT_NOT_PENDING',
                     'INVALID_PROVIDER_REFUND',
                     'PROVIDER_RECONCILIATION_REQUIRED',
+                    'WAITLIST_NOT_OFFERED',
+                    'WAITLIST_CAPACITY_LOST',
+                    'WAITLIST_OFFER_EXPIRED',
                   ].includes(code)
                 ? 409
                 : [

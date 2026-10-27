@@ -98,8 +98,8 @@ for (const [needle, label] of [
     'stale_navigation_errors_do_not_replace_new_page',
   ],
   [
-    "!location.pathname.startsWith('/tavolo/') && !invalidVenueContext",
-    'invalid_venue_skips_seo_rpc',
+    "location.pathname !== '/lista-attesa/offerta' &&\n    !invalidVenueContext\n  ) {\n    const pathForSeo = location.pathname;",
+    'invalid_venue_and_secret_offer_skip_seo_rpc',
   ],
 
   ['Il collegamento indica una sede non valida', 'stale_venue_menu_has_explicit_error'],

@@ -6,6 +6,8 @@ import { button, dialog, el, emptyState, field, showError, status, toast } from 
 import { stateMachines } from '../services/state-machine';
 import type { StaffContext } from './staff-context';
 import { command } from './staff-context';
+import { environment } from '../config/environment';
+import { waitlistOfferFragment } from '../services/waitlist';
 
 const reservationStatus = z.enum([
   'REQUESTED',
@@ -457,6 +459,171 @@ export async function hostPage(context: StaffContext): Promise<HTMLElement> {
     list,
     more,
   );
+
+  const waitlistService = el(
+    'select',
+    { 'aria-label': 'Servizio lista d’attesa' },
+    ...activeServices.map((entry) => el('option', { value: entry.id }, entry.name)),
+  );
+  const waitlistTime = field('Orario da proporre', 'waitlist-offer-time', 'time', '19:00');
+  waitlistTime.input.required = true;
+  const waitlistResults = el('div', { class: 'stack' });
+  const waitlistNotice = el('p', { role: 'status', class: 'muted' });
+  const candidateSchema = z.object({
+    venue_id: z.uuid(),
+    service_id: z.uuid(),
+    service_date: z.iso.date(),
+    proposed_time: z.string(),
+    capacity: z.unknown(),
+    candidates: z.array(
+      z.object({
+        id: z.uuid(),
+        party_size: z.number(),
+        customer_name: z.string(),
+        preferred_start_time: z.string(),
+        preferred_end_time: z.string().nullable(),
+        compatibility_distance_minutes: z.number(),
+        created_at: z.string(),
+      }),
+    ),
+  });
+  const offerSchema = z.object({
+    entry_id: z.uuid(),
+    status: z.literal('OFFERED'),
+    offered_time: z.string(),
+    expires_at: z.string(),
+    access_token: z.string().min(32),
+  });
+  const waitlistPanel = el(
+    'section',
+    { class: 'card stack host-waitlist' },
+    el('p', { class: 'eyebrow' }, 'Accoglienza'),
+    el('h2', {}, 'Lista d’attesa'),
+    el(
+      'p',
+      { class: 'muted' },
+      'Il server ordina le richieste compatibili e verifica capienza e priorità prima di proporre un posto.',
+    ),
+    el('label', {}, 'Servizio', waitlistService),
+    waitlistTime.root,
+    button(
+      'Trova richieste compatibili',
+      async () => {
+        waitlistResults.replaceChildren();
+        waitlistNotice.textContent = 'Verifica disponibilità e priorità in corso…';
+        const result = await rpc(
+          'get_waitlist_candidates',
+          {
+            p_venue: venueId,
+            p_service: waitlistService.value,
+            p_date: date.input.value,
+            p_time: waitlistTime.input.value,
+            p_limit: 50,
+          },
+          candidateSchema,
+        );
+        if (
+          result.venue_id !== venueId ||
+          result.service_id !== waitlistService.value ||
+          result.service_date !== date.input.value
+        )
+          throw new Error('INVALID_WAITLIST_CONTEXT');
+        waitlistNotice.textContent = result.candidates.length
+          ? `${result.candidates.length} richieste compatibili. La priorità viene verificata ancora al momento dell’offerta.`
+          : 'Nessuna richiesta compatibile o nessuna capienza disponibile.';
+        for (const candidate of result.candidates) {
+          const action = button(
+            'Proponi posto',
+            async () => {
+              const confirmation = dialog(
+                'Conferma proposta',
+                el(
+                  'p',
+                  {},
+                  `${candidate.customer_name} · ${candidate.party_size} persone · ${date.input.value} alle ${waitlistTime.input.value}`,
+                ),
+                el(
+                  'p',
+                  { class: 'muted' },
+                  'Il cliente avrà 15 minuti per accettare. L’offerta non è una prenotazione.',
+                ),
+              );
+              const key = crypto.randomUUID();
+              confirmation.append(
+                button('CONFERMA OFFERTA', async () => {
+                  const offerTime = waitlistTime.input.value;
+                  const result = await rpc(
+                    'offer_waitlist_slot',
+                    {
+                      p_entry: candidate.id,
+                      p_time: offerTime,
+                      p_offer_minutes: 15,
+                      p_key: key,
+                    },
+                    offerSchema,
+                  );
+                  if (result.entry_id !== candidate.id) throw new Error('INVALID_WAITLIST_CONTEXT');
+                  confirmation.close();
+                  action.disabled = true;
+                  const offerLink = new URL('lista-attesa/offerta', environment().publicBaseUrl);
+                  offerLink.hash = waitlistOfferFragment(result.entry_id, result.access_token);
+                  waitlistResults.prepend(
+                    el(
+                      'div',
+                      { class: 'card stack' },
+                      el(
+                        'p',
+                        { role: 'status' },
+                        `Offerta creata per ${candidate.customer_name}. Scadenza: ${new Date(result.expires_at).toLocaleString('it-IT')}.`,
+                      ),
+                      el(
+                        'p',
+                        { class: 'muted' },
+                        'Invia il collegamento riservato al cliente su un canale verificato. Non condividerlo in una chat di gruppo.',
+                      ),
+                      button(
+                        'Copia collegamento riservato',
+                        async () => {
+                          await navigator.clipboard.writeText(offerLink.href);
+                          toast(
+                            'Collegamento copiato. Contiene un token privato: invialo solo al destinatario.',
+                          );
+                        },
+                        'secondary',
+                      ),
+                    ),
+                  );
+                  await refresh();
+                }),
+              );
+            },
+            'secondary',
+          );
+          waitlistResults.append(
+            el(
+              'article',
+              { class: 'card row between' },
+              el(
+                'div',
+                {},
+                el('strong', {}, candidate.customer_name),
+                el(
+                  'p',
+                  { class: 'muted' },
+                  `${candidate.party_size} persone · ${candidate.preferred_start_time.slice(0, 5)}${candidate.preferred_end_time ? `–${candidate.preferred_end_time.slice(0, 5)}` : ''}`,
+                ),
+              ),
+              action,
+            ),
+          );
+        }
+      },
+      'secondary',
+    ),
+    waitlistNotice,
+    waitlistResults,
+  );
+  reservations.append(waitlistPanel);
 
   const map = el('section', { class: 'stack host-floor' }, el('h2', {}, 'Sala in servizio'));
   async function refreshFloor(): Promise<void> {
