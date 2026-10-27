@@ -1,4 +1,4 @@
-import { z } from 'npm:zod@4.6.5';
+import { z } from 'npm:zod@4.6.7';
 import { secret, serverClient, rateLimit } from '../_shared/http.ts';
 import { runProviderOperation, satispayCallbackToken } from '../_shared/providers.ts';
 async function sameSecret(value: string, expected: string): Promise<boolean> {

@@ -1,4 +1,4 @@
-import { z } from 'npm:zod@4.6.5';
+import { z } from 'npm:zod@4.6.7';
 
 const time = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/);
 

@@ -1,4 +1,4 @@
-import { z } from 'npm:zod@4.6.5';
+import { z } from 'npm:zod@4.6.7';
 import { endpoint, rateLimit, userClient } from '../_shared/http.ts';
 import { runProviderOperation } from '../_shared/providers.ts';
 import { externalPaymentProvidersIncluded } from '../../../src/services/commercial-scope.ts';

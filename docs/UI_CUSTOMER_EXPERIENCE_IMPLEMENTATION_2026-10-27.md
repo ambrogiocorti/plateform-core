@@ -123,6 +123,17 @@ riconciliazione delle migrazioni indipendentemente bloccate.
   il manifesto JSR `@supabase/functions-js` già richiesto da
   `payment-return`. Le nuove funzioni devono ancora essere validate in una
   CI con accesso a JSR e in staging.
+- Il controllo della build Vercel ha segnalato advisory HIGH su Vite e Zod:
+  aggiornati i pin a Vite `8.3.5` e Zod `4.6.7` (anche gli import Edge),
+  con audit npm `NO_HIGH_OR_CRITICAL`. Allineati i self-test al nuovo
+  conteggio **esatto** di 483 migrazioni; la promozione da una storia remota
+  incongruente resta bloccata.
+- `npm run build:pages` è arrivato a completare **131 test unitari, 169
+  test database, typecheck e bundle Vite**. La sola fase finale di assemblaggio
+  GitHub Pages si arresta senza le URL di staging e la chiave pubblicabile,
+  necessarie per prerenderizzare dati reali. Configurazione con workflow
+  GitHub Pages **solo manuale** in
+  `docs/GITHUB_PAGES_HOSTING_2026-10-27.md`.
 
 ### Blocchi ancora aperti
 
