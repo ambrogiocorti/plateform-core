@@ -159,3 +159,73 @@
   .kds-ticket-head { padding: 21px; }
   .waiter-actions .button { flex-basis: 100%; }
 }
+
+/* Mobile compact dock: all authorized navigation remains discoverable. */
+.staff-mobile-more { display: none; }
+@media (max-width: 600px) {
+  .staff-mobile-more {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    align-items: stretch;
+    justify-content: center;
+  }
+  .staff-mobile-more > summary {
+    list-style: none;
+    cursor: pointer;
+    width: 100%;
+    user-select: none;
+  }
+  .staff-mobile-more > summary::-webkit-details-marker { display: none; }
+  .staff-mobile-more > summary .nav-glyph { display: grid; }
+  .staff-mobile-more[open] > summary { color: #f1d2a2; }
+  .staff-mobile-more[open] > summary .nav-glyph { color: #f1d2a2; }
+  .staff-mobile-more-panel {
+    position: fixed;
+    bottom: calc(82px + env(safe-area-inset-bottom));
+    left: 12px;
+    right: 12px;
+    max-height: min(70dvh, 700px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    display: grid;
+    gap: 3px;
+    border: 1px solid #536977;
+    background: #13232c;
+    box-shadow: 0 -16px 48px #06141b82;
+    padding: 20px 14px 24px;
+    border-radius: 19px;
+    z-index: 110;
+  }
+  .staff-mobile-more-title {
+    margin: 0 0 9px;
+    padding: 0 8px 12px;
+    color: #fff9ec;
+    font-weight: 750;
+    font-size: 20px;
+    letter-spacing: -.04em;
+    border-bottom: 1px solid #ffffff29;
+  }
+  .staff-mobile-more-group {
+    margin: 15px 0 4px;
+    padding: 0 9px;
+    color: #d9ba89;
+    font-size: 10px;
+    font-weight: 760;
+    letter-spacing: .14em;
+  }
+  .staff-mobile-more-panel .nav-link {
+    min-height: 43px;
+    color: #c5d2d5;
+    background: #ffffff09;
+    border-radius: 10px;
+  }
+  .staff-mobile-more-panel .nav-link[aria-current='page'] {
+    color: #fff;
+    background: #bc965d34;
+    border: 1px solid #d4b17d70;
+  }
+  .staff-mobile-more-panel .nav-link .nav-glyph {
+    color: #d9ba89;
+  }
+}
