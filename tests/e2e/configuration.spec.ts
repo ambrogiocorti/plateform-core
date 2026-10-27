@@ -321,7 +321,7 @@ test('Admin verifies identity before exporting and rectifies contacts with a bou
   await expect(more).toBeVisible();
   await more.locator('summary').click();
   await expect(more.getByRole('link', { name: 'Sito e branding' })).toBeVisible();
-  await expect(more.getByRole('link', { name: 'Audit' })).toBeVisible();
+  await expect(more.getByRole('link', { name: 'Audit' })).toHaveCount(0);
   await expect(more.getByRole('link', { name: 'Dati personali' })).toBeVisible();
   await more.locator('summary').click();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
