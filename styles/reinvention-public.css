@@ -560,3 +560,14 @@ body { background: var(--pf-paper); }
     grid-template-columns: repeat(2,minmax(0,1fr));
   }
 }
+
+/* Preserve the real responsive menu state: the desktop nav cannot remain
+   visible behind its accessible tablet toggle. */
+@media (max-width: 1180px) {
+  .public-header .public-nav:not(.is-open) {
+    display: none;
+  }
+  .public-header .public-nav.is-open {
+    display: flex;
+  }
+}
