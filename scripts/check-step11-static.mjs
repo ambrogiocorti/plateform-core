@@ -51,7 +51,7 @@ for (const [needle, label] of [
   ["textValue(site.branding, 'font_body')", 'public_body_font'],
   ["textValue(site.branding, 'layout', 'EDITORIAL')", 'public_layout'],
   ['safeImageUrl(site.branding.favicon_url)', 'public_favicon'],
-  ["if (icon) icon.href = '/icon.svg'", 'public_removed_favicon_resets'],
+  ["if (icon) icon.href = hrefForPublicRoute('/icon.svg')", 'public_removed_favicon_resets'],
   ['document.documentElement.style.removeProperty(token)', 'public_brand_tokens_reset'],
   [
     'else document.head.querySelector(\'meta[property="og:image"]\')?.remove()',
@@ -66,7 +66,7 @@ for (const [needle, label] of [
   requireText(publicMain, needle, label);
 
 for (const [needle, label] of [
-  ['resolveBookingVenue(site, location.pathname, location.search)', 'bookable_venue_selection'],
+  ['resolveBookingVenue(site, currentPublicPath(), location.search)', 'bookable_venue_selection'],
   ["venueAwarePath('/prenota'", 'venue_context_booking'],
   ['public-menu-toggle', 'mobile_navigation'],
   ['restaurant-structured-data', 'structured_data'],
@@ -87,8 +87,9 @@ for (const [needle, label] of [
   ],
   ['observePublicPerformance', 'public_performance_observability'],
   ['recordPublicPageView', 'public_page_telemetry'],
-  ['!isClientSidePublicPath(target.pathname)', 'non_public_path_does_not_intercept_staff'],
-  ['safeRecoveredPublicRoute(storedRoute, location.origin)', 'static_404_recovery_is_public_only'],
+  ["!isPreview && currentPublicPath() !== '/lista-attesa/offerta'", 'preview_telemetry_disabled'],
+  ['!isClientSidePublicPath(internalPublicPath(target.pathname, PUBLIC_BASE) ?? '')', 'non_public_path_does_not_intercept_staff'],
+  ['safeRecoveredPublicRoute(storedRoute, location.origin, PUBLIC_BASE)', 'static_404_recovery_is_public_only'],
   ['if (invalidVenueContext)', 'invalid_venue_context_is_not_indexed'],
   ['const entry = venue;', 'venue_details_respect_conflicting_selector_denial'],
   ['releasePublicObservers();', 'failed_site_closes_observers'],
@@ -98,7 +99,7 @@ for (const [needle, label] of [
     'stale_navigation_errors_do_not_replace_new_page',
   ],
   [
-    "location.pathname !== '/lista-attesa/offerta' &&\n    !invalidVenueContext\n  ) {\n    const pathForSeo = location.pathname;",
+    "currentPublicPath() !== '/lista-attesa/offerta' &&\n    !invalidVenueContext\n  ) {\n    const pathForSeo = currentPublicPath();",
     'invalid_venue_and_secret_offer_skip_seo_rpc',
   ],
 

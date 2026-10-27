@@ -14,6 +14,8 @@ import { preferredPublicTheme, savePublicTheme } from '../../src/services/public
 import {
   canonicalPublicUrl,
   isClientSidePublicPath,
+  internalPublicPath,
+  hostedPublicPath,
   readableInk,
   resolveBookingVenue,
   safeRecoveredPublicRoute,
@@ -28,11 +30,17 @@ import {
   recordPublicPageView,
 } from '../../src/services/public-telemetry';
 
+const PUBLIC_BASE = import.meta.env.BASE_URL;
+const currentPublicPath = (): string =>
+  internalPublicPath(location.pathname, PUBLIC_BASE) ?? '/__invalid_public_path__';
+const hrefForPublicRoute = (path: string): string => hostedPublicPath(path, PUBLIC_BASE);
+const isPreview = import.meta.env.VITE_PAGES_MODE === 'test';
+
 try {
   const storedRoute = sessionStorage.getItem('plateform-route-public');
   if (storedRoute !== null) {
     sessionStorage.removeItem('plateform-route-public');
-    const recovered = safeRecoveredPublicRoute(storedRoute, location.origin);
+    const recovered = safeRecoveredPublicRoute(storedRoute, location.origin, PUBLIC_BASE);
     if (recovered) history.replaceState(null, '', recovered);
   }
 } catch {
@@ -43,7 +51,7 @@ try {
 // Remove it from the address bar immediately, before any asynchronous work,
 // metadata updates or telemetry can run. The token remains only in memory.
 let pendingWaitlistOfferFragment = '';
-if (location.pathname === '/lista-attesa/offerta') {
+if (currentPublicPath() === '/lista-attesa/offerta') {
   pendingWaitlistOfferFragment = location.hash;
   history.replaceState(history.state, '', `${location.pathname}${location.search}`);
 }
@@ -99,8 +107,12 @@ function setMeta(name: string, content: string, property = false): void {
   meta.content = content;
 }
 function applyMetadata(site: PublicSite, venue?: Venue): void {
+  if (isPreview) {
+    failClosedPublicMetadata();
+    return;
+  }
   const explicitlySelectedVenue =
-    location.pathname.startsWith('/sedi/') || new URLSearchParams(location.search).has('sede');
+    currentPublicPath().startsWith('/sedi/') || new URLSearchParams(location.search).has('sede');
   const invalidVenueContext = explicitlySelectedVenue && !venue;
   const pageLabels: Record<string, string> = {
     '/menu': 'Menu',
@@ -112,9 +124,9 @@ function applyMetadata(site: PublicSite, venue?: Venue): void {
     '/contatti': 'Contatti',
   };
   const configuredTitle = textValue(site.content, 'seo_title', site.name);
-  const pageLabel = location.pathname.startsWith('/sedi/')
+  const pageLabel = currentPublicPath().startsWith('/sedi/')
     ? (venue?.name ?? 'Sede')
-    : pageLabels[location.pathname];
+    : pageLabels[currentPublicPath()];
   document.title = pageLabel ? `${pageLabel} · ${configuredTitle}` : configuredTitle;
   const description = textValue(
     site.content,
@@ -127,7 +139,7 @@ function applyMetadata(site: PublicSite, venue?: Venue): void {
   setMeta('og:type', 'website', true);
   const canonicalUrl = canonicalPublicUrl(
     site,
-    location.pathname,
+    currentPublicPath(),
     location.search,
     location.origin,
   );
@@ -150,8 +162,9 @@ function applyMetadata(site: PublicSite, venue?: Venue): void {
   const previous = document.getElementById('restaurant-structured-data');
   previous?.remove();
   if (
-    !location.pathname.startsWith('/tavolo/') &&
-    location.pathname !== '/lista-attesa/offerta' &&
+    !isPreview &&
+    !currentPublicPath().startsWith('/tavolo/') &&
+    currentPublicPath() !== '/lista-attesa/offerta' &&
     !invalidVenueContext
   ) {
     const structured = document.createElement('script');
@@ -198,7 +211,7 @@ function startPublicRender(focusAfterNavigation = false): void {
     });
 }
 function route(path: string): void {
-  history.pushState(null, '', path);
+  history.pushState(null, '', hrefForPublicRoute(path));
   startPublicRender(true);
 }
 
@@ -234,15 +247,15 @@ async function render(): Promise<void> {
     return;
   }
   applyBrand(site);
-  const venue = selectedVenue(site, location.pathname, location.search);
+  const venue = selectedVenue(site, currentPublicPath(), location.search);
   applyMetadata(site, venue);
-  if (location.pathname === '/lista-attesa/offerta') {
+  if (currentPublicPath() === '/lista-attesa/offerta') {
     failClosedPublicMetadata();
     document.head.querySelector('meta[property="og:url"]')?.remove();
   }
   const invalidVenueContext =
     !venue &&
-    (location.pathname.startsWith('/sedi/') || new URLSearchParams(location.search).has('sede'));
+    (currentPublicPath().startsWith('/sedi/') || new URLSearchParams(location.search).has('sede'));
   if (invalidVenueContext) {
     // Invalid/archived venue URLs are never indexable and must not receive a
     // canonical address or structured data belonging to another venue.
@@ -252,11 +265,11 @@ async function render(): Promise<void> {
     if (robots) robots.content = 'noindex,nofollow';
   }
   if (
-    !location.pathname.startsWith('/tavolo/') &&
-    location.pathname !== '/lista-attesa/offerta' &&
+    !currentPublicPath().startsWith('/tavolo/') &&
+    currentPublicPath() !== '/lista-attesa/offerta' &&
     !invalidVenueContext
   ) {
-    const pathForSeo = location.pathname;
+    const pathForSeo = currentPublicPath();
     const seoRevision = current;
     void rpc(
       'get_public_page_metadata',
@@ -274,7 +287,7 @@ async function render(): Promise<void> {
       }),
     )
       .then((metadata) => {
-        if (seoRevision !== revision || metadata.path !== location.pathname) return;
+        if (seoRevision !== revision || metadata.path !== currentPublicPath()) return;
         document.title = metadata.title;
         setMeta('description', metadata.description);
         setMeta('og:title', metadata.title, true);
@@ -301,7 +314,7 @@ async function render(): Promise<void> {
         if (seoRevision === revision && robots) robots.content = 'noindex,nofollow';
       });
   }
-  const reservationVenue = resolveBookingVenue(site, location.pathname, location.search);
+  const reservationVenue = resolveBookingVenue(site, currentPublicPath(), location.search);
   const bookingEnabled = sectionEnabled(site, 'booking') && Boolean(reservationVenue);
   const links = [
     { path: '/', label: 'Home', current: '/' },
@@ -350,8 +363,8 @@ async function render(): Promise<void> {
         'a',
         {
           href: link.path,
-          ...(location.pathname === link.current ||
-          (link.current === '/sedi' && location.pathname.startsWith('/sedi/'))
+          ...(currentPublicPath() === link.current ||
+          (link.current === '/sedi' && currentPublicPath().startsWith('/sedi/'))
             ? { 'aria-current': 'page' }
             : {}),
         },
@@ -404,11 +417,11 @@ async function render(): Promise<void> {
   app.replaceChildren(header, main, footer(site));
   setupPublicNavigation(menuButton, navigation, header, lifetime.signal);
   stopPerformance?.();
-  if (location.pathname !== '/lista-attesa/offerta') {
+  if (!isPreview && currentPublicPath() !== '/lista-attesa/offerta') {
     stopPerformance = observePublicPerformance(venue?.id);
     recordPublicPageView(venue?.id);
   }
-  const path = location.pathname;
+  const path = currentPublicPath();
   if (path === '/') main.append(home(site, venue, bookingEnabled ? reservationVenue : undefined));
   else if (path === '/menu') main.append(await menu(site, venue));
   else if (path.startsWith('/menu/') && venue) {
@@ -591,7 +604,7 @@ async function render(): Promise<void> {
         topics: ['PUBLIC'],
         refresh: async () => {
           if (
-            location.pathname === '/prenota' ||
+            currentPublicPath() === '/prenota' ||
             document.activeElement?.matches('input,select,textarea')
           ) {
             const notice = document.getElementById('public-refresh');
@@ -675,7 +688,7 @@ function applyBrand(site: PublicSite): void {
   } else {
     // A previously configured favicon must not survive its removal.
     const icon = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
-    if (icon) icon.href = '/icon.svg';
+    if (icon) icon.href = hrefForPublicRoute('/icon.svg');
   }
 }
 
@@ -858,7 +871,7 @@ function venuePicker(site: PublicSite, venue: Venue, bookingOnly: boolean): HTML
   );
   select.value = venue.slug;
   select.addEventListener('change', () =>
-    route(`${location.pathname}?sede=${encodeURIComponent(select.value)}`),
+    route(`${currentPublicPath()}?sede=${encodeURIComponent(select.value)}`),
   );
   return select;
 }
@@ -995,7 +1008,7 @@ document.addEventListener('click', (event) => {
   if (
     !(target instanceof HTMLAnchorElement) ||
     target.origin !== location.origin ||
-    !isClientSidePublicPath(target.pathname) ||
+    !isClientSidePublicPath(internalPublicPath(target.pathname, PUBLIC_BASE) ?? '') ||
     (target.target !== '' && target.target !== '_self') ||
     target.hasAttribute('download') ||
     event.ctrlKey ||
@@ -1007,7 +1020,7 @@ document.addEventListener('click', (event) => {
   )
     return;
   event.preventDefault();
-  route(target.pathname + target.search);
+  route((internalPublicPath(target.pathname, PUBLIC_BASE) ?? '/') + target.search);
 });
 window.addEventListener('popstate', () => startPublicRender());
 startPublicRender();

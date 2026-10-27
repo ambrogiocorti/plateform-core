@@ -10,7 +10,18 @@ export function el<K extends keyof HTMLElementTagNameMap>(
   for (const [name, value] of Object.entries(attributes)) {
     if (name.startsWith('on') || name === 'innerHTML' || name === 'srcdoc')
       throw new Error('Unsafe attribute');
-    element.setAttribute(name, value);
+    // Rewrite absolute internal anchors in public GitHub Pages project previews.
+    const base = import.meta.env.BASE_URL;
+    const localPublicLink =
+      tag === 'a' &&
+      name === 'href' &&
+      import.meta.env.PLATEFORM_AREA === 'public' &&
+      typeof base === 'string' &&
+      base !== '/' &&
+      value.startsWith('/') &&
+      !value.startsWith('//') &&
+      !value.startsWith(base);
+    element.setAttribute(name, localPublicLink ? `${base.replace(/\/$/, '')}${value}` : value);
   }
   for (const child of children)
     if (child !== null && child !== undefined && child !== false)

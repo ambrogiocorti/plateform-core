@@ -1,5 +1,18 @@
 import type { PublicSite, Venue } from '../types/domain';
 
+/** Translate URLs only inside the configured GitHub Pages application base. */
+export function internalPublicPath(pathname: string, base = '/'): string | null {
+  if (!base.startsWith('/') || !base.endsWith('/') || base.startsWith('//')) return null;
+  if (base === '/') return pathname;
+  if (pathname === base.slice(0, -1)) return '/';
+  return pathname.startsWith(base) ? `/${pathname.slice(base.length)}` : null;
+}
+
+export function hostedPublicPath(path: string, base = '/'): string {
+  if (!path.startsWith('/') || path.startsWith('//')) throw new Error('INVALID_PUBLIC_PATH');
+  return base === '/' ? path : `${base.replace(/\/$/, '')}${path}`;
+}
+
 export type PublicPath =
   | '/'
   | '/menu'
@@ -154,11 +167,11 @@ export function isClientSidePublicPath(pathname: string): boolean {
 /** Restore only an owned same-origin public route from a static hosting 404.
  * A stored protocol-relative, staff, provider or unknown URL must never be
  * passed to history.replaceState. */
-export function safeRecoveredPublicRoute(value: string | null, origin: string): string | null {
+export function safeRecoveredPublicRoute(value: string | null, origin: string, base = '/'): string | null {
   if (!value?.startsWith('/') || value.startsWith('//')) return null;
   try {
     const url = new URL(value, origin);
-    if (url.origin !== origin || !isClientSidePublicPath(url.pathname)) return null;
+    if (url.origin !== origin || !isClientSidePublicPath(internalPublicPath(url.pathname, base) ?? '')) return null;
     return `${url.pathname}${url.search}${url.hash}`;
   } catch {
     return null;

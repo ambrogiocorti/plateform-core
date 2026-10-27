@@ -5,6 +5,8 @@ import {
   publicMetricContext,
   contrastRatio,
   isClientSidePublicPath,
+  internalPublicPath,
+  hostedPublicPath,
   normalizePublicPath,
   readableInk,
   safeAccent,
@@ -51,6 +53,31 @@ const site: PublicSite = {
     },
   ],
 };
+
+describe('GitHub Pages preview path isolation', () => {
+  const base = '/plateform-core/';
+  it('keeps root-domain production paths and translates only preview-owned routes', () => {
+    expect(internalPublicPath('/menu', '/')).toBe('/menu');
+    expect(hostedPublicPath('/menu', '/')).toBe('/menu');
+    expect(hostedPublicPath('/menu?sede=centro', base)).toBe('/plateform-core/menu?sede=centro');
+    expect(internalPublicPath('/plateform-core/menu', base)).toBe('/menu');
+    expect(internalPublicPath('/plateform-core/staff/login', base)).toBe('/staff/login');
+    expect(internalPublicPath('/plateform-core', base)).toBe('/');
+    expect(internalPublicPath('/plateform-corex/menu', base)).toBeNull();
+    expect(internalPublicPath('/menu', base)).toBeNull();
+  });
+  it('never revives staff, external or forged routes from the static fallback', () => {
+    const origin = 'https://ambrogiocorti.github.io';
+    expect(safeRecoveredPublicRoute('/plateform-core/menu?seat=4', origin, base)).toBe(
+      '/plateform-core/menu?seat=4',
+    );
+    for (const value of ['/staff/login', '/menu', '/plateform-core/staff/login', '//evil.example',
+      '/plateform-core/../staff', '/plateform-core/missing']) {
+      expect(safeRecoveredPublicRoute(value, origin, base)).toBeNull();
+    }
+    expect(() => hostedPublicPath('//evil.example', base)).toThrow('INVALID_PUBLIC_PATH');
+  });
+});
 
 describe('public site venue routing', () => {
   it('reserves staff and non-app URLs for native browser navigation', () => {
