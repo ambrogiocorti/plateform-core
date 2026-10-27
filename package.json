@@ -19,7 +19,7 @@
     "test:db": "vitest run tests/database",
     "test:e2e": "playwright test",
     "e2e:stack": "node tests/e2e-live/stack/stack.mjs",
-    "test:e2e:live": "node tests/e2e-live/stack/stack.mjs up && playwright test -c playwright.live.config.ts",
+    "test:e2e:live": "node tests/e2e-live/stack/stack.mjs up && node scripts/run-live-e2e-batches.mjs",
     "check:edge": "node scripts/run-edge.mjs check",
     "test:edge": "node scripts/run-edge.mjs test",
     "check": "npm run check:migrations && npm run check:core-edition && npm run check:core-server-policy && npm run check:core-edge-guards && npm run check:core-release-profile && npm run check:waiter-ux && npm run check:step11 && npm run typecheck && npm run lint && npm run check:edge && npm run test:edge && npm test && npm run build",
@@ -106,7 +106,7 @@
     "check:step11-booking": "node --experimental-strip-types scripts/check-step11-booking-client.mjs",
     "check:step11-prerender": "node scripts/check-step11-prerender.mjs",
     "check:step11-build-assembly": "node scripts/check-step11-build-assembly.mjs",
-    "check:step11-deploy-config": "node scripts/check-vercel-config.mjs && node scripts/check-migration-recovery.mjs && npm run check:staging-http-fixtures",
+    "check:step11-deploy-config": "node scripts/check-vercel-config.mjs && node scripts/check-migration-recovery.mjs && npm run check:staging-http-fixtures && npm run check:staging-edge-denial-fixtures && npm run check:staging-edge-cors-fixtures",
     "reconcile:migrations": "node scripts/reconcile-migrations.mjs --dry-run",
     "reconcile:migrations:write": "node scripts/reconcile-migrations.mjs --write",
     "check:staging-http": "node scripts/verify-staging-http.mjs",
@@ -120,14 +120,18 @@
     "check:local-bootstrap": "node scripts/bootstrap-local.mjs --self-test",
     "check:migration-replay-pg": "node scripts/replay-migrations-postgres.mjs",
     "bootstrap:local": "node scripts/bootstrap-local.mjs --run",
-    "check:operational-readiness": "node scripts/check-operational-readiness.mjs"
+    "check:operational-readiness": "node scripts/check-operational-readiness.mjs",
+    "check:staging-edge-denial": "node scripts/verify-staging-edge-denial.mjs",
+    "check:staging-edge-denial-fixtures": "node scripts/check-staging-edge-denial-fixtures.mjs",
+    "check:staging-edge-cors": "node scripts/verify-staging-edge-cors.mjs",
+    "check:staging-edge-cors-fixtures": "node scripts/check-staging-edge-cors-fixtures.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.116.0",
     "idb": "8.0.3",
     "qrcode": "1.5.4",
     "saxes": "6.0.0",
-    "zod": "4.6.5"
+    "zod": "4.6.7"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.13.0",

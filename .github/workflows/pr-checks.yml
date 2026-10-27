@@ -61,3 +61,77 @@ jobs:
 
       - name: Build
         run: npm run build
+
+  real-e2e:
+    if: github.repository == 'ambrogiocorti/plateform-core'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    env:
+      CI: 'true'
+      E2E_POSTGRES_BIN: /usr/lib/postgresql/16/bin
+      E2E_STORAGE: 'required'
+    steps:
+      - name: Checkout without persistent credentials
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Configure Node 24.13
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24.13.0'
+          cache: npm
+
+      - name: Install pinned dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Install PostgreSQL 16 and process cleanup
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-16 postgresql-client-16 psmisc
+          test -x "$E2E_POSTGRES_BIN/pg_ctl"
+          command -v fuser
+          docker info --format '{{.ServerVersion}}'
+
+      - name: Install Chromium for live browser tests
+        run: npx playwright install --with-deps chromium
+
+      - name: Verify complete isolated backend and real Storage
+        run: npm run test:e2e:live
+
+  local-disaster-recovery:
+    if: github.repository == 'ambrogiocorti/plateform-core'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    env:
+      CI: 'true'
+      PLATEFORM_PG_BIN: /usr/lib/postgresql/16/bin
+    steps:
+      - name: Checkout without persistent credentials
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Configure Node 24.13
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24.13.0'
+          cache: npm
+
+      - name: Install pinned dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Install isolated PostgreSQL 16
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-16 postgresql-client-16
+          test -x "$PLATEFORM_PG_BIN/initdb"
+          test -x "$PLATEFORM_PG_BIN/pg_ctl"
+
+      - name: Rehearse encrypted backup, loss of source, and isolated restore
+        run: npm run continuity:local-dr
+        # This test uses ONLY a disposable local database and synthetic Storage.
+        # It does not prove hosted backups, remote Auth or Storage recovery,
+        # offsite durability or production RPO/RTO.

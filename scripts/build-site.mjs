@@ -1,4 +1,16 @@
 import { cp, mkdir, rm, writeFile, readFile } from 'node:fs/promises';
+import { runAtomicPublicPrerender } from './public-prerender-fallback.mjs';
+// Vercel serves static headers from vercel.json. Keep those origins tied to
+// the selected Supabase project; a preview configured with a different backend
+// must fail rather than appear online with a blocked or cross-environment API.
+if (process.env.VERCEL === '1') {
+  const { assertVercelBackendCsp } = await import('./vercel-configuration.mjs');
+  const configuration = JSON.parse(await readFile('vercel.json', 'utf8'));
+  assertVercelBackendCsp({
+    supabaseUrl: process.env.VITE_SUPABASE_URL,
+    configuration,
+  });
+}
 // A prior deployment can contain published menus or venue pages that have since
 // been withdrawn. Never let those HTML files survive into a later release.
 await rm('dist/site', { recursive: true, force: true });
@@ -31,12 +43,19 @@ if (!staff.includes(`${staffBase}assets/`))
   throw new Error('La build GitHub Pages richiede VITE_STAFF_BASE_URL=https://dominio/staff/');
 
 // Build-time public pages are generated from anonymous server RPCs only.
-await import('./prerender-public.mjs').then(({ prerenderPublic }) =>
-  prerenderPublic({
-    distDir: 'dist/site',
-    siteOrigin: process.env.PUBLIC_SITE_ORIGIN,
-    supabaseUrl: process.env.VITE_SUPABASE_URL,
-    publishableKey: process.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-    base,
-  }),
-);
+const { prerenderPublic } = await import('./prerender-public.mjs');
+const publishResult = await runAtomicPublicPrerender({
+  siteDir: 'dist/site',
+  render: (distDir) =>
+    prerenderPublic({
+      distDir,
+      siteOrigin: process.env.PUBLIC_SITE_ORIGIN,
+      supabaseUrl: process.env.VITE_SUPABASE_URL,
+      publishableKey: process.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+      base,
+    }),
+});
+if (publishResult === 'preview-unindexed')
+  console.warn(
+    'PLATEFORM_PREVIEW_BACKEND_UNREACHABLE: noindex shell only; backend-dependent checks and production release are NOT verified.',
+  );

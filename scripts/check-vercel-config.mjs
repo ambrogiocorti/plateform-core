@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { createVercelConfiguration } from './vercel-configuration.mjs';
-const project = 'https://abdxvlykasqmknexxhjo.supabase.co';
+import { assertVercelBackendCsp, createVercelConfiguration } from './vercel-configuration.mjs';
+const project = 'https://qfgoatdabgnzozxuzxku.supabase.co';
 const staging = createVercelConfiguration({ supabaseUrl: project, mode: 'staging' });
 const verified = JSON.parse(await readFile('vercel.json', 'utf8'));
 let n = 0;
@@ -10,6 +10,21 @@ const check = (fn) => {
   n++;
 };
 check(() => assert.deepEqual(verified, staging));
+check(() =>
+  assert.doesNotThrow(() =>
+    assertVercelBackendCsp({ supabaseUrl: project, configuration: verified }),
+  ),
+);
+check(() =>
+  assert.throws(
+    () =>
+      assertVercelBackendCsp({
+        supabaseUrl: 'https://abdxvlykasqmknexxhjo.supabase.co',
+        configuration: verified,
+      }),
+    /VERCEL_CSP_BACKEND_ORIGIN_MISMATCH/,
+  ),
+);
 check(() => assert.equal(verified.framework, null));
 check(() => assert.equal(verified.outputDirectory, 'dist/site'));
 check(() => assert.equal(verified.installCommand, 'npm ci'));
@@ -42,16 +57,19 @@ const global = Object.fromEntries(
 );
 check(() => assert.match(global['Content-Security-Policy'], /default-src 'none'/));
 check(() =>
-  assert.match(global['Content-Security-Policy'], /https:\/\/abdxvlykasqmknexxhjo\.supabase\.co/),
+  assert.match(global['Content-Security-Policy'], /https:\/\/qfgoatdabgnzozxuzxku\.supabase\.co/),
 );
 check(() =>
-  assert.match(global['Content-Security-Policy'], /wss:\/\/abdxvlykasqmknexxhjo\.supabase\.co/),
+  assert.match(global['Content-Security-Policy'], /wss:\/\/qfgoatdabgnzozxuzxku\.supabase\.co/),
 );
 check(() =>
   assert.doesNotMatch(
     global['Content-Security-Policy'],
     /script-src 'unsafe-inline'|https:\/\/\*\.supabase\.co/,
   ),
+);
+check(() =>
+  assert.doesNotMatch(global['Content-Security-Policy'], /abdxvlykasqmknexxhjo\.supabase\.co/),
 );
 check(() => assert.equal(global['X-Robots-Tag'], 'noindex, nofollow'));
 check(() => assert.equal(global['Strict-Transport-Security'], 'max-age=31536000'));
@@ -75,7 +93,7 @@ check(() =>
   assert.throws(
     () =>
       createVercelConfiguration({
-        supabaseUrl: 'https://someone@abdxvlykasqmknexxhjo.supabase.co',
+        supabaseUrl: 'https://someone@qfgoatdabgnzozxuzxku.supabase.co',
       }),
     /INVALID_VERCEL_SUPABASE_ORIGIN/,
   ),

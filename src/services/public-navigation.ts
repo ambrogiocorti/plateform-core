@@ -5,7 +5,7 @@ export function setupPublicNavigation(
   region: HTMLElement,
   signal: AbortSignal,
 ): void {
-  const mobile = window.matchMedia('(max-width: 780px)');
+  const mobile = window.matchMedia('(max-width: 1180px)');
   const setOpen = (open: boolean): void => {
     toggle.setAttribute('aria-expanded', String(open));
     menu.classList.toggle('is-open', open);

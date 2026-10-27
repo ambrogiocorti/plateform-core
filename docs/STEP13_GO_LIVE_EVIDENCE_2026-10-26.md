@@ -1,0 +1,218 @@
+# Plateform — chiusura tecnica e Go/No-Go
+
+**Verifiche del 26 ottobre 2026.** Ramo di integrazione:
+`plateform/gpt6-prerender-preview-resilience-20261026` (PR #49 sopra PR #48);
+il ramo `main` e Production non sono stati modificati.
+
+**Decisione: NO-GO per rilascio commerciale e dati reali di clienti.**
+Il criterio di completamento della Roadmap (Step 12–13) richiede una copia
+di backup verificata mediante restore reale, collaudi hosted multi-ruolo,
+provider e hardware, più le tre revisioni integrali consecutive del Master.
+Non è corretto sostituirli con test isolati o aggiornare i gate a PASS.
+
+## Cosa è stato verificato
+
+| Area                  | Evidenza reale                                                                                                                                   | Limite                                                        |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------- |
+| Sorgente              | `npm ci` e `npm run check` **PASS**, Node 24.22.1, commit `667c62a`                                                                              | Prove locali/sandbox                                          |
+| Frontend browser      | Playwright **21/21 PASS** nella validazione precedente della stessa PR; successiva conferma richiesta a ogni modifica                            | Fixture API per i flussi staff                                |
+| Edge                  | `check:edge` PASS, `test:edge` **74/74 PASS** nell'audit PR #49                                                                                  | Test isolati, non provider live                               |
+| Unit/database         | **339/339 PASS** nell'audit PR #49                                                                                                               | Database di test / PGlite                                     |
+| Migrazioni            | **496** su Staging e **496** su Production, stesse coppie versione/nome, ultima `20261021090000`                                                 | Non è una verifica degli hash né delle configurazioni esterne |
+| RPC pubbliche         | Staging: Auth settings 200, sito pubblico 200, sitemap 200 e noindex                                                                             | Non dimostra il ciclo ordini con staff autenticato            |
+| Anon/Staff            | GET diretto `staff_profiles` anon: 401                                                                                                           | Verifica una superficie, non tutta la matrice RLS             |
+| Browser pubblico live | Build contro Supabase Staging, servita localmente con rewrite coerenti con Vercel: Home/Menu/Prenota/Staff HTTP 200, nessun `pageerror` Chromium | NON prova HTTP del nuovo deployment Vercel, protetto SSO      |
+| Prerender             | `npm run build:pages` contro Staging **PASS**, HTML ristorante E2E e robots noindex                                                              | Non equivale al go-live della build                           |
+| Audit database        | Staging: trigger di sospensione audit assenti; trigger di immutabilità presenti e attivi                                                         | Non dimostra il ripristino/replay di un backup                |
+
+### Limite dei test sulle Edge Function
+
+Una POST anonima con oggetto JSON vuoto ha ottenuto 400
+`INVALID_PAYLOAD` per alcune funzioni staff/provider e 401 per
+`offline-authorization`. Il 400 indica che la validazione dello schema
+ha bloccato la richiesta: **non dimostra** che un payload valido sarebbe
+rifiutato a livello JWT/RLS. La matrice negativa completa richiede
+credenziali di test distinte e chiamate controllate.
+
+## Blocco P0: continuità non attivata
+
+Lettura diretta (26 ottobre):
+
+- Staging: **1** backup registrato, `QUEUED`, non completato, non
+  verificato, senza dump/oggetti associati e mai ripristinato.
+- Production: **2** backup registrati, entrambi `QUEUED`, nessuno
+  completato o restore-tested.
+- Entrambi gli ambienti: **0** heartbeat nei registri
+  `private.continuity_worker_heartbeats`; **0** job di restore.
+- Production ha soltanto i quattro bucket `branding`, `dishes`,
+  `documents`, `gallery`. Mancano i due bucket privati
+  `plateform-continuity-audit-archive` e
+  `plateform-continuity-audit-archive-replica` presenti in Staging.
+- I cron `plateform-daily-backup` sono schedulati e riportano esiti
+  SQL `succeeded`, ma questo **non** certifica l'esecuzione del backup
+  esterno. Non presentare il cron verde come prova di disaster recovery.
+- Le impostazioni Staging dichiarano RPO e RTO target entrambi di
+  60 minuti, ma non costituiscono misure raggiunte.
+
+**Per chiudere il blocco:** configurare un worker esterno durevole con
+permessi minimi e destinazione indipendente; produrre un backup
+Postgres+Auth+Storage cifrato con checksum e metadata verificabili;
+ripristinarlo in ambiente distinto non produttivo, misurare RPO/RTO e
+allegare la prova. Solo successivamente attivare il piano Production.
+
+## Altri blocchi residui
+
+1. **Rilascio Vercel aggiornato:** le ultime build Git vengono rifiutate
+   dalla quota Free; il build locale contro Staging non è un deployment
+   HTTPS verificato. Non cambiare le variabili Production.
+2. **Auth:** l'advisor Supabase segnala leaked-password protection
+   disabilitata (vedere la
+   [documentazione ufficiale](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection)).
+3. **SQL e RLS:** advisor Supabase segnalano dieci RPC
+   `SECURITY DEFINER` pubbliche anon (la superficie del sito), 229
+   accessibili a `authenticated`, 66 tabelle RLS senza policy
+   (molte interne) e 83 foreign key senza indice. Non revocare
+   indiscriminatamente: esaminare implementazioni e permessi con i
+   relativi test cross-role/cross-venue.
+4. **Provider:** completare checkout+webhook+callback+rimborso realmente
+   verificati su Stripe e Satispay Sandbox, inclusi duplicati e timeout.
+5. **Staff E2E hosted:** sessioni reali, ruoli, MFA, tavolo→conto→
+   ordine→cucina→pass→servizio→cassa→pagamento→chiusura.
+6. **Client/hardware:** QR reale, offline device revocation/sync, PWA su
+   telefono, stampante fisica o procedura di PDF/fallback, stress test.
+7. **Privacy/legal/fiscal:** retention per cliente, informativa e
+   trattamento dati, policy commerciale e incassi.
+8. **Master e release:** dossier Step 13 e tre revisioni integrali pulite
+   sullo stesso digest, senza test dichiarati PASS senza evidenza.
+
+## Anomalia dati da triagiare
+
+Staging contiene **64** eventi audit con timestamp oltre il tempo
+dell'interrogazione, di cui 48 oltre una settimana nel futuro.
+Potrebbero essere fixture dei test sulle partizioni: non cancellarli
+(append-only), ma escludere che alterino retention, dashboard o allarmi
+e distinguere il dataset reale dal collaudo.
+
+## Decisione operativa
+
+- **STEP 0–11:** ampia implementazione sorgente e buona copertura di
+  test, ma non tutti i contratti Master sono stati collaudati hosted.
+- **STEP 12:** `IN PROGRESS / BLOCKED` per backup e restore reali.
+- **STEP 13:** `IN PROGRESS / BLOCKED`; `release:check` deve rimanere
+  fail-closed.
+- **Commercial CORE o FULL:** `NO-GO` finché questi blocchi non sono
+  risolti con evidenza.
+
+Non eseguire merge in `main`, deploy Production o attivazione di
+funzionalità a pagamento solo per rispettare una scadenza temporale.
+
+## Verifica HTTP aggiuntiva — autenticazione e CORS (26 ottobre)
+
+Su Supabase **Staging** è stato eseguito il nuovo controllo
+`npm run check:staging-edge-denial`, con chiave **publishable** e
+senza token di accesso: **12/12 funzioni protette hanno risposto HTTP 401**.
+Sono state incluse amministrazione, step-up, pagamenti, stampa, health
+e worker di continuità. Si tratta soltanto della verifica di accesso
+non autenticato; non sostituisce i test autenticati con ruoli e venue
+differenti.
+
+Il successivo controllo
+`npm run check:staging-edge-cors` ha dimostrato un blocco reale:
+**0/10 preflight CORS** dall'origine Vercel Preview hanno ricevuto
+autorizzazione. Le Edge Functions hanno restituito HTTP 403
+(`ORIGIN_FORBIDDEN`) anche per prenotazioni, pagamenti, upload
+e telemetria. Le origini locali `http://localhost:5173` e
+`http://localhost:5174` sono invece riconosciute dal backend.
+
+**Correzione operativa necessaria:** nelle Secrets delle Edge Functions
+del solo progetto `plateform-staging`, aggiornare `ALLOWED_ORIGINS`
+aggiungendo (senza eliminare gli altri valori) l'origine canonica:
+
+```text
+https://plateform-development-git-plateform-99a6ea-sambrogiocorti-5259.vercel.app
+```
+
+Non usare `*`, `*.vercel.app` o altre regole permissive.
+Gli strumenti Supabase attualmente collegati permettono l'audit e il
+deploy delle funzioni, ma non la gestione diretta delle Secrets:
+la modifica del valore di `ALLOWED_ORIGINS` richiede la dashboard
+Supabase o un canale amministrativo autorizzato. Fino alla verifica
+`STAGING_EDGE_CORS_PREFLIGHT=PASS (10/10)`, il frontend Staging non è
+operativamente collaudato via browser dalla preview Vercel.
+
+I nuovi script includono **12 asserzioni** per i test di negazione
+e **7 asserzioni** per il preflight; entrambi sono inclusi nel gate
+`check:step11-deploy-config`. Non sono stati modificati i dati dei
+ristoranti né Production. Il NO-GO rimane in vigore.
+
+## Esito aggiornato: CORS Staging risolto
+
+Dopo la correzione di `ALLOWED_ORIGINS`, lo script versionato
+`scripts/verify-staging-edge-cors.mjs` ha restituito
+`STAGING_EDGE_CORS_PREFLIGHT=PASS (10/10)` contro il progetto Supabase
+Staging. Tutti e dieci i preflight hanno risposto HTTP 204 con origine
+Vercel esatta. La precedente evidenza 0/10 descrive il problema
+prima della correzione e non rappresenta lo stato corrente.
+
+Un nuovo deployment Preview dello SHA `85b182f` risulta READY.
+Il rilascio commerciale rimane NO-GO: la protezione SSO del sito
+impedisce lo smoke HTTP pubblico senza credenziali Vercel e sono
+ancora mancanti backup/restore certificati e collaudi con provider reali.
+
+## Collaudo browser su stack reale isolato — aggiornamento finale
+
+Eseguita la suite `playwright.live.config.ts` contro uno stack usa e getta
+(PostgreSQL 18, GoTrue reale, PostgREST, Edge Functions Deno, Chromium).
+La creazione da zero ha applicato **496/496 migrazioni**. Lo stack
+non usa dati di Staging né di Production.
+
+**Evidenza complessiva:** 36 casi PASS in esecuzioni verificate,
+3 casi SKIP perché richiedono lo Storage API reale (upload branding,
+upload menu e archivio audit). In una singola esecuzione dei 39 test:
+35 PASS, 3 SKIP e un worker Playwright interrotto con `SIGKILL`
+prima dell'esecuzione del test PWA. I contatori del sandbox
+(`/sys/fs/cgroup/memory.events`) riportavano `oom_kill=1`.
+Il caso PWA, rieseguito **isolatamente**, ha dato **1/1 PASS**:
+installazione, avvio offline e aggiornamento su richiesta. Non si
+dichiara perciò una run monolitica 36/36 senza errori.
+
+I **6/6 casi operativi critici** sono PASS dopo un secondo bootstrap:
+prenotazione pubblica, caparra di gruppo con gate provider/licenza,
+ruoli e idempotenza server-side, e flusso tavolo → ordine → cucina →
+pass → consegna → cassa → chiusura. Entrambi i casi del Conflict
+Center sono PASS, con verifica database e audit. Restano esclusi da
+questa prova il provider di pagamento esterno reale, l'installazione
+su dispositivo fisico, lo Storage completo e il disaster recovery.
+
+### Miglioramenti versionati alla suite e al gate
+
+- `tests/e2e-live/stack/stack.mjs`: ad ogni reset del database
+  **soltanto usa e getta** riallinea la data di disponibilità scorte
+  al calendario locale della sede. Evita falsi blocchi
+  `AVAILABILITY_NOT_SET_TODAY` quando il template attraversa la
+  mezzanotte, senza modificare la regola di produzione.
+- Lo stesso bootstrap verifica che ogni Edge Function abbia
+  effettivamente aperto la porta, altrimenti fallisce prima
+  dell'avvio dei browser.
+- `tests/e2e-live/step8-conflict-center-live.spec.ts`: il secondo
+  messaggio di conferma si verifica sull'ultima notifica, mantenendo
+  le asserzioni separate sullo stato persistito e sull'audit.
+- `.github/workflows/staging-readiness.yml`: ora integra
+  PostgreSQL, GoTrue, PostgREST ed Edge Functions reali per i test
+  live usa e getta e richiede gli smoke HTTP CORS/denial.
+  L'esecuzione remota GitHub Actions va ancora confermata; i test
+  sull'host temporaneo non sostituiscono una pipeline completata.
+
+### Blocchi aperti (NO-GO)
+
+Il 26 ottobre l'audit read-only rileva **1 backup QUEUED in
+Staging e 2 in Production**, nessun backup `SUCCEEDED` con integrità
+verificata, nessun restore completato, nessun heartbeat recente di
+worker backup indipendente. Il backup con Auth + Storage e prova di
+ripristino su target isolato rimane requisito essenziale prima
+di gestire dati di clienti. Restano inoltre i tre scenari Storage
+non eseguiti, prove Stripe/Satispay sandbox, hardware e hosted
+multi-ruolo, evidenza delle tre revisioni complete.
+
+`npm run release:check` resta correttamente **NO-GO**. Production
+non è stata modificata e nessun merge in `main` è stato effettuato.

@@ -317,6 +317,13 @@ test('Admin verifies identity before exporting and rectifies contacts with a bou
   expect(
     (await page.getByRole('navigation', { name: 'Gestionale' }).boundingBox())!.height,
   ).toBeGreaterThanOrEqual(44);
+  const more = page.locator('details.staff-mobile-more');
+  await expect(more).toBeVisible();
+  await more.locator('summary').click();
+  await expect(more.getByRole('link', { name: 'Sito e branding' })).toBeVisible();
+  await expect(more.getByRole('link', { name: 'Audit' })).toHaveCount(0);
+  await expect(more.getByRole('link', { name: 'Dati personali' })).toBeVisible();
+  await more.locator('summary').click();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: '.local/screenshots/privacy-mobile.png' });
 });

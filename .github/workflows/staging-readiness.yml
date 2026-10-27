@@ -10,7 +10,8 @@ permissions:
   contents: read
 jobs:
   verify:
-    runs-on: ubuntu-latest
+    # Pinned PostgreSQL 16 runner for the disposable 39-scenario HTTP/JWT suite.
+    runs-on: ubuntu-24.04
     timeout-minutes: 55
     environment: staging
     env:
@@ -43,6 +44,19 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Integrated public and staff browser regression
         run: npm run test:e2e
+      - name: Install isolated PostgreSQL and test-process cleanup utilities
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-16 postgresql-client-16 psmisc
+      - name: Integrated real GoTrue/PostgREST/PostgreSQL and Edge Function regression
+        env:
+          E2E_POSTGRES_BIN: /usr/lib/postgresql/16/bin
+          E2E_STORAGE: 'required'
+          CI: 'true'
+        run: npm run test:e2e:live
+        # The real Docker-backed Storage API MUST be available: all 39 scenarios,
+        # including uploads and audit archives, are required; providers and physical
+        # hardware still need separate hosted acceptance evidence.
       - name: Verify remote migration history (read-only; fail on drift)
         env:
           SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
@@ -53,6 +67,16 @@ jobs:
           node scripts/reconcile-migrations.mjs --dry-run
       - name: Real Node 24 application build
         run: npm run build:pages
+      - name: Check Staging browser CORS and deny unauthenticated requests (read-only)
+        env:
+          PLATEFORM_STAGING_URL: ${{ vars.STAGING_SUPABASE_URL }}
+          PLATEFORM_STAGING_PROJECT_REF: qfgoatdabgnzozxuzxku
+          PLATEFORM_PRODUCTION_PROJECT_REF: xzateqavvaparjoybbhr
+          PLATEFORM_STAGING_PUBLISHABLE_KEY: ${{ secrets.STAGING_SUPABASE_PUBLISHABLE_KEY }}
+          PLATEFORM_STAGING_PREVIEW_ORIGIN: ${{ inputs.staging_origin }}
+        run: |
+          npm run check:staging-edge-cors
+          npm run check:staging-edge-denial
       - name: Check live hosted HTTP headers and routing
         run: npm run check:staging-http
       - name: Keep failure evidence

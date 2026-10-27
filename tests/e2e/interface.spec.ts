@@ -50,6 +50,8 @@ test('public home preserves the restaurant brand and hides disabled booking and 
   await expect(page.getByRole('link', { name: 'Prenota', exact: true })).toHaveCount(0);
   await expect(page.getByRole('link', { name: /staff/i })).toHaveCount(0);
   await expect(page.getByRole('combobox')).toHaveCount(0);
+  await expect(page.locator('#public-refresh')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Il menu è cambiato. Aggiorna' })).toHaveCount(0);
   await page.screenshot({ path: 'test-results/public-home.png', fullPage: true });
 });
 
@@ -100,4 +102,77 @@ test('public phone layout stays within the viewport', async ({ page }) => {
     true,
   );
   await page.screenshot({ path: 'test-results/public-mobile.png', fullPage: true });
+});
+
+test('redesigned menu supports responsive category navigation and live dish search', async ({
+  page,
+}) => {
+  await page.route('**/rest/v1/rpc/get_public_site', (route) => route.fulfill({ json: site }));
+  await page.route('**/rest/v1/rpc/get_public_navigation', (route) =>
+    route.fulfill({ json: { menus: [] } }),
+  );
+  await page.route('**/rest/v1/rpc/get_public_menu', (route) =>
+    route.fulfill({
+      json: ['Ravioli al basilico', 'Tiramisu della casa'].map((name, index) => ({
+        id: `40000000-0000-4000-8000-00000000000${index + 1}`,
+        category_id: '40000000-0000-4000-8000-000000000005',
+        name,
+        category_name: index === 0 ? 'Primi' : 'Dolci',
+        description: index === 0 ? 'Pasta fresca' : 'Crema e caffè',
+        image_path: null,
+        beverage: false,
+        price_cents: index === 0 ? 1800 : 700,
+        availability: 0,
+        ingredients: [],
+        allergens: [],
+        dietary_tags: [],
+        variant_groups: [],
+      })),
+    }),
+  );
+  await page.goto('http://localhost:5173/menu');
+  await expect(page.getByRole('searchbox', { name: 'Cerca nel menu' })).toBeVisible();
+  await expect(page.locator('.dish-public:visible')).toHaveCount(2);
+  await page.getByRole('searchbox', { name: 'Cerca nel menu' }).fill('Tiramisu');
+  await expect(page.locator('.dish-public:visible')).toHaveCount(1);
+  await expect(page.getByRole('heading', { name: 'Ravioli al basilico' })).toBeHidden();
+  await expect(page.getByRole('heading', { name: 'Tiramisu della casa' })).toBeVisible();
+  await expect(page.getByRole('status').filter({ hasText: '1 proposta' })).toBeVisible();
+  await page.getByRole('searchbox', { name: 'Cerca nel menu' }).clear();
+  await expect(page.locator('.dish-public:visible')).toHaveCount(2);
+});
+
+test('new mobile guest experience has distinct shortcuts without horizontal scrolling', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.route('**/rest/v1/rpc/get_public_site', (route) => route.fulfill({ json: site }));
+  await page.goto('http://localhost:5173');
+  await expect(page.getByRole('heading', { name: 'Una cucina da ricordare.' })).toBeVisible();
+  await expect(page.locator('.public-hero-visual')).toBeVisible();
+  await expect(page.locator('.public-action-tile')).toHaveCount(2);
+  const dock = page.getByRole('navigation', { name: 'Navigazione rapida' });
+  await expect(dock).toBeInViewport();
+  await expect(dock.getByRole('link', { name: 'Menu' })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
+    true,
+  );
+});
+
+test('compact tablet navigation opens and Escape restores focus to its toggle', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1024, height: 768 });
+  await page.route('**/rest/v1/rpc/get_public_site', (route) => route.fulfill({ json: site }));
+  await page.goto('http://localhost:5173');
+  const menuToggle = page.getByRole('button', { name: 'Menu', exact: true });
+  const nav = page.getByRole('navigation', { name: 'Principale' });
+  await expect(menuToggle).toBeVisible();
+  await menuToggle.click();
+  await expect(nav).toBeVisible();
+  await expect(menuToggle).toHaveAttribute('aria-expanded', 'true');
+  await page.keyboard.press('Escape');
+  await expect(menuToggle).toHaveAttribute('aria-expanded', 'false');
+  await expect(menuToggle).toBeFocused();
+  await expect(nav).toBeHidden();
 });

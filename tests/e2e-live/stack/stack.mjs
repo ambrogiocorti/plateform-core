@@ -71,15 +71,32 @@ function daemon(name, command, args, env = {}) {
 }
 
 async function waitFor(address) {
-  for (let attempt = 0; attempt < 100; attempt += 1) {
+  // GitHub-hosted runners can need more than 20 seconds to initialize
+  // PostgREST and its schema cache immediately after 496 migrations.
+  // Time-bound each probe so a stalled TCP connection cannot hang CI.
+  const deadline = Date.now() + 90000;
+  let lastError;
+  while (Date.now() < deadline) {
     try {
-      if ((await fetch(address)).status < 500) return;
-    } catch {
-      /* not ready yet */
+      const response = await fetch(address, { signal: AbortSignal.timeout(2500) });
+      if (response.status < 500) return;
+      lastError = `HTTP_${response.status}`;
+    } catch (error) {
+      lastError = error instanceof Error ? error.name : 'FETCH_FAILED';
     }
-    await sleep(200);
+    await sleep(300);
   }
-  throw new Error(`Timeout waiting for ${address}`);
+  // Only synthetic local E2E logs are inspected. Never read hosted credentials.
+  // On CI a 502 from the gateway is not enough to diagnose whether
+  // PostgREST crashed, could not authenticate or is still building its cache.
+  for (const name of ['postgrest', 'gateway', 'gotrue']) {
+    const logfile = join(dir, `${name}.log`);
+    if (existsSync(logfile)) {
+      const lines = readFileSync(logfile, 'utf8').trim().split('\n').slice(-15);
+      console.error(`E2E_STARTUP_DIAGNOSTIC:${name}:\\n${lines.join('\n')}`);
+    }
+  }
+  throw new Error(`E2E_SERVICE_START_TIMEOUT:${new URL(address).pathname}:${lastError}`);
 }
 
 const gotrueEnv = (database) => ({
@@ -187,7 +204,10 @@ function startPostgres() {
 
 let dockerChecked;
 function realStorage() {
-  if (process.env.E2E_STORAGE === 'off') return false;
+  const storage = process.env.E2E_STORAGE;
+  if (storage === 'off') return false;
+  if (storage && !['auto', 'required'].includes(storage))
+    throw new Error('E2E_STORAGE_MODE_INVALID');
   if (dockerChecked === undefined)
     try {
       execFileSync('docker', ['info'], { stdio: 'ignore', timeout: 15000 });
@@ -195,6 +215,8 @@ function realStorage() {
     } catch {
       dockerChecked = false;
     }
+  if (!dockerChecked && storage === 'required')
+    throw new Error('E2E_STORAGE_REQUIRED_DOCKER_UNAVAILABLE');
   return dockerChecked;
 }
 
@@ -355,6 +377,15 @@ export async function reset() {
   await sleep(300);
   psql('postgres', `drop database if exists ${db} with (force)`);
   psql('postgres', `create database ${db} template ${template}`);
+  // The template persists across midnight. Refresh disposable fixture stock dates
+  // to each venue's local calendar day on every reset, never on customer databases.
+  psql(
+    db,
+    `update public.venue_dish_settings s
+    set availability_date=(now() at time zone v.timezone)::date
+    from public.venues v
+    where s.venue_id=v.id and s.availability is not null`,
+  );
   daemon('gotrue', join(bin, 'auth'), [], gotrueEnv(db));
   daemon('postgrest', join(bin, 'postgrest'), [postgrestConfig(db)]);
   await waitFor('http://127.0.0.1:9999/health');
@@ -392,6 +423,24 @@ export async function up() {
     JSON.stringify({ real: realStorage(), image: realStorage() ? storageApi.image : null }),
   );
   startFunctions(anonKey, serviceKey);
+  // A successful spawn is not proof that Deno bound its port. Fail before the
+  // browser suite if any function crashed (e.g. a stale listener or bad config).
+  await Promise.all(
+    Object.entries(functionPorts).map(async ([name, port]) => {
+      try {
+        await waitFor(`http://127.0.0.1:${port}/`);
+      } catch (error) {
+        // The Deno startup of ten simultaneous functions may require CPU time
+        // on a shared runner. Surface only the disposable worker's startup log.
+        const logfile = join(dir, `fn-${name}.log`);
+        if (existsSync(logfile))
+          console.error(
+            `LOCAL_EDGE_STARTUP_LOG:${name}\n${readFileSync(logfile, 'utf8').split('\n').slice(-18).join('\n')}`,
+          );
+        throw new Error(`E2E_EDGE_FUNCTION_UNAVAILABLE:${name}`, { cause: error });
+      }
+    }),
+  );
   console.log(`E2E stack ready: gateway http://127.0.0.1:54321, database ${url(db)}`);
 }
 
@@ -482,9 +531,8 @@ function startFunctions(anonKey, serviceKey) {
     stop(`fn-${name}`);
     daemon(
       `fn-${name}`,
-      process.execPath,
+      join(root, 'node_modules/deno/deno'),
       [
-        join(root, 'node_modules/deno/bin.cjs'),
         'run',
         '--allow-env',
         '--allow-net',
