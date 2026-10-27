@@ -571,3 +571,43 @@ body { background: var(--pf-paper); }
     display: flex;
   }
 }
+
+/* WCAG AA refinements verified against the real themed pages. Keep the
+   saturated art direction, but never let inherited venue tokens fade text. */
+#main > .public-section,
+#main > .public-section h1,
+#main > .public-section h2,
+#main > .public-section h3,
+#main > .public-section p,
+#main > .public-section a,
+#main > .public-section .muted,
+#main > .public-section .allergens,
+#main > .public-section .eyebrow,
+#main > .public-section .story-copy,
+.public-home .public-section h2,
+.public-home .public-section .story-copy {
+  color: #301a36;
+}
+.public-home .public-action-tile .action-tile-body span,
+.public-home .public-action-tile .action-tile-body strong,
+.public-home .public-action-tile .action-tile-arrow,
+.public-home .public-action-tile .action-tile-number {
+  color: #29172d;
+}
+.public-header .public-menu-toggle.button.quiet,
+.public-header .public-menu-toggle,
+.public-header .public-menu-toggle:hover {
+  color: #fff8e8;
+  border-color: #f7e5cd;
+  background: #412444;
+}
+#main > .public-section .booking-form .muted,
+#main > .public-section .booking-form label {
+  color: #301a36;
+}
+#main > .public-section .status {
+  color: #301a36;
+}
+@media (max-width: 1180px) {
+  .public-header .public-menu-toggle.button.quiet { color: #fff8e8; }
+}
