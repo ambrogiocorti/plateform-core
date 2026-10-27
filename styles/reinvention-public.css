@@ -445,3 +445,118 @@ body { background: var(--pf-paper); }
 @media(prefers-reduced-motion:reduce) {
  .public-book-cta,.dish-public,.public-hero .button.primary { transition:none; }
 }
+
+/* Full-bleed cinematic poster instead of the old split-column landing page. */
+.public-home .public-hero {
+  position: relative;
+  display: block;
+  min-height: clamp(690px,86dvh,990px);
+  background: #27182e;
+}
+.public-home .public-hero-visual {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  z-index: 0;
+  background: #9b547a;
+}
+.public-home .public-hero-visual::after {
+  z-index: 1;
+  inset: 0;
+  background: linear-gradient(90deg, #27182ef6 0%, #27182ed9 38%, #27182e79 66%, #27182e24 100%);
+}
+.public-home .public-hero-visual::before {
+  left: auto;
+  right: 11%;
+  top: 15%;
+  z-index: 2;
+  border-color: #f7f0a09a;
+}
+.public-home .public-hero-copy {
+  width: min(100%, 930px);
+  min-height: clamp(690px,86dvh,990px);
+  padding: clamp(75px,9vw,142px) clamp(30px,7vw,125px);
+  background: none;
+  position: relative;
+  z-index: 2;
+  align-items: flex-start;
+}
+.public-home .public-hero-copy::before {
+  top: 6%;
+  right: 6%;
+  font-size: clamp(58px,7vw,115px);
+}
+.public-home .public-hero h1 { max-width: 780px; font-size: clamp(75px,9.2vw,160px); }
+.public-home .public-hero-image-caption { z-index: 3; }
+.public-home .public-hero-placeholder span { opacity: .28; }
+@media(max-width:850px) {
+  .public-home .public-hero { min-height: 680px; }
+  .public-home .public-hero-copy { min-height: 680px; padding: 68px 30px; }
+  .public-home .public-hero h1 { font-size: clamp(58px,11vw,99px); }
+  .public-home .public-hero-visual { position: absolute; height: 100%; }
+  .public-home .public-hero-visual::after { background: linear-gradient(90deg,#27182ef2 0%,#27182ecb 53%,#27182e74 100%); }
+}
+@media(max-width:600px) {
+  .public-home .public-hero { min-height: min(785px,calc(100dvh - 74px)); }
+  .public-home .public-hero-copy {
+    min-height: min(785px,calc(100dvh - 74px));
+    padding: 65px 22px 89px;
+  }
+  .public-home .public-hero h1 { font-size: clamp(58px,13vw,84px); }
+  .public-home .public-hero-visual::after { background: linear-gradient(180deg,#27182ef6 0%,#27182eea 55%,#27182e5c 100%); }
+  .public-home .public-hero-image-caption { left: 25px; right:auto; bottom: 20px; }
+  .public-home .public-hero-visual::before { right: -75px; top: 26%; }
+  .public-home .public-hero-placeholder span { font-size: 88px; }
+}
+/* Menu architecture: sticky editorial index at left, independent dish sections at right. */
+@media(min-width:980px) {
+  #main > .public-section:has(.public-menu-toolbar) {
+    display: grid;
+    grid-template-columns: minmax(215px, .33fr) minmax(0, 1fr);
+    column-gap: clamp(30px, 4vw, 76px);
+    align-content: start;
+    align-items: start;
+  }
+  #main > .public-section:has(.public-menu-toolbar) > :not(.public-menu-tabs):not(.public-menu-toolbar):not(.public-menu-group) {
+    grid-column: 1 / -1;
+  }
+  #main > .public-section:has(.public-menu-toolbar) > .public-menu-tabs {
+    grid-column: 1;
+    grid-row: 10 / span 25;
+    position: sticky;
+    top: 118px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    align-self: start;
+    max-height: calc(100dvh - 145px);
+    overflow: auto;
+    padding: 28px 0;
+    margin: 28px 0 0;
+    border-top: 5px solid #31182f;
+  }
+  #main > .public-section:has(.public-menu-toolbar) > .public-menu-tabs a {
+    justify-content: space-between;
+    margin-bottom: 7px;
+    padding: 17px 18px;
+    border-radius: 0;
+    box-shadow: none;
+    font-size: 14px;
+  }
+  #main > .public-section:has(.public-menu-toolbar) > .public-menu-toolbar {
+    grid-column: 2;
+    grid-row: 10;
+    margin-top: 28px;
+    min-width: 0;
+  }
+  #main > .public-section:has(.public-menu-toolbar) > .public-menu-group {
+    grid-column: 2;
+    margin: 26px 0 10px;
+    min-width: 0;
+  }
+  #main > .public-section:has(.public-menu-toolbar) > .public-menu-group .dish-grid {
+    grid-template-columns: repeat(2,minmax(0,1fr));
+  }
+}
