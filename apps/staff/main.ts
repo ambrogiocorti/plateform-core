@@ -354,7 +354,11 @@ async function render(): Promise<void> {
         'div',
         { class: 'sidebar-brand-area' },
         el('a', { class: 'brand', href: staffHref('/') },
-          el('span', { class: 'brand-monogram', 'aria-hidden': 'true' }, 'P'),
+          el(
+            'span',
+            { class: 'brand-monogram', 'aria-hidden': 'true' },
+            el('img', { src: staffHref('/icon.svg'), alt: '', width: '44', height: '44' }),
+          ),
           el('span', { class: 'brand-wordmark' }, 'Plateform',
             el('small', {}, 'Restaurant OS'))),
         el('span', { class: 'sidebar-workspace-label' }, 'WORKSPACE'),
