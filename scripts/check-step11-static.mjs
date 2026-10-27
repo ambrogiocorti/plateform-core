@@ -88,7 +88,7 @@ for (const [needle, label] of [
   ['observePublicPerformance', 'public_performance_observability'],
   ['recordPublicPageView', 'public_page_telemetry'],
   ["!isPreview && currentPublicPath() !== '/lista-attesa/offerta'", 'preview_telemetry_disabled'],
-  ['!isClientSidePublicPath(internalPublicPath(target.pathname, PUBLIC_BASE) ?? '')', 'non_public_path_does_not_intercept_staff'],
+  ["!isClientSidePublicPath(internalPublicPath(target.pathname, PUBLIC_BASE) ?? '')", 'non_public_path_does_not_intercept_staff'],
   ['safeRecoveredPublicRoute(storedRoute, location.origin, PUBLIC_BASE)', 'static_404_recovery_is_public_only'],
   ['if (invalidVenueContext)', 'invalid_venue_context_is_not_indexed'],
   ['const entry = venue;', 'venue_details_respect_conflicting_selector_denial'],

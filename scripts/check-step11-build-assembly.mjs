@@ -132,8 +132,8 @@ globalThis.fetch=async (input,init)=>{
   const fallback = await readFile(join(root, 'dist/site/404.html'), 'utf8');
   const previewRobots = await readFile(join(root, 'dist/site/robots.txt'), 'utf8');
   check(() => assert.match(previewHtml, /noindex,nofollow/));
-  check(() => assert.match(fallback, /plateform-core\\//));
-  check(() => assert.match(previewRobots, /Disallow: \\//));
+  check(() => assert.ok(fallback.includes('plateform-core/')));
+  check(() => assert.ok(previewRobots.includes('Disallow: /')));
   await checkAsync(() => assert.rejects(access(join(root, 'dist/site/CNAME'))));
   await checkAsync(() => assert.rejects(access(join(root, 'dist/site/sitemap.xml'))));
   console.log(
