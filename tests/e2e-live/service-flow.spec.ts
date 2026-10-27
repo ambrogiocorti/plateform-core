@@ -126,7 +126,9 @@ test('servizio completo: tavolo → ordine → cucina → Pass → consegna → 
   const confirm = cashier.getByRole('dialog', { name: 'Conferma l’incasso' });
   await expect(confirm.getByText('34,50 €')).toBeVisible();
   await confirm.getByRole('button', { name: 'Incasso verificato' }).click();
-  await expect(cashier.getByRole('status').filter({ hasText: 'Pagamento registrato.' })).toBeVisible();
+  await expect(
+    cashier.getByRole('status').filter({ hasText: 'Pagamento registrato.' }),
+  ).toBeVisible();
   await cashier.getByRole('button', { name: 'Chiudi conto' }).click();
   const closing = cashier.getByRole('dialog', { name: 'Conferma chiusura conto' });
   await closing.getByRole('button', { name: 'Conferma chiusura' }).click();
