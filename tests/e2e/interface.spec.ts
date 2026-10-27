@@ -157,7 +157,9 @@ test('new mobile guest experience has distinct shortcuts without horizontal scro
   );
 });
 
-test('compact tablet navigation opens and Escape restores focus to its toggle', async ({ page }) => {
+test('compact tablet navigation opens and Escape restores focus to its toggle', async ({
+  page,
+}) => {
   await page.setViewportSize({ width: 1024, height: 768 });
   await page.route('**/rest/v1/rpc/get_public_site', (route) => route.fulfill({ json: site }));
   await page.goto('http://localhost:5173');
