@@ -6,7 +6,6 @@ import '../../styles/reinvention-public.css';
 import { z } from 'zod';
 import { rpc } from '../../src/api/client';
 import {
-  button,
   el,
   emptyState,
   enableSkipLink,
@@ -594,10 +593,6 @@ async function render(): Promise<void> {
     });
     connection.hidden = true;
     main.append(connection);
-    const update = button('Il menu è cambiato. Aggiorna', async () => render(), 'secondary');
-    update.id = 'public-refresh';
-    update.hidden = true;
-    main.append(update);
     if (key !== liveKey) {
       stopLive?.();
       liveKey = key;
@@ -609,8 +604,8 @@ async function render(): Promise<void> {
             publicAppPath(location.pathname) === '/prenota' ||
             document.activeElement?.matches('input,select,textarea')
           ) {
-            const notice = document.getElementById('public-refresh');
-            if (notice) notice.hidden = false;
+            // Never interrupt an in-progress booking or edited form with a
+            // refresh prompt. A later page navigation will fetch fresh data.
             return;
           }
           const scroll = window.scrollY;
