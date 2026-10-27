@@ -86,6 +86,16 @@ async function waitFor(address) {
     }
     await sleep(300);
   }
+  // Only synthetic local E2E logs are inspected. Never read hosted credentials.
+  // On CI a 502 from the gateway is not enough to diagnose whether
+  // PostgREST crashed, could not authenticate or is still building its cache.
+  for (const name of ['postgrest', 'gateway', 'gotrue']) {
+    const logfile = join(dir, `${name}.log`);
+    if (existsSync(logfile)) {
+      const lines = readFileSync(logfile, 'utf8').trim().split('\\n').slice(-15);
+      console.error(`E2E_STARTUP_DIAGNOSTIC:${name}:\\n${lines.join('\\n')}`);
+    }
+  }
   throw new Error(`E2E_SERVICE_START_TIMEOUT:${new URL(address).pathname}:${lastError}`);
 }
 
