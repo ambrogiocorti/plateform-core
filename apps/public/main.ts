@@ -1,5 +1,6 @@
 import { registerPwa } from '../../src/services/pwa';
 import '../../styles/public.css';
+import '../../styles/experience-public.css';
 import { z } from 'zod';
 import { rpc } from '../../src/api/client';
 import {
