@@ -229,3 +229,17 @@
     color: #d9ba89;
   }
 }
+
+/* WCAG AA: compact eyebrow labels need >=4.5:1 contrast on light surfaces. */
+:root .eyebrow,
+:root .page-heading-copy > .eyebrow {
+  color: #715129;
+}
+:root[data-theme='dark'] .eyebrow,
+:root[data-theme='dark'] .page-heading-copy > .eyebrow {
+  color: #e7bd84;
+}
+:root .admin-operations-head .eyebrow,
+:root[data-theme='dark'] .admin-operations-head .eyebrow {
+  color: #f0c88a;
+}
