@@ -434,7 +434,9 @@ export async function up() {
         // on a shared runner. Surface only the disposable worker's startup log.
         const logfile = join(dir, `fn-${name}.log`);
         if (existsSync(logfile))
-          console.error(`LOCAL_EDGE_STARTUP_LOG:${name}\n${readFileSync(logfile, 'utf8').split('\n').slice(-18).join('\n')}`);
+          console.error(
+            `LOCAL_EDGE_STARTUP_LOG:${name}\n${readFileSync(logfile, 'utf8').split('\n').slice(-18).join('\n')}`,
+          );
         throw new Error(`E2E_EDGE_FUNCTION_UNAVAILABLE:${name}`, { cause: error });
       }
     }),
