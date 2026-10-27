@@ -92,8 +92,8 @@ async function waitFor(address) {
   for (const name of ['postgrest', 'gateway', 'gotrue']) {
     const logfile = join(dir, `${name}.log`);
     if (existsSync(logfile)) {
-      const lines = readFileSync(logfile, 'utf8').trim().split('\\n').slice(-15);
-      console.error(`E2E_STARTUP_DIAGNOSTIC:${name}:\\n${lines.join('\\n')}`);
+      const lines = readFileSync(logfile, 'utf8').trim().split('\n').slice(-15);
+      console.error(`E2E_STARTUP_DIAGNOSTIC:${name}:\\n${lines.join('\n')}`);
     }
   }
   throw new Error(`E2E_SERVICE_START_TIMEOUT:${new URL(address).pathname}:${lastError}`);
