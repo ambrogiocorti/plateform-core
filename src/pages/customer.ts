@@ -8,11 +8,13 @@ import { formatMoney } from '../services/money';
 import type { OrderLine } from '../types/domain';
 import { watchLive } from '../realtime/live';
 import { safeImageUrl } from '../config/environment';
+import { readGuestFavorites, writeGuestFavorites } from '../services/customer-favorites';
 
 interface CustomerCart {
   lines: OrderLine[];
   key: string;
   submitted: OrderLine[] | null;
+  view: 'menu' | 'cart' | 'checkout' | 'favorites';
   changed: () => void;
 }
 
@@ -85,6 +87,7 @@ export async function customerPage(publicTable: string, signal: AbortSignal): Pr
     lines: [],
     key: crypto.randomUUID(),
     submitted: null,
+    view: 'menu',
     changed: () => {
       const label = container.querySelector('[data-cart-summary]');
       if (label) label.textContent = cartSummary(cart.lines);
@@ -116,7 +119,11 @@ export async function customerPage(publicTable: string, signal: AbortSignal): Pr
           userId: session.user.id,
           topics: ['ACCOUNT', 'PUBLIC'],
           refresh: async () => {
-            if (!document.querySelector('dialog[open]')) await refresh();
+            if (
+              !document.querySelector('dialog[open]') &&
+              !document.activeElement?.matches('input,select,textarea')
+            )
+              await refresh();
           },
           accessChanged: async () => {
             try {
@@ -157,6 +164,7 @@ export async function customerPage(publicTable: string, signal: AbortSignal): Pr
     cart.lines.length = 0;
     cart.submitted = null;
     cart.key = crypto.randomUUID();
+    cart.view = 'menu';
     for (const modal of document.querySelectorAll('dialog')) modal.close();
     container.replaceChildren();
     const code = field('Codice del conto', 'code');
@@ -268,12 +276,13 @@ async function customerContent(
         : null,
     ),
   );
-  if (account.items.length)
+  if (account.items.length && cartState.view === 'menu')
     content.append(
       el(
         'section',
-        { class: 'card' },
-        el('h2', {}, 'Già ordinato'),
+        { class: 'card customer-history' },
+        el('h2', {}, 'Cronologia del tavolo'),
+        el('p', { class: 'muted' }, 'Le ordinazioni di questo conto, in ordine cronologico.'),
         ...account.items.map((item) => {
           const details = [
             item.removed_ingredients.length ? `Senza ${item.removed_ingredients.join(', ')}` : null,
@@ -283,7 +292,15 @@ async function customerContent(
           ].filter(Boolean);
           return el(
             'div',
-            { class: 'account-history-line' },
+            { class: 'account-history-line customer-timeline-entry' },
+            el(
+              'time',
+              { class: 'muted', datetime: item.ordered_at },
+              new Date(item.ordered_at).toLocaleString(account.locale, {
+                dateStyle: 'short',
+                timeStyle: 'short',
+              }),
+            ),
             el(
               'div',
               { class: 'row between' },
@@ -303,23 +320,48 @@ async function customerContent(
         }),
       ),
     );
-  if (account.requests.some((request) => request.status === 'PENDING'))
+  if (account.requests.length && cartState.view === 'menu')
     content.append(
       el(
-        'p',
-        { role: 'status' },
-        'Hai una richiesta d’ordine in attesa di conferma del cameriere.',
-      ),
-    );
-  const rejected = account.requests.find((request) => request.status === 'REJECTED');
-  if (rejected)
-    content.append(
-      el(
-        'p',
-        { role: 'status' },
-        rejected.reason
-          ? `L’ultima richiesta è stata rifiutata: ${rejected.reason}`
-          : 'L’ultima richiesta d’ordine è stata rifiutata dal cameriere.',
+        'section',
+        { class: 'card customer-notification-center' },
+        el('h2', {}, 'Centro notifiche'),
+        el('p', { class: 'muted' }, 'Aggiornamenti delle richieste di questo tavolo.'),
+        ...account.requests.map((request) => {
+          const pending = request.status === 'PENDING';
+          const rejected = request.status === 'REJECTED';
+          const status = pending
+            ? 'In attesa'
+            : rejected
+              ? 'Rifiutata'
+              : request.status === 'APPROVED'
+                ? 'Confermata'
+                : 'Aggiornata';
+          return el(
+            'article',
+            { class: 'customer-notification-item', role: pending || rejected ? 'status' : 'group' },
+            el('span', { class: 'status' }, status),
+            el(
+              'p',
+              {},
+              pending
+                ? 'Hai una richiesta d’ordine in attesa di conferma del cameriere.'
+                : rejected
+                  ? request.reason
+                    ? `L’ultima richiesta è stata rifiutata: ${request.reason}`
+                    : 'L’ultima richiesta d’ordine è stata rifiutata dal cameriere.'
+                  : 'La tua richiesta è stata aggiornata.',
+            ),
+            el(
+              'time',
+              { class: 'muted', datetime: request.created_at },
+              new Date(request.created_at).toLocaleString(account.locale, {
+                dateStyle: 'short',
+                timeStyle: 'short',
+              }),
+            ),
+          );
+        }),
       ),
     );
   const dishes = await rpc(
@@ -328,6 +370,12 @@ async function customerContent(
     z.array(menuDishSchema),
   );
   const cart = cartState.lines;
+  const favorites = readGuestFavorites(account.venue_id);
+  const changeView = async (view: CustomerCart['view']) => {
+    cartState.view = view;
+    await refresh();
+    document.getElementById('main')?.scrollIntoView({ block: 'start' });
+  };
   const cartLabel = el('span', { 'data-cart-summary': '' });
   const updateCartLabel = () => {
     cartLabel.textContent = cartSummary(cart);
@@ -339,7 +387,7 @@ async function customerContent(
     { class: 'customer-menu stack' },
     el('h2', {}, 'Cosa ti va di assaggiare?'),
   );
-  content.append(menu);
+  if (cartState.view === 'menu') content.append(menu);
   if (!dishes.length)
     menu.append(
       el('p', { class: 'muted' }, 'Il menu non ha proposte disponibili in questo momento.'),
@@ -354,8 +402,15 @@ async function customerContent(
       const picture = safeImageUrl(dish.image_path);
       const card = el(
         'article',
-        { class: 'dish-public' },
-        picture ? el('img', { src: picture, alt: dish.name, loading: 'lazy' }) : null,
+        { class: 'dish-public public-dish-card' },
+        picture
+          ? el('img', {
+              src: picture,
+              alt: dish.name,
+              loading: 'lazy',
+              class: 'customer-dish-photo',
+            })
+          : el('div', { class: 'public-dish-image-placeholder' }, 'La nostra cucina'),
         el(
           'div',
           { class: 'row between' },
@@ -383,6 +438,20 @@ async function customerContent(
       );
       const badge = availabilityBadge(dish.availability);
       if (badge.label) card.append(el('p', { class: 'status' }, badge.label));
+      const favoriteButton = button(
+        favorites.has(dish.id) ? '★ Salvato' : '☆ Preferiti',
+        () => {
+          if (favorites.has(dish.id)) favorites.delete(dish.id);
+          else favorites.add(dish.id);
+          if (!writeGuestFavorites(account.venue_id, favorites))
+            toast('Impossibile salvare i preferiti su questo dispositivo.', true);
+          favoriteButton.textContent = favorites.has(dish.id) ? '★ Salvato' : '☆ Preferiti';
+          favoriteButton.setAttribute('aria-pressed', String(favorites.has(dish.id)));
+        },
+        'secondary',
+      );
+      favoriteButton.setAttribute('aria-pressed', String(favorites.has(dish.id)));
+      card.append(favoriteButton);
       if (account.customer_ordering !== 'DISABLED') {
         const add = button('Scegli', () => {
           if (cartState.submitted) {
@@ -402,6 +471,9 @@ async function customerContent(
             variant_options: [],
           };
           const editor = dialog(dish.name, quantity.root);
+          if (dish.description) editor.append(el('p', { class: 'muted' }, dish.description));
+          if (dish.ingredients.some((item) => item.removable))
+            editor.append(el('h3', {}, 'Ingredienti da togliere'));
           for (const ingredient of dish.ingredients.filter((item) => item.removable)) {
             const check = el('input', { type: 'checkbox' });
             check.addEventListener('change', () => {
@@ -416,8 +488,8 @@ async function customerContent(
           for (const group of dish.variant_groups) {
             editor.append(
               el(
-                'p',
-                {},
+                'h3',
+                { class: 'customer-choice-section' },
                 `${group.name}${group.required ? ' · richiesta' : ''} · massimo ${group.max_selections}`,
               ),
             );
@@ -454,57 +526,161 @@ async function customerContent(
     }
     menu.append(grid);
   }
-  if (account.customer_ordering !== 'DISABLED')
-    content.append(
+  if (cartState.view === 'menu') {
+    const actions = el(
+      'section',
+      { class: 'customer-menu-actions card stack' },
+      el('h2', {}, 'Il tuo spazio'),
+      el('p', { class: 'muted' }, 'Puoi ordinare senza creare un account.'),
+      button('I miei preferiti', () => changeView('favorites'), 'secondary'),
+      account.customer_ordering !== 'DISABLED'
+        ? el(
+            'div',
+            { class: 'stack' },
+            cartLabel,
+            button('Vai al carrello', () => changeView('cart')),
+          )
+        : null,
+    );
+    content.insertBefore(actions, menu);
+  }
+  if (cartState.view === 'favorites') {
+    const favoritesPage = el(
+      'section',
+      { class: 'customer-dedicated-page stack' },
+      el('h2', {}, 'I miei preferiti'),
+      el(
+        'p',
+        { class: 'muted' },
+        'Lista semplice salvata solo su questo dispositivo. Non è collegata a un account.',
+      ),
+      button('← Torna al menu', () => changeView('menu'), 'secondary'),
+    );
+    for (const dish of dishes.filter((item) => favorites.has(item.id))) {
+      favoritesPage.append(
+        el(
+          'div',
+          { class: 'card row between' },
+          el('strong', {}, dish.name),
+          el('span', {}, formatMoney(dish.price_cents, account.currency, account.locale)),
+          button(
+            'Rimuovi dai preferiti',
+            async () => {
+              favorites.delete(dish.id);
+              if (!writeGuestFavorites(account.venue_id, favorites))
+                toast('Impossibile aggiornare i preferiti.', true);
+              await refresh();
+            },
+            'secondary',
+          ),
+        ),
+      );
+    }
+    if (!dishes.some((item) => favorites.has(item.id)))
+      favoritesPage.append(el('p', {}, 'Non hai ancora salvato alcun piatto disponibile.'));
+    content.append(favoritesPage);
+  }
+  if (account.customer_ordering !== 'DISABLED' && cartState.view === 'cart') {
+    const cartPage = el(
+      'section',
+      { class: 'customer-dedicated-page stack' },
+      el('p', { class: 'eyebrow' }, 'Il tuo ordine'),
+      el('h2', {}, 'Il tuo carrello'),
+      button('← Torna alla carta', () => changeView('menu'), 'secondary'),
+      cartLabel,
+    );
+    for (const line of cart) {
+      const dish = dishes.find((item) => item.id === line.dish_id);
+      const quantity = field(
+        `${dish?.name ?? 'Piatto non disponibile'} · quantità`,
+        'quantity',
+        'number',
+        String(line.quantity),
+      );
+      quantity.input.min = '1';
+      quantity.input.max = String(dish?.availability ?? 999);
+      quantity.input.disabled = Boolean(cartState.submitted);
+      quantity.input.addEventListener('change', () => {
+        if (!quantity.input.reportValidity()) return;
+        line.quantity = Number(quantity.input.value);
+        updateCartLabel();
+      });
+      const remove = button(
+        'Rimuovi',
+        () => {
+          if (cartState.submitted) return;
+          cart.splice(cart.indexOf(line), 1);
+          row.remove();
+          updateCartLabel();
+        },
+        'secondary',
+      );
+      remove.disabled = Boolean(cartState.submitted);
+      const row = el(
+        'article',
+        { class: 'card customer-cart-row' },
+        el('h3', {}, dish?.name ?? 'Piatto non disponibile'),
+        dish
+          ? el(
+              'p',
+              { class: 'muted' },
+              formatMoney(dish.price_cents, account.currency, account.locale),
+            )
+          : null,
+        quantity.root,
+        remove,
+      );
+      cartPage.append(row);
+    }
+    if (!cart.length)
+      cartPage.append(el('p', { class: 'muted' }, 'Scegli un piatto dalla carta per iniziare.'));
+    if (cartState.submitted)
+      cartPage.append(
+        el(
+          'p',
+          { class: 'muted' },
+          'Invio in corso: non puoi modificare questa richiesta finché non ne verifichiamo l’esito.',
+        ),
+      );
+    cartPage.append(button('Procedi alla conferma', () => changeView('checkout')));
+    content.append(cartPage);
+  }
+  if (account.customer_ordering !== 'DISABLED' && cartState.view === 'checkout') {
+    const checkout = el(
+      'section',
+      { class: 'customer-dedicated-page stack' },
+      el('p', { class: 'eyebrow' }, 'Ultimo passaggio'),
+      el('h2', {}, 'Controlla e conferma'),
+      button(
+        cartState.submitted ? '← Rivedi il carrello' : '← Modifica il carrello',
+        () => changeView('cart'),
+        'secondary',
+      ),
       el(
         'section',
         { class: 'card stack' },
-        cartLabel,
-        button(
-          'Rivedi il carrello',
-          () => {
-            if (cartState.submitted) {
-              toast('La richiesta è già stata inviata. Riprova l’invio per verificarne l’esito.');
-              return;
-            }
-            const editor = dialog('Il tuo carrello');
-            for (const line of cart) {
-              const name = dishes.find((dish) => dish.id === line.dish_id)?.name ?? '';
-              const quantity = field(
-                `${name} · quantità`,
-                'quantity',
-                'number',
-                String(line.quantity),
-              );
-              quantity.input.min = '1';
-              const currentDish = dishes.find((dish) => dish.id === line.dish_id);
-              quantity.input.max = String(currentDish?.availability ?? 999);
-              quantity.input.addEventListener('input', () => {
-                if (quantity.input.checkValidity()) {
-                  line.quantity = Number(quantity.input.value);
-                  updateCartLabel();
-                }
-              });
-              quantity.input.addEventListener('change', () => quantity.input.reportValidity());
-              const row = el(
-                'div',
-                { class: 'row' },
-                quantity.root,
-                button(
-                  'Rimuovi',
-                  () => {
-                    cart.splice(cart.indexOf(line), 1);
-                    row.remove();
-                    updateCartLabel();
-                  },
-                  'quiet',
-                ),
-              );
-              editor.append(row);
-            }
-          },
-          'secondary',
+        el('h3', {}, '1. I tuoi piatti'),
+        ...cart.map((line) => {
+          const dish = dishes.find((item) => item.id === line.dish_id);
+          return el('p', {}, `${line.quantity} × ${dish?.name ?? 'Piatto non disponibile'}`);
+        }),
+      ),
+      el(
+        'section',
+        { class: 'card stack' },
+        el('h3', {}, '2. Come funziona'),
+        el(
+          'p',
+          {},
+          account.customer_ordering === 'DIRECT'
+            ? 'L’ordine sarà inviato direttamente alla cucina.'
+            : 'Un cameriere controllerà e approverà la richiesta prima che diventi un ordine.',
         ),
+      ),
+      el(
+        'section',
+        { class: 'card stack' },
+        el('h3', {}, '3. Conferma'),
         button(
           cartState.submitted
             ? 'Riprova invio'
@@ -514,6 +690,7 @@ async function customerContent(
           async () => {
             if (!cart.length) {
               toast('Aggiungi almeno una pietanza.', true);
+              await changeView('cart');
               return;
             }
             if (!cartState.submitted) {
@@ -554,6 +731,7 @@ async function customerContent(
             cartState.lines.length = 0;
             cartState.submitted = null;
             cartState.key = crypto.randomUUID();
+            cartState.view = 'menu';
             toast(
               account.customer_ordering === 'DIRECT'
                 ? 'Ordine inviato.'
@@ -564,6 +742,8 @@ async function customerContent(
         ),
       ),
     );
+    content.append(checkout);
+  }
   await ready(account);
   return content;
 }

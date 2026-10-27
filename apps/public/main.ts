@@ -10,6 +10,7 @@ import type { PublicSite, Venue } from '../../src/types/domain';
 import { availabilityBadge } from '../../src/services/menu';
 import { formatMoney } from '../../src/services/money';
 import { setupPublicNavigation } from '../../src/services/public-navigation';
+import { preferredPublicTheme, savePublicTheme } from '../../src/services/public-theme';
 import {
   canonicalPublicUrl,
   isClientSidePublicPath,
@@ -346,6 +347,27 @@ async function render(): Promise<void> {
     },
     'Menu',
   );
+  const themeButton = el(
+    'button',
+    {
+      type: 'button',
+      class: 'public-theme-toggle',
+      'aria-label': preferredPublicTheme() === 'light' ? 'Attiva tema scuro' : 'Attiva tema chiaro',
+      'aria-pressed': String(preferredPublicTheme() === 'dark'),
+    },
+    preferredPublicTheme() === 'light' ? '☾ Tema scuro' : '☀ Tema chiaro',
+  );
+  themeButton.addEventListener('click', () => {
+    const next = preferredPublicTheme() === 'light' ? 'dark' : 'light';
+    savePublicTheme(next);
+    applyBrand(site);
+    themeButton.textContent = next === 'light' ? '☾ Tema scuro' : '☀ Tema chiaro';
+    themeButton.setAttribute(
+      'aria-label',
+      next === 'light' ? 'Attiva tema scuro' : 'Attiva tema chiaro',
+    );
+    themeButton.setAttribute('aria-pressed', String(next === 'dark'));
+  });
   const header = el(
     'header',
     { class: 'public-header' },
@@ -354,7 +376,7 @@ async function render(): Promise<void> {
       { href: '/', class: 'restaurant-brand', 'aria-label': `${site.name} — Home` },
       logo ? el('img', { src: logo, alt: '', width: '150', decoding: 'async' }) : site.name,
     ),
-    menuButton,
+    el('div', { class: 'public-header-actions' }, themeButton, menuButton),
     navigation,
   );
   app.replaceChildren(header, main, footer(site));
@@ -366,8 +388,14 @@ async function render(): Promise<void> {
   if (path === '/') main.append(home(site, venue, bookingEnabled ? reservationVenue : undefined));
   else if (path === '/menu') main.append(await menu(site, venue));
   else if (path.startsWith('/menu/') && venue) {
-    const slug = path.slice('/menu/'.length);
-    main.append(await (await import('../../src/pages/public-menu')).publishedMenuPage(slug, venue));
+    const match = /^\/menu\/([^/]+)(?:\/piatto\/([^/]+))?\/?$/.exec(path);
+    main.append(
+      match
+        ? await (
+            await import('../../src/pages/public-menu')
+          ).publishedMenuPage(match[1] ?? '', venue, match[2])
+        : emptyState('Pagina non disponibile', 'Il collegamento alla carta non è valido.'),
+    );
   } else if (path.startsWith('/menu/') && !venue) {
     main.append(
       emptyState(
@@ -552,9 +580,15 @@ function applyBrand(site: PublicSite): void {
   // CSS variables behind after Realtime refresh or SPA navigation.
   for (const token of ['--bg', '--accent', '--accent-ink', '--font', '--public-heading-font'])
     document.documentElement.style.removeProperty(token);
-  const darkMode = site.branding.dark_mode !== false;
+  const darkMode = preferredPublicTheme() === 'dark';
   const defaultBackground = darkMode ? '#111315' : '#f4f0e8';
-  const background = safeBackground(textValue(site.branding, 'background_color'), darkMode);
+  // The restaurant can select a branded background for its configured mode,
+  // but it must never override a guest's explicit light/dark preference.
+  const brandDarkMode = site.branding.dark_mode !== false;
+  const background =
+    brandDarkMode === darkMode
+      ? safeBackground(textValue(site.branding, 'background_color'), darkMode)
+      : null;
   if (background) document.documentElement.style.setProperty('--bg', background);
   const accent = safeAccent(
     textValue(site.branding, 'accent_color'),
@@ -587,6 +621,8 @@ function applyBrand(site: PublicSite): void {
     ? layout.toLowerCase()
     : 'editorial';
   document.documentElement.dataset.theme = darkMode ? 'dark' : 'light';
+  const themeColor = document.head.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+  if (themeColor) themeColor.content = background ?? defaultBackground;
   const favicon = safeImageUrl(site.branding.favicon_url);
   if (favicon) {
     let icon = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
