@@ -260,19 +260,52 @@ async function render(): Promise<void> {
   const pageLink = links.find(
     (entry) => staffPath() === entry.path || staffPath().startsWith(`${entry.path}/`),
   );
+  const navIcons: Record<string, string> = {
+    '/operazioni': '▦', '/eccezioni': '⚑', '/accoglienza': '◷', '/sala': '▤',
+    '/conti': '▣', '/cassa': '◈', '/statistiche': '▥', '/conflitti': '⇄',
+    '/stampe': '▧', '/modifiche': '✎', '/editor': '▤', '/pianificazione': '▦',
+    '/gestione': '⚙', '/sito': '◉', '/impostazioni': '☷', '/privacy': '♧',
+    '/audit': '≡', '/sedi': '◇', '/dispositivi': '◧', '/staff': '♙',
+    '/servizio': '◷', '/preparazione': '◩', '/menu-sede': '☰',
+    '/food-cost': '▥', '/salute': '◈', '/notifiche': '◉',
+    '/cucina': '▤', '/pass': '⇢', '/consegne': '◇',
+  };
+  const navItem = (link: (typeof navigation)[number], mobile = false) =>
+    el(
+      'a',
+      {
+        href: staffHref(link.path),
+        class: mobile ? 'mobile-tab-link' : 'nav-link',
+        ...(pageLink?.path === link.path ? { 'aria-current': 'page' } : {}),
+      },
+      el('span', { class: 'nav-glyph', 'aria-hidden': 'true' }, navIcons[link.path] ?? '◇'),
+      el('span', { class: 'nav-label' }, link.label),
+    );
+  const quickLinks = (['/sala', '/accoglienza', '/cassa'] as const)
+    .map((path) => links.find((link) => link.path === path))
+    .filter((link): link is (typeof navigation)[number] => Boolean(link));
   const main = el(
     'main',
-    { id: 'main', class: 'workspace' },
+    { id: 'main', class: 'workspace', tabindex: '-1' },
     el(
       'header',
       { class: 'page-heading' },
       el(
-        'p',
-        { class: 'eyebrow' },
-        new Date().toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' }),
+        'div',
+        { class: 'page-heading-copy' },
+        el('p', { class: 'eyebrow' },
+          new Date().toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' })),
+        el('h1', {}, pageLink?.label ?? 'Operazioni'),
+        el('p', {}, `${profile.display_name} · ${profile.role.replaceAll('_', ' ')}`),
       ),
-      el('h1', {}, pageLink?.label ?? 'Operazioni'),
-      el('p', {}, `${profile.display_name} · ${profile.role.replaceAll('_', ' ')}`),
+      profile.role === 'ADMIN'
+        ? el('nav', { class: 'page-heading-shortcuts', 'aria-label': 'Scorciatoie operative' },
+            ...quickLinks.map((link) =>
+              el('a', { href: staffHref(link.path) },
+                el('span', { 'aria-hidden': 'true' }, navIcons[link.path] ?? '◇'),
+                link.label)),
+          )
+        : null,
     ),
     loading(),
   );
@@ -296,67 +329,67 @@ async function render(): Promise<void> {
         });
     });
   }
+  const sidebarGroups = profile.role === 'ADMIN'
+    ? (['OPERATIVITÀ', 'CONFIGURAZIONE'] as const).map((section) => ({
+        label: section === 'OPERATIVITÀ' ? 'IL TUO SERVIZIO' : 'GESTIONE E CONTROLLO',
+        links: links.filter((link) => link.section === section),
+      }))
+    : [{ label: 'AREA OPERATIVA', links }];
+  const mobileLinks = (profile.role === 'ADMIN'
+    ? ['/operazioni', '/sala', '/accoglienza', '/cassa', '/gestione']
+    : [roleLanding[profile.role], ...links.map((link) => link.path)]
+  ).filter((path, index, paths) => paths.indexOf(path) === index)
+    .map((path) => links.find((link) => link.path === path))
+    .filter((link): link is (typeof navigation)[number] => Boolean(link))
+    .slice(0, 5);
   const shell = el(
     'div',
     { class: 'staff-shell', 'data-role': profile.role },
     el(
       'aside',
       { class: 'sidebar' },
-      el('a', { class: 'brand', href: staffHref('/') }, 'Plateform'),
+      el(
+        'div',
+        { class: 'sidebar-brand-area' },
+        el('a', { class: 'brand', href: staffHref('/') },
+          el('span', { class: 'brand-monogram', 'aria-hidden': 'true' }, 'P'),
+          el('span', { class: 'brand-wordmark' }, 'Plateform',
+            el('small', {}, 'Restaurant OS'))),
+        el('span', { class: 'sidebar-workspace-label' }, 'WORKSPACE'),
+      ),
       el(
         'nav',
         { 'aria-label': 'Gestionale' },
-        ...(profile.role === 'ADMIN'
-          ? (['OPERATIVITÀ', 'CONFIGURAZIONE'] as const).flatMap((section) => {
-              const sectionLinks = links.filter((link) => link.section === section);
-              if (!sectionLinks.length) return [];
-              return [
-                el('span', { class: 'sidebar-section' }, section),
-                ...sectionLinks.map((link) =>
-                  el(
-                    'a',
-                    {
-                      href: staffHref(link.path),
-                      class: 'nav-link',
-                      ...(pageLink?.path === link.path ? { 'aria-current': 'page' } : {}),
-                    },
-                    link.label,
-                  ),
-                ),
-              ];
-            })
-          : links.map((link) =>
-              el(
-                'a',
-                {
-                  href: staffHref(link.path),
-                  class: 'nav-link',
-                  ...(pageLink?.path === link.path ? { 'aria-current': 'page' } : {}),
-                },
-                link.label,
-              ),
-            )),
+        ...sidebarGroups.flatMap((section) =>
+          section.links.length
+            ? [el('span', { class: 'sidebar-section' }, section.label),
+               ...section.links.map((link) => navItem(link))]
+            : [],
+        ),
       ),
       el(
         'footer',
-        {},
-        'People. Food. Service.',
-        el('br'),
-        `Plateform ${environment().releaseVersion}`,
+        { class: 'sidebar-footer' },
+        el('span', { class: 'sidebar-version' }, `VERSIONE ${environment().releaseVersion}`),
+        el('span', {}, 'People · Food · Service'),
       ),
     ),
     el(
       'div',
-      {},
+      { class: 'staff-content' },
       el(
         'header',
         { class: 'topbar' },
-        el('span', { class: 'context' }, context.venue?.name ?? 'Configurazione iniziale'),
-        el('span', { id: 'connection-state', class: 'muted', role: 'status' }, connectionLabel()),
+        el('div', { class: 'topbar-leading' },
+          el('span', { class: 'topbar-location-label' }, 'SEDE OPERATIVA'),
+          el('span', { class: 'context' }, context.venue?.name ?? 'Configurazione iniziale')),
+        el('div', { class: 'topbar-status' },
+          el('span', { class: 'connection-dot', 'aria-hidden': 'true' }),
+          el('span', { id: 'connection-state', class: 'muted', role: 'status' }, connectionLabel())),
         venueControl,
         el(
           'div',
-          { class: 'row' },
+          { class: 'row topbar-actions' },
           profile.role === 'SUPER_ADMIN' ? null : notificationIndicator(context),
           ['ADMIN', 'SUPER_ADMIN', 'HOST', 'CASHIER'].includes(profile.role)
             ? button('Cerca ⌘K', () => openPalette(), 'quiet')
@@ -373,6 +406,11 @@ async function render(): Promise<void> {
         ),
       ),
       main,
+    ),
+    el(
+      'nav',
+      { class: 'staff-mobile-dock', 'aria-label': 'Navigazione rapida staff' },
+      ...mobileLinks.map((link) => navItem(link, true)),
     ),
   );
   const assistance = sessionStorage.getItem('plateform-impersonation');
