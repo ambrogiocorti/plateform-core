@@ -382,14 +382,57 @@ async function render(): Promise<void> {
     'header',
     { class: 'public-header' },
     el(
-      'a',
-      { href: '/', class: 'restaurant-brand', 'aria-label': `${site.name} — Home` },
-      logo ? el('img', { src: logo, alt: '', width: '150', decoding: 'async' }) : site.name,
+      'div',
+      { class: 'public-header-inner' },
+      el(
+        'a',
+        { href: '/', class: 'restaurant-brand', 'aria-label': `${site.name} — Home` },
+        logo ? el('img', { src: logo, alt: '', width: '150', decoding: 'async' }) : site.name,
+      ),
+      navigation,
+      el(
+        'div',
+        { class: 'public-header-actions' },
+        bookingEnabled
+          ? el(
+              'a',
+              { href: venueAwarePath('/prenota', site, reservationVenue), class: 'public-book-cta' },
+              'Prenota un tavolo',
+              el('span', { 'aria-hidden': 'true' }, '↗'),
+            )
+          : el(
+              'a',
+              { href: venueAwarePath('/menu', site, venue), class: 'public-book-cta' },
+              'Esplora il menu',
+              el('span', { 'aria-hidden': 'true' }, '↗'),
+            ),
+        menuButton,
+      ),
     ),
-    menuButton,
-    navigation,
   );
-  app.replaceChildren(header, main, footer(site));
+  const bottomLinks = links.filter((link) =>
+    ['/', '/menu', '/prenota', '/contatti'].includes(link.current),
+  );
+  const mobileNavigation = el(
+    'nav',
+    { class: 'public-mobile-nav', 'aria-label': 'Navigazione rapida' },
+    ...bottomLinks.map((link) =>
+      el(
+        'a',
+        {
+          href: link.path,
+          ...(publicAppPath(location.pathname) === link.current
+            ? { 'aria-current': 'page' }
+            : {}),
+        },
+        el('span', { class: 'public-mobile-nav-icon', 'aria-hidden': 'true' },
+          ({ '/': '⌂', '/menu': '≡', '/prenota': '▣', '/contatti': '✉' } as Record<string, string>)[link.current] ?? '•',
+        ),
+        el('span', {}, link.label),
+      ),
+    ),
+  );
+  app.replaceChildren(header, main, footer(site), mobileNavigation);
   setupPublicNavigation(menuButton, navigation, header, lifetime.signal);
   stopPerformance?.();
   stopPerformance = observePublicPerformance(venue?.id);
@@ -644,45 +687,87 @@ function applyBrand(site: PublicSite): void {
 function home(site: PublicSite, venue: Venue | undefined, bookingDestination?: Venue): HTMLElement {
   const bookingEnabled = Boolean(bookingDestination);
   const image = safeImageUrl(site.content.hero_image_url);
+  const bookingHref = venueAwarePath('/prenota', site, bookingDestination);
+  const menuHref = venueAwarePath('/menu', site, venue);
   return el(
     'div',
-    {},
+    { class: 'public-home' },
     el(
       'section',
       { class: 'public-hero' },
-      image
-        ? el('img', {
-            src: image,
-            alt: textValue(site.content, 'hero_image_alt', site.name),
-            fetchpriority: 'high',
-            decoding: 'async',
-          })
-        : null,
       el(
         'div',
-        {},
-        el('p', { class: 'eyebrow' }, textValue(site.content, 'hero_eyebrow', site.name)),
+        { class: 'public-hero-copy' },
+        el('p', { class: 'eyebrow public-hero-eyebrow' },
+          textValue(site.content, 'hero_eyebrow', 'IL PIACERE DI STARE INSIEME')),
         el('h1', {}, textValue(site.content, 'hero_title', site.name)),
+        el('p', { class: 'public-hero-lede' },
+          textValue(site.content, 'hero_subtitle',
+            'Una cucina da scoprire, momenti da condividere. Il tuo posto a tavola ti aspetta.')),
         el(
-          'p',
-          {},
-          textValue(
-            site.content,
-            'hero_subtitle',
-            'La nostra cucina. Il piacere di stare a tavola.',
+          'div',
+          { class: 'public-hero-actions' },
+          el('a',
+            { href: bookingEnabled ? bookingHref : menuHref, class: 'button primary' },
+            bookingEnabled ? 'Prenota un tavolo' : 'Scopri il menu',
+            el('span', { 'aria-hidden': 'true' }, '↗'),
           ),
+          el('a', { href: menuHref, class: 'public-hero-secondary' }, 'Esplora il menu', ' →'),
         ),
         el(
-          'a',
-          {
-            href: bookingEnabled
-              ? venueAwarePath('/prenota', site, bookingDestination)
-              : venueAwarePath('/menu', site, venue),
-            class: 'button primary',
-          },
-          bookingEnabled ? 'Prenota un tavolo ↗' : 'Scopri il menu ↗',
+          'div',
+          { class: 'public-hero-footnote' },
+          el('span', { 'aria-hidden': 'true', class: 'hero-spark' }, '✳'),
+          venue?.name ?? site.name,
+          el('span', { class: 'hero-footnote-separator', 'aria-hidden': 'true' }, '·'),
+          'La tua prossima esperienza',
         ),
       ),
+      el(
+        'div',
+        { class: 'public-hero-visual' },
+        image
+          ? el('img', {
+              src: image,
+              alt: textValue(site.content, 'hero_image_alt', site.name),
+              fetchpriority: 'high',
+              decoding: 'async',
+            })
+          : el('div', { class: 'public-hero-placeholder', 'aria-hidden': 'true' },
+              el('span', {}, 'Buon appetito')),
+        el('div', { class: 'public-hero-image-caption' },
+          el('span', { 'aria-hidden': 'true' }, '✳'),
+          'Gusto, atmosfera, momenti.'),
+      ),
+    ),
+    el(
+      'section',
+      { class: 'public-action-tray', 'aria-label': 'Scopri il ristorante' },
+      el('a', { class: 'public-action-tile', href: menuHref },
+        el('span', { class: 'action-tile-number', 'aria-hidden': 'true' }, '01 /'),
+        el('span', { class: 'action-tile-body' },
+          el('strong', {}, 'Sfoglia il menu'),
+          el('span', {}, 'Piatti, ingredienti e specialità')),
+        el('span', { class: 'action-tile-arrow', 'aria-hidden': 'true' }, '↗'),
+      ),
+      bookingEnabled
+        ? el('a', { class: 'public-action-tile', href: bookingHref },
+            el('span', { class: 'action-tile-number', 'aria-hidden': 'true' }, '02 /'),
+            el('span', { class: 'action-tile-body' },
+              el('strong', {}, 'Prenota la tua visita'),
+              el('span', {}, 'Trova il momento giusto')),
+            el('span', { class: 'action-tile-arrow', 'aria-hidden': 'true' }, '↗'),
+          )
+        : null,
+      sectionEnabled(site, 'contacts')
+        ? el('a', { class: 'public-action-tile', href: venueAwarePath('/contatti', site, venue) },
+            el('span', { class: 'action-tile-number', 'aria-hidden': 'true' }, '03 /'),
+            el('span', { class: 'action-tile-body' },
+              el('strong', {}, 'Vieni a trovarci'),
+              el('span', {}, 'Orari, indicazioni e contatti')),
+            el('span', { class: 'action-tile-arrow', 'aria-hidden': 'true' }, '↗'),
+          )
+        : null,
     ),
     sectionEnabled(site, 'story')
       ? el(
@@ -748,12 +833,53 @@ async function menu(site: PublicSite, venue: Venue | undefined): Promise<HTMLEle
   if (availableMenus) section.append(availableMenus);
   const dishes = await rpc('get_public_menu', { p_venue: venue.id }, z.array(menuDishSchema));
   const categories = [...new Set(dishes.map((dish) => dish.category_name))];
-  for (const category of categories) {
-    section.append(el('h2', { class: 'menu-category' }, category));
+  if (categories.length || dishes.length) {
+    const search = el('input', {
+      type: 'search',
+      class: 'public-menu-search',
+      placeholder: 'Cerca un piatto, un ingrediente…',
+      'aria-label': 'Cerca nel menu',
+      autocomplete: 'off',
+    });
+    const result = el('span', { class: 'menu-result-count', role: 'status', 'aria-live': 'polite' });
+    const filterBar = el(
+      'div',
+      { class: 'public-menu-toolbar' },
+      el('label', { class: 'public-menu-search-wrap' },
+        el('span', { class: 'public-search-decoration', 'aria-hidden': 'true' }, '⌕'),
+        search),
+      result,
+    );
+    section.append(
+      filterBar,
+      el('div', { class: 'public-menu-tabs', 'aria-label': 'Categorie del menu' },
+        ...categories.map((category, index) =>
+          el('a', { href: `#menu-category-${index}` }, category, el('span', { 'aria-hidden': 'true' }, ' ↗')),
+        )),
+    );
+    search.addEventListener('input', () => {
+      const query = search.value.trim().toLocaleLowerCase('it-IT');
+      let matches = 0;
+      for (const article of section.querySelectorAll<HTMLElement>('.dish-public')) {
+        const visible = !query || (article.textContent ?? '').toLocaleLowerCase('it-IT').includes(query);
+        article.hidden = !visible;
+        if (visible) matches += 1;
+      }
+      for (const group of section.querySelectorAll<HTMLElement>('.public-menu-group'))
+        group.hidden = !group.querySelector('.dish-public:not([hidden])');
+      result.textContent = `${matches} ${matches === 1 ? 'proposta' : 'proposte'}`;
+    });
+    result.textContent = `${dishes.length} ${dishes.length === 1 ? 'proposta' : 'proposte'}`;
+  }
+  for (const [index, category] of categories.entries()) {
     section.append(
       el(
-        'div',
-        { class: 'dish-grid' },
+        'section',
+        { class: 'public-menu-group', id: `menu-category-${index}` },
+        el('h2', { class: 'menu-category' }, category),
+        el(
+          'div',
+          { class: 'dish-grid' },
         ...dishes
           .filter((dish) => dish.category_name === category)
           .map((dish) => {
@@ -790,6 +916,7 @@ async function menu(site: PublicSite, venue: Venue | undefined): Promise<HTMLEle
               ),
             );
           }),
+        ),
       ),
     );
   }
