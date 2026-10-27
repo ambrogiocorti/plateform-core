@@ -410,7 +410,7 @@ async function render(): Promise<void> {
     ),
     el(
       'nav',
-      { class: 'staff-mobile-dock', 'aria-label': 'Navigazione rapida staff' },
+      { class: 'staff-mobile-dock', 'aria-label': 'Gestionale' },
       ...mobileLinks.map((link) => navItem(link, true)),
     ),
   );
