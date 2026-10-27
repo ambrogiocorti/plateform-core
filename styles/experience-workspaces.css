@@ -243,3 +243,17 @@
 :root[data-theme='dark'] .admin-operations-head .eyebrow {
   color: #f0c88a;
 }
+
+/* Reuse the supplied Plateform fork/P brand mark, including in icon-only rail. */
+.sidebar .brand-monogram {
+  overflow: hidden;
+  background: #090909;
+  box-shadow: 0 3px 13px #00000052;
+}
+.sidebar .brand-monogram img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 10px;
+}
