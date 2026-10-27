@@ -56,8 +56,7 @@ export function renderPublicBody(path, site, { legacyMenu = [], publishedMenu = 
         ? `<section class="public-section story-grid"><div><p class="eyebrow">La nostra storia</p><h2>${escape(str(content, 'story_title') || 'Il ristorante')}</h2></div><div><p class="story-copy">${escape(str(content, 'story'))}</p><a href="/ristorante">Il ristorante ↗</a></div></section>`
         : '') +
       '</div>';
-  }
-  else if (path === '/ristorante')
+  } else if (path === '/ristorante')
     body = section(
       str(content, 'story_title') || 'Il ristorante',
       `<p>${escape(str(content, 'story'))}</p>`,
