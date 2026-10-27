@@ -38,14 +38,22 @@ export function renderPublicBody(path, site, { legacyMenu = [], publishedMenu = 
   const content = site.content ?? {};
   const venues = Array.isArray(site.venues) ? site.venues : [];
   const name = escape(site.name);
-  const head = `<header class="public-header"><a class="restaurant-brand" href="/">${name}</a><nav aria-label="Principale"><a href="/menu">Menu</a> <a href="/ristorante">Ristorante</a> <a href="/gallery">Gallery</a> <a href="/contatti">Contatti</a></nav></header>`;
+  const canBook = venues.some((v) => v.reservations_enabled === true);
+  const navHtml = `<nav class="public-nav" aria-label="Principale"><a href="/">Home</a> <a href="/menu">Menu</a> <a href="/ristorante">Ristorante</a> <a href="/gallery">Gallery</a> <a href="/contatti">Contatti</a>${canBook ? ' <a href="/prenota">Prenota</a>' : ''}</nav>`;
+  const head = `<header class="public-header"><div class="public-header-inner"><a class="restaurant-brand" href="/">${name}</a>${navHtml}<div class="public-header-actions"><a class="public-book-cta" href="${canBook ? '/prenota' : '/menu'}">${canBook ? 'Prenota un tavolo' : 'Esplora il menu'} <span aria-hidden="true">↗</span></a></div></div></header>`;
+  const mobileNav = `<nav class="public-mobile-nav" aria-label="Navigazione rapida"><a href="/"><span class="public-mobile-nav-icon" aria-hidden="true">⌂</span><span>Home</span></a><a href="/menu"><span class="public-mobile-nav-icon" aria-hidden="true">≡</span><span>Menu</span></a>${canBook ? '<a href="/prenota"><span class="public-mobile-nav-icon" aria-hidden="true">▣</span><span>Prenota</span></a>' : ''}<a href="/contatti"><span class="public-mobile-nav-icon" aria-hidden="true">✉</span><span>Contatti</span></a></nav>`;
   const footer = `<footer class="public-footer"><p>${name}</p></footer>`;
   let body;
-  if (path === '/')
-    body = section(
-      str(content, 'hero_title') || site.name,
-      `<p>${escape(str(content, 'hero_subtitle'))}</p>${image(str(content, 'hero_image_url'), str(content, 'hero_image_alt'))}<h2>${escape(str(content, 'story_title') || 'Il ristorante')}</h2><p>${escape(str(content, 'story'))}</p>`,
-    );
+  if (path === '/') {
+    const heroImg = image(str(content, 'hero_image_url'), str(content, 'hero_image_alt') || site.name);
+    body =
+      `<div class="public-home"><section class="public-hero"><div class="public-hero-copy"><p class="eyebrow public-hero-eyebrow">${escape(str(content, 'hero_eyebrow') || 'IL PIACERE DI STARE INSIEME')}</p><h1>${escape(str(content, 'hero_title') || site.name)}</h1><p class="public-hero-lede">${escape(str(content, 'hero_subtitle') || 'Una cucina da scoprire, momenti da condividere.')}</p><div class="public-hero-actions"><a class="button primary" href="${canBook ? '/prenota' : '/menu'}">${canBook ? 'Prenota un tavolo' : 'Scopri il menu'} <span aria-hidden="true">↗</span></a><a class="public-hero-secondary" href="/menu">Esplora il menu →</a></div><div class="public-hero-footnote"><span class="hero-spark" aria-hidden="true">✳</span>${name}<span class="hero-footnote-separator" aria-hidden="true">·</span>La tua prossima esperienza</div></div><div class="public-hero-visual">${heroImg || '<div class="public-hero-placeholder" aria-hidden="true"><span>Buon appetito</span></div>'}<div class="public-hero-image-caption"><span aria-hidden="true">✳</span>Gusto, atmosfera, momenti.</div></div></section>` +
+      `<section class="public-action-tray" aria-label="Scopri il ristorante"><a class="public-action-tile" href="/menu"><span class="action-tile-number">01 /</span><span class="action-tile-body"><strong>Sfoglia il menu</strong><span>Piatti, ingredienti e specialità</span></span><span class="action-tile-arrow" aria-hidden="true">↗</span></a>${canBook ? '<a class="public-action-tile" href="/prenota"><span class="action-tile-number">02 /</span><span class="action-tile-body"><strong>Prenota la tua visita</strong><span>Trova il momento giusto</span></span><span class="action-tile-arrow" aria-hidden="true">↗</span></a>' : ''}<a class="public-action-tile" href="/contatti"><span class="action-tile-number">03 /</span><span class="action-tile-body"><strong>Vieni a trovarci</strong><span>Orari, indicazioni e contatti</span></span><span class="action-tile-arrow" aria-hidden="true">↗</span></a></section>` +
+      (str(content, 'story')
+        ? `<section class="public-section story-grid"><div><p class="eyebrow">La nostra storia</p><h2>${escape(str(content, 'story_title') || 'Il ristorante')}</h2></div><div><p class="story-copy">${escape(str(content, 'story'))}</p><a href="/ristorante">Il ristorante ↗</a></div></section>`
+        : '') +
+      '</div>';
+  }
   else if (path === '/ristorante')
     body = section(
       str(content, 'story_title') || 'Il ristorante',
@@ -111,7 +119,7 @@ export function renderPublicBody(path, site, { legacyMenu = [], publishedMenu = 
       `<p>Per verificare la disponibilità e inviare una prenotazione attiva JavaScript. In alternativa contatta il ristorante.</p>`,
     );
   else throw Error('UNSUPPORTED_PUBLIC_ROUTE');
-  return `${head}<main id="main" tabindex="-1">${body}</main>${footer}`;
+  return `${head}<main id="main" tabindex="-1">${body}</main>${footer}${mobileNav}`;
 }
 
 export async function prerenderPublic({
