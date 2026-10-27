@@ -15,3 +15,4 @@ apps/public/main.ts
 apps/staff/main.ts
 styles/experience-public.css
 styles/experience-staff.css
+styles/experience-workspaces.css
