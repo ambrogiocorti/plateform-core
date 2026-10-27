@@ -2,6 +2,7 @@ import { registerPwa } from '../../src/services/pwa';
 import '../../styles/staff.css';
 import '../../styles/experience-staff.css';
 import '../../styles/experience-workspaces.css';
+import '../../styles/reinvention-staff.css';
 import {
   el,
   button,
