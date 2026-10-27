@@ -447,3 +447,23 @@ th,td { border-color:var(--border); padding:16px; }
 @media(prefers-reduced-motion:reduce) {
   .table-button,.page-heading-shortcuts a { transition:none; }
 }
+
+/* Text contrast matters more than decorative tint: targeted WCAG AA
+   corrections to the new lavender command-bar and login workspace. */
+.topbar .topbar-location-label {
+  color: #24164f;
+}
+.login-form .eyebrow,
+.login-form .muted,
+.login-form label,
+.login-form .field label {
+  color: #261a4a;
+}
+:root[data-theme='dark'] .topbar .topbar-location-label {
+  color: #f0e7ff;
+}
+:root[data-theme='dark'] .login-form .eyebrow,
+:root[data-theme='dark'] .login-form .muted,
+:root[data-theme='dark'] .login-form label {
+  color: #f0e7ff;
+}
