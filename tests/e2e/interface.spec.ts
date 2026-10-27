@@ -156,3 +156,19 @@ test('new mobile guest experience has distinct shortcuts without horizontal scro
     true,
   );
 });
+
+test('compact tablet navigation opens and Escape restores focus to its toggle', async ({ page }) => {
+  await page.setViewportSize({ width: 1024, height: 768 });
+  await page.route('**/rest/v1/rpc/get_public_site', (route) => route.fulfill({ json: site }));
+  await page.goto('http://localhost:5173');
+  const menuToggle = page.getByRole('button', { name: 'Menu', exact: true });
+  const nav = page.getByRole('navigation', { name: 'Principale' });
+  await expect(menuToggle).toBeVisible();
+  await menuToggle.click();
+  await expect(nav).toBeVisible();
+  await expect(menuToggle).toHaveAttribute('aria-expanded', 'true');
+  await page.keyboard.press('Escape');
+  await expect(menuToggle).toHaveAttribute('aria-expanded', 'false');
+  await expect(menuToggle).toBeFocused();
+  await expect(nav).toBeHidden();
+});
