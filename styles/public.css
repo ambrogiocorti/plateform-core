@@ -74,7 +74,11 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, color-mix(in srgb, var(--surface) 85%, transparent), transparent);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--surface) 85%, transparent),
+    transparent
+  );
   z-index: -1;
 }
 .public-hero h1,

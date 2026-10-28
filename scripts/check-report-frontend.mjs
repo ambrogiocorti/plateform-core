@@ -2,16 +2,15 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
 const read = (path) => readFile(path, 'utf8');
-const [publicCss, staffCss, baseCss, systemCss, tokens, publicMain, staffMain] =
-  await Promise.all([
-    read('styles/public.css'),
-    read('styles/staff.css'),
-    read('styles/base.css'),
-    read('styles/plateform-design-system.css'),
-    read('styles/tokens.css'),
-    read('apps/public/main.ts'),
-    read('apps/staff/main.ts'),
-  ]);
+const [publicCss, staffCss, baseCss, systemCss, tokens, publicMain, staffMain] = await Promise.all([
+  read('styles/public.css'),
+  read('styles/staff.css'),
+  read('styles/base.css'),
+  read('styles/plateform-design-system.css'),
+  read('styles/tokens.css'),
+  read('apps/public/main.ts'),
+  read('apps/staff/main.ts'),
+]);
 
 function requireText(haystack, needle, label) {
   assert.ok(haystack.includes(needle), 'REPORT_AUDIT_FAILED:' + label);
@@ -24,10 +23,11 @@ function rgb(hex) {
 }
 function contrast(a, b) {
   const luminance = (hex) => {
-    const c = rgb(hex).map((v) => v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
+    const c = rgb(hex).map((v) => (v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
     return c[0] * 0.2126 + c[1] * 0.7152 + c[2] * 0.0722;
   };
-  const x = luminance(a), y = luminance(b);
+  const x = luminance(a),
+    y = luminance(b);
   return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
 }
 
@@ -46,7 +46,10 @@ for (const [border, background, label] of [
   ['#8498b0', '#152038', 'dark'],
 ]) {
   const ratio = contrast(border, background);
-  assert.ok(ratio >= 3.0, 'REPORT_AUDIT_FAILED:' + label + '_form_border_contrast=' + ratio.toFixed(2));
+  assert.ok(
+    ratio >= 3.0,
+    'REPORT_AUDIT_FAILED:' + label + '_form_border_contrast=' + ratio.toFixed(2),
+  );
   console.log('FORM_CONTROL_CONTRAST_' + label.toUpperCase() + '=' + ratio.toFixed(2));
 }
 // Report #4: room editor and operational map need semantic surfaces.
@@ -62,7 +65,7 @@ requireText(staffCss, 'position: static', 'waiter_mobile_normal_flow');
 forbidText(staffCss, '.operational-table:focus {\n  outline: none;', 'floor_map_keyboard_focus');
 requireText(staffCss, '.operational-table:focus-visible', 'floor_map_focus_visible');
 requireText(staffCss, 'stroke: var(--accent)', 'floor_map_focus_contrast');
-forbidText(publicCss, ".gallery-grid:empty::before", 'content_in_css');
+forbidText(publicCss, '.gallery-grid:empty::before', 'content_in_css');
 requireText(publicMain, 'La gallery verrà aggiornata presto.', 'empty_gallery_in_dom');
 requireText(staffMain, "class: 'brand-mark'", 'logo_mark_in_markup');
 forbidText(tokens, 'Inter, Segoe UI', 'unavailable_inter_font');

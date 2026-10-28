@@ -383,7 +383,9 @@ async function render(): Promise<void> {
       el(
         'div',
         { class: 'sidebar-brand-row' },
-        el('a', { class: 'brand', href: staffHref('/') },
+        el(
+          'a',
+          { class: 'brand', href: staffHref('/') },
           el('span', { class: 'brand-mark', 'aria-hidden': 'true' }, 'P'),
           el('span', { class: 'brand-wordmark' }, 'Plateform'),
         ),

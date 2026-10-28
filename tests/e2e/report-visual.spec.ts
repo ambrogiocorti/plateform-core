@@ -29,23 +29,38 @@ const site = {
 };
 
 for (const width of [1280, 390]) {
-  test('public UI displays responsive, readable theme and focus at ' + width + 'px', async ({ page }) => {
-    await page.setViewportSize({ width, height: 840 });
-    await page.route('**/rest/v1/rpc/get_public_site', (route) => route.fulfill({ json: site }));
-    await page.route('**/rest/v1/rpc/get_public_menu', (route) => route.fulfill({ json: [] }));
-    await page.route('**/rest/v1/rpc/get_public_navigation', (route) => route.fulfill({ json: { menus: [] } }));
-    await page.goto('http://localhost:5173');
-    await expect(page.getByRole('heading', { name: 'La cucina che ci unisce' })).toBeVisible();
-    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
-    await expect(page.locator('.restaurant-home')).toBeVisible();
-    await expect(page.locator('.restaurant-discover')).toBeVisible();
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
-    await page.screenshot({ path: 'test-results/report-public-' + width + '-light.png', fullPage: true });
-    await page.getByRole('button', { name: 'Attiva tema scuro' }).click();
-    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
-    await page.screenshot({ path: 'test-results/report-public-' + width + '-dark.png', fullPage: true });
-  });
+  test(
+    'public UI displays responsive, readable theme and focus at ' + width + 'px',
+    async ({ page }) => {
+      await page.setViewportSize({ width, height: 840 });
+      await page.route('**/rest/v1/rpc/get_public_site', (route) => route.fulfill({ json: site }));
+      await page.route('**/rest/v1/rpc/get_public_menu', (route) => route.fulfill({ json: [] }));
+      await page.route('**/rest/v1/rpc/get_public_navigation', (route) =>
+        route.fulfill({ json: { menus: [] } }),
+      );
+      await page.goto('http://localhost:5173');
+      await expect(page.getByRole('heading', { name: 'La cucina che ci unisce' })).toBeVisible();
+      await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+      await expect(page.locator('.restaurant-home')).toBeVisible();
+      await expect(page.locator('.restaurant-discover')).toBeVisible();
+      expect(
+        await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
+      ).toBe(true);
+      await page.screenshot({
+        path: 'test-results/report-public-' + width + '-light.png',
+        fullPage: true,
+      });
+      await page.getByRole('button', { name: 'Attiva tema scuro' }).click();
+      await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+      expect(
+        await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
+      ).toBe(true);
+      await page.screenshot({
+        path: 'test-results/report-public-' + width + '-dark.png',
+        fullPage: true,
+      });
+    },
+  );
 }
 
 for (const width of [1280, 390]) {
@@ -61,11 +76,21 @@ for (const width of [1280, 390]) {
     });
     expect(state.width).toBeGreaterThanOrEqual(2);
     expect(state.color).not.toBe('rgba(0, 0, 0, 0)');
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
-    await page.screenshot({ path: 'test-results/report-staff-' + width + '-light.png', fullPage: true });
-    await page.evaluate(() => { document.documentElement.dataset.theme = 'dark'; });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
+      true,
+    );
+    await page.screenshot({
+      path: 'test-results/report-staff-' + width + '-light.png',
+      fullPage: true,
+    });
+    await page.evaluate(() => {
+      document.documentElement.dataset.theme = 'dark';
+    });
     const dark = await input.evaluate((element) => getComputedStyle(element).borderLeftColor);
     expect(dark).not.toBe(state.color);
-    await page.screenshot({ path: 'test-results/report-staff-' + width + '-dark.png', fullPage: true });
+    await page.screenshot({
+      path: 'test-results/report-staff-' + width + '-dark.png',
+      fullPage: true,
+    });
   });
 }
