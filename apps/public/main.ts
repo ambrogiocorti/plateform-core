@@ -412,7 +412,7 @@ async function render(): Promise<void> {
       { href: '/', class: 'restaurant-brand', 'aria-label': `${site.name} — Home` },
       logo ? el('img', { src: logo, alt: '', width: '150', decoding: 'async' }) : site.name,
     ),
-    el('div', { class: 'public-header-actions' }, themeButton, menuButton),
+    el('div', { class: 'public-header-actions' }, isPreview ? el('span', { class: 'design-preview-stamp' }, 'UI 2.0 · TEST') : null, themeButton, menuButton),
     navigation,
   );
   app.replaceChildren(header, main, footer(site));
@@ -633,10 +633,10 @@ function applyBrand(site: PublicSite): void {
   // Always reconstruct the theme from the latest authoritative site snapshot.
   // Otherwise removing a previously configured color/font leaves stale inline
   // CSS variables behind after Realtime refresh or SPA navigation.
-  for (const token of ['--bg', '--accent', '--accent-ink', '--font', '--public-heading-font'])
+  for (const token of ['--bg', '--accent', '--accent-ink', '--font', '--public-heading-font', '--pf-background', '--pf-blue', '--pf-on-blue'])
     document.documentElement.style.removeProperty(token);
   const darkMode = preferredPublicTheme() === 'dark';
-  const defaultBackground = darkMode ? '#111315' : '#f4f0e8';
+  const defaultBackground = darkMode ? '#0b1324' : '#f5f7fc';
   // The restaurant can select a branded background for its configured mode,
   // but it must never override a guest's explicit light/dark preference.
   const brandDarkMode = site.branding.dark_mode !== false;
@@ -644,7 +644,10 @@ function applyBrand(site: PublicSite): void {
     brandDarkMode === darkMode
       ? safeBackground(textValue(site.branding, 'background_color'), darkMode)
       : null;
-  if (background) document.documentElement.style.setProperty('--bg', background);
+  if (background) {
+    document.documentElement.style.setProperty('--bg', background);
+    document.documentElement.style.setProperty('--pf-background', background);
+  }
   const accent = safeAccent(
     textValue(site.branding, 'accent_color'),
     background ?? defaultBackground,
@@ -652,6 +655,8 @@ function applyBrand(site: PublicSite): void {
   if (accent) {
     document.documentElement.style.setProperty('--accent', accent);
     document.documentElement.style.setProperty('--accent-ink', readableInk(accent));
+    document.documentElement.style.setProperty('--pf-blue', accent);
+    document.documentElement.style.setProperty('--pf-on-blue', readableInk(accent));
   }
   const bodyFonts: Record<string, string> = {
     SANS: 'Inter, Segoe UI, Arial, sans-serif',
@@ -872,8 +877,47 @@ async function menu(site: PublicSite, venue: Venue | undefined): Promise<HTMLEle
   if (availableMenus) section.append(availableMenus);
   const dishes = await rpc('get_public_menu', { p_venue: venue.id }, z.array(menuDishSchema));
   const categories = [...new Set(dishes.map((dish) => dish.category_name))];
+  if (dishes.length) {
+    const search = el('input', {
+      type: 'search',
+      class: 'public-menu-search',
+      placeholder: 'Cerca un piatto o un ingrediente...',
+      'aria-label': 'Cerca un piatto nella carta',
+      autocomplete: 'off',
+    });
+    const count = el('span', { class: 'public-menu-results', role: 'status' }, `${dishes.length} piatti`);
+    section.append(
+      el('div', { class: 'public-menu-toolbar' }, search, count),
+      el(
+        'nav',
+        { class: 'public-category-nav', 'aria-label': 'Categorie del menu' },
+        ...categories.map((category, i) =>
+          el('a', { href: `#categoria-${i}` }, category),
+        ),
+      ),
+    );
+    const simplify = (value: string) =>
+      value.normalize('NFD').replace(/\p{M}/gu, '').toLocaleLowerCase('it');
+    search.addEventListener('input', () => {
+      const query = simplify(search.value.trim());
+      let visible = 0;
+      for (const card of section.querySelectorAll<HTMLElement>('.dish-public')) {
+        const matched = !query || simplify(card.textContent ?? '').includes(query);
+        card.hidden = !matched;
+        if (matched) visible++;
+      }
+      for (const heading of section.querySelectorAll<HTMLElement>('.menu-category')) {
+        const grid = heading.nextElementSibling as HTMLElement | null;
+        if (!grid?.classList.contains('dish-grid')) continue;
+        const shown = Array.from(grid.children).some((card) => !(card as HTMLElement).hidden);
+        heading.hidden = !shown;
+        grid.hidden = !shown;
+      }
+      count.textContent = visible === 1 ? '1 piatto' : `${visible} piatti`;
+    });
+  }
   for (const category of categories) {
-    section.append(el('h2', { class: 'menu-category' }, category));
+    section.append(el('h2', { class: 'menu-category', id: `categoria-${categories.indexOf(category)}` }, category));
     section.append(
       el(
         'div',

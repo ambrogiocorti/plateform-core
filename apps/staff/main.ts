@@ -356,6 +356,8 @@ async function render(): Promise<void> {
                 {
                   href: staffHref(link.path),
                   class: 'nav-link',
+                  title: link.label,
+                  'aria-label': link.label,
                   ...(pageLink?.path === link.path ? { 'aria-current': 'page' } : {}),
                 },
                 el('span', { class: 'nav-icon', 'aria-hidden': 'true' }, navIcon(link.path)),
@@ -378,6 +380,7 @@ async function render(): Promise<void> {
         'header',
         { class: 'topbar' },
         el('span', { class: 'context' }, context.venue?.name ?? 'Configurazione iniziale'),
+        import.meta.env.VITE_PAGES_MODE === 'test' ? el('span', { class: 'design-preview-stamp' }, 'NUOVA UI · TEST') : null,
         el('span', { id: 'connection-state', class: 'muted', role: 'status' }, connectionLabel()),
         venueControl,
         el(

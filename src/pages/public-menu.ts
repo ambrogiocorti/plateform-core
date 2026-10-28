@@ -225,16 +225,55 @@ export async function publishedMenuPage(
       ),
     );
   }
-  for (const category of result.categories) {
-    page.append(
-      el('h2', { class: 'menu-category', id: `categoria-${category.id}` }, category.name),
+  const searchable: { element: HTMLElement; text: string }[] = [];
+  const headings: { heading: HTMLElement; cards: HTMLElement }[] = [];
+  if (result.categories.length) {
+    const toolbar = el('div', { class: 'public-menu-toolbar' });
+    const search = el('input', {
+      type: 'search',
+      class: 'public-menu-search',
+      placeholder: 'Cerca un piatto, un ingrediente...',
+      'aria-label': 'Cerca nella carta',
+      autocomplete: 'off',
+    });
+    const results = el('span', { class: 'public-menu-results', role: 'status' });
+    toolbar.append(search, results);
+    const categoryNav = el(
+      'nav',
+      { class: 'public-category-nav', 'aria-label': 'Categorie del menu' },
+      ...result.categories.map((category) =>
+        el('a', { href: `#categoria-${category.id}` }, category.name),
+      ),
     );
+    page.append(toolbar, categoryNav);
+    const simplify = (value: string) =>
+      value.normalize('NFD').replace(/\p{M}/gu, '').toLocaleLowerCase('it');
+    search.addEventListener('input', () => {
+      const query = simplify(search.value.trim());
+      let visible = 0;
+      for (const dish of searchable) {
+        const match = !query || dish.text.includes(query);
+        dish.element.hidden = !match;
+        if (match) visible++;
+      }
+      for (const group of headings) {
+        const shown = Array.from(group.cards.children).some((entry) => !((entry as HTMLElement).hidden));
+        group.heading.hidden = !shown;
+        group.cards.hidden = !shown;
+      }
+      results.textContent = visible === 1 ? '1 piatto' : `${visible} piatti`;
+    });
+    results.textContent = `${result.categories.reduce((total, category) => total + category.items.length, 0)} piatti`;
+  }
+  for (const category of result.categories) {
+    const heading = el('h2', { class: 'menu-category', id: `categoria-${category.id}` }, category.name);
+    page.append(heading);
     const cards = el('div', { class: 'dish-grid' });
+    headings.push({ heading, cards });
     for (const dish of category.items) {
       const image = safeImageUrl(dish.image_path);
       const availability = availabilityBadge(dish.availability);
-      cards.append(
-        el(
+      const card = el(
           'article',
           { class: 'dish-public public-dish-card' },
           el(
@@ -266,8 +305,12 @@ export async function publishedMenuPage(
             { href: dishPath(dish.id), class: 'public-dish-card-more' },
             'Dettagli e ingredienti →',
           ),
-        ),
-      );
+        );
+      cards.append(card);
+      searchable.push({
+        element: card,
+        text: [dish.name, dish.description, ...dish.ingredients.map((ingredient) => ingredient.name)].join(' ').normalize('NFD').replace(/\p{M}/gu, '').toLocaleLowerCase('it'),
+      });
     }
     page.append(cards);
   }

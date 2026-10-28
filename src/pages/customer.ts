@@ -221,34 +221,42 @@ async function customerContent(
   const account = await rpc('get_customer_account', { p_public_table: publicTable }, accountSchema);
   const content = el(
     'div',
-    { class: 'stack' },
-    el('p', { class: 'eyebrow' }, 'Il tuo tavolo'),
-    el('h1', {}, account.name),
+    { class: 'stack customer-dashboard' },
     el(
-      'p',
-      { 'data-connection': '', class: 'muted', role: 'status' },
-      'Aggiornamenti da verificare',
-    ),
-    el(
-      'div',
-      { class: 'customer-account-summary' },
-      el('p', { class: 'muted' }, `${account.covers} persone`),
+      'section',
+      { class: 'customer-hub' },
       el(
         'div',
-        { class: 'stack compact customer-account-total' },
-        el('span', { class: 'muted' }, 'Totale corrente'),
+        { class: 'customer-hub-intro' },
+        el('p', { class: 'eyebrow' }, 'Il tuo spazio · Ordina senza registrarti'),
+        el('h1', {}, account.name),
+        el(
+          'p',
+          { 'data-connection': '', class: 'customer-connection', role: 'status' },
+          'Aggiornamenti da verificare',
+        ),
+      ),
+      el(
+        'div',
+        { class: 'customer-account-summary' },
+        el('p', { class: 'muted' }, `${account.covers} persone`),
         el(
           'div',
-          { class: 'amount' },
-          formatMoney(account.balance.total_cents, account.currency, account.locale),
+          { class: 'stack compact customer-account-total' },
+          el('span', { class: 'muted' }, 'Totale corrente'),
+          el(
+            'div',
+            { class: 'amount' },
+            formatMoney(account.balance.total_cents, account.currency, account.locale),
+          ),
+          account.balance.remaining_cents !== account.balance.total_cents
+            ? el(
+                'span',
+                { class: 'muted' },
+                `Da saldare: ${formatMoney(account.balance.remaining_cents, account.currency, account.locale)}`,
+              )
+            : null,
         ),
-        account.balance.remaining_cents !== account.balance.total_cents
-          ? el(
-              'span',
-              { class: 'muted' },
-              `Da saldare: ${formatMoney(account.balance.remaining_cents, account.currency, account.locale)}`,
-            )
-          : null,
       ),
     ),
   );
@@ -382,6 +390,23 @@ async function customerContent(
     cartState.changed();
   };
   updateCartLabel();
+  const tab = (label: string, view: CustomerCart['view']) => {
+    const control = button(label, () => changeView(view), 'secondary');
+    control.classList.add('customer-tab');
+    control.setAttribute('aria-pressed', String(cartState.view === view));
+    return control;
+  };
+  const taskBar = el(
+    'nav',
+    { class: 'customer-task-nav', 'aria-label': 'Navigazione del tavolo' },
+    tab('Il menu', 'menu'),
+    tab('Preferiti', 'favorites'),
+    account.customer_ordering !== 'DISABLED' ? tab('Carrello', 'cart') : null,
+    account.customer_ordering !== 'DISABLED'
+      ? el('span', { class: 'customer-cart-counter' }, cartLabel)
+      : null,
+  );
+  content.append(taskBar);
   const menu = el(
     'section',
     { class: 'customer-menu stack' },
@@ -525,24 +550,6 @@ async function customerContent(
       grid.append(card);
     }
     menu.append(grid);
-  }
-  if (cartState.view === 'menu') {
-    const actions = el(
-      'section',
-      { class: 'customer-menu-actions card stack' },
-      el('h2', {}, 'Il tuo spazio'),
-      el('p', { class: 'muted' }, 'Puoi ordinare senza creare un account.'),
-      button('I miei preferiti', () => changeView('favorites'), 'secondary'),
-      account.customer_ordering !== 'DISABLED'
-        ? el(
-            'div',
-            { class: 'stack' },
-            cartLabel,
-            button('Vai al carrello', () => changeView('cart')),
-          )
-        : null,
-    );
-    content.insertBefore(actions, menu);
   }
   if (cartState.view === 'favorites') {
     const favoritesPage = el(
