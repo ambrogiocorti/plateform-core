@@ -2,6 +2,7 @@ import { registerPwa } from '../../src/services/pwa';
 import '../../styles/staff.css';
 import '../../styles/staff-app.css';
 import '../../styles/workspace-redesign.css';
+import '../../styles/frontdesk-v4.css';
 import {
   el,
   button,

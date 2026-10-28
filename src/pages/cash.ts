@@ -530,7 +530,7 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
 
   const commandCenter = el(
     'section',
-    { class: 'cashier-command-center' },
+    { class: 'cashier-command-center', id: 'cash-main' },
     el(
       'div',
       { class: 'cashier-search-pane' },
@@ -543,7 +543,20 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
     accountWorkspace,
   );
 
-  view.append(commandCenter, secondary);
+  secondary.id = 'cash-operations';
+  const cashierHeader = el('header', { class: 'cash-desk-header' },
+    el('div', {},
+      el('p', { class: 'eyebrow' }, 'GESTIONE INCASSI · CASSA'),
+      el('h2', {}, 'Il banco di lavoro'),
+      el('p', { class: 'muted' }, 'Trova un conto, controlla il saldo e completa il pagamento.'),
+    ),
+    el('span', { class: 'cash-desk-shortcut' }, 'F2 · Cerca     F4 · Incassa'),
+  );
+  const cashierNavigation = el('nav', { class: 'cash-desk-tabs', 'aria-label': 'Strumenti di cassa' },
+    el('a', { href: '#cash-main' }, 'Conti e pagamenti'),
+    el('a', { href: '#cash-operations' }, 'Postazioni e verifiche'),
+  );
+  view.append(cashierHeader, cashierNavigation, commandCenter, secondary);
   accountWorkspace.append(
     emptyState(
       'Seleziona un conto',
