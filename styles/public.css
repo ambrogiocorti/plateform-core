@@ -74,17 +74,15 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, #111315ec, #11131566);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--surface) 85%, transparent), transparent);
   z-index: -1;
 }
-.public-hero h1 {
-  color: #fffdf8;
+.public-hero h1,
+.public-hero .eyebrow {
+  color: var(--text);
 }
 .public-hero p {
-  color: #ece8e1;
-}
-.public-hero .eyebrow {
-  color: #f2d1a1;
+  color: var(--muted);
 }
 .public-hero h1 {
   font-family: var(--public-heading-font, Georgia, serif);
@@ -550,10 +548,6 @@
 .venue-actions .button {
   width: fit-content;
   text-decoration: none;
-}
-.gallery-grid:empty::before {
-  content: 'La gallery verrà aggiornata presto.';
-  color: var(--muted);
 }
 
 @media (max-width: 780px) {

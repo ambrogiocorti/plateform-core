@@ -482,16 +482,17 @@ async function render(): Promise<void> {
         { class: 'public-section' },
         el('p', { class: 'eyebrow' }, 'I nostri spazi'),
         el('h1', {}, 'Gallery'),
-        el(
-          'div',
-          { class: 'gallery-grid' },
-          ...(photos.success ? photos.data : []).flatMap((photo) => {
+        (() => {
+          const imageElements = (photos.success ? photos.data : []).flatMap((photo) => {
             const source = safeImageUrl(photo.url);
             return source
               ? [el('img', { src: source, alt: photo.alt, loading: 'lazy', decoding: 'async' })]
               : [];
-          }),
-        ),
+          });
+          return imageElements.length
+            ? el('div', { class: 'gallery-grid' }, ...imageElements)
+            : el('p', { class: 'muted' }, 'La gallery verrà aggiornata presto.');
+        })(),
       ),
     );
   } else if (path.startsWith('/sedi/') && sectionEnabled(site, 'venues')) {

@@ -60,9 +60,9 @@ select,
 textarea {
   width: 100%;
   min-height: 46px;
-  border: 1px solid var(--border);
+  border: 2px solid var(--pf-control-border, var(--border));
   border-radius: 8px;
-  padding: 11px 13px;
+  padding: 10px 12px;
   color: var(--text);
   background: var(--bg);
 }

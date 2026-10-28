@@ -21,7 +21,29 @@
   --pf-elevation: 0 12px 32px rgba(29, 57, 110, 0.055);
   --pf-elevation-strong: 0 18px 55px rgba(29, 57, 110, 0.1);
   --pf-radius: 17px;
-  --pf-font: 'Aptos', 'Segoe UI Variable', 'Inter', 'Segoe UI', sans-serif;
+  --pf-font: 'Segoe UI Variable', 'Segoe UI', Arial, sans-serif;
+  /* Shared spacing, typography, elevation and layer tokens. */
+  --pf-space-1: 4px;
+  --pf-space-2: 8px;
+  --pf-space-3: 12px;
+  --pf-space-4: 16px;
+  --pf-space-5: 20px;
+  --pf-space-6: 24px;
+  --pf-space-8: 32px;
+  --pf-space-10: 40px;
+  --pf-space-12: 48px;
+  --pf-text-xs: 12px;
+  --pf-text-sm: 14px;
+  --pf-text-md: 16px;
+  --pf-text-lg: 20px;
+  --pf-text-xl: 26px;
+  --pf-text-display: clamp(30px, 3.7vw, 52px);
+  --pf-radius-sm: 8px;
+  --pf-radius-md: 12px;
+  --pf-radius-lg: 18px;
+  --pf-layer-nav: 20;
+  --pf-layer-overlay: 60;
+  --pf-layer-toast: 80;
   --bg: var(--pf-background);
   --surface: var(--pf-surface);
   --raised: var(--pf-surface-2);
@@ -415,5 +437,31 @@ tbody tr:last-child td {
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
+  }
+}
+
+/* System high-contrast mode: preserve keyboard focus and interactive boundaries. */
+@media (forced-colors: active) {
+  .button,
+  .button.secondary,
+  button,
+  input,
+  select,
+  textarea,
+  .card,
+  .dialog {
+    border: 2px solid ButtonText;
+    forced-color-adjust: auto;
+  }
+  :focus-visible,
+  .operational-table:focus-visible {
+    outline: 3px solid Highlight !important;
+    outline-offset: 3px;
+  }
+  .notification-badge,
+  .status {
+    color: ButtonText;
+    background: Canvas;
+    border: 1px solid ButtonText;
   }
 }

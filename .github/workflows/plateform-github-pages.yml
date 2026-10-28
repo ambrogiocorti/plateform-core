@@ -73,8 +73,21 @@ jobs:
       - name: Quality gates and static bundle
         run: |
           npm run format:check
+          node scripts/check-report-frontend.mjs
           npm run build:pages
           node scripts/check-visual-design.mjs
+      - name: Install Chromium for isolated visual regression
+        run: npx playwright install --with-deps chromium
+      - name: Browser audit in both themes and viewports
+        run: npx playwright test tests/e2e/report-visual.spec.ts
+      - name: Preserve browser screenshots and traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: plateform-report-visual-evidence
+          path: test-results/
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Preserve candidate artifact (not published)
         uses: actions/upload-artifact@v4
         with:
