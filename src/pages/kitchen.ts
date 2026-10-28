@@ -425,7 +425,7 @@ export async function kitchenPage(context: StaffContext): Promise<HTMLElement> {
       class: 'kds-filter-actions',
       'aria-label': 'Filtra le comande',
     });
-    const filters = [
+    const filters: [string, string][] = [
       ['Tutte', 'ALL'],
       ['Da preparare', 'RECEIVED'],
       ['In lavorazione', 'IN_PREPARATION'],
