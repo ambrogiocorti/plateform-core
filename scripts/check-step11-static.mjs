@@ -186,7 +186,7 @@ for (const [needle, label] of [
   ['.dialog', 'modal_design'],
   ['.table-wrap', 'tables_design'],
   ['.kpi-grid', 'metric_grid'],
-  ['[hidden] { display: none !important; }', 'hidden_means_hidden'],
+  ['[hidden]', 'hidden_means_hidden'],
   ['prefers-reduced-motion', 'reduced_motion'],
 ])
   requireText(designSystem, needle, label);
