@@ -11,6 +11,8 @@
   --pf-text: #24334b;
   --pf-muted: #66758d;
   --pf-line: #e2e8f3;
+  --pf-control-border: #8493aa;
+  --pf-focus-ring: #2459ed;
   --pf-blue: #2459ed;
   --pf-blue-hover: color-mix(in srgb, var(--pf-blue) 80%, #091f54);
   --pf-blue-soft: #eaf0ff;
@@ -69,6 +71,8 @@
   --pf-text: #e3eafb;
   --pf-muted: #b2c1d7;
   --pf-line: #32445f;
+  --pf-control-border: #8498b0;
+  --pf-focus-ring: #8ab0ff;
   --pf-blue: #8ab0ff;
   --pf-blue-hover: color-mix(in srgb, var(--pf-blue) 78%, #ffffff);
   --pf-blue-soft: #223a64;
@@ -201,7 +205,7 @@ textarea {
   min-height: 46px;
   width: 100%;
   padding: 11px 14px;
-  border: 1px solid var(--pf-line);
+  border: 2px solid var(--pf-control-border);
   border-radius: 12px;
   background: var(--pf-surface);
   color: var(--pf-ink);
