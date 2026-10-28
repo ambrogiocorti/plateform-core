@@ -167,11 +167,19 @@ export function isClientSidePublicPath(pathname: string): boolean {
 /** Restore only an owned same-origin public route from a static hosting 404.
  * A stored protocol-relative, staff, provider or unknown URL must never be
  * passed to history.replaceState. */
-export function safeRecoveredPublicRoute(value: string | null, origin: string, base = '/'): string | null {
+export function safeRecoveredPublicRoute(
+  value: string | null,
+  origin: string,
+  base = '/',
+): string | null {
   if (!value?.startsWith('/') || value.startsWith('//')) return null;
   try {
     const url = new URL(value, origin);
-    if (url.origin !== origin || !isClientSidePublicPath(internalPublicPath(url.pathname, base) ?? '')) return null;
+    if (
+      url.origin !== origin ||
+      !isClientSidePublicPath(internalPublicPath(url.pathname, base) ?? '')
+    )
+      return null;
     return `${url.pathname}${url.search}${url.hash}`;
   } catch {
     return null;

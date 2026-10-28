@@ -71,8 +71,14 @@ describe('GitHub Pages preview path isolation', () => {
     expect(safeRecoveredPublicRoute('/plateform-core/menu?seat=4', origin, base)).toBe(
       '/plateform-core/menu?seat=4',
     );
-    for (const value of ['/staff/login', '/menu', '/plateform-core/staff/login', '//evil.example',
-      '/plateform-core/../staff', '/plateform-core/missing']) {
+    for (const value of [
+      '/staff/login',
+      '/menu',
+      '/plateform-core/staff/login',
+      '//evil.example',
+      '/plateform-core/../staff',
+      '/plateform-core/missing',
+    ]) {
       expect(safeRecoveredPublicRoute(value, origin, base)).toBeNull();
     }
     expect(() => hostedPublicPath('//evil.example', base)).toThrow('INVALID_PUBLIC_PATH');

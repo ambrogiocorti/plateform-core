@@ -5,9 +5,18 @@ const mode = process.env.PAGES_MODE ?? 'commercial';
 if (mode !== 'test' && mode !== 'commercial') throw Error('INVALID_PAGES_MODE');
 const siteUrl = new URL(process.env.PUBLIC_SITE_ORIGIN ?? 'https://invalid.example');
 const prefix = siteUrl.pathname.replace(/\/?$/, '/');
-if (siteUrl.protocol !== 'https:' || siteUrl.search || siteUrl.hash || siteUrl.username || siteUrl.password)
+if (
+  siteUrl.protocol !== 'https:' ||
+  siteUrl.search ||
+  siteUrl.hash ||
+  siteUrl.username ||
+  siteUrl.password
+)
   throw Error('INVALID_SITE_ORIGIN');
-if (mode === 'test' && (siteUrl.origin !== 'https://ambrogiocorti.github.io' || prefix !== '/plateform-core/'))
+if (
+  mode === 'test' &&
+  (siteUrl.origin !== 'https://ambrogiocorti.github.io' || prefix !== '/plateform-core/')
+)
   throw Error('UNEXPECTED_GITHUB_PAGES_TEST_ORIGIN');
 if (mode === 'commercial' && prefix !== '/') throw Error('COMMERCIAL_SITE_REQUIRES_ROOT_DOMAIN');
 const staffPrefix = `${prefix}staff/`;
@@ -34,13 +43,15 @@ if (mode === 'commercial' && process.env.PAGES_CUSTOM_DOMAIN) {
   await writeFile('dist/site/CNAME', process.env.PAGES_CUSTOM_DOMAIN + '\n');
 }
 const staff = await readFile('dist/site/staff/index.html', 'utf8');
-if (!staff.includes(`${staffPrefix}assets/`))
-  throw new Error('STAFF_ASSET_BASE_MISMATCH');
+if (!staff.includes(`${staffPrefix}assets/`)) throw new Error('STAFF_ASSET_BASE_MISMATCH');
 
 if (mode === 'test') {
   // Never expose commercial canonical metadata or sitemap in a test deployment.
   const html = await readFile('dist/site/index.html', 'utf8');
-  await writeFile('dist/site/index.html', html.replace('</head>', '<meta name="robots" content="noindex,nofollow"></head>'));
+  await writeFile(
+    'dist/site/index.html',
+    html.replace('</head>', '<meta name="robots" content="noindex,nofollow"></head>'),
+  );
   await writeFile('dist/site/robots.txt', 'User-agent: *\nDisallow: /\n');
   await rm('dist/site/sitemap.xml', { force: true });
 } else {

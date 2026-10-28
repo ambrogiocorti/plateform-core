@@ -1,11 +1,13 @@
 import { client } from '../api/client';
 import { internalPublicPath, publicMetricContext } from './public-site';
 
-const metricPath = (): string => internalPublicPath(location.pathname, import.meta.env.BASE_URL) ?? '';
+const metricPath = (): string =>
+  internalPublicPath(location.pathname, import.meta.env.BASE_URL) ?? '';
 const preview = import.meta.env.VITE_PAGES_MODE === 'test';
 
 const sent = new Set<string>();
-const firstDocumentRoute = (preview ? null : publicMetricContext(metricPath(), location.search))?.key ?? null;
+const firstDocumentRoute =
+  (preview ? null : publicMetricContext(metricPath(), location.search))?.key ?? null;
 
 type MetricName = 'TTFB' | 'FCP' | 'LCP' | 'CLS' | 'INP';
 
@@ -16,7 +18,7 @@ function dispatch(body: Record<string, unknown>): void {
 }
 
 export function recordPublicPageView(venueId?: string): void {
-  const context = (preview ? null : publicMetricContext(metricPath(), location.search));
+  const context = preview ? null : publicMetricContext(metricPath(), location.search);
   if (!context) return;
   const key = `view:${context.key}`;
   if (sent.has(key)) return;
@@ -48,7 +50,7 @@ function recordMetric(
 
 export function observePublicPerformance(venueId?: string): () => void {
   const observers: PerformanceObserver[] = [];
-  const context = (preview ? null : publicMetricContext(metricPath(), location.search));
+  const context = preview ? null : publicMetricContext(metricPath(), location.search);
   // Navigation and paint timings refer to the original HTML document only,
   // not every client-side route subsequently rendered in that document.
   const documentLoad = context?.key === firstDocumentRoute;

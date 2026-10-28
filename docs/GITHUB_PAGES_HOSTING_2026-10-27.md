@@ -1,6 +1,7 @@
 # Plateform · GitHub Pages — test e installazione commerciale
 
 ## Decisione di hosting (27 ottobre 2026)
+
 - **A, test:** `https://ambrogiocorti.github.io/plateform-core/` con prefisso
   `/plateform-core/`, variabile `PAGES_MODE=test`, Supabase **STAGING**
   isolato. Nessuna indicizzazione, sitemap commerciale o CNAME.
@@ -15,6 +16,7 @@ sull'infrastruttura server sicura (Supabase/provider). Non utilizzare dati di
 produzione nella modalità test.
 
 ## Modifica effettiva
+
 - Vite usa la pathname di `VITE_PUBLIC_BASE_URL` e `VITE_STAFF_BASE_URL` per
   asset, manifest e service worker; il router pubblico converte tra pathname
   reali e rotte applicative, senza intercettare /staff o pagine sconosciute.
@@ -36,6 +38,7 @@ manualmente via `workflow_dispatch` **quando il workflow sarà presente sul
 branch predefinito**. Nessun push avvia il deploy.
 
 Ambienti GitHub da preparare in `Settings > Environments`:
+
 - `staging` (solo Supabase di prova): variable `SUPABASE_URL` e secret
   `SUPABASE_PUBLISHABLE_KEY` (key pubblicabile, MAI `service_role`).
 - `production` (solo dopo approvazione del go-live): stessi nomi,
@@ -55,6 +58,7 @@ finale. Serve `main`, env `production`, verifiche release e approvazione
 esplicita: nessun rilascio commerciale dal feature branch.
 
 ## Attenzioni di sicurezza e limiti noti
+
 - GitHub Pages ignora le regole di `vercel.json` e i file `_headers`; non è
   possibile assumere CSP/HSTS, `no-store`, isolamento delle sessioni o
   gli stessi status HTTP di uno static server configurabile.
