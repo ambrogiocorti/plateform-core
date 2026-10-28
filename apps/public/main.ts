@@ -412,7 +412,13 @@ async function render(): Promise<void> {
       { href: '/', class: 'restaurant-brand', 'aria-label': `${site.name} — Home` },
       logo ? el('img', { src: logo, alt: '', width: '150', decoding: 'async' }) : site.name,
     ),
-    el('div', { class: 'public-header-actions' }, isPreview ? el('span', { class: 'design-preview-stamp' }, 'UI 2.0 · TEST') : null, themeButton, menuButton),
+    el(
+      'div',
+      { class: 'public-header-actions' },
+      isPreview ? el('span', { class: 'design-preview-stamp' }, 'UI 2.0 · TEST') : null,
+      themeButton,
+      menuButton,
+    ),
     navigation,
   );
   app.replaceChildren(header, main, footer(site));
@@ -633,7 +639,16 @@ function applyBrand(site: PublicSite): void {
   // Always reconstruct the theme from the latest authoritative site snapshot.
   // Otherwise removing a previously configured color/font leaves stale inline
   // CSS variables behind after Realtime refresh or SPA navigation.
-  for (const token of ['--bg', '--accent', '--accent-ink', '--font', '--public-heading-font', '--pf-background', '--pf-blue', '--pf-on-blue'])
+  for (const token of [
+    '--bg',
+    '--accent',
+    '--accent-ink',
+    '--font',
+    '--public-heading-font',
+    '--pf-background',
+    '--pf-blue',
+    '--pf-on-blue',
+  ])
     document.documentElement.style.removeProperty(token);
   const darkMode = preferredPublicTheme() === 'dark';
   const defaultBackground = darkMode ? '#0b1324' : '#f5f7fc';
@@ -885,15 +900,17 @@ async function menu(site: PublicSite, venue: Venue | undefined): Promise<HTMLEle
       'aria-label': 'Cerca un piatto nella carta',
       autocomplete: 'off',
     });
-    const count = el('span', { class: 'public-menu-results', role: 'status' }, `${dishes.length} piatti`);
+    const count = el(
+      'span',
+      { class: 'public-menu-results', role: 'status' },
+      `${dishes.length} piatti`,
+    );
     section.append(
       el('div', { class: 'public-menu-toolbar' }, search, count),
       el(
         'nav',
         { class: 'public-category-nav', 'aria-label': 'Categorie del menu' },
-        ...categories.map((category, i) =>
-          el('a', { href: `#categoria-${i}` }, category),
-        ),
+        ...categories.map((category, i) => el('a', { href: `#categoria-${i}` }, category)),
       ),
     );
     const simplify = (value: string) =>
@@ -917,7 +934,13 @@ async function menu(site: PublicSite, venue: Venue | undefined): Promise<HTMLEle
     });
   }
   for (const category of categories) {
-    section.append(el('h2', { class: 'menu-category', id: `categoria-${categories.indexOf(category)}` }, category));
+    section.append(
+      el(
+        'h2',
+        { class: 'menu-category', id: `categoria-${categories.indexOf(category)}` },
+        category,
+      ),
+    );
     section.append(
       el(
         'div',

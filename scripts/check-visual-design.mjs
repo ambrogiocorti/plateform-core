@@ -13,17 +13,44 @@ const staffHtml = await readFile(join(root, 'staff/index.html'), 'utf8');
 const customerCss = await collectCss(join(root, 'assets'));
 const staffCss = await collectCss(join(root, 'staff/assets'));
 for (const [css, label, selectors] of [
-  [customerCss, 'CUSTOMER', [
-    '--pf-background', '--pf-blue', '.app-home-heading', '.app-shortcut-grid',
-    '.dish-public.public-dish-card', '.public-menu-toolbar', '.customer-task-nav',
-    '.customer-account-summary', '.public-dish-detail', '.customer-cart-row',
-    '.public-offer-card', '.public-footer', 'prefers-reduced-motion',
-  ]],
-  [staffCss, 'STAFF', [
-    '--pf-background', '--pf-blue', '.sidebar', '.staff-shell.sidebar-collapsed',
-    '.nav-icon', '.kpi-grid', '.topbar', '.login-layout', '.kitchen-grid',
-    '.floor-grid', '.table-wrap', '.dialog', 'prefers-reduced-motion',
-  ]],
+  [
+    customerCss,
+    'CUSTOMER',
+    [
+      '--pf-background',
+      '--pf-blue',
+      '.app-home-heading',
+      '.app-shortcut-grid',
+      '.dish-public.public-dish-card',
+      '.public-menu-toolbar',
+      '.customer-task-nav',
+      '.customer-account-summary',
+      '.public-dish-detail',
+      '.customer-cart-row',
+      '.public-offer-card',
+      '.public-footer',
+      'prefers-reduced-motion',
+    ],
+  ],
+  [
+    staffCss,
+    'STAFF',
+    [
+      '--pf-background',
+      '--pf-blue',
+      '.sidebar',
+      '.staff-shell.sidebar-collapsed',
+      '.nav-icon',
+      '.kpi-grid',
+      '.topbar',
+      '.login-layout',
+      '.kitchen-grid',
+      '.floor-grid',
+      '.table-wrap',
+      '.dialog',
+      'prefers-reduced-motion',
+    ],
+  ],
 ]) {
   for (const selector of selectors) {
     assert.ok(css.includes(selector), `VISUAL_BUNDLE_MISSING:${label}:${selector}`);

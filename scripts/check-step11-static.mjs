@@ -164,9 +164,10 @@ for (const [needle, label] of [
   ["class: 'app-home-intro public-section'", 'public_app_home'],
   ["class: 'public-section app-shortcuts'", 'public_quick_access'],
   ["class: 'public-menu-toolbar'", 'public_menu_search'],
-  ["UI 2.0 · TEST", 'public_preview_signature'],
+  ['UI 2.0 · TEST', 'public_preview_signature'],
   ["document.documentElement.style.setProperty('--pf-blue', accent)", 'brand_accent_is_dynamic'],
-]) requireText(publicMain, needle, label);
+])
+  requireText(publicMain, needle, label);
 for (const [needle, label] of [
   ["@import './plateform-design-system.css'", 'shared_design_imported_public'],
   ['.app-home-heading', 'new_home_composition'],
@@ -177,7 +178,8 @@ for (const [needle, label] of [
   ['.customer-cart-row', 'cart_layout'],
   ['.public-footer', 'new_footer_layout'],
   ['@media (max-width: 520px)', 'small_mobile_layout'],
-]) requireText(customerExperience, needle, label);
+])
+  requireText(customerExperience, needle, label);
 for (const [needle, label] of [
   ['--pf-background: #f5f7fc', 'light_default_palette'],
   ['--pf-background: #0b1324', 'dark_palette'],
@@ -186,14 +188,16 @@ for (const [needle, label] of [
   ['.kpi-grid', 'metric_grid'],
   ['[hidden] { display: none !important; }', 'hidden_means_hidden'],
   ['prefers-reduced-motion', 'reduced_motion'],
-]) requireText(designSystem, needle, label);
+])
+  requireText(designSystem, needle, label);
 for (const [needle, label] of [
   ["import '../../styles/staff-app.css'", 'staff_design_loaded'],
   ["class: collapsedSidebar ? 'staff-shell sidebar-collapsed'", 'staff_sidebar_toggle'],
   ['navIcon(link.path)', 'staff_icon_navigation'],
   ['NUOVA UI · TEST', 'staff_preview_signature'],
   ["localStorage.getItem('plateform-theme') ?? 'light'", 'light_default_staff'],
-]) requireText(staffMain, needle, label);
+])
+  requireText(staffMain, needle, label);
 for (const [needle, label] of [
   ["@import './plateform-design-system.css'", 'shared_design_imported_staff'],
   ['.sidebar .nav-link', 'sidebar_design'],
@@ -202,16 +206,19 @@ for (const [needle, label] of [
   ['.login-layout', 'login_redesign'],
   ['.kitchen-grid', 'kitchen_redesign'],
   ['@media (max-width: 640px)', 'mobile_staff_navigation'],
-]) requireText(staffExperience, needle, label);
+])
+  requireText(staffExperience, needle, label);
 for (const [needle, label] of [
   ["class: 'customer-task-nav'", 'customer_tabs_functional'],
   ["class: 'customer-hub'", 'customer_hub'],
   ["button('Aggiungi al carrello'", 'order_behavior_preserved'],
-]) requireText(customerPage, needle, label);
+])
+  requireText(customerPage, needle, label);
 for (const [needle, label] of [
   ["'public-menu-search'", 'published_menu_search'],
   ["search.addEventListener('input'", 'published_menu_filter_function'],
   ['dishPath(dish.id)', 'published_dish_detail_link'],
-]) requireText(publishedMenu, needle, label);
+])
+  requireText(publishedMenu, needle, label);
 
 console.log('STEP11_STATIC_GATE=PASSED');

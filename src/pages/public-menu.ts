@@ -257,7 +257,9 @@ export async function publishedMenuPage(
         if (match) visible++;
       }
       for (const group of headings) {
-        const shown = Array.from(group.cards.children).some((entry) => !((entry as HTMLElement).hidden));
+        const shown = Array.from(group.cards.children).some(
+          (entry) => !(entry as HTMLElement).hidden,
+        );
         group.heading.hidden = !shown;
         group.cards.hidden = !shown;
       }
@@ -266,7 +268,11 @@ export async function publishedMenuPage(
     results.textContent = `${result.categories.reduce((total, category) => total + category.items.length, 0)} piatti`;
   }
   for (const category of result.categories) {
-    const heading = el('h2', { class: 'menu-category', id: `categoria-${category.id}` }, category.name);
+    const heading = el(
+      'h2',
+      { class: 'menu-category', id: `categoria-${category.id}` },
+      category.name,
+    );
     page.append(heading);
     const cards = el('div', { class: 'dish-grid' });
     headings.push({ heading, cards });
@@ -274,42 +280,50 @@ export async function publishedMenuPage(
       const image = safeImageUrl(dish.image_path);
       const availability = availabilityBadge(dish.availability);
       const card = el(
-          'article',
-          { class: 'dish-public public-dish-card' },
-          el(
-            'a',
-            {
-              href: dishPath(dish.id),
-              class: 'public-dish-card-image',
-              'aria-label': `Scopri ${dish.name}`,
-            },
-            image
-              ? el('img', { src: image, alt: dish.name, loading: 'lazy', decoding: 'async' })
-              : el('div', { class: 'public-dish-image-placeholder' }, 'La nostra cucina'),
-          ),
-          el(
-            'div',
-            { class: 'row between public-dish-card-title' },
-            el('h3', {}, el('a', { href: dishPath(dish.id) }, dish.name)),
-            el('strong', {}, formatMoney(dish.price_cents, venue.currency, venue.locale)),
-          ),
-          el('p', {}, dish.description),
-          el(
-            'div',
-            { class: 'row' },
-            ...dish.dietary_tags.map((tag) => el('span', { class: 'status' }, tag.label)),
-            availability.label ? el('span', { class: 'status' }, availability.label) : null,
-          ),
-          el(
-            'a',
-            { href: dishPath(dish.id), class: 'public-dish-card-more' },
-            'Dettagli e ingredienti →',
-          ),
-        );
+        'article',
+        { class: 'dish-public public-dish-card' },
+        el(
+          'a',
+          {
+            href: dishPath(dish.id),
+            class: 'public-dish-card-image',
+            'aria-label': `Scopri ${dish.name}`,
+          },
+          image
+            ? el('img', { src: image, alt: dish.name, loading: 'lazy', decoding: 'async' })
+            : el('div', { class: 'public-dish-image-placeholder' }, 'La nostra cucina'),
+        ),
+        el(
+          'div',
+          { class: 'row between public-dish-card-title' },
+          el('h3', {}, el('a', { href: dishPath(dish.id) }, dish.name)),
+          el('strong', {}, formatMoney(dish.price_cents, venue.currency, venue.locale)),
+        ),
+        el('p', {}, dish.description),
+        el(
+          'div',
+          { class: 'row' },
+          ...dish.dietary_tags.map((tag) => el('span', { class: 'status' }, tag.label)),
+          availability.label ? el('span', { class: 'status' }, availability.label) : null,
+        ),
+        el(
+          'a',
+          { href: dishPath(dish.id), class: 'public-dish-card-more' },
+          'Dettagli e ingredienti →',
+        ),
+      );
       cards.append(card);
       searchable.push({
         element: card,
-        text: [dish.name, dish.description, ...dish.ingredients.map((ingredient) => ingredient.name)].join(' ').normalize('NFD').replace(/\p{M}/gu, '').toLocaleLowerCase('it'),
+        text: [
+          dish.name,
+          dish.description,
+          ...dish.ingredients.map((ingredient) => ingredient.name),
+        ]
+          .join(' ')
+          .normalize('NFD')
+          .replace(/\p{M}/gu, '')
+          .toLocaleLowerCase('it'),
       });
     }
     page.append(cards);
