@@ -70,10 +70,13 @@ jobs:
           if [ "$PAGES_MODE" = "commercial" ]; then echo "PAGES_CUSTOM_DOMAIN=${PUBLIC_SITE_ORIGIN#https://}" >> "$GITHUB_ENV"; fi
       - name: Install locked dependencies
         run: npm ci
+      - name: Check public staging can render real data
+        run: node scripts/check-staging-public-contract.mjs
       - name: Quality gates and static bundle
         run: |
           npm run format:check
           node scripts/check-report-frontend.mjs
+          npm run check:step11-prerender
           npm run build:pages
           node scripts/check-visual-design.mjs
       - name: Install Chromium for isolated visual regression
