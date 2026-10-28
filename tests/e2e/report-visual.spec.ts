@@ -86,8 +86,17 @@ for (const width of [1280, 390]) {
     await page.evaluate(() => {
       document.documentElement.dataset.theme = 'dark';
     });
-    const dark = await input.evaluate((element) => getComputedStyle(element).borderLeftColor);
-    expect(dark).not.toBe(state.color);
+    const dark = await input.evaluate((element) => ({
+      theme: document.documentElement.dataset.theme,
+      border: getComputedStyle(element).borderLeftColor,
+      token: getComputedStyle(document.documentElement)
+        .getPropertyValue('--pf-control-border')
+        .trim(),
+    }));
+    console.log('STAFF_THEME_DIAGNOSTIC=' + JSON.stringify(dark));
+    expect(dark.theme).toBe('dark');
+    expect(dark.token).toBe('#8498b0');
+    expect(dark.border).not.toBe(state.color);
     await page.screenshot({
       path: 'test-results/report-staff-' + width + '-dark.png',
       fullPage: true,
