@@ -158,7 +158,8 @@ for (const [needle, label] of [
   ["import '../../styles/public-experience.css'", 'customer_design_imported'],
   ["class: 'public-hero-actions'", 'customer_design_hero_actions'],
   ["class: 'public-venue-highlight'", 'customer_design_venue_feature'],
-]) requireText(publicMain, needle, label);
+])
+  requireText(publicMain, needle, label);
 for (const [needle, label] of [
   ['--exp-canvas: #f5f3ed', 'customer_design_warm_light'],
   ['--exp-canvas: #111c1a', 'customer_design_premium_dark'],
@@ -167,6 +168,7 @@ for (const [needle, label] of [
   ['.customer-cart-row', 'customer_design_cart'],
   ['@media (max-width: 480px)', 'customer_design_mobile'],
   ['prefers-reduced-motion', 'customer_design_reduced_motion'],
-]) requireText(customerExperience, needle, label);
+])
+  requireText(customerExperience, needle, label);
 
 console.log('STEP11_STATIC_GATE=PASSED');
