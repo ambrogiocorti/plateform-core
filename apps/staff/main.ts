@@ -342,8 +342,6 @@ async function render(): Promise<void> {
                       class: 'nav-link',
                       'aria-label': link.label,
                       title: link.label,
-                      'aria-label': link.label,
-                      title: link.label,
                       ...(pageLink?.path === link.path ? { 'aria-current': 'page' } : {}),
                     },
                     el('span', { class: 'nav-icon', 'aria-hidden': 'true' }, navIcon(link.path)),
