@@ -308,7 +308,7 @@ export async function waiterPage(context: StaffContext): Promise<HTMLElement> {
     root.append(
       el(
         'div',
-        { class: 'row between waiter-section-heading' },
+        { class: 'row between waiter-section-heading', id: 'waiter-ready' },
         el(
           'div',
           {},
