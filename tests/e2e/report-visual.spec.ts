@@ -93,10 +93,12 @@ for (const width of [1280, 390]) {
         .getPropertyValue('--pf-control-border')
         .trim(),
     }));
-    console.log('STAFF_THEME_DIAGNOSTIC=' + JSON.stringify(dark));
     expect(dark.theme).toBe('dark');
     expect(dark.token).toBe('#8498b0');
-    expect(dark.border).not.toBe(state.color);
+    // Inputs animate border-color for 130ms: assert the settled style, not the first animation frame.
+    await expect
+      .poll(() => input.evaluate((element) => getComputedStyle(element).borderLeftColor))
+      .not.toBe(state.color);
     await page.screenshot({
       path: 'test-results/report-staff-' + width + '-dark.png',
       fullPage: true,
