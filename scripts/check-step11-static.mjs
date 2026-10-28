@@ -28,7 +28,9 @@ const [
   read('src/services/public-site.ts'),
   read('supabase/config.toml'),
 ]);
-const customerExperience = await read('styles/public-experience.css');
+const customerExperience = await read('styles/public-app.css');
+const staffExperience = await read('styles/staff-app.css');
+const staffMain = await read('apps/staff/main.ts');
 
 for (const [needle, label] of [
   ["'hero_image_url'", 'admin_hero_image_url'],
@@ -155,20 +157,33 @@ requireText(
 );
 
 for (const [needle, label] of [
-  ["import '../../styles/public-experience.css'", 'customer_design_imported'],
-  ["class: 'public-hero-actions'", 'customer_design_hero_actions'],
-  ["class: 'public-section public-venue-highlight'", 'customer_design_venue_feature'],
+  ["import '../../styles/public-app.css'", 'customer_design_imported'],
+  ["class: 'app-home-intro public-section'", 'customer_design_app_home'],
+  ["class: 'public-section app-shortcuts'", 'customer_design_quick_actions'],
 ])
   requireText(publicMain, needle, label);
 for (const [needle, label] of [
-  ['--exp-canvas: #f5f3ed', 'customer_design_warm_light'],
-  ['--exp-canvas: #111c1a', 'customer_design_premium_dark'],
-  ['.public-hero', 'customer_design_hero'],
+  ['--ui-bg: #f5f7fc', 'customer_design_blue_white_light'],
+  ['--ui-bg: #0c1424', 'customer_design_blue_black_dark'],
+  ['.app-home-intro', 'customer_design_app_layout'],
   ['.dish-public.public-dish-card', 'customer_design_photographic_cards'],
-  ['.customer-cart-row', 'customer_design_cart'],
+  ['.customer-account-summary', 'customer_design_account'],
   ['@media (max-width: 480px)', 'customer_design_mobile'],
   ['prefers-reduced-motion', 'customer_design_reduced_motion'],
 ])
   requireText(customerExperience, needle, label);
+
+for (const [needle, label] of [
+  ["import '../../styles/staff-app.css'", 'staff_design_imported'],
+  ["class: collapsedSidebar ? 'staff-shell sidebar-collapsed'", 'staff_icon_sidebar_toggle'],
+  ['navIcon(link.path)', 'staff_navigation_icons'],
+  ["localStorage.getItem('plateform-theme') ?? 'light'", 'staff_light_default'],
+]) requireText(staffMain, needle, label);
+for (const [needle, label] of [
+  ['.staff-shell.sidebar-collapsed', 'staff_sidebar_collapsed_css'],
+  ['--accent: #245de4', 'staff_brand_blue'],
+  ['.kpi-grid', 'staff_compact_dashboard'],
+  ['@media (max-width: 640px)', 'staff_bottom_navigation'],
+]) requireText(staffExperience, needle, label);
 
 console.log('STEP11_STATIC_GATE=PASSED');

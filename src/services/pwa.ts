@@ -2,6 +2,22 @@ import { button, dialog, el } from '../components/dom';
 export async function registerPwa(): Promise<void> {
   if (!('serviceWorker' in navigator) || import.meta.env.DEV) return;
   const base = import.meta.env.BASE_URL;
+  // On the temporary public GitHub Pages preview, old service workers must not
+  // continue serving an earlier visual build. Production PWA behavior is unchanged.
+  if (import.meta.env.VITE_PAGES_MODE === 'test') {
+    const existing = await navigator.serviceWorker.getRegistration(base);
+    if (existing) {
+      await existing.unregister();
+      if (navigator.serviceWorker.controller) {
+        const key = 'plateform-preview-sw-migrated';
+        if (sessionStorage.getItem(key) !== 'yes') {
+          sessionStorage.setItem(key, 'yes');
+          location.reload();
+        }
+      }
+    }
+    return;
+  }
   const registration = await navigator.serviceWorker.register(`${base}sw.js`, { scope: base });
   let notified = false;
   function offerUpdate() {

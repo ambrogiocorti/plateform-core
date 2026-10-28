@@ -1,6 +1,6 @@
 import { registerPwa } from '../../src/services/pwa';
 import '../../styles/public.css';
-import '../../styles/public-experience.css';
+import '../../styles/public-app.css';
 import { z } from 'zod';
 import { rpc } from '../../src/api/client';
 import { button, el, emptyState, loading, showError } from '../../src/components/dom';
@@ -695,71 +695,117 @@ function applyBrand(site: PublicSite): void {
 
 function home(site: PublicSite, venue: Venue | undefined, bookingDestination?: Venue): HTMLElement {
   const bookingEnabled = Boolean(bookingDestination);
-  const image = safeImageUrl(site.content.hero_image_url);
+  const shortcuts = [
+    {
+      number: '01',
+      label: 'Sfoglia il menu',
+      description: 'Scopri le proposte e tutti i dettagli dei piatti.',
+      href: venueAwarePath('/menu', site, venue),
+    },
+    ...(bookingEnabled
+      ? [{
+          number: '02',
+          label: 'Prenota un tavolo',
+          description: 'Controlla la disponibilità e scegli quando venire.',
+          href: venueAwarePath('/prenota', site, bookingDestination),
+        }]
+      : []),
+    ...(sectionEnabled(site, 'venues') && site.multi_venue
+      ? [{
+          number: '03',
+          label: 'Le nostre sedi',
+          description: 'Trova il locale e i suoi contatti.',
+          href: '/sedi',
+        }]
+      : []),
+    ...(sectionEnabled(site, 'contacts')
+      ? [{
+          number: '04',
+          label: 'Contatti e orari',
+          description: 'Le informazioni utili per la tua visita.',
+          href: venueAwarePath('/contatti', site, venue),
+        }]
+      : []),
+    ...(sectionEnabled(site, 'gallery')
+      ? [{
+          number: '05',
+          label: 'La gallery',
+          description: 'Gli ambienti e le foto del ristorante.',
+          href: venueAwarePath('/gallery', site, venue),
+        }]
+      : []),
+  ];
+
   return el(
     'div',
-    {},
+    { class: 'app-home' },
     el(
       'section',
-      { class: 'public-hero' },
-      image
-        ? el('img', {
-            src: image,
-            alt: textValue(site.content, 'hero_image_alt', site.name),
-            fetchpriority: 'high',
-            decoding: 'async',
-          })
-        : null,
+      { class: 'app-home-intro public-section' },
       el(
         'div',
-        {},
-        el('p', { class: 'eyebrow' }, textValue(site.content, 'hero_eyebrow', site.name)),
+        { class: 'app-home-heading' },
+        el('p', { class: 'eyebrow' }, 'Benvenuto · Il tuo ristorante'),
         el('h1', {}, textValue(site.content, 'hero_title', site.name)),
         el(
           'p',
+          { class: 'app-home-subtitle' },
+          textValue(site.content, 'hero_subtitle', 'Scopri il menu, prenota e organizza la tua visita in pochi passaggi.'),
+        ),
+      ),
+      el(
+        'div',
+        { class: 'app-home-primary' },
+        el('span', { class: 'app-home-primary-kicker' }, 'Inizia da qui'),
+        el('h2', {}, 'Cosa vuoi fare oggi?'),
+        el(
+          'p',
           {},
-          textValue(
-            site.content,
-            'hero_subtitle',
-            'La nostra cucina. Il piacere di stare a tavola.',
-          ),
+          'Tutte le informazioni e i servizi del ristorante, in un unico posto.',
         ),
         el(
-          'div',
-          { class: 'public-hero-actions' },
+          'a',
+          { class: 'button primary', href: venueAwarePath('/menu', site, venue) },
+          'Apri il menu →',
+        ),
+      ),
+    ),
+    el(
+      'section',
+      { class: 'public-section app-shortcuts', 'aria-label': 'Accessi rapidi' },
+      el(
+        'div',
+        { class: 'app-section-heading' },
+        el('div', {},
+          el('p', { class: 'eyebrow' }, 'Accesso rapido'),
+          el('h2', {}, 'Esplora il ristorante'),
+        ),
+        el('span', { class: 'app-section-counter' }, 'Tutto a portata di mano'),
+      ),
+      el(
+        'div',
+        { class: 'app-shortcut-grid' },
+        ...shortcuts.map((shortcut) =>
           el(
             'a',
-            {
-              href: bookingEnabled
-                ? venueAwarePath('/prenota', site, bookingDestination)
-                : venueAwarePath('/menu', site, venue),
-              class: 'button primary',
-            },
-            bookingEnabled ? 'Prenota un tavolo ↗' : 'Scopri il menu ↗',
-          ),
-          el(
-            'a',
-            {
-              href: bookingEnabled
-                ? venueAwarePath('/menu', site, venue)
-                : venueAwarePath('/ristorante', site, venue),
-              class: 'button secondary',
-            },
-            bookingEnabled ? 'Esplora il menu' : 'Il ristorante',
+            { class: 'app-shortcut', href: shortcut.href },
+            el('span', { class: 'app-shortcut-number', 'aria-hidden': 'true' }, shortcut.number),
+            el('h3', {}, shortcut.label),
+            el('p', {}, shortcut.description),
+            el('span', { class: 'app-shortcut-arrow', 'aria-hidden': 'true' }, '↗'),
           ),
         ),
-        el('p', { class: 'public-hero-note' }, 'La tua esperienza comincia qui'),
       ),
     ),
     sectionEnabled(site, 'story')
       ? el(
           'section',
-          { class: 'public-section story-grid' },
+          { class: 'public-section app-about' },
           el(
             'div',
             {},
-            el('p', { class: 'eyebrow' }, 'La nostra storia'),
-            el('h2', {}, textValue(site.content, 'story_title', 'Un invito a rallentare.')),
+            el('p', { class: 'eyebrow' }, 'Chi siamo'),
+            el('h2', {}, textValue(site.content, 'story_title', 'Il nostro ristorante')),
           ),
           el(
             'div',
@@ -767,21 +813,17 @@ function home(site: PublicSite, venue: Venue | undefined, bookingDestination?: V
             el(
               'p',
               { class: 'story-copy' },
-              textValue(
-                site.content,
-                'story',
-                'Scopri il menu, conosci il ristorante e scegli quando venirci a trovare.',
-              ),
+              textValue(site.content, 'story', 'Conosci la nostra cucina e la storia del ristorante.'),
             ),
-            el('a', { href: venueAwarePath('/ristorante', site, venue) }, 'Il ristorante ↗'),
+            el('a', { href: venueAwarePath('/ristorante', site, venue) }, 'Scopri di più →'),
           ),
         )
       : null,
     venue && sectionEnabled(site, 'venues')
       ? el(
           'section',
-          { class: 'public-section public-venue-highlight' },
-          el('p', { class: 'eyebrow' }, 'Ti aspettiamo'),
+          { class: 'public-section app-venue' },
+          el('p', { class: 'eyebrow' }, 'La tua sede'),
           el('h2', {}, venue.name),
           venueCard(venue, site.multi_venue),
         )

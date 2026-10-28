@@ -1,5 +1,6 @@
 import { registerPwa } from '../../src/services/pwa';
 import '../../styles/staff.css';
+import '../../styles/staff-app.css';
 import {
   el,
   button,
@@ -64,6 +65,40 @@ async function refreshVisiblePage(): Promise<void> {
   }
   await currentContext.refresh?.();
 }
+function navIcon(path: string): SVGSVGElement {
+  // Navigation icon paths are local and role-independent; permissions remain server enforced.
+  const icons: Record<string, string> = {
+    '/operazioni': 'M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z',
+    '/sala': 'M4 12h16 M7 12V6h10v6 M7 12v6 M17 12v6 M5 18h14',
+    '/conti': 'M5 3h14v18l-3-2-3 2-3-2-3 2-2-2z M8 8h8 M8 12h8 M8 16h5',
+    '/cassa': 'M3 7h18v12H3z M3 11h18 M16 15h2',
+    '/statistiche': 'M4 20V10 M10 20V4 M16 20v-7 M22 20V8',
+    '/accoglienza': 'M12 13a5 5 0 1 0 0-10 5 5 0 0 0 0 10z M4 21a8 8 0 0 1 16 0',
+    '/servizio': 'M5 4h14 M12 4v16 M5 13h14 M7 20h10',
+    '/gestione': 'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z M12 2v3 M12 19v3 M4 4l2 2 M18 18l2 2 M2 12h3 M19 12h3 M4 20l2-2 M18 6l2-2',
+    '/sito': 'M3 5h18v14H3z M3 9h18 M8 9v10',
+    '/menu-sede': 'M4 4h16v16H4z M8 9h8 M8 13h8 M8 17h6',
+    '/stampe': 'M6 9V3h12v6 M6 18H4V9h16v9h-2 M6 15h12v6H6z',
+    '/dispositivi': 'M6 3h12v18H6z M10 17h4',
+    '/pianificazione': 'M3 5h18v16H3z M3 10h18 M7 3v4 M17 3v4',
+    '/salute': 'M3 12h4l3-6 4 12 3-6h4',
+  };
+  const data = icons[path] ?? (path.startsWith('/cucina') ? 'M5 4h14v16H5z M8 9h8 M8 13h8' : 'M4 4h16v16H4z M9 9h6v6H9z');
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('width', '20');
+  svg.setAttribute('height', '20');
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('stroke', 'currentColor');
+  svg.setAttribute('stroke-width', '1.8');
+  svg.setAttribute('stroke-linecap', 'round');
+  svg.setAttribute('stroke-linejoin', 'round');
+  const shape = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  shape.setAttribute('d', data);
+  svg.append(shape);
+  return svg;
+}
+
 const navigation: {
   path: string;
   label: string;
@@ -260,13 +295,31 @@ async function render(): Promise<void> {
       navigate('/');
     });
   }
+  const collapsedSidebar = localStorage.getItem('plateform-sidebar') !== 'expanded';
+  const sidebarToggle = el(
+    'button',
+    {
+      type: 'button',
+      class: 'sidebar-toggle',
+      'aria-label': collapsedSidebar ? 'Espandi il menu laterale' : 'Comprimi il menu laterale',
+      'aria-expanded': String(!collapsedSidebar),
+      title: collapsedSidebar ? 'Espandi menu' : 'Comprimi menu',
+    },
+    '☰',
+  );
   const shell = el(
     'div',
-    { class: 'staff-shell', 'data-role': profile.role },
+    {
+      class: collapsedSidebar ? 'staff-shell sidebar-collapsed' : 'staff-shell',
+      'data-role': profile.role,
+    },
     el(
       'aside',
       { class: 'sidebar' },
-      el('a', { class: 'brand', href: staffHref('/') }, 'Plateform'),
+      el('div', { class: 'sidebar-brand-row' },
+        el('a', { class: 'brand', href: staffHref('/') }, 'Plateform'),
+        sidebarToggle,
+      ),
       el(
         'nav',
         { 'aria-label': 'Gestionale' },
@@ -282,9 +335,14 @@ async function render(): Promise<void> {
                     {
                       href: staffHref(link.path),
                       class: 'nav-link',
+                  'aria-label': link.label,
+                  title: link.label,
+                      'aria-label': link.label,
+                      title: link.label,
                       ...(pageLink?.path === link.path ? { 'aria-current': 'page' } : {}),
                     },
-                    link.label,
+                    el('span', { class: 'nav-icon', 'aria-hidden': 'true' }, navIcon(link.path)),
+                    el('span', { class: 'nav-label' }, link.label),
                   ),
                 ),
               ];
@@ -297,7 +355,8 @@ async function render(): Promise<void> {
                   class: 'nav-link',
                   ...(pageLink?.path === link.path ? { 'aria-current': 'page' } : {}),
                 },
-                link.label,
+                el('span', { class: 'nav-icon', 'aria-hidden': 'true' }, navIcon(link.path)),
+                el('span', { class: 'nav-label' }, link.label),
               ),
             )),
       ),
@@ -322,6 +381,16 @@ async function render(): Promise<void> {
           'div',
           { class: 'row' },
           profile.role === 'SUPER_ADMIN' ? null : notificationIndicator(context),
+          button(
+            document.documentElement.dataset.theme === 'dark' ? '☀ Chiaro' : '☾ Scuro',
+            ( ) => {
+              const next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
+              document.documentElement.dataset.theme = next;
+              localStorage.setItem('plateform-theme', next);
+              void render();
+            },
+            'quiet',
+          ),
           ['ADMIN', 'SUPER_ADMIN', 'HOST', 'CASHIER'].includes(profile.role)
             ? button('Cerca ⌘K', () => openPalette(), 'quiet')
             : null,
@@ -339,6 +408,13 @@ async function render(): Promise<void> {
       main,
     ),
   );
+  sidebarToggle.addEventListener('click', () => {
+    const compact = shell.classList.toggle('sidebar-collapsed');
+    sidebarToggle.setAttribute('aria-expanded', String(!compact));
+    sidebarToggle.setAttribute('aria-label', compact ? 'Espandi il menu laterale' : 'Comprimi il menu laterale');
+    sidebarToggle.title = compact ? 'Espandi menu' : 'Comprimi menu';
+    localStorage.setItem('plateform-sidebar', compact ? 'collapsed' : 'expanded');
+  });
   const assistance = sessionStorage.getItem('plateform-impersonation');
   if (assistance) {
     const info = await rpc(
@@ -679,7 +755,7 @@ function openPalette(): void {
   search.input.focus();
 }
 
-document.documentElement.dataset.theme = localStorage.getItem('plateform-theme') ?? 'dark';
+document.documentElement.dataset.theme = localStorage.getItem('plateform-theme') ?? 'light';
 document.addEventListener('click', (event) => {
   const target = event.target instanceof Element ? event.target.closest('a') : null;
   if (
