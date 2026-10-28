@@ -197,7 +197,7 @@ for (const [needle, label] of [
   ["import '../../styles/staff-app.css'", 'staff_design_loaded'],
   ["import '../../styles/workspace-redesign.css'", 'staff_structural_redesign_loaded'],
   ["class: 'workspace-context-tabs'", 'new_role_navigation_structure'],
-  ["class: 'workspace-page-heading'", 'new_workspace_heading'],
+  ["class: 'page-heading workspace-page-heading'", 'new_workspace_heading'],
   ["class: collapsedSidebar ? 'staff-shell sidebar-collapsed'", 'staff_sidebar_toggle'],
   ['navIcon(link.path)', 'staff_icon_navigation'],
   ['NUOVA UI · TEST', 'staff_preview_signature'],
