@@ -227,7 +227,6 @@ for (const [needle, label] of [
 ])
   requireText(publishedMenu, needle, label);
 
-
 const restaurantStructure = await read('styles/restaurant-redesign.css');
 const workplaceStructure = await read('styles/workspace-redesign.css');
 const adminOperations = await read('src/pages/admin-operations.ts');
@@ -237,7 +236,8 @@ for (const [text, label] of [
   ['.restaurant-featured-grid', 'featured_menu_tiles'],
   ['.restaurant-story-panel', 'restaurant_story_layout'],
   ['.restaurant-visit-links', 'reservation_utility_panel'],
-]) requireText(restaurantStructure, text, label);
+])
+  requireText(restaurantStructure, text, label);
 for (const [text, label] of [
   ['.workspace-context-tabs', 'staff_contextual_navigation'],
   ['.ops-overview', 'command_center_main_panel'],
@@ -245,16 +245,19 @@ for (const [text, label] of [
   ['.ops-attention-card', 'separate_priority_rail'],
   ['.ops-service-grid', 'operational_area_matrix'],
   ['.kds-filter-actions', 'kitchen_filter_controls'],
-]) requireText(workplaceStructure, text, label);
+])
+  requireText(workplaceStructure, text, label);
 for (const [text, label] of [
   ["class: 'ops-overview'", 'dashboard_restructured'],
   ["class: 'ops-attention-card'", 'dashboard_priorities_separated'],
   ["class: 'ops-summary-grid'", 'dashboard_kpis_restructured'],
-]) requireText(adminOperations, text, label);
+])
+  requireText(adminOperations, text, label);
 for (const [text, label] of [
   ["class: 'kds-workspace'", 'kds_new_workspace'],
   ["class: 'kds-filter-actions'", 'kds_operational_filters'],
   ["control.setAttribute('aria-pressed'", 'kds_filter_accessibility'],
-]) requireText(kitchenPage, text, label);
+])
+  requireText(kitchenPage, text, label);
 
 console.log('STEP11_STATIC_GATE=PASSED');

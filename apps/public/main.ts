@@ -430,7 +430,8 @@ async function render(): Promise<void> {
     recordPublicPageView(venue?.id);
   }
   const path = currentPublicPath();
-  if (path === '/') main.append(await home(site, venue, bookingEnabled ? reservationVenue : undefined));
+  if (path === '/')
+    main.append(await home(site, venue, bookingEnabled ? reservationVenue : undefined));
   else if (path === '/menu') main.append(await menu(site, venue));
   else if (path.startsWith('/menu/') && venue) {
     const match = /^\/menu\/([^/]+)(?:\/piatto\/([^/]+))?\/?$/.exec(path);
@@ -737,30 +738,68 @@ async function home(
       featured = [];
     }
   }
-  const heading = el('section', { class: 'restaurant-welcome', 'aria-label': 'Benvenuto al ristorante' },
-    el('div', { class: 'restaurant-welcome-copy' },
+  const heading = el(
+    'section',
+    { class: 'restaurant-welcome', 'aria-label': 'Benvenuto al ristorante' },
+    el(
+      'div',
+      { class: 'restaurant-welcome-copy' },
       el('p', { class: 'restaurant-kicker' }, 'BENVENUTO NEL NOSTRO RISTORANTE'),
       el('h1', {}, textValue(site.content, 'hero_title', site.name)),
-      el('p', { class: 'restaurant-welcome-description' },
-        textValue(site.content, 'hero_subtitle', 'Una cucina da scoprire, un tavolo da condividere.')),
-      el('div', { class: 'restaurant-welcome-actions' },
+      el(
+        'p',
+        { class: 'restaurant-welcome-description' },
+        textValue(
+          site.content,
+          'hero_subtitle',
+          'Una cucina da scoprire, un tavolo da condividere.',
+        ),
+      ),
+      el(
+        'div',
+        { class: 'restaurant-welcome-actions' },
         el('a', { href: menuHref, class: 'button primary' }, 'Esplora il menu'),
         bookingEnabled
           ? el('a', { href: bookingHref, class: 'button secondary' }, 'Prenota un tavolo')
-          : el('a', { href: venueAwarePath('/ristorante', site, venue), class: 'button secondary' }, 'Il ristorante'),
+          : el(
+              'a',
+              { href: venueAwarePath('/ristorante', site, venue), class: 'button secondary' },
+              'Il ristorante',
+            ),
       ),
-      el('p', { class: 'restaurant-welcome-caption' }, 'Menu, prenotazioni e tutte le informazioni in un unico posto.'),
+      el(
+        'p',
+        { class: 'restaurant-welcome-caption' },
+        'Menu, prenotazioni e tutte le informazioni in un unico posto.',
+      ),
     ),
     homeImage
-      ? el('div', { class: 'restaurant-welcome-photo' },
-          el('img', { src: homeImage, alt: textValue(site.content, 'hero_image_alt', 'Il nostro ristorante'), loading: 'eager', decoding: 'async' }))
-      : el('div', { class: 'restaurant-welcome-monogram', 'aria-hidden': 'true' },
+      ? el(
+          'div',
+          { class: 'restaurant-welcome-photo' },
+          el('img', {
+            src: homeImage,
+            alt: textValue(site.content, 'hero_image_alt', 'Il nostro ristorante'),
+            loading: 'eager',
+            decoding: 'async',
+          }),
+        )
+      : el(
+          'div',
+          { class: 'restaurant-welcome-monogram', 'aria-hidden': 'true' },
           el('span', {}, site.name.slice(0, 1).toLocaleUpperCase('it')),
-          el('small', {}, 'CUCINA · OSPITALITÀ')),
+          el('small', {}, 'CUCINA · OSPITALITÀ'),
+        ),
   );
-  const menuPreview = el('section', { class: 'restaurant-discover', 'aria-label': 'Scopri la nostra cucina' },
-    el('div', { class: 'restaurant-section-heading' },
-      el('div', {},
+  const menuPreview = el(
+    'section',
+    { class: 'restaurant-discover', 'aria-label': 'Scopri la nostra cucina' },
+    el(
+      'div',
+      { class: 'restaurant-section-heading' },
+      el(
+        'div',
+        {},
         el('p', { class: 'restaurant-kicker' }, 'LA NOSTRA CUCINA'),
         el('h2', {}, 'Un assaggio del menu'),
         el('p', {}, 'Piatti, ingredienti e proposte da scoprire.'),
@@ -769,74 +808,156 @@ async function home(
     ),
   );
   if (featured.length && venue) {
-    menuPreview.append(el('div', { class: 'restaurant-featured-grid' },
-      ...featured.map((dish) =>
-        el('a', { href: menuHref, class: 'restaurant-featured-dish' },
-          safeImageUrl(dish.image_path)
-            ? el('img', { src: safeImageUrl(dish.image_path)!, alt: dish.name, loading: 'lazy', decoding: 'async' })
-            : el('div', { class: 'restaurant-featured-placeholder', 'aria-hidden': 'true' }, dish.name.slice(0, 1)),
-          el('div', { class: 'restaurant-featured-info' },
-            el('span', {}, dish.category_name),
-            el('h3', {}, dish.name),
-            el('strong', {}, formatMoney(dish.price_cents, venue.currency, venue.locale)),
+    menuPreview.append(
+      el(
+        'div',
+        { class: 'restaurant-featured-grid' },
+        ...featured.map((dish) =>
+          el(
+            'a',
+            { href: menuHref, class: 'restaurant-featured-dish' },
+            safeImageUrl(dish.image_path)
+              ? el('img', {
+                  src: safeImageUrl(dish.image_path)!,
+                  alt: dish.name,
+                  loading: 'lazy',
+                  decoding: 'async',
+                })
+              : el(
+                  'div',
+                  { class: 'restaurant-featured-placeholder', 'aria-hidden': 'true' },
+                  dish.name.slice(0, 1),
+                ),
+            el(
+              'div',
+              { class: 'restaurant-featured-info' },
+              el('span', {}, dish.category_name),
+              el('h3', {}, dish.name),
+              el('strong', {}, formatMoney(dish.price_cents, venue.currency, venue.locale)),
+            ),
           ),
         ),
       ),
-    ));
+    );
   } else {
-    menuPreview.append(el('div', { class: 'restaurant-featured-empty' },
-      el('p', {}, 'Scopri le proposte della nostra cucina, gli ingredienti e gli allergeni.'),
-      el('a', { href: menuHref, class: 'button secondary' }, 'Visualizza il menu'),
-    ));
+    menuPreview.append(
+      el(
+        'div',
+        { class: 'restaurant-featured-empty' },
+        el('p', {}, 'Scopri le proposte della nostra cucina, gli ingredienti e gli allergeni.'),
+        el('a', { href: menuHref, class: 'button secondary' }, 'Visualizza il menu'),
+      ),
+    );
   }
-  const main = el('div', { class: 'restaurant-home' },
+  const main = el(
+    'div',
+    { class: 'restaurant-home' },
     heading,
-    el('div', { class: 'restaurant-home-content' },
+    el(
+      'div',
+      { class: 'restaurant-home-content' },
       menuPreview,
-      el('aside', { class: 'restaurant-visit-panel', 'aria-label': 'Organizza la tua visita' },
+      el(
+        'aside',
+        { class: 'restaurant-visit-panel', 'aria-label': 'Organizza la tua visita' },
         el('p', { class: 'restaurant-kicker' }, 'ORGANIZZA LA VISITA'),
         el('h2', {}, 'Ti aspettiamo a tavola.'),
         el('p', {}, 'Le informazioni utili per rendere la tua visita ancora più semplice.'),
-        el('div', { class: 'restaurant-visit-links' },
+        el(
+          'div',
+          { class: 'restaurant-visit-links' },
           bookingEnabled
-            ? el('a', { href: bookingHref }, el('span', {}, 'Prenota un tavolo'), el('span', { 'aria-hidden': 'true' }, '↗'))
+            ? el(
+                'a',
+                { href: bookingHref },
+                el('span', {}, 'Prenota un tavolo'),
+                el('span', { 'aria-hidden': 'true' }, '↗'),
+              )
             : null,
           site.multi_venue && sectionEnabled(site, 'venues')
-            ? el('a', { href: '/sedi' }, el('span', {}, 'Scegli la sede'), el('span', { 'aria-hidden': 'true' }, '↗'))
+            ? el(
+                'a',
+                { href: '/sedi' },
+                el('span', {}, 'Scegli la sede'),
+                el('span', { 'aria-hidden': 'true' }, '↗'),
+              )
             : null,
           contactsEnabled
-            ? el('a', { href: venueAwarePath('/contatti', site, venue) }, el('span', {}, 'Orari e contatti'), el('span', { 'aria-hidden': 'true' }, '↗'))
+            ? el(
+                'a',
+                { href: venueAwarePath('/contatti', site, venue) },
+                el('span', {}, 'Orari e contatti'),
+                el('span', { 'aria-hidden': 'true' }, '↗'),
+              )
             : null,
           galleryEnabled
-            ? el('a', { href: venueAwarePath('/gallery', site, venue) }, el('span', {}, 'Gli ambienti'), el('span', { 'aria-hidden': 'true' }, '↗'))
+            ? el(
+                'a',
+                { href: venueAwarePath('/gallery', site, venue) },
+                el('span', {}, 'Gli ambienti'),
+                el('span', { 'aria-hidden': 'true' }, '↗'),
+              )
             : null,
-          el('a', { href: menuHref }, el('span', {}, 'Consulta il menu'), el('span', { 'aria-hidden': 'true' }, '↗')),
+          el(
+            'a',
+            { href: menuHref },
+            el('span', {}, 'Consulta il menu'),
+            el('span', { 'aria-hidden': 'true' }, '↗'),
+          ),
         ),
       ),
     ),
   );
   if (storyEnabled) {
-    main.append(el('section', { class: 'restaurant-story-panel' },
-      el('div', {},
-        el('p', { class: 'restaurant-kicker' }, 'LA NOSTRA IDENTITÀ'),
-        el('h2', {}, textValue(site.content, 'story_title', 'Il nostro ristorante')),
-      ),
-      el('div', {},
-        el('p', {}, textValue(site.content, 'story', 'La cucina, le persone e i piccoli dettagli che rendono speciale ogni visita.')),
-        el('a', { href: venueAwarePath('/ristorante', site, venue), class: 'restaurant-section-link' }, 'Conosci il ristorante ↗'),
-      ),
-    ));
-  }
-  if (venue && sectionEnabled(site, 'venues')) {
-    main.append(el('section', { class: 'restaurant-location-panel' },
-      el('div', { class: 'restaurant-section-heading' },
-        el('div', {},
-          el('p', { class: 'restaurant-kicker' }, 'DOVE TROVARCI'),
-          el('h2', {}, venue.name),
+    main.append(
+      el(
+        'section',
+        { class: 'restaurant-story-panel' },
+        el(
+          'div',
+          {},
+          el('p', { class: 'restaurant-kicker' }, 'LA NOSTRA IDENTITÀ'),
+          el('h2', {}, textValue(site.content, 'story_title', 'Il nostro ristorante')),
+        ),
+        el(
+          'div',
+          {},
+          el(
+            'p',
+            {},
+            textValue(
+              site.content,
+              'story',
+              'La cucina, le persone e i piccoli dettagli che rendono speciale ogni visita.',
+            ),
+          ),
+          el(
+            'a',
+            { href: venueAwarePath('/ristorante', site, venue), class: 'restaurant-section-link' },
+            'Conosci il ristorante ↗',
+          ),
         ),
       ),
-      venueCard(venue, site.multi_venue),
-    ));
+    );
+  }
+  if (venue && sectionEnabled(site, 'venues')) {
+    main.append(
+      el(
+        'section',
+        { class: 'restaurant-location-panel' },
+        el(
+          'div',
+          { class: 'restaurant-section-heading' },
+          el(
+            'div',
+            {},
+            el('p', { class: 'restaurant-kicker' }, 'DOVE TROVARCI'),
+            el('h2', {}, venue.name),
+          ),
+        ),
+        venueCard(venue, site.multi_venue),
+      ),
+    );
   }
   return main;
 }

@@ -267,11 +267,12 @@ async function render(): Promise<void> {
   const pageLink = links.find(
     (entry) => staffPath() === entry.path || staffPath().startsWith(`${entry.path}/`),
   );
-  const contextLinks = (profile.role === 'ADMIN'
-    ? ['/operazioni', '/sala', '/accoglienza', '/cucina', '/cassa', '/statistiche']
-        .map((path) => links.find((link) => link.path === path))
-        .filter((link): link is (typeof links)[number] => Boolean(link))
-    : links.slice(0, 6));
+  const contextLinks =
+    profile.role === 'ADMIN'
+      ? ['/operazioni', '/sala', '/accoglienza', '/cucina', '/cassa', '/statistiche']
+          .map((path) => links.find((link) => link.path === path))
+          .filter((link): link is (typeof links)[number] => Boolean(link))
+      : links.slice(0, 6);
   const today = new Date().toLocaleDateString('it-IT', {
     weekday: 'long',
     day: 'numeric',
@@ -283,8 +284,12 @@ async function render(): Promise<void> {
     el(
       'header',
       { class: 'page-heading workspace-page-heading' },
-      el('div', { class: 'workspace-title-group' },
-        el('nav', { class: 'workspace-breadcrumb', 'aria-label': 'Percorso corrente' },
+      el(
+        'div',
+        { class: 'workspace-title-group' },
+        el(
+          'nav',
+          { class: 'workspace-breadcrumb', 'aria-label': 'Percorso corrente' },
           el('span', {}, 'Plateform'),
           el('span', { 'aria-hidden': 'true' }, '/'),
           el('span', {}, pageLink?.section === 'CONFIGURAZIONE' ? 'Gestione' : 'Operatività'),
@@ -293,21 +298,45 @@ async function render(): Promise<void> {
         ),
         el('p', { class: 'eyebrow' }, today),
         el('h1', {}, pageLink?.label ?? 'Operazioni'),
-        el('p', { class: 'workspace-subtitle' }, 'Workspace ' + profile.role.replaceAll('_', ' ').toLowerCase() + ' · ' + profile.display_name),
+        el(
+          'p',
+          { class: 'workspace-subtitle' },
+          'Workspace ' +
+            profile.role.replaceAll('_', ' ').toLowerCase() +
+            ' · ' +
+            profile.display_name,
+        ),
       ),
-      el('div', { class: 'workspace-heading-actions' },
+      el(
+        'div',
+        { class: 'workspace-heading-actions' },
         ['ADMIN', 'SUPER_ADMIN', 'HOST', 'CASHIER'].includes(profile.role)
           ? button('Cerca una funzione', () => openPalette(), 'secondary')
           : null,
-        button('Aggiorna', () => { void context.refresh?.(); }, 'secondary'),
+        button(
+          'Aggiorna',
+          () => {
+            void context.refresh?.();
+          },
+          'secondary',
+        ),
       ),
-      el('nav', { class: 'workspace-context-tabs', 'aria-label': 'Navigazione rapida del ruolo' },
+      el(
+        'nav',
+        { class: 'workspace-context-tabs', 'aria-label': 'Navigazione rapida del ruolo' },
         ...contextLinks.map((entry) =>
-          el('a', {
-            href: staffHref(entry.path),
-            class: staffPath() === entry.path ? 'workspace-context-link is-current' : 'workspace-context-link',
-            ...(staffPath() === entry.path ? { 'aria-current': 'page' } : {}),
-          }, entry.label),
+          el(
+            'a',
+            {
+              href: staffHref(entry.path),
+              class:
+                staffPath() === entry.path
+                  ? 'workspace-context-link is-current'
+                  : 'workspace-context-link',
+              ...(staffPath() === entry.path ? { 'aria-current': 'page' } : {}),
+            },
+            entry.label,
+          ),
         ),
       ),
     ),

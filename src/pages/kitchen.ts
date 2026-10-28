@@ -378,23 +378,53 @@ export async function kitchenPage(context: StaffContext): Promise<HTMLElement> {
           : 'Le comande pertinenti alla tua postazione compariranno qui in tempo reale.',
       );
 
-  const boardShell = el('section', { class: 'kds-workspace', 'aria-label': 'Comande in lavorazione' },
-    el('header', { class: 'kds-workspace-header' },
-      el('div', {},
+  const boardShell = el(
+    'section',
+    { class: 'kds-workspace', 'aria-label': 'Comande in lavorazione' },
+    el(
+      'header',
+      { class: 'kds-workspace-header' },
+      el(
+        'div',
+        {},
         el('p', { class: 'eyebrow' }, 'PRODUZIONE · LIVE'),
-        el('h2', {}, context.profile.role === 'PASS' ? 'Comande da coordinare' : 'Comande in cucina'),
+        el(
+          'h2',
+          {},
+          context.profile.role === 'PASS' ? 'Comande da coordinare' : 'Comande in cucina',
+        ),
         el('p', {}, 'Lavora per priorità e concentrati sullo stato di ogni comanda.'),
       ),
-      el('div', { class: 'kds-overview-strip', role: 'status' },
+      el(
+        'div',
+        { class: 'kds-overview-strip', role: 'status' },
         el('div', {}, el('strong', {}, String(steps.length)), el('span', {}, 'Step')),
-        el('div', {}, el('strong', {}, String(items.filter((item) => item.status === 'RECEIVED').length)), el('span', {}, 'Ricevuti')),
-        el('div', {}, el('strong', {}, String(items.filter((item) => item.status === 'IN_PREPARATION').length)), el('span', {}, 'In preparazione')),
-        el('div', {}, el('strong', {}, String(items.filter((item) => item.status === 'READY').length)), el('span', {}, 'Pronti')),
+        el(
+          'div',
+          {},
+          el('strong', {}, String(items.filter((item) => item.status === 'RECEIVED').length)),
+          el('span', {}, 'Ricevuti'),
+        ),
+        el(
+          'div',
+          {},
+          el('strong', {}, String(items.filter((item) => item.status === 'IN_PREPARATION').length)),
+          el('span', {}, 'In preparazione'),
+        ),
+        el(
+          'div',
+          {},
+          el('strong', {}, String(items.filter((item) => item.status === 'READY').length)),
+          el('span', {}, 'Pronti'),
+        ),
       ),
     ),
   );
   if (items.length) {
-    const filterActions = el('div', { class: 'kds-filter-actions', 'aria-label': 'Filtra le comande' });
+    const filterActions = el('div', {
+      class: 'kds-filter-actions',
+      'aria-label': 'Filtra le comande',
+    });
     const filters = [
       ['Tutte', 'ALL'],
       ['Da preparare', 'RECEIVED'],
@@ -402,14 +432,19 @@ export async function kitchenPage(context: StaffContext): Promise<HTMLElement> {
       ['Pronte', 'READY'],
     ];
     for (const [label, value] of filters) {
-      const control = button(label, () => {
-        for (const item of grid.querySelectorAll<HTMLElement>('.kds-ticket')) {
-          item.hidden = value !== 'ALL' && !(item.dataset.ticketStates ?? '').split(' ').includes(value);
-        }
-        for (const element of filterActions.querySelectorAll<HTMLButtonElement>('button')) {
-          element.setAttribute('aria-pressed', String(element === control));
-        }
-      }, 'secondary');
+      const control = button(
+        label,
+        () => {
+          for (const item of grid.querySelectorAll<HTMLElement>('.kds-ticket')) {
+            item.hidden =
+              value !== 'ALL' && !(item.dataset.ticketStates ?? '').split(' ').includes(value);
+          }
+          for (const element of filterActions.querySelectorAll<HTMLButtonElement>('button')) {
+            element.setAttribute('aria-pressed', String(element === control));
+          }
+        },
+        'secondary',
+      );
       control.setAttribute('aria-pressed', String(value === 'ALL'));
       filterActions.append(control);
     }
@@ -417,7 +452,10 @@ export async function kitchenPage(context: StaffContext): Promise<HTMLElement> {
   }
   boardShell.append(board);
   if (!adminOverview) return boardShell;
-  return el('div', { class: 'stack kitchen-operations-dashboard' },
-    kitchenAdminPanel(adminOverview, boardShell), boardShell);
-
+  return el(
+    'div',
+    { class: 'stack kitchen-operations-dashboard' },
+    kitchenAdminPanel(adminOverview, boardShell),
+    boardShell,
+  );
 }
