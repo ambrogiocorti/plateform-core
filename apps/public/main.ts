@@ -1,5 +1,6 @@
 import { registerPwa } from '../../src/services/pwa';
 import '../../styles/public.css';
+import '../../styles/public-experience.css';
 import { z } from 'zod';
 import { rpc } from '../../src/api/client';
 import { button, el, emptyState, loading, showError } from '../../src/components/dom';
@@ -724,15 +725,30 @@ function home(site: PublicSite, venue: Venue | undefined, bookingDestination?: V
           ),
         ),
         el(
-          'a',
-          {
-            href: bookingEnabled
-              ? venueAwarePath('/prenota', site, bookingDestination)
-              : venueAwarePath('/menu', site, venue),
-            class: 'button primary',
-          },
-          bookingEnabled ? 'Prenota un tavolo ↗' : 'Scopri il menu ↗',
+          'div',
+          { class: 'public-hero-actions' },
+          el(
+            'a',
+            {
+              href: bookingEnabled
+                ? venueAwarePath('/prenota', site, bookingDestination)
+                : venueAwarePath('/menu', site, venue),
+              class: 'button primary',
+            },
+            bookingEnabled ? 'Prenota un tavolo ↗' : 'Scopri il menu ↗',
+          ),
+          el(
+            'a',
+            {
+              href: bookingEnabled
+                ? venueAwarePath('/menu', site, venue)
+                : venueAwarePath('/ristorante', site, venue),
+              class: 'button secondary',
+            },
+            bookingEnabled ? 'Esplora il menu' : 'Il ristorante',
+          ),
         ),
+        el('p', { class: 'public-hero-note' }, 'La tua esperienza comincia qui'),
       ),
     ),
     sectionEnabled(site, 'story')
@@ -764,7 +780,7 @@ function home(site: PublicSite, venue: Venue | undefined, bookingDestination?: V
     venue && sectionEnabled(site, 'venues')
       ? el(
           'section',
-          { class: 'public-section' },
+          { class: 'public-section public-venue-highlight' },
           el('p', { class: 'eyebrow' }, 'Ti aspettiamo'),
           el('h2', {}, venue.name),
           venueCard(venue, site.multi_venue),
@@ -777,8 +793,9 @@ async function menu(site: PublicSite, venue: Venue | undefined): Promise<HTMLEle
   const section = el(
     'section',
     { class: 'public-section' },
-    el('p', { class: 'eyebrow' }, 'A tavola'),
-    el('h1', {}, 'Il nostro menu'),
+    el('p', { class: 'eyebrow' }, 'Una scelta di gusto'),
+    el('h1', {}, 'Scopri la nostra cucina'),
+    el('p', { class: 'public-intro' }, 'I sapori che amiamo, preparati per essere condivisi.'),
   );
   if (!venue) {
     section.append(
@@ -812,10 +829,10 @@ async function menu(site: PublicSite, venue: Venue | undefined): Promise<HTMLEle
             const badge = availabilityBadge(dish.availability);
             return el(
               'article',
-              { class: 'dish-public' },
+              { class: 'dish-public public-dish-card public-legacy-dish' },
               picture
                 ? el('img', { src: picture, alt: dish.name, loading: 'lazy', decoding: 'async' })
-                : null,
+                : el('div', { class: 'public-dish-image-placeholder' }, 'La nostra cucina'),
               el(
                 'div',
                 { class: 'row between' },
