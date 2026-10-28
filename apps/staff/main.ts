@@ -75,7 +75,8 @@ function navIcon(path: string): SVGSVGElement {
     '/statistiche': 'M4 20V10 M10 20V4 M16 20v-7 M22 20V8',
     '/accoglienza': 'M12 13a5 5 0 1 0 0-10 5 5 0 0 0 0 10z M4 21a8 8 0 0 1 16 0',
     '/servizio': 'M5 4h14 M12 4v16 M5 13h14 M7 20h10',
-    '/gestione': 'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z M12 2v3 M12 19v3 M4 4l2 2 M18 18l2 2 M2 12h3 M19 12h3 M4 20l2-2 M18 6l2-2',
+    '/gestione':
+      'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z M12 2v3 M12 19v3 M4 4l2 2 M18 18l2 2 M2 12h3 M19 12h3 M4 20l2-2 M18 6l2-2',
     '/sito': 'M3 5h18v14H3z M3 9h18 M8 9v10',
     '/menu-sede': 'M4 4h16v16H4z M8 9h8 M8 13h8 M8 17h6',
     '/stampe': 'M6 9V3h12v6 M6 18H4V9h16v9h-2 M6 15h12v6H6z',
@@ -83,7 +84,9 @@ function navIcon(path: string): SVGSVGElement {
     '/pianificazione': 'M3 5h18v16H3z M3 10h18 M7 3v4 M17 3v4',
     '/salute': 'M3 12h4l3-6 4 12 3-6h4',
   };
-  const data = icons[path] ?? (path.startsWith('/cucina') ? 'M5 4h14v16H5z M8 9h8 M8 13h8' : 'M4 4h16v16H4z M9 9h6v6H9z');
+  const data =
+    icons[path] ??
+    (path.startsWith('/cucina') ? 'M5 4h14v16H5z M8 9h8 M8 13h8' : 'M4 4h16v16H4z M9 9h6v6H9z');
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('viewBox', '0 0 24 24');
   svg.setAttribute('width', '20');
@@ -316,7 +319,9 @@ async function render(): Promise<void> {
     el(
       'aside',
       { class: 'sidebar' },
-      el('div', { class: 'sidebar-brand-row' },
+      el(
+        'div',
+        { class: 'sidebar-brand-row' },
         el('a', { class: 'brand', href: staffHref('/') }, 'Plateform'),
         sidebarToggle,
       ),
@@ -335,8 +340,8 @@ async function render(): Promise<void> {
                     {
                       href: staffHref(link.path),
                       class: 'nav-link',
-                  'aria-label': link.label,
-                  title: link.label,
+                      'aria-label': link.label,
+                      title: link.label,
                       'aria-label': link.label,
                       title: link.label,
                       ...(pageLink?.path === link.path ? { 'aria-current': 'page' } : {}),
@@ -383,7 +388,7 @@ async function render(): Promise<void> {
           profile.role === 'SUPER_ADMIN' ? null : notificationIndicator(context),
           button(
             document.documentElement.dataset.theme === 'dark' ? '☀ Chiaro' : '☾ Scuro',
-            ( ) => {
+            () => {
               const next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
               document.documentElement.dataset.theme = next;
               localStorage.setItem('plateform-theme', next);
@@ -411,7 +416,10 @@ async function render(): Promise<void> {
   sidebarToggle.addEventListener('click', () => {
     const compact = shell.classList.toggle('sidebar-collapsed');
     sidebarToggle.setAttribute('aria-expanded', String(!compact));
-    sidebarToggle.setAttribute('aria-label', compact ? 'Espandi il menu laterale' : 'Comprimi il menu laterale');
+    sidebarToggle.setAttribute(
+      'aria-label',
+      compact ? 'Espandi il menu laterale' : 'Comprimi il menu laterale',
+    );
     sidebarToggle.title = compact ? 'Espandi menu' : 'Comprimi menu';
     localStorage.setItem('plateform-sidebar', compact ? 'collapsed' : 'expanded');
   });

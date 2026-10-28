@@ -703,36 +703,44 @@ function home(site: PublicSite, venue: Venue | undefined, bookingDestination?: V
       href: venueAwarePath('/menu', site, venue),
     },
     ...(bookingEnabled
-      ? [{
-          number: '02',
-          label: 'Prenota un tavolo',
-          description: 'Controlla la disponibilità e scegli quando venire.',
-          href: venueAwarePath('/prenota', site, bookingDestination),
-        }]
+      ? [
+          {
+            number: '02',
+            label: 'Prenota un tavolo',
+            description: 'Controlla la disponibilità e scegli quando venire.',
+            href: venueAwarePath('/prenota', site, bookingDestination),
+          },
+        ]
       : []),
     ...(sectionEnabled(site, 'venues') && site.multi_venue
-      ? [{
-          number: '03',
-          label: 'Le nostre sedi',
-          description: 'Trova il locale e i suoi contatti.',
-          href: '/sedi',
-        }]
+      ? [
+          {
+            number: '03',
+            label: 'Le nostre sedi',
+            description: 'Trova il locale e i suoi contatti.',
+            href: '/sedi',
+          },
+        ]
       : []),
     ...(sectionEnabled(site, 'contacts')
-      ? [{
-          number: '04',
-          label: 'Contatti e orari',
-          description: 'Le informazioni utili per la tua visita.',
-          href: venueAwarePath('/contatti', site, venue),
-        }]
+      ? [
+          {
+            number: '04',
+            label: 'Contatti e orari',
+            description: 'Le informazioni utili per la tua visita.',
+            href: venueAwarePath('/contatti', site, venue),
+          },
+        ]
       : []),
     ...(sectionEnabled(site, 'gallery')
-      ? [{
-          number: '05',
-          label: 'La gallery',
-          description: 'Gli ambienti e le foto del ristorante.',
-          href: venueAwarePath('/gallery', site, venue),
-        }]
+      ? [
+          {
+            number: '05',
+            label: 'La gallery',
+            description: 'Gli ambienti e le foto del ristorante.',
+            href: venueAwarePath('/gallery', site, venue),
+          },
+        ]
       : []),
   ];
 
@@ -750,7 +758,11 @@ function home(site: PublicSite, venue: Venue | undefined, bookingDestination?: V
         el(
           'p',
           { class: 'app-home-subtitle' },
-          textValue(site.content, 'hero_subtitle', 'Scopri il menu, prenota e organizza la tua visita in pochi passaggi.'),
+          textValue(
+            site.content,
+            'hero_subtitle',
+            'Scopri il menu, prenota e organizza la tua visita in pochi passaggi.',
+          ),
         ),
       ),
       el(
@@ -758,11 +770,7 @@ function home(site: PublicSite, venue: Venue | undefined, bookingDestination?: V
         { class: 'app-home-primary' },
         el('span', { class: 'app-home-primary-kicker' }, 'Inizia da qui'),
         el('h2', {}, 'Cosa vuoi fare oggi?'),
-        el(
-          'p',
-          {},
-          'Tutte le informazioni e i servizi del ristorante, in un unico posto.',
-        ),
+        el('p', {}, 'Tutte le informazioni e i servizi del ristorante, in un unico posto.'),
         el(
           'a',
           { class: 'button primary', href: venueAwarePath('/menu', site, venue) },
@@ -776,7 +784,9 @@ function home(site: PublicSite, venue: Venue | undefined, bookingDestination?: V
       el(
         'div',
         { class: 'app-section-heading' },
-        el('div', {},
+        el(
+          'div',
+          {},
           el('p', { class: 'eyebrow' }, 'Accesso rapido'),
           el('h2', {}, 'Esplora il ristorante'),
         ),
@@ -813,7 +823,11 @@ function home(site: PublicSite, venue: Venue | undefined, bookingDestination?: V
             el(
               'p',
               { class: 'story-copy' },
-              textValue(site.content, 'story', 'Conosci la nostra cucina e la storia del ristorante.'),
+              textValue(
+                site.content,
+                'story',
+                'Conosci la nostra cucina e la storia del ristorante.',
+              ),
             ),
             el('a', { href: venueAwarePath('/ristorante', site, venue) }, 'Scopri di più →'),
           ),

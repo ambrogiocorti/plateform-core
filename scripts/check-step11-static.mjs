@@ -178,12 +178,14 @@ for (const [needle, label] of [
   ["class: collapsedSidebar ? 'staff-shell sidebar-collapsed'", 'staff_icon_sidebar_toggle'],
   ['navIcon(link.path)', 'staff_navigation_icons'],
   ["localStorage.getItem('plateform-theme') ?? 'light'", 'staff_light_default'],
-]) requireText(staffMain, needle, label);
+])
+  requireText(staffMain, needle, label);
 for (const [needle, label] of [
   ['.staff-shell.sidebar-collapsed', 'staff_sidebar_collapsed_css'],
   ['--accent: #245de4', 'staff_brand_blue'],
   ['.kpi-grid', 'staff_compact_dashboard'],
   ['@media (max-width: 640px)', 'staff_bottom_navigation'],
-]) requireText(staffExperience, needle, label);
+])
+  requireText(staffExperience, needle, label);
 
 console.log('STEP11_STATIC_GATE=PASSED');

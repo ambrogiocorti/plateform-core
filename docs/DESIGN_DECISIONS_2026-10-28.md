@@ -3,26 +3,26 @@
 Questo documento blocca l'interpretazione delle 18 risposte raccolte il 27 ottobre.
 Non sostituisce il Master Prompt commerciale né i requisiti di sicurezza della roadmap.
 
-| Q | Risposta | Vincolo operativo |
-|---|---|---|
-| 1 | A — Elegante e premium | Estetica di prodotto software, non template rustico |
-| 2 | A — Bianco, nero e blu | Palette tecnologica; non verde/avorio come precedente esperimento |
-| 3 | C — Sidebar compatta a icone | Desktop collassabile, label accessibili; bottom nav mobile |
-| 4 | A — Dashboard panoramica | Indicatori e moduli operativi in unica vista autorizzata |
-| 5 | D — Compatto e operativo | Densità superiore per gestione ordini, tavoli e cassa |
-| 6 | D — Home cliente tipo applicazione | Accessi diretti a menu/prenotazioni, NO grande hero fotografico |
-| 7 | B — Griglia fotografica | Foto nelle schede piatto, non nel maxi hero della home |
-| 8 | B — Pagina dettaglio piatto | Info, ingredienti, allergeni e varianti |
-| 9 | B — Personalizzazioni a sezioni | Solo opzioni autorizzate dal backend |
-| 10 | B — Carrello dedicato | Totali e quantità verificati |
-| 11 | B — Conferma a sezioni | Rispetta DIRECT/WAITER_APPROVAL |
-| 12 | A — Stato ordine semplice | Server authoritative e Realtime |
-| 13 | C — Cronologia visuale | Solo dati conto/autorizzazioni corrette |
-| 14 | B — Dashboard cliente a schede | Account facoltativo, nessun obbligo per QR |
-| 15 | A — Preferiti a lista semplice | Persistenza locale finché non c'è identity customer |
-| 16 | B — Carosello offerte | Solo promozioni abilitate e pubblicate |
-| 17 | B — Centro notifiche organizzato | Per categoria e stato; privacy cliente |
-| 18 | A+B — Moderno/minimalista/accogliente | Light default; dark toggle accessibile |
+| Q   | Risposta                              | Vincolo operativo                                                 |
+| --- | ------------------------------------- | ----------------------------------------------------------------- |
+| 1   | A — Elegante e premium                | Estetica di prodotto software, non template rustico               |
+| 2   | A — Bianco, nero e blu                | Palette tecnologica; non verde/avorio come precedente esperimento |
+| 3   | C — Sidebar compatta a icone          | Desktop collassabile, label accessibili; bottom nav mobile        |
+| 4   | A — Dashboard panoramica              | Indicatori e moduli operativi in unica vista autorizzata          |
+| 5   | D — Compatto e operativo              | Densità superiore per gestione ordini, tavoli e cassa             |
+| 6   | D — Home cliente tipo applicazione    | Accessi diretti a menu/prenotazioni, NO grande hero fotografico   |
+| 7   | B — Griglia fotografica               | Foto nelle schede piatto, non nel maxi hero della home            |
+| 8   | B — Pagina dettaglio piatto           | Info, ingredienti, allergeni e varianti                           |
+| 9   | B — Personalizzazioni a sezioni       | Solo opzioni autorizzate dal backend                              |
+| 10  | B — Carrello dedicato                 | Totali e quantità verificati                                      |
+| 11  | B — Conferma a sezioni                | Rispetta DIRECT/WAITER_APPROVAL                                   |
+| 12  | A — Stato ordine semplice             | Server authoritative e Realtime                                   |
+| 13  | C — Cronologia visuale                | Solo dati conto/autorizzazioni corrette                           |
+| 14  | B — Dashboard cliente a schede        | Account facoltativo, nessun obbligo per QR                        |
+| 15  | A — Preferiti a lista semplice        | Persistenza locale finché non c'è identity customer               |
+| 16  | B — Carosello offerte                 | Solo promozioni abilitate e pubblicate                            |
+| 17  | B — Centro notifiche organizzato      | Per categoria e stato; privacy cliente                            |
+| 18  | A+B — Moderno/minimalista/accogliente | Light default; dark toggle accessibile                            |
 
 Account cliente facoltativo deciso successivamente. La sincronizzazione cross-device
 richiede un'implementazione server/autenticazione separata: non dichiararla pronta se
