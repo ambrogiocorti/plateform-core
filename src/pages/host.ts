@@ -653,18 +653,30 @@ export async function hostPage(context: StaffContext): Promise<HTMLElement> {
   await Promise.all([refresh(), refreshFloor()]);
   reservations.id = 'host-arrivals';
   map.id = 'host-floor';
-  const overview = el('header', { class: 'host-desk-header' },
-    el('div', {},
+  const overview = el(
+    'header',
+    { class: 'host-desk-header' },
+    el(
+      'div',
+      {},
       el('p', { class: 'eyebrow' }, 'FRONT DESK · OGGI'),
       el('h2', {}, 'Accoglienza e sala, in un unico posto'),
-      el('p', { class: 'muted' }, 'Controlla gli arrivi, assegna i tavoli e gestisci la lista d’attesa.'),
+      el(
+        'p',
+        { class: 'muted' },
+        'Controlla gli arrivi, assegna i tavoli e gestisci la lista d’attesa.',
+      ),
     ),
     button('Nuova prenotazione', () => reservationEditor(context, date.input.value)),
   );
-  return el('div', { class: 'host-workspace host-dashboard-v2' },
+  return el(
+    'div',
+    { class: 'host-workspace host-dashboard-v2' },
     overview,
     kpis,
-    el('nav', { class: 'host-desk-tabs', 'aria-label': 'Aree accoglienza' },
+    el(
+      'nav',
+      { class: 'host-desk-tabs', 'aria-label': 'Aree accoglienza' },
       el('a', { href: '#host-arrivals' }, 'Arrivi e prenotazioni'),
       el('a', { href: '#host-floor' }, 'Sala'),
       el('a', { href: '#host-waitlist' }, 'Lista d’attesa'),

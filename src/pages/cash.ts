@@ -544,15 +544,21 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
   );
 
   secondary.id = 'cash-operations';
-  const cashierHeader = el('header', { class: 'cash-desk-header' },
-    el('div', {},
+  const cashierHeader = el(
+    'header',
+    { class: 'cash-desk-header' },
+    el(
+      'div',
+      {},
       el('p', { class: 'eyebrow' }, 'GESTIONE INCASSI · CASSA'),
       el('h2', {}, 'Il banco di lavoro'),
       el('p', { class: 'muted' }, 'Trova un conto, controlla il saldo e completa il pagamento.'),
     ),
     el('span', { class: 'cash-desk-shortcut' }, 'F2 · Cerca     F4 · Incassa'),
   );
-  const cashierNavigation = el('nav', { class: 'cash-desk-tabs', 'aria-label': 'Strumenti di cassa' },
+  const cashierNavigation = el(
+    'nav',
+    { class: 'cash-desk-tabs', 'aria-label': 'Strumenti di cassa' },
     el('a', { href: '#cash-main' }, 'Conti e pagamenti'),
     el('a', { href: '#cash-operations' }, 'Postazioni e verifiche'),
   );

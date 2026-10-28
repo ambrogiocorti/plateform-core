@@ -266,24 +266,29 @@ const cashSource = await read('src/pages/cash.ts');
 const waiterSource = await read('src/pages/waiter.ts');
 for (const [needle, label] of [
   ["import '../../styles/frontdesk-v4.css'", 'frontdesk_css_imported'],
-]) requireText(staffMain, needle, label);
+])
+  requireText(staffMain, needle, label);
 for (const [needle, label] of [
   ['.host-desk-body', 'host_operational_columns'],
   ['.cashier-command-center', 'cashier_search_and_account_workspace'],
   ['.waiter-service-intro', 'waiter_role_workspace'],
-]) requireText(frontDeskLayout, needle, label);
+])
+  requireText(frontDeskLayout, needle, label);
 for (const [needle, label] of [
   ["class: 'host-workspace host-dashboard-v2'", 'host_dashboard_recomposed'],
   ["class: 'host-desk-body'", 'host_reservations_floor_separated'],
   ["class: 'host-desk-tabs'", 'host_task_navigation'],
-]) requireText(hostSource, needle, label);
+])
+  requireText(hostSource, needle, label);
 for (const [needle, label] of [
   ["class: 'cash-desk-header'", 'cashier_new_task_header'],
   ["class: 'cash-desk-tabs'", 'cashier_task_navigation'],
-]) requireText(cashSource, needle, label);
+])
+  requireText(cashSource, needle, label);
 for (const [needle, label] of [
   ["class: 'waiter-service-intro'", 'waiter_task_hierarchy'],
   ["class: 'waiter-service-tabs'", 'waiter_task_navigation'],
-]) requireText(waiterSource, needle, label);
+])
+  requireText(waiterSource, needle, label);
 
 console.log('STEP11_STATIC_GATE=PASSED');

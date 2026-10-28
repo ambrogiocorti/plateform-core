@@ -256,13 +256,23 @@ export async function waiterPage(context: StaffContext): Promise<HTMLElement> {
   });
 
   root.append(
-    el('header', { class: 'waiter-service-intro' },
-      el('div', {},
+    el(
+      'header',
+      { class: 'waiter-service-intro' },
+      el(
+        'div',
+        {},
         el('p', { class: 'eyebrow' }, runnerOnly ? 'CONSEGNE' : 'IL TUO SERVIZIO'),
         el('h2', {}, runnerOnly ? 'Piatti pronti da consegnare' : 'Il servizio, tavolo per tavolo'),
-        el('p', { class: 'muted' }, 'Le attività urgenti e le tue assegnazioni in ordine di priorità.'),
+        el(
+          'p',
+          { class: 'muted' },
+          'Le attività urgenti e le tue assegnazioni in ordine di priorità.',
+        ),
       ),
-      el('nav', { class: 'waiter-service-tabs', 'aria-label': 'Scorciatoie servizio' },
+      el(
+        'nav',
+        { class: 'waiter-service-tabs', 'aria-label': 'Scorciatoie servizio' },
         activeCalls.length ? el('a', { href: '#waiter-calls' }, 'Chiamate') : null,
         readySteps.length ? el('a', { href: '#waiter-ready' }, 'Da consegnare') : null,
         !runnerOnly ? el('a', { href: '#waiter-tables' }, 'I miei tavoli') : null,
