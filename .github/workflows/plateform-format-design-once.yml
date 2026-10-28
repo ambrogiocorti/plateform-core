@@ -1,0 +1,41 @@
+name: Plateform one-time hospitality design format
+
+on:
+  push:
+    branches:
+      - feature/customer-experience-light-theme-20261027
+    paths:
+      - '.github/workflows/plateform-format-design-once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Apply repository formatting to customer redesign
+        run: |
+          node node_modules/prettier/bin/prettier.cjs --write \
+            styles/public-experience.css \
+            apps/public/main.ts \
+            scripts/check-step11-static.mjs
+          npm run format:check
+      - name: Save formatted changes only on the feature branch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- styles/public-experience.css apps/public/main.ts scripts/check-step11-static.mjs
+          if ! git diff --cached --quiet; then
+            git commit -m 'style: format hospitality redesign'
+            git push origin HEAD:refs/heads/feature/customer-experience-light-theme-20261027
+          fi
