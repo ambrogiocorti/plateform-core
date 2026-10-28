@@ -1,0 +1,37 @@
+name: Plateform report audit formatter (one-time)
+on:
+  push:
+    branches: [feature/customer-experience-light-theme-20261027]
+    paths: ['.github/workflows/plateform-format-report-once.yml']
+permissions:
+  contents: write
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Format report remediation with locked repository Prettier
+        run: |
+          node node_modules/prettier/bin/prettier.cjs --write \
+            styles/public.css styles/staff.css styles/base.css \
+            styles/plateform-design-system.css styles/tokens.css \
+            styles/staff-app.css apps/public/main.ts apps/staff/main.ts \
+            scripts/check-report-frontend.mjs \
+            tests/e2e/report-visual.spec.ts \
+            .github/workflows/plateform-github-pages.yml
+          npm run format:check
+      - name: Commit formatting only to feature branch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- styles/public.css styles/staff.css styles/base.css styles/plateform-design-system.css styles/tokens.css styles/staff-app.css apps/public/main.ts apps/staff/main.ts scripts/check-report-frontend.mjs tests/e2e/report-visual.spec.ts .github/workflows/plateform-github-pages.yml
+          if ! git diff --cached --quiet; then
+            git commit -m 'style(audit): format accessibility and theme remediation'
+            git push origin HEAD:refs/heads/feature/customer-experience-light-theme-20261027
+          fi
