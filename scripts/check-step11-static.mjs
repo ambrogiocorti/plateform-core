@@ -157,7 +157,7 @@ requireText(
 for (const [needle, label] of [
   ["import '../../styles/public-experience.css'", 'customer_design_imported'],
   ["class: 'public-hero-actions'", 'customer_design_hero_actions'],
-  ["class: 'public-venue-highlight'", 'customer_design_venue_feature'],
+  ["class: 'public-section public-venue-highlight'", 'customer_design_venue_feature'],
 ])
   requireText(publicMain, needle, label);
 for (const [needle, label] of [
