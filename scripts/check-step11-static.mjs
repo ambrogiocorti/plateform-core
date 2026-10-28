@@ -161,8 +161,11 @@ const customerPage = await read('src/pages/customer.ts');
 const publishedMenu = await read('src/pages/public-menu.ts');
 for (const [needle, label] of [
   ["import '../../styles/public-app.css'", 'public_design_loaded'],
-  ["class: 'app-home-intro public-section'", 'public_app_home'],
-  ["class: 'public-section app-shortcuts'", 'public_quick_access'],
+  ["import '../../styles/restaurant-redesign.css'", 'public_new_structural_layout_loaded'],
+  ["class: 'restaurant-welcome'", 'real_restaurant_home'],
+  ["class: 'restaurant-discover'", 'real_menu_discovery'],
+  ["class: 'restaurant-visit-panel'", 'visit_sidebar'],
+  ["class: 'restaurant-featured-grid'", 'real_menu_highlights'],
   ["class: 'public-menu-toolbar'", 'public_menu_search'],
   ['UI 2.0 · TEST', 'public_preview_signature'],
   ["document.documentElement.style.setProperty('--pf-blue', accent)", 'brand_accent_is_dynamic'],
@@ -192,6 +195,9 @@ for (const [needle, label] of [
   requireText(designSystem, needle, label);
 for (const [needle, label] of [
   ["import '../../styles/staff-app.css'", 'staff_design_loaded'],
+  ["import '../../styles/workspace-redesign.css'", 'staff_structural_redesign_loaded'],
+  ["class: 'workspace-context-tabs'", 'new_role_navigation_structure'],
+  ["class: 'workspace-page-heading'", 'new_workspace_heading'],
   ["class: collapsedSidebar ? 'staff-shell sidebar-collapsed'", 'staff_sidebar_toggle'],
   ['navIcon(link.path)', 'staff_icon_navigation'],
   ['NUOVA UI · TEST', 'staff_preview_signature'],
@@ -220,5 +226,35 @@ for (const [needle, label] of [
   ['dishPath(dish.id)', 'published_dish_detail_link'],
 ])
   requireText(publishedMenu, needle, label);
+
+
+const restaurantStructure = await read('styles/restaurant-redesign.css');
+const workplaceStructure = await read('styles/workspace-redesign.css');
+const adminOperations = await read('src/pages/admin-operations.ts');
+const kitchenPage = await read('src/pages/kitchen.ts');
+for (const [text, label] of [
+  ['.restaurant-home-content', 'restaurant_real_content_columns'],
+  ['.restaurant-featured-grid', 'featured_menu_tiles'],
+  ['.restaurant-story-panel', 'restaurant_story_layout'],
+  ['.restaurant-visit-links', 'reservation_utility_panel'],
+]) requireText(restaurantStructure, text, label);
+for (const [text, label] of [
+  ['.workspace-context-tabs', 'staff_contextual_navigation'],
+  ['.ops-overview', 'command_center_main_panel'],
+  ['.ops-body-grid', 'asymmetric_dashboard_layout'],
+  ['.ops-attention-card', 'separate_priority_rail'],
+  ['.ops-service-grid', 'operational_area_matrix'],
+  ['.kds-filter-actions', 'kitchen_filter_controls'],
+]) requireText(workplaceStructure, text, label);
+for (const [text, label] of [
+  ["class: 'ops-overview'", 'dashboard_restructured'],
+  ["class: 'ops-attention-card'", 'dashboard_priorities_separated'],
+  ["class: 'ops-summary-grid'", 'dashboard_kpis_restructured'],
+]) requireText(adminOperations, text, label);
+for (const [text, label] of [
+  ["class: 'kds-workspace'", 'kds_new_workspace'],
+  ["class: 'kds-filter-actions'", 'kds_operational_filters'],
+  ["control.setAttribute('aria-pressed'", 'kds_filter_accessibility'],
+]) requireText(kitchenPage, text, label);
 
 console.log('STEP11_STATIC_GATE=PASSED');

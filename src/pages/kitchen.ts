@@ -236,6 +236,7 @@ export async function kitchenPage(context: StaffContext): Promise<HTMLElement> {
       {
         class: `kds-ticket ${urgencyClass(first.created_at)}${complete ? ' is-complete' : ''}`,
         'data-step-status': first.step_status,
+        'data-ticket-states': rows.map((item) => item.status).join(' '),
       },
       el(
         'header',
@@ -376,6 +377,47 @@ export async function kitchenPage(context: StaffContext): Promise<HTMLElement> {
           ? 'Gli step pronti o in coordinamento compariranno qui in tempo reale.'
           : 'Le comande pertinenti alla tua postazione compariranno qui in tempo reale.',
       );
-  if (!adminOverview) return board;
-  return el('div', { class: 'stack' }, kitchenAdminPanel(adminOverview, board), board);
+
+  const boardShell = el('section', { class: 'kds-workspace', 'aria-label': 'Comande in lavorazione' },
+    el('header', { class: 'kds-workspace-header' },
+      el('div', {},
+        el('p', { class: 'eyebrow' }, 'PRODUZIONE · LIVE'),
+        el('h2', {}, context.profile.role === 'PASS' ? 'Comande da coordinare' : 'Comande in cucina'),
+        el('p', {}, 'Lavora per priorità e concentrati sullo stato di ogni comanda.'),
+      ),
+      el('div', { class: 'kds-overview-strip', role: 'status' },
+        el('div', {}, el('strong', {}, String(steps.length)), el('span', {}, 'Step')),
+        el('div', {}, el('strong', {}, String(items.filter((item) => item.status === 'RECEIVED').length)), el('span', {}, 'Ricevuti')),
+        el('div', {}, el('strong', {}, String(items.filter((item) => item.status === 'IN_PREPARATION').length)), el('span', {}, 'In preparazione')),
+        el('div', {}, el('strong', {}, String(items.filter((item) => item.status === 'READY').length)), el('span', {}, 'Pronti')),
+      ),
+    ),
+  );
+  if (items.length) {
+    const filterActions = el('div', { class: 'kds-filter-actions', 'aria-label': 'Filtra le comande' });
+    const filters = [
+      ['Tutte', 'ALL'],
+      ['Da preparare', 'RECEIVED'],
+      ['In lavorazione', 'IN_PREPARATION'],
+      ['Pronte', 'READY'],
+    ];
+    for (const [label, value] of filters) {
+      const control = button(label, () => {
+        for (const item of grid.querySelectorAll<HTMLElement>('.kds-ticket')) {
+          item.hidden = value !== 'ALL' && !(item.dataset.ticketStates ?? '').split(' ').includes(value);
+        }
+        for (const element of filterActions.querySelectorAll<HTMLButtonElement>('button')) {
+          element.setAttribute('aria-pressed', String(element === control));
+        }
+      }, 'secondary');
+      control.setAttribute('aria-pressed', String(value === 'ALL'));
+      filterActions.append(control);
+    }
+    boardShell.append(filterActions);
+  }
+  boardShell.append(board);
+  if (!adminOverview) return boardShell;
+  return el('div', { class: 'stack kitchen-operations-dashboard' },
+    kitchenAdminPanel(adminOverview, boardShell), boardShell);
+
 }
