@@ -44,7 +44,7 @@ jobs:
             apps/public/main.ts apps/staff/main.ts src/pages/admin-operations.ts \
             styles/restaurant-redesign.css styles/workspace-redesign.css \
             styles/staff-app.css styles/frontdesk-v4.css \
-            scripts/check-hospitality-ux.mjs tests/e2e/hospitality-ux.spec.ts \
+            scripts/check-hospitality-ux.mjs scripts/check-admin-ux.mjs scripts/check-host-ux.mjs scripts/check-cashier-ux.mjs tests/e2e/hospitality-ux.spec.ts \
             docs/PLATEFORM_SALE_READINESS_2026-10-29.md
           npm run format:check
       - name: Save formatting on UX branch only

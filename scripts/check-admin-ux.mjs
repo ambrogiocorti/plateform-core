@@ -25,7 +25,9 @@ const checks = [
   ],
   [
     'priorità immediate presenti',
-    page.includes('Richiede intervento') && page.includes('activePriorities'),
+    page.includes("class: 'ops-attention-card'") &&
+      page.includes('priorities.filter((item) => item.value > 0)') &&
+      page.includes('severity'),
   ],
   [
     'sala nel colpo d’occhio',
@@ -53,7 +55,9 @@ const checks = [
   ],
   [
     'azioni rapide operative',
-    ['SALA', 'ACCOGLIENZA', 'CUCINA', 'CASSA', 'NOTIFICHE'].every((x) => page.includes(`'${x}'`)),
+    ['/sala', '/accoglienza', '/cucina', '/cassa', '/notifiche'].every((path) =>
+      page.includes(`context.navigate('${path}')`) || page.includes(`path: '${path}'`)
+    ),
   ],
   ['nessun KPI fatturato nella home', !/fatturato|revenue|receipts_cents|net_cents/i.test(page)],
   [
@@ -67,9 +71,9 @@ const checks = [
   ],
   [
     'UI responsive e touch',
-    css.includes('.admin-priority-grid') &&
-      css.includes('min-height: 48px') &&
-      css.includes('@media (max-width: 700px)'),
+    read('styles/workspace-redesign.css').includes('.ops-body-grid') &&
+      read('styles/workspace-redesign.css').includes('min-height: 44px') &&
+      read('styles/workspace-redesign.css').includes('@media (max-width: 640px)'),
   ],
 ];
 let failed = 0;

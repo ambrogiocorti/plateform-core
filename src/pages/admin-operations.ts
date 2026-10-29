@@ -92,6 +92,13 @@ function renderOverview(context: StaffContext, data: AdminOverview): HTMLElement
       severity: 'warning',
     },
     {
+      label: 'Conti da chiudere',
+      value: data.tables.waiting_bill,
+      description: 'Tavoli che attendono il conto',
+      path: '/cassa',
+      severity: 'warning',
+    },
+    {
       label: 'Pagamenti da verificare',
       value: data.cash.pending_payments,
       description: 'Verifica prima di ripetere un incasso',
