@@ -6,7 +6,6 @@ const payment = read('src/pages/account-payments.ts');
 const provider = read('src/pages/provider-payments.ts');
 const manualPayment = read('src/pages/manual-payment-resolution.ts');
 const settlement = read('src/services/account-settlement.ts');
-const css = read('styles/staff.css');
 
 const checks = [
   [
