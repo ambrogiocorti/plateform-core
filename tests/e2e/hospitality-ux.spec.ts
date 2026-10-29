@@ -29,7 +29,9 @@ const site = {
 async function restaurantFixture(page: import('@playwright/test').Page) {
   await page.route('**/rest/v1/rpc/get_public_site', (route) => route.fulfill({ json: site }));
   await page.route('**/rest/v1/rpc/get_public_menu', (route) => route.fulfill({ json: [] }));
-  await page.route('**/rest/v1/rpc/get_public_navigation', (route) => route.fulfill({ json: { menus: [] } }));
+  await page.route('**/rest/v1/rpc/get_public_navigation', (route) =>
+    route.fulfill({ json: { menus: [] } }),
+  );
 }
 
 for (const width of [390, 1280]) {
@@ -46,21 +48,31 @@ for (const width of [390, 1280]) {
     await expect(menu).toBeVisible();
     await expect(hospitality.locator('.restaurant-story-panel')).toBeVisible();
     await expect(hospitality.locator('.restaurant-visit-panel')).toBeVisible();
-    const order = await page.locator('.restaurant-home > *').evaluateAll((nodes) =>
-      nodes.map((node) => node.className)
-    );
+    const order = await page
+      .locator('.restaurant-home > *')
+      .evaluateAll((nodes) => nodes.map((node) => node.className));
     expect(order.slice(0, 4)).toEqual([
       'restaurant-welcome',
       'restaurant-journey-bar',
       'restaurant-discover',
       'restaurant-home-content',
     ]);
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
-    await page.screenshot({ path: 'test-results/hospitality-home-' + width + '-light.png', fullPage: true });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
+      true,
+    );
+    await page.screenshot({
+      path: 'test-results/hospitality-home-' + width + '-light.png',
+      fullPage: true,
+    });
     await page.getByRole('button', { name: 'Attiva tema scuro' }).click();
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
-    await page.screenshot({ path: 'test-results/hospitality-home-' + width + '-dark.png', fullPage: true });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
+      true,
+    );
+    await page.screenshot({
+      path: 'test-results/hospitality-home-' + width + '-dark.png',
+      fullPage: true,
+    });
   });
 
   test('staff editorial login layout stays usable at ' + width, async ({ page }) => {
@@ -69,7 +81,12 @@ for (const width of [390, 1280]) {
     await expect(page.getByRole('heading', { name: 'Bentornato.' })).toBeVisible();
     await expect(page.locator('.login-story')).toBeVisible();
     await expect(page.getByLabel('Identificativo staff')).toBeVisible();
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
-    await page.screenshot({ path: 'test-results/hospitality-staff-' + width + '.png', fullPage: true });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
+      true,
+    );
+    await page.screenshot({
+      path: 'test-results/hospitality-staff-' + width + '.png',
+      fullPage: true,
+    });
   });
 }
