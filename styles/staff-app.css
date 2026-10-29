@@ -2,13 +2,13 @@
 /* Plateform Operations · high-density workspace with icon rail, command bar, role views. */
 .staff-shell {
   display: grid;
-  grid-template-columns: 248px minmax(0, 1fr);
+  grid-template-columns: 268px minmax(0, 1fr);
   min-height: 100dvh;
   background: var(--pf-background);
   transition: grid-template-columns 150ms ease;
 }
 .staff-shell.sidebar-collapsed {
-  grid-template-columns: 76px minmax(0, 1fr);
+  grid-template-columns: 86px minmax(0, 1fr);
 }
 .staff-shell > div {
   min-width: 0;
@@ -23,9 +23,9 @@
   min-width: 0;
   padding: 19px 11px 17px;
   gap: 16px;
-  border-right: 1px solid #152541;
-  background: #0b1831;
-  color: #e8efff;
+  border-right: 1px solid #263732;
+  background: #202c2a;
+  color: #f3f0e7;
 }
 .sidebar-brand-row {
   display: flex;
@@ -40,7 +40,7 @@
   align-items: center;
   min-width: 0;
   overflow: hidden;
-  color: #fff;
+  color: #f6f2e9;
   text-decoration: none;
   text-overflow: clip;
   white-space: nowrap;
@@ -56,8 +56,8 @@
   height: 35px;
   margin-right: 9px;
   border-radius: 10px;
-  background: #3972ff;
-  color: #fff;
+  background: #ceb589;
+  color: #1a2825;
   font-size: 20px;
   font-weight: 800;
 }
@@ -68,15 +68,15 @@
   width: 35px;
   height: 35px;
   padding: 0;
-  border: 1px solid #2a4166;
+  border: 1px solid #41564f;
   border-radius: 9px;
-  background: #152849;
-  color: #d2e0fa;
+  background: #31423e;
+  color: #f0e9db;
   font-size: 16px;
 }
 .sidebar-toggle:hover {
-  background: #233e70;
-  border-color: #648dff;
+  background: #3b534a;
+  border-color: #b39b70;
 }
 .sidebar nav {
   display: grid;
@@ -86,12 +86,12 @@
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-width: thin;
-  scrollbar-color: #334b72 transparent;
+  scrollbar-color: #5b6a5d transparent;
 }
 .sidebar-section {
   display: block;
   margin: 19px 11px 7px;
-  color: #91a5c4;
+  color: #a6b5ad;
   font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.13em;
@@ -105,7 +105,7 @@
   padding: 10px 11px;
   border: 1px solid transparent;
   border-radius: 10px;
-  color: #aebeda;
+  color: #d0d8d1;
   font-size: 12px;
   font-weight: 660;
   text-decoration: none;
@@ -115,14 +115,14 @@
     border-color 120ms ease;
 }
 .sidebar .nav-link:hover {
-  background: #1b3056;
+  background: #354943;
   color: #fff;
 }
 .sidebar .nav-link[aria-current='page'] {
-  background: #23468b;
+  background: #40564e;
   color: #fff;
-  border-color: #345bb0;
-  box-shadow: inset 3px 0 #82aaff;
+  border-color: #61776a;
+  box-shadow: inset 3px 0 #cfb37f;
 }
 .nav-icon {
   display: inline-grid;
@@ -145,8 +145,8 @@
 .sidebar footer {
   margin-top: auto;
   padding: 13px 10px 0;
-  border-top: 1px solid #273a5c;
-  color: #9aaccb;
+  border-top: 1px solid #41534d;
+  color: #c1ccc1;
   font-size: 10px;
   line-height: 1.65;
 }
@@ -163,8 +163,8 @@
   font-size: 0;
   line-height: 0;
 }
-.staff-shell.sidebar-collapsed .sidebar-brand-row .brand::before {
-  margin: 0;
+.staff-shell.sidebar-collapsed .sidebar-brand-row .brand-mark {
+  margin-right: 0;
 }
 .staff-shell.sidebar-collapsed .sidebar .nav-link {
   justify-content: center;
@@ -205,9 +205,9 @@
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  background: #3f83f8;
+  background: var(--pf-success);
   content: '';
-  box-shadow: 0 0 0 4px rgba(63, 131, 248, 0.13);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--pf-success) 12%, transparent);
 }
 .topbar > .row {
   display: flex;
@@ -385,47 +385,51 @@
 }
 .login-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(380px, 0.88fr);
+  grid-template-columns: minmax(0, 1.14fr) minmax(380px, 0.86fr);
+  padding: clamp(12px, 1.6vw, 27px);
+  gap: clamp(12px, 1.6vw, 27px);
+  background: var(--pf-background);
   min-height: 100dvh;
 }
 .login-story {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 520px;
+  min-height: calc(100dvh - clamp(24px, 3.2vw, 54px));
   padding: clamp(35px, 5vw, 90px);
   border: 0;
-  color: #f6f9ff;
+  border-radius: 18px;
+  color: #f6f3ed;
   background:
-    radial-gradient(circle at 75% 18%, rgba(67, 117, 255, 0.43), transparent 45%),
-    linear-gradient(145deg, #08152e, #132e69);
+    radial-gradient(ellipse at 75% 24%, rgba(207, 180, 133, 0.17), transparent 53%),
+    linear-gradient(160deg, #263733, #142321);
 }
 .login-story h1 {
-  max-width: 600px;
-  font-size: clamp(44px, 6vw, 89px);
+  max-width: 650px;
+  font-size: clamp(44px, 5.4vw, 83px);
   color: #fff;
-  font-weight: 760;
+  font-weight: 640;
   letter-spacing: -0.065em;
 }
 .login-story h1 span {
-  color: #9bb9ff;
+  color: #d0b68c;
 }
 .login-story footer {
-  color: #bbcdef;
+  color: #b6c4bb;
 }
 .login-panel {
   display: grid;
   place-items: center;
-  padding: 36px;
-  background: var(--pf-background);
+  padding: clamp(18px, 3vw, 56px);
+  background: transparent;
 }
 .login-form {
-  width: min(100%, 410px);
-  padding: clamp(24px, 3.3vw, 45px);
+  width: min(100%, 490px);
+  padding: clamp(28px, 3.8vw, 58px);
   border: 1px solid var(--pf-line);
-  border-radius: 20px;
+  border-radius: 16px;
   background: var(--pf-surface);
-  box-shadow: var(--pf-elevation-strong);
+  box-shadow: none;
 }
 .login-form h2 {
   margin-bottom: 24px;
@@ -487,10 +491,10 @@
     height: 82px;
     padding: 7px 5px max(7px, env(safe-area-inset-bottom));
     border: 0;
-    border-top: 1px solid #273f68;
+    border-top: 1px solid #41534d;
     border-radius: 17px 17px 0 0;
     background: #0b1831;
-    box-shadow: 0 -7px 24px rgba(5, 16, 43, 0.13);
+    box-shadow: 0 -7px 24px rgba(19, 30, 26, 0.13);
   }
   .sidebar-brand-row,
   .staff-shell.sidebar-collapsed .sidebar-brand-row,
@@ -571,10 +575,12 @@
   }
   .login-layout {
     display: block;
+    padding: 10px;
   }
   .login-story {
-    min-height: 180px;
+    min-height: 200px;
     padding: 28px;
+    border-radius: 12px;
   }
   .login-story h1 {
     display: block;
@@ -584,10 +590,11 @@
     display: none;
   }
   .login-panel {
-    padding: 24px 16px;
+    padding: 18px 6px;
   }
   .login-form {
     padding: 25px;
+    border-radius: 12px;
   }
   .floor-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));

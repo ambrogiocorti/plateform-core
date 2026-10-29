@@ -147,7 +147,7 @@ function renderOverview(context: StaffContext, data: AdminOverview): HTMLElement
       'div',
       { class: 'ops-overview-heading' },
       el('span', { class: 'ops-overline' }, 'IL SERVIZIO · IN TEMPO REALE'),
-      el('h2', {}, 'Tutto sotto controllo.'),
+      el('h2', {}, criticalCount > 0 ? 'Ci sono priorità da gestire.' : pendingCount > 0 ? 'Il servizio richiede attenzione.' : 'Il servizio è sotto controllo.'),
       el('p', {}, 'Una panoramica per sapere cosa sta succedendo, ora.'),
       el(
         'div',
@@ -377,7 +377,7 @@ function renderOverview(context: StaffContext, data: AdminOverview): HTMLElement
     ),
     overview,
     metrics,
-    el('div', { class: 'ops-body-grid' }, areaList, urgent),
+    el('div', { class: 'ops-body-grid' }, urgent, areaList),
     utilities,
   );
 }

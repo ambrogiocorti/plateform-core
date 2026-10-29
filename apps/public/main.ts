@@ -745,7 +745,7 @@ async function home(
     el(
       'div',
       { class: 'restaurant-welcome-copy' },
-      el('p', { class: 'restaurant-kicker' }, 'BENVENUTO NEL NOSTRO RISTORANTE'),
+      el('p', { class: 'restaurant-kicker' }, 'OSPITALITÀ, OGNI GIORNO'),
       el('h1', {}, textValue(site.content, 'hero_title', site.name)),
       el(
         'p',
@@ -771,7 +771,7 @@ async function home(
       el(
         'p',
         { class: 'restaurant-welcome-caption' },
-        'Menu, prenotazioni e tutte le informazioni in un unico posto.',
+        'Un luogo da scoprire, un’esperienza da condividere.',
       ),
     ),
     homeImage
@@ -789,7 +789,7 @@ async function home(
           'div',
           { class: 'restaurant-welcome-monogram', 'aria-hidden': 'true' },
           el('span', {}, site.name.slice(0, 1).toLocaleUpperCase('it')),
-          el('small', {}, 'CUCINA · OSPITALITÀ'),
+          el('small', {}, 'LA TAVOLA · LE PERSONE'),
         ),
   );
   const menuPreview = el(
@@ -801,11 +801,11 @@ async function home(
       el(
         'div',
         {},
-        el('p', { class: 'restaurant-kicker' }, 'LA NOSTRA CUCINA'),
-        el('h2', {}, 'Un assaggio del menu'),
-        el('p', {}, 'Piatti, ingredienti e proposte da scoprire.'),
+        el('p', { class: 'restaurant-kicker' }, 'DALLA NOSTRA CUCINA'),
+        el('h2', {}, 'Il gusto di scegliere.'),
+        el('p', {}, 'Esplora i piatti, gli ingredienti e le proposte del momento.'),
       ),
-      el('a', { href: menuHref, class: 'restaurant-section-link' }, 'Vai alla carta completa ↗'),
+      el('a', { href: menuHref, class: 'restaurant-section-link' }, 'Scopri tutta la carta ↗'),
     ),
   );
   if (featured.length && venue) {
@@ -850,67 +850,37 @@ async function home(
       ),
     );
   }
-  const main = el(
-    'div',
-    { class: 'restaurant-home' },
-    heading,
-    el(
-      'div',
-      { class: 'restaurant-home-content' },
-      menuPreview,
-      el(
-        'aside',
-        { class: 'restaurant-visit-panel', 'aria-label': 'Organizza la tua visita' },
-        el('p', { class: 'restaurant-kicker' }, 'ORGANIZZA LA VISITA'),
-        el('h2', {}, 'Ti aspettiamo a tavola.'),
-        el('p', {}, 'Le informazioni utili per rendere la tua visita ancora più semplice.'),
-        el(
-          'div',
-          { class: 'restaurant-visit-links' },
-          bookingEnabled
-            ? el(
-                'a',
-                { href: bookingHref },
-                el('span', {}, 'Prenota un tavolo'),
-                el('span', { 'aria-hidden': 'true' }, '↗'),
-              )
-            : null,
-          site.multi_venue && sectionEnabled(site, 'venues')
-            ? el(
-                'a',
-                { href: '/sedi' },
-                el('span', {}, 'Scegli la sede'),
-                el('span', { 'aria-hidden': 'true' }, '↗'),
-              )
-            : null,
-          contactsEnabled
-            ? el(
-                'a',
-                { href: venueAwarePath('/contatti', site, venue) },
-                el('span', {}, 'Orari e contatti'),
-                el('span', { 'aria-hidden': 'true' }, '↗'),
-              )
-            : null,
-          galleryEnabled
-            ? el(
-                'a',
-                { href: venueAwarePath('/gallery', site, venue) },
-                el('span', {}, 'Gli ambienti'),
-                el('span', { 'aria-hidden': 'true' }, '↗'),
-              )
-            : null,
-          el(
-            'a',
-            { href: menuHref },
-            el('span', {}, 'Consulta il menu'),
-            el('span', { 'aria-hidden': 'true' }, '↗'),
-          ),
-        ),
-      ),
+  const journey = el(
+    'nav',
+    { class: 'restaurant-journey-bar', 'aria-label': 'Esplora il ristorante' },
+    el('a', { href: menuHref },
+      el('span', { class: 'restaurant-journey-number', 'aria-hidden': 'true' }, '01'),
+      el('span', {}, 'Scopri il menu'),
+      el('span', { class: 'restaurant-journey-arrow', 'aria-hidden': 'true' }, '↗'),
     ),
+    bookingEnabled
+      ? el('a', { href: bookingHref },
+          el('span', { class: 'restaurant-journey-number', 'aria-hidden': 'true' }, '02'),
+          el('span', {}, 'Prenota un tavolo'),
+          el('span', { class: 'restaurant-journey-arrow', 'aria-hidden': 'true' }, '↗'),
+        )
+      : el('a', { href: venueAwarePath('/ristorante', site, venue) },
+          el('span', { class: 'restaurant-journey-number', 'aria-hidden': 'true' }, '02'),
+          el('span', {}, 'La nostra storia'),
+          el('span', { class: 'restaurant-journey-arrow', 'aria-hidden': 'true' }, '↗'),
+        ),
+    contactsEnabled
+      ? el('a', { href: venueAwarePath('/contatti', site, venue) },
+          el('span', { class: 'restaurant-journey-number', 'aria-hidden': 'true' }, '03'),
+          el('span', {}, 'Vieni a trovarci'),
+          el('span', { class: 'restaurant-journey-arrow', 'aria-hidden': 'true' }, '↗'),
+        )
+      : null,
   );
+  const hospitality = el('div', { class: 'restaurant-home-content' });
+  const main = el('div', { class: 'restaurant-home' }, heading, journey, menuPreview, hospitality);
   if (storyEnabled) {
-    main.append(
+    hospitality.append(
       el(
         'section',
         { class: 'restaurant-story-panel' },
@@ -941,6 +911,43 @@ async function home(
       ),
     );
   }
+  hospitality.append(
+    el('aside', { class: 'restaurant-visit-panel', 'aria-label': 'Organizza la tua visita' },
+      el('p', { class: 'restaurant-kicker' }, 'LA TUA PROSSIMA VISITA'),
+      el('h2', {}, 'Un posto a tavola, per te.'),
+      el('p', {}, 'Tutte le informazioni per venirci a trovare, senza complicazioni.'),
+      el('div', { class: 'restaurant-visit-links' },
+        bookingEnabled
+          ? el('a', { href: bookingHref },
+              el('span', {}, 'Prenota un tavolo'),
+              el('span', { 'aria-hidden': 'true' }, '↗'),
+            )
+          : null,
+        site.multi_venue && sectionEnabled(site, 'venues')
+          ? el('a', { href: '/sedi' },
+              el('span', {}, 'Scegli la sede'),
+              el('span', { 'aria-hidden': 'true' }, '↗'),
+            )
+          : null,
+        contactsEnabled
+          ? el('a', { href: venueAwarePath('/contatti', site, venue) },
+              el('span', {}, 'Orari e contatti'),
+              el('span', { 'aria-hidden': 'true' }, '↗'),
+            )
+          : null,
+        galleryEnabled
+          ? el('a', { href: venueAwarePath('/gallery', site, venue) },
+              el('span', {}, 'Scopri gli ambienti'),
+              el('span', { 'aria-hidden': 'true' }, '↗'),
+            )
+          : null,
+        el('a', { href: menuHref },
+          el('span', {}, 'La nostra carta'),
+          el('span', { 'aria-hidden': 'true' }, '↗'),
+        ),
+      ),
+    ),
+  );
   if (venue && sectionEnabled(site, 'venues')) {
     main.append(
       el(
