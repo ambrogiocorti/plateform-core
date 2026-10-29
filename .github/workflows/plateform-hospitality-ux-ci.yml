@@ -1,0 +1,85 @@
+name: Plateform hospitality workspaces candidate
+
+on:
+  push:
+    branches:
+      - feature/plateform-hospitality-workspaces-20261029
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: plateform-hospitality-ui-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  candidate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 65
+    environment: staging
+    env:
+      PAGES_MODE: test
+      VITE_PAGES_MODE: test
+      PUBLIC_SITE_ORIGIN: https://ambrogiocorti.github.io/plateform-core
+      VITE_PUBLIC_BASE_URL: https://ambrogiocorti.github.io/plateform-core
+      VITE_STAFF_BASE_URL: https://ambrogiocorti.github.io/plateform-core/staff
+      VITE_ENVIRONMENT: staging
+      VITE_SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+      VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+      VITE_RELEASE_VERSION: '0.1.0'
+    steps:
+      - name: Checkout isolated redesign
+        uses: actions/checkout@v4
+      - name: Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Format changed sources using pinned Prettier
+        run: |
+          node node_modules/prettier/bin/prettier.cjs --write \
+            apps/public/main.ts apps/staff/main.ts src/pages/admin-operations.ts \
+            styles/restaurant-redesign.css styles/workspace-redesign.css \
+            styles/staff-app.css styles/frontdesk-v4.css \
+            scripts/check-hospitality-ux.mjs tests/e2e/hospitality-ux.spec.ts \
+            docs/PLATEFORM_SALE_READINESS_2026-10-29.md
+          npm run format:check
+      - name: Save formatting on UX branch only
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- apps/public/main.ts apps/staff/main.ts src/pages/admin-operations.ts styles/restaurant-redesign.css styles/workspace-redesign.css styles/staff-app.css styles/frontdesk-v4.css scripts/check-hospitality-ux.mjs tests/e2e/hospitality-ux.spec.ts docs/PLATEFORM_SALE_READINESS_2026-10-29.md
+          if ! git diff --cached --quiet; then
+            git commit -m 'style(ux): format hospitality workspace redesign'
+            git push origin HEAD:refs/heads/feature/plateform-hospitality-workspaces-20261029
+          fi
+      - name: Verify information architecture and available role gates
+        run: |
+          node scripts/check-hospitality-ux.mjs
+          npm run check:admin-ux
+          npm run check:host-ux
+          npm run check:cashier-ux
+          npm run check:waiter-ux
+      - name: Run full GitHub Pages candidate checks without publishing
+        run: |
+          npm run build:pages
+          node scripts/check-visual-design.mjs
+      - name: Chromium browser tests for light, dark, mobile and desktop
+        run: |
+          npx playwright install --with-deps chromium
+          npx playwright test tests/e2e/hospitality-ux.spec.ts tests/e2e/report-visual.spec.ts
+      - name: Preserve QA screenshots, traces and candidate artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: plateform-hospitality-candidate-evidence
+          path: |
+            test-results/
+            dist/site/
+          if-no-files-found: ignore
+          retention-days: 10
+
+# Candidate only. No deploy-pages action, no DB writes and no commercial release.
