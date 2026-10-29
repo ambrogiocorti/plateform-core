@@ -92,6 +92,13 @@ function renderOverview(context: StaffContext, data: AdminOverview): HTMLElement
       severity: 'warning',
     },
     {
+      label: 'Conti da chiudere',
+      value: data.tables.waiting_bill,
+      description: 'Tavoli che attendono il conto',
+      path: '/cassa',
+      severity: 'warning',
+    },
+    {
       label: 'Pagamenti da verificare',
       value: data.cash.pending_payments,
       description: 'Verifica prima di ripetere un incasso',
@@ -147,7 +154,15 @@ function renderOverview(context: StaffContext, data: AdminOverview): HTMLElement
       'div',
       { class: 'ops-overview-heading' },
       el('span', { class: 'ops-overline' }, 'IL SERVIZIO · IN TEMPO REALE'),
-      el('h2', {}, 'Tutto sotto controllo.'),
+      el(
+        'h2',
+        {},
+        criticalCount > 0
+          ? 'Ci sono priorità da gestire.'
+          : pendingCount > 0
+            ? 'Il servizio richiede attenzione.'
+            : 'Il servizio è sotto controllo.',
+      ),
       el('p', {}, 'Una panoramica per sapere cosa sta succedendo, ora.'),
       el(
         'div',
@@ -377,7 +392,7 @@ function renderOverview(context: StaffContext, data: AdminOverview): HTMLElement
     ),
     overview,
     metrics,
-    el('div', { class: 'ops-body-grid' }, areaList, urgent),
+    el('div', { class: 'ops-body-grid' }, urgent, areaList),
     utilities,
   );
 }

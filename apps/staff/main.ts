@@ -311,9 +311,6 @@ async function render(): Promise<void> {
       el(
         'div',
         { class: 'workspace-heading-actions' },
-        ['ADMIN', 'SUPER_ADMIN', 'HOST', 'CASHIER'].includes(profile.role)
-          ? button('Cerca una funzione', () => openPalette(), 'secondary')
-          : null,
         button(
           'Aggiorna',
           () => {
@@ -359,7 +356,7 @@ async function render(): Promise<void> {
       navigate('/');
     });
   }
-  const collapsedSidebar = localStorage.getItem('plateform-sidebar') !== 'expanded';
+  const collapsedSidebar = localStorage.getItem('plateform-sidebar') === 'collapsed';
   const sidebarToggle = el(
     'button',
     {
