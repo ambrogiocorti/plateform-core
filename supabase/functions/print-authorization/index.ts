@@ -1,4 +1,4 @@
-import { z } from 'npm:zod@4.6.5';
+import { z } from 'npm:zod@4.6.7';
 import { endpoint, rateLimit, secret, userClient } from '../_shared/http.ts';
 import { eposDocument, type PrintPayload } from '../../../shared/print-document.ts';
 import { documentHash, signPrintAuthorization } from '../../../shared/print-authorization.ts';

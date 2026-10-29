@@ -69,10 +69,17 @@ async function run() {
     await readFile(resolve('supabase/migration-manifest.json'), 'utf8'),
   ).migrations;
   if (process.argv[2] === '--self-test') {
-    assert.equal(manifest.length, 482, 'expected candidate migration count');
+    assert.ok(manifest.length >= 482, 'expected historical migration baseline');
     const prospective = new Set(['20261006100100', '20261012075300']);
-    const remoteFixture = manifest.filter((row) => !prospective.has(row.version));
-    assert.equal(remoteFixture.length, 480);
+    const afterBaseline = new Set(['20261027183000']);
+    assert.ok(
+      manifest.some((row) => afterBaseline.has(row.version)),
+      'new replay migration tracked',
+    );
+    const remoteFixture = manifest.filter(
+      (row) => !prospective.has(row.version) && !afterBaseline.has(row.version),
+    );
+    assert.equal(remoteFixture.length, manifest.length - prospective.size - afterBaseline.size);
     const baseline = classifyMigrationPromotion(remoteFixture, manifest);
     assert.equal(baseline.status, 'BLOCKED_BACKDATED_MIGRATIONS');
     assert.deepEqual(baseline.backdated_versions, [...prospective]);

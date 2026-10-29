@@ -111,14 +111,13 @@ test('QR customer preserves a draft through reconciliation and submits the revie
   await page.evaluate(() => window.dispatchEvent(new Event('online')));
   await expect.poll(() => reads).toBeGreaterThan(before);
   await expect(page.getByText('2 pietanze nel carrello')).toBeVisible();
-  await page.getByRole('button', { name: 'Rivedi il carrello' }).click();
+  await page.getByRole('button', { name: 'Vai al carrello' }).click();
+  await expect(page.getByRole('heading', { name: 'Il tuo carrello' })).toBeVisible();
   await page.getByLabel('Risotto · quantità').fill('3');
-  await expect(page.getByText('3 pietanze nel carrello')).toBeAttached();
-  await page
-    .getByRole('dialog', { name: 'Il tuo carrello' })
-    .getByRole('button', { name: 'Chiudi', exact: true })
-    .click();
+  await page.getByLabel('Risotto · quantità').blur();
   await expect(page.getByText('3 pietanze nel carrello')).toBeVisible();
+  await page.getByRole('button', { name: 'Procedi alla conferma' }).click();
+  await expect(page.getByRole('heading', { name: 'Controlla e conferma' })).toBeVisible();
   await page.getByRole('button', { name: 'Chiedi conferma al cameriere' }).click();
   await expect(
     page.getByText('Hai una richiesta d’ordine in attesa di conferma del cameriere.'),

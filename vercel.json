@@ -18,6 +18,10 @@
       "destination": "/index.html"
     },
     {
+      "source": "/lista-attesa/offerta",
+      "destination": "/index.html"
+    },
+    {
       "source": "/sedi/:slug([a-z0-9-]+)",
       "destination": "/index.html"
     },
@@ -47,6 +51,10 @@
     },
     {
       "source": "/sedi",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/lista-attesa",
       "destination": "/index.html"
     }
   ],
@@ -81,6 +89,19 @@
         {
           "key": "X-Robots-Tag",
           "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/lista-attesa/offerta",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "private, no-store"
         }
       ]
     },

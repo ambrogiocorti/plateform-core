@@ -1,4 +1,4 @@
-import { z } from 'npm:zod@4.6.5';
+import { z } from 'npm:zod@4.6.7';
 import { createClient } from 'npm:@supabase/supabase-js@2.116.0';
 import { endpoint, rateKey, rateLimit, secret, serverClient } from '../_shared/http.ts';
 

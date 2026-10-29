@@ -1,4 +1,4 @@
-import { z } from 'npm:zod@4.6.5';
+import { z } from 'npm:zod@4.6.7';
 import { endpoint, rateLimit, serverClient, userClient } from '../_shared/http.ts';
 async function validWorkerSecret(provided: string | null): Promise<boolean> {
   const expected = Deno.env.get('RETENTION_WORKER_SECRET');

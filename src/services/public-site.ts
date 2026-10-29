@@ -1,7 +1,28 @@
 import type { PublicSite, Venue } from '../types/domain';
 
+/** Translate URLs only inside the configured GitHub Pages application base. */
+export function internalPublicPath(pathname: string, base = '/'): string | null {
+  if (!base.startsWith('/') || !base.endsWith('/') || base.startsWith('//')) return null;
+  if (base === '/') return pathname;
+  if (pathname === base.slice(0, -1)) return '/';
+  return pathname.startsWith(base) ? `/${pathname.slice(base.length)}` : null;
+}
+
+export function hostedPublicPath(path: string, base = '/'): string {
+  if (!path.startsWith('/') || path.startsWith('//')) throw new Error('INVALID_PUBLIC_PATH');
+  return base === '/' ? path : `${base.replace(/\/$/, '')}${path}`;
+}
+
 export type PublicPath =
-  '/' | '/menu' | '/ristorante' | '/gallery' | '/sedi' | '/prenota' | '/contatti';
+  | '/'
+  | '/menu'
+  | '/ristorante'
+  | '/gallery'
+  | '/sedi'
+  | '/prenota'
+  | '/contatti'
+  | '/lista-attesa'
+  | '/lista-attesa/offerta';
 
 export function selectedVenue(
   site: PublicSite,
@@ -65,7 +86,14 @@ export function canonicalPublicUrl(
   search: string,
   origin: string,
 ): string {
-  const contextual = new Set(['/menu', '/ristorante', '/gallery', '/prenota', '/contatti']);
+  const contextual = new Set([
+    '/menu',
+    '/ristorante',
+    '/gallery',
+    '/prenota',
+    '/contatti',
+    '/lista-attesa',
+  ]);
   const venue = selectedVenue(site, pathname, search);
   // Published menu QR pages share a slug across venues; the canonical URL must
   // preserve the selected venue to avoid merging different menus and prices.
@@ -84,9 +112,17 @@ export function normalizePublicPath(
   if (/^\/sedi\/[a-z0-9]+(?:-[a-z0-9]+)*$/.test(pathname)) return '/sedi/:venue';
   if (pathname.startsWith('/tavolo/') && pathname.split('/').filter(Boolean).length === 2)
     return '/tavolo/:id';
-  return ['/', '/menu', '/ristorante', '/gallery', '/sedi', '/prenota', '/contatti'].includes(
-    pathname,
-  )
+  return [
+    '/',
+    '/menu',
+    '/ristorante',
+    '/gallery',
+    '/sedi',
+    '/prenota',
+    '/contatti',
+    '/lista-attesa',
+    '/lista-attesa/offerta',
+  ].includes(pathname)
     ? (pathname as PublicPath)
     : null;
 }
@@ -99,11 +135,14 @@ export function publicMetricContext(
   pathname: string,
   search: string,
 ): {
-  path: Exclude<ReturnType<typeof normalizePublicPath>, '/tavolo/:id' | null>;
+  path: Exclude<
+    ReturnType<typeof normalizePublicPath>,
+    '/tavolo/:id' | '/lista-attesa/offerta' | null
+  >;
   key: string;
 } | null {
   const path = normalizePublicPath(pathname);
-  if (!path || path === '/tavolo/:id') return null;
+  if (!path || path === '/tavolo/:id' || path === '/lista-attesa/offerta') return null;
   // Retain only an allowlisted venue slug for deduplication. Arbitrary query
   // strings (tokens, phone numbers, email addresses, campaign metadata) must
   // never be copied into the analytics observer's long-lived Set keys.
@@ -128,11 +167,19 @@ export function isClientSidePublicPath(pathname: string): boolean {
 /** Restore only an owned same-origin public route from a static hosting 404.
  * A stored protocol-relative, staff, provider or unknown URL must never be
  * passed to history.replaceState. */
-export function safeRecoveredPublicRoute(value: string | null, origin: string): string | null {
+export function safeRecoveredPublicRoute(
+  value: string | null,
+  origin: string,
+  base = '/',
+): string | null {
   if (!value?.startsWith('/') || value.startsWith('//')) return null;
   try {
     const url = new URL(value, origin);
-    if (url.origin !== origin || !isClientSidePublicPath(url.pathname)) return null;
+    if (
+      url.origin !== origin ||
+      !isClientSidePublicPath(internalPublicPath(url.pathname, base) ?? '')
+    )
+      return null;
     return `${url.pathname}${url.search}${url.hash}`;
   } catch {
     return null;

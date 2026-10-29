@@ -1,0 +1,124 @@
+name: Plateform GitHub Pages candidate
+
+on:
+  push:
+    branches:
+      - feature/customer-experience-light-theme-20261027
+  workflow_dispatch:
+    inputs:
+      pages_mode:
+        description: 'test = /plateform-core/; commercial = custom domain root'
+        type: choice
+        options:
+          - test
+          - commercial
+        required: true
+        default: test
+      site_origin:
+        description: 'Only for commercial: https://restaurant.example.org (root origin)'
+        type: string
+        required: false
+      publish_after_approval:
+        description: 'Commercial release requires approval; feature branch auto-deploys TEST after green CI'
+        type: boolean
+        required: true
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: plateform-pages-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  candidate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    environment: ${{ inputs.pages_mode == 'commercial' && inputs.publish_after_approval && 'production' || 'staging' }}
+    env:
+      PAGES_MODE: ${{ inputs.pages_mode || 'test' }}
+      VITE_PAGES_MODE: ${{ inputs.pages_mode || 'test' }}
+      PUBLIC_SITE_ORIGIN: ${{ inputs.pages_mode == 'commercial' && inputs.site_origin || 'https://ambrogiocorti.github.io/plateform-core' }}
+      VITE_PUBLIC_BASE_URL: ${{ inputs.pages_mode == 'commercial' && inputs.site_origin || 'https://ambrogiocorti.github.io/plateform-core' }}
+      VITE_STAFF_BASE_URL: ${{ format('{0}/staff', inputs.pages_mode == 'commercial' && inputs.site_origin || 'https://ambrogiocorti.github.io/plateform-core') }}
+      VITE_ENVIRONMENT: ${{ inputs.pages_mode == 'commercial' && inputs.publish_after_approval && 'production' || 'staging' }}
+      VITE_SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+      VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+      VITE_RELEASE_VERSION: '0.1.0'
+    steps:
+      - name: Checkout candidate
+        uses: actions/checkout@v4
+      - name: Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Validate selected deployment mode and backend binding
+        run: |
+          test -n "$VITE_SUPABASE_URL" || { echo 'Environment variable SUPABASE_URL missing'; exit 1; }
+          test -n "$VITE_SUPABASE_PUBLISHABLE_KEY" || { echo 'Environment secret SUPABASE_PUBLISHABLE_KEY missing'; exit 1; }
+          node --input-type=module -e '
+            const raw = process.env.PUBLIC_SITE_ORIGIN;
+            const url = new URL(raw);
+            const mode = process.env.PAGES_MODE;
+            if (url.protocol !== "https:" || url.search || url.hash || url.username || url.password) throw Error("INVALID_SITE_ORIGIN");
+            if (mode === "test" && raw !== "https://ambrogiocorti.github.io/plateform-core") throw Error("INVALID_TEST_ORIGIN");
+            if (mode === "commercial" && (raw !== url.origin || url.hostname.endsWith(".github.io"))) throw Error("CUSTOM_ROOT_DOMAIN_REQUIRED");
+            if (!["test", "commercial"].includes(mode)) throw Error("INVALID_PAGES_MODE");
+          '
+          if [ "$PAGES_MODE" = "commercial" ]; then echo "PAGES_CUSTOM_DOMAIN=${PUBLIC_SITE_ORIGIN#https://}" >> "$GITHUB_ENV"; fi
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Check public staging can render real data
+        run: node scripts/check-staging-public-contract.mjs
+      - name: Quality gates and static bundle
+        run: |
+          npm run format:check
+          node scripts/check-report-frontend.mjs
+          npm run check:step11-prerender
+          npm run build:pages
+          node scripts/check-visual-design.mjs
+      - name: Install Chromium for isolated visual regression
+        run: npx playwright install --with-deps chromium
+      - name: Browser audit in both themes and viewports
+        run: npx playwright test tests/e2e/report-visual.spec.ts
+      - name: Preserve browser screenshots and traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: plateform-report-visual-evidence
+          path: test-results/
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Preserve candidate artifact (not published)
+        uses: actions/upload-artifact@v4
+        with:
+          name: plateform-pages-${{ env.PAGES_MODE }}-candidate
+          path: dist/site/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
+      - name: Configure Pages only for explicitly approved manual release
+        if: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/feature/customer-experience-light-theme-20261027') || (github.event_name == 'workflow_dispatch' && inputs.publish_after_approval && (inputs.pages_mode == 'test' || github.ref == 'refs/heads/main')) }}
+        uses: actions/configure-pages@v5
+      - name: Stage Pages artifact only for approved manual release
+        if: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/feature/customer-experience-light-theme-20261027') || (github.event_name == 'workflow_dispatch' && inputs.publish_after_approval && (inputs.pages_mode == 'test' || github.ref == 'refs/heads/main')) }}
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist/site/
+
+  deploy:
+    if: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/feature/customer-experience-light-theme-20261027') || (github.event_name == 'workflow_dispatch' && inputs.publish_after_approval && (inputs.pages_mode == 'test' || github.ref == 'refs/heads/main')) }}
+    needs: candidate
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy only after operator approval and gated candidate
+        id: deployment
+        uses: actions/deploy-pages@v4

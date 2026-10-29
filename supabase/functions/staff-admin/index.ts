@@ -1,4 +1,4 @@
-import { z } from 'npm:zod@4.6.5';
+import { z } from 'npm:zod@4.6.7';
 import { endpoint, rateKey, rateLimit, serverClient, userClient } from '../_shared/http.ts';
 import { staffCommandError, staffPasswordFingerprint } from '../_shared/staff-command.ts';
 

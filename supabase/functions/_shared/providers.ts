@@ -1,4 +1,4 @@
-import { z } from 'npm:zod@4.6.5';
+import { z } from 'npm:zod@4.6.7';
 import { secret, serverClient } from './http.ts';
 const bytes = (value: string) => new TextEncoder().encode(value);
 const base64 = (value: ArrayBuffer) => btoa(String.fromCharCode(...new Uint8Array(value)));

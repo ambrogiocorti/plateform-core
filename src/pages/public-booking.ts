@@ -137,6 +137,15 @@ export async function bookingPage(venue: Venue, privacyUrl?: string): Promise<HT
   const time = el('select', { 'aria-label': 'Orario' });
   time.required = true;
   const status = el('p', { role: 'status', 'aria-live': 'polite', class: 'muted' });
+  const waitlistLink = el(
+    'a',
+    {
+      href: `/lista-attesa?sede=${encodeURIComponent(venue.slug)}`,
+      class: 'button secondary',
+    },
+    'Richiedi un posto in lista d’attesa',
+  );
+  waitlistLink.hidden = true;
   let sequence = 0;
   let verifiedKey: SearchKey | undefined;
   let submitted = false;
@@ -145,6 +154,7 @@ export async function bookingPage(venue: Venue, privacyUrl?: string): Promise<HT
     sequence++;
     verifiedKey = undefined;
     time.disabled = true;
+    waitlistLink.hidden = true;
     time.replaceChildren(el('option', { value: '' }, 'Verifica prima la disponibilità'));
     status.textContent = '';
   };
@@ -183,6 +193,9 @@ export async function bookingPage(venue: Venue, privacyUrl?: string): Promise<HT
         status.textContent = confirmedSlots.some(requiresExcludedDeposit)
           ? 'Gli orari disponibili richiedono una caparra online non gestita in questa edizione. Contatta il ristorante.'
           : 'Non ci sono orari disponibili per questa richiesta.';
+        // The waitlist API itself still checks license, service, date and rate
+        // limits; no capacity is promised merely by displaying this link.
+        waitlistLink.hidden = confirmedSlots.some(requiresExcludedDeposit);
         return;
       }
       verifiedKey = key;
@@ -209,6 +222,7 @@ export async function bookingPage(venue: Venue, privacyUrl?: string): Promise<HT
     checkAvailability,
     el('div', { class: 'field' }, el('label', {}, 'Orario', time)),
     status,
+    waitlistLink,
   );
   const answers = new Map(configuration.fields.map((entry) => [entry.id, bookingField(entry)]));
   for (const input of answers.values()) form.append(input.root);

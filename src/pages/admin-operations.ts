@@ -72,6 +72,10 @@ export async function adminOperationsPage(context: StaffContext): Promise<HTMLEl
 }
 
 function renderOverview(context: StaffContext, data: AdminOverview): HTMLElement {
+  const updated = new Date(data.generated_at).toLocaleTimeString('it-IT', {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
   const priorities: Priority[] = [
     {
       label: 'Cucina critica',
@@ -83,21 +87,28 @@ function renderOverview(context: StaffContext, data: AdminOverview): HTMLElement
     {
       label: 'Chiamate nuove',
       value: data.calls.new,
-      description: 'Richieste clienti da prendere in carico',
+      description: 'Richieste dei tavoli da gestire',
       path: '/eccezioni',
       severity: 'warning',
     },
     {
-      label: 'Pagamenti pending',
+      label: 'Conti da chiudere',
+      value: data.tables.waiting_bill,
+      description: 'Tavoli che attendono il conto',
+      path: '/cassa',
+      severity: 'warning',
+    },
+    {
+      label: 'Pagamenti da verificare',
       value: data.cash.pending_payments,
-      description: 'Esiti da verificare prima di ripetere incassi',
+      description: 'Verifica prima di ripetere un incasso',
       path: '/cassa',
       severity: 'warning',
     },
     {
       label: 'Conflitti offline',
       value: data.attention.conflicts,
-      description: 'Sincronizzazioni che richiedono decisione',
+      description: 'Sincronizzazioni da risolvere',
       path: '/conflitti',
       severity: 'warning',
     },
@@ -111,160 +122,329 @@ function renderOverview(context: StaffContext, data: AdminOverview): HTMLElement
     {
       label: 'Modifiche comande',
       value: data.attention.order_changes,
-      description: 'Richieste in attesa di approvazione',
+      description: 'Richieste da approvare',
       path: '/modifiche',
       severity: 'warning',
     },
     {
       label: 'Incidenti aperti',
       value: data.attention.open_incidents,
-      description: 'Problemi operativi non risolti',
+      description: 'Problemi operativi in corso',
       path: '/notifiche',
       severity: 'critical',
     },
     {
       label: 'Notifiche importanti',
       value: data.attention.high_notifications,
-      description: 'Priorità incident/critical',
+      description: 'Comunicazioni urgenti',
       path: '/notifiche',
       severity: 'warning',
     },
   ];
-  const activePriorities = priorities.filter((item) => item.value > 0);
+  const active = priorities.filter((item) => item.value > 0);
+  const criticalCount = active
+    .filter((item) => item.severity === 'critical')
+    .reduce((sum, item) => sum + item.value, 0);
+  const pendingCount = active.reduce((sum, item) => sum + item.value, 0);
 
-  const attention = el(
+  const overview = el(
     'section',
-    { class: 'admin-attention stack' },
+    { class: 'ops-overview', 'aria-label': 'Panoramica del servizio' },
     el(
       'div',
-      { class: 'row between' },
-      el('div', {}, el('p', { class: 'eyebrow' }, 'ADESSO'), el('h2', {}, 'Richiede intervento')),
+      { class: 'ops-overview-heading' },
+      el('span', { class: 'ops-overline' }, 'IL SERVIZIO · IN TEMPO REALE'),
+      el(
+        'h2',
+        {},
+        criticalCount > 0
+          ? 'Ci sono priorità da gestire.'
+          : pendingCount > 0
+            ? 'Il servizio richiede attenzione.'
+            : 'Il servizio è sotto controllo.',
+      ),
+      el('p', {}, 'Una panoramica per sapere cosa sta succedendo, ora.'),
+      el(
+        'div',
+        { class: 'ops-overview-actions' },
+        button('Apri la sala', () => context.navigate('/sala')),
+        button('Accoglienza', () => context.navigate('/accoglienza'), 'secondary'),
+      ),
+    ),
+    el(
+      'div',
+      { class: 'ops-overview-score' },
+      el('span', { class: 'ops-overview-score-label' }, 'DA GESTIRE'),
+      el(
+        'strong',
+        { class: criticalCount ? 'ops-score-critical' : 'ops-score-clear' },
+        String(pendingCount),
+      ),
       el(
         'span',
-        { class: 'muted' },
-        `Aggiornato ${new Date(data.generated_at).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}`,
+        {},
+        criticalCount > 0
+          ? String(criticalCount) + ' criticità urgenti'
+          : active.length
+            ? 'Interventi non urgenti'
+            : 'Nessuna criticità aperta',
       ),
     ),
   );
-  if (!activePriorities.length)
-    attention.append(
-      el(
-        'div',
-        { class: 'admin-all-clear', role: 'status' },
-        el('strong', {}, 'Servizio senza criticità aperte'),
-        el('span', {}, 'Continua a monitorare sala, cucina, accoglienza e cassa.'),
-      ),
-    );
-  else
-    attention.append(
-      el(
-        'div',
-        { class: 'admin-priority-grid' },
-        ...activePriorities.map((item) =>
-          el(
-            'article',
-            { class: `admin-priority ${item.severity ? `is-${item.severity}` : ''}`.trim() },
-            el('strong', { class: 'admin-priority-value' }, String(item.value)),
-            el('div', {}, el('h3', {}, item.label), el('p', { class: 'muted' }, item.description)),
-            button('GESTISCI', () => context.navigate(item.path), 'secondary'),
-          ),
-        ),
-      ),
-    );
 
-  const quick = el(
-    'nav',
-    { class: 'admin-quick-actions', 'aria-label': 'Aree operative' },
-    button('AVVIO GUIDATO', () => context.navigate('/preparazione'), 'secondary'),
-    button('MENU SEDE', () => context.navigate('/menu-sede'), 'secondary'),
-    context.licensedFeatures?.has('FOOD_COST')
-      ? button('FOOD COST', () => context.navigate('/food-cost'), 'secondary')
-      : null,
-    button('ECCEZIONI', () => context.navigate('/eccezioni'), 'secondary'),
-    button('SALA', () => context.navigate('/sala'), 'secondary'),
-    button('ACCOGLIENZA', () => context.navigate('/accoglienza'), 'secondary'),
-    button('CUCINA', () => context.navigate('/cucina'), 'secondary'),
-    button('CASSA', () => context.navigate('/cassa'), 'secondary'),
-    button('NOTIFICHE', () => context.navigate('/notifiche'), 'secondary'),
-  );
-
-  const areas = el(
-    'div',
-    { class: 'admin-area-grid' },
-    areaCard(
-      'Sala',
-      `${data.tables.occupied} occupati · ${data.tables.available} liberi`,
-      [
-        ['Tavoli', data.tables.total],
-        ['Conto', data.tables.waiting_bill],
-        ['Da riassettare', data.tables.to_reset],
-      ],
+  const metrics = el(
+    'section',
+    { class: 'ops-summary-grid', 'aria-label': 'Indicatori principali' },
+    metric(
+      'Tavoli occupati',
+      data.tables.occupied,
+      String(data.tables.available) + ' liberi',
+      'sala',
       () => context.navigate('/sala'),
     ),
-    areaCard(
-      'Accoglienza',
-      `${data.reservations.today} prenotazioni di oggi`,
-      [
-        ['Da confermare', data.reservations.requested],
-        ['Arrivati', data.reservations.arrived],
-        ['Accomodati', data.reservations.seated],
-      ],
-      () => context.navigate('/accoglienza'),
-    ),
-    areaCard(
-      'Cucina',
-      `${data.kitchen.active_items} piatti attivi`,
-      [
-        ['Pronti', data.kitchen.ready],
-        ['>10 min', data.kitchen.delayed],
-        ['>20 min', data.kitchen.critical],
-      ],
+    metric(
+      'Piatti in cucina',
+      data.kitchen.active_items,
+      String(data.kitchen.ready) + ' pronti',
+      'cucina',
       () => context.navigate('/cucina'),
     ),
-    areaCard(
-      'Cassa',
-      `${data.cash.open_registers} casse · ${data.cash.open_services} servizi aperti`,
-      [
-        ['Pending', data.cash.pending_payments],
-        ['Quadrature', data.cash.pending_reconciliations],
-        ['Stampe in coda', data.attention.queued_prints],
-      ],
+    metric(
+      'Prenotazioni oggi',
+      data.reservations.today,
+      String(data.reservations.requested) + ' da confermare',
+      'accoglienza',
+      () => context.navigate('/accoglienza'),
+    ),
+    metric(
+      'Casse aperte',
+      data.cash.open_registers,
+      String(data.cash.pending_payments) + ' pagamenti pending',
+      'cassa',
       () => context.navigate('/cassa'),
     ),
   );
 
+  const areaList = el(
+    'section',
+    { class: 'ops-service-card' },
+    el(
+      'div',
+      { class: 'ops-section-head' },
+      el(
+        'div',
+        {},
+        el('span', { class: 'ops-overline' }, 'AREE DI LAVORO'),
+        el('h2', {}, 'Gestisci il servizio'),
+      ),
+      el('span', { class: 'ops-inline-note' }, 'Accesso rapido per area'),
+    ),
+    el(
+      'div',
+      { class: 'ops-service-grid' },
+      serviceArea(
+        'Sala',
+        'Disponibilità e gestione tavoli',
+        [
+          ['Occupati', data.tables.occupied],
+          ['Liberi', data.tables.available],
+          ['Da liberare', data.tables.to_reset],
+        ],
+        () => context.navigate('/sala'),
+      ),
+      serviceArea(
+        'Cucina',
+        'Produzione e tempi delle comande',
+        [
+          ['Attivi', data.kitchen.active_items],
+          ['Pronti', data.kitchen.ready],
+          ['In ritardo', data.kitchen.delayed],
+        ],
+        () => context.navigate('/cucina'),
+      ),
+      serviceArea(
+        'Accoglienza',
+        'Prenotazioni, arrivi e lista d’attesa',
+        [
+          ['Prenotazioni', data.reservations.today],
+          ['Arrivati', data.reservations.arrived],
+          ['Accomodati', data.reservations.seated],
+        ],
+        () => context.navigate('/accoglienza'),
+      ),
+      serviceArea(
+        'Cassa',
+        'Incassi, quadrature e pagamenti',
+        [
+          ['Servizi', data.cash.open_services],
+          ['Da verificare', data.cash.pending_payments],
+          ['Quadrature', data.cash.pending_reconciliations],
+        ],
+        () => context.navigate('/cassa'),
+      ),
+    ),
+  );
+
+  const urgent = el(
+    'aside',
+    { class: 'ops-attention-card', 'aria-label': 'Attività da gestire' },
+    el(
+      'div',
+      { class: 'ops-section-head' },
+      el(
+        'div',
+        {},
+        el('span', { class: 'ops-overline' }, 'PRIORITÀ'),
+        el('h2', {}, 'Da gestire ora'),
+      ),
+      el(
+        'span',
+        { class: active.length ? 'ops-attention-count is-active' : 'ops-attention-count' },
+        String(active.length),
+      ),
+    ),
+  );
+  if (active.length) {
+    const ordered = [...active].sort(
+      (a, b) =>
+        Number(b.severity === 'critical') - Number(a.severity === 'critical') || b.value - a.value,
+    );
+    urgent.append(
+      el(
+        'div',
+        { class: 'ops-attention-list' },
+        ...ordered.map((item) => {
+          const action = el(
+            'button',
+            {
+              type: 'button',
+              class: 'ops-attention-row' + (item.severity === 'critical' ? ' is-critical' : ''),
+              'aria-label':
+                item.label + ', ' + item.value + ': ' + item.description + '. Apri l’area',
+            },
+            el('span', { class: 'ops-attention-dot', 'aria-hidden': 'true' }),
+            el(
+              'span',
+              { class: 'ops-attention-copy' },
+              el('strong', {}, item.label),
+              el('small', {}, item.description),
+            ),
+            el('b', {}, String(item.value)),
+          );
+          action.addEventListener('click', () => context.navigate(item.path));
+          return action;
+        }),
+      ),
+    );
+  } else {
+    urgent.append(
+      el(
+        'div',
+        { class: 'ops-all-clear', role: 'status' },
+        el('strong', {}, 'Nessun intervento in attesa'),
+        el('p', {}, 'Il servizio non presenta criticità aperte.'),
+      ),
+    );
+  }
+  urgent.append(
+    el(
+      'div',
+      { class: 'ops-aside-footer' },
+      el('span', {}, 'Aggiornato alle ' + updated),
+      button('Centro notifiche', () => context.navigate('/notifiche'), 'secondary'),
+    ),
+  );
+
+  const utilities = el(
+    'section',
+    { class: 'ops-utility-strip', 'aria-label': 'Strumenti di gestione' },
+    el(
+      'div',
+      {},
+      el('span', { class: 'ops-overline' }, 'STRUMENTI'),
+      el('strong', {}, 'Organizza il prossimo servizio'),
+    ),
+    el(
+      'div',
+      { class: 'ops-utility-actions' },
+      button('Preparazione', () => context.navigate('/preparazione'), 'secondary'),
+      button('Menu sede', () => context.navigate('/menu-sede'), 'secondary'),
+      context.licensedFeatures?.has('FOOD_COST')
+        ? button('Food cost', () => context.navigate('/food-cost'), 'secondary')
+        : null,
+      button('Stampe', () => context.navigate('/stampe'), 'secondary'),
+    ),
+  );
+
   return el(
     'div',
-    { class: 'stack' },
+    { class: 'ops-dashboard' },
     el(
       'header',
-      { class: 'admin-operations-head' },
-      el('div', {}, el('p', { class: 'eyebrow' }, 'SERVIZIO'), el('h1', {}, 'Centro operativo')),
-      el('p', { class: 'muted' }, 'Prima le eccezioni. Poi il resto del servizio.'),
+      { class: 'ops-dashboard-intro' },
+      el(
+        'div',
+        {},
+        el('span', { class: 'ops-overline' }, 'CENTRO OPERATIVO · ' + data.service_date),
+        el('h1', {}, 'Panoramica del servizio'),
+      ),
+      el('span', { class: 'ops-update-badge' }, 'Dati aggiornati ' + updated),
     ),
-    attention,
-    quick,
-    areas,
+    overview,
+    metrics,
+    el('div', { class: 'ops-body-grid' }, urgent, areaList),
+    utilities,
   );
 }
 
-function areaCard(
+function metric(
+  label: string,
+  value: number,
+  description: string,
+  tone: string,
+  open: () => void,
+): HTMLElement {
+  const control = el(
+    'button',
+    { type: 'button', class: 'ops-metric ops-metric-' + tone },
+    el('span', { class: 'ops-metric-label' }, label),
+    el('strong', {}, String(value)),
+    el('span', { class: 'ops-metric-description' }, description),
+    el('span', { class: 'ops-metric-action', 'aria-hidden': 'true' }, '↗'),
+  );
+  control.addEventListener('click', open);
+  return control;
+}
+
+function serviceArea(
   title: string,
-  summary: string,
+  description: string,
   metrics: [string, number][],
   open: () => void,
 ): HTMLElement {
-  return el(
+  const card = el(
     'article',
-    { class: 'admin-area-card' },
-    el('div', {}, el('h2', {}, title), el('p', { class: 'muted' }, summary)),
+    { class: 'ops-area-tile' },
     el(
       'div',
-      { class: 'admin-area-metrics' },
+      { class: 'ops-area-title' },
+      el('div', {}, el('h3', {}, title), el('p', {}, description)),
+      el('span', { class: 'ops-area-arrow', 'aria-hidden': 'true' }, '↗'),
+    ),
+    el(
+      'dl',
+      { class: 'ops-area-stats' },
       ...metrics.map(([label, value]) =>
-        el('span', {}, el('strong', {}, String(value)), el('small', {}, label)),
+        el('div', {}, el('dt', {}, label), el('dd', {}, String(value))),
       ),
     ),
-    button('APRI', open, 'secondary'),
   );
+  const link = el(
+    'button',
+    { type: 'button', class: 'ops-area-open', 'aria-label': 'Apri ' + title },
+    'Apri area',
+  );
+  link.addEventListener('click', open);
+  card.append(link);
+  return card;
 }

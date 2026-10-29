@@ -257,6 +257,30 @@ export async function waiterPage(context: StaffContext): Promise<HTMLElement> {
 
   root.append(
     el(
+      'header',
+      { class: 'waiter-service-intro' },
+      el(
+        'div',
+        {},
+        el('p', { class: 'eyebrow' }, runnerOnly ? 'CONSEGNE' : 'IL TUO SERVIZIO'),
+        el('h2', {}, runnerOnly ? 'Piatti pronti da consegnare' : 'Il servizio, tavolo per tavolo'),
+        el(
+          'p',
+          { class: 'muted' },
+          'Le attività urgenti e le tue assegnazioni in ordine di priorità.',
+        ),
+      ),
+      el(
+        'nav',
+        { class: 'waiter-service-tabs', 'aria-label': 'Scorciatoie servizio' },
+        activeCalls.length ? el('a', { href: '#waiter-calls' }, 'Chiamate') : null,
+        readySteps.length ? el('a', { href: '#waiter-ready' }, 'Da consegnare') : null,
+        !runnerOnly ? el('a', { href: '#waiter-tables' }, 'I miei tavoli') : null,
+      ),
+    ),
+  );
+  root.append(
+    el(
       'div',
       { class: 'waiter-priority-bar', role: 'status', 'aria-label': 'Riepilogo servizio' },
       el(
@@ -284,7 +308,7 @@ export async function waiterPage(context: StaffContext): Promise<HTMLElement> {
     root.append(
       el(
         'div',
-        { class: 'row between waiter-section-heading' },
+        { class: 'row between waiter-section-heading', id: 'waiter-ready' },
         el(
           'div',
           {},
@@ -315,7 +339,7 @@ export async function waiterPage(context: StaffContext): Promise<HTMLElement> {
   if (activeCalls.length) {
     const section = el(
       'section',
-      { class: 'stack waiter-alert-section', 'aria-label': 'Chiamate clienti' },
+      { class: 'stack waiter-alert-section', 'aria-label': 'Chiamate clienti', id: 'waiter-calls' },
       el(
         'div',
         { class: 'row between waiter-section-heading' },
@@ -366,7 +390,7 @@ export async function waiterPage(context: StaffContext): Promise<HTMLElement> {
     root.append(
       el(
         'section',
-        { class: 'stack', 'aria-label': 'Piatti pronti' },
+        { class: 'stack', 'aria-label': 'Piatti pronti', id: 'waiter-ready' },
         el(
           'div',
           { class: 'row between waiter-section-heading' },
@@ -385,7 +409,7 @@ export async function waiterPage(context: StaffContext): Promise<HTMLElement> {
   root.append(
     el(
       'section',
-      { class: 'stack', 'aria-label': 'Tavoli assegnati' },
+      { class: 'stack', 'aria-label': 'Tavoli assegnati', id: 'waiter-tables' },
       el(
         'div',
         { class: 'row between waiter-section-heading' },

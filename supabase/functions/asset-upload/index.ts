@@ -1,5 +1,5 @@
 import { validFile } from '../_shared/assets.ts';
-import { z } from 'npm:zod@4.6.5';
+import { z } from 'npm:zod@4.6.7';
 import { endpoint, rateLimit, serverClient, userClient } from '../_shared/http.ts';
 
 const schema = z

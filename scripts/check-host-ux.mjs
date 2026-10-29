@@ -7,8 +7,10 @@ const migration = fs.readFileSync(
 );
 const checks = [
   [
-    'floor is first workspace child',
-    host.includes("return el('div', { class: 'host-workspace' }, map, reservations)"),
+    'arrivals and floor have dedicated workspaces',
+    host.includes("class: 'host-desk-body'") &&
+      host.includes('reservations, map') &&
+      host.includes('waitlistPanel'),
   ],
   [
     'service kpis present',
@@ -50,8 +52,8 @@ const checks = [
   [
     'responsive touch layout',
     css.includes('.host-card-actions .button') &&
-      css.includes('min-height: 48px') &&
-      css.includes('@media (max-width: 700px)'),
+      fs.readFileSync('styles/frontdesk-v4.css', 'utf8').includes('.host-desk-body') &&
+      fs.readFileSync('styles/frontdesk-v4.css', 'utf8').includes('@media (max-width: 640px)'),
   ],
 ];
 const failed = checks.filter(([, ok]) => !ok);

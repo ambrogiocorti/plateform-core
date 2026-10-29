@@ -2891,6 +2891,12 @@
       "version": "20261012075338",
       "name": "restore_dev_audit_capture_keep_immutability",
       "sha256": "eb6d486f13fb01f86686d515a7674a617f98cf6f13b2132a82fdb6c6d5e27efc"
+    },
+    {
+      "filename": "20261027183000_waitlist_acceptance_idempotent_replay.sql",
+      "version": "20261027183000",
+      "name": "waitlist_acceptance_idempotent_replay",
+      "sha256": "0c3ded8a5b1339a5b2cd67232b43629a097a6f3c9ce5c2144eb8d3ea21709902"
     }
   ]
 }

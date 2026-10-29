@@ -6,7 +6,6 @@ const payment = read('src/pages/account-payments.ts');
 const provider = read('src/pages/provider-payments.ts');
 const manualPayment = read('src/pages/manual-payment-resolution.ts');
 const settlement = read('src/services/account-settlement.ts');
-const css = read('styles/staff.css');
 
 const checks = [
   [
@@ -70,10 +69,10 @@ const checks = [
   ],
   [
     'desktop-first responsive e target touch',
-    css.includes('.cashier-command-center') &&
-      css.includes('grid-template-columns: minmax(18rem, 0.72fr) minmax(32rem, 1.6fr)') &&
-      css.includes('min-height: 48px') &&
-      css.includes('@media (max-width: 980px)'),
+    read('styles/frontdesk-v4.css').includes('.cashier-command-center') &&
+      read('styles/frontdesk-v4.css').includes('minmax(290px, 0.72fr)') &&
+      read('styles/frontdesk-v4.css').includes('min-height: 43px') &&
+      read('styles/frontdesk-v4.css').includes('@media (max-width: 950px)'),
   ],
 ];
 

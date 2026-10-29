@@ -1,5 +1,7 @@
 import { registerPwa } from '../../src/services/pwa';
 import '../../styles/public.css';
+import '../../styles/public-app.css';
+import '../../styles/restaurant-redesign.css';
 import { z } from 'zod';
 import { rpc } from '../../src/api/client';
 import { button, el, emptyState, loading, showError } from '../../src/components/dom';
@@ -10,9 +12,12 @@ import type { PublicSite, Venue } from '../../src/types/domain';
 import { availabilityBadge } from '../../src/services/menu';
 import { formatMoney } from '../../src/services/money';
 import { setupPublicNavigation } from '../../src/services/public-navigation';
+import { preferredPublicTheme, savePublicTheme } from '../../src/services/public-theme';
 import {
   canonicalPublicUrl,
   isClientSidePublicPath,
+  internalPublicPath,
+  hostedPublicPath,
   readableInk,
   resolveBookingVenue,
   safeRecoveredPublicRoute,
@@ -27,15 +32,30 @@ import {
   recordPublicPageView,
 } from '../../src/services/public-telemetry';
 
+const PUBLIC_BASE = import.meta.env.BASE_URL;
+const currentPublicPath = (): string =>
+  internalPublicPath(location.pathname, PUBLIC_BASE) ?? '/__invalid_public_path__';
+const hrefForPublicRoute = (path: string): string => hostedPublicPath(path, PUBLIC_BASE);
+const isPreview = import.meta.env.VITE_PAGES_MODE === 'test';
+
 try {
   const storedRoute = sessionStorage.getItem('plateform-route-public');
   if (storedRoute !== null) {
     sessionStorage.removeItem('plateform-route-public');
-    const recovered = safeRecoveredPublicRoute(storedRoute, location.origin);
+    const recovered = safeRecoveredPublicRoute(storedRoute, location.origin, PUBLIC_BASE);
     if (recovered) history.replaceState(null, '', recovered);
   }
 } catch {
   // Storage may be unavailable in a privacy-restricted browser. Serve /.
+}
+
+// A waitlist offer URL contains an opaque one-use credential in its fragment.
+// Remove it from the address bar immediately, before any asynchronous work,
+// metadata updates or telemetry can run. The token remains only in memory.
+let pendingWaitlistOfferFragment = '';
+if (currentPublicPath() === '/lista-attesa/offerta') {
+  pendingWaitlistOfferFragment = location.hash;
+  history.replaceState(history.state, '', `${location.pathname}${location.search}`);
 }
 
 const root = document.getElementById('app');
@@ -89,8 +109,12 @@ function setMeta(name: string, content: string, property = false): void {
   meta.content = content;
 }
 function applyMetadata(site: PublicSite, venue?: Venue): void {
+  if (isPreview) {
+    failClosedPublicMetadata();
+    return;
+  }
   const explicitlySelectedVenue =
-    location.pathname.startsWith('/sedi/') || new URLSearchParams(location.search).has('sede');
+    currentPublicPath().startsWith('/sedi/') || new URLSearchParams(location.search).has('sede');
   const invalidVenueContext = explicitlySelectedVenue && !venue;
   const pageLabels: Record<string, string> = {
     '/menu': 'Menu',
@@ -98,12 +122,13 @@ function applyMetadata(site: PublicSite, venue?: Venue): void {
     '/gallery': 'Gallery',
     '/sedi': 'Sedi',
     '/prenota': 'Prenota',
+    '/lista-attesa': 'Lista d’attesa',
     '/contatti': 'Contatti',
   };
   const configuredTitle = textValue(site.content, 'seo_title', site.name);
-  const pageLabel = location.pathname.startsWith('/sedi/')
+  const pageLabel = currentPublicPath().startsWith('/sedi/')
     ? (venue?.name ?? 'Sede')
-    : pageLabels[location.pathname];
+    : pageLabels[currentPublicPath()];
   document.title = pageLabel ? `${pageLabel} · ${configuredTitle}` : configuredTitle;
   const description = textValue(
     site.content,
@@ -116,7 +141,7 @@ function applyMetadata(site: PublicSite, venue?: Venue): void {
   setMeta('og:type', 'website', true);
   const canonicalUrl = canonicalPublicUrl(
     site,
-    location.pathname,
+    currentPublicPath(),
     location.search,
     location.origin,
   );
@@ -138,7 +163,12 @@ function applyMetadata(site: PublicSite, venue?: Venue): void {
   robots.content = 'noindex,nofollow'; // Opt in only after authoritative metadata RPC confirms indexability.
   const previous = document.getElementById('restaurant-structured-data');
   previous?.remove();
-  if (!location.pathname.startsWith('/tavolo/') && !invalidVenueContext) {
+  if (
+    !isPreview &&
+    !currentPublicPath().startsWith('/tavolo/') &&
+    currentPublicPath() !== '/lista-attesa/offerta' &&
+    !invalidVenueContext
+  ) {
     const structured = document.createElement('script');
     structured.id = 'restaurant-structured-data';
     structured.type = 'application/ld+json';
@@ -183,7 +213,7 @@ function startPublicRender(focusAfterNavigation = false): void {
     });
 }
 function route(path: string): void {
-  history.pushState(null, '', path);
+  history.pushState(null, '', hrefForPublicRoute(path));
   startPublicRender(true);
 }
 
@@ -219,11 +249,15 @@ async function render(): Promise<void> {
     return;
   }
   applyBrand(site);
-  const venue = selectedVenue(site, location.pathname, location.search);
+  const venue = selectedVenue(site, currentPublicPath(), location.search);
   applyMetadata(site, venue);
+  if (currentPublicPath() === '/lista-attesa/offerta') {
+    failClosedPublicMetadata();
+    document.head.querySelector('meta[property="og:url"]')?.remove();
+  }
   const invalidVenueContext =
     !venue &&
-    (location.pathname.startsWith('/sedi/') || new URLSearchParams(location.search).has('sede'));
+    (currentPublicPath().startsWith('/sedi/') || new URLSearchParams(location.search).has('sede'));
   if (invalidVenueContext) {
     // Invalid/archived venue URLs are never indexable and must not receive a
     // canonical address or structured data belonging to another venue.
@@ -232,8 +266,12 @@ async function render(): Promise<void> {
     const robots = document.head.querySelector<HTMLMetaElement>('meta[name="robots"]');
     if (robots) robots.content = 'noindex,nofollow';
   }
-  if (!location.pathname.startsWith('/tavolo/') && !invalidVenueContext) {
-    const pathForSeo = location.pathname;
+  if (
+    !currentPublicPath().startsWith('/tavolo/') &&
+    currentPublicPath() !== '/lista-attesa/offerta' &&
+    !invalidVenueContext
+  ) {
+    const pathForSeo = currentPublicPath();
     const seoRevision = current;
     void rpc(
       'get_public_page_metadata',
@@ -251,7 +289,7 @@ async function render(): Promise<void> {
       }),
     )
       .then((metadata) => {
-        if (seoRevision !== revision || metadata.path !== location.pathname) return;
+        if (seoRevision !== revision || metadata.path !== currentPublicPath()) return;
         document.title = metadata.title;
         setMeta('description', metadata.description);
         setMeta('og:title', metadata.title, true);
@@ -278,7 +316,7 @@ async function render(): Promise<void> {
         if (seoRevision === revision && robots) robots.content = 'noindex,nofollow';
       });
   }
-  const reservationVenue = resolveBookingVenue(site, location.pathname, location.search);
+  const reservationVenue = resolveBookingVenue(site, currentPublicPath(), location.search);
   const bookingEnabled = sectionEnabled(site, 'booking') && Boolean(reservationVenue);
   const links = [
     { path: '/', label: 'Home', current: '/' },
@@ -327,8 +365,8 @@ async function render(): Promise<void> {
         'a',
         {
           href: link.path,
-          ...(location.pathname === link.current ||
-          (link.current === '/sedi' && location.pathname.startsWith('/sedi/'))
+          ...(currentPublicPath() === link.current ||
+          (link.current === '/sedi' && currentPublicPath().startsWith('/sedi/'))
             ? { 'aria-current': 'page' }
             : {}),
         },
@@ -346,6 +384,27 @@ async function render(): Promise<void> {
     },
     'Menu',
   );
+  const themeButton = el(
+    'button',
+    {
+      type: 'button',
+      class: 'public-theme-toggle',
+      'aria-label': preferredPublicTheme() === 'light' ? 'Attiva tema scuro' : 'Attiva tema chiaro',
+      'aria-pressed': String(preferredPublicTheme() === 'dark'),
+    },
+    preferredPublicTheme() === 'light' ? '☾ Tema scuro' : '☀ Tema chiaro',
+  );
+  themeButton.addEventListener('click', () => {
+    const next = preferredPublicTheme() === 'light' ? 'dark' : 'light';
+    savePublicTheme(next);
+    applyBrand(site);
+    themeButton.textContent = next === 'light' ? '☾ Tema scuro' : '☀ Tema chiaro';
+    themeButton.setAttribute(
+      'aria-label',
+      next === 'light' ? 'Attiva tema scuro' : 'Attiva tema chiaro',
+    );
+    themeButton.setAttribute('aria-pressed', String(next === 'dark'));
+  });
   const header = el(
     'header',
     { class: 'public-header' },
@@ -354,20 +413,35 @@ async function render(): Promise<void> {
       { href: '/', class: 'restaurant-brand', 'aria-label': `${site.name} — Home` },
       logo ? el('img', { src: logo, alt: '', width: '150', decoding: 'async' }) : site.name,
     ),
-    menuButton,
+    el(
+      'div',
+      { class: 'public-header-actions' },
+      isPreview ? el('span', { class: 'design-preview-stamp' }, 'UI 2.0 · TEST') : null,
+      themeButton,
+      menuButton,
+    ),
     navigation,
   );
   app.replaceChildren(header, main, footer(site));
   setupPublicNavigation(menuButton, navigation, header, lifetime.signal);
   stopPerformance?.();
-  stopPerformance = observePublicPerformance(venue?.id);
-  recordPublicPageView(venue?.id);
-  const path = location.pathname;
-  if (path === '/') main.append(home(site, venue, bookingEnabled ? reservationVenue : undefined));
+  if (!isPreview && currentPublicPath() !== '/lista-attesa/offerta') {
+    stopPerformance = observePublicPerformance(venue?.id);
+    recordPublicPageView(venue?.id);
+  }
+  const path = currentPublicPath();
+  if (path === '/')
+    main.append(await home(site, venue, bookingEnabled ? reservationVenue : undefined));
   else if (path === '/menu') main.append(await menu(site, venue));
   else if (path.startsWith('/menu/') && venue) {
-    const slug = path.slice('/menu/'.length);
-    main.append(await (await import('../../src/pages/public-menu')).publishedMenuPage(slug, venue));
+    const match = /^\/menu\/([^/]+)(?:\/piatto\/([^/]+))?\/?$/.exec(path);
+    main.append(
+      match
+        ? await (
+            await import('../../src/pages/public-menu')
+          ).publishedMenuPage(match[1] ?? '', venue, match[2])
+        : emptyState('Pagina non disponibile', 'Il collegamento alla carta non è valido.'),
+    );
   } else if (path.startsWith('/menu/') && !venue) {
     main.append(
       emptyState(
@@ -408,16 +482,17 @@ async function render(): Promise<void> {
         { class: 'public-section' },
         el('p', { class: 'eyebrow' }, 'I nostri spazi'),
         el('h1', {}, 'Gallery'),
-        el(
-          'div',
-          { class: 'gallery-grid' },
-          ...(photos.success ? photos.data : []).flatMap((photo) => {
+        (() => {
+          const imageElements = (photos.success ? photos.data : []).flatMap((photo) => {
             const source = safeImageUrl(photo.url);
             return source
               ? [el('img', { src: source, alt: photo.alt, loading: 'lazy', decoding: 'async' })]
               : [];
-          }),
-        ),
+          });
+          return imageElements.length
+            ? el('div', { class: 'gallery-grid' }, ...imageElements)
+            : el('p', { class: 'muted' }, 'La gallery verrà aggiornata presto.');
+        })(),
       ),
     );
   } else if (path.startsWith('/sedi/') && sectionEnabled(site, 'venues')) {
@@ -476,6 +551,23 @@ async function render(): Promise<void> {
         'La sede richiesta non accetta prenotazioni online. Contatta il ristorante o scegli un’altra sede.',
       ),
     );
+  } else if (path === '/lista-attesa/offerta') {
+    const fragment = pendingWaitlistOfferFragment;
+    pendingWaitlistOfferFragment = '';
+    main.append((await import('../../src/pages/public-waitlist')).waitlistOfferPage(fragment));
+  } else if (path === '/lista-attesa' && reservationVenue && bookingEnabled) {
+    main.append(
+      await (
+        await import('../../src/pages/public-waitlist')
+      ).waitlistPage(
+        reservationVenue,
+        safePublicLink(textValue(site.content, 'privacy_url'), window.location.origin),
+      ),
+    );
+  } else if (path === '/lista-attesa') {
+    main.append(
+      emptyState('Lista d’attesa non disponibile', 'Contatta il ristorante per informazioni.'),
+    );
   } else if (path.startsWith('/tavolo/')) {
     stopLive?.();
     stopLive = undefined;
@@ -501,7 +593,7 @@ async function render(): Promise<void> {
     stopLive = undefined;
     liveKey = '';
   }
-  if (venue && !path.startsWith('/tavolo/')) {
+  if (venue && !path.startsWith('/tavolo/') && path !== '/lista-attesa/offerta') {
     const key = `${venue.id}:${path}`;
     const connection = el('p', {
       id: 'public-connection',
@@ -522,7 +614,7 @@ async function render(): Promise<void> {
         topics: ['PUBLIC'],
         refresh: async () => {
           if (
-            location.pathname === '/prenota' ||
+            currentPublicPath() === '/prenota' ||
             document.activeElement?.matches('input,select,textarea')
           ) {
             const notice = document.getElementById('public-refresh');
@@ -550,12 +642,30 @@ function applyBrand(site: PublicSite): void {
   // Always reconstruct the theme from the latest authoritative site snapshot.
   // Otherwise removing a previously configured color/font leaves stale inline
   // CSS variables behind after Realtime refresh or SPA navigation.
-  for (const token of ['--bg', '--accent', '--accent-ink', '--font', '--public-heading-font'])
+  for (const token of [
+    '--bg',
+    '--accent',
+    '--accent-ink',
+    '--font',
+    '--public-heading-font',
+    '--pf-background',
+    '--pf-blue',
+    '--pf-on-blue',
+  ])
     document.documentElement.style.removeProperty(token);
-  const darkMode = site.branding.dark_mode !== false;
-  const defaultBackground = darkMode ? '#111315' : '#f4f0e8';
-  const background = safeBackground(textValue(site.branding, 'background_color'), darkMode);
-  if (background) document.documentElement.style.setProperty('--bg', background);
+  const darkMode = preferredPublicTheme() === 'dark';
+  const defaultBackground = darkMode ? '#0b1324' : '#f5f7fc';
+  // The restaurant can select a branded background for its configured mode,
+  // but it must never override a guest's explicit light/dark preference.
+  const brandDarkMode = site.branding.dark_mode !== false;
+  const background =
+    brandDarkMode === darkMode
+      ? safeBackground(textValue(site.branding, 'background_color'), darkMode)
+      : null;
+  if (background) {
+    document.documentElement.style.setProperty('--bg', background);
+    document.documentElement.style.setProperty('--pf-background', background);
+  }
   const accent = safeAccent(
     textValue(site.branding, 'accent_color'),
     background ?? defaultBackground,
@@ -563,6 +673,8 @@ function applyBrand(site: PublicSite): void {
   if (accent) {
     document.documentElement.style.setProperty('--accent', accent);
     document.documentElement.style.setProperty('--accent-ink', readableInk(accent));
+    document.documentElement.style.setProperty('--pf-blue', accent);
+    document.documentElement.style.setProperty('--pf-on-blue', readableInk(accent));
   }
   const bodyFonts: Record<string, string> = {
     SANS: 'Inter, Segoe UI, Arial, sans-serif',
@@ -587,6 +699,8 @@ function applyBrand(site: PublicSite): void {
     ? layout.toLowerCase()
     : 'editorial';
   document.documentElement.dataset.theme = darkMode ? 'dark' : 'light';
+  const themeColor = document.head.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+  if (themeColor) themeColor.content = background ?? defaultBackground;
   const favicon = safeImageUrl(site.branding.favicon_url);
   if (favicon) {
     let icon = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
@@ -598,97 +712,293 @@ function applyBrand(site: PublicSite): void {
   } else {
     // A previously configured favicon must not survive its removal.
     const icon = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
-    if (icon) icon.href = '/icon.svg';
+    if (icon) icon.href = hrefForPublicRoute('/icon.svg');
   }
 }
 
-function home(site: PublicSite, venue: Venue | undefined, bookingDestination?: Venue): HTMLElement {
+async function home(
+  site: PublicSite,
+  venue: Venue | undefined,
+  bookingDestination?: Venue,
+): Promise<HTMLElement> {
   const bookingEnabled = Boolean(bookingDestination);
-  const image = safeImageUrl(site.content.hero_image_url);
-  return el(
-    'div',
-    {},
+  const menuHref = venueAwarePath('/menu', site, venue);
+  const bookingHref = venueAwarePath('/prenota', site, bookingDestination);
+  const storyEnabled = sectionEnabled(site, 'story');
+  const contactsEnabled = sectionEnabled(site, 'contacts');
+  const galleryEnabled = sectionEnabled(site, 'gallery');
+  const homeImage = safeImageUrl(site.content.hero_image_url);
+  let featured: z.infer<typeof menuDishSchema>[] = [];
+  if (venue) {
+    // Menu highlights are read-only and never block the restaurant homepage.
+    try {
+      featured = (await rpc('get_public_menu', { p_venue: venue.id }, z.array(menuDishSchema)))
+        .filter((dish) => dish.availability !== 0)
+        .slice(0, 4);
+    } catch {
+      featured = [];
+    }
+  }
+  const heading = el(
+    'section',
+    { class: 'restaurant-welcome', 'aria-label': 'Benvenuto al ristorante' },
     el(
-      'section',
-      { class: 'public-hero' },
-      image
-        ? el('img', {
-            src: image,
-            alt: textValue(site.content, 'hero_image_alt', site.name),
-            fetchpriority: 'high',
+      'div',
+      { class: 'restaurant-welcome-copy' },
+      el('p', { class: 'restaurant-kicker' }, 'OSPITALITÀ, OGNI GIORNO'),
+      el('h1', {}, textValue(site.content, 'hero_title', site.name)),
+      el(
+        'p',
+        { class: 'restaurant-welcome-description' },
+        textValue(
+          site.content,
+          'hero_subtitle',
+          'Una cucina da scoprire, un tavolo da condividere.',
+        ),
+      ),
+      el(
+        'div',
+        { class: 'restaurant-welcome-actions' },
+        el('a', { href: menuHref, class: 'button primary' }, 'Esplora il menu'),
+        bookingEnabled
+          ? el('a', { href: bookingHref, class: 'button secondary' }, 'Prenota un tavolo')
+          : el(
+              'a',
+              { href: venueAwarePath('/ristorante', site, venue), class: 'button secondary' },
+              'Il ristorante',
+            ),
+      ),
+      el(
+        'p',
+        { class: 'restaurant-welcome-caption' },
+        'Un luogo da scoprire, un’esperienza da condividere.',
+      ),
+    ),
+    homeImage
+      ? el(
+          'div',
+          { class: 'restaurant-welcome-photo' },
+          el('img', {
+            src: homeImage,
+            alt: textValue(site.content, 'hero_image_alt', 'Il nostro ristorante'),
+            loading: 'eager',
             decoding: 'async',
-          })
-        : null,
+          }),
+        )
+      : el(
+          'div',
+          { class: 'restaurant-welcome-monogram', 'aria-hidden': 'true' },
+          el('span', {}, site.name.slice(0, 1).toLocaleUpperCase('it')),
+          el('small', {}, 'LA TAVOLA · LE PERSONE'),
+        ),
+  );
+  const menuPreview = el(
+    'section',
+    { class: 'restaurant-discover', 'aria-label': 'Scopri la nostra cucina' },
+    el(
+      'div',
+      { class: 'restaurant-section-heading' },
       el(
         'div',
         {},
-        el('p', { class: 'eyebrow' }, textValue(site.content, 'hero_eyebrow', site.name)),
-        el('h1', {}, textValue(site.content, 'hero_title', site.name)),
-        el(
-          'p',
-          {},
-          textValue(
-            site.content,
-            'hero_subtitle',
-            'La nostra cucina. Il piacere di stare a tavola.',
+        el('p', { class: 'restaurant-kicker' }, 'DALLA NOSTRA CUCINA'),
+        el('h2', {}, 'Il gusto di scegliere.'),
+        el('p', {}, 'Esplora i piatti, gli ingredienti e le proposte del momento.'),
+      ),
+      el('a', { href: menuHref, class: 'restaurant-section-link' }, 'Scopri tutta la carta ↗'),
+    ),
+  );
+  if (featured.length && venue) {
+    menuPreview.append(
+      el(
+        'div',
+        { class: 'restaurant-featured-grid' },
+        ...featured.map((dish) =>
+          el(
+            'a',
+            { href: menuHref, class: 'restaurant-featured-dish' },
+            safeImageUrl(dish.image_path)
+              ? el('img', {
+                  src: safeImageUrl(dish.image_path)!,
+                  alt: dish.name,
+                  loading: 'lazy',
+                  decoding: 'async',
+                })
+              : el(
+                  'div',
+                  { class: 'restaurant-featured-placeholder', 'aria-hidden': 'true' },
+                  dish.name.slice(0, 1),
+                ),
+            el(
+              'div',
+              { class: 'restaurant-featured-info' },
+              el('span', {}, dish.category_name),
+              el('h3', {}, dish.name),
+              el('strong', {}, formatMoney(dish.price_cents, venue.currency, venue.locale)),
+            ),
           ),
-        ),
-        el(
-          'a',
-          {
-            href: bookingEnabled
-              ? venueAwarePath('/prenota', site, bookingDestination)
-              : venueAwarePath('/menu', site, venue),
-            class: 'button primary',
-          },
-          bookingEnabled ? 'Prenota un tavolo ↗' : 'Scopri il menu ↗',
         ),
       ),
+    );
+  } else {
+    menuPreview.append(
+      el(
+        'div',
+        { class: 'restaurant-featured-empty' },
+        el('p', {}, 'Scopri le proposte della nostra cucina, gli ingredienti e gli allergeni.'),
+        el('a', { href: menuHref, class: 'button secondary' }, 'Visualizza il menu'),
+      ),
+    );
+  }
+  const journey = el(
+    'nav',
+    { class: 'restaurant-journey-bar', 'aria-label': 'Esplora il ristorante' },
+    el(
+      'a',
+      { href: menuHref },
+      el('span', { class: 'restaurant-journey-number', 'aria-hidden': 'true' }, '01'),
+      el('span', {}, 'Scopri il menu'),
+      el('span', { class: 'restaurant-journey-arrow', 'aria-hidden': 'true' }, '↗'),
     ),
-    sectionEnabled(site, 'story')
+    bookingEnabled
       ? el(
-          'section',
-          { class: 'public-section story-grid' },
-          el(
-            'div',
-            {},
-            el('p', { class: 'eyebrow' }, 'La nostra storia'),
-            el('h2', {}, textValue(site.content, 'story_title', 'Un invito a rallentare.')),
-          ),
-          el(
-            'div',
-            {},
-            el(
-              'p',
-              { class: 'story-copy' },
-              textValue(
-                site.content,
-                'story',
-                'Scopri il menu, conosci il ristorante e scegli quando venirci a trovare.',
-              ),
-            ),
-            el('a', { href: venueAwarePath('/ristorante', site, venue) }, 'Il ristorante ↗'),
-          ),
+          'a',
+          { href: bookingHref },
+          el('span', { class: 'restaurant-journey-number', 'aria-hidden': 'true' }, '02'),
+          el('span', {}, 'Prenota un tavolo'),
+          el('span', { class: 'restaurant-journey-arrow', 'aria-hidden': 'true' }, '↗'),
         )
-      : null,
-    venue && sectionEnabled(site, 'venues')
+      : el(
+          'a',
+          { href: venueAwarePath('/ristorante', site, venue) },
+          el('span', { class: 'restaurant-journey-number', 'aria-hidden': 'true' }, '02'),
+          el('span', {}, 'La nostra storia'),
+          el('span', { class: 'restaurant-journey-arrow', 'aria-hidden': 'true' }, '↗'),
+        ),
+    contactsEnabled
       ? el(
-          'section',
-          { class: 'public-section' },
-          el('p', { class: 'eyebrow' }, 'Ti aspettiamo'),
-          el('h2', {}, venue.name),
-          venueCard(venue, site.multi_venue),
+          'a',
+          { href: venueAwarePath('/contatti', site, venue) },
+          el('span', { class: 'restaurant-journey-number', 'aria-hidden': 'true' }, '03'),
+          el('span', {}, 'Vieni a trovarci'),
+          el('span', { class: 'restaurant-journey-arrow', 'aria-hidden': 'true' }, '↗'),
         )
       : null,
   );
+  const hospitality = el('div', { class: 'restaurant-home-content' });
+  const main = el('div', { class: 'restaurant-home' }, heading, journey, menuPreview, hospitality);
+  if (storyEnabled) {
+    hospitality.append(
+      el(
+        'section',
+        { class: 'restaurant-story-panel' },
+        el(
+          'div',
+          {},
+          el('p', { class: 'restaurant-kicker' }, 'LA NOSTRA IDENTITÀ'),
+          el('h2', {}, textValue(site.content, 'story_title', 'Il nostro ristorante')),
+        ),
+        el(
+          'div',
+          {},
+          el(
+            'p',
+            {},
+            textValue(
+              site.content,
+              'story',
+              'La cucina, le persone e i piccoli dettagli che rendono speciale ogni visita.',
+            ),
+          ),
+          el(
+            'a',
+            { href: venueAwarePath('/ristorante', site, venue), class: 'restaurant-section-link' },
+            'Conosci il ristorante ↗',
+          ),
+        ),
+      ),
+    );
+  }
+  hospitality.append(
+    el(
+      'aside',
+      { class: 'restaurant-visit-panel', 'aria-label': 'Organizza la tua visita' },
+      el('p', { class: 'restaurant-kicker' }, 'LA TUA PROSSIMA VISITA'),
+      el('h2', {}, 'Un posto a tavola, per te.'),
+      el('p', {}, 'Tutte le informazioni per venirci a trovare, senza complicazioni.'),
+      el(
+        'div',
+        { class: 'restaurant-visit-links' },
+        bookingEnabled
+          ? el(
+              'a',
+              { href: bookingHref },
+              el('span', {}, 'Prenota un tavolo'),
+              el('span', { 'aria-hidden': 'true' }, '↗'),
+            )
+          : null,
+        site.multi_venue && sectionEnabled(site, 'venues')
+          ? el(
+              'a',
+              { href: '/sedi' },
+              el('span', {}, 'Scegli la sede'),
+              el('span', { 'aria-hidden': 'true' }, '↗'),
+            )
+          : null,
+        contactsEnabled
+          ? el(
+              'a',
+              { href: venueAwarePath('/contatti', site, venue) },
+              el('span', {}, 'Orari e contatti'),
+              el('span', { 'aria-hidden': 'true' }, '↗'),
+            )
+          : null,
+        galleryEnabled
+          ? el(
+              'a',
+              { href: venueAwarePath('/gallery', site, venue) },
+              el('span', {}, 'Scopri gli ambienti'),
+              el('span', { 'aria-hidden': 'true' }, '↗'),
+            )
+          : null,
+        el(
+          'a',
+          { href: menuHref },
+          el('span', {}, 'La nostra carta'),
+          el('span', { 'aria-hidden': 'true' }, '↗'),
+        ),
+      ),
+    ),
+  );
+  if (venue && sectionEnabled(site, 'venues')) {
+    main.append(
+      el(
+        'section',
+        { class: 'restaurant-location-panel' },
+        el(
+          'div',
+          { class: 'restaurant-section-heading' },
+          el(
+            'div',
+            {},
+            el('p', { class: 'restaurant-kicker' }, 'DOVE TROVARCI'),
+            el('h2', {}, venue.name),
+          ),
+        ),
+        venueCard(venue, site.multi_venue),
+      ),
+    );
+  }
+  return main;
 }
 
 async function menu(site: PublicSite, venue: Venue | undefined): Promise<HTMLElement> {
   const section = el(
     'section',
     { class: 'public-section' },
-    el('p', { class: 'eyebrow' }, 'A tavola'),
-    el('h1', {}, 'Il nostro menu'),
+    el('p', { class: 'eyebrow' }, 'Una scelta di gusto'),
+    el('h1', {}, 'Scopri la nostra cucina'),
+    el('p', { class: 'public-intro' }, 'I sapori che amiamo, preparati per essere condivisi.'),
   );
   if (!venue) {
     section.append(
@@ -709,8 +1019,55 @@ async function menu(site: PublicSite, venue: Venue | undefined): Promise<HTMLEle
   if (availableMenus) section.append(availableMenus);
   const dishes = await rpc('get_public_menu', { p_venue: venue.id }, z.array(menuDishSchema));
   const categories = [...new Set(dishes.map((dish) => dish.category_name))];
+  if (dishes.length) {
+    const search = el('input', {
+      type: 'search',
+      class: 'public-menu-search',
+      placeholder: 'Cerca un piatto o un ingrediente...',
+      'aria-label': 'Cerca un piatto nella carta',
+      autocomplete: 'off',
+    });
+    const count = el(
+      'span',
+      { class: 'public-menu-results', role: 'status' },
+      `${dishes.length} piatti`,
+    );
+    section.append(
+      el('div', { class: 'public-menu-toolbar' }, search, count),
+      el(
+        'nav',
+        { class: 'public-category-nav', 'aria-label': 'Categorie del menu' },
+        ...categories.map((category, i) => el('a', { href: `#categoria-${i}` }, category)),
+      ),
+    );
+    const simplify = (value: string) =>
+      value.normalize('NFD').replace(/\p{M}/gu, '').toLocaleLowerCase('it');
+    search.addEventListener('input', () => {
+      const query = simplify(search.value.trim());
+      let visible = 0;
+      for (const card of section.querySelectorAll<HTMLElement>('.dish-public')) {
+        const matched = !query || simplify(card.textContent ?? '').includes(query);
+        card.hidden = !matched;
+        if (matched) visible++;
+      }
+      for (const heading of section.querySelectorAll<HTMLElement>('.menu-category')) {
+        const grid = heading.nextElementSibling as HTMLElement | null;
+        if (!grid?.classList.contains('dish-grid')) continue;
+        const shown = Array.from(grid.children).some((card) => !(card as HTMLElement).hidden);
+        heading.hidden = !shown;
+        grid.hidden = !shown;
+      }
+      count.textContent = visible === 1 ? '1 piatto' : `${visible} piatti`;
+    });
+  }
   for (const category of categories) {
-    section.append(el('h2', { class: 'menu-category' }, category));
+    section.append(
+      el(
+        'h2',
+        { class: 'menu-category', id: `categoria-${categories.indexOf(category)}` },
+        category,
+      ),
+    );
     section.append(
       el(
         'div',
@@ -722,10 +1079,10 @@ async function menu(site: PublicSite, venue: Venue | undefined): Promise<HTMLEle
             const badge = availabilityBadge(dish.availability);
             return el(
               'article',
-              { class: 'dish-public' },
+              { class: 'dish-public public-dish-card public-legacy-dish' },
               picture
                 ? el('img', { src: picture, alt: dish.name, loading: 'lazy', decoding: 'async' })
-                : null,
+                : el('div', { class: 'public-dish-image-placeholder' }, 'La nostra cucina'),
               el(
                 'div',
                 { class: 'row between' },
@@ -781,7 +1138,7 @@ function venuePicker(site: PublicSite, venue: Venue, bookingOnly: boolean): HTML
   );
   select.value = venue.slug;
   select.addEventListener('change', () =>
-    route(`${location.pathname}?sede=${encodeURIComponent(select.value)}`),
+    route(`${currentPublicPath()}?sede=${encodeURIComponent(select.value)}`),
   );
   return select;
 }
@@ -918,7 +1275,7 @@ document.addEventListener('click', (event) => {
   if (
     !(target instanceof HTMLAnchorElement) ||
     target.origin !== location.origin ||
-    !isClientSidePublicPath(target.pathname) ||
+    !isClientSidePublicPath(internalPublicPath(target.pathname, PUBLIC_BASE) ?? '') ||
     (target.target !== '' && target.target !== '_self') ||
     target.hasAttribute('download') ||
     event.ctrlKey ||
@@ -930,7 +1287,7 @@ document.addEventListener('click', (event) => {
   )
     return;
   event.preventDefault();
-  route(target.pathname + target.search);
+  route((internalPublicPath(target.pathname, PUBLIC_BASE) ?? '/') + target.search);
 });
 window.addEventListener('popstate', () => startPublicRender());
 startPublicRender();

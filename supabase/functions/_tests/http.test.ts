@@ -1,4 +1,4 @@
-import { z } from 'npm:zod@4.6.5';
+import { z } from 'npm:zod@4.6.7';
 import { endpoint, rateKey, serverClient } from '../_shared/http.ts';
 
 Deno.test(

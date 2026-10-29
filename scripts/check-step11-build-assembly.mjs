@@ -56,6 +56,7 @@ globalThis.fetch=async (input,init)=>{
       timeout: 10000,
       env: {
         ...process.env,
+        PAGES_MODE: 'commercial',
         PUBLIC_SITE_ORIGIN: 'https://ristorante.example.org',
         VITE_SUPABASE_URL: 'https://project.supabase.co',
         VITE_SUPABASE_PUBLISHABLE_KEY: 'sb_publishable_test',
@@ -103,6 +104,37 @@ globalThis.fetch=async (input,init)=>{
   check(() => assert.match(blocked, /Disallow: \/\n/));
   await checkAsync(() => assert.rejects(access(join(root, 'dist/site/old-menu/index.html'))));
   await checkAsync(() => assert.rejects(access(join(root, 'dist/site/menu/index.html'))));
+  await checkAsync(() => assert.rejects(access(join(root, 'dist/site/sitemap.xml'))));
+  // Preview mode must always be unindexable, path-prefixed and without a CNAME.
+  await writeFile(
+    join(root, 'dist/staff/index.html'),
+    '<!doctype html><script src="/plateform-core/staff/assets/staff.js"></script>',
+  );
+  const preview = spawnSync(
+    process.execPath,
+    ['--import', './scripts/mock-rpc.mjs', 'scripts/build-site.mjs'],
+    {
+      cwd: root,
+      encoding: 'utf8',
+      timeout: 10000,
+      env: {
+        ...process.env,
+        PAGES_MODE: 'test',
+        PUBLIC_SITE_ORIGIN: 'https://ambrogiocorti.github.io/plateform-core',
+        VITE_SUPABASE_URL: 'https://project.supabase.co',
+        VITE_SUPABASE_PUBLISHABLE_KEY: 'sb_publishable_test',
+        PAGES_CUSTOM_DOMAIN: '',
+      },
+    },
+  );
+  check(() => assert.equal(preview.status, 0, preview.stderr));
+  const previewHtml = await readFile(join(root, 'dist/site/index.html'), 'utf8');
+  const fallback = await readFile(join(root, 'dist/site/404.html'), 'utf8');
+  const previewRobots = await readFile(join(root, 'dist/site/robots.txt'), 'utf8');
+  check(() => assert.match(previewHtml, /noindex,nofollow/));
+  check(() => assert.ok(fallback.includes('plateform-core/')));
+  check(() => assert.ok(previewRobots.includes('Disallow: /')));
+  await checkAsync(() => assert.rejects(access(join(root, 'dist/site/CNAME'))));
   await checkAsync(() => assert.rejects(access(join(root, 'dist/site/sitemap.xml'))));
   console.log(
     `STEP11_INTEGRATED_BUILD_ASSEMBLY=PASS (${tests} assertions, real public index.html, isolated RPC transport)`,
