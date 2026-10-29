@@ -55,8 +55,8 @@ const checks = [
   ],
   [
     'azioni rapide operative',
-    ['/sala', '/accoglienza', '/cucina', '/cassa', '/notifiche'].every((path) =>
-      page.includes(`context.navigate('${path}')`) || page.includes(`path: '${path}'`)
+    ['/sala', '/accoglienza', '/cucina', '/cassa', '/notifiche'].every(
+      (path) => page.includes(`context.navigate('${path}')`) || page.includes(`path: '${path}'`),
     ),
   ],
   ['nessun KPI fatturato nella home', !/fatturato|revenue|receipts_cents|net_cents/i.test(page)],
