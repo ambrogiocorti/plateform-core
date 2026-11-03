@@ -4,6 +4,19 @@
   min-height: 100dvh;
   background: var(--bg);
 }
+.public-connection {
+  margin: 0;
+  padding: 11px max(22px, calc((100vw - 1360px) / 2));
+  border-bottom: 1px solid color-mix(in srgb, #f59e0b 40%, var(--pf-line));
+  background: color-mix(in srgb, #f59e0b 12%, var(--pf-surface));
+  color: var(--pf-ink);
+  font-size: 0.9rem;
+  font-weight: 650;
+  text-align: center;
+}
+.public-connection[hidden] {
+  display: none;
+}
 .public-header {
   position: sticky;
   top: 0;

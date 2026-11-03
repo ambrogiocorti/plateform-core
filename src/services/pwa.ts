@@ -45,12 +45,17 @@ export async function registerPwa(): Promise<void> {
     document.body.append(notice);
   }
   offerUpdate();
-  registration.addEventListener('updatefound', () =>
-    registration.installing?.addEventListener('statechange', () => {
-      if (registration.installing?.state === 'installed' && navigator.serviceWorker.controller)
+  registration.addEventListener('updatefound', () => {
+    // The registration.installing reference is cleared as the worker moves to
+    // waiting. Keep the original worker so the installed event cannot be lost.
+    const installing = registration.installing;
+    installing?.addEventListener('statechange', () => {
+      if (installing.state === 'installed' && navigator.serviceWorker.controller) {
         offerUpdate();
-    }),
-  );
+        setTimeout(offerUpdate, 0);
+      }
+    });
+  });
   let refreshed = false;
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if (!refreshed) {

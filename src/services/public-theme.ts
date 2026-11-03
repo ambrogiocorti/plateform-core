@@ -3,7 +3,7 @@ export type PublicTheme = 'light' | 'dark';
 const preferenceKey = 'plateform-public-theme';
 let pagePreference: PublicTheme | null = null;
 
-export function preferredPublicTheme(): PublicTheme {
+export function preferredPublicTheme(fallback: PublicTheme = 'light'): PublicTheme {
   if (pagePreference) return pagePreference;
   try {
     const saved = localStorage.getItem(preferenceKey);
@@ -11,7 +11,7 @@ export function preferredPublicTheme(): PublicTheme {
   } catch {
     // Private browsing can prevent access to local storage.
   }
-  return 'light';
+  return fallback;
 }
 
 export function savePublicTheme(theme: PublicTheme): void {

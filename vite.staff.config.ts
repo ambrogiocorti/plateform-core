@@ -22,6 +22,9 @@ export default defineConfig(({ command, mode }) => {
       plateformSecurity('staff', env),
     ],
     root: fileURLToPath(new URL('./apps/staff', import.meta.url)),
+    // Dynamic staff/public views must not trigger new dependency hashes while
+    // an operational dialog is loading in a browser.
+    optimizeDeps: { include: ['@supabase/supabase-js', 'idb', 'qrcode', 'zod'] },
     envDir: '../..',
     publicDir: '../../assets/staff',
     server: { port: 5174, strictPort: true, fs: { allow: ['../..'] } },

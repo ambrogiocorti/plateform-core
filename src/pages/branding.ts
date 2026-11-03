@@ -22,7 +22,6 @@ function accentHasReadableContrast(accent: string, background: string): boolean 
   return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05) >= 4.5;
 }
 
-
 // MIME declarations from browsers are not proof of file content. The server
 // validates again; this first check avoids unnecessary Storage uploads.
 function validUploadSignature(mime: string, bytes: Uint8Array): boolean {
@@ -384,7 +383,10 @@ export async function brandingPage(context: StaffContext): Promise<HTMLElement> 
       brand.layout = layout.value;
       brand.dark_mode = darkMode.checked;
       if (!accentHasReadableContrast(String(brand.accent_color), String(brand.background_color))) {
-        toast('Il colore principale non ha contrasto sufficiente con lo sfondo (minimo 4,5:1).', true);
+        toast(
+          'Il colore principale non ha contrasto sufficiente con lo sfondo (minimo 4,5:1).',
+          true,
+        );
         return;
       }
       content.gallery = pictures;

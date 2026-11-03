@@ -68,10 +68,19 @@ test('offline reale: ordini in coda, verifica del server alla riconnessione, con
   // Online: snapshot firmato dalla Edge Function e dati operativi salvati sul dispositivo.
   await waiter.goto('/servizio');
   await waiter.getByRole('button', { name: 'Profilo' }).click();
+  waiter.on('response', (response) => {
+    if (response.url().includes('/functions/v1/offline-authorization'))
+      console.log('[OFFLINE AUTH]', response.status());
+  });
   await waiter.getByRole('button', { name: 'Prepara uso offline' }).click();
-  await expect(
-    waiter.getByText('Sala, comande e operazioni autorizzate preparate per l’uso offline'),
-  ).toBeVisible();
+  try {
+    await expect(
+      waiter.getByText('Sala, comande e operazioni autorizzate preparate per l’uso offline'),
+    ).toBeVisible();
+  } catch (error) {
+    console.log('[OFFLINE PREPARE]', (await waiter.locator('body').innerText()).slice(0, 1600));
+    throw error;
+  }
   expect(
     sql(
       `select count(*) from public.offline_authorization_snapshots s join auth.users u on u.id=s.user_id where u.email='${staff.waiter.email}'`,

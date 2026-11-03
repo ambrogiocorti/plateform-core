@@ -17,26 +17,37 @@ export async function loadContext(
   profile: StaffProfile,
   navigate: (path: string) => void,
 ): Promise<StaffContext> {
-  const [allVenues, flags, serverContext] = await Promise.all([
+  const [allVenues, flags] = await Promise.all([
     readRows('venues', venueSchema),
     readRows('feature_flags', z.object({ name: z.string(), licensed: z.boolean() })),
-    rpc(
-      'get_staff_venue_context',
-      {},
-      z.object({
-        current_venue_id: z.uuid(),
-        multi_venue: z.boolean(),
-        venues: z.array(z.object({ id: z.uuid() })),
-      }),
-    ),
   ]);
-  const allowed = new Set(serverContext.venues.map((venue) => venue.id));
-  const venues = allVenues.filter((venue) => allowed.has(venue.id));
+  const multiVenue = flags.some((flag) => flag.name === 'MULTI_VENUE' && flag.licensed);
+  // In a licensed multi-venue installation, PostgreSQL owns the current
+  // device selection; a second tab must not resurrect a stale local choice.
+  const serverContext = multiVenue
+    ? await rpc(
+        'get_staff_venue_context',
+        {},
+        z.object({
+          current_venue_id: z.uuid(),
+          multi_venue: z.boolean(),
+          venues: z.array(z.object({ id: z.uuid() })),
+        }),
+      )
+    : null;
+  const byId = new Map(allVenues.map((venue) => [venue.id, venue]));
+  const venues = serverContext
+    ? serverContext.venues.flatMap((venue) => {
+        const row = byId.get(venue.id);
+        return row ? [row] : [];
+      })
+    : allVenues;
+  const selectedId = serverContext?.current_venue_id ?? sessionStorage.getItem('plateform-venue');
   return {
     profile,
     venues,
-    venue: venues.find((venue) => venue.id === serverContext.current_venue_id) ?? venues[0] ?? null,
-    multiVenue: serverContext.multi_venue,
+    venue: venues.find((venue) => venue.id === selectedId) ?? venues[0] ?? null,
+    multiVenue,
     licensedFeatures: new Set(flags.filter((flag) => flag.licensed).map((flag) => flag.name)),
     navigate,
   };

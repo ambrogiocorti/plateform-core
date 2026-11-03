@@ -46,10 +46,14 @@ async function orderCarbonara(waiter: Page, table: string, name: string, withTir
     .getByRole('button', { name: 'Aggiungi piatti' })
     .click();
   const order = waiter.getByRole('dialog', { name: 'Nuovo ordine' });
-  await order
-    .locator('article.menu-choice', { hasText: 'Carbonara' })
-    .getByLabel('Quantità')
-    .fill('1');
+  const carbonara = order.locator('article.menu-choice', { hasText: 'Carbonara' });
+  try {
+    await expect(carbonara.getByLabel('Quantità')).toBeVisible();
+  } catch (error) {
+    console.log('[ORDER DIALOG]', (await waiter.locator('body').innerText()).slice(0, 2200));
+    throw error;
+  }
+  await carbonara.getByLabel('Quantità').fill('1');
   if (withTiramisu)
     await order
       .locator('article.menu-choice', { hasText: 'Tiramisù' })

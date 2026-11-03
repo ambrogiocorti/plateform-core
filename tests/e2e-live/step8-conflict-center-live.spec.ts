@@ -87,7 +87,12 @@ test('Conflict Center: Annulla item e Modifica ordine reinviano l’ordine corre
     hasText: 'Disponibilità esaurita durante la sincronizzazione',
   });
   const rejected = outOfStock.getByRole('list', { name: 'Righe dell’ordine rifiutato' });
-  await expect(rejected).toContainText('1 × Carbonara · step 1');
+  try {
+    await expect(rejected).toContainText('1 × Carbonara · step 1');
+  } catch (error) {
+    console.log('[CONFLICT CENTER]', (await admin.locator('body').innerText()).slice(0, 2200));
+    throw error;
+  }
   await expect(rejected).toContainText('1 × Tiramisù · step 2');
 
   // Annulla item: l'ordine parte senza il Tiramisù e il conflitto si chiude nella stessa transazione.
@@ -175,6 +180,12 @@ test('Conflict Center: annullare l’unica riga chiude il conflitto senza ordine
 
   const admin = await device(browser, staff.admin);
   await admin.goto('/conflitti');
+  try {
+    await expect(admin.getByRole('button', { name: 'Annulla item' })).toBeVisible();
+  } catch (error) {
+    console.log('[CONFLICT DISCARD]', (await admin.locator('body').innerText()).slice(0, 2200));
+    throw error;
+  }
   await admin.getByRole('button', { name: 'Annulla item' }).click();
   const confirm = admin.getByRole('dialog', { name: 'Annulla Tiramisù' });
   await expect(confirm).toContainText('È l’unica riga');

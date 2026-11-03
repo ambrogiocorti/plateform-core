@@ -37,6 +37,8 @@ const currentPublicPath = (): string =>
   internalPublicPath(location.pathname, PUBLIC_BASE) ?? '/__invalid_public_path__';
 const hrefForPublicRoute = (path: string): string => hostedPublicPath(path, PUBLIC_BASE);
 const isPreview = import.meta.env.VITE_PAGES_MODE === 'test';
+const siteTheme = (site: PublicSite) =>
+  preferredPublicTheme(site.branding.dark_mode === false ? 'light' : 'dark');
 
 try {
   const storedRoute = sessionStorage.getItem('plateform-route-public');
@@ -404,13 +406,13 @@ async function render(): Promise<void> {
     {
       type: 'button',
       class: 'public-theme-toggle',
-      'aria-label': preferredPublicTheme() === 'light' ? 'Attiva tema scuro' : 'Attiva tema chiaro',
-      'aria-pressed': String(preferredPublicTheme() === 'dark'),
+      'aria-label': siteTheme(site) === 'light' ? 'Attiva tema scuro' : 'Attiva tema chiaro',
+      'aria-pressed': String(siteTheme(site) === 'dark'),
     },
-    preferredPublicTheme() === 'light' ? '☾ Tema scuro' : '☀ Tema chiaro',
+    siteTheme(site) === 'light' ? '☾ Tema scuro' : '☀ Tema chiaro',
   );
   themeButton.addEventListener('click', () => {
-    const next = preferredPublicTheme() === 'light' ? 'dark' : 'light';
+    const next = siteTheme(site) === 'light' ? 'dark' : 'light';
     savePublicTheme(next);
     applyBrand(site);
     themeButton.textContent = next === 'light' ? '☾ Tema scuro' : '☀ Tema chiaro';
@@ -620,13 +622,6 @@ async function render(): Promise<void> {
   }
   if (venue && !path.startsWith('/tavolo/') && path !== '/lista-attesa/offerta') {
     const key = `${venue.id}:${path}`;
-    const connection = el('p', {
-      id: 'public-connection',
-      class: 'public-section muted',
-      role: 'status',
-    });
-    connection.hidden = true;
-    main.append(connection);
     const update = button('Il menu è cambiato. Aggiorna', async () => render(), 'secondary');
     update.id = 'public-refresh';
     update.hidden = true;
@@ -650,14 +645,10 @@ async function render(): Promise<void> {
           await render();
           window.scrollTo(0, scroll);
         },
-        state: (state) => {
-          const label = document.getElementById('public-connection');
-          if (label) {
-            // Reconnecting is normal and not an actionable customer-facing error.
-            label.hidden = state !== 'OFFLINE';
-            label.textContent =
-              state === 'OFFLINE' ? 'Le informazioni potrebbero non essere aggiornate.' : '';
-          }
+        state: () => {
+          // Public realtime is advisory; only actual network loss warrants a
+          // visitor-facing offline warning, managed by the shared shell.
+          refreshPublicConnection();
         },
       });
     }
@@ -679,7 +670,7 @@ function applyBrand(site: PublicSite): void {
     '--pf-on-blue',
   ])
     document.documentElement.style.removeProperty(token);
-  const darkMode = preferredPublicTheme() === 'dark';
+  const darkMode = siteTheme(site) === 'dark';
   const defaultBackground = darkMode ? '#0b1324' : '#f5f7fc';
   // The restaurant can select a branded background for its configured mode,
   // but it must never override a guest's explicit light/dark preference.

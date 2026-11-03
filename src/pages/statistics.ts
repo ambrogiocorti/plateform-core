@@ -337,7 +337,7 @@ export async function statisticsPage(context: StaffContext): Promise<HTMLElement
         el(
           'p',
           { class: 'muted', role: 'note' },
-          'Permanenza media al tavolo, analisi degli errori e indicatori operativi sono inclusi nella licenza Analytics avanzate.',
+          'Analisi della permanenza, degli errori e indicatori operativi sono inclusi nella licenza Analytics avanzate.',
         ),
       );
     result.append(bookings, operations);
