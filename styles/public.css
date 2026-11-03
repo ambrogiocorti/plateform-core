@@ -204,7 +204,7 @@
   overflow: hidden;
   min-width: 0;
 }
-.public-dish-card > :not(.public-dish-card-image) {
+.public-dish-card > :not(.public-dish-card-image, .public-dish-image-placeholder, .customer-dish-photo, img) {
   margin-inline: 22px;
 }
 .public-dish-card-image {
