@@ -12,10 +12,9 @@ di cortesia e i nuovi flussi di gestione operativa. Sul commit
 [collaudo integrato](https://github.com/ambrogiocorti/plateform-core/actions/runs/41726143666)
 ha superato **39 test su 39** in quattro gruppi, con GoTrue, PostgREST,
 PostgreSQL, Storage ed Edge Functions in uno stack isolato.
-Superata anche la prova isolata di ripristino. Passano 387 test applicativi,
-32 test Edge e 39 test browser ordinari; il controllo finale di struttura
-della dashboard cucina, emerso dopo l'aggiunta dei resi, richiede ancora
-l'allineamento del sorgente alla verifica statica prima del successivo commit.
+Superata anche la prova isolata di ripristino. Passano 389 test applicativi,
+32 test Edge e 39 test browser ordinari; la verifica statica della dashboard
+Kitchen Admin passa tutti e 10 i controlli, compreso il reso dei piatti serviti.
 
 Tra gli scenari integrati verificati: servizio completo fino a chiusura del
 conto, notifiche e resi dopo la consegna con autorizzazione Admin,

@@ -319,12 +319,7 @@ export async function kitchenPage(context: StaffContext): Promise<HTMLElement> {
       el(
         'header',
         { class: 'kds-ticket-head' },
-        el(
-          'div',
-          {},
-          el('p', { class: 'eyebrow' }, heading.eyebrow),
-          el('h2', {}, heading.title),
-        ),
+        el('div', {}, el('p', { class: 'eyebrow' }, heading.eyebrow), el('h2', {}, heading.title)),
         el(
           'div',
           { class: 'kds-ticket-meta' },
