@@ -793,7 +793,7 @@
   ],
   "note": "I dettagli precedenti restano evidenze storiche. Il checkpoint del 2026-11-03 e il Master 0–157 definiscono il perimetro corrente; licenze e codice presenti non certificano i flussi reali. Vendita completa ancora bloccata.",
   "local_release_candidate": {
-    "status": "SOURCE_DATABASE_AND_BOTH_BUILDS_CHECKED_CI_PENDING",
+    "status": "CI_AND_NATIVE_POSTGRES_PASSED_FOLLOWUP_LOCK_CHECK_PENDING",
     "source_gate_evidence": "docs/evidence/local-rc-source-gates-2026-10-05.json",
     "setup": "docs/LOCAL_RELEASE.md",
     "manual_checklist": "docs/LOCAL_MANUAL_TEST_CHECKLIST.md"
@@ -810,9 +810,25 @@
     "database_tests_passed": 211,
     "database_tests_skipped": 0,
     "build_profiles_checked": ["CORE", "FULL"],
-    "edge_ci": "PENDING",
-    "browser_ci": "PENDING",
+    "edge_ci": {
+      "status": "PASSED",
+      "tests": 31,
+      "run_id": 41675717843
+    },
+    "browser_ci": {
+      "status": "PASSED",
+      "tests": 39,
+      "run_id": 41675717843
+    },
     "production_deployed": false,
-    "backup_restore_verified": false
+    "backup_restore_verified": false,
+    "verified_commit": "8fdb4f6e6cc710da02054ea5dd4b40fd595e9a95",
+    "application_tests_passed": 376,
+    "native_postgresql_bootstrap": {
+      "status": "PASSED",
+      "migrations": 498,
+      "run_id": 41675717812
+    },
+    "followup_external_print_device_locks": "13_LOCAL_TESTS_PASSED_FINAL_CI_TRIGGERED_ON_PUSH"
   }
 }

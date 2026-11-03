@@ -28,6 +28,17 @@ La pipeline `Plateform release candidate hardening` è obbligatoria sul ramo `fi
 
 ## Situazione remota e blocchi ancora reali
 
+### Pipeline completate
+
+Sul commit `8fdb4f6e6cc710da02054ea5dd4b40fd595e9a95`:
+
+- [Run hardening 41675717843](https://github.com/ambrogiocorti/plateform-core/actions/runs/41675717843): tre job riusciti; **376 test applicativi**, **31 test Edge**, **39 test browser**, controlli di continuità e build CORE/FULL.
+- [Run PostgreSQL 41675717812](https://github.com/ambrogiocorti/plateform-core/actions/runs/41675717812): installazione da zero su PostgreSQL Supabase nativo, isolato in Docker e senza credenziali cloud; catalogo verificato `498|7|true|true` (migrazioni, tabelle rehearsal, Auth e Storage presenti).
+
+Il test del classificatore usa ora storie sintetiche fisse: aggiungere una migrazione successiva non altera artificialmente la definizione di «retrodatata». La lettura di staging rimane un controllo distinto. Sul runner CI i browser eseguono tutti i test in sequenza, evitando la competizione delle compilazioni Vite iniziali. Il contatore negativo delle caparre comprende solo le due API di prenotazione e pagamento; la telemetria è una fixture separata.
+
+Un ultimo rafforzamento della migrazione Epson, **ancora non applicata ad alcun progetto**, blocca anche la riga del dispositivo durante accodamento/autorizzazione: la disattivazione non può superare il controllo mentre nasce un nuovo job. I 13 test Epson sono stati rieseguiti localmente; il ramo avvia nuovamente entrambe le pipeline per verificare questa modifica sul commit finale. Il run appena citato non viene attribuito retroattivamente alla modifica successiva.
+
 Lettura staging del 3 novembre: 2.526 righe audit; Stripe, Satispay e caparre licenziati; analisi avanzate non licenziate. Il solo backup censito è **QUEUED**, senza Auth, Storage o integrità verificati; i restore riusciti sono **zero**. Gli 11 gate remoti esaminati sono ancora PENDING. Questi stati non sono stati modificati.
 
 Prima della vendita completa restano necessari:

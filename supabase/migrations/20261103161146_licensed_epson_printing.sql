@@ -44,7 +44,7 @@ returns trigger language plpgsql security definer set search_path='' as $$
 declare device public.print_devices;
 begin
   select * into device from public.print_devices
-  where id=new.print_device_id and venue_id=new.venue_id and active;
+  where id=new.print_device_id and venue_id=new.venue_id and active for share;
   if device.id is null or
      (device.driver<>'BROWSER' and not private.external_printing_licensed()) then
     raise exception 'CORE_PRINT_DEVICE_FORBIDDEN';
@@ -57,7 +57,7 @@ create or replace function private.print_authorize(p_device uuid)
 returns public.print_devices language plpgsql security definer set search_path='' as $$
 declare d public.print_devices;
 begin
-  select * into d from public.print_devices where id=p_device and active;
+  select * into d from public.print_devices where id=p_device and active for share;
   if d.id is null then raise exception 'INVALID_PRINT_DEVICE'; end if;
   perform private.authorize(d.venue_id,array['ADMIN','CASHIER','WAITER','KITCHEN_ADMIN','KITCHEN_STAFF','PASS']::public.user_role[]);
   if not private.current_role()=any(d.allowed_roles) then raise exception 'PRINT_FORBIDDEN'; end if;
