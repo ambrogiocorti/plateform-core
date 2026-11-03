@@ -123,20 +123,21 @@ const gotrueEnv = (database) => ({
 });
 
 // Edge Functions the browser suite needs, served by the repository's Deno behind the gateway.
+// Bind edge test listeners below the Linux ephemeral outbound TCP port range.
+// All public calls still use the single local gateway, never these private ports.
 const functionPorts = {
-  'offline-authorization': 54341,
-  reservation: 54342,
-  'asset-upload': 54343,
+  'offline-authorization': 22141,
+  reservation: 22142,
+  'asset-upload': 22143,
   // Scheduled workers, invoked by the specs exactly as pg_net would (tests/e2e-live/workers-live.spec.ts).
-  'reservation-message-worker': 54344,
-  'reservation-deposit-no-show-worker': 54345,
-  'continuity-retention-worker': 54346,
-  'audit-archive-worker': 54347,
-  'audit-archive-verify': 54348,
-  'database-unavailable-chaos-probe': 54349,
+  'reservation-message-worker': 22144,
+  'reservation-deposit-no-show-worker': 22145,
+  'continuity-retention-worker': 22146,
+  'audit-archive-worker': 22147,
+  'audit-archive-verify': 22148,
+  'database-unavailable-chaos-probe': 22149,
   // Large-group booking deposit checkout/status (tests/e2e-live/large-group-deposit-live.spec.ts).
-  // Keep the deposit Edge port outside the common 5432x/5435x local service range.
-  'reservation-deposit': 54452,
+  'reservation-deposit': 22152,
 };
 const ports = {
   gateway: 54321,
