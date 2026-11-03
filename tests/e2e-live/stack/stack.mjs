@@ -135,7 +135,8 @@ const functionPorts = {
   'audit-archive-verify': 54348,
   'database-unavailable-chaos-probe': 54349,
   // Large-group booking deposit checkout/status (tests/e2e-live/large-group-deposit-live.spec.ts).
-  'reservation-deposit': 54352,
+  // Keep the deposit Edge port outside the common 5432x/5435x local service range.
+  'reservation-deposit': 54452,
 };
 const ports = {
   gateway: 54321,
