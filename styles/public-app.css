@@ -448,6 +448,7 @@
   margin-inline: 20px;
 }
 .public-dish-card .row.between {
+  align-items: baseline;
   gap: 8px 14px;
   flex-wrap: wrap;
   margin-bottom: 8px;
@@ -650,6 +651,10 @@
 .public-footer .powered {
   color: var(--pf-muted);
   border-color: var(--pf-line);
+}
+.public-footer .restaurant-brand {
+  color: var(--pf-ink);
+  font-size: clamp(19px, 2vw, 25px);
 }
 .public-hero {
   background: var(--pf-background);
