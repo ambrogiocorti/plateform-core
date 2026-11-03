@@ -1,6 +1,6 @@
 # Bridge locale Plateform
 
-Servizio HTTPS Node 24 per stampanti Epson ePOS-Print via Ethernet, utilizzabile da Windows, macOS o Linux, e per stampanti Epson con USB realmente disponibile collegate alla coda Windows. Non genera documenti fiscali. Il software è verificato localmente con TLS e stampante simulata; compatibilità firmware, stampa fisica, carta esaurita, spooling e reti reali restano collaudi obbligatori.
+Servizio HTTPS Node 24 per stampanti Epson ePOS-Print via Ethernet, utilizzabile da Windows, macOS o Linux, e per stampanti Epson con USB realmente disponibile collegate a una coda locale Windows, macOS o Linux. Non genera documenti fiscali. Il software è verificato localmente con TLS e stampante simulata; compatibilità firmware, stampa fisica, carta esaurita, spooling e reti reali restano collaudi obbligatori.
 
 ## Installazione
 
@@ -51,6 +51,20 @@ Fonti del produttore: [scheda TM-T20III (012) Ethernet](https://www.epson.eu/en_
 4. Avviare il bridge sullo **stesso PC Windows** e sotto un account che abbia accesso alla stampante. È un servizio locale Node, non una funzione cloud; deve essere attivo durante il turno. Usare `npm ci` e poi `$env:PLATEFORM_BRIDGE_CONFIG='C:\\Plateform\\config.json'; npm run print:bridge` in PowerShell. Gestire avvio automatico e log con un supervisore affidabile.
 5. Nella configurazione staff, l'endpoint BRIDGE sarà `https://localhost:7443/v1/print` (il certificato deve essere valido e considerato attendibile dal browser). L'origine HTTPS e la porta devono corrispondere a `origin` del bridge. Registrare nel database lo stesso device UUID.
 6. Con funzionalità Epson abilitata nella **release e licenza applicabile**, provare un documento di cortesia senza valore fiscale: confermare contenuto, taglio, stato della carta e scenario di errore. Non usare la stampante in servizio prima del collaudo su Windows + driver Epson + hardware effettivo.
+
+## Epson con USB realmente utilizzabile: macOS e Linux (CUPS)
+
+Il computer Mac o Linux che ospita la porta USB può eseguire il **bridge locale**. I computer Windows, Mac e Linux e i dispositivi mobile inviano tutti al medesimo bridge attraverso HTTPS, senza dialoghi di stampa del browser. Il computer a cui è connessa la stampante deve restare acceso.
+
+1. Controllare che la variante Epson abbia una porta USB utilizzabile: la TM-T20III **(012)** è identificata da Epson come modello Ethernet, per cui è di norma consigliato ePOS in rete.
+2. Installare CUPS e configurare una coda USB locale. Identificare la coda con `lpstat -p` e provarne l'invio raw con `lp -d NOME_CODA -o raw FILE_ESC_POS`. La coda non deve convertire i comandi ESC/POS in PDF.
+3. Partire da `config.cups-usb.example.json` e impostare `kind=CUPS_USB`, `cups_queue_name`, chiavi pubbliche, certificati TLS e origini HTTPS. Plateform deve usare `driver=BRIDGE` per la stampante, con il medesimo UUID.
+4. Il bridge usa `lp` senza shell, accetta soltanto il documento di Plateform con autorizzazione firmata e invia byte ESC/POS attraverso stdin. La consegna alla coda non garantisce l'uscita fisica e non viene mai ritentata automaticamente dopo un esito incerto.
+5. Collaudare taglio, carta esaurita, errore coda, ripresa rete e stampa dalle piattaforme reali prima dell'uso.
+
+**Nota di compatibilità:** le code raw CUPS sono deprecate e potrebbero non essere supportate da tutte le versioni e configurazioni. Se l'invio raw non funziona sul computer reale, usare la connessione Ethernet/ePOS o un host Windows USB già collaudato. Il documento stampato non è fiscale.
+
+Riferimenti: [OpenPrinting — opzioni di stampa](https://openprinting.github.io/cups/doc/options.html), [deprecazione delle code raw](https://openprinting.github.io/cups/drivers.html).
 
 Il bridge verifica l'autorizzazione ECDSA e il digest del documento prima di inoltrarlo. La versione USB accetta soltanto il preciso XML generato da Plateform, lo converte in testo ASCII stampabile (42 caratteri/riga) ed esegue `ESC @` e `GS V 1` per il taglio parziale. Ignora qualsiasi comando di controllo contenuto nei nomi degli articoli. Il processo PowerShell usa Winspool con datatype `RAW`, senza `window.print()` o dialoghi di stampa.
 

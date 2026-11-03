@@ -12,7 +12,7 @@ import {
   clearOffline,
 } from '../offline/store';
 import type { StaffContext } from './staff-context';
-import { orderLineSchema, staffProfileSchema, venueSchema } from '../types/domain';
+import { menuDishSchema, orderLineSchema, staffProfileSchema, venueSchema } from '../types/domain';
 import { accountWorkspaceSchema } from '../types/accounts';
 import { orderDialog } from './accounts';
 import { floorView } from '../components/floor-view';
@@ -342,9 +342,14 @@ export async function conflictPage(context: StaffContext): Promise<HTMLElement> 
     VENUE_FORBIDDEN: 'Accesso alla sede revocato',
   };
   const dishNames = new Map<string, string>();
+  const availabilityByDish = new Map<string, number | null>();
   if (result.items.some((conflict) => conflict.operation === 'CREATE_ORDER')) {
-    const dishes = await readRows('dishes', z.object({ id: z.uuid(), name: z.string() }));
+    const [dishes, menu] = await Promise.all([
+      readRows('dishes', z.object({ id: z.uuid(), name: z.string() })),
+      rpc('get_public_menu', { p_venue: context.venue.id }, z.array(menuDishSchema)),
+    ]);
     for (const dish of dishes) dishNames.set(dish.id, dish.name);
+    for (const dish of menu) availabilityByDish.set(dish.id, dish.availability);
   }
   const view = el('div', { class: 'stack' });
   async function resolveCorrected(
@@ -457,20 +462,31 @@ export async function conflictPage(context: StaffContext): Promise<HTMLElement> 
             const quantities: { dish: string; quantity: HTMLInputElement }[] = [];
             for (const [dish, dishName] of dishNames) {
               const existing = lines.find((line) => line.dish_id === dish);
+              // A dish excluded from the current public menu is not orderable.
+              // Preserve an existing quantity only when fresh stock can cover it.
+              const availability = availabilityByDish.has(dish)
+                ? availabilityByDish.get(dish)!
+                : 0;
               const quantity = field(
                 'Quantità',
                 `quantity-${dish}`,
                 'number',
-                String(existing?.quantity ?? 0),
+                String(
+                  existing && (availability === null || existing.quantity <= availability)
+                    ? existing.quantity
+                    : 0,
+                ),
               );
               quantity.input.min = '0';
-              quantity.input.max = '999';
+              quantity.input.max = String(Math.min(availability ?? 999, 999));
               quantity.input.step = '1';
+              if (availability === 0) quantity.input.disabled = true;
               const row = el(
                 'article',
                 { class: 'menu-choice card' },
                 el('strong', {}, dishName),
                 quantity.root,
+                ...(availability === 0 ? [status('ESAURITO')] : []),
               );
               dialogContent.append(row);
               quantities.push({ dish, quantity: quantity.input });

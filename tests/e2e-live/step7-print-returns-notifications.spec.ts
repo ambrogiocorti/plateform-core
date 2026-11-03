@@ -67,6 +67,15 @@ async function orderCarbonara(waiter: Page, table: string, name: string, withTir
 async function cookAndServe(kitchen: Page, pass: Page, waiter: Page, table: string) {
   await open(kitchen, '/cucina');
   const line = kitchen.locator('section.kitchen-line', { hasText: 'Carbonara' });
+  try {
+    await expect(line.getByRole('button', { name: 'RICEVUTO → PREPARA' })).toBeVisible({
+      timeout: 10_000,
+    });
+  } catch (error) {
+    console.log('[KITCHEN STEP7]', (await kitchen.locator('body').innerText()).slice(0, 2600));
+    console.log('[KITCHEN STEP7 DB]', sql('select count(*) from public.order_items'));
+    throw error;
+  }
   await line.getByRole('button', { name: 'RICEVUTO → PREPARA' }).click();
   await line.getByRole('button', { name: 'SEGNA PRONTO' }).click();
   await expect(line.getByText('READY')).toBeVisible();
@@ -174,6 +183,15 @@ test('notifiche dello step si chiudono con il servizio; reso dopo il servizio: R
   const accountId = await orderCarbonara(waiter, 'Tavolo 1', 'Neri');
   await open(kitchen, '/cucina');
   const line = kitchen.locator('section.kitchen-line', { hasText: 'Carbonara' });
+  try {
+    await expect(line.getByRole('button', { name: 'RICEVUTO → PREPARA' })).toBeVisible({
+      timeout: 10_000,
+    });
+  } catch (error) {
+    console.log('[KITCHEN STEP7]', (await kitchen.locator('body').innerText()).slice(0, 2600));
+    console.log('[KITCHEN STEP7 DB]', sql('select count(*) from public.order_items'));
+    throw error;
+  }
   await line.getByRole('button', { name: 'RICEVUTO → PREPARA' }).click();
   await line.getByRole('button', { name: 'SEGNA PRONTO' }).click();
   await expect(line.getByText('READY')).toBeVisible();

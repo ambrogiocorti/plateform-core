@@ -121,3 +121,51 @@ export function transmitWindowsUsb(printerName: string, document: string): Promi
     stdin.end(raw.toString('base64'));
   });
 }
+
+/**
+ * macOS / Linux: raw ESC/POS bytes sent to a local CUPS USB queue. Exit 0
+ * means the spooler accepted the job, not that the receipt was delivered.
+ */
+export function transmitCupsUsb(queueName: string, document: string): Promise<boolean> {
+  if (process.platform !== 'darwin' && process.platform !== 'linux') return Promise.resolve(false);
+  if (!/^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$/.test(queueName)) return Promise.resolve(false);
+  let raw: Buffer;
+  try {
+    raw = usbEscPosDocument(document);
+  } catch {
+    return Promise.resolve(false);
+  }
+  return new Promise((resolveResult) => {
+    let settled = false;
+    let child: ReturnType<typeof spawn>;
+    try {
+      child = spawn('lp', ['-d', queueName, '-o', 'raw'], {
+        shell: false,
+        stdio: ['pipe', 'ignore', 'ignore'],
+      });
+    } catch {
+      resolveResult(false);
+      return;
+    }
+    const finish = (accepted: boolean) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timeout);
+      resolveResult(accepted);
+    };
+    const timeout = setTimeout(() => {
+      child.kill();
+      finish(false);
+    }, 45000);
+    child.on('error', () => finish(false));
+    child.on('close', (code) => finish(code === 0));
+    const stdin = child.stdin;
+    if (!stdin) {
+      child.kill();
+      finish(false);
+      return;
+    }
+    stdin.on('error', () => finish(false));
+    stdin.end(raw);
+  });
+}

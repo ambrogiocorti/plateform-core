@@ -106,9 +106,15 @@ test('servizio completo: tavolo → ordine → cucina → Pass → consegna → 
   // Cucina: prende in carico e completa i piatti della propria postazione.
   await open(kitchen, '/cucina');
   // Allergeni congelati nell'ordine (order_items.allergen_snapshot) visibili in cucina.
-  await expect(
-    kitchen.locator('section.kitchen-line', { hasText: '1 × Tiramisù' }).getByRole('note'),
-  ).toHaveText('ALLERGENI: Uova · Latte');
+  try {
+    await expect(
+      kitchen.locator('section.kitchen-line', { hasText: '1 × Tiramisù' }).getByRole('note'),
+    ).toHaveText('ALLERGENI: Uova · Latte');
+  } catch (error) {
+    console.log('[KITCHEN BOARD]', (await kitchen.locator('body').innerText()).slice(0, 2600));
+    console.log('[KITCHEN DB ORDERS]', sql('select count(*) from public.order_items'));
+    throw error;
+  }
   for (const dish of ['2 × Carbonara', '1 × Tiramisù']) {
     const line = kitchen.locator('section.kitchen-line', { hasText: dish });
     await line.getByRole('button', { name: 'RICEVUTO → PREPARA' }).click();

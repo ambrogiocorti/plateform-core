@@ -10,7 +10,7 @@ import {
 } from '../../shared/print-authorization.ts';
 import { BridgeStore } from './store.ts';
 import { eposSuccess } from './protocol.ts';
-import { transmitWindowsUsb } from './usb-print.ts';
+import { transmitCupsUsb, transmitWindowsUsb } from './usb-print.ts';
 const origin = z.url().refine((value) => {
   const u = new URL(value);
   return u.protocol === 'https:' && u.origin === value && !u.username && !u.password;
@@ -60,6 +60,14 @@ const configSchema = z
               kind: z.literal('WINDOWS_USB'),
               // Local Windows queue only: no UNC paths, scripts or arguments.
               windows_printer_name: z.string().regex(/^[A-Za-z0-9][A-Za-z0-9 ._()-]{0,127}$/),
+            })
+            .strict(),
+          z
+            .object({
+              device_id: z.uuid(),
+              kind: z.literal('CUPS_USB'),
+              // Only a local queue name; do not accept command options or network hosts.
+              cups_queue_name: z.string().regex(/^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$/),
             })
             .strict(),
         ]),
@@ -160,6 +168,12 @@ export function startBridge(file: string) {
     process.platform !== 'win32'
   )
     throw new Error('USB_REQUIRES_WINDOWS');
+  if (
+    config.printers.some((printer) => printer.kind === 'CUPS_USB') &&
+    process.platform !== 'darwin' &&
+    process.platform !== 'linux'
+  )
+    throw new Error('USB_REQUIRES_CUPS');
   const dbPath = path(config.database_file);
   mkdirSync(dirname(dbPath), { recursive: true, mode: 0o700 });
   const store = new BridgeStore(dbPath);
@@ -256,7 +270,9 @@ export function startBridge(file: string) {
               success =
                 printer.kind === 'WINDOWS_USB'
                   ? await transmitWindowsUsb(printer.windows_printer_name, body.document)
-                  : await transmit(printer.endpoint, body.document, printer.ca);
+                  : printer.kind === 'CUPS_USB'
+                    ? await transmitCupsUsb(printer.cups_queue_name, body.document)
+                    : await transmit(printer.endpoint, body.document, printer.ca);
             store.finish(claims.job_id, success);
           });
         chains.set(claims.device_id, task);
