@@ -464,9 +464,7 @@ export async function conflictPage(context: StaffContext): Promise<HTMLElement> 
               const existing = lines.find((line) => line.dish_id === dish);
               // A dish excluded from the current public menu is not orderable.
               // Preserve an existing quantity only when fresh stock can cover it.
-              const availability = availabilityByDish.has(dish)
-                ? availabilityByDish.get(dish)!
-                : 0;
+              const availability = availabilityByDish.has(dish) ? availabilityByDish.get(dish)! : 0;
               const quantity = field(
                 'Quantità',
                 `quantity-${dish}`,

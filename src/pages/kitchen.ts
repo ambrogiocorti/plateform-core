@@ -4,6 +4,20 @@ import { button, dialog, el, emptyState, status } from '../components/dom';
 import { command } from './staff-context';
 import type { StaffContext } from './staff-context';
 
+// PostgreSQL stores allergen snapshots as {code,name}; older test/cache records
+// may contain names directly. Normalize both shapes before rendering the KDS.
+export const kitchenAllergensSchema = z
+  .array(z.union([z.string(), z.object({ code: z.string(), name: z.string() })]))
+  .transform((entries) => {
+    if (entries.every((entry) => typeof entry === 'string')) return entries as string[];
+    return entries
+      .map((entry) =>
+        typeof entry === 'string' ? { code: entry, name: entry } : entry,
+      )
+      .sort((a, b) => a.code.localeCompare(b.code))
+      .map((entry) => entry.name);
+  });
+
 const itemSchema = z.object({
   id: z.uuid(),
   order_id: z.uuid(),
@@ -23,7 +37,7 @@ const itemSchema = z.object({
   can_deliver: z.boolean(),
   removed_ingredients: z.array(z.string()),
   variants: z.array(z.object({ group: z.string(), option: z.string() })),
-  allergens: z.array(z.string()),
+  allergens: kitchenAllergensSchema,
 });
 
 const kitchenAdminOverviewSchema = z.object({

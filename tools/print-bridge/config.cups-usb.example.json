@@ -3,9 +3,7 @@
   "port": 7443,
   "origin": "https://localhost:7443",
   "issuer": "https://PROJECT_REF.supabase.co",
-  "allowed_origins": [
-    "https://staff.restaurant.example"
-  ],
+  "allowed_origins": ["https://staff.restaurant.example"],
   "public_keys": [],
   "certificate_file": "tls/bridge.crt",
   "private_key_file": "tls/bridge.key",
