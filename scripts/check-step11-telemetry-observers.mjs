@@ -12,8 +12,8 @@ try {
   // Vite injects import.meta.env in the browser build. Node's native TypeScript
   // loader does not, so provide the same production-mode values in this
   // isolated transport fixture rather than changing the application module.
-  assert.match(telemetrySource, /import\\.meta\\.env\\.BASE_URL/);
-  assert.match(telemetrySource, /import\\.meta\\.env\\.VITE_PAGES_MODE/);
+  assert.ok(telemetrySource.includes('import.meta.env.BASE_URL'));
+  assert.ok(telemetrySource.includes('import.meta.env.VITE_PAGES_MODE'));
   const telemetry = telemetrySource
     .replaceAll('import.meta.env.BASE_URL', "'/'")
     .replaceAll('import.meta.env.VITE_PAGES_MODE', "'production'")
