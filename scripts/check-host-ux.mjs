@@ -9,7 +9,7 @@ const checks = [
   [
     'arrivals and floor have dedicated workspaces',
     host.includes("class: 'host-desk-body'") &&
-      host.includes('reservations, map') &&
+      host.includes("el('div', { class: 'host-desk-body' }, map, reservations)") &&
       host.includes('waitlistPanel'),
   ],
   [
