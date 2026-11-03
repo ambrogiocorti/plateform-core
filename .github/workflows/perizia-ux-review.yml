@@ -24,19 +24,22 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Apply mechanical Prettier formatting in the isolated branch
         run: |
-          node node_modules/prettier/bin/prettier.cjs --write apps/public/main.ts src/pages/public-booking.ts src/pages/cash.ts supabase/functions/reservation/index.ts styles/public-app.css styles/restaurant-redesign.css tests/e2e/public-experience.spec.ts
+          node node_modules/prettier/bin/prettier.cjs --write apps/public/main.ts src/pages/public-booking.ts src/pages/cash.ts src/pages/host.ts supabase/functions/reservation/index.ts styles/public-app.css styles/public.css styles/restaurant-redesign.css tests/e2e/public-experience.spec.ts
           if ! git diff --quiet; then
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            git add -- apps/public/main.ts src/pages/public-booking.ts src/pages/cash.ts supabase/functions/reservation/index.ts styles/public-app.css styles/restaurant-redesign.css tests/e2e/public-experience.spec.ts
+            git add -- apps/public/main.ts src/pages/public-booking.ts src/pages/cash.ts src/pages/host.ts supabase/functions/reservation/index.ts styles/public-app.css styles/public.css styles/restaurant-redesign.css tests/e2e/public-experience.spec.ts
             git commit -m 'style(perizia): apply Prettier to isolated UX fixes'
             git push origin "HEAD:$GITHUB_REF"
           fi
       - name: Formatting of changed sources
-        run: node node_modules/prettier/bin/prettier.cjs --check apps/public/main.ts src/pages/public-booking.ts src/pages/cash.ts supabase/functions/reservation/index.ts styles/public-app.css styles/restaurant-redesign.css tests/e2e/public-experience.spec.ts
+        run: node node_modules/prettier/bin/prettier.cjs --check apps/public/main.ts src/pages/public-booking.ts src/pages/cash.ts src/pages/host.ts supabase/functions/reservation/index.ts styles/public-app.css styles/public.css styles/restaurant-redesign.css tests/e2e/public-experience.spec.ts
       - name: TypeScript
         if: success() || failure()
         run: npm run typecheck
+      - name: Host UX contract
+        if: success() || failure()
+        run: npm run check:host-ux
       - name: Unit tests
         if: success() || failure()
         run: npm run test:unit
