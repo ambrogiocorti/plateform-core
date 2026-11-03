@@ -5,7 +5,7 @@ import { extname, join, resolve } from 'node:path';
 import { gzipSync } from 'node:zlib';
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
-import { anonKey } from './stack/seed.mjs';
+import { anonKey, ids, sql } from './stack/seed.mjs';
 import { reset } from './stack/stack.mjs';
 
 // Web performance of the release builds (not the dev servers), served compressed as a static
@@ -155,10 +155,12 @@ async function coldLoad(page: Page, url: string, ready: () => Promise<void>): Pr
 
 for (const [label, path, heading] of [
   ['home', '/', /./],
-  ['menu', '/menu', /Il nostro menu/],
+  ['menu', '/menu', /Scopri la nostra cucina/],
   ['prenota', '/prenota', /./],
 ] as const) {
   test(`velocità sito pubblico (telefono, 4G lenta): ${label}`, async ({ browser }) => {
+    if (label === 'prenota')
+      sql(`update public.venue_settings set reservations_enabled=true where venue_id='${ids.venue}'`);
     const page = await (
       await browser.newContext({
         viewport: { width: 390, height: 844 },

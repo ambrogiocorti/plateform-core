@@ -277,8 +277,9 @@ async function render(): Promise<void> {
       entry.roles.includes(profile.role) &&
       (entry.path !== '/food-cost' || context.licensedFeatures?.has('FOOD_COST')),
   );
+  const firstAllowedPath = profile.role === 'CASHIER' ? '/cassa' : links[0]?.path;
   if (staffPath() === '/' || staffPath() === '/login')
-    history.replaceState(null, '', staffHref(links[0]?.path ?? '/operazioni'));
+    history.replaceState(null, '', staffHref(firstAllowedPath ?? '/operazioni'));
   const pageLink = links.find(
     (entry) => staffPath() === entry.path || staffPath().startsWith(`${entry.path}/`),
   );

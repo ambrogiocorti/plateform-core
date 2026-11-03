@@ -423,6 +423,12 @@ async function render(): Promise<void> {
     ),
     navigation,
   );
+  const path = currentPublicPath();
+  if (path === '/') {
+    // Build the complete homepage offscreen: a late hero would shift the footer on mobile.
+    main.append(await home(site, venue, bookingEnabled ? reservationVenue : undefined));
+    if (current !== revision) return;
+  }
   app.replaceChildren(header, main, footer(site));
   setupPublicNavigation(menuButton, navigation, header, lifetime.signal);
   stopPerformance?.();
@@ -430,10 +436,9 @@ async function render(): Promise<void> {
     stopPerformance = observePublicPerformance(venue?.id);
     recordPublicPageView(venue?.id);
   }
-  const path = currentPublicPath();
-  if (path === '/')
-    main.append(await home(site, venue, bookingEnabled ? reservationVenue : undefined));
-  else if (path === '/menu') main.append(await menu(site, venue));
+  if (path === '/') {
+    // Homepage content was inserted before attaching main to the document.
+  } else if (path === '/menu') main.append(await menu(site, venue));
   else if (path.startsWith('/menu/') && venue) {
     const match = /^\/menu\/([^/]+)(?:\/piatto\/([^/]+))?\/?$/.exec(path);
     main.append(

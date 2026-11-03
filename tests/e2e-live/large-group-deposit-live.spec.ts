@@ -71,7 +71,7 @@ test('gruppo numeroso: l’Admin imposta la caparra, il gruppo la vede, paga e l
   await visitor.goto(`${publicBase}/prenota`);
   await visitor.getByLabel('Nome', { exact: true }).fill('Sara');
   await visitor.getByLabel('Cognome').fill('Bianchi');
-  await visitor.getByLabel('Telefono con prefisso internazionale').fill('+393331112233');
+  await visitor.getByLabel('Telefono', { exact: true }).fill('+393331112233');
   await visitor.getByLabel('Persone').fill('8');
   await visitor.getByLabel('Data').fill(day);
   await visitor.getByRole('button', { name: 'Verifica disponibilità' }).click();
@@ -163,7 +163,7 @@ test('gruppo numeroso: senza licenza o provider la caparra è rifiutata; i grupp
   // Small groups are unchanged.
   await visitor.getByLabel('Nome', { exact: true }).fill('Piero');
   await visitor.getByLabel('Cognome').fill('Rossi');
-  await visitor.getByLabel('Telefono con prefisso internazionale').fill('+393334445566');
+  await visitor.getByLabel('Telefono', { exact: true }).fill('+393334445566');
   await visitor.getByLabel('Persone').fill('2');
   await visitor.getByRole('button', { name: 'Verifica disponibilità' }).click();
   await expect(visitor.getByText(/orari disponibili\. Selezionane uno/)).toBeVisible();
