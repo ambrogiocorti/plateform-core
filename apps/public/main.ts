@@ -1084,6 +1084,10 @@ async function menu(site: PublicSite, venue: Venue | undefined): Promise<HTMLEle
           .map((dish) => {
             const picture = safeImageUrl(dish.image_path);
             const badge = availabilityBadge(dish.availability);
+            const ingredients = dish.ingredients.map((ingredient) => ingredient.name).join(', ');
+            const hasDistinctIngredients =
+              ingredients.length > 0 &&
+              !dish.description.toLocaleLowerCase('it').includes(ingredients.toLocaleLowerCase('it'));
             return el(
               'article',
               { class: 'dish-public public-dish-card public-legacy-dish' },
@@ -1097,9 +1101,7 @@ async function menu(site: PublicSite, venue: Venue | undefined): Promise<HTMLEle
                 el('strong', {}, formatMoney(dish.price_cents, venue.currency, venue.locale)),
               ),
               el('p', {}, dish.description),
-              !dish.beverage
-                ? el('p', {}, dish.ingredients.map((ingredient) => ingredient.name).join(', '))
-                : null,
+              !dish.beverage && hasDistinctIngredients ? el('p', {}, ingredients) : null,
               dish.allergens.length
                 ? el(
                     'p',
