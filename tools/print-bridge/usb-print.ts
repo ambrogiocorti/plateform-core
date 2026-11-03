@@ -85,6 +85,9 @@ export function transmitWindowsUsb(printerName: string, document: string): Promi
           '-NoLogo',
           '-NoProfile',
           '-NonInteractive',
+          // Scope the policy to this fixed, locally installed helper process only.
+          '-ExecutionPolicy',
+          'Bypass',
           '-File',
           join(import.meta.dirname, 'win-raw-print.ps1'),
           '-PrinterName',
