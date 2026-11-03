@@ -217,6 +217,158 @@ export async function planningPage(context: StaffContext): Promise<HTMLElement> 
         `${services.find((s) => s.id === slot.service_id)?.name ?? 'Servizio'} · ${String(slot.service_date)} ${String(slot.slot_time ?? 'Intero servizio')} · ${slot.closed ? 'CHIUSO' : `Coperti ${slot.max_covers_override ?? 'standard'}, gruppi ${slot.max_arrivals_override ?? 'standard'}`} · ${String(slot.reason ?? '')}`,
       ),
     );
+  // The server owns licensing, provider availability and every deposit rule. The UI only
+  // submits a versioned configuration command; no client-side decision can require payment.
+  const depositSection = el(
+    'section',
+    { class: 'card stack', 'aria-label': 'Caparra per gruppi numerosi' },
+    el('h2', {}, 'Caparra per gruppi numerosi'),
+  );
+  const depositSettings = await rpc(
+    'get_large_group_deposit_settings',
+    { p_venue: context.venue?.id },
+    z.object({
+      licensed: z.boolean(),
+      providers: z.array(z.string()),
+      services: z.array(
+        z.object({
+          service_id: z.uuid(),
+          name: z.string(),
+          version: z.number(),
+          enabled: z.boolean(),
+          min_party_size: z.number().nullable(),
+          amount_cents: z.number().nullable(),
+          cancel_refund_hours: z.number(),
+          max_party_size_auto_confirm: z.number(),
+        }),
+      ),
+    }),
+  ).catch(() => null);
+  if (!depositSettings) {
+    depositSection.append(
+      el('p', { role: 'status' }, 'La configurazione delle caparre non è disponibile sul server.'),
+    );
+  } else {
+    depositSection.append(
+      el(
+        'p',
+        { class: 'muted' },
+        depositSettings.providers.length
+          ? 'Pagamento con ' +
+              depositSettings.providers.map((provider) =>
+                provider === 'STRIPE' ? 'Stripe' : 'Satispay',
+              ).join(' e ') +
+              '.'
+          : 'Nessun provider per le caparre è abilitato in questa sede.',
+      ),
+    );
+    if (!depositSettings.licensed)
+      depositSection.append(
+        el('p', { role: 'status' }, 'La licenza per le caparre online non è attiva.'),
+      );
+    for (const service of depositSettings.services) {
+      const enabled = el('input', { type: 'checkbox' });
+      enabled.checked = service.enabled;
+      enabled.disabled = !depositSettings.licensed || !depositSettings.providers.length;
+      const threshold = field(
+        'Da quante persone si chiede la caparra',
+        'deposit_min_party_size',
+        'number',
+        String(service.min_party_size ?? 6),
+      );
+      threshold.input.min = '2';
+      threshold.input.max = String(service.max_party_size_auto_confirm);
+      threshold.input.required = true;
+      const amount = field(
+        'Importo della caparra in euro',
+        'deposit_amount_eur',
+        'number',
+        String((service.amount_cents ?? 2500) / 100),
+      );
+      amount.input.min = '1';
+      amount.input.max = '1000';
+      amount.input.step = '0.01';
+      amount.input.required = true;
+      const refundHours = field(
+        'Ore prima della visita per il rimborso automatico',
+        'deposit_refund_hours',
+        'number',
+        String(service.cancel_refund_hours),
+      );
+      refundHours.input.min = '0';
+      refundHours.input.max = '720';
+      refundHours.input.required = true;
+      const summary = el('p', { role: 'status' });
+      const renderSummary = (active: boolean, euro: number, people: number) => {
+        summary.textContent = active
+          ? 'Attiva: ' +
+            euro.toLocaleString('it-IT', {
+              style: 'currency',
+              currency: 'EUR',
+            }) +
+            ' da ' +
+            people +
+            ' persone.'
+          : 'Caparra non richiesta per questo servizio.';
+      };
+      renderSummary(
+        service.enabled,
+        (service.amount_cents ?? 0) / 100,
+        service.min_party_size ?? 0,
+      );
+      const save = button('Salva caparra · ' + service.name, async () => {
+        if (
+          !threshold.input.reportValidity() ||
+          !amount.input.reportValidity() ||
+          !refundHours.input.reportValidity()
+        )
+          return;
+        const value = Number(amount.input.value);
+        const result = await rpc(
+          'configure_large_group_deposit',
+          {
+            p_venue: context.venue?.id,
+            p_service: service.service_id,
+            p_version: service.version,
+            p_enabled: enabled.checked,
+            p_min_party_size: Number(threshold.input.value),
+            p_amount_cents: Math.round(value * 100),
+            p_cancel_refund_hours: Number(refundHours.input.value),
+            p_key: crypto.randomUUID(),
+          },
+          z.object({
+            version: z.number(),
+            enabled: z.boolean(),
+            min_party_size: z.number().nullable(),
+            amount_cents: z.number().nullable(),
+          }),
+        );
+        service.version = result.version;
+        renderSummary(
+          result.enabled,
+          (result.amount_cents ?? 0) / 100,
+          result.min_party_size ?? 0,
+        );
+        toast('Caparra aggiornata.');
+        await context.refresh?.();
+      });
+      if (!depositSettings.licensed || !depositSettings.providers.length) save.disabled = true;
+      depositSection.append(
+        el(
+          'div',
+          { class: 'card stack' },
+          el('h3', {}, service.name),
+          el('label', {}, enabled, 'Chiedi la caparra ai gruppi numerosi'),
+          threshold.root,
+          amount.root,
+          refundHours.root,
+          summary,
+          save,
+        ),
+      );
+    }
+  }
+
   const form = forms[0];
   const formSection = el(
     'section',
@@ -394,6 +546,6 @@ export async function planningPage(context: StaffContext): Promise<HTMLElement> 
       );
     }),
   );
-  view.append(shiftSection, booking, formSection);
+  view.append(shiftSection, booking, depositSection, formSection);
   return view;
 }

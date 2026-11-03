@@ -14,7 +14,10 @@ import {
 } from '../../src/components/dom';
 import { environment } from '../../src/config/environment';
 import { activeProfile, loginPage, signOut, requirements } from '../../src/auth/staff';
-import { consumePasswordRecoveryIntent, passwordRecoveryPage } from '../../src/auth/password-recovery';
+import {
+  consumePasswordRecoveryIntent,
+  passwordRecoveryPage,
+} from '../../src/auth/password-recovery';
 import { openAccessSecurity } from '../../src/auth/access-security';
 import { stepUp } from '../../src/auth/step-up';
 import { rpc } from '../../src/api/client';
