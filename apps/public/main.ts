@@ -1087,7 +1087,9 @@ async function menu(site: PublicSite, venue: Venue | undefined): Promise<HTMLEle
             const ingredients = dish.ingredients.map((ingredient) => ingredient.name).join(', ');
             const hasDistinctIngredients =
               ingredients.length > 0 &&
-              !dish.description.toLocaleLowerCase('it').includes(ingredients.toLocaleLowerCase('it'));
+              !dish.description
+                .toLocaleLowerCase('it')
+                .includes(ingredients.toLocaleLowerCase('it'));
             return el(
               'article',
               { class: 'dish-public public-dish-card public-legacy-dish' },
