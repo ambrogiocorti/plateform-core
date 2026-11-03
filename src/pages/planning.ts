@@ -249,16 +249,15 @@ export async function planningPage(context: StaffContext): Promise<HTMLElement> 
       el('p', { role: 'status' }, 'La configurazione delle caparre non è disponibile sul server.'),
     );
   } else {
+    const providers = depositSettings.providers.map((provider) =>
+      provider === 'STRIPE' ? 'Stripe' : 'Satispay',
+    );
     depositSection.append(
       el(
         'p',
         { class: 'muted' },
-        depositSettings.providers.length
-          ? 'Pagamento con ' +
-              depositSettings.providers.map((provider) =>
-                provider === 'STRIPE' ? 'Stripe' : 'Satispay',
-              ).join(' e ') +
-              '.'
+        providers.length
+          ? `Pagamento con ${providers.join(' e ')}.`
           : 'Nessun provider per le caparre è abilitato in questa sede.',
       ),
     );
@@ -300,15 +299,9 @@ export async function planningPage(context: StaffContext): Promise<HTMLElement> 
       refundHours.input.required = true;
       const summary = el('p', { role: 'status' });
       const renderSummary = (active: boolean, euro: number, people: number) => {
+        const total = euro.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' });
         summary.textContent = active
-          ? 'Attiva: ' +
-            euro.toLocaleString('it-IT', {
-              style: 'currency',
-              currency: 'EUR',
-            }) +
-            ' da ' +
-            people +
-            ' persone.'
+          ? `Attiva: ${total} da ${people} persone.`
           : 'Caparra non richiesta per questo servizio.';
       };
       renderSummary(

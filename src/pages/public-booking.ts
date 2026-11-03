@@ -141,6 +141,8 @@ export async function bookingPage(venue: Venue, privacyUrl?: string): Promise<HT
   const time = el('select', { 'aria-label': 'Orario' });
   time.required = true;
   const status = el('p', { role: 'status', 'aria-live': 'polite', class: 'muted' });
+  const depositTerms = el('p', { id: 'booking-deposit-terms', class: 'muted' });
+  let offeredSlots: z.infer<typeof slotSchema>[] = [];
   const waitlistLink = el(
     'a',
     {
@@ -157,6 +159,8 @@ export async function bookingPage(venue: Venue, privacyUrl?: string): Promise<HT
   const resetTime = () => {
     sequence++;
     verifiedKey = undefined;
+    offeredSlots = [];
+    depositTerms.textContent = '';
     time.disabled = true;
     waitlistLink.hidden = true;
     time.replaceChildren(el('option', { value: '' }, 'Verifica prima la disponibilità'));
@@ -211,6 +215,7 @@ export async function bookingPage(venue: Venue, privacyUrl?: string): Promise<HT
         return;
       }
       verifiedKey = key;
+      offeredSlots = slots;
       time.disabled = false;
       time.replaceChildren(
         el('option', { value: '' }, 'Seleziona un orario'),
@@ -218,9 +223,22 @@ export async function bookingPage(venue: Venue, privacyUrl?: string): Promise<HT
       );
       time.value = '';
       status.textContent = `${slots.length} orari disponibili. Selezionane uno per continuare.`;
+      if (slots.some((slot) => slot.deposit))
+        status.textContent += ' Per questo gruppo il ristorante chiede una caparra di garanzia.';
     },
     'secondary',
   );
+  time.addEventListener('change', () => {
+    const selected = offeredSlots.find((slot) => slot.time === time.value);
+    const amount = selected?.deposit?.amount_cents;
+    depositTerms.textContent =
+      typeof amount === 'number'
+        ? 'Per confermare la prenotazione è richiesta una caparra di garanzia di ' +
+          (amount / 100).toLocaleString('it-IT', { style: 'currency', currency: 'EUR' }) +
+          '. Non è un anticipo sul conto: viene restituita secondo le ' +
+          'condizioni di cancellazione del ristorante.'
+        : '';
+  });
   for (const control of [service, date.input, party.input])
     control.addEventListener('change', resetTime);
   for (const control of [service, date.input, party.input])
@@ -234,6 +252,7 @@ export async function bookingPage(venue: Venue, privacyUrl?: string): Promise<HT
     checkAvailability,
     el('div', { class: 'field' }, el('label', {}, 'Orario', time)),
     status,
+    depositTerms,
     waitlistLink,
   );
   const answers = new Map(configuration.fields.map((entry) => [entry.id, bookingField(entry)]));

@@ -125,8 +125,17 @@ async function coldLoad(page: Page, url: string, ready: () => Promise<void>): Pr
         if (!entry.hadRecentInput) vitals.cls += entry.value;
     }).observe({ type: 'layout-shift', buffered: true });
   });
+  page.on('pageerror', (error) => console.log('[perf pageerror]', url, error.message));
+  page.on('requestfailed', (request) =>
+    console.log('[perf requestfailed]', request.url(), request.failure()?.errorText),
+  );
   await page.goto(url);
-  await ready();
+  try {
+    await ready();
+  } catch (error) {
+    console.log('[perf failed view]', url, (await page.locator('body').innerText()).slice(0, 900));
+    throw error;
+  }
   await page.waitForLoadState('networkidle');
   return page.evaluate(() => {
     const resources = performance.getEntriesByType('resource') as PerformanceResourceTiming[];
