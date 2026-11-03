@@ -7,7 +7,6 @@
   "original_allowed_origins_updated_at_unchanged": "2026-10-26T22:42:55Z",
   "additional_allowed_origins": "https://plateform-development-git-fix-releas-94ed70-sambrogiocorti-5259.vercel.app",
   "additional_allowed_origins_sha256": "6c9e3c294d777098e87574dc15602cc9c1b891d5b42b23059543dd16b2978d29",
-  "database_schema_or_data_modified": false,
   "production_modified": false,
   "functions": [
     {
@@ -466,5 +465,8 @@
     "runtime": "Deno 2.9.6; dependencies from locked node_modules via manual mode"
   },
   "screenshot": "../screenshots/staging-cors-origins-1793727234491.jpg",
-  "rollback": "Retrieve each currently deployed bundle, replace only _shared/http.ts with the matching original-http-<before_http_sha256>.txt, preserve all other files and verify_jwt, redeploy on the staging ref. Leaving ADDITIONAL_ALLOWED_ORIGINS configured has no effect on the original helper."
+  "rollback": "Retrieve each currently deployed bundle, replace only _shared/http.ts with the matching original-http-<before_http_sha256>.txt, preserve all other files and verify_jwt, redeploy on the staging ref. Leaving ADDITIONAL_ALLOWED_ORIGINS configured has no effect on the original helper.",
+  "database_migrations_applied": false,
+  "restaurant_business_data_modified": false,
+  "normal_access_denied_telemetry_may_be_recorded": true
 }
