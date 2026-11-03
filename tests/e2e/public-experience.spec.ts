@@ -151,3 +151,42 @@ test('public menu survives an unavailable optional card index and keeps dish pho
   expect(Math.abs(imageBox!.width - cardBox!.width)).toBeLessThanOrEqual(3);
   await page.screenshot({ path: 'test-results/perizia-menu-layout.png', fullPage: true });
 });
+
+test('booking availability failure shows a useful message instead of a loading state', async ({
+  page,
+}) => {
+  const bookingSite = {
+    ...site,
+    content: { privacy_url: 'https://example.test/privacy' },
+    venues: [{ ...venue, reservations_enabled: true }],
+  };
+  await page.route('**/rest/v1/rpc/get_public_site', (route) =>
+    route.fulfill({ json: bookingSite }),
+  );
+  await page.route('**/rest/v1/rpc/get_booking_configuration', (route) =>
+    route.fulfill({
+      json: {
+        services: [{
+          id: '40000000-0000-4000-8000-000000000014',
+          name: 'Cena',
+          starts_at: '19:00',
+          ends_at: '22:00',
+          weekdays: [0, 1, 2, 3, 4, 5, 6],
+          slot_interval_minutes: 30,
+        }],
+        fields: [],
+      },
+    }),
+  );
+  await page.route('**/rest/v1/rpc/get_public_booking_availability', (route) =>
+    route.fulfill({ status: 503, json: { message: 'temporarily unavailable' } }),
+  );
+  await page.goto('http://localhost:5173/prenota');
+  await expect(page.getByRole('heading', { name: 'Un tavolo da Osteria Test' })).toBeVisible();
+  const date = page.locator('input[type="date"]');
+  await date.fill(await date.getAttribute('min') ?? '');
+  await page.getByRole('button', { name: 'Verifica disponibilità' }).click();
+  await expect(page.getByText('Non riusciamo a verificare gli orari.', { exact: false }))
+    .toBeVisible();
+  await expect(page.getByText('Verifica disponibilità in corso…')).toHaveCount(0);
+});
