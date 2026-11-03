@@ -12,7 +12,7 @@
 // PostgREST/Storage stand-in. Nothing here can reach a remote database.
 import { cp, mkdtemp, readdir, readFile, rm, writeFile, mkdir } from 'node:fs/promises';
 import { randomBytes } from 'node:crypto';
-import { join, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { run, startCluster } from './cluster.mjs';
 import { platformPrelude, SUPABASE_PREFIX } from './fixture.mjs';
@@ -510,6 +510,9 @@ try {
   await cluster.stop();
   timings.total = Date.now() - t0;
   evidence.timings_ms = timings;
-  if (evidencePath) await writeFile(evidencePath, `${JSON.stringify(evidence, null, 2)}\n`);
+  if (evidencePath) {
+    await mkdir(dirname(evidencePath), { recursive: true, mode: 0o700 });
+    await writeFile(evidencePath, `${JSON.stringify(evidence, null, 2)}\n`);
+  }
 }
 process.exit(exitCode);
