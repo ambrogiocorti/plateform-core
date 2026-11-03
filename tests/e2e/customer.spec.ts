@@ -111,7 +111,7 @@ test('QR customer preserves a draft through reconciliation and submits the revie
   await page.evaluate(() => window.dispatchEvent(new Event('online')));
   await expect.poll(() => reads).toBeGreaterThan(before);
   await expect(page.getByText('2 pietanze nel carrello')).toBeVisible();
-  await page.getByRole('button', { name: 'Vai al carrello' }).click();
+  await page.getByRole('button', { name: 'Carrello', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Il tuo carrello' })).toBeVisible();
   await page.getByLabel('Risotto · quantità').fill('3');
   await page.getByLabel('Risotto · quantità').blur();
