@@ -100,9 +100,10 @@ async function device(browser: Browser, member: Member): Promise<Page> {
     await page.getByLabel('Codice di autenticazione').fill(totp(secret));
     await page.getByRole('button', { name: 'Verifica e accedi' }).click();
   }
-  await expect(
-    page.getByText(`${member.name} · ${member.role.replaceAll('_', ' ')}`),
-  ).toBeVisible();
+  await expect(page.locator('.workspace-subtitle')).toContainText(member.name);
+  await expect(page.locator('.workspace-subtitle')).toContainText(
+    member.role.replaceAll('_', ' ').toLowerCase(),
+  );
   return page;
 }
 

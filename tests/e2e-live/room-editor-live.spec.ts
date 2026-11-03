@@ -16,7 +16,8 @@ test('adds a table and one Salva stores the room and puts it in use', async ({ p
   await page.getByLabel('Identificativo staff').fill(staff.admin.email);
   await page.getByLabel('Password').fill(password);
   await page.getByRole('button', { name: 'Accedi al servizio' }).click();
-  await expect(page.getByText(`${staff.admin.name} · ADMIN`)).toBeVisible();
+  await expect(page.locator('.workspace-subtitle')).toContainText(staff.admin.name);
+  await expect(page.locator('.workspace-subtitle')).toContainText('admin');
   await page.goto('/editor');
   await expect(page.getByText('Trascina un tavolo per spostarlo.', { exact: false })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Muro' })).toBeHidden();

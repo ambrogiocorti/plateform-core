@@ -60,7 +60,8 @@ test('prenotazione online: disponibilità reale, invio con la Edge Function, vis
   await admin.getByLabel('Identificativo staff').fill(staff.admin.email);
   await admin.getByLabel('Password').fill(password);
   await admin.getByRole('button', { name: 'Accedi al servizio' }).click();
-  await expect(admin.getByText(`${staff.admin.name} · ADMIN`)).toBeVisible();
+  await expect(admin.locator('.workspace-subtitle')).toContainText(staff.admin.name);
+  await expect(admin.locator('.workspace-subtitle')).toContainText('admin');
   await admin.goto('/accoglienza');
   await admin.getByLabel('Giorno', { exact: true }).fill(tomorrow);
   await admin.getByRole('button', { name: 'FILTRA' }).click();

@@ -96,7 +96,8 @@ test('branding Admin: colore, testi e sezioni arrivano al sito pubblico', async 
   await admin.getByLabel('Identificativo staff').fill(staff.admin.email);
   await admin.getByLabel('Password').fill(password);
   await admin.getByRole('button', { name: 'Accedi al servizio' }).click();
-  await expect(admin.getByText(`${staff.admin.name} · ADMIN`)).toBeVisible();
+  await expect(admin.locator('.workspace-subtitle')).toContainText(staff.admin.name);
+  await expect(admin.locator('.workspace-subtitle')).toContainText('admin');
   await admin.goto('/sito');
   await admin.getByLabel('Colore principale').fill('#2a6f4e');
   await admin.getByLabel('Titolo iniziale', { exact: true }).fill('Cucina di quartiere dal 1998');

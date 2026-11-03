@@ -205,7 +205,7 @@ async function render(): Promise<void> {
     app.replaceChildren(
       el(
         'main',
-        { id: 'main', class: 'workspace' },
+        { id: 'main', class: 'workspace', tabindex: '-1' },
         el('p', { class: 'brand' }, 'Plateform'),
         emptyState(
           'Configurazione richiesta',
@@ -281,7 +281,7 @@ async function render(): Promise<void> {
   });
   const main = el(
     'main',
-    { id: 'main', class: 'workspace' },
+    { id: 'main', class: 'workspace', tabindex: '-1' },
     el(
       'header',
       { class: 'page-heading workspace-page-heading' },
@@ -886,7 +886,7 @@ void render().catch((error: unknown) => {
   app.replaceChildren(
     el(
       'main',
-      { id: 'main', class: 'workspace' },
+      { id: 'main', class: 'workspace', tabindex: '-1' },
       emptyState('Accesso momentaneamente non disponibile', 'Verifica la connessione e riprova.'),
       button('Riprova', render),
     ),

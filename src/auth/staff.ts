@@ -174,7 +174,7 @@ export function loginPage(onComplete: () => Promise<void>): HTMLElement {
   });
   return el(
     'main',
-    { id: 'main', class: 'login-layout' },
+    { id: 'main', class: 'login-layout', tabindex: '-1' },
     el(
       'section',
       { class: 'login-story' },
