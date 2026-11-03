@@ -11,6 +11,7 @@ import {
 import { invoiceDocument, isPdfOutput } from '../printing/invoice';
 import { safeImageUrl } from '../config/environment';
 import { permittedPrintDriver } from '../services/commercial-scope';
+import { automaticReceiptPrinter } from '../printing/default-printer';
 import type { StaffContext } from './staff-context';
 const jobSchema = z.object({
   id: z.uuid(),
@@ -36,15 +37,14 @@ export async function accountPrintAction(
       active: 'true',
     })
   ).filter((device) => permittedPrintDriver(device.driver));
-  // A single configured bridge is the default receipt printer: one click sends
-  // the signed job directly, without opening the browser print dialog.
-  const automaticBridge =
-    devices.length === 1 && devices[0]?.driver === 'BRIDGE' ? devices[0] : null;
+  // Direct Epson Ethernet and signed bridge printing use the same one-click UI,
+  // regardless of the operating system of the staff member's device.
+  const automaticPrinter = automaticReceiptPrinter(devices);
   let directBusy = false;
   return button(
-    automaticBridge ? 'Stampa scontrino' : 'Stampa conto',
+    automaticPrinter ? 'Stampa scontrino' : 'Stampa conto',
     async () => {
-      if (automaticBridge) {
+      if (automaticPrinter) {
         if (directBusy) return;
         directBusy = true;
         try {
@@ -52,7 +52,7 @@ export async function accountPrintAction(
             'request_account_print',
             {
               p_account: account,
-              p_device: automaticBridge.id,
+              p_device: automaticPrinter.id,
               p_kind: 'RECEIPT',
               p_key: crypto.randomUUID(),
             },
