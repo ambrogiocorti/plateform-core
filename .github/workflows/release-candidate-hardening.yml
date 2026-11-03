@@ -48,10 +48,12 @@ jobs:
         run: |
           npm run check:local-bootstrap
           node scripts/check-continuity-bootstrap-recovery.mjs
-      - name: Build explicit FULL application profile
+      - name: Validate explicit FULL application profile
         env:
           VITE_PLATEFORM_EDITION: FULL
-        run: npm run build
+        run: |
+          npm run test:unit
+          npm run build
 
   database:
     if: github.repository == 'ambrogiocorti/plateform-core'
