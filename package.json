@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=24.13.0"
+    "node": ">=24.13.0 <25"
   },
   "scripts": {
     "dev:public": "vite --config vite.public.config.ts",
