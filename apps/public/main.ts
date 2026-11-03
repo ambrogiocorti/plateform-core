@@ -428,6 +428,27 @@ async function render(): Promise<void> {
     // Build the complete homepage offscreen: a late hero would shift the footer on mobile.
     main.append(await home(site, venue, bookingEnabled ? reservationVenue : undefined));
     if (current !== revision) return;
+  } else if (path === '/menu') {
+    main.append(await menu(site, venue));
+    if (current !== revision) return;
+  } else if (path === '/prenota' && reservationVenue && bookingEnabled) {
+    const section = el(
+      'section',
+      { class: 'public-section' },
+      el('p', { class: 'eyebrow' }, 'Ci vediamo a tavola'),
+      el('h1', {}, 'Prenota la tua visita'),
+      venuePicker(site, reservationVenue, true),
+    );
+    section.append(
+      await (
+        await import('../../src/pages/public-booking')
+      ).bookingPage(
+        reservationVenue,
+        safePublicLink(textValue(site.content, 'privacy_url'), window.location.origin),
+      ),
+    );
+    if (current !== revision) return;
+    main.append(section);
   }
   app.replaceChildren(header, main, footer(site));
   setupPublicNavigation(menuButton, navigation, header, lifetime.signal);
@@ -436,9 +457,9 @@ async function render(): Promise<void> {
     stopPerformance = observePublicPerformance(venue?.id);
     recordPublicPageView(venue?.id);
   }
-  if (path === '/') {
-    // Homepage content was inserted before attaching main to the document.
-  } else if (path === '/menu') main.append(await menu(site, venue));
+  if (path === '/' || path === '/menu' || (path === '/prenota' && bookingEnabled)) {
+    // Main content was fully assembled before its first paint on mobile.
+  }
   else if (path.startsWith('/menu/') && venue) {
     const match = /^\/menu\/([^/]+)(?:\/piatto\/([^/]+))?\/?$/.exec(path);
     main.append(
@@ -531,23 +552,6 @@ async function render(): Promise<void> {
           { class: 'grid' },
           ...site.venues.map((entry) => venueCard(entry, site.multi_venue)),
         ),
-      ),
-    );
-  } else if (path === '/prenota' && reservationVenue && bookingEnabled) {
-    const section = el(
-      'section',
-      { class: 'public-section' },
-      el('p', { class: 'eyebrow' }, 'Ci vediamo a tavola'),
-      el('h1', {}, 'Prenota la tua visita'),
-      venuePicker(site, reservationVenue, true),
-    );
-    main.append(section);
-    section.append(
-      await (
-        await import('../../src/pages/public-booking')
-      ).bookingPage(
-        reservationVenue,
-        safePublicLink(textValue(site.content, 'privacy_url'), window.location.origin),
       ),
     );
   } else if (path === '/prenota') {

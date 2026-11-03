@@ -86,10 +86,10 @@ test('gruppo numeroso: l’Admin imposta la caparra, il gruppo la vede, paga e l
   await visitor.getByLabel(/autorizzo il trattamento dei dati/).check();
   await visitor.getByRole('button', { name: 'Richiedi il tavolo' }).click();
   await expect(
-    visitor.getByRole('heading', { name: 'Manca solo la caparra di garanzia' }),
+    visitor.getByRole('heading', { name: 'Caparra necessaria per completare la prenotazione' }),
   ).toBeVisible();
   await expect(
-    visitor.getByRole('button', { name: 'Paga la caparra con carta (Stripe)' }),
+    visitor.getByRole('button', { name: 'Paga la caparra con Stripe' }),
   ).toBeVisible();
   await expect(visitor.getByRole('button', { name: /Satispay/ })).toHaveCount(0);
   expect(
@@ -107,7 +107,7 @@ test('gruppo numeroso: l’Admin imposta la caparra, il gruppo la vede, paga e l
 
   // Before payment the return page says the table is not confirmed yet.
   await visitor.goto(`${publicBase}/prenota?deposito=${deposit}`);
-  await expect(visitor.getByRole('heading', { name: 'Pagamento in verifica' })).toBeVisible();
+  await expect(visitor.getByRole('heading', { name: 'Pagamento in attesa di conferma' })).toBeVisible();
 
   // Verified provider result, as stripe-webhook applies it after re-reading the session.
   const reference = `cs_test_e2e_${randomUUID().replaceAll('-', '').slice(0, 16)}`;
@@ -116,9 +116,9 @@ test('gruppo numeroso: l’Admin imposta la caparra, il gruppo la vede, paga e l
     select public.bind_reservation_deposit_provider_reference('${deposit}','STRIPE','${reference}');
     select public.apply_reservation_deposit_callback('STRIPE','read:${reference}:COMPLETED','${reference}','COMPLETED');`);
 
-  await visitor.getByRole('button', { name: 'Aggiorna lo stato del pagamento' }).click();
-  await expect(visitor.getByRole('heading', { name: 'Il tuo tavolo è prenotato.' })).toBeVisible();
-  await expect(visitor.getByText(/Caparra di garanzia di 25,00\s€ ricevuta/)).toBeVisible();
+  await visitor.getByRole('button', { name: 'Aggiorna esito' }).click();
+  await expect(visitor.getByRole('heading', { name: 'Prenotazione confermata' })).toBeVisible();
+  await expect(visitor.getByText(/Garanzia prenotazione: 25,00\s€/)).toBeVisible();
   expect(
     sql(`select r.status||'|'||d.status from public.reservations r
       join public.reservation_deposits d on d.reservation_id=r.id`),

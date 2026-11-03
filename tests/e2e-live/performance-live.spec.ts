@@ -159,8 +159,17 @@ for (const [label, path, heading] of [
   ['prenota', '/prenota', /./],
 ] as const) {
   test(`velocità sito pubblico (telefono, 4G lenta): ${label}`, async ({ browser }) => {
-    if (label === 'prenota')
-      sql(`update public.venue_settings set reservations_enabled=true where venue_id='${ids.venue}'`);
+    if (label === 'prenota') {
+      sql(
+        `update public.venue_settings set reservations_enabled=true where venue_id='${ids.venue}'`,
+      );
+      sql(`update public.restaurant_profile
+        set public_content=coalesce(public_content,'{}'::jsonb)||'{"privacy_url":"https://trattoria-e2e.example/privacy"}'::jsonb`);
+      sql(`with s as (insert into public.services(venue_id,name,starts_at,ends_at)
+          values('${ids.venue}','Cena','19:00','22:00') returning id,venue_id)
+        insert into public.service_booking_rules(venue_id,service_id,max_covers_service,max_arrivals_per_slot,max_covers_per_slot,max_party_size_auto_confirm)
+        select venue_id,id,60,4,30,12 from s`);
+    }
     const page = await (
       await browser.newContext({
         viewport: { width: 390, height: 844 },
