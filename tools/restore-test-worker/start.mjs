@@ -1,5 +1,6 @@
 import { readFile, rm, mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { loadConfig, checkPrerequisites } from './config.mjs';
 import { claimRestoreTest, backupMetadata, markVerifying, finishRestore } from './protocol.mjs';
 import { decryptVerified, sha256Text, verifyHmacSha256Text } from '../backup-worker/crypto.mjs';
@@ -13,6 +14,8 @@ import {
   quiesceTargetAutomation,
   sanitizeRestoredSecurityState,
   verifyPrivateState,
+  restoreManagedOverlay,
+  verifyManagedSurface,
 } from './database.mjs';
 import { restoreStorage, verifyStorage, targetStorageEmpty } from './storage.mjs';
 
@@ -113,6 +116,7 @@ async function processJob(config, job, temp, prerequisite) {
       }
       validateAuthManifest(manifest);
       await restoreDatabase(config, files);
+      await restoreManagedOverlay(config, manifest, backupDir, dbDir, encryptionKey);
       await quiesceTargetAutomation(config);
       await sanitizeRestoredSecurityState(config);
       await restoreStorage(config, manifest, backupDir, temp, createClient, encryptionKey);
@@ -141,8 +145,10 @@ async function processJob(config, job, temp, prerequisite) {
       config.targetDatabaseUrl,
       manifest.components.storage.metadata_fingerprint,
     );
+    const managedSurface = await verifyManagedSurface(config, manifest);
     const verification = {
       ...db,
+      ...managedSurface,
       ...migrationHistory,
       ...privateState,
       ...storageMetadata,
@@ -166,9 +172,13 @@ async function processJob(config, job, temp, prerequisite) {
       'audit',
       'sessions',
       'devices',
+      'managed_overlay',
+      'security_surface',
     ];
-    if (!required.every((key) => verification[key] === true))
-      throw new Error('RESTORE_VERIFICATION_FAILED');
+    const failedGates = required.filter((key) => verification[key] !== true);
+    // The recorded error code stays RESTORE_VERIFICATION_FAILED; the gate names
+    // after ':' only reach the operator log.
+    if (failedGates.length) throw new Error(`RESTORE_VERIFICATION_FAILED:${failedGates.join(',')}`);
     await finishRestore(config, id, lease, true, verification, null);
     return { id, status: 'SUCCEEDED', target: config.targetProjectRef, verification };
   } catch (error) {
@@ -191,44 +201,49 @@ async function processJob(config, job, temp, prerequisite) {
     throw error;
   }
 }
-const mode = process.argv[2] ?? '--check';
-const config = loadConfig();
-const prerequisite = await checkPrerequisites(config);
-if (mode === '--check') {
-  await rm(prerequisite.temp, { recursive: true, force: true });
-  const blocked = prerequisite.targetOccupied === true;
-  console.log(
-    JSON.stringify({
-      status: blocked ? 'BLOCKED' : 'READY',
-      reason: blocked ? 'RESTORE_TARGET_NOT_EMPTY' : null,
-      targetProjectRef: config.targetProjectRef,
-      targetOccupied: blocked,
-      psql: config.psql,
-    }),
-  );
-  process.exit(blocked ? 2 : 0);
-}
-if (mode !== '--once') throw new Error('USAGE: restore-test-worker --check|--once');
-// Do not claim or change a queued restore job when the destination is occupied.
-if (prerequisite.targetOccupied === true) {
-  await rm(prerequisite.temp, { recursive: true, force: true });
-  console.error(
-    JSON.stringify({
-      status: 'BLOCKED',
-      reason: 'RESTORE_TARGET_NOT_EMPTY',
-      targetProjectRef: config.targetProjectRef,
-    }),
-  );
-  process.exit(2);
-}
-const job = await claimRestoreTest(config);
-if (!job) {
-  await rm(prerequisite.temp, { recursive: true, force: true });
-  console.log(JSON.stringify({ status: 'IDLE' }));
-  process.exit(0);
-}
-try {
-  console.log(JSON.stringify(await processJob(config, job, prerequisite.temp, prerequisite)));
-} finally {
-  await rm(prerequisite.temp, { recursive: true, force: true });
+// Exported for the local disaster-recovery rehearsal; the CLI below is unchanged.
+export { processJob };
+
+if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
+  const mode = process.argv[2] ?? '--check';
+  const config = loadConfig();
+  const prerequisite = await checkPrerequisites(config);
+  if (mode === '--check') {
+    await rm(prerequisite.temp, { recursive: true, force: true });
+    const blocked = prerequisite.targetOccupied === true;
+    console.log(
+      JSON.stringify({
+        status: blocked ? 'BLOCKED' : 'READY',
+        reason: blocked ? 'RESTORE_TARGET_NOT_EMPTY' : null,
+        targetProjectRef: config.targetProjectRef,
+        targetOccupied: blocked,
+        psql: config.psql,
+      }),
+    );
+    process.exit(blocked ? 2 : 0);
+  }
+  if (mode !== '--once') throw new Error('USAGE: restore-test-worker --check|--once');
+  // Do not claim or change a queued restore job when the destination is occupied.
+  if (prerequisite.targetOccupied === true) {
+    await rm(prerequisite.temp, { recursive: true, force: true });
+    console.error(
+      JSON.stringify({
+        status: 'BLOCKED',
+        reason: 'RESTORE_TARGET_NOT_EMPTY',
+        targetProjectRef: config.targetProjectRef,
+      }),
+    );
+    process.exit(2);
+  }
+  const job = await claimRestoreTest(config);
+  if (!job) {
+    await rm(prerequisite.temp, { recursive: true, force: true });
+    console.log(JSON.stringify({ status: 'IDLE' }));
+    process.exit(0);
+  }
+  try {
+    console.log(JSON.stringify(await processJob(config, job, prerequisite.temp, prerequisite)));
+  } finally {
+    await rm(prerequisite.temp, { recursive: true, force: true });
+  }
 }

@@ -3,6 +3,7 @@ import { mkdir } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { resolveBackupArtifact } from '../backup-worker/filesystem.mjs';
 import { decryptVerified } from '../backup-worker/crypto.mjs';
+import { captureStorageObjectRows, reapplyStorageObjectRows } from './database.mjs';
 
 function safePathParts(value, code) {
   const raw = String(value ?? '');
@@ -75,6 +76,7 @@ export async function restoreStorage(
       if (error) throw new Error(`RESTORE_BUCKET_CREATE_FAILED:${bucket.id}`);
     }
   }
+  const restoredRows = await captureStorageObjectRows(config);
   let restored = 0;
   for (const object of storage.objects) {
     if (!object.file || !object.bucket || !object.name || !object.plaintext_sha256)
@@ -96,6 +98,7 @@ export async function restoreStorage(
     if (error) throw new Error(`RESTORE_STORAGE_UPLOAD_FAILED:${object.bucket}`);
     restored++;
   }
+  await reapplyStorageObjectRows(config, restoredRows);
   return restored === storage.objects.length;
 }
 

@@ -21,3 +21,6 @@ release/
 tools/print-bridge/config.json
 tools/print-bridge/data/
 tools/print-bridge/tls/
+
+# Disposable browser stack keys and runtime state
+tests/e2e-live/.stack/

@@ -52,7 +52,7 @@ async function filesUnder(root, current = root, out = []) {
   return out;
 }
 
-async function directoryProof(root) {
+export async function directoryProof(root) {
   const relativeFiles = (await filesUnder(root)).sort();
   if (!relativeFiles.includes('manifest.json')) throw new Error('BACKUP_REPLICA_MANIFEST_MISSING');
   const verified = [];

@@ -115,7 +115,12 @@
     "check:local-bootstrap": "node scripts/bootstrap-local.mjs --self-test",
     "bootstrap:local": "node scripts/bootstrap-local.mjs --run",
     "check:operational-readiness": "node scripts/check-operational-readiness.mjs",
-    "check:build-profile": "node scripts/check-build-profile.mjs"
+    "check:build-profile": "node scripts/check-build-profile.mjs",
+    "e2e:stack": "node tests/e2e-live/stack/stack.mjs",
+    "test:e2e:live": "node tests/e2e-live/stack/stack.mjs up && node scripts/run-live-e2e-batches.mjs",
+    "continuity:local-dr": "node tools/local-dr-rehearsal/run.mjs",
+    "disaster:check": "node tools/disaster-restore/start.mjs --check",
+    "disaster:restore": "node tools/disaster-restore/start.mjs --restore"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.116.0",
@@ -125,6 +130,7 @@
     "zod": "4.6.7"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.13.0",
     "@electric-sql/pglite": "0.5.8",
     "@eslint/js": "10.0.1",
     "@playwright/test": "1.63.0",
