@@ -5,9 +5,7 @@ export interface ReceiptPrinter {
 
 // If a venue has several devices, select only an explicitly configured
 // default. Ambiguous defaults fail closed to the existing manual chooser.
-export function automaticReceiptPrinter<T extends ReceiptPrinter>(
-  devices: readonly T[],
-): T | null {
+export function automaticReceiptPrinter<T extends ReceiptPrinter>(devices: readonly T[]): T | null {
   const direct = (device: T) => device.driver === 'EPOS' || device.driver === 'BRIDGE';
   const defaults = devices.filter(
     (device) => direct(device) && device.configuration.default_for_receipts === true,

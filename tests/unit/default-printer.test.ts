@@ -1,10 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { automaticReceiptPrinter, type ReceiptPrinter } from '../../src/printing/default-printer';
 
-const printer = (
-  driver: ReceiptPrinter['driver'],
-  isDefault = false,
-): ReceiptPrinter => ({
+const printer = (driver: ReceiptPrinter['driver'], isDefault = false): ReceiptPrinter => ({
   driver,
   configuration: { default_for_receipts: isDefault },
 });
