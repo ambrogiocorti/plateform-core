@@ -8,7 +8,15 @@ import { pathToFileURL } from 'node:url';
 // This is a browser API contract test and needs no npm dependencies.
 const dir = await mkdtemp(join(tmpdir(), 'plateform-telemetry-e2e-'));
 try {
-  const telemetry = (await readFile('src/services/public-telemetry.ts', 'utf8'))
+  const telemetrySource = await readFile('src/services/public-telemetry.ts', 'utf8');
+  // Vite injects import.meta.env in the browser build. Node's native TypeScript
+  // loader does not, so provide the same production-mode values in this
+  // isolated transport fixture rather than changing the application module.
+  assert.ok(telemetrySource.includes('import.meta.env.BASE_URL'));
+  assert.ok(telemetrySource.includes('import.meta.env.VITE_PAGES_MODE'));
+  const telemetry = telemetrySource
+    .replaceAll('import.meta.env.BASE_URL', "'/'")
+    .replaceAll('import.meta.env.VITE_PAGES_MODE', "'production'")
     .replace("from '../api/client'", "from './test-client.ts'")
     .replace("from './public-site'", "from './public-site.ts'");
   await writeFile(join(dir, 'public-telemetry.ts'), telemetry);
