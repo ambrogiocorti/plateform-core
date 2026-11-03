@@ -91,12 +91,12 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
         'quiet',
       );
       open.classList.add('cashier-search-result');
-      open.setAttribute('role', 'listitem');
       open.append(
         el('span', { class: 'cashier-search-result-meta' }, `${account.covers} coperti`),
         status(account.status),
       );
-      searchResults.append(open);
+      // Preserve native button semantics while exposing a valid ARIA list item.
+      searchResults.append(el('div', { role: 'listitem' }, open));
     }
     searchFeedback.textContent = result.items.length
       ? `${result.items.length} conti ${query ? 'trovati' : 'attivi'}${result.has_more ? ' · cerca per tavolo o nome per altri risultati' : ''}.`
