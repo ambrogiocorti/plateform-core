@@ -38,6 +38,9 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y postgresql-16 postgresql-client-16 psmisc
+          # Keep the runner's automatic outbound ports away from the fixed
+          # disposable service listeners (PostgreSQL, GoTrue, PostgREST, Edge).
+          sudo sysctl -w net.ipv4.ip_local_port_range='25000 30000'
           docker info
           npx playwright install --with-deps chromium
       - name: Exercise browser, Auth, API, database, Edge and real Storage
