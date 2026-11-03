@@ -335,8 +335,9 @@
 }
 .public-menu-search {
   flex: 1 1 250px;
-  max-width: 500px;
-  margin-left: auto;
+  width: 100%;
+  max-width: none;
+  margin-left: 0;
 }
 .public-menu-search input {
   min-height: 43px;
@@ -381,7 +382,7 @@
 .public-section > .dish-grid,
 .customer-menu .dish-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
   gap: 18px;
 }
 .dish-public.public-dish-card,
@@ -441,9 +442,9 @@
   font: 750 16px/1.3 var(--pf-font);
   letter-spacing: -0.02em;
 }
-.public-dish-card > :not(.public-dish-card-image),
+.public-dish-card > :not(.public-dish-card-image, .public-dish-image-placeholder, img),
 .customer-menu .public-dish-card > :not(.customer-dish-photo, .public-dish-image-placeholder),
-.public-legacy-dish > :not(img) {
+.public-legacy-dish > :not(img, .public-dish-image-placeholder) {
   margin-inline: 20px;
 }
 .public-dish-card .row.between {
