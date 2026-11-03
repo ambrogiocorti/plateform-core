@@ -34,7 +34,7 @@ test('prenotazione online: disponibilità reale, invio con la Edge Function, vis
   await expect(visitor.getByRole('heading', { name: 'Prenota la tua visita' })).toBeVisible();
   await visitor.getByLabel('Nome', { exact: true }).fill('Giulia');
   await visitor.getByLabel('Cognome').fill('Verdi');
-  await visitor.getByLabel('Telefono con prefisso internazionale').fill('+393331234567');
+  await visitor.getByLabel('Telefono', { exact: true }).fill('+393331234567');
   await visitor.getByLabel('Persone').fill('3');
   await visitor.getByLabel('Data').fill(tomorrow);
   await visitor.getByLabel('Servizio').selectOption({ label: 'Cena' });
@@ -79,7 +79,7 @@ test('prenotazione online: un gruppo oltre la soglia diventa una richiesta da co
   await visitor.goto(`${publicBase}/prenota`);
   await visitor.getByLabel('Nome', { exact: true }).fill('Luca');
   await visitor.getByLabel('Cognome').fill('Neri');
-  await visitor.getByLabel('Telefono con prefisso internazionale').fill('+393339876543');
+  await visitor.getByLabel('Telefono', { exact: true }).fill('+393339876543');
   await visitor.getByLabel('Persone').fill('10');
   await visitor.getByLabel('Data').fill(tomorrow);
   await visitor.getByRole('button', { name: 'Verifica disponibilità' }).click();

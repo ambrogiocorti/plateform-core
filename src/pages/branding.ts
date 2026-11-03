@@ -6,6 +6,23 @@ import { safeImageUrl } from '../config/environment';
 
 type Bucket = 'branding' | 'dishes' | 'gallery' | 'documents';
 
+// WCAG 2.1 AA: color chosen for accent text must be readable on the selected
+// canvas. Validate before sending the edition to the server.
+function accentHasReadableContrast(accent: string, background: string): boolean {
+  const luminance = (hex: string): number => {
+    if (!/^#[0-9a-f]{6}$/i.test(hex)) return 0;
+    const channels = [1, 3, 5].map((index) => {
+      const value = Number.parseInt(hex.slice(index, index + 2), 16) / 255;
+      return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+    });
+    return channels[0]! * 0.2126 + channels[1]! * 0.7152 + channels[2]! * 0.0722;
+  };
+  const a = luminance(accent);
+  const b = luminance(background);
+  return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05) >= 4.5;
+}
+
+
 // MIME declarations from browsers are not proof of file content. The server
 // validates again; this first check avoids unnecessary Storage uploads.
 function validUploadSignature(mime: string, bytes: Uint8Array): boolean {
@@ -13,8 +30,7 @@ function validUploadSignature(mime: string, bytes: Uint8Array): boolean {
     return bytes.length >= 5 && [37, 80, 68, 70, 45].every((value, i) => bytes[i] === value);
   if (mime === 'image/png')
     return (
-      bytes.length >= 8 &&
-      [137, 80, 78, 71, 13, 10, 26, 10].every((value, i) => bytes[i] === value)
+      bytes.length >= 8 && [137, 80, 78, 71, 13, 10, 26, 10].every((value, i) => bytes[i] === value)
     );
   if (mime === 'image/jpeg')
     return bytes.length >= 4 && bytes[0] === 255 && bytes[1] === 216 && bytes[2] === 255;
@@ -367,6 +383,10 @@ export async function brandingPage(context: StaffContext): Promise<HTMLElement> 
       brand.font_body = bodyFont.value;
       brand.layout = layout.value;
       brand.dark_mode = darkMode.checked;
+      if (!accentHasReadableContrast(String(brand.accent_color), String(brand.background_color))) {
+        toast('Il colore principale non ha contrasto sufficiente con lo sfondo (minimo 4,5:1).', true);
+        return;
+      }
       content.gallery = pictures;
       content.sections = Object.fromEntries(
         sectionControls.map(({ input, key }) => [key, input.checked]),

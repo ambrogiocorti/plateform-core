@@ -12,7 +12,7 @@ import {
   clearOffline,
 } from '../offline/store';
 import type { StaffContext } from './staff-context';
-import { staffProfileSchema, venueSchema } from '../types/domain';
+import { orderLineSchema, staffProfileSchema, venueSchema } from '../types/domain';
 import { accountWorkspaceSchema } from '../types/accounts';
 import { orderDialog } from './accounts';
 import { floorView } from '../components/floor-view';
@@ -314,100 +314,71 @@ export async function offlinePage(): Promise<HTMLElement> {
   return root;
 }
 export async function conflictPage(context: StaffContext): Promise<HTMLElement> {
-  const conflicts = await readRows(
-    'sync_conflicts',
-    z.object({
-      id: z.uuid(),
-      venue_id: z.uuid(),
-      sync_event_id: z.uuid(),
-      reason_code: z.string(),
-      server_snapshot: z.record(z.string(), z.unknown()),
-      created_at: z.string(),
-      status: z.string(),
-    }),
-    context.venue?.id,
-    { status: 'OPEN' },
+  if (!context.venue) return el('p', {}, 'Seleziona prima una sede.');
+  const itemSchema = z.object({
+    id: z.uuid(),
+    reason_code: z.string(),
+    status: z.string(),
+    resource_type: z.string(),
+    resource_id: z.uuid(),
+    operation: z.string(),
+    requested_payload: z.record(z.string(), z.unknown()),
+    server_snapshot: z.record(z.string(), z.unknown()),
+    created_at: z.string(),
+    user_display_name: z.string().nullable(),
+    device_display_name: z.string().nullable(),
+  });
+  const result = await rpc(
+    'get_conflict_center',
+    { p_venue: context.venue.id, p_status: 'OPEN', p_limit: 100 },
+    z.object({ items: z.array(itemSchema) }),
   );
+  const reasons: Record<string, string> = {
+    OUT_OF_STOCK: 'Disponibilità esaurita durante la sincronizzazione',
+    VERSION_CONFLICT: 'La risorsa è stata modificata da un altro dispositivo',
+    ACCOUNT_NOT_ORDERABLE: 'Il conto non accetta più nuovi ordini',
+    RESPONSIBLE_WAITER_REQUIRED: 'Il cameriere non è più autorizzato sul tavolo',
+    OFFLINE_AUTHORIZATION_EXPIRED: 'Autorizzazione offline scaduta',
+    VENUE_FORBIDDEN: 'Accesso alla sede revocato',
+  };
+  const dishNames = new Map<string, string>();
+  if (result.items.some((conflict) => conflict.operation === 'CREATE_ORDER')) {
+    const dishes = await readRows('dishes', z.object({ id: z.uuid(), name: z.string() }));
+    for (const dish of dishes) dishNames.set(dish.id, dish.name);
+  }
   const view = el('div', { class: 'stack' });
-  for (const conflict of conflicts) {
-    const events = await readRows(
-      'offline_sync_events',
-      z.object({
-        id: z.uuid(),
-        user_id: z.uuid(),
-        device_id: z.uuid(),
-        resource_type: z.string(),
-        resource_id: z.uuid(),
-        operation: z.string(),
-        payload: z.record(z.string(), z.unknown()),
-        created_at_local: z.string(),
-        received_at: z.string(),
-      }),
-      context.venue?.id,
-      { id: conflict.sync_event_id },
+  async function resolveCorrected(
+    conflictId: string,
+    items: z.infer<typeof orderLineSchema>[],
+    reason: string,
+  ): Promise<void> {
+    await rpc(
+      'resolve_order_conflict',
+      {
+        p_conflict: conflictId,
+        p_items: items,
+        p_reason: reason,
+        p_key: crypto.randomUUID(),
+      },
+      z.object({ id: z.uuid(), order_id: z.uuid().nullable() }),
     );
-    const event = events[0];
-    const reasonLabels: Record<string, string> = {
-      OUT_OF_STOCK: 'Disponibilità esaurita durante la sincronizzazione',
-      VERSION_CONFLICT: 'La risorsa è stata modificata da un altro dispositivo',
-      RESPONSIBLE_WAITER_REQUIRED: 'Il cameriere non è più autorizzato sul tavolo',
-      ACCOUNT_NOT_ORDERABLE: 'Il conto non accetta più nuovi ordini',
-      OFFLINE_AUTHORIZATION_EXPIRED: 'Autorizzazione offline scaduta',
-      OFFLINE_AUTHORIZATION_CHANGED: 'Ruolo o autorizzazioni cambiati',
-      OFFLINE_USER_REVOKED: 'Utente disabilitato',
-      OFFLINE_DEVICE_REVOKED: 'Dispositivo revocato',
-      OFFLINE_SESSION_REVOKED: 'Sessione revocata',
-      OFFLINE_OPERATION_REVOKED: 'Funzione offline disabilitata',
-      CAUSAL_PREDECESSOR_REQUIRED: 'Operazione precedente non ancora risolta',
-      VENUE_FORBIDDEN: 'Accesso alla sede revocato',
-      TABLE_STILL_IN_USE: 'Il tavolo risulta ancora occupato',
-      STEP_NOT_WAITING: 'Lo step cucina non è più avviabile',
-      PREVIOUS_STEP_NOT_SERVED: 'Lo step precedente non risulta ancora servito',
-      STEP_ROLE_FORBIDDEN: 'Il ruolo non può più avviare questo step',
-      OPERATION_REJECTED: 'Operazione rifiutata dal server',
-    };
-    const operationLabels: Record<string, string> = {
-      CREATE_ORDER: 'Creazione ordine',
-      START_STEP: 'Avvio step cucina',
-      SET_TABLE_AVAILABLE: 'Tavolo riapparecchiato',
-    };
-    const resourceType =
-      event?.resource_type ??
-      (typeof conflict.server_snapshot.resource_type === 'string'
-        ? conflict.server_snapshot.resource_type
-        : '');
-    const resourceId =
-      event?.resource_id ??
-      (typeof conflict.server_snapshot.resource_id === 'string'
-        ? conflict.server_snapshot.resource_id
-        : '');
-    const serverStatus =
-      typeof conflict.server_snapshot.status === 'string'
-        ? conflict.server_snapshot.status
-        : 'non disponibile';
-    const serverVersion =
-      typeof conflict.server_snapshot.version === 'number'
-        ? String(conflict.server_snapshot.version)
-        : '—';
+    toast(
+      items.length
+        ? 'Ordine corretto inviato alla cucina. Conflitto risolto.'
+        : 'Ordine annullato. Conflitto chiuso.',
+    );
+    await context.refresh?.();
+  }
+  for (const conflict of result.items) {
     const card = el(
       'section',
       { class: 'card stack' },
-      el('h2', {}, reasonLabels[conflict.reason_code] ?? conflict.reason_code),
-      el(
-        'p',
-        { class: 'muted' },
-        `${context.venue?.name ?? conflict.venue_id} · ${operationLabels[event?.operation ?? ''] ?? event?.operation ?? 'Operazione offline'}`,
-      ),
+      el('h2', {}, reasons[conflict.reason_code] ?? conflict.reason_code),
+      el('p', { class: 'muted' }, `${context.venue.name} · ${conflict.operation}`),
       el(
         'p',
         {},
-        `Creazione locale ${event?.created_at_local ? new Date(event.created_at_local).toLocaleString('it-IT') : '—'} · Sync ${event?.received_at ? new Date(event.received_at).toLocaleString('it-IT') : '—'}`,
-      ),
-      el('p', {}, `Utente ${event?.user_id ?? '—'} · Dispositivo ${event?.device_id ?? '—'}`),
-      el(
-        'p',
-        {},
-        `Risorsa ${resourceType || '—'} · Stato server ${serverStatus} · Versione ${serverVersion}`,
+        `Creazione ${new Date(conflict.created_at).toLocaleString('it-IT')} · Operatore ${conflict.user_display_name ?? '—'} · Dispositivo ${conflict.device_display_name ?? '—'}`,
       ),
       el(
         'details',
@@ -416,61 +387,167 @@ export async function conflictPage(context: StaffContext): Promise<HTMLElement> 
         el(
           'pre',
           {},
-          JSON.stringify({ requested: event?.payload, server: conflict.server_snapshot }, null, 2),
+          JSON.stringify(
+            { requested: conflict.requested_payload, server: conflict.server_snapshot },
+            null,
+            2,
+          ),
         ),
       ),
     );
-    if (resourceType === 'accounts' && resourceId)
+    if (conflict.resource_type === 'accounts')
       card.append(
         button(
           'Apri conto aggiornato',
-          () => context.navigate(`/conti/${resourceId}`),
+          () => context.navigate(`/conti/${conflict.resource_id}`),
           'secondary',
         ),
       );
-    else if (resourceType === 'tables')
-      card.append(button('Apri sala aggiornata', () => context.navigate('/sala'), 'secondary'));
-    card.append(
-      button('Gestisci conflitto', () => {
-        const reason = field('Motivo della risoluzione', 'reason');
-        reason.input.required = true;
-        reason.input.minLength = 3;
-        const popup = dialog(
-          'Risoluzione conflitto',
+    else if (conflict.resource_type === 'tables')
+      card.append(
+        button('Apri sala aggiornata', () => context.navigate('/sala'), 'secondary'),
+      );
+
+    const original = z.array(orderLineSchema).safeParse(conflict.requested_payload.items);
+    if (conflict.operation === 'CREATE_ORDER' && original.success) {
+      const lines = original.data;
+      const nameOf = (id: string) => dishNames.get(id) ?? 'Piatto non più disponibile';
+      const list = el('ul', { 'aria-label': 'Righe dell’ordine rifiutato', class: 'stack' });
+      for (const line of lines) {
+        const dishName = nameOf(line.dish_id);
+        list.append(
           el(
-            'p',
-            {},
-            'L’operazione rifiutata non sarà eseguita. Per correggere l’ordine, il cameriere deve crearne uno nuovo dopo aver verificato il conto aggiornato.',
-          ),
-          reason.root,
-        );
-        const key = crypto.randomUUID();
-        for (const action of ['DISCARD', 'ACKNOWLEDGE'])
-          popup.append(
+            'li',
+            { class: 'row between' },
+            el('span', {}, `${line.quantity} × ${dishName} · step ${line.step}`),
             button(
-              action === 'DISCARD' ? 'Annulla richiesta' : 'Segna verificato',
-              async () => {
-                if (!reason.input.reportValidity()) return;
-                await rpc(
-                  'resolve_sync_conflict',
-                  {
-                    p_conflict: conflict.id,
-                    p_action: action,
-                    p_reason: reason.input.value,
-                    p_key: key,
-                  },
-                  z.object({ id: z.uuid() }),
+              'Annulla item',
+              () => {
+                const remaining = lines.filter((entry) => entry !== line);
+                const confirmation = dialog(
+                  `Annulla ${dishName}`,
+                  el(
+                    'p',
+                    {},
+                    remaining.length
+                      ? `L’ordine verrà inviato senza ${dishName}. Controlla quantità e disponibilità prima di proseguire.`
+                      : 'È l’unica riga dell’ordine: la richiesta sarà annullata senza inviare comande.',
+                  ),
                 );
-                popup.close();
-                await context.refresh?.();
+                confirmation.append(
+                  button('Conferma', async () => {
+                    await resolveCorrected(
+                      conflict.id,
+                      remaining,
+                      `Correzione offline: rimosso ${dishName}`,
+                    );
+                    confirmation.close();
+                  }),
+                );
               },
               'secondary',
             ),
+          ),
+        );
+      }
+      card.append(list);
+      card.append(
+        button(
+          'Modifica ordine',
+          () => {
+            const dialogContent = el('div', { class: 'stack' });
+            const quantities: { dish: string; quantity: HTMLInputElement }[] = [];
+            for (const [dish, dishName] of dishNames) {
+              const existing = lines.find((line) => line.dish_id === dish);
+              const quantity = field(
+                'Quantità',
+                `quantity-${dish}`,
+                'number',
+                String(existing?.quantity ?? 0),
+              );
+              quantity.input.min = '0';
+              quantity.input.max = '999';
+              quantity.input.step = '1';
+              const row = el(
+                'article',
+                { class: 'menu-choice card' },
+                el('strong', {}, dishName),
+                quantity.root,
+              );
+              dialogContent.append(row);
+              quantities.push({ dish, quantity: quantity.input });
+            }
+            const editor = dialog('Modifica ordine', dialogContent);
+            editor.append(
+              button('Invia ordine', async () => {
+                const corrected: z.infer<typeof orderLineSchema>[] = [];
+                for (const entry of quantities) {
+                  if (!entry.quantity.reportValidity()) return;
+                  const amount = Number(entry.quantity.value);
+                  if (!Number.isInteger(amount) || amount < 0 || amount > 999) return;
+                  if (amount === 0) continue;
+                  const previous = lines.find((line) => line.dish_id === entry.dish);
+                  corrected.push({
+                    dish_id: entry.dish,
+                    quantity: amount,
+                    step: previous?.step ?? 1,
+                    removed_ingredients: previous?.removed_ingredients ?? [],
+                    variant_options: previous?.variant_options ?? [],
+                  });
+                }
+                await resolveCorrected(
+                  conflict.id,
+                  corrected,
+                  'Ordine corretto e verificato dopo un conflitto offline',
+                );
+                editor.close();
+              }),
+            );
+          },
+          'secondary',
+        ),
+      );
+    }
+    card.append(
+      button(
+        'Gestisci conflitto',
+        () => {
+          const reason = field('Motivo della risoluzione', 'reason');
+          reason.input.required = true;
+          reason.input.minLength = 3;
+          const popup = dialog(
+            'Risoluzione conflitto',
+            el('p', {}, 'L’operazione rifiutata non sarà eseguita.'),
+            reason.root,
           );
-      }),
+          const key = crypto.randomUUID();
+          for (const action of ['DISCARD', 'ACKNOWLEDGE'])
+            popup.append(
+              button(
+                action === 'DISCARD' ? 'Annulla richiesta' : 'Segna verificato',
+                async () => {
+                  if (!reason.input.reportValidity()) return;
+                  await rpc(
+                    'resolve_sync_conflict',
+                    {
+                      p_conflict: conflict.id,
+                      p_action: action,
+                      p_reason: reason.input.value,
+                      p_key: key,
+                    },
+                    z.object({ id: z.uuid() }),
+                  );
+                  popup.close();
+                  await context.refresh?.();
+                },
+                'secondary',
+              ),
+            );
+        },
+      ),
     );
     view.append(card);
   }
-  if (!conflicts.length) view.append(el('p', {}, 'Nessun conflitto da risolvere.'));
+  if (!result.items.length) view.append(el('p', {}, 'Nessun conflitto da risolvere.'));
   return view;
 }

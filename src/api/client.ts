@@ -267,12 +267,19 @@ export async function rpc<T>(
   const { data, error } = await client().rpc(name, args).setHeader('x-request-id', requestId);
   if (error) throw safeError(error, requestId);
   const parsed = schema.safeParse(data);
-  if (!parsed.success)
+  if (!parsed.success) {
+    if (import.meta.env.DEV)
+      console.warn(
+        '[RPC INVALID_RESPONSE]',
+        name,
+        parsed.error.issues.map((issue) => ({ path: issue.path.join('.'), code: issue.code })),
+      );
     throw new ApplicationError(
       'INVALID_RESPONSE',
       requestId,
       'La risposta ricevuta non è valida. Aggiorna la pagina.',
     );
+  }
   if (
     location.pathname.startsWith(new URL(environment().staffBaseUrl).pathname) &&
     location.origin === new URL(environment().staffBaseUrl).origin
@@ -366,8 +373,22 @@ export async function readPage<T>(
   if (error) throw safeError(error, requestId);
   const raw = z.array(z.record(z.string(), z.unknown())).parse(data);
   const page = raw.slice(0, limit);
+  const checked = z.array(schema).safeParse(page);
+  if (!checked.success) {
+    if (import.meta.env.DEV)
+      console.warn(
+        '[TABLE INVALID_RESPONSE]',
+        table,
+        checked.error.issues.map((issue) => ({ path: issue.path.join('.'), code: issue.code })),
+      );
+    throw new ApplicationError(
+      'INVALID_RESPONSE',
+      requestId,
+      'La risposta ricevuta non è valida. Aggiorna la pagina.',
+    );
+  }
   return {
-    rows: z.array(schema).parse(page),
+    rows: checked.data,
     next: raw.length > limit ? z.string().parse(page.at(-1)?.[key]) : null,
   };
 }

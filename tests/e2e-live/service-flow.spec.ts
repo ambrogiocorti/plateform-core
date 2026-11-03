@@ -46,6 +46,10 @@ test('servizio completo: tavolo → ordine → cucina → Pass → consegna → 
   ]);
 
   // Cassa: apre la postazione e il servizio contabile.
+  cashier.on('console', (message) => {
+    if (message.type() === 'warning' || message.type() === 'error')
+      console.log('[CASSA CONSOLE]', message.type(), message.text().slice(0, 1200));
+  });
   cashier.on('response', (response) => {
     if (response.url().includes('/rest/v1/') && response.status() >= 400)
       void response
@@ -57,6 +61,8 @@ test('servizio completo: tavolo → ordine → cucina → Pass → consegna → 
   });
   await open(cashier, '/cassa');
   try {
+    await expect(cashier.locator('details.cashier-operations > summary')).toBeVisible();
+    await cashier.locator('details.cashier-operations > summary').click();
     await expect(cashier.locator('details.cashier-operations')).toHaveAttribute('open', '');
   } catch (error) {
     console.log('[CASSA BOOT]', (await cashier.locator('body').innerText()).slice(0, 3000));
@@ -64,6 +70,7 @@ test('servizio completo: tavolo → ordine → cucina → Pass → consegna → 
   }
   const registerCard = cashier.locator('article', { hasText: 'Cassa sala' });
   await registerCard.getByRole('button', { name: 'Apri postazione' }).click();
+  await expect(cashier.locator('details.cashier-operations')).toHaveAttribute('open', '');
   await registerCard.getByRole('button', { name: 'Apri servizio contabile' }).click();
   const serviceDialog = cashier.getByRole('dialog', { name: 'Apri servizio · Cassa sala' });
   await serviceDialog.getByLabel('Fondo iniziale').fill('100,00');

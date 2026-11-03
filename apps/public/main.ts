@@ -68,6 +68,20 @@ let liveKey = '';
 let stopPerformance: (() => void) | undefined;
 let initialPage = true;
 
+// A lightweight connectivity notice belongs to the public shell as well as
+// staff: cached opening hours or menus must never look freshly verified offline.
+const publicConnection = el(
+  'p',
+  { id: 'public-connection', class: 'public-connection', role: 'status', hidden: '' },
+  'Sei offline: orari e menu potrebbero non essere aggiornati.',
+);
+function refreshPublicConnection(): void {
+  publicConnection.hidden = navigator.onLine;
+}
+window.addEventListener('online', refreshPublicConnection);
+window.addEventListener('offline', refreshPublicConnection);
+refreshPublicConnection();
+
 function releasePublicObservers(): void {
   stopLive?.();
   stopLive = undefined;
@@ -450,7 +464,8 @@ async function render(): Promise<void> {
     if (current !== revision) return;
     main.append(section);
   }
-  app.replaceChildren(header, main, footer(site));
+  app.replaceChildren(header, publicConnection, main, footer(site));
+  refreshPublicConnection();
   setupPublicNavigation(menuButton, navigation, header, lifetime.signal);
   stopPerformance?.();
   if (!isPreview && currentPublicPath() !== '/lista-attesa/offerta') {

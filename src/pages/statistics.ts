@@ -332,6 +332,14 @@ export async function statisticsPage(context: StaffContext): Promise<HTMLElement
           `${station.name} · ${station.items} righe comanda · Preparazione ${duration(station.preparation_seconds)} · Da pronto a servito ${duration(station.delivery_seconds)}`,
         ),
       );
+    if (!data.advanced)
+      result.append(
+        el(
+          'p',
+          { class: 'muted', role: 'note' },
+          'Permanenza media al tavolo, analisi degli errori e indicatori operativi sono inclusi nella licenza Analytics avanzate.',
+        ),
+      );
     result.append(bookings, operations);
   }
   const view = el(

@@ -433,10 +433,13 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
       pendingSection.append(card);
     }
 
+    // Live updates and register actions must not collapse an operator's active panel.
+    const wasExpanded =
+      secondary.querySelector<HTMLDetailsElement>('details.cashier-operations')?.open ?? false;
     secondary.replaceChildren(
       el(
         'details',
-        { class: 'cashier-operations', open: '' },
+        { class: 'cashier-operations', ...(wasExpanded ? { open: '' } : {}) },
         el('summary', {}, 'Postazioni, servizi e verifiche'),
         el(
           'div',

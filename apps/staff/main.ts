@@ -122,6 +122,7 @@ const navigation: {
   { path: '/food-cost', label: 'Food cost e margini', roles: ['ADMIN'], section: 'CONFIGURAZIONE' },
   { path: '/servizio', label: 'Servizio', roles: ['WAITER'] },
   { path: '/salute', label: 'Operational Health', roles: ['SUPER_ADMIN'] },
+  { path: '/sedi', label: 'Sedi', roles: ['SUPER_ADMIN'], section: 'CONFIGURAZIONE' },
   { path: '/accoglienza', label: 'Accoglienza', roles: ['ADMIN', 'HOST'], section: 'OPERATIVITÀ' },
   {
     path: '/sala',
@@ -373,8 +374,13 @@ async function render(): Promise<void> {
   if (venueControl) {
     venueControl.value = context.venue?.id ?? '';
     venueControl.addEventListener('change', () => {
-      sessionStorage.setItem('plateform-venue', venueControl.value);
-      navigate('/');
+      void rpc(
+        'set_operational_venue',
+        { p_venue: venueControl.value },
+        z.object({ current_venue_id: z.uuid() }),
+      )
+        .then(() => navigate('/'))
+        .catch(showError);
     });
   }
   const collapsedSidebar = localStorage.getItem('plateform-sidebar') === 'collapsed';
@@ -649,6 +655,8 @@ async function render(): Promise<void> {
       content = await (await import('../../src/pages/statistics')).statisticsPage(context);
     else if (pageLink.path === '/conflitti')
       content = await (await import('../../src/pages/offline')).conflictPage(context);
+    else if (pageLink.path === '/sedi')
+      content = await (await import('../../src/pages/venues')).venuesPage(context);
     else if (pageLink.path === '/dispositivi')
       content = await (await import('../../src/pages/devices')).devicesPage(context);
     else if (pageLink.path === '/stampe')

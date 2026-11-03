@@ -2987,6 +2987,12 @@
       "version": "20261103161146",
       "name": "licensed_epson_printing",
       "sha256": "f8c46ffdfcb24b2faf39510187c3995371b54d062c02f6b632e0bf960c6649bc"
+    },
+    {
+      "filename": "20261103213000_conflict_center_empty_order_discard.sql",
+      "version": "20261103213000",
+      "name": "conflict_center_empty_order_discard",
+      "sha256": "2db62ea1a8bcddc202abf6577ea0eceab6bf0ff6fcc441a304fb206474313c84"
     }
   ]
 }
