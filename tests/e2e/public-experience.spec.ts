@@ -119,7 +119,9 @@ test('public menu survives an unavailable optional card index and keeps dish pho
     category_name: 'Primi',
     price_cents: 1800,
     availability: 8,
-    ingredients: [{ id: '40000000-0000-4000-8000-000000000013', name: 'Riso Carnaroli', removable: false }],
+    ingredients: [
+      { id: '40000000-0000-4000-8000-000000000013', name: 'Riso Carnaroli', removable: false },
+    ],
     allergens: [],
     dietary_tags: [],
     variant_groups: [],
