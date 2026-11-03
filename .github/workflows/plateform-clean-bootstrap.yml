@@ -6,6 +6,7 @@ on:
   push:
     branches:
       - plateform/two-phase-completion-20261013
+      - fix/release-edition-contracts-20261103
     paths:
       - '.github/workflows/plateform-clean-bootstrap.yml'
       - 'supabase/migrations/**'
@@ -17,12 +18,12 @@ permissions:
   contents: read
 
 concurrency:
-  group: plateform-clean-bootstrap
+  group: plateform-clean-bootstrap-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   db-bootstrap:
-    if: github.repository == 'ambrogiocorti/plateform-core' && github.ref == 'refs/heads/plateform/two-phase-completion-20261013'
+    if: github.repository == 'ambrogiocorti/plateform-core' && (github.ref == 'refs/heads/plateform/two-phase-completion-20261013' || github.ref == 'refs/heads/fix/release-edition-contracts-20261103')
     runs-on: ubuntu-24.04
     timeout-minutes: 50
     env:
@@ -71,7 +72,8 @@ jobs:
             || '|' || (to_regclass('storage.objects') IS NOT NULL)::text;
           ")
           echo "LOCAL_BOOTSTRAP_CATALOG=$got"
-          test "$got" = "482|7|true|true"
+          expected_migrations=$(node -e 'console.log(JSON.parse(require("node:fs").readFileSync("supabase/migration-manifest.json", "utf8")).migrations.length)')
+          test "$got" = "$expected_migrations|7|true|true"
           echo "PLATEFORM_ISOLATED_POSTGRES_BOOTSTRAP=PASS"
 
       - name: Report non-sensitive diagnostics on failure

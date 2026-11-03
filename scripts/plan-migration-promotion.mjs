@@ -69,40 +69,45 @@ async function run() {
     await readFile(resolve('supabase/migration-manifest.json'), 'utf8'),
   ).migrations;
   if (process.argv[2] === '--self-test') {
-    assert.ok(manifest.length >= 482, 'expected historical migration baseline');
+    // Fixed histories exercise the classifier independently of future source
+    // migrations. Never print a synthetic fixture as the current remote state.
+    const row = (version, name) => ({ version, name, sha256: 'a'.repeat(64) });
     const prospective = new Set(['20261006100100', '20261012075300']);
-    const afterBaseline = new Set(['20261027183000']);
-    assert.ok(
-      manifest.some((row) => afterBaseline.has(row.version)),
-      'new replay migration tracked',
-    );
-    const remoteFixture = manifest.filter(
-      (row) => !prospective.has(row.version) && !afterBaseline.has(row.version),
-    );
-    assert.equal(remoteFixture.length, manifest.length - prospective.size - afterBaseline.size);
-    const baseline = classifyMigrationPromotion(remoteFixture, manifest);
+    const remoteFixture = [
+      row('20261003165439', 'foundation'),
+      row('20261021090000', 'licensed_deposits'),
+    ];
+    const candidateFixture = [
+      remoteFixture[0],
+      row('20261006100100', 'historical_repair_one'),
+      row('20261012075300', 'historical_repair_two'),
+      remoteFixture[1],
+      row('20261027183000', 'forward_waitlist'),
+      row('20261103161146', 'forward_printing'),
+    ];
+    const baseline = classifyMigrationPromotion(remoteFixture, candidateFixture);
     assert.equal(baseline.status, 'BLOCKED_BACKDATED_MIGRATIONS');
     assert.deepEqual(baseline.backdated_versions, [...prospective]);
     assert.equal(baseline.deploy_authorized, false);
     assert.equal(
       classifyMigrationPromotion(
         remoteFixture.map((row, i) => (i === 0 ? { ...row, sha256: '0'.repeat(64) } : row)),
-        manifest,
+        candidateFixture,
       ).status,
       'BLOCKED_APPLIED_HISTORY_DIVERGENCE',
     );
     assert.equal(
       classifyMigrationPromotion(
         [...remoteFixture, { version: '20261013120000', name: 'unknown', sha256: '1'.repeat(64) }],
-        manifest,
+        candidateFixture,
       ).status,
       'BLOCKED_APPLIED_HISTORY_DIVERGENCE',
     );
     assert.equal(
       classifyMigrationPromotion(remoteFixture, [
-        ...manifest.filter((row) => !prospective.has(row.version)),
+        ...candidateFixture.filter((row) => !prospective.has(row.version)),
         {
-          version: '20261013180000',
+          version: '20261104100000',
           name: 'future',
           sha256: '2'.repeat(64),
         },
@@ -111,11 +116,14 @@ async function run() {
     );
     assert.throws(
       () =>
-        classifyMigrationPromotion([{ ...remoteFixture[0] }, { ...remoteFixture[0] }], manifest),
+        classifyMigrationPromotion(
+          [{ ...remoteFixture[0] }, { ...remoteFixture[0] }],
+          candidateFixture,
+        ),
       /APPLIED_INVALID_OR_DUPLICATE/,
     );
     console.log('MIGRATION_PROMOTION_FAIL_CLOSED_SELF_TEST=PASSED');
-    console.log('CURRENT_SOURCE_PROMOTION_CLASSIFICATION=' + JSON.stringify(baseline));
+    console.log('SYNTHETIC_PROMOTION_CLASSIFICATION=' + JSON.stringify(baseline));
     return;
   }
   if (process.argv[2] !== '--applied-json' || !process.argv[3]) {

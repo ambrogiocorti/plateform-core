@@ -11,6 +11,9 @@ const environment = {
 export default defineConfig({
   testDir: './tests/e2e',
   timeout: 30_000,
+  // The public and staff Vite servers compile on demand. Serial execution on
+  // the shared CI runner avoids cold transforms competing with browser actions.
+  ...(process.env.CI ? { workers: 1 } : {}),
   use: {
     browserName: 'chromium',
     headless: true,

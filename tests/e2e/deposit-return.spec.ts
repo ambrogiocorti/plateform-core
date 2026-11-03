@@ -16,6 +16,7 @@ const venue = {
 };
 const token = 'a'.repeat(64);
 test.beforeEach(async ({ page }) => {
+  await page.route('**/functions/v1/public-telemetry', (route) => route.fulfill({ json: null }));
   await page.route('**/rest/v1/rpc/get_public_site', (route) =>
     route.fulfill({
       json: {
@@ -81,7 +82,7 @@ test('return without the guest capability never queries a deposit or creates ano
   page,
 }) => {
   let calls = 0;
-  await page.route('**/functions/v1/**', (route) => {
+  await page.route(/\/functions\/v1\/reservation(?:-deposit)?$/, (route) => {
     calls++;
     return route.fulfill({ status: 403, json: { code: 'FORBIDDEN' } });
   });
