@@ -10,12 +10,12 @@ export const kitchenAllergensSchema = z
   .array(z.union([z.string(), z.object({ code: z.string(), name: z.string() })]))
   .transform((entries) => {
     if (entries.every((entry) => typeof entry === 'string')) return entries as string[];
-    return entries
-      .map((entry) =>
-        typeof entry === 'string' ? { code: entry, name: entry } : entry,
-      )
-      .sort((a, b) => a.code.localeCompare(b.code))
-      .map((entry) => entry.name);
+    const normalized: { code: string; name: string }[] = [];
+    for (const entry of entries) {
+      normalized.push(typeof entry === 'string' ? { code: entry, name: entry } : entry);
+    }
+    normalized.sort((a, b) => a.code.localeCompare(b.code));
+    return normalized.map((entry) => entry.name);
   });
 
 const itemSchema = z.object({
@@ -24,8 +24,11 @@ const itemSchema = z.object({
   step_id: z.uuid(),
   step_number: z.number(),
   step_status: z.string(),
-  table_name: z.string(),
-  table_number: z.number(),
+  order_source: z.string().optional(),
+  table_name: z.string().nullable(),
+  table_number: z.number().nullable(),
+  service_label: z.string().nullable().optional(),
+  pickup_at: z.string().nullable().optional(),
   dish_name: z.string(),
   quantity: z.number(),
   status: z.string(),
@@ -73,6 +76,17 @@ const kitchenAdminOverviewSchema = z.object({
     }),
   ),
 });
+
+type KitchenBoardItem = z.infer<typeof itemSchema>;
+
+export function kitchenTicketHeading(
+  item: Pick<KitchenBoardItem, 'order_source' | 'table_name' | 'table_number' | 'service_label'>,
+): { eyebrow: string; title: string } {
+  return {
+    eyebrow: item.order_source === 'TAKEAWAY' ? 'ASPORTO' : `TAVOLO ${item.table_number ?? '—'}`,
+    title: item.service_label ?? item.table_name ?? 'Ordine da asporto',
+  };
+}
 
 type KitchenAdminOverview = z.infer<typeof kitchenAdminOverviewSchema>;
 
@@ -220,14 +234,63 @@ function urgencyClass(value: string): string {
   return 'is-normal';
 }
 
+function returnOrderItemButton(
+  context: StaffContext,
+  item: { id: string; dish_name: string; version: number },
+): HTMLButtonElement {
+  return button(
+    'Piatto tornato indietro',
+    () => {
+      const popup = dialog('Errore ordine', el('p', {}, item.dish_name));
+      const key = crypto.randomUUID();
+      for (const action of ['REMAKE', 'CANCEL_REQUEST']) {
+        popup.append(
+          button(
+            action === 'REMAKE' ? 'Rifare il piatto' : 'Richiedi annullamento Admin',
+            async () => {
+              await rpc(
+                'return_order_item',
+                { p_item: item.id, p_action: action, p_version: item.version, p_key: key },
+                z.record(z.string(), z.unknown()),
+              );
+              popup.close();
+              await context.refresh?.();
+            },
+            'secondary',
+          ),
+        );
+      }
+    },
+    'quiet',
+  );
+}
+
 export async function kitchenPage(context: StaffContext): Promise<HTMLElement> {
   if (!context.venue)
     return emptyState('Nessuna sede', 'Verifica le assegnazioni del tuo account.');
 
-  const [items, adminOverview] = await Promise.all([
+  const [items, adminOverview, returnable] = await Promise.all([
     rpc('get_kitchen_board', { p_venue: context.venue.id }, z.array(itemSchema)),
     context.profile.role === 'KITCHEN_ADMIN'
       ? rpc('get_kitchen_admin_overview', { p_venue: context.venue.id }, kitchenAdminOverviewSchema)
+      : Promise.resolve(null),
+    ['PASS', 'KITCHEN_ADMIN'].includes(context.profile.role)
+      ? rpc(
+          'get_returnable_items',
+          { p_venue: context.venue.id },
+          z.object({
+            enabled: z.boolean(),
+            items: z.array(
+              z.object({
+                id: z.uuid(),
+                dish_name: z.string(),
+                quantity: z.number(),
+                version: z.number(),
+                table_name: z.string().nullable(),
+              }),
+            ),
+          }),
+        )
       : Promise.resolve(null),
   ]);
 
@@ -242,6 +305,7 @@ export async function kitchenPage(context: StaffContext): Promise<HTMLElement> {
     const rows = items.filter((item) => item.step_id === step);
     const first = rows[0];
     if (!first) continue;
+    const heading = kitchenTicketHeading(first);
 
     const readyCount = rows.filter((item) => item.status === 'READY').length;
     const complete = readyCount === rows.length;
@@ -258,8 +322,8 @@ export async function kitchenPage(context: StaffContext): Promise<HTMLElement> {
         el(
           'div',
           {},
-          el('p', { class: 'eyebrow' }, `TAVOLO ${first.table_number}`),
-          el('h2', {}, first.table_name),
+          el('p', { class: 'eyebrow' }, heading.eyebrow),
+          el('h2', {}, heading.title),
         ),
         el(
           'div',
@@ -324,33 +388,9 @@ export async function kitchenPage(context: StaffContext): Promise<HTMLElement> {
       }
 
       if (['PASS', 'KITCHEN_ADMIN'].includes(context.profile.role) && item.status === 'READY') {
-        line.append(
-          button(
-            'Piatto tornato indietro',
-            () => {
-              const popup = dialog('Errore ordine', el('p', {}, item.dish_name));
-              const key = crypto.randomUUID();
-              for (const action of ['REMAKE', 'CANCEL_REQUEST'])
-                popup.append(
-                  button(
-                    action === 'REMAKE' ? 'Rifare il piatto' : 'Richiedi annullamento Admin',
-                    async () => {
-                      await rpc(
-                        'return_order_item',
-                        { p_item: item.id, p_action: action, p_version: item.version, p_key: key },
-                        z.record(z.string(), z.unknown()),
-                      );
-                      popup.close();
-                      await context.refresh?.();
-                    },
-                    'secondary',
-                  ),
-                );
-            },
-            'quiet',
-          ),
-        );
+        line.append(returnOrderItemButton(context, item));
       }
+
       card.append(line);
     }
 
@@ -465,11 +505,40 @@ export async function kitchenPage(context: StaffContext): Promise<HTMLElement> {
     boardShell.append(filterActions);
   }
   boardShell.append(board);
-  if (!adminOverview) return boardShell;
+  let servedRecently: HTMLElement | undefined;
+  if (returnable?.enabled) {
+    servedRecently = el(
+      'section',
+      { class: 'card stack', role: 'region', 'aria-label': 'Piatti serviti di recente' },
+      el('h2', {}, 'Piatti serviti di recente'),
+    );
+    if (!returnable.items.length) {
+      servedRecently.append(el('p', { class: 'muted' }, 'Nessun piatto da rendere.'));
+    }
+    for (const item of returnable.items) {
+      servedRecently.append(
+        el(
+          'article',
+          { class: 'row between' },
+          el(
+            'div',
+            {},
+            el('strong', {}, `${item.quantity} × ${item.dish_name}`),
+            el('p', { class: 'muted' }, item.table_name ?? 'Asporto'),
+          ),
+          returnOrderItemButton(context, item),
+        ),
+      );
+    }
+  }
+  if (!adminOverview) {
+    return servedRecently ? el('div', { class: 'stack' }, boardShell, servedRecently) : boardShell;
+  }
   return el(
     'div',
     { class: 'stack kitchen-operations-dashboard' },
     kitchenAdminPanel(adminOverview, boardShell),
     boardShell,
+    ...(servedRecently ? [servedRecently] : []),
   );
 }
