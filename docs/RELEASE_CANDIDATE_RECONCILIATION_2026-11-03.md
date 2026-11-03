@@ -39,6 +39,8 @@ Il test del classificatore usa ora storie sintetiche fisse: aggiungere una migra
 
 Un ultimo rafforzamento della migrazione Epson, **ancora non applicata ad alcun progetto**, blocca anche la riga del dispositivo durante accodamento/autorizzazione: la disattivazione non può superare il controllo mentre nasce un nuovo job. I 13 test Epson e i controlli completi sono passati sul commit indicato, compresi il replay su PostgreSQL nativo e i browser.
 
+La verifica estesa `local:source-gates` copre anche tutti i ruoli UX e gli Step 7–12. Il controllo della dashboard cucina è aggiornato alla workspace attuale; non cambia il comportamento applicativo. `format:check` preserva i file originali dell’handoff e prima ne verifica gli 11 digest SHA-256 del pacchetto, invece di riscriverli con Prettier.
+
 ### Correzione dell’anteprima Vercel
 
 Il deploy automatico dello stesso commit ha evidenziato due controlli di bootstrap rimasti a 483 migrazioni: ora verificano il manifest e confrontano il catalogo PostgreSQL con il suo conteggio effettivo, senza alterare hash o SQL storici. Questi controlli sono inclusi anche nella pipeline della candidata.

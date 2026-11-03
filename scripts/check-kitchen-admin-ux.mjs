@@ -43,10 +43,9 @@ const checks = [
   ],
   [
     'overview non scompare con KDS vuota',
-    source.includes('if (!adminOverview) return board') &&
-      source.includes(
-        "return el('div', { class: 'stack' }, kitchenAdminPanel(adminOverview, board), board)",
-      ),
+    source.includes('boardShell.append(board)') &&
+      source.includes('if (!adminOverview) return boardShell') &&
+      /kitchenAdminPanel\(adminOverview, boardShell\),\s*boardShell/.test(source),
   ],
   [
     'RPC server autorizza solo Admin/Kitchen Admin',

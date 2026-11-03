@@ -13,7 +13,7 @@
     "typecheck": "node node_modules/typescript/bin/tsc --noEmit",
     "lint": "node node_modules/eslint/bin/eslint.js .",
     "format": "node node_modules/prettier/bin/prettier.cjs --write .",
-    "format:check": "node node_modules/prettier/bin/prettier.cjs --check .",
+    "format:check": "node scripts/check-handoff-integrity.mjs && node node_modules/prettier/bin/prettier.cjs --check .",
     "test": "vitest run",
     "test:unit": "vitest run tests/unit",
     "test:db": "vitest run tests/database",
