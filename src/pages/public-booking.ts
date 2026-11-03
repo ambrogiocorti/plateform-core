@@ -118,12 +118,12 @@ export async function bookingPage(venue: Venue, privacyUrl?: string): Promise<HT
   const form = el('section', { class: 'booking-form card' });
   const first = field('Nome', 'first');
   const last = field('Cognome', 'last');
-  const phone = field('Telefono con prefisso internazionale', 'phone', 'tel');
-  phone.input.placeholder = '+39';
-  phone.input.pattern = '\\+[0-9]{7,15}';
+  const phone = field('Telefono', 'phone', 'tel');
+  phone.input.placeholder = '333 123 4567 oppure +39 333 123 4567';
+  phone.input.pattern = '(?:\\+|00)?[0-9 ().-]{7,24}';
   const party = field('Persone', 'party', 'number', '2');
   party.input.min = '1';
-  party.input.max = '1000';
+  party.input.max = '30';
   party.input.step = '1';
   const date = field('Data', 'date', 'date');
   date.input.min = venueLocalToday(venue.timezone);
@@ -172,17 +172,25 @@ export async function bookingPage(venue: Venue, privacyUrl?: string): Promise<HT
         date: date.input.value,
         party: Number(party.input.value),
       };
-      status.textContent = 'Verifica disponibilità in corso…';
-      const result = await rpc(
-        'get_public_booking_availability',
-        {
-          p_venue: key.venueId,
-          p_service: key.serviceId,
-          p_date: key.date,
-          p_party: key.party,
-        },
-        availabilitySchema,
-      );
+      status.textContent = 'Cerchiamo un tavolo disponibile…';
+      let result: z.infer<typeof availabilitySchema>;
+      try {
+        result = await rpc(
+          'get_public_booking_availability',
+          {
+            p_venue: key.venueId,
+            p_service: key.serviceId,
+            p_date: key.date,
+            p_party: key.party,
+          },
+          availabilitySchema,
+        );
+      } catch {
+        if (token === sequence && form.isConnected) {
+          status.textContent = `Non riusciamo a verificare gli orari. Chiamaci al ${venue.phone}.`;
+        }
+        return;
+      }
       if (token !== sequence || !form.isConnected) return;
       // In the core-only edition, never offer a time slot that requires an
       // unavailable online deposit provider. The authoritative server may have
@@ -381,11 +389,10 @@ export async function bookingPage(venue: Venue, privacyUrl?: string): Promise<HT
           el('a', { href: `tel:${venue.phone.replace(/[^+0-9]/g, '')}` }, venue.phone),
         );
       }
-    } catch (error) {
+    } catch {
       // A request may already have committed even if its response was lost: never create a second booking.
       status.textContent =
-        'Non è possibile verificare l’esito dell’invio. Non ripetere la prenotazione: contatta il ristorante.';
-      throw error;
+        `Non riusciamo a confermare ora. Non ripetere la richiesta: chiamaci al ${venue.phone} per verificare l’esito.`;
     }
   });
   form.append(submit);
