@@ -531,14 +531,12 @@ export async function kitchenPage(context: StaffContext): Promise<HTMLElement> {
       );
     }
   }
-  if (!adminOverview) {
-    return servedRecently ? el('div', { class: 'stack' }, boardShell, servedRecently) : boardShell;
-  }
+  if (servedRecently) boardShell.append(servedRecently);
+  if (!adminOverview) return boardShell;
   return el(
     'div',
     { class: 'stack kitchen-operations-dashboard' },
     kitchenAdminPanel(adminOverview, boardShell),
     boardShell,
-    ...(servedRecently ? [servedRecently] : []),
   );
 }

@@ -3,11 +3,54 @@
 **Obiettivo:** completamento del perimetro del Master Prompt aggiornato, sezioni 0–157.
 **Stato:** sviluppo e verifica in corso; **NO-GO commerciale**. Questo registro sostituisce i conteggi e il perimetro dei checkpoint precedenti, senza trasformare le prove storiche in collaudi della candidata.
 
+## Checkpoint di integrazione verificato il 3 novembre, sera
+
+La PR [#57](https://github.com/ambrogiocorti/plateform-core/pull/57) comprende le
+correzioni della candidata FULL, il controllo delle licenze, la stampa Epson
+di cortesia e i nuovi flussi di gestione operativa. Sul commit
+`2f97fa2aefacc3daa6c08cb5509aae57b811111e` il
+[collaudo integrato](https://github.com/ambrogiocorti/plateform-core/actions/runs/41726143666)
+ha superato **39 test su 39** in quattro gruppi, con GoTrue, PostgREST,
+PostgreSQL, Storage ed Edge Functions in uno stack isolato.
+Superata anche la prova isolata di ripristino. Passano 387 test applicativi,
+32 test Edge e 39 test browser ordinari; il controllo finale di struttura
+della dashboard cucina, emerso dopo l'aggiunta dei resi, richiede ancora
+l'allineamento del sorgente alla verifica statica prima del successivo commit.
+
+Tra gli scenari integrati verificati: servizio completo fino a chiusura del
+conto, notifiche e resi dopo la consegna con autorizzazione Admin,
+prenotazioni, carico delle immagini, accessibilità, prestazioni, offline
+reale con code e conflitti, multi-sede, backup e archivio audit isolato.
+L'editor dei conflitti impedisce di reinviare piatti esauriti.
+
+Per la stampa di cortesia non fiscale il bridge ora comprende Epson ePOS
+Ethernet, coda USB Windows e coda USB macOS/Linux tramite CUPS, con
+documenti autorizzati e deduplicati. I test CUPS controllano i byte inviati
+alla coda simulata: **non attestano** una stampa, un taglio o una
+compatibilità fisica con una stampante reale. La TM-T20III (012) va
+verificata sulla sua interfaccia effettiva.
+
+La storia presente in staging e produzione resta di **496 migrazioni**;
+nel sorgente ne risultano **499**. Le tre migrazioni successive ancora
+da promuovere in staging, in ordine, sono `20261027183000` (waitlist),
+`20261103161146` (Epson/licenze) e `20261103213000` (annullamento di
+un ordine vuoto nel Conflict Center). Nessuna di esse è stata applicata
+ai database collegati. Il CORS dell'anteprima è stato corretto solo in
+staging con prove HTTP reali.
+
+**NO-GO commerciale:** prima della vendita pubblica restano obbligatori
+la promozione tracciata e il collaudo completo su staging, un vero
+backup di PostgreSQL/Auth/Storage con ripristino indipendente, provider
+in sandbox e rimborsi reali, prove su hardware Epson e dispositivo
+fiscale/partner certificato se si richiede un documento commerciale,
+privacy/sicurezza e accettazione dei requisiti. Il superamento dei test
+automatici isolati non certifica da solo questi passaggi.
+
 ## Sorgente unico e contratto delle licenze
 
-La candidata riunisce il lavoro UX/stampa della PR 55 e il replay isolato della PR 56. Recupera inoltre le 14 SQL che il ramo applicativo non conteneva più, mantenendone ogni byte e SHA-256. Le sole nuove modifiche di schema sono nella migrazione forward-only `20261103161146_licensed_epson_printing.sql`.
+La candidata riunisce il lavoro UX/stampa della PR 55 e il replay isolato della PR 56. Recupera inoltre le 14 SQL che il ramo applicativo non conteneva più, mantenendone ogni byte e SHA-256. Le nuove migrazioni forward-only comprendono `20261103161146_licensed_epson_printing.sql` e `20261103213000_conflict_center_empty_order_discard.sql`.
 
-Il confronto **in sola lettura** con `plateform-staging` (`qfgoatdabgnzozxuzxku`) rileva 496 migrazioni applicate. Tutte le versioni, i nomi e i digest coincidono con il sorgente recuperato. Nella candidata ci sono 498 migrazioni: restano pendenti soltanto `20261027183000` (waitlist idempotente) e `20261103161146` (licenza Epson), entrambe successive alla storia applicata. Non risultano migrazioni retrodatate o SQL applicate divergenti. Nessun `db push` o aggiornamento dello schema/dati è stato eseguito. Il successivo intervento CORS descritto sotto riguarda soltanto configurazione e codice delle Edge Functions di staging.
+Il confronto **in sola lettura** con `plateform-staging` (`qfgoatdabgnzozxuzxku`) rileva 496 migrazioni applicate. Tutte le versioni, i nomi e i digest coincidono con il sorgente recuperato. Nella candidata ci sono 499 migrazioni: restano pendenti `20261027183000` (waitlist idempotente), `20261103161146` (licenza Epson) e `20261103213000` (Conflict Center), tutte successive alla storia applicata. Non risultano migrazioni retrodatate o SQL applicate divergenti. Nessun `db push` o aggiornamento dello schema/dati è stato eseguito. Il successivo intervento CORS descritto sotto riguarda soltanto configurazione e codice delle Edge Functions di staging.
 
 Le migrazioni del 18–21 ottobre avevano intenzionalmente introdotto statistiche di base e pagamenti per licenza. I test sono ora distinti: il precedente contratto CORE viene ancora eseguito sul suo schema storico, mentre sullo schema attuale sono obbligatori sia i rifiuti senza licenza/ruolo/step-up sia i flussi autorizzati. I quattro test della macchina a stati dei provider sono nuovamente eseguiti.
 
@@ -63,7 +106,7 @@ Il recupero di una funzione distribuita non prova che il suo provider, cron o in
 
 Dopo l’accesso alla dashboard autorizzato dal proprietario, è stata aggiunta l’origine esatta della PR 57 mediante `ADDITIONAL_ALLOWED_ORIGINS`. Il valore precedente di `ALLOWED_ORIGINS` è write-only: non è stato sovrascritto e digest/data di aggiornamento sono rimasti identici. Il middleware unisce le due liste, mantenendo il confronto esatto delle origini.
 
-Sulle 12 funzioni browser già distribuite è stato applicato soltanto questo cambiamento nel loro `_shared/http.ts`; gli altri sorgenti e i flag JWT coincidono byte per byte con gli snapshot precedenti. Questo rollout ristretto non distribuisce retroattivamente tutte le altre modifiche della candidata e non applica le due migrazioni ancora pendenti.
+Sulle 12 funzioni browser già distribuite è stato applicato soltanto questo cambiamento nel loro `_shared/http.ts`; gli altri sorgenti e i flag JWT coincidono byte per byte con gli snapshot precedenti. Questo rollout ristretto non distribuisce retroattivamente tutte le altre modifiche della candidata e non applica le tre migrazioni ancora pendenti.
 
 Verifiche HTTP reali: **12/12** preflight dell’anteprima autorizzati, **12/12** endpoint protetti con diniego 401 senza sessione, **24/24** rifiuti di origini estranee/contraffatte e **3/3** confronti invariati con un endpoint che usa ancora il middleware originale. L’origine della PR 49 rimane autorizzata; localhost 5173/5174 risulta già respinto anche dal middleware originale: non è una regressione dell’aggiunta. Tutti i **32 test Edge** sono passati localmente con Deno e le dipendenze da lockfile.
 
