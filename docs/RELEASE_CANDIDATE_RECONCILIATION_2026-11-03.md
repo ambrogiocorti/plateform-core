@@ -7,7 +7,7 @@
 
 La candidata riunisce il lavoro UX/stampa della PR 55 e il replay isolato della PR 56. Recupera inoltre le 14 SQL che il ramo applicativo non conteneva più, mantenendone ogni byte e SHA-256. Le sole nuove modifiche di schema sono nella migrazione forward-only `20261103161146_licensed_epson_printing.sql`.
 
-Il confronto **in sola lettura** con `plateform-staging` (`qfgoatdabgnzozxuzxku`) rileva 496 migrazioni applicate. Tutte le versioni, i nomi e i digest coincidono con il sorgente recuperato. Nella candidata ci sono 498 migrazioni: restano pendenti soltanto `20261027183000` (waitlist idempotente) e `20261103161146` (licenza Epson), entrambe successive alla storia applicata. Non risultano migrazioni retrodatate o SQL applicate divergenti. Nessun `db push` o aggiornamento di staging/produzione è stato eseguito.
+Il confronto **in sola lettura** con `plateform-staging` (`qfgoatdabgnzozxuzxku`) rileva 496 migrazioni applicate. Tutte le versioni, i nomi e i digest coincidono con il sorgente recuperato. Nella candidata ci sono 498 migrazioni: restano pendenti soltanto `20261027183000` (waitlist idempotente) e `20261103161146` (licenza Epson), entrambe successive alla storia applicata. Non risultano migrazioni retrodatate o SQL applicate divergenti. Nessun `db push` o aggiornamento dello schema/dati è stato eseguito. Il successivo intervento CORS descritto sotto riguarda soltanto configurazione e codice delle Edge Functions di staging.
 
 Le migrazioni del 18–21 ottobre avevano intenzionalmente introdotto statistiche di base e pagamenti per licenza. I test sono ora distinti: il precedente contratto CORE viene ancora eseguito sul suo schema storico, mentre sullo schema attuale sono obbligatori sia i rifiuti senza licenza/ruolo/step-up sia i flussi autorizzati. I quattro test della macchina a stati dei provider sono nuovamente eseguiti.
 
@@ -58,3 +58,13 @@ Prima della vendita completa restano necessari:
 5. Accettazione puntuale delle 158 sezioni, documenti operativi/commerciali, tre revisioni complete sullo stesso digest e chiusura dei gate di rilascio.
 
 Il recupero di una funzione distribuita non prova che il suo provider, cron o infrastruttura siano configurati correttamente. Nessuna evidenza di produzione, hardware, backup/restore o firma fiscale viene emessa da questo checkpoint.
+
+## Blocco CORS chiuso nello staging
+
+Dopo l’accesso alla dashboard autorizzato dal proprietario, è stata aggiunta l’origine esatta della PR 57 mediante `ADDITIONAL_ALLOWED_ORIGINS`. Il valore precedente di `ALLOWED_ORIGINS` è write-only: non è stato sovrascritto e digest/data di aggiornamento sono rimasti identici. Il middleware unisce le due liste, mantenendo il confronto esatto delle origini.
+
+Sulle 12 funzioni browser già distribuite è stato applicato soltanto questo cambiamento nel loro `_shared/http.ts`; gli altri sorgenti e i flag JWT coincidono byte per byte con gli snapshot precedenti. Questo rollout ristretto non distribuisce retroattivamente tutte le altre modifiche della candidata e non applica le due migrazioni ancora pendenti.
+
+Verifiche HTTP reali: **12/12** preflight dell’anteprima autorizzati, **12/12** endpoint protetti con diniego 401 senza sessione, **24/24** rifiuti di origini estranee/contraffatte e **3/3** confronti invariati con un endpoint che usa ancora il middleware originale. L’origine della PR 49 rimane autorizzata; localhost 5173/5174 risulta già respinto anche dal middleware originale: non è una regressione dell’aggiunta. Tutti i **32 test Edge** sono passati localmente con Deno e le dipendenze da lockfile.
+
+Dettagli, versioni, digest e prove: `docs/evidence/cors-2026-11-03/verification.json`. Conservate le due varianti originali del middleware per rollback. La nuova CI deve ancora essere letta sull’esatto commit che include queste prove. Il NO-GO commerciale rimane in vigore per i collaudi e i gate reali ancora aperti.

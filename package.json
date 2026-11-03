@@ -101,7 +101,7 @@
     "check:step11-booking": "node --experimental-strip-types scripts/check-step11-booking-client.mjs",
     "check:step11-prerender": "node scripts/check-step11-prerender.mjs",
     "check:step11-build-assembly": "node scripts/check-step11-build-assembly.mjs",
-    "check:step11-deploy-config": "node scripts/check-vercel-config.mjs && node scripts/check-migration-recovery.mjs && npm run check:staging-http-fixtures",
+    "check:step11-deploy-config": "node scripts/check-vercel-config.mjs && node scripts/check-migration-recovery.mjs && npm run check:staging-http-fixtures && node scripts/check-staging-edge-cors-fixtures.mjs && node scripts/check-staging-edge-denial-fixtures.mjs",
     "reconcile:migrations": "node scripts/reconcile-migrations.mjs --dry-run",
     "reconcile:migrations:write": "node scripts/reconcile-migrations.mjs --write",
     "check:staging-http": "node scripts/verify-staging-http.mjs",

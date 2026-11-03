@@ -132,6 +132,46 @@ Deno.test('CORS accepts only the configured origin and exposes a correlation ID'
   assert(accepted.headers.get('Cache-Control') === 'no-store', 'Response is cacheable');
 });
 Deno.test(
+  'additional CORS origins preserve the original allowlist and never accept wildcards',
+  async () => {
+    const original = Deno.env.get('ALLOWED_ORIGINS');
+    const additional = Deno.env.get('ADDITIONAL_ALLOWED_ORIGINS');
+    Deno.env.set('ALLOWED_ORIGINS', 'https://staff.test,https://public.test');
+    Deno.env.set('ADDITIONAL_ALLOWED_ORIGINS', ' https://preview.test,*,https://*.test, ');
+    try {
+      for (const origin of ['https://staff.test', 'https://public.test', 'https://preview.test']) {
+        const response = await handler(
+          new Request('https://edge.test/action', { method: 'OPTIONS', headers: { origin } }),
+        );
+        assert(response.status === 204, 'Configured origin was lost');
+        assert(response.headers.get('Access-Control-Allow-Origin') === origin, 'Wrong origin');
+      }
+      for (const origin of ['https://preview.test.attacker.invalid', 'https://unlisted.test']) {
+        const response = await handler(
+          new Request('https://edge.test/action', { method: 'OPTIONS', headers: { origin } }),
+        );
+        assert(response.status === 403, 'Unconfigured origin was accepted');
+        assert(!response.headers.has('Access-Control-Allow-Origin'), 'Denied origin exposed');
+      }
+      Deno.env.delete('ADDITIONAL_ALLOWED_ORIGINS');
+      assert(
+        (await handler(request('{"value":"ok"}', { origin: 'https://preview.test' }))).status ===
+          403,
+        'Removing the supplemental origin did not revoke it',
+      );
+      assert(
+        (await handler(request('{"value":"ok"}', { origin: 'https://staff.test' }))).status === 200,
+        'Removing the supplement changed the original allowlist',
+      );
+    } finally {
+      if (original === undefined) Deno.env.delete('ALLOWED_ORIGINS');
+      else Deno.env.set('ALLOWED_ORIGINS', original);
+      if (additional === undefined) Deno.env.delete('ADDITIONAL_ALLOWED_ORIGINS');
+      else Deno.env.set('ADDITIONAL_ALLOWED_ORIGINS', additional);
+    }
+  },
+);
+Deno.test(
   'invalid JSON, media type, schema and methods fail before executing the handler',
   async () => {
     assert(

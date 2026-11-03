@@ -175,9 +175,14 @@ export function endpoint<T>(
   return async (request: Request): Promise<Response> => {
     const { requestId, correlationId } = requestContext(request.headers);
     const origin = request.headers.get('origin');
-    const allowedOrigins = (Deno.env.get('ALLOWED_ORIGINS') ?? '')
+    const allowedOrigins = [
+      Deno.env.get('ALLOWED_ORIGINS') ?? '',
+      Deno.env.get('ADDITIONAL_ALLOWED_ORIGINS') ?? '',
+    ]
+      .join(',')
       .split(',')
-      .map((value) => value.trim());
+      .map((value) => value.trim())
+      .filter(Boolean);
     const headers = new Headers({
       'Content-Type': 'application/json',
       'Cache-Control': 'no-store',

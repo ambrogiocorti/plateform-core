@@ -806,29 +806,49 @@
     "staging_applied_migrations": 496,
     "staging_applied_digests_match": true,
     "pending_forward_versions": ["20261027183000", "20261103161146"],
-    "unit_tests_passed": 165,
+    "unit_tests_passed": 167,
     "database_tests_passed": 211,
     "database_tests_skipped": 0,
     "build_profiles_checked": ["CORE", "FULL"],
     "edge_ci": {
       "status": "PASSED",
       "tests": 31,
-      "run_id": 41675717843
+      "run_id": 41678869797
     },
     "browser_ci": {
       "status": "PASSED",
       "tests": 39,
-      "run_id": 41675717843
+      "run_id": 41678869797
     },
     "production_deployed": false,
     "backup_restore_verified": false,
-    "verified_commit": "8fdb4f6e6cc710da02054ea5dd4b40fd595e9a95",
-    "application_tests_passed": 376,
+    "verified_commit": "667c5b5d93b0c32e0d0eaeeb17f72883e643da4c",
+    "application_tests_passed": 378,
     "native_postgresql_bootstrap": {
       "status": "PASSED",
       "migrations": 498,
-      "run_id": 41675717812
+      "run_id": 41676651067,
+      "verified_commit": "7b6069b37c65d2cae8eb024f8ffdffb7f75ac701",
+      "sql_and_manifest_unchanged_since": true
     },
-    "followup_external_print_device_locks": "13_LOCAL_TESTS_PASSED_FINAL_CI_TRIGGERED_ON_PUSH"
+    "followup_external_print_device_locks": "PASSED_ON_7b6069b_WITH_NATIVE_POSTGRESQL",
+    "followup_cors_extension": {
+      "edge_local_tests_passed": 32,
+      "remote_ci": "PENDING_ON_NEXT_COMMIT",
+      "evidence": "docs/evidence/cors-2026-11-03/verification.json"
+    }
+  },
+  "staging_cors": {
+    "status": "VERIFIED",
+    "project_ref": "qfgoatdabgnzozxuzxku",
+    "preview_origin": "https://plateform-development-git-fix-releas-94ed70-sambrogiocorti-5259.vercel.app",
+    "existing_allowlist_preserved": true,
+    "patched_functions": 12,
+    "preflights_passed": 12,
+    "unauthenticated_denials_passed": 12,
+    "untrusted_origin_denials_passed": 24,
+    "existing_policy_comparisons_passed": 3,
+    "evidence": "docs/evidence/cors-2026-11-03/verification.json",
+    "scope": "Restricted CORS update only; no full backend rollout, schema/data mutation or production deployment."
   }
 }

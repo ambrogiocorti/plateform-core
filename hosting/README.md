@@ -72,7 +72,10 @@ Gli header dello staging includono `X-Robots-Tag: noindex, nofollow`.
    `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY` e `VITE_RELEASE_VERSION`.
    Vercel deve usare `npm ci` e `npm run build:pages` come da `vercel.json`.
 4. Configura l'origine staging anche nell'allowlist `ALLOWED_ORIGINS` delle
-   Edge Functions. Verifica auth redirects, servizi prenotabili, privacy e
+   Edge Functions. Se il valore esistente non è recuperabile, usa
+   `ADDITIONAL_ALLOWED_ORIGINS` per aggiungere origini HTTPS esatte senza
+   sostituire `ALLOWED_ORIGINS`; il middleware ne usa l’unione e non amplia
+   i privilegi applicativi. Non inserire wildcard. Verifica auth redirects, servizi prenotabili, privacy e
    attivazione del sito sul backend di sviluppo, non produzione.
 5. Dopo un deployment completo, esegui la pipeline manuale
    `.github/workflows/staging-readiness.yml`, con le variabili GitHub
