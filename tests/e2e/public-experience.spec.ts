@@ -166,14 +166,16 @@ test('booking availability failure shows a useful message instead of a loading s
   await page.route('**/rest/v1/rpc/get_booking_configuration', (route) =>
     route.fulfill({
       json: {
-        services: [{
-          id: '40000000-0000-4000-8000-000000000014',
-          name: 'Cena',
-          starts_at: '19:00',
-          ends_at: '22:00',
-          weekdays: [0, 1, 2, 3, 4, 5, 6],
-          slot_interval_minutes: 30,
-        }],
+        services: [
+          {
+            id: '40000000-0000-4000-8000-000000000014',
+            name: 'Cena',
+            starts_at: '19:00',
+            ends_at: '22:00',
+            weekdays: [0, 1, 2, 3, 4, 5, 6],
+            slot_interval_minutes: 30,
+          },
+        ],
         fields: [],
       },
     }),
@@ -184,9 +186,10 @@ test('booking availability failure shows a useful message instead of a loading s
   await page.goto('http://localhost:5173/prenota');
   await expect(page.getByRole('heading', { name: 'Un tavolo da Osteria Test' })).toBeVisible();
   const date = page.locator('input[type="date"]');
-  await date.fill(await date.getAttribute('min') ?? '');
+  await date.fill((await date.getAttribute('min')) ?? '');
   await page.getByRole('button', { name: 'Verifica disponibilità' }).click();
-  await expect(page.getByText('Non riusciamo a verificare gli orari.', { exact: false }))
-    .toBeVisible();
+  await expect(
+    page.getByText('Non riusciamo a verificare gli orari.', { exact: false }),
+  ).toBeVisible();
   await expect(page.getByText('Verifica disponibilità in corso…')).toHaveCount(0);
 });
