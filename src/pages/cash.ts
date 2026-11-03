@@ -551,7 +551,7 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
       'div',
       {},
       el('p', { class: 'eyebrow' }, 'GESTIONE INCASSI · CASSA'),
-      el('h2', {}, 'Il banco di lavoro'),
+      el('h2', {}, 'Cassa e pagamenti'),
       el('p', { class: 'muted' }, 'Trova un conto, controlla il saldo e completa il pagamento.'),
     ),
     el('span', { class: 'cash-desk-shortcut' }, 'F2 · Cerca     F4 · Incassa'),

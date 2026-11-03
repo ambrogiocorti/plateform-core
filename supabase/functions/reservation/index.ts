@@ -9,8 +9,21 @@ const schema = z
     time: z.string().regex(/^\d{2}:\d{2}$/),
     first_name: z.string().trim().min(1).max(100),
     last_name: z.string().trim().max(100),
-    phone: z.string().regex(/^\+[0-9]{7,15}$/),
-    party_size: z.number().int().min(1).max(1000),
+    phone: z
+      .string()
+      .trim()
+      .min(7)
+      .max(32)
+      .transform((value) => {
+        const compact = value.replace(/[\s().-]/g, '');
+        return compact.startsWith('00')
+          ? `+${compact.slice(2)}`
+          : compact.startsWith('+')
+            ? compact
+            : `+39${compact}`;
+      })
+      .pipe(z.string().regex(/^\+[1-9][0-9]{6,14}$/)),
+    party_size: z.number().int().min(1).max(30),
     answers: z.record(z.string(), z.unknown()),
     idempotency_key: z.uuid(),
   })

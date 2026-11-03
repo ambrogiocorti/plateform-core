@@ -677,11 +677,12 @@ export async function hostPage(context: StaffContext): Promise<HTMLElement> {
     el(
       'nav',
       { class: 'host-desk-tabs', 'aria-label': 'Aree accoglienza' },
-      el('a', { href: '#host-arrivals' }, 'Arrivi e prenotazioni'),
       el('a', { href: '#host-floor' }, 'Sala'),
+      el('a', { href: '#host-arrivals' }, 'Arrivi e prenotazioni'),
       el('a', { href: '#host-waitlist' }, 'Lista d’attesa'),
     ),
-    el('div', { class: 'host-desk-body' }, reservations, map),
+    // The operational room plan must lead the workspace, especially on mobile.
+    el('div', { class: 'host-desk-body' }, map, reservations),
     waitlistPanel,
   );
 }

@@ -381,8 +381,9 @@ async function render(): Promise<void> {
       class: 'button quiet public-menu-toggle',
       'aria-controls': 'public-navigation',
       'aria-expanded': 'false',
+      'aria-label': 'Apri la navigazione',
     },
-    'Menu',
+    'Navigazione',
   );
   const themeButton = el(
     'button',
@@ -628,9 +629,10 @@ async function render(): Promise<void> {
         state: (state) => {
           const label = document.getElementById('public-connection');
           if (label) {
-            label.hidden = state === 'LIVE';
+            // Reconnecting is normal and not an actionable customer-facing error.
+            label.hidden = state !== 'OFFLINE';
             label.textContent =
-              state === 'OFFLINE' ? 'MODALITÀ OFFLINE' : 'Aggiornamenti da verificare';
+              state === 'OFFLINE' ? 'Le informazioni potrebbero non essere aggiornate.' : '';
           }
         },
       });
@@ -1013,10 +1015,15 @@ async function menu(site: PublicSite, venue: Venue | undefined): Promise<HTMLEle
   }
   const picker = venuePicker(site, venue, false);
   if (picker) section.append(picker);
-  const availableMenus = await (
-    await import('../../src/pages/public-menu')
-  ).publishedMenuIndex(venue, site.multi_venue);
-  if (availableMenus) section.append(availableMenus);
+  // Optional published-card navigation must never hide the main restaurant menu.
+  try {
+    const availableMenus = await (
+      await import('../../src/pages/public-menu')
+    ).publishedMenuIndex(venue, site.multi_venue);
+    if (availableMenus) section.append(availableMenus);
+  } catch {
+    // Continue with the main menu when only the card index is unavailable.
+  }
   const dishes = await rpc('get_public_menu', { p_venue: venue.id }, z.array(menuDishSchema));
   const categories = [...new Set(dishes.map((dish) => dish.category_name))];
   if (dishes.length) {
@@ -1077,6 +1084,12 @@ async function menu(site: PublicSite, venue: Venue | undefined): Promise<HTMLEle
           .map((dish) => {
             const picture = safeImageUrl(dish.image_path);
             const badge = availabilityBadge(dish.availability);
+            const ingredients = dish.ingredients.map((ingredient) => ingredient.name).join(', ');
+            const hasDistinctIngredients =
+              ingredients.length > 0 &&
+              !dish.description
+                .toLocaleLowerCase('it')
+                .includes(ingredients.toLocaleLowerCase('it'));
             return el(
               'article',
               { class: 'dish-public public-dish-card public-legacy-dish' },
@@ -1090,9 +1103,7 @@ async function menu(site: PublicSite, venue: Venue | undefined): Promise<HTMLEle
                 el('strong', {}, formatMoney(dish.price_cents, venue.currency, venue.locale)),
               ),
               el('p', {}, dish.description),
-              !dish.beverage
-                ? el('p', {}, dish.ingredients.map((ingredient) => ingredient.name).join(', '))
-                : null,
+              !dish.beverage && hasDistinctIngredients ? el('p', {}, ingredients) : null,
               dish.allergens.length
                 ? el(
                     'p',
