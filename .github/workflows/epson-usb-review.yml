@@ -53,10 +53,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Fail closed when the Windows printer queue is unavailable
-        shell: pwsh
+        shell: cmd
         run: |
-          $PSNativeCommandUseErrorActionPreference = $false
-          $payload = [Convert]::ToBase64String([byte[]]@(27, 64, 10, 29, 86, 1))
-          $result = $payload | & powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File tools/print-bridge/win-raw-print.ps1 -PrinterName 'PLATEFORM_TEST_QUEUE_NOT_INSTALLED' 2>&1
-          if ($LASTEXITCODE -ne 1) { throw 'Expected exit code 1 for an absent printer queue' }
-          if (($result -join ' ') -notmatch 'RAW_PRINT_FAILED') { throw 'Winspool helper did not fail closed as expected' }
+          @echo off
+          echo G0AKHVYB | powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File tools\\print-bridge\\win-raw-print.ps1 -PrinterName PLATEFORM_TEST_QUEUE_NOT_INSTALLED 2> raw-print-error.txt
+          if not "%errorlevel%"=="1" exit /b 2
+          findstr /C:"RAW_PRINT_FAILED" raw-print-error.txt
