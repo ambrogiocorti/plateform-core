@@ -71,6 +71,11 @@ test('offline reale: ordini in coda, verifica del server alla riconnessione, con
   waiter.on('response', (response) => {
     if (response.url().includes('/functions/v1/offline-authorization'))
       console.log('[OFFLINE AUTH]', response.status());
+    if (response.status() >= 500 && response.url().includes('localhost:5174'))
+      console.log('[OFFLINE DEV SERVER]', response.status(), new URL(response.url()).pathname);
+  });
+  waiter.on('console', (message) => {
+    if (message.type() === 'error') console.log('[OFFLINE CONSOLE]', message.text());
   });
   await waiter.getByRole('button', { name: 'Prepara uso offline' }).click();
   try {

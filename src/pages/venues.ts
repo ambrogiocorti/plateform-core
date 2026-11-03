@@ -72,8 +72,7 @@ export async function venuesPage(context: StaffContext): Promise<HTMLElement> {
     name.input.addEventListener('input', () => {
       if (!manuallyEditedSlug) slug.input.value = slugify(name.input.value);
     });
-    for (const control of [name, slug, code, address, phone])
-      control.input.required = true;
+    for (const control of [name, slug, code, address, phone]) control.input.required = true;
     slug.input.pattern = '[a-z0-9]+(-[a-z0-9]+)*';
     code.input.pattern = '[a-zA-Z0-9][a-zA-Z0-9_-]+';
     const popup = dialog(

@@ -122,6 +122,9 @@ test('branding Admin: colore, testi e sezioni arrivano al sito pubblico', async 
   await expect(visitor.getByRole('heading', { level: 1 })).toContainText(
     'Cucina di quartiere dal 1998',
   );
+  // Visitors start in light mode; the restaurant's dark-canvas accent becomes
+  // readable when the guest explicitly switches to its dark palette.
+  await visitor.getByRole('button', { name: 'Attiva tema scuro' }).click();
   await expect
     .poll(() =>
       visitor.evaluate(() =>

@@ -56,7 +56,10 @@ export const menuDishSchema = z.object({
   id: z.uuid(),
   name: z.string(),
   // PostgreSQL permits an omitted description; the public card expects display text.
-  description: z.string().nullish().transform((value) => value ?? ''),
+  description: z
+    .string()
+    .nullish()
+    .transform((value) => value ?? ''),
   image_path: z.string().nullable(),
   beverage: z.boolean(),
   category_id: z.uuid(),

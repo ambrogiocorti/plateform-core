@@ -404,9 +404,7 @@ export async function conflictPage(context: StaffContext): Promise<HTMLElement> 
         ),
       );
     else if (conflict.resource_type === 'tables')
-      card.append(
-        button('Apri sala aggiornata', () => context.navigate('/sala'), 'secondary'),
-      );
+      card.append(button('Apri sala aggiornata', () => context.navigate('/sala'), 'secondary'));
 
     const original = z.array(orderLineSchema).safeParse(conflict.requested_payload.items);
     if (conflict.operation === 'CREATE_ORDER' && original.success) {
@@ -509,42 +507,39 @@ export async function conflictPage(context: StaffContext): Promise<HTMLElement> 
       );
     }
     card.append(
-      button(
-        'Gestisci conflitto',
-        () => {
-          const reason = field('Motivo della risoluzione', 'reason');
-          reason.input.required = true;
-          reason.input.minLength = 3;
-          const popup = dialog(
-            'Risoluzione conflitto',
-            el('p', {}, 'L’operazione rifiutata non sarà eseguita.'),
-            reason.root,
+      button('Gestisci conflitto', () => {
+        const reason = field('Motivo della risoluzione', 'reason');
+        reason.input.required = true;
+        reason.input.minLength = 3;
+        const popup = dialog(
+          'Risoluzione conflitto',
+          el('p', {}, 'L’operazione rifiutata non sarà eseguita.'),
+          reason.root,
+        );
+        const key = crypto.randomUUID();
+        for (const action of ['DISCARD', 'ACKNOWLEDGE'])
+          popup.append(
+            button(
+              action === 'DISCARD' ? 'Annulla richiesta' : 'Segna verificato',
+              async () => {
+                if (!reason.input.reportValidity()) return;
+                await rpc(
+                  'resolve_sync_conflict',
+                  {
+                    p_conflict: conflict.id,
+                    p_action: action,
+                    p_reason: reason.input.value,
+                    p_key: key,
+                  },
+                  z.object({ id: z.uuid() }),
+                );
+                popup.close();
+                await context.refresh?.();
+              },
+              'secondary',
+            ),
           );
-          const key = crypto.randomUUID();
-          for (const action of ['DISCARD', 'ACKNOWLEDGE'])
-            popup.append(
-              button(
-                action === 'DISCARD' ? 'Annulla richiesta' : 'Segna verificato',
-                async () => {
-                  if (!reason.input.reportValidity()) return;
-                  await rpc(
-                    'resolve_sync_conflict',
-                    {
-                      p_conflict: conflict.id,
-                      p_action: action,
-                      p_reason: reason.input.value,
-                      p_key: key,
-                    },
-                    z.object({ id: z.uuid() }),
-                  );
-                  popup.close();
-                  await context.refresh?.();
-                },
-                'secondary',
-              ),
-            );
-        },
-      ),
+      }),
     );
     view.append(card);
   }

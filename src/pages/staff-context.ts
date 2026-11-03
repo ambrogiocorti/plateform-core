@@ -42,6 +42,7 @@ export async function loadContext(
         return row ? [row] : [];
       })
     : allVenues;
+  venues.sort((a, b) => a.name.localeCompare(b.name, 'it', { sensitivity: 'base' }));
   const selectedId = serverContext?.current_venue_id ?? sessionStorage.getItem('plateform-venue');
   return {
     profile,

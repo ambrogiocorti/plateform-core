@@ -24,7 +24,10 @@ export default defineConfig(({ command, mode }) => {
     root: fileURLToPath(new URL('./apps/staff', import.meta.url)),
     // Dynamic staff/public views must not trigger new dependency hashes while
     // an operational dialog is loading in a browser.
-    optimizeDeps: { include: ['@supabase/supabase-js', 'idb', 'qrcode', 'zod'] },
+    optimizeDeps: {
+      noDiscovery: true,
+      include: ['@supabase/supabase-js', 'idb', 'qrcode', 'saxes', 'zod'],
+    },
     envDir: '../..',
     publicDir: '../../assets/staff',
     server: { port: 5174, strictPort: true, fs: { allow: ['../..'] } },
