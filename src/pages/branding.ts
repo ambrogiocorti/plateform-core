@@ -10,17 +10,18 @@ export function assetUploadControl(
   resource: string | null,
   venue: string | null,
   onUploaded: (url: string | null) => void,
+  purpose = bucket === 'dishes' ? 'fotografia del piatto' : bucket,
 ): HTMLElement {
   const input = el('input', {
     type: 'file',
     accept: bucket === 'documents' ? '.pdf' : 'image/png,image/jpeg,image/webp',
-    'aria-label': 'File da caricare',
+    'aria-label': `File: ${purpose}`,
   });
   let key = crypto.randomUUID();
   input.addEventListener('change', () => {
     key = crypto.randomUUID();
   });
-  return el(
+  const control = el(
     'div',
     { class: 'field' },
     input,
@@ -54,6 +55,8 @@ export function assetUploadControl(
       'secondary',
     ),
   );
+  control.querySelector('button')?.setAttribute('aria-label', `Carica file: ${purpose}`);
+  return control;
 }
 
 export async function brandingPage(context: StaffContext): Promise<HTMLElement> {
@@ -144,7 +147,7 @@ export async function brandingPage(context: StaffContext): Promise<HTMLElement> 
     logo.root,
     assetUploadControl('branding', null, null, (url) => {
       logo.input.value = url ?? '';
-    }),
+    }, 'logo'),
   );
   inputs.push({ input: logo.input, target: brand, key: 'logo_url' });
   const favicon = field('Favicon', 'favicon_url', 'url', String(brand.favicon_url ?? ''));
@@ -152,7 +155,7 @@ export async function brandingPage(context: StaffContext): Promise<HTMLElement> 
     favicon.root,
     assetUploadControl('branding', null, null, (url) => {
       favicon.input.value = url ?? '';
-    }),
+    }, 'favicon'),
   );
   inputs.push({ input: favicon.input, target: brand, key: 'favicon_url' });
   const editorial = section('Home e contenuti');
@@ -179,7 +182,7 @@ export async function brandingPage(context: StaffContext): Promise<HTMLElement> 
     hero.root,
     assetUploadControl('branding', null, null, (url) => {
       hero.input.value = url ?? '';
-    }),
+    }, 'fotografia iniziale'),
   );
   inputs.push({ input: hero.input, target: content, key: 'hero_image_url' });
   const heroAlt = field(
@@ -246,7 +249,7 @@ export async function brandingPage(context: StaffContext): Promise<HTMLElement> 
         pictures.push({ url, alt: `Fotografia del ristorante ${pictures.length + 1}` });
         renderGallery();
       }
-    }),
+    }, 'nuova foto della galleria'),
   );
   const visibility = section('Sezioni del sito');
   const sections =

@@ -107,7 +107,9 @@ test('gruppo numeroso: l’Admin imposta la caparra, il gruppo la vede, paga e l
 
   // Before payment the return page says the table is not confirmed yet.
   await visitor.goto(`${publicBase}/prenota?deposito=${deposit}`);
-  await expect(visitor.getByRole('heading', { name: 'Pagamento in attesa di conferma' })).toBeVisible();
+  await expect(
+    visitor.getByRole('heading', { name: 'Pagamento in attesa di conferma' }),
+  ).toBeVisible();
 
   // Verified provider result, as stripe-webhook applies it after re-reading the session.
   const reference = `cs_test_e2e_${randomUUID().replaceAll('-', '').slice(0, 16)}`;

@@ -459,8 +459,7 @@ async function render(): Promise<void> {
   }
   if (path === '/' || path === '/menu' || (path === '/prenota' && bookingEnabled)) {
     // Main content was fully assembled before its first paint on mobile.
-  }
-  else if (path.startsWith('/menu/') && venue) {
+  } else if (path.startsWith('/menu/') && venue) {
     const match = /^\/menu\/([^/]+)(?:\/piatto\/([^/]+))?\/?$/.exec(path);
     main.append(
       match

@@ -277,7 +277,13 @@ async function render(): Promise<void> {
       entry.roles.includes(profile.role) &&
       (entry.path !== '/food-cost' || context.licensedFeatures?.has('FOOD_COST')),
   );
-  const firstAllowedPath = profile.role === 'CASHIER' ? '/cassa' : links[0]?.path;
+  const roleLanding: Partial<Record<UserRole, string>> = {
+    CASHIER: '/cassa',
+    KITCHEN_ADMIN: '/cucina',
+    KITCHEN_STAFF: '/cucina',
+    PASS: '/pass',
+  };
+  const firstAllowedPath = roleLanding[profile.role] ?? links[0]?.path;
   if (staffPath() === '/' || staffPath() === '/login')
     history.replaceState(null, '', staffHref(firstAllowedPath ?? '/operazioni'));
   const pageLink = links.find(
