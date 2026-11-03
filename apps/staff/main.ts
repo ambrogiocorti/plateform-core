@@ -14,6 +14,7 @@ import {
 } from '../../src/components/dom';
 import { environment } from '../../src/config/environment';
 import { activeProfile, loginPage, signOut, requirements } from '../../src/auth/staff';
+import { consumePasswordRecoveryIntent, passwordRecoveryPage } from '../../src/auth/password-recovery';
 import { openAccessSecurity } from '../../src/auth/access-security';
 import { stepUp } from '../../src/auth/step-up';
 import { rpc } from '../../src/api/client';
@@ -35,6 +36,7 @@ const root = document.getElementById('app');
 if (!root) throw new Error('Missing application root');
 const app: HTMLElement = root;
 let renderRevision = 0;
+let recoveryIntent = consumePasswordRecoveryIntent();
 let currentContext: StaffContext | null = null;
 let authExpiryTimer: ReturnType<typeof setTimeout> | undefined;
 let liveKey = '';
@@ -205,7 +207,7 @@ async function render(): Promise<void> {
     app.replaceChildren(
       el(
         'main',
-        { id: 'main', class: 'workspace', tabindex: '-1' },
+        { id: 'main', class: 'workspace' },
         el('p', { class: 'brand' }, 'Plateform'),
         emptyState(
           'Configurazione richiesta',
@@ -218,6 +220,15 @@ async function render(): Promise<void> {
   if (!navigator.onLine) {
     disconnectLive();
     app.replaceChildren(await (await import('../../src/pages/offline')).offlinePage());
+    return;
+  }
+  if (recoveryIntent) {
+    disconnectLive();
+    const page = await passwordRecoveryPage(recoveryIntent, () => {
+      recoveryIntent = null;
+      navigate('/login');
+    });
+    if (revision === renderRevision) app.replaceChildren(page);
     return;
   }
   const {
@@ -281,7 +292,7 @@ async function render(): Promise<void> {
   });
   const main = el(
     'main',
-    { id: 'main', class: 'workspace', tabindex: '-1' },
+    { id: 'main', class: 'workspace' },
     el(
       'header',
       { class: 'page-heading workspace-page-heading' },
@@ -886,7 +897,7 @@ void render().catch((error: unknown) => {
   app.replaceChildren(
     el(
       'main',
-      { id: 'main', class: 'workspace', tabindex: '-1' },
+      { id: 'main', class: 'workspace' },
       emptyState('Accesso momentaneamente non disponibile', 'Verifica la connessione e riprova.'),
       button('Riprova', render),
     ),
