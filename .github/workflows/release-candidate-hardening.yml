@@ -50,6 +50,12 @@ jobs:
           node scripts/check-continuity-bootstrap-recovery.mjs
           npm run check:kitchen-admin-ux
           npm run format:check
+      # A failed format gate stays failed; print the exact mechanical suggestion for review.
+      - name: Explain source formatting differences without modifying the branch
+        if: failure()
+        run: |
+          node node_modules/prettier/bin/prettier.cjs --write src/pages/planning.ts
+          git diff -- src/pages/planning.ts
       - name: Validate explicit FULL application profile
         env:
           VITE_PLATEFORM_EDITION: FULL
