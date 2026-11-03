@@ -830,6 +830,11 @@ function openPalette(): void {
 }
 
 document.documentElement.dataset.theme = localStorage.getItem('plateform-theme') ?? 'light';
+// Native anchor scrolling does not reliably focus the main landmark in all browsers.
+document.querySelector('a.skip-link')?.addEventListener('click', (event) => {
+  event.preventDefault();
+  document.getElementById('main')?.focus();
+});
 document.addEventListener('click', (event) => {
   const target = event.target instanceof Element ? event.target.closest('a') : null;
   if (
