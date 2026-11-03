@@ -49,7 +49,8 @@ test('gruppo numeroso: l’Admin imposta la caparra, il gruppo la vede, paga e l
   await admin.getByLabel('Identificativo staff').fill(staff.admin.email);
   await admin.getByLabel('Password').fill(password);
   await admin.getByRole('button', { name: 'Accedi al servizio' }).click();
-  await expect(admin.getByText(`${staff.admin.name} · ADMIN`)).toBeVisible();
+  await expect(admin.locator('.workspace-subtitle')).toContainText(staff.admin.name);
+  await expect(admin.locator('.workspace-subtitle')).toContainText('admin');
   await admin.goto('/pianificazione');
   const settings = admin.getByRole('region', { name: 'Caparra per gruppi numerosi' });
   await expect(settings).toContainText('Pagamento con Stripe.');
