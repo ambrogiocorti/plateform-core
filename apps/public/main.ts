@@ -583,7 +583,8 @@ async function render(): Promise<void> {
       el(
         'section',
         { class: 'public-section' },
-        emptyState('Pagina non disponibile', 'Torna alla home o contattaci per informazioni.'),
+        el('h1', {}, 'Pagina non disponibile'),
+        el('p', {}, 'Torna alla home o contattaci per informazioni.'),
         el('a', { href: '/' }, 'Torna alla home'),
       ),
     );
@@ -1301,6 +1302,11 @@ document.addEventListener('click', (event) => {
   route((internalPublicPath(target.pathname, PUBLIC_BASE) ?? '/') + target.search);
 });
 window.addEventListener('popstate', () => startPublicRender());
+// Keyboard skip links must move focus, not only scroll the viewport.
+document.querySelector('a.skip-link')?.addEventListener('click', (event) => {
+  event.preventDefault();
+  document.getElementById('main')?.focus();
+});
 startPublicRender();
 
 void registerPwa().catch(() => {});
