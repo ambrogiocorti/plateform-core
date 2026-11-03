@@ -1,0 +1,95 @@
+# Isolated validation only: never deploy, migrate, or access a hosted project.
+# Results are development evidence, not go-live approval or fiscal certification.
+name: Plateform release candidate hardening
+
+on:
+  push:
+    branches:
+      - fix/release-candidate-hardening-20261103
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: plateform-release-candidate-hardening
+  cancel-in-progress: true
+
+jobs:
+  application:
+    if: github.repository == 'ambrogiocorti/plateform-core'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 55
+    env:
+      CI: 'true'
+      SUPABASE_TELEMETRY_DISABLED: 'true'
+    steps:
+      - name: Check out exactly the reviewed candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Node.js 24.13
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24.13.0'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Application and authorization regression suite
+        run: npm run check
+      - name: Operational behavior contracts
+        run: npm run check:operational-readiness
+      - name: Local continuity and restore-safety contracts
+        run: npm run check:continuity-isolated
+      - name: Migration promotion classifier self-tests
+        run: npm run check:migration-promotion
+
+  database:
+    if: github.repository == 'ambrogiocorti/plateform-core'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 55
+    env:
+      CI: 'true'
+      SUPABASE_TELEMETRY_DISABLED: 'true'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24.13.0'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Verify historical SQL against the immutable manifest
+        run: npm run check:migrations
+      - name: Reproduce database policies and workflows in disposable PGlite
+        run: npm run test:db
+
+  browser:
+    if: github.repository == 'ambrogiocorti/plateform-core'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 55
+    env:
+      CI: 'true'
+      SUPABASE_TELEMETRY_DISABLED: 'true'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24.13.0'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Install browser test runtime
+        run: npx playwright install --with-deps chromium
+      - name: Exercise public and staff journeys in Chromium
+        run: npm run test:e2e
+      - name: Keep diagnostic traces on failures
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: plateform-candidate-playwright-failures
+          path: test-results/
+          if-no-files-found: ignore
+          retention-days: 7
