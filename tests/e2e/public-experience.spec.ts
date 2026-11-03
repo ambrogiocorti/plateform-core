@@ -119,7 +119,7 @@ test('public menu survives an unavailable optional card index and keeps dish pho
     category_name: 'Primi',
     price_cents: 1800,
     availability: 8,
-    ingredients: [],
+    ingredients: [{ id: '40000000-0000-4000-8000-000000000013', name: 'Riso Carnaroli', removable: false }],
     allergens: [],
     dietary_tags: [],
     variant_groups: [],
@@ -140,6 +140,7 @@ test('public menu survives an unavailable optional card index and keeps dish pho
   const card = page.locator('.public-legacy-dish').first();
   const photo = card.locator('img');
   await expect(photo).toBeVisible();
+  await expect(card.getByText('Riso Carnaroli')).toHaveCount(1);
   const cardBox = await card.boundingBox();
   const imageBox = await photo.boundingBox();
   expect(cardBox).not.toBeNull();
