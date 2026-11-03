@@ -3,21 +3,21 @@
 -- global roles are guarded because the rehearsal creates multiple databases.
 -- NEVER apply this fixture to a hosted, staging, or production Supabase project.
 -- This emulates SQL shapes only; it does not provide real GoTrue, Storage or Vault.
-do $ begin
+do $pfroles$ begin
   if not exists (select 1 from pg_roles where rolname='anon') then
     create role anon nologin;
   end if;
-end $;
-    do $ begin
+end $pfroles$;
+    do $pfroles$ begin
   if not exists (select 1 from pg_roles where rolname='authenticated') then
     create role authenticated nologin;
   end if;
-end $;
-    do $ begin
+end $pfroles$;
+    do $pfroles$ begin
   if not exists (select 1 from pg_roles where rolname='service_role') then
     create role service_role nologin bypassrls;
   end if;
-end $;
+end $pfroles$;
     -- PGlite does not ship Supabase-hosted pg_cron. Emulate only the small contract
     -- used by migrations so the full schema can still be replayed in database tests.
     create schema cron;
