@@ -44,6 +44,10 @@ jobs:
         run: npm run check:continuity-isolated
       - name: Migration promotion classifier self-tests
         run: npm run check:migration-promotion
+      - name: Publication bootstrap and recovery source checks
+        run: |
+          npm run check:local-bootstrap
+          node scripts/check-continuity-bootstrap-recovery.mjs
       - name: Build explicit FULL application profile
         env:
           VITE_PLATEFORM_EDITION: FULL
