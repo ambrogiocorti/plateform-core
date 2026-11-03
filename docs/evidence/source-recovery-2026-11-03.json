@@ -1,0 +1,307 @@
+{
+  "captured_on": "2026-11-03",
+  "project_id": "qfgoatdabgnzozxuzxku",
+  "operation": "READ_ONLY_SOURCE_RECOVERY",
+  "deployed_functions_modified": false,
+  "functions": [
+    {
+      "slug": "reservation-deposit",
+      "version": 3,
+      "verify_jwt": false,
+      "bundle_sha256": "dc0c11e335d25fc76ec877995cebafc894d180b0f2546150f92a09ccbab793ce",
+      "files": [
+        {
+          "path": "supabase/functions/reservation-deposit/index.ts",
+          "utf16_length": 1424
+        },
+        {
+          "path": "supabase/functions/_shared/http.ts",
+          "utf16_length": 13653
+        },
+        {
+          "path": "shared/request-context.ts",
+          "utf16_length": 1012
+        },
+        {
+          "path": "supabase/functions/_shared/deposits.ts",
+          "utf16_length": 13165
+        },
+        {
+          "path": "supabase/functions/_shared/deposit-providers.ts",
+          "utf16_length": 7933
+        },
+        {
+          "path": "supabase/functions/_shared/providers.ts",
+          "utf16_length": 16719
+        }
+      ]
+    },
+    {
+      "slug": "reservation",
+      "version": 10,
+      "verify_jwt": false,
+      "bundle_sha256": "5d1002dbefa445c9a3d882777369071d415ba472253f88d66a99e36f8ec824ce",
+      "files": [
+        {
+          "path": "supabase/functions/reservation/index.ts",
+          "utf16_length": 2152
+        },
+        {
+          "path": "supabase/functions/_shared/http.ts",
+          "utf16_length": 13653
+        },
+        {
+          "path": "shared/request-context.ts",
+          "utf16_length": 1012
+        }
+      ]
+    },
+    {
+      "slug": "stripe-webhook",
+      "version": 11,
+      "verify_jwt": false,
+      "bundle_sha256": "e17152d6481d5555fead7225a782e2859c25b6c2a9ee23c23fcf46f8f4cd0f4b",
+      "files": [
+        {
+          "path": "supabase/functions/stripe-webhook/index.ts",
+          "utf16_length": 3355
+        },
+        {
+          "path": "supabase/functions/_shared/providers.ts",
+          "utf16_length": 16719
+        },
+        {
+          "path": "supabase/functions/_shared/http.ts",
+          "utf16_length": 13653
+        },
+        {
+          "path": "shared/request-context.ts",
+          "utf16_length": 1012
+        },
+        {
+          "path": "supabase/functions/_shared/deposits.ts",
+          "utf16_length": 13165
+        },
+        {
+          "path": "supabase/functions/_shared/deposit-providers.ts",
+          "utf16_length": 7933
+        }
+      ]
+    },
+    {
+      "slug": "satispay-callback",
+      "version": 11,
+      "verify_jwt": false,
+      "bundle_sha256": "9980af529c9f8d9f9a97c27ce7671568b63906db524f33baea5287a59971eb48",
+      "files": [
+        {
+          "path": "supabase/functions/satispay-callback/index.ts",
+          "utf16_length": 2635
+        },
+        {
+          "path": "supabase/functions/_shared/http.ts",
+          "utf16_length": 13653
+        },
+        {
+          "path": "shared/request-context.ts",
+          "utf16_length": 1012
+        },
+        {
+          "path": "supabase/functions/_shared/providers.ts",
+          "utf16_length": 16719
+        },
+        {
+          "path": "supabase/functions/_shared/deposits.ts",
+          "utf16_length": 13165
+        },
+        {
+          "path": "supabase/functions/_shared/deposit-providers.ts",
+          "utf16_length": 7933
+        }
+      ]
+    },
+    {
+      "slug": "reservation-message-worker",
+      "version": 4,
+      "verify_jwt": false,
+      "bundle_sha256": "9ba3be059292c07bc9fae0cb0d8a2c61561b5de4e117a2750a972c16942ff034",
+      "files": [
+        {
+          "path": "supabase/functions/reservation-message-worker/index.ts",
+          "utf16_length": 4601
+        },
+        {
+          "path": "supabase/functions/_shared/http.ts",
+          "utf16_length": 13233
+        },
+        {
+          "path": "shared/request-context.ts",
+          "utf16_length": 1012
+        },
+        {
+          "path": "supabase/functions/reservation-message-worker/delivery.ts",
+          "utf16_length": 21943
+        }
+      ]
+    },
+    {
+      "slug": "reservation-deposit-no-show-worker",
+      "version": 4,
+      "verify_jwt": false,
+      "bundle_sha256": "b0892d189208fce7d266476c279fb33c5bb403b8dc5f652594258fab6f6a73af",
+      "files": [
+        {
+          "path": "supabase/functions/reservation-deposit-no-show-worker/index.ts",
+          "utf16_length": 1619
+        },
+        {
+          "path": "supabase/functions/_shared/http.ts",
+          "utf16_length": 13233
+        },
+        {
+          "path": "shared/request-context.ts",
+          "utf16_length": 1012
+        },
+        {
+          "path": "supabase/functions/reservation-deposit-no-show-worker/provider-http.ts",
+          "utf16_length": 6180
+        },
+        {
+          "path": "supabase/functions/_shared/providers.ts",
+          "utf16_length": 16106
+        },
+        {
+          "path": "supabase/functions/reservation-deposit-no-show-worker/mapping.ts",
+          "utf16_length": 3534
+        },
+        {
+          "path": "supabase/functions/reservation-deposit-no-show-worker/worker.ts",
+          "utf16_length": 10828
+        }
+      ]
+    },
+    {
+      "slug": "continuity-retention-worker",
+      "version": 4,
+      "verify_jwt": false,
+      "bundle_sha256": "5a1008811763e6baa6680d2feee66b91b75822deda87d9a6dc31e9dd84f05a13",
+      "files": [
+        {
+          "path": "supabase/functions/continuity-retention-worker/index.ts",
+          "utf16_length": 1748
+        },
+        {
+          "path": "supabase/functions/_shared/http.ts",
+          "utf16_length": 13233
+        },
+        {
+          "path": "shared/request-context.ts",
+          "utf16_length": 1012
+        },
+        {
+          "path": "supabase/functions/continuity-retention-worker/logic.ts",
+          "utf16_length": 6729
+        }
+      ]
+    },
+    {
+      "slug": "audit-archive-worker",
+      "version": 4,
+      "verify_jwt": false,
+      "bundle_sha256": "f5ebf37219bd3add542721b21f80ffa29e3fe2202b9529239e961209d9e7fcbe",
+      "files": [
+        {
+          "path": "supabase/functions/audit-archive-worker/index.ts",
+          "utf16_length": 1711
+        },
+        {
+          "path": "supabase/functions/_shared/http.ts",
+          "utf16_length": 13233
+        },
+        {
+          "path": "shared/request-context.ts",
+          "utf16_length": 1012
+        },
+        {
+          "path": "supabase/functions/audit-archive-worker/archive.ts",
+          "utf16_length": 20821
+        },
+        {
+          "path": "supabase/functions/audit-archive-worker/runtime.ts",
+          "utf16_length": 5061
+        }
+      ]
+    },
+    {
+      "slug": "audit-archive-verify",
+      "version": 4,
+      "verify_jwt": false,
+      "bundle_sha256": "cf61ec32696895991bcd0050043aadfaca415e4aaaf30eec7772d6a0c0f6e7dc",
+      "files": [
+        {
+          "path": "supabase/functions/audit-archive-verify/index.ts",
+          "utf16_length": 2373
+        },
+        {
+          "path": "supabase/functions/_shared/http.ts",
+          "utf16_length": 13233
+        },
+        {
+          "path": "shared/request-context.ts",
+          "utf16_length": 1012
+        },
+        {
+          "path": "supabase/functions/audit-archive-worker/archive.ts",
+          "utf16_length": 20821
+        },
+        {
+          "path": "supabase/functions/audit-archive-worker/runtime.ts",
+          "utf16_length": 5061
+        }
+      ]
+    },
+    {
+      "slug": "database-unavailable-chaos-probe",
+      "version": 4,
+      "verify_jwt": false,
+      "bundle_sha256": "de1bc471db2519a40a083514ad08a75ddce9f88a70391f52d6e218017a81a075",
+      "files": [
+        {
+          "path": "supabase/functions/database-unavailable-chaos-probe/index.ts",
+          "utf16_length": 2997
+        },
+        {
+          "path": "supabase/functions/_shared/http.ts",
+          "utf16_length": 13233
+        },
+        {
+          "path": "shared/request-context.ts",
+          "utf16_length": 1012
+        },
+        {
+          "path": "supabase/functions/database-unavailable-chaos-probe/probe.ts",
+          "utf16_length": 7894
+        }
+      ]
+    },
+    {
+      "slug": "payment-return",
+      "version": 12,
+      "verify_jwt": false,
+      "bundle_sha256": "0fb64c24dd567e41a4b09ad2966cf1442841361d33aa9408768fa4cc54ef6b2f",
+      "files": [
+        {
+          "path": "payment-return/index.ts",
+          "utf16_length": 1113
+        }
+      ]
+    }
+  ],
+  "integration_notes": [
+    "Recovered missing endpoints and their relative imports. Existing shared http.ts retains newer waitlist and printing error handling.",
+    "Pinned recovered zod imports to the repository version 4.6.7.",
+    "Added explicit commercial-edition gating for new deposit checkout.",
+    "Corrected cancelled/no-show booking outcomes and fail-closed chaos environment selection.",
+    "This records source provenance, not live verification or production deployment."
+  ]
+}

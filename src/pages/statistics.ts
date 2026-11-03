@@ -3,65 +3,7 @@ import { rpc } from '../api/client';
 import { button, el, field } from '../components/dom';
 import { formatMoney } from '../services/money';
 import type { StaffContext } from './staff-context';
-const aggregate = z.object({ amount_cents: z.number().int(), tip_cents: z.number().int() });
-const counts = z.object({ reservations: z.number().int(), covers: z.number().int() });
-const products = z.object({
-  name: z.string(),
-  quantity: z.number().int(),
-  amount_cents: z.number().int(),
-});
-const statisticsSchema = z.object({
-  receipts_cents: z.number().int(),
-  refunds_cents: z.number().int(),
-  reversals_cents: z.number().int(),
-  net_cents: z.number().int(),
-  tips_cents: z.number().int(),
-  covers: z.number().int(),
-  reservations: z.number().int(),
-  preparation_seconds: z.number().nullable(),
-  daily: z.array(aggregate.extend({ local_date: z.string() })),
-  methods: z.array(aggregate.extend({ method: z.string(), entries: z.number().int() })),
-  venues: z.array(aggregate.extend({ id: z.uuid(), name: z.string() })),
-  products: z.array(products),
-  categories: z.array(products),
-  closed_accounts: z.number().int(),
-  average_check_cents: z.number().int().nullable(),
-  no_shows: z.number().int(),
-  no_show_percent: z.number().nullable(),
-  cancelled_reservations: z.number().int(),
-  walk_ins: z.number().int(),
-  booking_states: z.array(counts.extend({ status: z.string() })),
-  booking_slots: z.array(counts.extend({ slot_time: z.string() })),
-  returns: z.number().int(),
-  calls: z.number().int(),
-  call_acceptance_seconds: z.number().nullable(),
-  call_completion_seconds: z.number().nullable(),
-  stations: z.array(
-    z.object({
-      id: z.uuid(),
-      name: z.string(),
-      items: z.number().int(),
-      preparation_seconds: z.number().nullable(),
-      delivery_seconds: z.number().nullable(),
-    }),
-  ),
-  registers: z.array(aggregate.extend({ id: z.uuid(), name: z.string() })),
-  services: z.array(aggregate.extend({ name: z.string() })),
-  average_stay_seconds: z.number().nullable(),
-  cancelled_items: z.number().int(),
-  operational_errors: z.number().int(),
-  incidents: z.number().int(),
-  open_incidents: z.number().int(),
-  capacity_services: z.array(
-    z.object({
-      id: z.uuid(),
-      name: z.string(),
-      capacity_covers: z.number().int().nullable(),
-      used_covers: z.number().int(),
-      utilization_percent: z.number().nullable(),
-    }),
-  ),
-});
+import { statisticsSchema } from '../services/statistics';
 const duration = (seconds: number | null) =>
   seconds === null
     ? 'Non disponibile'
@@ -125,11 +67,15 @@ export async function statisticsPage(context: StaffContext): Promise<HTMLElement
         ['No-show', snapshot.no_shows],
         ['Chiamate', snapshot.calls],
         ['Resi', snapshot.returns],
-        ['Permanenza media secondi', snapshot.average_stay_seconds ?? ''],
-        ['Piatti annullati', snapshot.cancelled_items],
-        ['Errori operativi', snapshot.operational_errors],
-        ['Incidenti', snapshot.incidents],
-        ['Incidenti aperti', snapshot.open_incidents],
+        ...(snapshot.advanced
+          ? [
+              ['Permanenza media secondi', snapshot.average_stay_seconds ?? ''],
+              ['Piatti annullati', snapshot.cancelled_items],
+              ['Errori operativi', snapshot.operational_errors],
+              ['Incidenti', snapshot.incidents],
+              ['Incidenti aperti', snapshot.open_incidents],
+            ]
+          : []),
         [],
         ['Giorno', 'Movimenti centesimi', 'Mance centesimi'],
         ...snapshot.daily.map((row) => [row.local_date, row.amount_cents, row.tip_cents]),
@@ -340,8 +286,9 @@ export async function statisticsPage(context: StaffContext): Promise<HTMLElement
           `${row.slot_time.slice(0, 5)} · ${row.reservations} gruppi · ${row.covers} coperti`,
         ),
       );
-    if (data.capacity_services.length) bookings.append(el('h3', {}, 'Utilizzo capacità servizi'));
-    for (const service of data.capacity_services)
+    if (data.advanced && data.capacity_services.length)
+      bookings.append(el('h3', {}, 'Utilizzo capacità servizi'));
+    for (const service of data.advanced ? data.capacity_services : [])
       bookings.append(
         el(
           'p',
@@ -356,17 +303,21 @@ export async function statisticsPage(context: StaffContext): Promise<HTMLElement
       { class: 'card stack' },
       el('h2', {}, 'Cucina, consegne e chiamate'),
       el('p', {}, `Preparazione media: ${duration(data.preparation_seconds)}`),
-      el('p', {}, `Permanenza media al tavolo: ${duration(data.average_stay_seconds)}`),
+      data.advanced
+        ? el('p', {}, `Permanenza media al tavolo: ${duration(data.average_stay_seconds)}`)
+        : null,
       el(
         'p',
         {},
-        `${data.returns} resi · ${data.cancelled_items} piatti annullati · ${data.calls} chiamate clienti`,
+        `${data.returns} resi · ${data.calls} chiamate clienti${data.advanced ? ` · ${data.cancelled_items} piatti annullati` : ''}`,
       ),
-      el(
-        'p',
-        {},
-        `${data.operational_errors} errori operativi · ${data.incidents} incidenti nel periodo · ${data.open_incidents} incidenti aperti`,
-      ),
+      data.advanced
+        ? el(
+            'p',
+            {},
+            `${data.operational_errors} errori operativi · ${data.incidents} incidenti nel periodo · ${data.open_incidents} incidenti aperti`,
+          )
+        : null,
       el(
         'p',
         {},

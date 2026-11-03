@@ -27,6 +27,27 @@ verify_enabled = true
 [functions.reservation]
 verify_jwt = false
 
+[functions.reservation-deposit]
+verify_jwt = false
+
+[functions.reservation-message-worker]
+verify_jwt = false
+
+[functions.reservation-deposit-no-show-worker]
+verify_jwt = false
+
+[functions.continuity-retention-worker]
+verify_jwt = false
+
+[functions.audit-archive-worker]
+verify_jwt = false
+
+[functions.audit-archive-verify]
+verify_jwt = false
+
+[functions.database-unavailable-chaos-probe]
+verify_jwt = false
+
 [functions.waitlist]
 verify_jwt = false
 

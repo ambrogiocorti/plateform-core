@@ -1,7 +1,7 @@
 import { z } from 'npm:zod@4.6.7';
 import { endpoint, rateLimit, userClient } from '../_shared/http.ts';
 import { runProviderOperation } from '../_shared/providers.ts';
-import { externalPaymentProvidersIncluded } from '../../../src/services/commercial-scope.ts';
+import { commercialScopeForEdition } from '../../../shared/commercial-edition.ts';
 Deno.serve(
   endpoint(
     z.object({ payment_id: z.uuid(), refund_id: z.uuid().nullable().default(null) }).strict(),
@@ -9,6 +9,9 @@ Deno.serve(
       const user = userClient(request);
       const { data: identity, error } = await user.auth.getUser();
       if (error || !identity.user) throw new Error('UNAUTHORIZED');
+      const { externalPaymentProvidersIncluded } = commercialScopeForEdition(
+        Deno.env.get('PLATEFORM_EDITION'),
+      );
       // Defense in depth: no provider preparation or external HTTP side effects
       // in CORE, even if a future database migration accidentally restores grants.
       if (!externalPaymentProvidersIncluded) throw new Error('PAYMENT_METHOD_UNLICENSED');

@@ -6,13 +6,14 @@ on:
   push:
     branches:
       - fix/release-candidate-hardening-20261103
+      - fix/release-edition-contracts-20261103
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: plateform-release-candidate-hardening
+  group: plateform-release-candidate-hardening-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -43,6 +44,10 @@ jobs:
         run: npm run check:continuity-isolated
       - name: Migration promotion classifier self-tests
         run: npm run check:migration-promotion
+      - name: Build explicit FULL application profile
+        env:
+          VITE_PLATEFORM_EDITION: FULL
+        run: npm run build
 
   database:
     if: github.repository == 'ambrogiocorti/plateform-core'

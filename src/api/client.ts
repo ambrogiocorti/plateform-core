@@ -71,6 +71,12 @@ const messages: Record<string, string> = {
     'Verifica il documento fisico e l’esito della stampa prima di proseguire.',
   PRINT_DEVICE_IN_USE:
     'Scollega la stampante dalle postazioni e verifica le stampe in attesa prima di archiviarla.',
+  PRINT_DRIVER_NOT_INCLUDED:
+    'La stampa Epson richiede l’abilitazione della licenza di stampa da parte dell’amministratore tecnico.',
+  PRINT_DEVICES_STILL_CONFIGURED:
+    'Disattiva e scollega le stampanti Epson o bridge prima di revocare la licenza di stampa.',
+  PRINT_JOBS_PENDING:
+    'Verifica le stampe in coda e gli esiti incerti prima di revocare la licenza di stampa.',
   INVALID_PRINT_ENDPOINT: 'Controlla l’indirizzo HTTPS e il percorso della stampante o del bridge.',
   OFFLINE_VERIFICATION_KEY_REQUIRED:
     'Configura la chiave pubblica di verifica prima di abilitare l’uso offline.',

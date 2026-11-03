@@ -1,6 +1,7 @@
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import type { PGlite } from '@electric-sql/pglite';
 import { database, identity, ids, seed } from './harness';
+import { statisticsSchema } from '../../src/services/statistics';
 const room = 'd0000000-0000-4000-8000-000000000001',
   layout = 'd0000000-0000-4000-8000-000000000002',
   table = 'd0000000-0000-4000-8000-000000000003',
@@ -180,13 +181,13 @@ describe('configuration and operational floor boundaries', () => {
       ),
     ).rejects.toThrow('FEATURE_NOT_LICENSED');
   });
-  it('does not expose unlicensed advanced statistics to the technical Super Admin in CORE', async () => {
+  it('does not expose financial statistics to the technical Super Admin', async () => {
     await identity(db, ids.superAdmin);
     await expect(
       db.query('select public.get_operational_statistics($1,current_date,current_date)', [
         ids.venue,
       ]),
-    ).rejects.toThrow('FEATURE_NOT_LICENSED');
+    ).rejects.toThrow('FORBIDDEN');
   });
   it('exposes technical counts and real probe history without financial amounts', async () => {
     await identity(db, ids.superAdmin);
@@ -224,18 +225,61 @@ describe('configuration and operational floor boundaries', () => {
       expect.objectContaining({ component: 'STORAGE', status: 'UNAVAILABLE' }),
     ]);
   });
-  it('keeps advanced statistics disabled in the CORE database, even without events', async () => {
+  it('provides basic statistics without exposing unlicensed advanced metrics', async () => {
     await db.exec('reset role');
     const flag = await db.query<{ licensed: boolean }>(
       "select licensed from public.feature_flags where name='ADVANCED_ANALYTICS'",
     );
     expect(flag.rows).toEqual([{ licensed: false }]);
     await identity(db, ids.admin);
+    const data = (
+      await db.query<{ result: Record<string, unknown> }>(
+        'select public.get_operational_statistics($1,current_date,current_date) result',
+        [ids.venue],
+      )
+    ).rows[0]!.result;
+    expect(data).toMatchObject({ advanced: false, receipts_cents: 0, covers: 0 });
+    expect(statisticsSchema.parse(data).advanced).toBe(false);
+    for (const key of [
+      'capacity_services',
+      'average_stay_seconds',
+      'operational_errors',
+      'incidents',
+    ])
+      expect(data).not.toHaveProperty(key);
+  });
+  it('parses the licensed advanced response without changing the financial role boundary', async () => {
+    await db.exec(
+      "reset role; update public.feature_flags set licensed=true where name='ADVANCED_ANALYTICS'",
+    );
+    await identity(db, ids.admin);
+    const data = (
+      await db.query<{ result: unknown }>(
+        'select public.get_operational_statistics($1,current_date,current_date) result',
+        [ids.venue],
+      )
+    ).rows[0]!.result;
+    const parsed = statisticsSchema.parse(data);
+    expect(parsed.advanced).toBe(true);
+    if (parsed.advanced) expect(parsed.capacity_services).toEqual([]);
+  });
+  it.each([ids.host, ids.waiter])(
+    'denies basic financial statistics to non-financial staff %s',
+    async (actor) => {
+      await identity(db, actor);
+      await expect(
+        db.query('select public.get_operational_statistics($1,current_date,current_date)', [
+          ids.venue,
+        ]),
+      ).rejects.toThrow('FORBIDDEN');
+    },
+  );
+  it('rejects basic financial statistics outside the assigned venue', async () => {
     await expect(
       db.query('select public.get_operational_statistics($1,current_date,current_date)', [
-        ids.venue,
+        ids.otherVenue,
       ]),
-    ).rejects.toThrow('FEATURE_NOT_LICENSED');
+    ).rejects.toThrow('VENUE_FORBIDDEN');
   });
   it('cannot bypass the table quota by reactivating an archived table', async () => {
     await db.exec('reset role');

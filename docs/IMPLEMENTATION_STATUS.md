@@ -1,3 +1,5 @@
+> Stato corrente (3 novembre 2026): vedere [candidata unificata e verifiche](RELEASE_CANDIDATE_RECONCILIATION_2026-11-03.md). Le descrizioni e i conteggi riportati sotto appartengono ai checkpoint storici; il perimetro attuale comprende le sezioni 0–157.
+
 # Plateform — stato di implementazione
 
 > **Aggiornamento prevalente — 16 ottobre 2026.** Il candidato integra ora

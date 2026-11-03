@@ -9,7 +9,7 @@
   "scripts": {
     "dev:public": "vite --config vite.public.config.ts",
     "dev:staff": "vite --config vite.staff.config.ts",
-    "build": "npm run typecheck && vite build --config vite.public.config.ts && vite build --config vite.staff.config.ts",
+    "build": "npm run typecheck && vite build --config vite.public.config.ts && vite build --config vite.staff.config.ts && node scripts/check-build-profile.mjs",
     "typecheck": "node node_modules/typescript/bin/tsc --noEmit",
     "lint": "node node_modules/eslint/bin/eslint.js .",
     "format": "node node_modules/prettier/bin/prettier.cjs --write .",
@@ -114,7 +114,8 @@
     "check:migration-promotion": "node scripts/plan-migration-promotion.mjs --self-test",
     "check:local-bootstrap": "node scripts/bootstrap-local.mjs --self-test",
     "bootstrap:local": "node scripts/bootstrap-local.mjs --run",
-    "check:operational-readiness": "node scripts/check-operational-readiness.mjs"
+    "check:operational-readiness": "node scripts/check-operational-readiness.mjs",
+    "check:build-profile": "node scripts/check-build-profile.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.116.0",

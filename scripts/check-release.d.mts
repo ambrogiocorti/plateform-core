@@ -4,7 +4,7 @@ export const excludedCoreSections: number[];
 export const requiredDocuments: string[];
 export function roadmapProblems(roadmap: unknown): string[];
 export function releaseProblems(
-  matrix: { sections: { section: number; status: string }[] },
+  matrix: { sections: { section: number; status: string }[]; specification_sha256?: string },
   evidence: Record<string, unknown>,
   digest: string,
   now?: number,

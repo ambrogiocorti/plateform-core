@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-08T20:00:00+02:00",
+  "updated_at": "2026-11-03",
   "source": "docs/ROADMAP.txt",
   "development_project": "abdxvlykasqmknexxhjo",
   "commercial_release_ready": false,
@@ -762,7 +762,7 @@
         "docs/evidence/step12-rehearsal-gate-2026-10-06.json"
       ],
       "open": [
-        "Recuperare in sorgente le 323 migrazioni SQL applicate su Supabase Development ma mancanti localmente (133 file locali, 456 remote al controllo 2026-10-08), verificando ogni SHA-256.",
+        "Riconciliazione sorgenti/staging effettuata: 496 migrazioni applicate corrispondono per nome e SHA-256; candidata 498, con 2 versioni successive ancora da promuovere dopo le verifiche.",
         "Generare un nuovo backup coerente con il database corrente e testarne il restore su target Supabase nuovo, isolato e temporaneo, compresi Auth e Storage.",
         "Rieseguire npm run check:step12-rehearsal con attestazione completa di restore corrente: le precedenti prove storiche non certificano la versione attuale."
       ]
@@ -770,7 +770,7 @@
     {
       "step": 13,
       "name": "Hardening e go-live",
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "checks": {
         "core_dev_server_sql_enforcement": "PASSED_10_NEGATIVE_3_ALLOWED_SQL_ROLLBACK",
         "core_dev_booking_sql_e2e": "PASSED_SQL_ROLLBACK_NOT_HTTP_JWT"
@@ -778,10 +778,11 @@
       "evidence": [
         "supabase/migrations/20261008181605_core_edition_payment_and_print_denial.sql",
         "docs/evidence/core-hardening-2026-10-08.json",
-        "supabase/tests/core_booking.live.sql"
+        "supabase/tests/core_booking.live.sql",
+        "docs/RELEASE_CANDIDATE_RECONCILIATION_2026-11-03.md"
       ],
       "open": [
-        "Installare Node >=24.13, eseguire npm ci su ambiente raggiungibile e ottenere typecheck, lint, test PostgreSQL, browser E2E e build tutti PASS.",
+        "Completare CI Deno e browser della candidata unificata; TypeScript, lint, 211 test DB, 165 unit e build CORE/FULL verificati localmente.",
         "Enforcement SQL CORE applicato su Development con 10 test negativi e 3 permessi a rollback; completare test RPC con JWT autentici e verifica dell isolation per ruolo su staging prima di Production.",
         "Configurare staging HTTPS separato con domini, publishable key e isolamento delle credenziali; eseguire i collaudi su dispositivi reali.",
         "Registrare 3 revisioni integrali consecutive senza rilievi aperti e dossier di release completo; nessuna certificazione finche i gate non passano.",
@@ -790,11 +791,28 @@
       ]
     }
   ],
-  "note": "Il checkpoint contiene moduli di step successivi, ma la loro presenza non certifica il completamento. La verifica riparte dallo Step 0 e non modifica i progetti Supabase precedenti. Aggiornamento CORE 2026-10-08: Stripe/Satispay/Epson fuori scope, non interpretare test statici come verifica server-side o certificazione commerciale.",
+  "note": "I dettagli precedenti restano evidenze storiche. Il checkpoint del 2026-11-03 e il Master 0–157 definiscono il perimetro corrente; licenze e codice presenti non certificano i flussi reali. Vendita completa ancora bloccata.",
   "local_release_candidate": {
-    "status": "SOURCE_GATES_PASSED_BUILD_PENDING_LOCAL_PC",
+    "status": "SOURCE_DATABASE_AND_BOTH_BUILDS_CHECKED_CI_PENDING",
     "source_gate_evidence": "docs/evidence/local-rc-source-gates-2026-10-05.json",
     "setup": "docs/LOCAL_RELEASE.md",
     "manual_checklist": "docs/LOCAL_MANUAL_TEST_CHECKLIST.md"
+  },
+  "staging_project": "qfgoatdabgnzozxuzxku",
+  "current_checkpoint": {
+    "document": "docs/RELEASE_CANDIDATE_RECONCILIATION_2026-11-03.md",
+    "commercial_scope": "MASTER_0_157",
+    "source_migrations": 498,
+    "staging_applied_migrations": 496,
+    "staging_applied_digests_match": true,
+    "pending_forward_versions": ["20261027183000", "20261103161146"],
+    "unit_tests_passed": 165,
+    "database_tests_passed": 211,
+    "database_tests_skipped": 0,
+    "build_profiles_checked": ["CORE", "FULL"],
+    "edge_ci": "PENDING",
+    "browser_ci": "PENDING",
+    "production_deployed": false,
+    "backup_restore_verified": false
   }
 }

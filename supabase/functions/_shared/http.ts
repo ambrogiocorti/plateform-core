@@ -304,11 +304,16 @@ export function endpoint<T>(
         'NONEXISTENT_LOCAL_TIME',
         'INVALID_REQUEST',
         'PAYMENT_METHOD_UNLICENSED',
+        'PRINT_DRIVER_NOT_INCLUDED',
         'PAYMENT_NOT_PENDING',
         'INVALID_PROVIDER_METHOD',
         'INVALID_PROVIDER_REFUND',
         'PROVIDER_RECONCILIATION_REQUIRED',
         'PROVIDER_REQUEST_FAILED',
+        'DEPOSIT_EXPIRED',
+        'DEPOSIT_NOT_PENDING',
+        'DEPOSIT_PROVIDER_UNAVAILABLE',
+        'DEPOSIT_PROVIDER_ALREADY_SELECTED',
       ];
       const code = allowed.includes(rawCode)
         ? rawCode
@@ -341,6 +346,7 @@ export function endpoint<T>(
                   'SCOPE_ESCALATION',
                   'VENUE_FORBIDDEN',
                   'PAYMENT_METHOD_UNLICENSED',
+                  'PRINT_DRIVER_NOT_INCLUDED',
                 ].includes(code)
               ? 403
               : [
@@ -353,6 +359,10 @@ export function endpoint<T>(
                     'PAYMENT_NOT_PENDING',
                     'INVALID_PROVIDER_REFUND',
                     'PROVIDER_RECONCILIATION_REQUIRED',
+                    'DEPOSIT_EXPIRED',
+                    'DEPOSIT_NOT_PENDING',
+                    'DEPOSIT_PROVIDER_UNAVAILABLE',
+                    'DEPOSIT_PROVIDER_ALREADY_SELECTED',
                     'WAITLIST_NOT_OFFERED',
                     'WAITLIST_CAPACITY_LOST',
                     'WAITLIST_OFFER_EXPIRED',

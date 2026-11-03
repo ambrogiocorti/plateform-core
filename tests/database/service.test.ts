@@ -190,12 +190,17 @@ describe('Authoritative service workflows', () => {
       tableWaiter,
       table,
     ]);
+    // Direct API-role execution was intentionally revoked: inspect the
+    // authoritative assignment using the migration/test owner instead.
+    await db.exec('reset role');
     expect(
       (await db.query('select private.responsible_waiter($1) waiter', [table])).rows[0],
     ).toEqual({
       waiter: tableWaiter,
     });
+    await identity(db, ids.admin);
     await db.query("select public.assign_waiter($1,$2,'RUNNER',null,null)", [ids.venue, runner]);
+    await db.exec('reset role');
     expect(
       (await db.query('select private.responsible_waiter($1) waiter', [table])).rows[0],
     ).toEqual({
@@ -209,6 +214,13 @@ describe('Authoritative service workflows', () => {
         )
       ).rows,
     ).toEqual([{ mode: 'RUNNER', table_id: null, zone_id: null }]);
+  });
+
+  it('keeps the internal responsible waiter lookup inaccessible to API roles', async () => {
+    await identity(db, ids.waiter);
+    await expect(db.query('select private.responsible_waiter($1)', [table])).rejects.toThrow(
+      'permission denied',
+    );
   });
 
   async function attachCustomer(account: { id: string; code: string }, user = customer) {
@@ -557,7 +569,8 @@ describe('Authoritative service workflows', () => {
       (await db.query('select public.verify_customer_code($1,$2) as result', [newQr, account.code]))
         .rows[0],
     ).toMatchObject({ result: { account_id: account.id, table_id: target } });
-    await identity(db, ids.waiter);
+    // An authenticated waiter cannot query this internal helper directly.
+    await db.exec('reset role');
     expect(
       (await db.query('select private.responsible_waiter($1) as waiter', [target])).rows[0],
     ).toEqual({ waiter: ids.waiter });

@@ -1,6 +1,7 @@
 import { defineConfig, loadEnv } from 'vite';
 import { plateformPwa } from './vite.pwa.ts';
 import { plateformSecurity } from './vite.security.ts';
+import { commercialEditionMetadata } from './vite.edition.ts';
 import { fileURLToPath } from 'node:url';
 
 export default defineConfig(({ command, mode }) => {
@@ -15,7 +16,11 @@ export default defineConfig(({ command, mode }) => {
   return {
     base,
     define: { 'import.meta.env.PLATEFORM_AREA': JSON.stringify('staff') },
-    plugins: [plateformPwa('staff', base, staffBase), plateformSecurity('staff', env)],
+    plugins: [
+      commercialEditionMetadata(env),
+      plateformPwa('staff', base, staffBase),
+      plateformSecurity('staff', env),
+    ],
     root: fileURLToPath(new URL('./apps/staff', import.meta.url)),
     envDir: '../..',
     publicDir: '../../assets/staff',

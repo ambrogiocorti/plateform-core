@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { ApplicationError, client, rpc, safeError } from '../api/client';
 import { button, el, emptyState, field } from '../components/dom';
 import type { Venue } from '../types/domain';
+import { rememberDepositAccess } from '../services/deposit-access';
 import {
   addCalendarDays,
   bookableSlots,
@@ -86,6 +87,7 @@ const bookingResult = z.discriminatedUnion('status', [
       currency: z.literal('EUR'),
       expires_at: z.iso.datetime({ offset: true }),
       access_token: z.string().min(32),
+      providers: z.array(z.enum(['STRIPE', 'SATISPAY'])).min(1),
     }),
   }),
 ]);
@@ -98,6 +100,8 @@ const checkoutResult = z.object({
 
 /** A public booking is online-only; a lost response is never presented as success. */
 export async function bookingPage(venue: Venue, privacyUrl?: string): Promise<HTMLElement> {
+  const deposit = new URL(location.href).searchParams.get('deposito');
+  if (deposit) return (await import('./public-deposit')).publicDepositPage(venue, deposit);
   if (!venue.reservations_enabled || !privacyUrl || !privacyUrl.startsWith('https://'))
     return emptyState(
       'Prenotazioni online non disponibili',
@@ -298,6 +302,11 @@ export async function bookingPage(venue: Venue, privacyUrl?: string): Promise<HT
       const result = bookingResult.parse(data);
       submitted = true;
       if (result.status === 'PENDING_DEPOSIT') {
+        const returnAccess = rememberDepositAccess(sessionStorage, {
+          deposit: result.deposit.id,
+          venue: venue.id,
+          token: result.deposit.access_token,
+        });
         if (!externalPaymentProvidersIncluded) {
           form.replaceChildren(
             el('h2', {}, 'Prenotazione non ancora confermata'),
@@ -325,7 +334,7 @@ export async function bookingPage(venue: Venue, privacyUrl?: string): Promise<HT
         );
         let checkoutStarted = false;
         const checkoutStatus = el('p', { role: 'status', 'aria-live': 'polite' });
-        for (const provider of ['STRIPE', 'SATISPAY'] as const) {
+        for (const provider of result.deposit.providers) {
           form.append(
             button(
               `Paga la caparra con ${provider === 'STRIPE' ? 'Stripe' : 'Satispay'}`,
@@ -353,7 +362,20 @@ export async function bookingPage(venue: Venue, privacyUrl?: string): Promise<HT
                     checkoutStatus.textContent =
                       'Pagamento non riuscito. Contatta il ristorante per verificare la prenotazione.';
                   } else if (next.action === 'REDIRECT') {
-                    window.location.assign(next.url);
+                    if (returnAccess) window.location.assign(next.url);
+                    else
+                      form.append(
+                        el(
+                          'a',
+                          {
+                            href: next.url,
+                            target: '_blank',
+                            rel: 'noopener noreferrer',
+                            class: 'button',
+                          },
+                          'Apri il pagamento e poi torna a questa pagina',
+                        ),
+                      );
                   } else {
                     checkoutStatus.textContent =
                       'Il pagamento è in elaborazione. Contatta il ristorante prima di riprovare.';
@@ -368,7 +390,24 @@ export async function bookingPage(venue: Venue, privacyUrl?: string): Promise<HT
             ),
           );
         }
-        form.append(checkoutStatus);
+        form.append(
+          checkoutStatus,
+          button(
+            'Verifica esito della caparra',
+            async () => {
+              form.replaceChildren(
+                await (
+                  await import('./public-deposit')
+                ).publicDepositPage(venue, result.deposit.id, {
+                  deposit: result.deposit.id,
+                  venue: venue.id,
+                  token: result.deposit.access_token,
+                }),
+              );
+            },
+            'secondary',
+          ),
+        );
       } else {
         form.replaceChildren(
           el('p', { class: 'eyebrow' }, 'A presto'),

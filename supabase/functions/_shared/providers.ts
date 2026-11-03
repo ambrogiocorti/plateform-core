@@ -21,6 +21,23 @@ export async function satispayCallbackToken(
   return base64url(await crypto.subtle.sign('HMAC', key, bytes(`satispay-callback:${id}`)));
 }
 
+/** Callback token for a booking deposit: a different HMAC message than provider operations. */
+export async function satispayDepositCallbackToken(
+  deposit: string,
+  callbackSecret: string,
+): Promise<string> {
+  const id = z.uuid().parse(deposit);
+  if (callbackSecret.length < 32) throw new Error('SERVER_CONFIGURATION_REQUIRED');
+  const key = await crypto.subtle.importKey(
+    'raw',
+    bytes(callbackSecret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign'],
+  );
+  return base64url(await crypto.subtle.sign('HMAC', key, bytes(`satispay-deposit-callback:${id}`)));
+}
+
 export function isAllowedSatispayRedirect(value: string, mode: string): boolean {
   try {
     const url = new URL(value);
@@ -109,13 +126,13 @@ async function providerFetch(url: URL, options: RequestInit): Promise<unknown> {
   if (raw.length > 262144) throw new Error('PROVIDER_RESPONSE_TOO_LARGE');
   return JSON.parse(raw);
 }
-function venueSecret(name: string, venue: string): string {
+export function venueSecret(name: string, venue: string): string {
   const configured = Deno.env.get(`${name}_${venue.replaceAll('-', '').toUpperCase()}`);
   if (configured) return configured;
   if (Deno.env.get('PAYMENTS_VENUE_ID') === venue) return secret(name);
   throw new Error('SERVER_CONFIGURATION_REQUIRED');
 }
-function stripe(
+export function stripe(
   venue: string,
   path: string,
   body?: URLSearchParams,
@@ -140,7 +157,7 @@ function stripe(
     ...(body ? { body } : {}),
   });
 }
-function satispay(
+export function satispay(
   venue: string,
   path: string,
   body?: Record<string, unknown>,

@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { readFile, readdir } from 'node:fs/promises';
 import { relative, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { masterSectionCount, masterSpecificationDigest } from './master-requirements.mjs';
 export const requiredIntegrationChecks = [
   'supabase_auth_rls_realtime_storage',
   'concurrent_booking_stock_payments',
@@ -72,6 +73,7 @@ export async function sourceDigest(root = process.cwd()) {
     'vite.staff.config.ts',
     'vite.pwa.ts',
     'vite.security.ts',
+    'vite.edition.ts',
     'hosting',
     '.env.example',
     '.env.staging.example',
@@ -137,13 +139,17 @@ export function releaseProblems(matrix, evidence, digest, now = Date.now()) {
     : (row) => row.status === 'verified';
   if (
     !Array.isArray(matrix.sections) ||
-    matrix.sections.length !== 151 ||
-    new Set(matrix.sections.map((row) => row.section)).size !== 151 ||
-    Array.from({ length: 151 }, (_, i) => i).some(
+    matrix.sections.length !== masterSectionCount ||
+    new Set(matrix.sections.map((row) => row.section)).size !== masterSectionCount ||
+    Array.from({ length: masterSectionCount }, (_, i) => i).some(
       (i) => !matrix.sections.some((row) => row.section === i && expectedSections(row)),
     )
   )
-    errors.push('Le 151 sezioni del master devono risultare verificate con evidenze.');
+    errors.push(
+      `Le ${masterSectionCount} sezioni del master devono risultare verificate con evidenze.`,
+    );
+  if (matrix.specification_sha256 !== masterSpecificationDigest)
+    errors.push('La matrice non corrisponde al Master Prompt canonico.');
   if (evidence.source_digest !== digest)
     errors.push('Le evidenze non corrispondono ai sorgenti attuali.');
   const requiredLocalSuites = [
@@ -165,8 +171,10 @@ export function releaseProblems(matrix, evidence, digest, now = Date.now()) {
   for (const suite of requiredLocalSuites)
     if (evidence.local_checks?.[suite] !== 'passed')
       errors.push(`Verifica locale mancante: ${suite}.`);
-  if (evidence.edition && evidence.edition !== 'CORE' && evidence.edition !== 'FULL')
+  if (evidence.edition !== 'CORE' && evidence.edition !== 'FULL')
     errors.push('Edizione commerciale sconosciuta.');
+  if (evidence.build_edition !== evidence.edition)
+    errors.push('La build non corrisponde all’edizione commerciale verificata.');
   for (const name of coreEdition ? requiredCoreIntegrationChecks : requiredIntegrationChecks) {
     const check = evidence.integration_checks?.[name];
     if (
