@@ -55,6 +55,7 @@ jobs:
       - name: Fail closed when the Windows printer queue is unavailable
         shell: pwsh
         run: |
+          $PSNativeCommandUseErrorActionPreference = $false
           $payload = [Convert]::ToBase64String([byte[]]@(27, 64, 10, 29, 86, 1))
           $result = $payload | & powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File tools/print-bridge/win-raw-print.ps1 -PrinterName 'PLATEFORM_TEST_QUEUE_NOT_INSTALLED' 2>&1
           if ($LASTEXITCODE -ne 1) { throw 'Expected exit code 1 for an absent printer queue' }
