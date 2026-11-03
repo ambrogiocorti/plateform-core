@@ -391,8 +391,7 @@ export async function bookingPage(venue: Venue, privacyUrl?: string): Promise<HT
       }
     } catch {
       // A request may already have committed even if its response was lost: never create a second booking.
-      status.textContent =
-        `Non riusciamo a confermare ora. Non ripetere la richiesta: chiamaci al ${venue.phone} per verificare l’esito.`;
+      status.textContent = `Non riusciamo a confermare ora. Non ripetere la richiesta: chiamaci al ${venue.phone} per verificare l’esito.`;
     }
   });
   form.append(submit);
