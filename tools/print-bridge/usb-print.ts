@@ -4,7 +4,8 @@ import { join } from 'node:path';
 // Accept only the exact ePOS-Print XML document produced by shared/print-document.ts.
 // The document hash and ECDSA authorization are verified by service.ts before this step.
 // This deliberately does not implement a generic XML/ESC-POS command interpreter.
-const prefix = '<?xml version="1.0" encoding="UTF-8"?><s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body><epos-print xmlns="http://www.epson-pos.com/schemas/2011/03/epos-print"><text lang="it"/><text>';
+const prefix =
+  '<?xml version="1.0" encoding="UTF-8"?><s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body><epos-print xmlns="http://www.epson-pos.com/schemas/2011/03/epos-print"><text lang="it"/><text>';
 const suffix = '</text><feed line="3"/><cut type="feed"/></epos-print></s:Body></s:Envelope>';
 const entities = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'" };
 
@@ -12,11 +13,16 @@ export function usbEscPosDocument(document: string): Buffer {
   if (!document.startsWith(prefix) || !document.endsWith(suffix))
     throw new Error('UNSUPPORTED_EPSON_DOCUMENT');
   const escaped = document.slice(prefix.length, -suffix.length);
-  if (escaped.includes('<') || escaped.includes('>') || /&(?!(?:amp|lt|gt|quot|apos);)/.test(escaped))
+  if (
+    escaped.includes('<') ||
+    escaped.includes('>') ||
+    /&(?!(?:amp|lt|gt|quot|apos);)/.test(escaped)
+  )
     throw new Error('UNSUPPORTED_EPSON_DOCUMENT');
 
-  const decoded = escaped.replace(/&(amp|lt|gt|quot|apos);/g, (_entity, name: string) =>
-    entities[name as keyof typeof entities],
+  const decoded = escaped.replace(
+    /&(amp|lt|gt|quot|apos);/g,
+    (_entity, name: string) => entities[name as keyof typeof entities],
   );
   // Use a conservative printable ASCII subset. Never forward user-supplied control
   // bytes to ESC/POS; transliterate accents and currency for firmware independence.

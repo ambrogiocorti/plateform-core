@@ -37,27 +37,31 @@ const configSchema = z
       .array(
         z.union([
           // Existing ePOS network installations remain backwards compatible.
-          z.object({
-            device_id: z.uuid(),
-            kind: z.literal('EPOS').optional(),
-            endpoint: z.url().refine((value) => {
-              const u = new URL(value);
-              return (
-                u.protocol === 'https:' &&
-                !u.username &&
-                !u.password &&
-                !u.hash &&
-                u.pathname === '/cgi-bin/epos/service.cgi'
-              );
-            }),
-            ca_file: z.string().min(1).optional(),
-          }).strict(),
-          z.object({
-            device_id: z.uuid(),
-            kind: z.literal('WINDOWS_USB'),
-            // Local Windows queue only: no UNC paths, scripts or arguments.
-            windows_printer_name: z.string().regex(/^[A-Za-z0-9][A-Za-z0-9 ._()-]{0,127}$/),
-          }).strict(),
+          z
+            .object({
+              device_id: z.uuid(),
+              kind: z.literal('EPOS').optional(),
+              endpoint: z.url().refine((value) => {
+                const u = new URL(value);
+                return (
+                  u.protocol === 'https:' &&
+                  !u.username &&
+                  !u.password &&
+                  !u.hash &&
+                  u.pathname === '/cgi-bin/epos/service.cgi'
+                );
+              }),
+              ca_file: z.string().min(1).optional(),
+            })
+            .strict(),
+          z
+            .object({
+              device_id: z.uuid(),
+              kind: z.literal('WINDOWS_USB'),
+              // Local Windows queue only: no UNC paths, scripts or arguments.
+              windows_printer_name: z.string().regex(/^[A-Za-z0-9][A-Za-z0-9 ._()-]{0,127}$/),
+            })
+            .strict(),
         ]),
       )
       .min(1)
@@ -151,7 +155,10 @@ export function startBridge(file: string) {
   const config = configSchema.parse(JSON.parse(readFileSync(file, 'utf8')));
   if (new Set(config.printers.map((printer) => printer.device_id)).size !== config.printers.length)
     throw new Error('DUPLICATE_PRINTER');
-  if (config.printers.some((printer) => printer.kind === 'WINDOWS_USB') && process.platform !== 'win32')
+  if (
+    config.printers.some((printer) => printer.kind === 'WINDOWS_USB') &&
+    process.platform !== 'win32'
+  )
     throw new Error('USB_REQUIRES_WINDOWS');
   const dbPath = path(config.database_file);
   mkdirSync(dirname(dbPath), { recursive: true, mode: 0o700 });
@@ -160,7 +167,11 @@ export function startBridge(file: string) {
   const printers = new Map(
     config.printers.map((printer) => [
       printer.device_id,
-      { ...printer, ca: 'ca_file' in printer && printer.ca_file ? readFileSync(path(printer.ca_file)) : undefined },
+      {
+        ...printer,
+        ca:
+          'ca_file' in printer && printer.ca_file ? readFileSync(path(printer.ca_file)) : undefined,
+      },
     ]),
   );
   const chains = new Map<string, Promise<void>>();
@@ -242,9 +253,10 @@ export function startBridge(file: string) {
           .then(async () => {
             // A queued request must still be authorized at the actual dispatch time.
             if (Date.now() < Date.parse(claims.expires_at))
-              success = printer.kind === 'WINDOWS_USB'
-                ? await transmitWindowsUsb(printer.windows_printer_name, body.document)
-                : await transmit(printer.endpoint, body.document, printer.ca);
+              success =
+                printer.kind === 'WINDOWS_USB'
+                  ? await transmitWindowsUsb(printer.windows_printer_name, body.document)
+                  : await transmit(printer.endpoint, body.document, printer.ca);
             store.finish(claims.job_id, success);
           });
         chains.set(claims.device_id, task);
