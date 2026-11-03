@@ -1,0 +1,36 @@
+# Never connect to, migrate or authenticate against hosted Supabase.
+# Validates the recovered historical archive only in disposable PGlite.
+name: Plateform recovered SQL isolated replay
+
+on:
+  push:
+    branches:
+      - audit/isolated-recovered-sql-replay-20261103
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  recovered-archive:
+    if: github.repository == 'ambrogiocorti/plateform-core'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 55
+    env:
+      CI: 'true'
+      SUPABASE_TELEMETRY_DISABLED: 'true'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24.13.0'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Verify all 497 recovered migration digests and order
+        run: npm run check:migrations
+      - name: Replay recovered migrations and database contract tests in memory
+        run: npm run test:db
+      - name: Confirm promotion classifier rejects backdated migrations
+        run: npm run check:migration-promotion
