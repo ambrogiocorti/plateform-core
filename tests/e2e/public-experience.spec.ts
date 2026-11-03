@@ -100,3 +100,51 @@ test('published menu has promotional carousel, photographic cards and accessible
   await page.getByRole('link', { name: 'Torna alla carta' }).click();
   await expect(page.getByRole('heading', { name: 'Carta della cena' })).toBeVisible();
 });
+
+test('public menu survives an unavailable optional card index and keeps dish photos inside cards', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.route('**/rest/v1/rpc/get_public_site', (route) => route.fulfill({ json: site }));
+  await page.route('**/rest/v1/rpc/get_public_navigation', (route) =>
+    route.fulfill({ status: 503, json: { message: 'temporarily unavailable' } }),
+  );
+  const dish = {
+    id: dishId,
+    name: 'Risotto allo zafferano',
+    description: 'Riso Carnaroli',
+    image_path: 'https://images.example.test/risotto.jpg',
+    beverage: false,
+    category_id: categoryId,
+    category_name: 'Primi',
+    price_cents: 1800,
+    availability: 8,
+    ingredients: [],
+    allergens: [],
+    dietary_tags: [],
+    variant_groups: [],
+  };
+  await page.route('**/rest/v1/rpc/get_public_menu', (route) =>
+    route.fulfill({
+      json: [dish, { ...dish, id: '40000000-0000-4000-8000-000000000012', name: 'Pasta fresca' }],
+    }),
+  );
+  await page.route('**/risotto.jpg', (route) =>
+    route.fulfill({
+      contentType: 'image/svg+xml',
+      body: '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="400" height="300" fill="#ddd"/></svg>',
+    }),
+  );
+  await page.goto('http://localhost:5173/menu');
+  await expect(page.getByRole('heading', { name: 'Risotto allo zafferano' })).toBeVisible();
+  const card = page.locator('.public-legacy-dish').first();
+  const photo = card.locator('img');
+  await expect(photo).toBeVisible();
+  const cardBox = await card.boundingBox();
+  const imageBox = await photo.boundingBox();
+  expect(cardBox).not.toBeNull();
+  expect(imageBox).not.toBeNull();
+  expect(Math.abs(imageBox!.x - cardBox!.x)).toBeLessThanOrEqual(2);
+  expect(Math.abs(imageBox!.width - cardBox!.width)).toBeLessThanOrEqual(3);
+  await page.screenshot({ path: 'test-results/perizia-menu-layout.png', fullPage: true });
+});
