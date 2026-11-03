@@ -108,7 +108,13 @@ export function transmitWindowsUsb(printerName: string, document: string): Promi
     }, 45000);
     child.on('error', () => finish(false));
     child.on('close', (code) => finish(code === 0));
-    child.stdin.on('error', () => finish(false));
-    child.stdin.end(raw.toString('base64'));
+    const stdin = child.stdin;
+    if (!stdin) {
+      child.kill();
+      finish(false);
+      return;
+    }
+    stdin.on('error', () => finish(false));
+    stdin.end(raw.toString('base64'));
   });
 }
