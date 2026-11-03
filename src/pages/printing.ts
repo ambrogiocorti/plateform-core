@@ -36,9 +36,35 @@ export async function accountPrintAction(
       active: 'true',
     })
   ).filter((device) => permittedPrintDriver(device.driver));
+  // A single configured bridge is the default receipt printer: one click sends
+  // the signed job directly, without opening the browser print dialog.
+  const automaticBridge = devices.length === 1 && devices[0]?.driver === 'BRIDGE' ? devices[0] : null;
+  let directBusy = false;
   return button(
-    'Stampa conto',
-    () => {
+    automaticBridge ? 'Stampa scontrino' : 'Stampa conto',
+    async () => {
+      if (automaticBridge) {
+        if (directBusy) return;
+        directBusy = true;
+        try {
+          const result = await rpc(
+            'request_account_print',
+            {
+              p_account: account,
+              p_device: automaticBridge.id,
+              p_kind: 'RECEIPT',
+              p_key: crypto.randomUUID(),
+            },
+            z.object({ id: z.uuid() }),
+          );
+          await processPrint(context, result.id);
+        } catch {
+          toast('Impossibile avviare la stampa. Controlla il collegamento e il registro stampe.', true);
+        } finally {
+          directBusy = false;
+        }
+        return;
+      }
       const device = el(
         'select',
         { 'aria-label': 'Stampante' },
