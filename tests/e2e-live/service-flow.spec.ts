@@ -46,8 +46,22 @@ test('servizio completo: tavolo → ordine → cucina → Pass → consegna → 
   ]);
 
   // Cassa: apre la postazione e il servizio contabile.
+  cashier.on('response', (response) => {
+    if (response.url().includes('/rest/v1/') && response.status() >= 400)
+      void response
+        .text()
+        .then((body) =>
+          console.log('[CASSA REST ERROR]', response.status(), response.url(), body.slice(0, 1000)),
+        )
+        .catch(() => {});
+  });
   await open(cashier, '/cassa');
-  await expect(cashier.locator('details.cashier-operations')).toHaveAttribute('open', '');
+  try {
+    await expect(cashier.locator('details.cashier-operations')).toHaveAttribute('open', '');
+  } catch (error) {
+    console.log('[CASSA BOOT]', (await cashier.locator('body').innerText()).slice(0, 3000));
+    throw error;
+  }
   const registerCard = cashier.locator('article', { hasText: 'Cassa sala' });
   await registerCard.getByRole('button', { name: 'Apri postazione' }).click();
   await registerCard.getByRole('button', { name: 'Apri servizio contabile' }).click();

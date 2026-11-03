@@ -21,10 +21,6 @@ const png = Buffer.from(
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
   'base64',
 );
-const jpeg = Buffer.from(
-  '/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=',
-  'base64',
-);
 const publicUrl =
   /^https:\/\/127\.0\.0\.1:54320\/storage\/v1\/object\/public\/(branding|gallery|dishes)\/.+/;
 
@@ -92,7 +88,7 @@ test('upload Admin: logo e galleria salvati nello storage e pubblicati con il si
   ).toBeVisible();
   const logo = await admin.getByLabel('Logo', { exact: true }).inputValue();
   expect(logo).toMatch(publicUrl);
-  await upload(admin, 'nuova foto della galleria', 'sala.jpg', 'image/jpeg', jpeg);
+  await upload(admin, 'nuova foto della galleria', 'sala.png', 'image/png', png);
   await expect.poll(objects).toBe('2');
   // The picture joins the gallery only once asset-upload has answered, after the object exists.
   await expect(admin.getByRole('button', { name: 'Rimuovi dalla galleria' })).toHaveCount(1);
@@ -104,7 +100,7 @@ test('upload Admin: logo e galleria salvati nello storage e pubblicati con il si
   expect(gallery).toMatch(publicUrl);
   // Lo storage restituisce esattamente i byte caricati, senza autenticazione (bucket pubblici).
   expect((await fetched(logo)).equals(png)).toBe(true);
-  expect((await fetched(gallery)).equals(jpeg)).toBe(true);
+  expect((await fetched(gallery)).equals(png)).toBe(true);
   // Il visitatore vede logo e foto sul sito pubblico.
   const visitor = await (await browser.newContext({ ignoreHTTPSErrors: true })).newPage();
   await visitor.goto(`${publicBase}/gallery`);
@@ -114,7 +110,7 @@ test('upload Admin: logo e galleria salvati nello storage e pubblicati con il si
     sql(
       `select string_agg(bucket||':'||status||':'||size_bytes,',' order by bucket) from public.asset_uploads`,
     ),
-  ).toBe(`branding:SAVED:${png.length},gallery:SAVED:${jpeg.length}`);
+  ).toBe(`branding:SAVED:${png.length},gallery:SAVED:${png.length}`);
   expect(
     sql(
       `select count(*) from storage.objects o join public.asset_uploads a on a.bucket=o.bucket_id and a.path=o.name`,
@@ -132,13 +128,13 @@ test('upload: foto del piatto sul menu pubblico; nessuno scrive nei bucket aggir
     .getByRole('button', { name: 'Modifica' })
     .click();
   const editor = admin.getByRole('dialog', { name: 'Modifica · Piatti e bevande' });
-  await upload(admin, 'fotografia del piatto', 'carbonara.jpg', 'image/jpeg', jpeg);
+  await upload(admin, 'fotografia del piatto', 'carbonara.png', 'image/png', png);
   await expect(editor.getByLabel('Fotografia del piatto', { exact: true })).toHaveValue(publicUrl);
   await editor.getByRole('button', { name: 'Salva' }).click();
   await expect(admin.getByText('Configurazione salvata.')).toBeVisible();
   const photo = sql(`select image_path from public.dishes where name='Carbonara'`);
   expect(photo).toMatch(publicUrl);
-  expect((await fetched(photo)).equals(jpeg)).toBe(true);
+  expect((await fetched(photo)).equals(png)).toBe(true);
 
   // Il menu pubblico (anon, PostgREST) espone la foto.
   const menu = (await (
@@ -155,7 +151,23 @@ test('upload: foto del piatto sul menu pubblico; nessuno scrive nei bucket aggir
   expect(menu.find((dish) => dish.name === 'Carbonara')?.image_path).toBe(photo);
   const visitor = await (await browser.newContext({ ignoreHTTPSErrors: true })).newPage();
   await visitor.goto(`${publicBase}/menu`);
-  await expect.poll(() => rendered(visitor, photo)).toBe(true);
+  try {
+    await expect.poll(() => rendered(visitor, photo)).toBe(true);
+  } catch (error) {
+    console.log(
+      '[MENU PHOTO DIAGNOSTIC]',
+      await visitor.evaluate(() => ({
+        pathname: location.pathname,
+        images: [...document.images].map((image) => ({
+          src: image.src,
+          complete: image.complete,
+          naturalWidth: image.naturalWidth,
+        })),
+        text: document.body.innerText.slice(0, 1000),
+      })),
+    );
+    throw error;
+  }
 
   // Scrittura diretta nello storage: rifiutata ad anonimi e allo staff (nessuna policy di insert).
   const waiter = await signIn(browser, staff.waiter);

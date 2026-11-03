@@ -88,9 +88,7 @@ test('gruppo numeroso: l’Admin imposta la caparra, il gruppo la vede, paga e l
   await expect(
     visitor.getByRole('heading', { name: 'Caparra necessaria per completare la prenotazione' }),
   ).toBeVisible();
-  await expect(
-    visitor.getByRole('button', { name: 'Paga la caparra con Stripe' }),
-  ).toBeVisible();
+  await expect(visitor.getByRole('button', { name: 'Paga la caparra con Stripe' })).toBeVisible();
   await expect(visitor.getByRole('button', { name: /Satispay/ })).toHaveCount(0);
   expect(
     sql(`select r.status||'|'||d.status||'|'||d.amount_cents||'|'||r.party_size

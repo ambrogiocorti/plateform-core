@@ -15,6 +15,7 @@ const specs = readdirSync(specDir)
 if (!specs.length) throw new Error('LIVE_E2E_NO_SPECS');
 const batchSize = 4;
 let totalFiles = 0;
+const failedBatches = [];
 for (let i = 0; i < specs.length; i += batchSize) {
   const batch = specs.slice(i, i + batchSize);
   console.log(
@@ -34,11 +35,10 @@ for (let i = 0; i < specs.length; i += batchSize) {
   );
   if (result.error) throw new Error(`LIVE_E2E_BATCH_LAUNCH_FAILED:${result.error.message}`);
   if (result.status !== 0)
-    throw new Error(
-      `LIVE_E2E_BATCH_FAILED:${Math.floor(i / batchSize) + 1}:${result.signal ?? result.status}`,
-    );
+    failedBatches.push(`${Math.floor(i / batchSize) + 1}:${result.signal ?? result.status}`);
   totalFiles += batch.length;
 }
+if (failedBatches.length) throw new Error(`LIVE_E2E_FAILED_BATCHES:${failedBatches.join(',')}`);
 console.log(
   `LIVE_E2E_ALL_BATCHES_PASS (files=${totalFiles}, batches=${Math.ceil(specs.length / batchSize)})`,
 );

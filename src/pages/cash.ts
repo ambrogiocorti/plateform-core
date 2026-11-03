@@ -436,7 +436,7 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
     secondary.replaceChildren(
       el(
         'details',
-        { class: 'cashier-operations' },
+        { class: 'cashier-operations', open: '' },
         el('summary', {}, 'Postazioni, servizi e verifiche'),
         el(
           'div',

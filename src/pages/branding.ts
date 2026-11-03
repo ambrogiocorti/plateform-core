@@ -5,6 +5,28 @@ import type { StaffContext } from './staff-context';
 import { safeImageUrl } from '../config/environment';
 
 type Bucket = 'branding' | 'dishes' | 'gallery' | 'documents';
+
+// MIME declarations from browsers are not proof of file content. The server
+// validates again; this first check avoids unnecessary Storage uploads.
+function validUploadSignature(mime: string, bytes: Uint8Array): boolean {
+  if (mime === 'application/pdf')
+    return bytes.length >= 5 && [37, 80, 68, 70, 45].every((value, i) => bytes[i] === value);
+  if (mime === 'image/png')
+    return (
+      bytes.length >= 8 &&
+      [137, 80, 78, 71, 13, 10, 26, 10].every((value, i) => bytes[i] === value)
+    );
+  if (mime === 'image/jpeg')
+    return bytes.length >= 4 && bytes[0] === 255 && bytes[1] === 216 && bytes[2] === 255;
+  if (mime === 'image/webp')
+    return (
+      bytes.length >= 12 &&
+      [82, 73, 70, 70].every((value, i) => bytes[i] === value) &&
+      [87, 69, 66, 80].every((value, i) => bytes[i + 8] === value)
+    );
+  return false;
+}
+
 export function assetUploadControl(
   bucket: Bucket,
   resource: string | null,
@@ -34,6 +56,19 @@ export function assetUploadControl(
           return;
         }
         const bytes = new Uint8Array(await file.arrayBuffer());
+        if (
+          (bucket === 'documents' && file.type !== 'application/pdf') ||
+          (bucket !== 'documents' && !file.type.startsWith('image/')) ||
+          !validUploadSignature(file.type, bytes)
+        ) {
+          toast(
+            bucket === 'documents'
+              ? 'Il file non è un PDF valido.'
+              : 'Il file non è un’immagine PNG, JPEG o WebP valida.',
+            true,
+          );
+          return;
+        }
         let binary = '';
         for (let start = 0; start < bytes.length; start += 8192)
           binary += String.fromCharCode(...bytes.subarray(start, start + 8192));
@@ -145,17 +180,29 @@ export async function brandingPage(context: StaffContext): Promise<HTMLElement> 
   const logo = field('Logo', 'logo_url', 'url', String(brand.logo_url ?? ''));
   visual.append(
     logo.root,
-    assetUploadControl('branding', null, null, (url) => {
-      logo.input.value = url ?? '';
-    }, 'logo'),
+    assetUploadControl(
+      'branding',
+      null,
+      null,
+      (url) => {
+        logo.input.value = url ?? '';
+      },
+      'logo',
+    ),
   );
   inputs.push({ input: logo.input, target: brand, key: 'logo_url' });
   const favicon = field('Favicon', 'favicon_url', 'url', String(brand.favicon_url ?? ''));
   visual.append(
     favicon.root,
-    assetUploadControl('branding', null, null, (url) => {
-      favicon.input.value = url ?? '';
-    }, 'favicon'),
+    assetUploadControl(
+      'branding',
+      null,
+      null,
+      (url) => {
+        favicon.input.value = url ?? '';
+      },
+      'favicon',
+    ),
   );
   inputs.push({ input: favicon.input, target: brand, key: 'favicon_url' });
   const editorial = section('Home e contenuti');
@@ -180,9 +227,15 @@ export async function brandingPage(context: StaffContext): Promise<HTMLElement> 
   );
   editorial.append(
     hero.root,
-    assetUploadControl('branding', null, null, (url) => {
-      hero.input.value = url ?? '';
-    }, 'fotografia iniziale'),
+    assetUploadControl(
+      'branding',
+      null,
+      null,
+      (url) => {
+        hero.input.value = url ?? '';
+      },
+      'fotografia iniziale',
+    ),
   );
   inputs.push({ input: hero.input, target: content, key: 'hero_image_url' });
   const heroAlt = field(
@@ -244,12 +297,18 @@ export async function brandingPage(context: StaffContext): Promise<HTMLElement> 
   renderGallery();
   gallery.append(
     galleryList,
-    assetUploadControl('gallery', null, null, (url) => {
-      if (url) {
-        pictures.push({ url, alt: `Fotografia del ristorante ${pictures.length + 1}` });
-        renderGallery();
-      }
-    }, 'nuova foto della galleria'),
+    assetUploadControl(
+      'gallery',
+      null,
+      null,
+      (url) => {
+        if (url) {
+          pictures.push({ url, alt: `Fotografia del ristorante ${pictures.length + 1}` });
+          renderGallery();
+        }
+      },
+      'nuova foto della galleria',
+    ),
   );
   const visibility = section('Sezioni del sito');
   const sections =
