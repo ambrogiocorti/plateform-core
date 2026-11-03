@@ -31,9 +31,9 @@ async function signIn(page: Page, member: Member) {
   await page.getByLabel('Identificativo staff').fill(member.email);
   await page.getByLabel('Password').fill(password);
   await page.getByRole('button', { name: 'Accedi al servizio' }).click();
-  await expect(
-    page.getByText(`${member.name} · ${member.role.replaceAll('_', ' ')}`),
-  ).toBeVisible();
+  const identity = page.locator('.workspace-subtitle');
+  await expect(identity).toContainText(member.name);
+  await expect(identity).toContainText(member.role.replaceAll('_', ' ').toLowerCase());
 }
 
 test.beforeEach(async () => {
