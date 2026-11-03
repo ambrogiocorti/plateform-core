@@ -337,11 +337,7 @@ export async function planningPage(context: StaffContext): Promise<HTMLElement> 
           }),
         );
         service.version = result.version;
-        renderSummary(
-          result.enabled,
-          (result.amount_cents ?? 0) / 100,
-          result.min_party_size ?? 0,
-        );
+        renderSummary(result.enabled, (result.amount_cents ?? 0) / 100, result.min_party_size ?? 0);
         toast('Caparra aggiornata.');
         await context.refresh?.();
       });
