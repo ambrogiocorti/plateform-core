@@ -24,16 +24,16 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Format isolated changes
         run: |
-          node node_modules/prettier/bin/prettier.cjs --write tools/print-bridge/service.ts tools/print-bridge/usb-print.ts tools/print-bridge/config.windows-usb.example.json src/pages/printing.ts tests/unit/usb-escpos.test.ts
+          node node_modules/prettier/bin/prettier.cjs --write tools/print-bridge/service.ts tools/print-bridge/usb-print.ts tools/print-bridge/config.windows-usb.example.json src/pages/printing.ts tests/unit/usb-escpos.test.ts src/printing/default-printer.ts tests/unit/default-printer.test.ts tools/print-bridge/config.ethernet.example.json
           if ! git diff --quiet; then
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            git add -- tools/print-bridge/service.ts tools/print-bridge/usb-print.ts tools/print-bridge/config.windows-usb.example.json src/pages/printing.ts tests/unit/usb-escpos.test.ts
+            git add -- tools/print-bridge/service.ts tools/print-bridge/usb-print.ts tools/print-bridge/config.windows-usb.example.json src/pages/printing.ts tests/unit/usb-escpos.test.ts src/printing/default-printer.ts tests/unit/default-printer.test.ts tools/print-bridge/config.ethernet.example.json
             git commit -m 'style(print): format isolated Epson USB candidate'
             git push origin "HEAD:$GITHUB_REF"
           fi
       - name: Verify formatting
-        run: node node_modules/prettier/bin/prettier.cjs --check tools/print-bridge/service.ts tools/print-bridge/usb-print.ts tools/print-bridge/config.windows-usb.example.json src/pages/printing.ts tests/unit/usb-escpos.test.ts
+        run: node node_modules/prettier/bin/prettier.cjs --check tools/print-bridge/service.ts tools/print-bridge/usb-print.ts tools/print-bridge/config.windows-usb.example.json src/pages/printing.ts tests/unit/usb-escpos.test.ts src/printing/default-printer.ts tests/unit/default-printer.test.ts tools/print-bridge/config.ethernet.example.json
       - name: TypeScript
         if: success() || failure()
         run: npm run typecheck
