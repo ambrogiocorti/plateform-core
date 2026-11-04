@@ -210,9 +210,15 @@ function primaryNavigation(role: UserRole, permitted: NavigationEntry[]): Naviga
 
 function moreNavigationGroup(path: string): string {
   if (
-    ['/operazioni', '/sala', '/accoglienza', '/cucina', '/conti', '/cassa', '/statistiche'].includes(
-      path,
-    )
+    [
+      '/operazioni',
+      '/sala',
+      '/accoglienza',
+      '/cucina',
+      '/conti',
+      '/cassa',
+      '/statistiche',
+    ].includes(path)
   )
     return 'Servizio e controllo';
   if (
@@ -226,9 +232,15 @@ function moreNavigationGroup(path: string): string {
   )
     return 'Ristorante e contenuti';
   if (
-    ['/gestione', '/impostazioni', '/privacy', '/staff', '/dispositivi', '/sedi', '/audit'].includes(
-      path,
-    )
+    [
+      '/gestione',
+      '/impostazioni',
+      '/privacy',
+      '/staff',
+      '/dispositivi',
+      '/sedi',
+      '/audit',
+    ].includes(path)
   )
     return 'Amministrazione e sicurezza';
   return 'Altre aree';
@@ -376,11 +388,7 @@ async function render(): Promise<void> {
           el('strong', {}, pageLink?.label ?? 'Panoramica'),
         ),
         el('h1', {}, pageLink?.label ?? 'Panoramica'),
-        el(
-          'p',
-          { class: 'workspace-subtitle' },
-          pageDescription(pageLink?.path ?? '/operazioni'),
-        ),
+        el('p', { class: 'workspace-subtitle' }, pageDescription(pageLink?.path ?? '/operazioni')),
       ),
       el(
         'div',
@@ -430,13 +438,19 @@ async function render(): Promise<void> {
     },
     el('span', { 'aria-hidden': 'true' }, '⇥'),
   );
-  const moreDialog = el(
+  const moreDialog: HTMLDialogElement = el(
     'dialog',
     { class: 'workspace-directory', 'aria-label': 'Tutte le funzioni disponibili' },
     el(
       'div',
       { class: 'directory-header' },
-      el('div', {}, el('span', { class: 'directory-kicker' }, 'ESPLORA PLATEFORM'), el('h2', {}, 'Tutte le funzioni'), el('p', {}, 'Le aree disponibili per il tuo ruolo.')),
+      el(
+        'div',
+        {},
+        el('span', { class: 'directory-kicker' }, 'ESPLORA PLATEFORM'),
+        el('h2', {}, 'Tutte le funzioni'),
+        el('p', {}, 'Le aree disponibili per il tuo ruolo.'),
+      ),
       button('Chiudi', () => moreDialog.close(), 'quiet'),
     ),
     el(
@@ -467,7 +481,11 @@ async function render(): Promise<void> {
                   class: 'directory-link',
                   ...(pageLink?.path === entry.path ? { 'aria-current': 'page' } : {}),
                 },
-                el('span', { class: 'directory-link-icon', 'aria-hidden': 'true' }, navIcon(entry.path)),
+                el(
+                  'span',
+                  { class: 'directory-link-icon', 'aria-hidden': 'true' },
+                  navIcon(entry.path),
+                ),
                 el('span', {}, entry.label),
                 el('span', { class: 'directory-link-arrow', 'aria-hidden': 'true' }, '↗'),
               ),
@@ -596,9 +614,7 @@ async function render(): Promise<void> {
         el(
           'div',
           { class: 'row topbar-actions' },
-          ['ADMIN', 'SUPER_ADMIN', 'HOST', 'CASHIER'].includes(profile.role)
-            ? searchControl
-            : null,
+          ['ADMIN', 'SUPER_ADMIN', 'HOST', 'CASHIER'].includes(profile.role) ? searchControl : null,
           profile.role === 'SUPER_ADMIN' ? null : notificationIndicator(context),
           themeControl,
           lockControl,
