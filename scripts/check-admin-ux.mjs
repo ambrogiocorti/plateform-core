@@ -2,7 +2,7 @@ import fs from 'node:fs';
 const read = (p) => fs.readFileSync(new URL(`../${p}`, import.meta.url), 'utf8');
 const app = read('apps/staff/main.ts');
 const page = read('src/pages/admin-operations.ts');
-const css = read('styles/staff.css');
+const shell = read('styles/workspace-v5.css');
 const migration = read('supabase/migrations/20261005170559_admin_operational_overview.sql');
 
 const checks = [
@@ -16,8 +16,11 @@ const checks = [
     app.includes("pageLink.path === '/operazioni'") && app.includes('adminOperationsPage(context)'),
   ],
   [
-    'sidebar separa operatività e configurazione',
-    app.includes("['OPERATIVITÀ', 'CONFIGURAZIONE'] as const") && css.includes('.sidebar-section'),
+    'navigazione primaria compatta e directory per tutte le funzioni autorizzate',
+    app.includes('primaryNavigation(profile.role, links)') &&
+      app.includes("class: 'workspace-directory'") &&
+      app.includes("class: 'primary-navigation'") &&
+      shell.includes('.staff-shell .primary-navigation'),
   ],
   [
     'overview usa una RPC authoritative',
@@ -71,9 +74,9 @@ const checks = [
   ],
   [
     'UI responsive e touch',
-    read('styles/workspace-redesign.css').includes('.ops-body-grid') &&
-      read('styles/workspace-redesign.css').includes('min-height: 44px') &&
-      read('styles/workspace-redesign.css').includes('@media (max-width: 640px)'),
+    shell.includes('.staff-shell .ops-body-grid') &&
+      shell.includes('.staff-shell .ops-summary-grid') &&
+      shell.includes('@media (max-width: 640px)'),
   ],
 ];
 let failed = 0;

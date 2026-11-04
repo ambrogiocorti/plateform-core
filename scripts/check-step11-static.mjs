@@ -196,7 +196,9 @@ for (const [needle, label] of [
 for (const [needle, label] of [
   ["import '../../styles/staff-app.css'", 'staff_design_loaded'],
   ["import '../../styles/workspace-redesign.css'", 'staff_structural_redesign_loaded'],
-  ["class: 'workspace-context-tabs'", 'new_role_navigation_structure'],
+  ["import '../../styles/workspace-v5.css'", 'staff_v5_experience_loaded'],
+  ["class: 'primary-navigation'", 'new_role_navigation_structure'],
+  ["class: 'workspace-directory'", 'authorized_function_directory'],
   ["class: 'page-heading workspace-page-heading'", 'new_workspace_heading'],
   ["class: collapsedSidebar ? 'staff-shell sidebar-collapsed'", 'staff_sidebar_toggle'],
   ['navIcon(link.path)', 'staff_icon_navigation'],
@@ -229,6 +231,7 @@ for (const [needle, label] of [
 
 const restaurantStructure = await read('styles/restaurant-redesign.css');
 const workplaceStructure = await read('styles/workspace-redesign.css');
+const workspaceV5 = await read('styles/workspace-v5.css');
 const adminOperations = await read('src/pages/admin-operations.ts');
 const kitchenPage = await read('src/pages/kitchen.ts');
 for (const [text, label] of [
@@ -239,7 +242,6 @@ for (const [text, label] of [
 ])
   requireText(restaurantStructure, text, label);
 for (const [text, label] of [
-  ['.workspace-context-tabs', 'staff_contextual_navigation'],
   ['.ops-overview', 'command_center_main_panel'],
   ['.ops-body-grid', 'asymmetric_dashboard_layout'],
   ['.ops-attention-card', 'separate_priority_rail'],
@@ -247,6 +249,14 @@ for (const [text, label] of [
   ['.kds-filter-actions', 'kitchen_filter_controls'],
 ])
   requireText(workplaceStructure, text, label);
+for (const [text, label] of [
+  ['.staff-shell .primary-navigation', 'compact_role_navigation'],
+  ['.workspace-directory', 'accessible_function_directory'],
+  ['.staff-shell .workspace-page-heading', 'single_page_heading'],
+  ['.staff-shell .ops-body-grid', 'area_first_operational_layout'],
+  ['@media (max-width: 640px)', 'five_destination_mobile_navigation'],
+])
+  requireText(workspaceV5, text, label);
 for (const [text, label] of [
   ["class: 'ops-overview'", 'dashboard_restructured'],
   ["class: 'ops-attention-card'", 'dashboard_priorities_separated'],

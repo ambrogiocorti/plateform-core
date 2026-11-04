@@ -6,6 +6,7 @@ on:
   push:
     branches:
       - fix/release-edition-contracts-20261103
+      - redesign/experience-shell-20261104
   workflow_dispatch:
 
 permissions:

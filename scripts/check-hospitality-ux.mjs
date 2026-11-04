@@ -2,14 +2,14 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
 const source = async (path) => readFile(path, 'utf8');
-const [home, admin, staff, restaurant, workspace, frontDesk, staffCss] = await Promise.all([
+const [home, admin, staff, restaurant, frontDesk, staffCss, newWorkspace] = await Promise.all([
   source('apps/public/main.ts'),
   source('src/pages/admin-operations.ts'),
   source('apps/staff/main.ts'),
   source('styles/restaurant-redesign.css'),
-  source('styles/workspace-redesign.css'),
   source('styles/frontdesk-v4.css'),
   source('styles/staff-app.css'),
+  source('styles/workspace-v5.css'),
 ]);
 const must = (s, text, label) => assert.ok(s.includes(text), 'HOSPITALITY_UX_MISSING:' + label);
 const mustNot = (s, text, label) =>
@@ -23,21 +23,24 @@ for (const [s, text, label] of [
   [restaurant, '.restaurant-journey-bar', 'guided_guest_navigation'],
   [restaurant, '.restaurant-home-content', 'editorial_content_and_visit_split'],
   [restaurant, ":root[data-theme='dark']", 'customer_dark_theme'],
-  [admin, "el('div', { class: 'ops-body-grid' }, urgent, areaList)", 'priorities_before_areas'],
+  [admin, "el('div', { class: 'ops-body-grid' }, areaList, urgent)", 'area_first_action_board'],
   [admin, 'criticalCount > 0', 'actual_live_critical_language'],
-  [workspace, '.ops-body-grid', 'operations_priority_column'],
-  [workspace, '.ops-summary-grid', 'numbered_performance_strip'],
-  [workspace, '.workspace-context-tabs', 'accessible_workspace_navigation'],
+  [newWorkspace, '.staff-shell .ops-body-grid', 'operations_priority_column'],
+  [newWorkspace, '.staff-shell .ops-summary-grid', 'actionable_metric_tiles'],
+  [newWorkspace, '.workspace-directory', 'accessible_workspace_directory'],
+  [staff, "class: 'primary-navigation'", 'reduced_primary_navigation'],
+  [staff, 'primaryNavigation(profile.role, links)', 'role_aware_navigation'],
+  [staff, "class: 'workspace-directory'", 'navigation_drawer'],
   [frontDesk, '.host-desk-body', 'host_split_workspace'],
   [frontDesk, '.cashier-command-center', 'cash_workspace'],
   [frontDesk, '.waiter-priority-bar', 'waiter_urgency_strip'],
-  [staff, "localStorage.getItem('plateform-sidebar') === 'collapsed'", 'default_expanded_sidebar'],
-  [staffCss, 'background: #202c2a;', 'premium_navigation_material'],
+  [staff, "localStorage.getItem('plateform-sidebar') !== 'expanded'", 'default_compact_sidebar'],
+  [newWorkspace, '--workspace-rail: #101c32;', 'premium_navigation_material'],
   [staffCss, '.login-layout', 'new_login_composition'],
 ])
   must(s, text, label);
 mustNot(home, "class: 'app-home-intro public-section'", 'legacy_shortcuts_home');
 mustNot(restaurant, 'min-height: 440px', 'legacy_overlarge_empty_menu_card');
-mustNot(workspace, 'background: linear-gradient(122deg, #0c1c38', 'legacy_dark_dashboard_banner');
-mustNot(staffCss, 'background: #0b1831;', 'legacy_corporate_sidebar');
+mustNot(staff, "class: 'workspace-context-tabs'", 'redundant_second_navigation_removed');
+mustNot(admin, "el('h1', {}, 'Panoramica del servizio')", 'duplicate_dashboard_heading_removed');
 console.log('HOSPITALITY_UX_STRUCTURE=PASS');
