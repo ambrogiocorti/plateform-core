@@ -61,6 +61,22 @@ test('workspace V5: primary rail, authorized directory and mobile bottom navigat
   await page.keyboard.press('Escape');
   await expect(directory).not.toBeVisible();
 
+  for (const destination of [
+    { label: 'Sala', path: '/sala', screenshot: 'sala' },
+    { label: 'Accoglienza', path: '/accoglienza', screenshot: 'accoglienza' },
+    { label: 'Cucina', path: '/cucina', screenshot: 'cucina' },
+  ]) {
+    await nav.getByRole('link', { name: destination.label, exact: true }).click();
+    await expect(page).toHaveURL(new RegExp(`${destination.path}$`));
+    await expect(page.locator('.workspace-page-heading h1')).toHaveText(destination.label);
+    await page.screenshot({
+      path: `test-results/plateform-v5-${destination.screenshot}-desktop.png`,
+      fullPage: true,
+    });
+  }
+  await nav.getByRole('link', { name: 'Operazioni' }).click();
+  await expect(page.locator('.workspace-page-heading h1')).toHaveText('Operazioni');
+
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(nav.locator('a:visible')).toHaveCount(4);
   await expect(nav.getByRole('button', { name: 'Apri tutte le funzioni' })).toBeVisible();
