@@ -548,6 +548,15 @@ async function render(): Promise<void> {
   const profileControl = button(profile.display_name, openProfile, 'quiet');
   profileControl.classList.add('topbar-profile');
   profileControl.setAttribute('aria-label', 'Apri profilo di ' + profile.display_name);
+  profileControl.setAttribute(
+    'data-initials',
+    profile.display_name
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((name) => name.charAt(0).toUpperCase())
+      .join('') || 'P',
+  );
   const shell = el(
     'div',
     {
@@ -849,6 +858,15 @@ function openProfile(): void {
   if (!currentContext) return;
   const popup = dialog(
     currentContext.profile.display_name,
+    button(
+      'Blocca postazione',
+      async () => {
+        popup.close();
+        await lockSession();
+        await render();
+      },
+      'secondary',
+    ),
     button(
       'Prepara uso offline',
       async () => {

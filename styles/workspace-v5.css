@@ -1,5 +1,299 @@
 /* Plateform Workspace V5 — new information architecture, not a color overlay.
    A compact role-aware rail, a single page header and an operational dashboard. */
+
+/* Login V5 — shared visual language with the working environment. */
+.login-layout.login-layout-v5 {
+  min-height: 100dvh;
+  grid-template-columns: minmax(0, 1.08fr) minmax(440px, 0.92fr);
+  gap: 0;
+  padding: 0;
+  background: var(--pf-surface);
+}
+.login-layout-v5 .login-story {
+  position: relative;
+  isolation: isolate;
+  min-height: 100dvh;
+  gap: 72px;
+  padding: clamp(32px, 4.5vw, 75px);
+  overflow: hidden;
+  border: 0;
+  border-radius: 0;
+  background: #11223e;
+  color: #eef4ff;
+}
+.login-layout-v5 .login-story::before {
+  position: absolute;
+  right: -23%;
+  bottom: -44%;
+  z-index: -1;
+  width: min(65vw, 820px);
+  aspect-ratio: 1;
+  border: 1px solid rgba(214, 228, 255, 0.14);
+  border-radius: 50%;
+  box-shadow: 0 0 0 85px rgba(221, 231, 255, 0.035), 0 0 0 170px rgba(221, 231, 255, 0.025);
+  content: '';
+  pointer-events: none;
+}
+.login-story-header,
+.login-story-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+.login-story-header .login-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: #fff;
+  font-size: 23px;
+  font-weight: 780;
+  letter-spacing: -0.06em;
+  text-decoration: none;
+}
+.login-brand-symbol {
+  display: grid;
+  place-items: center;
+  width: 41px;
+  height: 41px;
+  border-radius: 13px;
+  background: #edf3ff;
+  color: #1c3260;
+  font-size: 24px;
+  font-weight: 850;
+}
+.login-story-label {
+  padding: 8px 11px;
+  border: 1px solid rgba(226, 238, 255, 0.23);
+  border-radius: 8px;
+  color: #c4d6f2;
+  font-size: 10px;
+  font-weight: 720;
+  letter-spacing: 0.14em;
+}
+.login-story-content {
+  position: relative;
+  width: 100%;
+  max-width: 690px;
+  margin: auto 0;
+}
+.login-story-content > .eyebrow {
+  margin-bottom: 24px;
+  color: #a9c7fb;
+  font-size: 11px;
+  font-weight: 770;
+  letter-spacing: 0.13em;
+}
+.login-layout-v5 .login-story h1 {
+  max-width: 690px;
+  margin: 0 0 21px;
+  color: #fff;
+  font-size: clamp(42px, 4.2vw, 68px);
+  line-height: 1.11;
+  font-weight: 720;
+  letter-spacing: -0.064em;
+}
+.login-layout-v5 .login-story h1 span {
+  display: block;
+  margin-top: 8px;
+  color: #a9c7fb;
+}
+.login-story-lead {
+  max-width: 510px;
+  margin: 0;
+  color: #becde2;
+  font-size: 15px;
+  line-height: 1.72;
+}
+.login-story-steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  max-width: 660px;
+  margin-top: clamp(34px, 4.2vw, 60px);
+  padding-top: 20px;
+  border-top: 1px solid rgba(224, 236, 255, 0.23);
+}
+.login-story-step {
+  min-width: 0;
+  padding: 5px clamp(10px, 1.1vw, 18px) 0;
+  border-right: 1px solid rgba(224, 236, 255, 0.12);
+}
+.login-story-step:first-child {
+  padding-left: 0;
+}
+.login-story-step:last-child {
+  border-right: 0;
+}
+.login-step-number {
+  display: block;
+  margin-bottom: 13px;
+  color: #83b7ff;
+  font-size: 12px;
+  font-weight: 780;
+}
+.login-story-step strong {
+  display: block;
+  margin-bottom: 6px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+}
+.login-story-step p {
+  margin: 0;
+  color: #a6b8d1;
+  font-size: 11px;
+  line-height: 1.5;
+}
+.login-layout-v5 .login-story-footer {
+  justify-content: flex-start;
+  color: #a7b9d2;
+  font-size: 11px;
+}
+.login-footer-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #9edcc4;
+}
+.login-layout-v5 .login-panel {
+  padding: clamp(28px, 5vw, 78px);
+  background: var(--pf-surface);
+}
+.login-panel-content {
+  width: min(100%, 440px);
+}
+.login-panel-topline {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: clamp(43px, 7vh, 91px);
+  color: var(--pf-muted);
+  font-size: 10px;
+  font-weight: 780;
+  letter-spacing: 0.12em;
+}
+.login-layout-v5 .login-form-v5 {
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.login-layout-v5 .login-form-v5 .eyebrow {
+  color: var(--pf-blue);
+  font-size: 11px;
+  font-weight: 760;
+}
+.login-layout-v5 .login-form-v5 h2 {
+  margin: 11px 0 7px;
+  color: var(--pf-ink);
+  font-size: clamp(31px, 3.1vw, 44px);
+  font-weight: 790;
+  letter-spacing: -0.052em;
+}
+.login-form-intro {
+  margin: 0 0 32px;
+  color: var(--pf-muted);
+  font-size: 13px;
+}
+.login-layout-v5 .login-form-v5 input {
+  min-height: 49px;
+  border: 1px solid var(--pf-line);
+  border-radius: 11px;
+  background: var(--pf-background);
+}
+.login-layout-v5 .login-form-v5 input:focus-visible {
+  outline: 2px solid var(--pf-blue);
+  outline-offset: 2px;
+}
+.login-layout-v5 .login-form-v5 .button.primary {
+  min-height: 49px;
+  margin-top: 12px;
+  border-radius: 11px;
+  font-weight: 720;
+}
+.login-layout-v5 .login-footnote {
+  margin-top: 24px;
+  padding-top: 22px;
+  border-top: 1px solid var(--pf-line);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.login-panel-security {
+  margin: clamp(34px, 7vh, 76px) 0 0;
+  color: var(--pf-muted);
+  font-size: 11px;
+  line-height: 1.6;
+}
+@media (max-width: 1050px) {
+  .login-layout.login-layout-v5 {
+    grid-template-columns: minmax(0, 0.95fr) minmax(420px, 1.05fr);
+  }
+  .login-layout-v5 .login-story {
+    padding: 33px;
+  }
+  .login-layout-v5 .login-story h1 {
+    font-size: clamp(35px, 4.5vw, 52px);
+  }
+  .login-story-steps {
+    grid-template-columns: 1fr;
+    gap: 13px;
+  }
+  .login-story-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    padding: 0;
+    border: 0;
+  }
+  .login-step-number {
+    margin: 0;
+  }
+}
+@media (max-width: 760px) {
+  .login-layout.login-layout-v5 {
+    display: flex;
+    flex-direction: column;
+  }
+  .login-layout-v5 .login-story {
+    min-height: 0;
+    gap: 0;
+    padding: 25px 23px 37px;
+  }
+  .login-story-header {
+    margin-bottom: 35px;
+  }
+  .login-story-content > .eyebrow,
+  .login-story-steps,
+  .login-layout-v5 .login-story-footer,
+  .login-story-label {
+    display: none;
+  }
+  .login-layout-v5 .login-story h1 {
+    max-width: 480px;
+    margin: 0 0 10px;
+    font-size: clamp(30px, 8vw, 43px);
+  }
+  .login-layout-v5 .login-story h1 span {
+    margin-top: 3px;
+  }
+  .login-story-lead {
+    max-width: 450px;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .login-layout-v5 .login-panel {
+    padding: 32px 23px 48px;
+  }
+  .login-panel-topline {
+    margin-bottom: 35px;
+  }
+  .login-panel-security {
+    margin-top: 32px;
+  }
+}
+
 .staff-shell {
   --workspace-rail: #101c32;
   --workspace-rail-text: #e1e9f5;
@@ -949,5 +1243,94 @@
   .staff-shell .sidebar .nav-link,
   .staff-shell .ops-metric {
     transition: none;
+  }
+}
+
+/* Avoid the legacy brand pseudo-logo alongside the new explicit wordmark. */
+.staff-shell .sidebar-brand-row .brand::before,
+.login-layout-v5 .login-brand::before {
+  display: none;
+  content: none;
+}
+
+/* The notification controls retain their accessible labels but use a compact
+   icon treatment so long Italian labels never crush the command bar. */
+.staff-shell .topbar-actions .notification-indicator {
+  flex-wrap: nowrap;
+  gap: 6px;
+}
+.staff-shell .topbar-actions .notification-indicator .button {
+  position: relative;
+  display: grid;
+  flex: 0 0 39px;
+  place-items: center;
+  width: 39px;
+  min-width: 39px;
+  max-width: 39px;
+  height: 39px;
+  padding: 0;
+  font-size: 12px;
+}
+.staff-shell .topbar-actions .notification-indicator .button > span:not(.notification-badge) {
+  display: none;
+}
+.staff-shell .topbar-actions .notification-indicator .button svg {
+  width: 19px;
+  height: 19px;
+}
+.staff-shell .topbar-actions .notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  min-width: 17px;
+  padding: 3px 4px;
+  margin: 0;
+  font-size: 10px;
+}
+@media (max-width: 640px) {
+  .staff-shell .topbar {
+    gap: 6px;
+    padding-inline: 12px;
+  }
+  .staff-shell .topbar-location {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .staff-shell .topbar-actions {
+    flex: 0 0 auto;
+    gap: 4px;
+    margin-left: 0;
+  }
+  .staff-shell .topbar-actions .topbar-lock,
+  .staff-shell .topbar-actions .topbar-theme {
+    display: none;
+  }
+  .staff-shell .topbar-actions .notification-indicator {
+    gap: 4px;
+  }
+  .staff-shell .topbar-actions .notification-indicator .button {
+    flex-basis: 33px;
+    width: 33px;
+    min-width: 33px;
+    max-width: 33px;
+    height: 35px;
+  }
+  .staff-shell .topbar-actions .topbar-profile {
+    position: relative;
+    width: 35px;
+    min-width: 35px;
+    max-width: 35px;
+    height: 35px;
+    padding: 0;
+    overflow: hidden;
+    border-radius: 50%;
+    background: var(--pf-blue-soft);
+    color: var(--pf-blue);
+    font-size: 0;
+  }
+  .staff-shell .topbar-actions .topbar-profile::before {
+    content: attr(data-initials);
+    font-size: 11px;
+    font-weight: 780;
   }
 }

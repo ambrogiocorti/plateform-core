@@ -33,6 +33,26 @@ export function clearNotificationIndicator(): void {
   refreshCurrent = undefined;
 }
 
+function controlIcon(kind: 'bell' | 'sound'): SVGSVGElement {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('stroke', 'currentColor');
+  svg.setAttribute('stroke-width', '1.8');
+  svg.setAttribute('stroke-linecap', 'round');
+  svg.setAttribute('stroke-linejoin', 'round');
+  svg.setAttribute('aria-hidden', 'true');
+  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  path.setAttribute(
+    'd',
+    kind === 'bell'
+      ? 'M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9 M10 21h4'
+      : 'M4 9v6h4l5 4V5L8 9H4z M17 9a5 5 0 0 1 0 6 M19.5 5.5a10 10 0 0 1 0 13',
+  );
+  svg.append(path);
+  return svg;
+}
+
 export function notificationIndicator(context: StaffContext): HTMLElement {
   const scope = `${context.profile.id}:${context.venue?.id ?? ''}`,
     storage = `plateform-audio:${scope}`;
@@ -52,10 +72,11 @@ export function notificationIndicator(context: StaffContext): HTMLElement {
     badge = el('span', { class: 'notification-badge', 'aria-hidden': 'true' });
   badge.hidden = true;
   const open = button('', () => context.navigate('/notifiche'), 'quiet');
-  open.append(label, badge);
+  open.append(controlIcon('bell'), label, badge);
   open.setAttribute('aria-label', 'Notifiche');
+  const soundLabel = el('span', {}, preferences.enabled ? 'Audio attivo' : 'Audio disattivo');
   const sound = button(
-    preferences.enabled ? 'Audio attivo' : 'Audio disattivo',
+    '',
     () => {
       const volume = el('input', {
         type: 'range',
@@ -75,7 +96,8 @@ export function notificationIndicator(context: StaffContext): HTMLElement {
       );
       const save = () => {
         localStorage.setItem(storage, JSON.stringify(preferences));
-        sound.textContent = preferences.enabled ? 'Audio attivo' : 'Audio disattivo';
+        soundLabel.textContent = preferences.enabled ? 'Audio attivo' : 'Audio disattivo';
+        sound.setAttribute('aria-label', soundLabel.textContent);
       };
       popup.append(
         button('Attiva e prova', async () => {
@@ -102,6 +124,8 @@ export function notificationIndicator(context: StaffContext): HTMLElement {
     },
     'quiet',
   );
+  sound.append(controlIcon('sound'), soundLabel);
+  sound.setAttribute('aria-label', soundLabel.textContent);
   const root = el('div', { class: 'row notification-indicator' }, open, sound);
   refreshCurrent = async () => {
     if (!root.isConnected || !context.venue) return;
