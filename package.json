@@ -105,6 +105,8 @@
     "reconcile:migrations": "node scripts/reconcile-migrations.mjs --dry-run",
     "reconcile:migrations:write": "node scripts/reconcile-migrations.mjs --write",
     "check:staging-http": "node scripts/verify-staging-http.mjs",
+    "check:staging-release": "node scripts/check-hosted-release-readiness.mjs",
+    "check:staging-release-fixtures": "node scripts/check-hosted-release-readiness.mjs --self-test",
     "check:staging-http-fixtures": "node scripts/check-staging-http.mjs",
     "check:core-edition": "node --experimental-strip-types scripts/check-core-edition.mjs",
     "check:core-server-policy": "node scripts/check-core-server-policy.mjs",

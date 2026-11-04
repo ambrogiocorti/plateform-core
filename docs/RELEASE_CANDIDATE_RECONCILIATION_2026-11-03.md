@@ -3,6 +3,35 @@
 **Obiettivo:** completamento del perimetro del Master Prompt aggiornato, sezioni 0–157.
 **Stato:** sviluppo e verifica in corso; **NO-GO commerciale**. Questo registro sostituisce i conteggi e il perimetro dei checkpoint precedenti, senza trasformare le prove storiche in collaudi della candidata.
 
+## Verifica successiva: 4 novembre 2026
+
+L'ultimo commit consolidato del 3 novembre, `02817a4e46cbb792b2ed8d9be8917a73f32bcac9`, ha superato
+[hardening applicativo](https://github.com/ambrogiocorti/plateform-core/actions/runs/41728323036)
+(389 test applicativi, 32 Edge e 39 browser, tre job verdi) e
+[collaudo integrato](https://github.com/ambrogiocorti/plateform-core/actions/runs/41728322982)
+(39/39 scenari con servizi isolati reali e disaster recovery isolato).
+L'[anteprima Vercel](https://vercel.com/sambrogiocorti-5259/plateform-development/A84YsqJJ6t4zb4r17wErU6GX3mEY)
+è `READY` per quello stesso commit: sito pubblico e staff HTTP 200, CSP su staging,
+`noindex`, asset staff aggiornato. Non è una prova autenticata dell'intero
+backend ospitato.
+
+Rilettura **in sola lettura** dello staging il 4 novembre: 496 migrazioni
+applicate, un backup `QUEUED` dal 19 ottobre con zero tentativi, nessun
+backup verificato e nessun restore test riuscito. `release_readiness_report()`
+restituisce `go_live_ready=false`, quattro incidenti di continuità aperti,
+11 approvazioni manuali mancanti e tre job `pg_cron` attivi dei cinque
+richiesti dai gate storici. Non risultano heartbeat dei worker BACKUP e
+RETENTION. I worker sono documentati come servizi esterni `systemd`, quindi
+la differenza tra job PostgreSQL e worker esterni richiede una riconciliazione
+del contratto di readiness prima della certificazione: non creare cron fittizi
+per far passare il gate.
+
+La verifica manuale di staging ora include un **gate hosted read-only**,
+`scripts/check-hosted-release-readiness.mjs`, che interroga il report esistente,
+controlla l'identità del progetto e rifiuta status verdi in mancanza di
+backup, restore, sicurezza, health e accettazione. Non modifica alcun dato,
+non applica migrazioni e non trasforma la build isolata in un GO commerciale.
+
 ## Checkpoint di integrazione verificato il 3 novembre, sera
 
 La PR [#57](https://github.com/ambrogiocorti/plateform-core/pull/57) comprende le

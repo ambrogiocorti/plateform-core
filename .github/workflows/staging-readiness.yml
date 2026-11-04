@@ -55,6 +55,12 @@ jobs:
         run: npm run build:pages
       - name: Check live hosted HTTP headers and routing
         run: npm run check:staging-http
+      - name: Require hosted backup, restore, health and manual acceptance
+        env:
+          SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+          PLATEFORM_TARGET_ENV: staging
+          PLATEFORM_EXPECTED_PROJECT_REF: qfgoatdabgnzozxuzxku
+        run: npm run check:staging-release
       - name: Keep failure evidence
         if: failure()
         uses: actions/upload-artifact@v4
