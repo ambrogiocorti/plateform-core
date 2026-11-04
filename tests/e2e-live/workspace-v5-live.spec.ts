@@ -46,9 +46,9 @@ test('workspace V5: primary rail, authorized directory and mobile bottom navigat
   await expect(page.locator('.workspace-context-tabs')).toHaveCount(0);
   await expect(page.locator('.ops-overview')).toBeVisible();
   await expect(page.locator('.ops-summary-grid > button')).toHaveCount(4);
-  const pseudoLogo = await page.locator('.sidebar-brand-row .brand').evaluate((brand) =>
-    getComputedStyle(brand, '::before').content,
-  );
+  const pseudoLogo = await page
+    .locator('.sidebar-brand-row .brand')
+    .evaluate((brand) => getComputedStyle(brand, '::before').content);
   expect(pseudoLogo).toBe('none');
   await page.screenshot({ path: 'test-results/plateform-v5-admin-desktop.png', fullPage: true });
 

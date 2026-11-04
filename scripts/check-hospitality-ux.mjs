@@ -35,8 +35,11 @@ for (const [s, text, label] of [
   [frontDesk, '.cashier-command-center', 'cash_workspace'],
   [frontDesk, '.waiter-priority-bar', 'waiter_urgency_strip'],
   [staff, "localStorage.getItem('plateform-sidebar') !== 'expanded'", 'default_compact_sidebar'],
-  [newWorkspace, '--workspace-rail: #101c32;', 'premium_navigation_material'],
-  [staffCss, '.login-layout', 'new_login_composition'],
+  [newWorkspace, '--workspace-rail: #1a1c1b;', 'premium_navigation_material'],
+  [newWorkspace, '--pf-blue: #895b2d;', 'master_prompt_bronze_accent'],
+  [newWorkspace, 'logo-plateform-originale.png', 'brand_asset_reuse'],
+  [staffCss, '.login-layout', 'existing_login_contract'],
+  [staff, 'loginPage(async () => {', 'login_entry_still_available'],
 ])
   must(s, text, label);
 mustNot(home, "class: 'app-home-intro public-section'", 'legacy_shortcuts_home');

@@ -27,6 +27,14 @@ Il lavoro resta confinato a un ramo separato; nessun rilascio in produzione.
 6. **Accessibilità:** etichette dei controlli, dialog nativo con Escape,
    stato current, tab/focus, `prefers-reduced-motion`, tema chiaro/scuro,
    contrasto e stampa conservati.
+7. **Accesso staff riprogettato:** composizione, gerarchia, spaziatura e
+   responsive del login rifatti; login con password, MFA e recupero mantengono
+   la stessa logica. Il blocco postazione è accessibile anche dal profilo
+   mobile, dove la topbar è volutamente ridotta.
+8. **Identità hospitality:** colori e superfici dell'area staff basati sulla
+   sezione 125 del Master Prompt (ossidiana, avorio, pietra e bronzo), con
+   contrasto e tema scuro. Marchio ritagliato in CSS dal logo originale già
+   presente negli asset; il sito cliente mantiene il branding indipendente.
 
 ## Vincoli preservati
 
@@ -41,7 +49,8 @@ Il lavoro resta confinato a un ramo separato; nessun rilascio in produzione.
 
 ## Percorso per il completamento dell'interfaccia
 
-- **Fase 1, in questo ramo:** shell comune e dashboard operativa ADMIN reali.
+- **Fase 1, in questo ramo:** shell comune, accesso staff e dashboard
+  operativa ADMIN reali.
 - **Fase 2:** progettare e implementare vista a vista i workspace sala,
   accoglienza, cucina/Pass, cassa e prenotazioni; prove di utilizzo a 1440,
   1280, 820, 390 e 360 pixel con utenti/ruoli di staging.
@@ -57,3 +66,24 @@ Una fase non è chiusa da soli test statici: richiede navigazione reale per
 ruolo, verifica delle azioni e un confronto visivo con l'utilizzatore. Gli
 Screenshot e risultati del collaudo vanno allegati al ramo prima di
 un'eventuale promozione.
+
+## Verifica delle revisioni visuali
+
+- La prima verifica browser reale aveva evidenziato un marchio duplicato
+  (pseudo-elemento CSS legacy) e cinque pulsanti di comando illeggibili a
+  390 px. Ora il pseudo-logo è eliminato, notifiche e audio usano icone SVG,
+  il profilo è compatto e blocco/tema sono accessibili anche dal menu profilo.
+- Il test isolato `tests/e2e-live/workspace-v5-live.spec.ts` verifica layout
+  desktop/mobile, assenza della duplicazione del logo, limiti della topbar,
+  directory con permessi e screenshot di login/Operazioni/Sala/Accoglienza/
+  Cucina. Gli screenshot sono nell'artefatto GitHub Actions
+  `plateform-v5-design-review` della workflow integrata.
+- Preview Vercel della PR #58:
+  `https://plateform-development-git-redesign-e-d8ae9a-sambrogiocorti-5259.vercel.app`
+  con nove variabili di ambiente **limitate al branch di preview**, collegate
+  al progetto Supabase di staging. Nessuna variabile di produzione alterata.
+- **Verifica funzionale staging da completare:** la nuova origin della PR #58
+  deve essere aggiunta a `ADDITIONAL_ALLOWED_ORIGINS` delle Edge Functions
+  senza rimuovere l'origin della PR #57. Il connettore Supabase non gestisce
+  secrets, e la dashboard attualmente richiede un nuovo login; fino a quel
+  momento le chiamate cross-origin della nuova preview non sono certificate.

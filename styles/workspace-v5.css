@@ -1,6 +1,54 @@
 /* Plateform Workspace V5 — new information architecture, not a color overlay.
    A compact role-aware rail, a single page header and an operational dashboard. */
 
+/* Hospitality palette from Master Prompt §125. Scoped to the redesigned app;
+   the public storefront retains its independent restaurant branding. */
+.staff-shell,
+.login-layout-v5 {
+  --pf-background: #f6f3ed;
+  --pf-surface: #fffdf9;
+  --pf-surface-2: #f0eae1;
+  --pf-surface-3: #e8dfd3;
+  --pf-ink: #202322;
+  --pf-text: #333837;
+  --pf-muted: #69665f;
+  --pf-line: #e4ded4;
+  --pf-control-border: #827b71;
+  --pf-focus-ring: #95632f;
+  --pf-blue: #895b2d;
+  --pf-blue-hover: #70461e;
+  --pf-blue-soft: #f2e7d9;
+  --pf-on-blue: #fff;
+  --pf-elevation: 0 14px 30px rgba(40, 37, 31, 0.075);
+  --pf-elevation-strong: 0 20px 50px rgba(40, 37, 31, 0.13);
+  --bg: var(--pf-background);
+  --surface: var(--pf-surface);
+  --raised: var(--pf-surface-2);
+  --text: var(--pf-ink);
+  --muted: var(--pf-muted);
+  --border: var(--pf-line);
+  --accent: var(--pf-blue);
+  --accent-ink: var(--pf-on-blue);
+  --shadow: var(--pf-elevation);
+}
+:root[data-theme='dark'] .staff-shell,
+:root[data-theme='dark'] .login-layout-v5 {
+  --pf-background: #141615;
+  --pf-surface: #1c1f1d;
+  --pf-surface-2: #272b27;
+  --pf-surface-3: #30362e;
+  --pf-ink: #f7f1e7;
+  --pf-text: #e1dcd2;
+  --pf-muted: #b6ada0;
+  --pf-line: #44423b;
+  --pf-control-border: #b4a99a;
+  --pf-focus-ring: #e4b77e;
+  --pf-blue: #e1b47b;
+  --pf-blue-hover: #f5cd95;
+  --pf-blue-soft: #3e3225;
+  --pf-on-blue: #171917;
+}
+
 /* Login V5 — shared visual language with the working environment. */
 .login-layout.login-layout-v5 {
   min-height: 100dvh;
@@ -18,7 +66,7 @@
   overflow: hidden;
   border: 0;
   border-radius: 0;
-  background: #11223e;
+  background: #191b1a;
   color: #eef4ff;
 }
 .login-layout-v5 .login-story::before {
@@ -28,9 +76,11 @@
   z-index: -1;
   width: min(65vw, 820px);
   aspect-ratio: 1;
-  border: 1px solid rgba(214, 228, 255, 0.14);
+  border: 1px solid rgba(232, 207, 170, 0.14);
   border-radius: 50%;
-  box-shadow: 0 0 0 85px rgba(221, 231, 255, 0.035), 0 0 0 170px rgba(221, 231, 255, 0.025);
+  box-shadow:
+    0 0 0 85px rgba(232, 207, 170, 0.035),
+    0 0 0 170px rgba(232, 207, 170, 0.025);
   content: '';
   pointer-events: none;
 }
@@ -57,16 +107,16 @@
   width: 41px;
   height: 41px;
   border-radius: 13px;
-  background: #edf3ff;
-  color: #1c3260;
+  background: #d9ac70;
+  color: #181a19;
   font-size: 24px;
   font-weight: 850;
 }
 .login-story-label {
   padding: 8px 11px;
-  border: 1px solid rgba(226, 238, 255, 0.23);
+  border: 1px solid rgba(232, 207, 170, 0.23);
   border-radius: 8px;
-  color: #c4d6f2;
+  color: #decaaa;
   font-size: 10px;
   font-weight: 720;
   letter-spacing: 0.14em;
@@ -79,7 +129,7 @@
 }
 .login-story-content > .eyebrow {
   margin-bottom: 24px;
-  color: #a9c7fb;
+  color: #dab484;
   font-size: 11px;
   font-weight: 770;
   letter-spacing: 0.13em;
@@ -96,12 +146,12 @@
 .login-layout-v5 .login-story h1 span {
   display: block;
   margin-top: 8px;
-  color: #a9c7fb;
+  color: #dab484;
 }
 .login-story-lead {
   max-width: 510px;
   margin: 0;
-  color: #becde2;
+  color: #c7c1b8;
   font-size: 15px;
   line-height: 1.72;
 }
@@ -112,12 +162,12 @@
   max-width: 660px;
   margin-top: clamp(34px, 4.2vw, 60px);
   padding-top: 20px;
-  border-top: 1px solid rgba(224, 236, 255, 0.23);
+  border-top: 1px solid rgba(232, 207, 170, 0.23);
 }
 .login-story-step {
   min-width: 0;
   padding: 5px clamp(10px, 1.1vw, 18px) 0;
-  border-right: 1px solid rgba(224, 236, 255, 0.12);
+  border-right: 1px solid rgba(232, 207, 170, 0.12);
 }
 .login-story-step:first-child {
   padding-left: 0;
@@ -128,7 +178,7 @@
 .login-step-number {
   display: block;
   margin-bottom: 13px;
-  color: #83b7ff;
+  color: #d6ad75;
   font-size: 12px;
   font-weight: 780;
 }
@@ -141,20 +191,20 @@
 }
 .login-story-step p {
   margin: 0;
-  color: #a6b8d1;
+  color: #b9afa0;
   font-size: 11px;
   line-height: 1.5;
 }
 .login-layout-v5 .login-story-footer {
   justify-content: flex-start;
-  color: #a7b9d2;
+  color: #b9afa0;
   font-size: 11px;
 }
 .login-footer-dot {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #9edcc4;
+  background: #a8cdb0;
 }
 .login-layout-v5 .login-panel {
   padding: clamp(28px, 5vw, 78px);
@@ -295,10 +345,10 @@
 }
 
 .staff-shell {
-  --workspace-rail: #101c32;
-  --workspace-rail-text: #e1e9f5;
-  --workspace-rail-muted: #9caec8;
-  --workspace-canvas: #f6f8fc;
+  --workspace-rail: #1a1c1b;
+  --workspace-rail-text: #f3eee5;
+  --workspace-rail-muted: #bcb4a9;
+  --workspace-canvas: #f6f3ed;
   display: grid;
   grid-template-columns: 244px minmax(0, 1fr);
   background: var(--workspace-canvas);
@@ -308,10 +358,10 @@
   grid-template-columns: 84px minmax(0, 1fr);
 }
 :root[data-theme='dark'] .staff-shell {
-  --workspace-rail: #081121;
-  --workspace-rail-text: #f0f5ff;
-  --workspace-rail-muted: #a4b8d3;
-  --workspace-canvas: #0d1627;
+  --workspace-rail: #0e100f;
+  --workspace-rail-text: #f5efe3;
+  --workspace-rail-muted: #bcb4a9;
+  --workspace-canvas: #141615;
 }
 .staff-shell > div:not(.assistance-banner) {
   min-width: 0;
@@ -345,8 +395,8 @@
   height: 38px;
   margin-right: 12px;
   border-radius: 13px;
-  background: #eef3ff;
-  color: #152a58;
+  background: #d9ac70;
+  color: #1d1e1b;
   font-size: 22px;
   font-weight: 800;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.13);
@@ -357,7 +407,7 @@
   border: 1px solid rgba(217, 230, 255, 0.16);
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.05);
-  color: #c4d4ed;
+  color: #d4c5b2;
   font-size: 16px;
   font-weight: 600;
 }
@@ -404,8 +454,8 @@
 .staff-shell .sidebar .nav-link[aria-current='page'],
 .staff-shell .sidebar .nav-more[data-current='true'] {
   border: 0;
-  background: #eaf0ff;
-  color: #15316a;
+  background: #f4ebdf;
+  color: #714923;
   box-shadow: none;
 }
 .staff-shell .sidebar .nav-link[aria-current='page']::before,
@@ -416,7 +466,7 @@
   left: -13px;
   width: 4px;
   border-radius: 0 4px 4px 0;
-  background: #8db6ff;
+  background: #b78950;
   content: '';
 }
 .staff-shell .sidebar .nav-icon {
@@ -772,7 +822,7 @@
   padding: clamp(24px, 2.8vw, 39px);
   border: 0;
   border-radius: 20px;
-  background: linear-gradient(118deg, #152747, #10203b 72%, #1b3965);
+  background: linear-gradient(118deg, #222523, #171b19 72%, #3b3024);
   color: #f5f8ff;
   box-shadow: 0 15px 33px rgba(16, 33, 67, 0.1);
 }
@@ -780,7 +830,7 @@
   justify-content: center;
 }
 .staff-shell .ops-overview .ops-overline {
-  color: #accaff;
+  color: #e7c699;
   font-size: 10px;
   font-weight: 770;
   letter-spacing: 0.09em;
@@ -796,7 +846,7 @@
 }
 .staff-shell .ops-overview-heading p {
   max-width: 650px;
-  color: #c1d0e5;
+  color: #d4cec3;
   font-size: 12px;
   line-height: 1.5;
 }
@@ -805,13 +855,13 @@
   justify-content: center;
   min-width: 132px;
   padding: 16px 20px;
-  border: 1px solid rgba(237, 244, 255, 0.2);
+  border: 1px solid rgba(246, 225, 190, 0.2);
   border-radius: 15px;
-  background: rgba(242, 246, 255, 0.08);
+  background: rgba(247, 222, 182, 0.08);
   text-align: center;
 }
 .staff-shell .ops-overview-score-label {
-  color: #c2d4ed;
+  color: #e5cfaf;
   font-size: 9px;
 }
 .staff-shell .ops-overview-score strong {
@@ -822,7 +872,7 @@
   letter-spacing: -0.06em;
 }
 .staff-shell .ops-overview-score > span:last-child {
-  color: #cbd9eb;
+  color: #d0c5b6;
   font-size: 10px;
 }
 .staff-shell .ops-overview-actions {
@@ -838,8 +888,8 @@
   font-size: 12px;
 }
 .staff-shell .ops-overview-actions .button:first-child {
-  background: #f1f5ff;
-  color: #16315a;
+  background: #f9f1e5;
+  color: #47311f;
 }
 .staff-shell .ops-overview-actions .button.secondary {
   border-color: rgba(238, 244, 255, 0.32);
@@ -1251,6 +1301,20 @@
 .login-layout-v5 .login-brand::before {
   display: none;
   content: none;
+}
+
+/* The emblem is a CSS crop of the original Plateform artwork already shipped
+   with the project. Keep the wordmark as real text for accessibility. */
+.staff-shell .sidebar .brand-mark,
+.login-layout-v5 .login-brand-symbol {
+  border: 1px solid rgba(205, 161, 102, 0.38);
+  background-color: #111211;
+  background-image: url('../assets/plateform/logo-plateform-originale.png');
+  background-repeat: no-repeat;
+  background-position: center -14px;
+  background-size: 154px 103px;
+  color: transparent;
+  font-size: 0;
 }
 
 /* The notification controls retain their accessible labels but use a compact
