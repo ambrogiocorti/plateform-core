@@ -313,9 +313,9 @@ test('Admin verifies identity before exporting and rectifies contacts with a bou
   ).toBeVisible();
   await page.setViewportSize({ width: 390, height: 844 });
   await page.getByRole('button', { name: 'Chiudi', exact: true }).last().click();
-  await expect(page.getByRole('navigation', { name: 'Gestionale' })).toBeInViewport();
+  await expect(page.getByRole('navigation', { name: 'Aree principali' })).toBeInViewport();
   expect(
-    (await page.getByRole('navigation', { name: 'Gestionale' }).boundingBox())!.height,
+    (await page.getByRole('navigation', { name: 'Aree principali' }).boundingBox())!.height,
   ).toBeGreaterThanOrEqual(44);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: '.local/screenshots/privacy-mobile.png' });

@@ -388,7 +388,16 @@ async function render(): Promise<void> {
           el('strong', {}, pageLink?.label ?? 'Panoramica'),
         ),
         el('h1', {}, pageLink?.label ?? 'Panoramica'),
-        el('p', { class: 'workspace-subtitle' }, pageDescription(pageLink?.path ?? '/operazioni')),
+        el(
+          'p',
+          { class: 'workspace-subtitle' },
+          pageDescription(pageLink?.path ?? '/operazioni'),
+          el(
+            'span',
+            { class: 'workspace-session' },
+            ` · ${profile.display_name} · ${profile.role.replaceAll('_', ' ').toLowerCase()}`,
+          ),
+        ),
       ),
       el(
         'div',
