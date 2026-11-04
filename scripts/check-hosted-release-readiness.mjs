@@ -51,8 +51,7 @@ export function safeStagingConnection(value, expectedRef) {
   const username = decodeURIComponent(uri.username);
   const projectMatches =
     (uri.hostname === `db.${expectedRef}.supabase.co` && username === 'postgres') ||
-    (uri.hostname.endsWith('.pooler.supabase.com') &&
-      username === `postgres.${expectedRef}`);
+    (uri.hostname.endsWith('.pooler.supabase.com') && username === `postgres.${expectedRef}`);
   if (!projectMatches) throw new Error('STAGING_PROJECT_REF_MISMATCH');
   return {
     host: uri.hostname,
