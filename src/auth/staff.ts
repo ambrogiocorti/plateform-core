@@ -115,10 +115,14 @@ export function loginPage(onComplete: () => Promise<void>): HTMLElement {
   const submit = el('button', { type: 'submit', class: 'button primary' }, 'Accedi al servizio');
   const form = el(
     'form',
-    { class: 'login-form' },
-    el('p', { class: 'eyebrow' }, 'Area riservata'),
+    { class: 'login-form login-form-v5' },
+    el('p', { class: 'eyebrow' }, 'Accesso personale'),
     el('h2', {}, 'Bentornato.'),
-    el('p', { class: 'muted' }, 'Il tuo spazio, prima e durante il servizio.'),
+    el(
+      'p',
+      { class: 'muted login-form-intro' },
+      'Accedi alla tua postazione per iniziare il servizio.',
+    ),
     identity.root,
     password.root,
     feedback,
@@ -174,20 +178,96 @@ export function loginPage(onComplete: () => Promise<void>): HTMLElement {
   });
   return el(
     'main',
-    { id: 'main', class: 'login-layout', tabindex: '-1' },
+    { id: 'main', class: 'login-layout login-layout-v5', tabindex: '-1' },
     el(
       'section',
       { class: 'login-story' },
-      el('a', { href: '/', class: 'brand' }, 'Plateform'),
       el(
         'div',
-        {},
-        el('p', { class: 'eyebrow' }, 'People. Food. Service. Together.'),
-        el('h1', {}, 'Ogni dettaglio.', el('br'), el('span', {}, 'Un grande servizio.')),
+        { class: 'login-story-header' },
+        el(
+          'a',
+          { href: '/', class: 'brand login-brand' },
+          el('span', { class: 'login-brand-symbol', 'aria-hidden': 'true' }, 'P'),
+          el('span', {}, 'Plateform'),
+        ),
+        el('span', { class: 'login-story-label' }, 'WORKSPACE'),
       ),
-      el('footer', { class: 'muted' }, 'Restaurant operating system'),
+      el(
+        'div',
+        { class: 'login-story-content' },
+        el('p', { class: 'eyebrow' }, 'IL TUO RISTORANTE, INSIEME.'),
+        el('h1', {}, 'Più spazio al servizio.', el('span', {}, 'Meno spazio alla complessità.')),
+        el(
+          'p',
+          { class: 'login-story-lead' },
+          'Sala, cucina e cassa lavorano nello stesso ambiente. Le informazioni importanti sono dove servono, quando servono.',
+        ),
+        el(
+          'div',
+          { class: 'login-story-steps', 'aria-label': 'Aree di lavoro di Plateform' },
+          el(
+            'div',
+            { class: 'login-story-step' },
+            el('span', { class: 'login-step-number', 'aria-hidden': 'true' }, '01'),
+            el(
+              'div',
+              {},
+              el('strong', {}, 'Organizza'),
+              el('p', {}, 'Tavoli, arrivi e prenotazioni.'),
+            ),
+          ),
+          el(
+            'div',
+            { class: 'login-story-step' },
+            el('span', { class: 'login-step-number', 'aria-hidden': 'true' }, '02'),
+            el(
+              'div',
+              {},
+              el('strong', {}, 'Coordina'),
+              el('p', {}, 'Comande, preparazioni e consegne.'),
+            ),
+          ),
+          el(
+            'div',
+            { class: 'login-story-step' },
+            el('span', { class: 'login-step-number', 'aria-hidden': 'true' }, '03'),
+            el(
+              'div',
+              {},
+              el('strong', {}, 'Concludi'),
+              el('p', {}, 'Conti, pagamenti e controllo.'),
+            ),
+          ),
+        ),
+      ),
+      el(
+        'footer',
+        { class: 'login-story-footer' },
+        el('span', { class: 'login-footer-dot', 'aria-hidden': 'true' }),
+        el('span', {}, 'Uno spazio di lavoro per ogni ruolo.'),
+      ),
     ),
-    el('section', { class: 'login-panel' }, form),
+    el(
+      'section',
+      { class: 'login-panel' },
+      el(
+        'div',
+        { class: 'login-panel-content' },
+        el(
+          'div',
+          { class: 'login-panel-topline' },
+          el('span', {}, 'PLATEFORM'),
+          el('span', {}, 'STAFF ACCESS'),
+        ),
+        form,
+        el(
+          'p',
+          { class: 'login-panel-security' },
+          'Area riservata al personale autorizzato. Il tuo accesso è protetto dalle impostazioni di sicurezza della struttura.',
+        ),
+      ),
+    ),
   );
 }
 

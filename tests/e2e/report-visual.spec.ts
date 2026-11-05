@@ -74,7 +74,8 @@ for (const width of [1280, 390]) {
       const style = getComputedStyle(element);
       return { width: parseFloat(style.borderLeftWidth), color: style.borderLeftColor };
     });
-    expect(state.width).toBeGreaterThanOrEqual(2);
+    // V5 uses one-pixel inset controls in an unboxed login panel.
+    expect(state.width).toBeGreaterThanOrEqual(1);
     expect(state.color).not.toBe('rgba(0, 0, 0, 0)');
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
       true,
@@ -89,12 +90,12 @@ for (const width of [1280, 390]) {
     const dark = await input.evaluate((element) => ({
       theme: document.documentElement.dataset.theme,
       border: getComputedStyle(element).borderLeftColor,
-      token: getComputedStyle(document.documentElement)
+      token: getComputedStyle(element.closest('.login-layout-v5')!)
         .getPropertyValue('--pf-control-border')
         .trim(),
     }));
     expect(dark.theme).toBe('dark');
-    expect(dark.token).toBe('#8498b0');
+    expect(dark.token).toBe('#b4a99a');
     // Inputs animate border-color for 130ms: assert the settled style, not the first animation frame.
     await expect
       .poll(() => input.evaluate((element) => getComputedStyle(element).borderLeftColor))

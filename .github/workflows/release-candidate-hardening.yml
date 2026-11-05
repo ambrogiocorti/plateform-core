@@ -7,6 +7,7 @@ on:
     branches:
       - fix/release-candidate-hardening-20261103
       - fix/release-edition-contracts-20261103
+      - redesign/experience-shell-20261104
   workflow_dispatch:
 
 permissions:
@@ -55,8 +56,8 @@ jobs:
       - name: Explain source formatting differences without modifying the branch
         if: failure()
         run: |
-          node node_modules/prettier/bin/prettier.cjs --write scripts/check-hosted-release-readiness.mjs src/pages/kitchen.ts src/pages/planning.ts apps/public/main.ts apps/staff/main.ts src/pages/branding.ts src/pages/offline.ts src/pages/venues.ts src/pages/staff-context.ts src/types/domain.ts tests/unit/domain.test.ts tests/e2e-live/room-editor-live.spec.ts tests/e2e-live/large-group-deposit-live.spec.ts
-          git diff -- scripts/check-hosted-release-readiness.mjs src/pages/kitchen.ts src/pages/planning.ts apps/public/main.ts apps/staff/main.ts src/pages/branding.ts src/pages/offline.ts src/pages/venues.ts src/pages/staff-context.ts src/types/domain.ts tests/unit/domain.test.ts tests/e2e-live/room-editor-live.spec.ts tests/e2e-live/large-group-deposit-live.spec.ts
+          node node_modules/prettier/bin/prettier.cjs --write scripts/check-hosted-release-readiness.mjs src/pages/kitchen.ts src/pages/planning.ts apps/public/main.ts apps/staff/main.ts src/pages/branding.ts src/pages/offline.ts src/pages/venues.ts src/pages/staff-context.ts src/pages/admin-operations.ts src/types/domain.ts tests/unit/domain.test.ts tests/e2e/configuration.spec.ts tests/e2e-live/room-editor-live.spec.ts tests/e2e-live/large-group-deposit-live.spec.ts tests/e2e-live/workspace-v5-live.spec.ts styles/workspace-v5.css scripts/check-admin-ux.mjs scripts/check-hospitality-ux.mjs scripts/check-step11-static.mjs scripts/check-visual-design.mjs docs/UI_REDESIGN_FROM_SCRATCH_2026-11-04.md
+          git diff -- scripts/check-hosted-release-readiness.mjs src/pages/kitchen.ts src/pages/planning.ts apps/public/main.ts apps/staff/main.ts src/pages/branding.ts src/pages/offline.ts src/pages/venues.ts src/pages/staff-context.ts src/pages/admin-operations.ts src/types/domain.ts tests/unit/domain.test.ts tests/e2e/configuration.spec.ts tests/e2e-live/room-editor-live.spec.ts tests/e2e-live/large-group-deposit-live.spec.ts tests/e2e-live/workspace-v5-live.spec.ts styles/workspace-v5.css scripts/check-admin-ux.mjs scripts/check-hospitality-ux.mjs scripts/check-step11-static.mjs scripts/check-visual-design.mjs docs/UI_REDESIGN_FROM_SCRATCH_2026-11-04.md
       - name: Validate explicit FULL application profile
         env:
           VITE_PLATEFORM_EDITION: FULL

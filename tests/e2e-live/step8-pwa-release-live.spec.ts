@@ -92,17 +92,22 @@ test('PWA staff di rilascio: installazione, avvio senza rete e aggiornamento su 
   // Installazione: manifest valido e service worker attivo che controlla la pagina.
   await page.goto(`${base}/login`);
   await expect(page.getByLabel('Identificativo staff')).toBeVisible();
-  const manifest = await page.evaluate(async () => {
-    const link = document.querySelector<HTMLLinkElement>('link[rel="manifest"]');
-    return link ? ((await (await fetch(link.href)).json()) as Record<string, unknown>) : null;
-  });
-  expect(manifest).toMatchObject({ display: 'standalone', lang: 'it', start_url: '/' });
   // First activation claims the page and the app reloads itself once (controllerchange).
   await expect
     .poll(() => page.evaluate(() => Boolean(navigator.serviceWorker.controller)).catch(() => false))
     .toBe(true);
   await page.waitForLoadState('load');
   await expect(page.getByLabel('Identificativo staff')).toBeVisible();
+  await expect
+    .poll(() =>
+      page
+        .evaluate(async () => {
+          const link = document.querySelector<HTMLLinkElement>('link[rel="manifest"]');
+          return link ? ((await (await fetch(link.href)).json()) as Record<string, unknown>) : null;
+        })
+        .catch(() => null),
+    )
+    .toMatchObject({ display: 'standalone', lang: 'it', start_url: '/' });
   const firstCache = await page.evaluate(async () => (await caches.keys()).join(','));
   expect(firstCache).toMatch(/^plateform-staff-[0-9a-f]{16}$/);
 

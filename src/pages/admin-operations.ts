@@ -153,28 +153,26 @@ function renderOverview(context: StaffContext, data: AdminOverview): HTMLElement
     el(
       'div',
       { class: 'ops-overview-heading' },
-      el('span', { class: 'ops-overline' }, 'IL SERVIZIO · IN TEMPO REALE'),
+      el(
+        'span',
+        { class: 'ops-overline ops-live-label' },
+        'SERVIZIO DEL ' + data.service_date + ' · AGGIORNATO ALLE ' + updated,
+      ),
       el(
         'h2',
         {},
         criticalCount > 0
-          ? 'Ci sono priorità da gestire.'
+          ? 'Interventi urgenti in attesa'
           : pendingCount > 0
-            ? 'Il servizio richiede attenzione.'
-            : 'Il servizio è sotto controllo.',
+            ? 'Attività da seguire durante il servizio'
+            : 'Tutto pronto per il servizio',
       ),
-      el('p', {}, 'Una panoramica per sapere cosa sta succedendo, ora.'),
-      el(
-        'div',
-        { class: 'ops-overview-actions' },
-        button('Apri la sala', () => context.navigate('/sala')),
-        button('Accoglienza', () => context.navigate('/accoglienza'), 'secondary'),
-      ),
+      el('p', {}, 'Le informazioni operative più importanti, senza passare tra schermate.'),
     ),
     el(
       'div',
       { class: 'ops-overview-score' },
-      el('span', { class: 'ops-overview-score-label' }, 'DA GESTIRE'),
+      el('span', { class: 'ops-overview-score-label' }, 'ATTIVITÀ APERTE'),
       el(
         'strong',
         { class: criticalCount ? 'ops-score-critical' : 'ops-score-clear' },
@@ -189,6 +187,12 @@ function renderOverview(context: StaffContext, data: AdminOverview): HTMLElement
             ? 'Interventi non urgenti'
             : 'Nessuna criticità aperta',
       ),
+    ),
+    el(
+      'div',
+      { class: 'ops-overview-actions' },
+      button('Apri la sala', () => context.navigate('/sala')),
+      button('Prenotazioni', () => context.navigate('/accoglienza'), 'secondary'),
     ),
   );
 
@@ -379,20 +383,10 @@ function renderOverview(context: StaffContext, data: AdminOverview): HTMLElement
   return el(
     'div',
     { class: 'ops-dashboard' },
-    el(
-      'header',
-      { class: 'ops-dashboard-intro' },
-      el(
-        'div',
-        {},
-        el('span', { class: 'ops-overline' }, 'CENTRO OPERATIVO · ' + data.service_date),
-        el('h1', {}, 'Panoramica del servizio'),
-      ),
-      el('span', { class: 'ops-update-badge' }, 'Dati aggiornati ' + updated),
-    ),
     overview,
+    el('div', { class: 'ops-dashboard-section-label' }, 'INDICATORI IN TEMPO REALE'),
     metrics,
-    el('div', { class: 'ops-body-grid' }, urgent, areaList),
+    el('div', { class: 'ops-body-grid' }, areaList, urgent),
     utilities,
   );
 }

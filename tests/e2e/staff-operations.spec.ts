@@ -228,6 +228,33 @@ test('the operational map exposes a keyboard accessible table without Host finan
   await expect(popup.getByRole('button', { name: 'Visualizza i conti' })).toHaveCount(0);
 });
 
+test('room filters find tables and keep the real table actions accessible on mobile', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await hostFixture(page);
+  await page.goto('http://localhost:5174/sala');
+  const floor = page.getByRole('region', { name: 'Pianta operativa della sala' });
+  await expect(floor.getByText('1 tavolo mostrato', { exact: true })).toBeVisible();
+  await expect(floor.getByLabel('Vista sala')).toHaveValue('list');
+
+  await floor.getByLabel('Cerca tavolo o cameriere').fill('INESISTENTE');
+  await expect(floor.getByText('Nessun tavolo in questa selezione')).toBeVisible();
+  await expect(floor.getByText('0 tavoli mostrati', { exact: true })).toBeVisible();
+  await floor.getByRole('button', { name: 'Azzera filtri' }).click();
+  await floor.getByLabel('Cerca tavolo o cameriere').fill('luca');
+  await floor.getByLabel('Stato del tavolo').selectOption('AVAILABLE');
+  const table = floor.getByRole('button', {
+    name: 'Tavolo 4 · Disponibile · 0 ospiti · 4 posti · Luca',
+  });
+  await expect(table).toBeVisible();
+  await table.click();
+  const popup = page.getByRole('dialog', { name: 'Tavolo 4 · 4 coperti' });
+  await expect(popup.getByRole('button', { name: 'QR del tavolo' })).toBeVisible();
+  await expect(popup.getByRole('button', { name: 'Visualizza i conti' })).toHaveCount(0);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+});
+
 test('a locked session requires a valid PIN before showing operations', async ({ page }) => {
   await hostFixture(page, true);
   await page.goto('http://localhost:5174/accoglienza');
