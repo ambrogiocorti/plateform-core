@@ -67,6 +67,8 @@ tavoli visualizzati, ricerca per nome/numero/cameriere e filtri per sala, zona
 e stato. Pianta ed elenco mantengono le azioni autorizzate già esistenti; i
 tavoli senza pianta corrispondente restano raggiungibili in elenco. I conteggi
 descrivono sempre la selezione attuale, anche dopo una ricerca senza risultati.
+Su smartphone la vista iniziale è l'elenco, più leggibile e facile da usare;
+la pianta rimane selezionabile.
 
 Il logo originale rimane conservato; l'interfaccia carica una sua versione
 ridimensionata da circa 82 KB anziché 1,8 MB. Il verde degli stati positivi è

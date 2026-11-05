@@ -103,7 +103,10 @@ test('workspace V5: primary rail, authorized directory and mobile bottom navigat
   await nav.getByRole('link', { name: 'Sala', exact: true }).click();
   await expect(page.locator('.floor-workspace')).toBeVisible();
   await page.setViewportSize({ width: 390, height: 844 });
+  await page.reload();
+  await expect(page.locator('.workspace-page-heading h1')).toHaveText('Sala');
   await expect(page.getByLabel('Cerca tavolo o cameriere')).toBeVisible();
+  await expect(page.getByLabel('Vista sala')).toHaveValue('list');
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
   await page.screenshot({ path: 'test-results/plateform-v5-sala-mobile.png', fullPage: true });
 

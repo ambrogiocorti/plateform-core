@@ -86,6 +86,9 @@ export function floorView(data: FloorWorkspace, open: (table: FloorTable) => voi
     el('option', { value: 'map' }, 'Pianta'),
     el('option', { value: 'list' }, 'Elenco tavoli'),
   );
+  // A scaled room plan is difficult to read and tap on a phone. Start with
+  // the actionable list there; the operator can still choose the map.
+  if (window.matchMedia('(max-width: 600px)').matches) mode.value = 'list';
   const search = el('input', {
     type: 'search',
     'aria-label': 'Cerca tavolo o cameriere',

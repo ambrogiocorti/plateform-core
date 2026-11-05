@@ -236,6 +236,7 @@ test('room filters find tables and keep the real table actions accessible on mob
   await page.goto('http://localhost:5174/sala');
   const floor = page.getByRole('region', { name: 'Pianta operativa della sala' });
   await expect(floor.getByText('1 tavolo mostrato', { exact: true })).toBeVisible();
+  await expect(floor.getByLabel('Vista sala')).toHaveValue('list');
 
   await floor.getByLabel('Cerca tavolo o cameriere').fill('INESISTENTE');
   await expect(floor.getByText('Nessun tavolo in questa selezione')).toBeVisible();
@@ -243,8 +244,6 @@ test('room filters find tables and keep the real table actions accessible on mob
   await floor.getByRole('button', { name: 'Azzera filtri' }).click();
   await floor.getByLabel('Cerca tavolo o cameriere').fill('luca');
   await floor.getByLabel('Stato del tavolo').selectOption('AVAILABLE');
-  await floor.getByLabel('Vista sala').selectOption('list');
-
   const table = floor.getByRole('button', {
     name: 'Tavolo 4 · Disponibile · 0 ospiti · 4 posti · Luca',
   });
