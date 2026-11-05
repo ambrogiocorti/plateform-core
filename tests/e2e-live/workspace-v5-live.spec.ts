@@ -73,7 +73,7 @@ test('workspace V5: primary rail, authorized directory and mobile bottom navigat
       label: 'Cucina',
       path: '/cucina',
       screenshot: 'cucina',
-      content: '.kitchen-operations-dashboard',
+      content: '.kds-workspace',
     },
   ]) {
     await nav.getByRole('link', { name: destination.label, exact: true }).click();
