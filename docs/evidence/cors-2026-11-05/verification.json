@@ -1,0 +1,206 @@
+{
+  "tested_at": "2026-11-05T23:19:28.338Z",
+  "project_ref": "qfgoatdabgnzozxuzxku",
+  "allowed_origins": [
+    {
+      "origin": "https://plateform-development-git-redesign-e-d8ae9a-sambrogiocorti-5259.vercel.app",
+      "passed": true,
+      "results": [
+        {
+          "function": "public-telemetry",
+          "status": 204,
+          "pass": true
+        },
+        {
+          "function": "reservation",
+          "status": 204,
+          "pass": true
+        },
+        {
+          "function": "customer-session",
+          "status": 204,
+          "pass": true
+        },
+        {
+          "function": "staff-admin",
+          "status": 204,
+          "pass": true
+        },
+        {
+          "function": "step-up",
+          "status": 204,
+          "pass": true
+        },
+        {
+          "function": "offline-authorization",
+          "status": 204,
+          "pass": true
+        },
+        {
+          "function": "reservation-deposit",
+          "status": 204,
+          "pass": true
+        },
+        {
+          "function": "payments",
+          "status": 204,
+          "pass": true
+        },
+        {
+          "function": "asset-upload",
+          "status": 204,
+          "pass": true
+        },
+        {
+          "function": "health-probe",
+          "status": 204,
+          "pass": true
+        },
+        {
+          "function": "maintenance",
+          "status": 204,
+          "pass": true
+        },
+        {
+          "function": "print-authorization",
+          "status": 204,
+          "pass": true
+        }
+      ]
+    },
+    {
+      "origin": "https://plateform-development-git-fix-releas-94ed70-sambrogiocorti-5259.vercel.app",
+      "passed": true,
+      "results": [
+        {
+          "function": "public-telemetry",
+          "status": 204,
+          "pass": true
+        },
+        {
+          "function": "reservation",
+          "status": 204,
+          "pass": true
+        },
+        {
+          "function": "customer-session",
+          "status": 204,
+          "pass": true
+        },
+        {
+          "function": "staff-admin",
+          "status": 204,
+          "pass": true
+        },
+        {
+          "function": "step-up",
+          "status": 204,
+          "pass": true
+        },
+        {
+          "function": "offline-authorization",
+          "status": 204,
+          "pass": true
+        },
+        {
+          "function": "reservation-deposit",
+          "status": 204,
+          "pass": true
+        },
+        {
+          "function": "payments",
+          "status": 204,
+          "pass": true
+        },
+        {
+          "function": "asset-upload",
+          "status": 204,
+          "pass": true
+        },
+        {
+          "function": "health-probe",
+          "status": 204,
+          "pass": true
+        },
+        {
+          "function": "maintenance",
+          "status": 204,
+          "pass": true
+        },
+        {
+          "function": "print-authorization",
+          "status": 204,
+          "pass": true
+        }
+      ]
+    }
+  ],
+  "rejected_origin": {
+    "origin": "https://untrusted-origin.invalid",
+    "passed": true,
+    "results": [
+      {
+        "function": "public-telemetry",
+        "status": 403,
+        "pass": true
+      },
+      {
+        "function": "reservation",
+        "status": 403,
+        "pass": true
+      },
+      {
+        "function": "customer-session",
+        "status": 403,
+        "pass": true
+      },
+      {
+        "function": "staff-admin",
+        "status": 403,
+        "pass": true
+      },
+      {
+        "function": "step-up",
+        "status": 403,
+        "pass": true
+      },
+      {
+        "function": "offline-authorization",
+        "status": 403,
+        "pass": true
+      },
+      {
+        "function": "reservation-deposit",
+        "status": 403,
+        "pass": true
+      },
+      {
+        "function": "payments",
+        "status": 403,
+        "pass": true
+      },
+      {
+        "function": "asset-upload",
+        "status": 403,
+        "pass": true
+      },
+      {
+        "function": "health-probe",
+        "status": 403,
+        "pass": true
+      },
+      {
+        "function": "maintenance",
+        "status": 403,
+        "pass": true
+      },
+      {
+        "function": "print-authorization",
+        "status": 403,
+        "pass": true
+      }
+    ]
+  },
+  "base_origins_digest_unchanged": "76c5a075b3a99dca191d6df19e70c1f9421a065a050a950cb78f1e82d8b4da0d",
+  "additional_origins_digest": "5e0e4a0ad28dcd13168502b19f0b3f9e3af3bafc6bcfda094f848c1d5456a268"
+}
