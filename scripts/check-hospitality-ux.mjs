@@ -37,7 +37,7 @@ for (const [s, text, label] of [
   [staff, "localStorage.getItem('plateform-sidebar') !== 'expanded'", 'default_compact_sidebar'],
   [newWorkspace, '--workspace-rail: #1a1c1b;', 'premium_navigation_material'],
   [newWorkspace, '--pf-blue: #895b2d;', 'master_prompt_bronze_accent'],
-  [newWorkspace, 'logo-plateform-originale.png', 'brand_asset_reuse'],
+  [newWorkspace, 'logo-plateform-optimized.png', 'brand_asset_reuse'],
   [staffCss, '.login-layout', 'existing_login_contract'],
   [staff, 'loginPage(async () => {', 'login_entry_still_available'],
 ])

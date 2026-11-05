@@ -60,6 +60,25 @@ Il lavoro resta confinato a un ramo separato; nessun rilascio in produzione.
   accessibilità, tema scuro), regressioni visuali ed E2E, revisione con
   Ambrogio prima di promuovere la PR.
 
+### Avanzamento Sala — 5 novembre
+
+La vista operativa della sala è stata riorganizzata con un riepilogo dei
+tavoli visualizzati, ricerca per nome/numero/cameriere e filtri per sala, zona
+e stato. Pianta ed elenco mantengono le azioni autorizzate già esistenti; i
+tavoli senza pianta corrispondente restano raggiungibili in elenco. I conteggi
+descrivono sempre la selezione attuale, anche dopo una ricerca senza risultati.
+
+Il logo originale rimane conservato; l'interfaccia carica una sua versione
+ridimensionata da circa 82 KB anziché 1,8 MB. Il verde degli stati positivi è
+stato corretto per la leggibilità sullo sfondo chiaro. Il test PWA verifica il
+manifest dopo la presa di controllo del service worker, tollerando il reload
+previsto alla prima installazione senza saltare le verifiche di funzionamento.
+
+TypeScript, lint, 178 test unitari, build CORE, formato e controlli strutturali
+sono passati in locale. La nuova prova browser e i test integrati devono
+essere eseguiti sul commit risultante; le verifiche dell'anteprima ospitata e i
+gate commerciali rimangono aperti finché non esistono evidenze aggiornate.
+
 ### Criterio di accettazione
 
 Una fase non è chiusa da soli test statici: richiede navigazione reale per

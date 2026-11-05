@@ -19,6 +19,7 @@
   --pf-blue-hover: #70461e;
   --pf-blue-soft: #f2e7d9;
   --pf-on-blue: #fff;
+  --pf-success: #246a4c;
   --pf-elevation: 0 14px 30px rgba(40, 37, 31, 0.075);
   --pf-elevation-strong: 0 20px 50px rgba(40, 37, 31, 0.13);
   --bg: var(--pf-background);
@@ -29,6 +30,7 @@
   --border: var(--pf-line);
   --accent: var(--pf-blue);
   --accent-ink: var(--pf-on-blue);
+  --success: var(--pf-success);
   --shadow: var(--pf-elevation);
 }
 :root[data-theme='dark'] .staff-shell,
@@ -47,6 +49,7 @@
   --pf-blue-hover: #f5cd95;
   --pf-blue-soft: #3e3225;
   --pf-on-blue: #171917;
+  --pf-success: #8bceac;
 }
 
 /* Login V5 — shared visual language with the working environment. */
@@ -1309,12 +1312,181 @@
 .login-layout-v5 .login-brand-symbol {
   border: 1px solid rgba(205, 161, 102, 0.38);
   background-color: #111211;
-  background-image: url('../assets/plateform/logo-plateform-originale.png');
+  background-image: url('../assets/plateform/logo-plateform-optimized.png');
   background-repeat: no-repeat;
   background-position: center -14px;
   background-size: 154px 103px;
   color: transparent;
   font-size: 0;
+}
+
+/* Room workspace: operational information first, with filters close to the map. */
+.staff-shell .floor-workspace {
+  gap: 18px;
+}
+.staff-shell .floor-intro {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+}
+.staff-shell .floor-intro h2,
+.staff-shell .floor-intro p {
+  margin: 0;
+}
+.staff-shell .floor-intro .eyebrow {
+  margin-bottom: 5px;
+}
+.staff-shell .floor-intro > p {
+  max-width: 420px;
+  font-size: 13px;
+}
+.staff-shell .floor-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  overflow: hidden;
+  border: 1px solid var(--pf-line);
+  border-radius: 14px;
+  background: var(--pf-surface);
+}
+.staff-shell .floor-summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  padding: 15px 19px;
+}
+.staff-shell .floor-summary-item + .floor-summary-item {
+  border-left: 1px solid var(--pf-line);
+}
+.staff-shell .floor-summary-item span {
+  color: var(--pf-muted);
+  font-size: 12px;
+  font-weight: 650;
+}
+.staff-shell .floor-summary-item strong {
+  color: var(--pf-ink);
+  font-size: 27px;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+}
+.staff-shell .floor-controls {
+  padding: 17px 18px 10px;
+  border: 1px solid var(--pf-line);
+  border-radius: 14px;
+  background: var(--pf-surface);
+}
+.staff-shell .floor-toolbar {
+  display: grid;
+  grid-template-columns: minmax(180px, 1.4fr) repeat(4, minmax(125px, 1fr));
+  gap: 12px;
+  align-items: end;
+}
+.staff-shell .floor-toolbar label {
+  min-width: 0;
+  margin: 0;
+  color: var(--pf-muted);
+}
+.staff-shell .floor-toolbar input,
+.staff-shell .floor-toolbar select {
+  display: block;
+  width: 100%;
+  margin-top: 5px;
+  background: var(--pf-surface);
+}
+.staff-shell .floor-zoom {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  grid-column: 1 / -1;
+}
+.staff-shell .floor-zoom .button {
+  min-height: 38px;
+  padding: 5px 12px;
+}
+.staff-shell .floor-controls-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.staff-shell .floor-controls-footer .button {
+  min-height: 36px;
+}
+.staff-shell .floor-result {
+  margin: 0;
+  color: var(--pf-muted);
+  font-size: 13px;
+}
+.staff-shell .floor-room {
+  padding: 18px;
+}
+.staff-shell .floor-room-heading,
+.staff-shell .floor-table-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+}
+.staff-shell .floor-room-heading h3,
+.staff-shell .floor-room-heading span {
+  margin: 0;
+}
+.staff-shell .floor-map-viewport {
+  border: 1px solid var(--pf-line);
+  background: #262a28;
+}
+.staff-shell .floor-grid .table-button {
+  justify-content: flex-start;
+  min-height: 155px;
+  gap: 8px;
+  border-width: 1px 1px 1px 4px;
+}
+.staff-shell .floor-table-state {
+  color: var(--pf-ink);
+  font-size: 12px;
+  font-weight: 700;
+  text-align: right;
+}
+.staff-shell .floor-table-name {
+  font-weight: 700;
+}
+.staff-shell .floor-table-meta {
+  font-size: 12px;
+}
+@media (max-width: 1100px) {
+  .staff-shell .floor-toolbar {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 600px) {
+  .staff-shell .floor-intro {
+    align-items: start;
+    flex-direction: column;
+    gap: 7px;
+  }
+  .staff-shell .floor-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .staff-shell .floor-summary-item {
+    padding: 13px 15px;
+  }
+  .staff-shell .floor-summary-item:nth-child(3) {
+    border-left: 0;
+  }
+  .staff-shell .floor-summary-item:nth-child(n + 3) {
+    border-top: 1px solid var(--pf-line);
+  }
+  .staff-shell .floor-toolbar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .staff-shell .floor-search {
+    grid-column: 1 / -1;
+  }
+  .staff-shell .floor-room {
+    padding: 12px;
+  }
 }
 
 /* The notification controls retain their accessible labels but use a compact
