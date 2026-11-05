@@ -1323,6 +1323,8 @@
 /* Room workspace: operational information first, with filters close to the map. */
 .staff-shell .floor-workspace {
   gap: 18px;
+  min-width: 0;
+  container-type: inline-size;
 }
 .staff-shell .floor-intro {
   display: flex;
@@ -1454,6 +1456,30 @@
 }
 .staff-shell .floor-table-meta {
   font-size: 12px;
+}
+/* Accoglienza embeds the floor workspace in a narrower column, even on a
+   large display. Respond to the available container, not only the viewport. */
+@container (max-width: 760px) {
+  .staff-shell .floor-intro {
+    align-items: start;
+    flex-direction: column;
+    gap: 7px;
+  }
+  .staff-shell .floor-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .staff-shell .floor-summary-item:nth-child(3) {
+    border-left: 0;
+  }
+  .staff-shell .floor-summary-item:nth-child(n + 3) {
+    border-top: 1px solid var(--pf-line);
+  }
+  .staff-shell .floor-toolbar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .staff-shell .floor-search {
+    grid-column: 1 / -1;
+  }
 }
 @media (max-width: 1100px) {
   .staff-shell .floor-toolbar {

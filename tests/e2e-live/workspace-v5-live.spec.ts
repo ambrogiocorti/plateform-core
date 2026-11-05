@@ -82,6 +82,19 @@ test('workspace V5: primary rail, authorized directory and mobile bottom navigat
     // The shell title appears before the asynchronously loaded workspace.
     // A screenshot of only the loading state cannot validate the actual screen.
     await expect(page.locator(destination.content)).toBeVisible();
+    if (destination.label === 'Accoglienza') {
+      // The embedded floor must fit its column, not overlap the arrival panel.
+      const fits = await page.locator('.host-floor .floor-workspace').evaluate((floor) => {
+        const parent = floor.closest('.host-floor')!.getBoundingClientRect();
+        return Array.from(
+          floor.querySelectorAll('.floor-summary, .floor-controls, .floor-room'),
+        ).every((item) => {
+          const bounds = item.getBoundingClientRect();
+          return bounds.left >= parent.left - 1 && bounds.right <= parent.right + 1;
+        });
+      });
+      expect(fits).toBe(true);
+    }
     await page.screenshot({
       path: `test-results/plateform-v5-${destination.screenshot}-desktop.png`,
       fullPage: true,
