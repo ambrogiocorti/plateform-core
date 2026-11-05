@@ -74,10 +74,18 @@ stato corretto per la leggibilità sullo sfondo chiaro. Il test PWA verifica il
 manifest dopo la presa di controllo del service worker, tollerando il reload
 previsto alla prima installazione senza saltare le verifiche di funzionamento.
 
-TypeScript, lint, 178 test unitari, build CORE, formato e controlli strutturali
-sono passati in locale. La nuova prova browser e i test integrati devono
-essere eseguiti sul commit risultante; le verifiche dell'anteprima ospitata e i
-gate commerciali rimangono aperti finché non esistono evidenze aggiornate.
+Sul commit `c9a8e0e936cd504e47cacab9393067717f4d106c` sono passati TypeScript,
+lint, formattazione, build CORE/FULL, 40 test browser e 41 scenari integrati
+su servizi isolati. Le prove di accessibilità, PWA e prestazioni prima fallite
+sono passate: l'accesso staff ha trasferito 208 KB nel test su rete lenta.
+L'anteprima Vercel dello stesso commit è READY.
+
+Durante la revisione degli screenshot è emerso che il test precedente poteva
+fotografare il caricamento invece del contenuto effettivo. Il controllo ora
+attende la pagina completa e aggiunge una cattura mobile della Sala; questa
+variazione del test richiede una nuova esecuzione. Le verifiche dell'anteprima
+ospitata e i gate commerciali rimangono aperti finché non esistono evidenze
+aggiornate.
 
 ### Criterio di accettazione
 

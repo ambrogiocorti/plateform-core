@@ -62,22 +62,41 @@ test('workspace V5: primary rail, authorized directory and mobile bottom navigat
   await expect(directory).not.toBeVisible();
 
   for (const destination of [
-    { label: 'Sala', path: '/sala', screenshot: 'sala' },
-    { label: 'Accoglienza', path: '/accoglienza', screenshot: 'accoglienza' },
-    { label: 'Cucina', path: '/cucina', screenshot: 'cucina' },
+    { label: 'Sala', path: '/sala', screenshot: 'sala', content: '.floor-workspace' },
+    {
+      label: 'Accoglienza',
+      path: '/accoglienza',
+      screenshot: 'accoglienza',
+      content: '.host-workspace',
+    },
+    {
+      label: 'Cucina',
+      path: '/cucina',
+      screenshot: 'cucina',
+      content: '.kitchen-operations-dashboard',
+    },
   ]) {
     await nav.getByRole('link', { name: destination.label, exact: true }).click();
     await expect(page).toHaveURL(new RegExp(`${destination.path}$`));
     await expect(page.locator('.workspace-page-heading h1')).toHaveText(destination.label);
+    // The shell title appears before the asynchronously loaded workspace.
+    // A screenshot of only the loading state cannot validate the actual screen.
+    await expect(page.locator(destination.content)).toBeVisible();
     await page.screenshot({
       path: `test-results/plateform-v5-${destination.screenshot}-desktop.png`,
       fullPage: true,
     });
   }
+  await nav.getByRole('link', { name: 'Sala', exact: true }).click();
+  await expect(page.locator('.floor-workspace')).toBeVisible();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.getByLabel('Cerca tavolo o cameriere')).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+  await page.screenshot({ path: 'test-results/plateform-v5-sala-mobile.png', fullPage: true });
+
   await nav.getByRole('link', { name: 'Operazioni' }).click();
   await expect(page.locator('.workspace-page-heading h1')).toHaveText('Operazioni');
 
-  await page.setViewportSize({ width: 390, height: 844 });
   await expect(nav.locator('a:visible')).toHaveCount(4);
   await expect(nav.getByRole('button', { name: 'Apri tutte le funzioni' })).toBeVisible();
   const bottom = await page.locator('.sidebar').evaluate((sidebar) => {
