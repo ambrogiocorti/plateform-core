@@ -1,88 +1,6 @@
 /* Plateform 2.0 · one design language for customer and operations.
    No remote fonts or untrusted image resources. Theme switching is token based. */
-:root,
-:root[data-theme='light'] {
-  color-scheme: light;
-  --pf-background: #f5f7fc;
-  --pf-surface: #ffffff;
-  --pf-surface-2: #eef3ff;
-  --pf-surface-3: #e4ecfc;
-  --pf-ink: #0c1930;
-  --pf-text: #24334b;
-  --pf-muted: #526077;
-  --pf-line: #e2e8f3;
-  --pf-control-border: #8493aa;
-  --pf-focus-ring: #2459ed;
-  --pf-blue: #2459ed;
-  --pf-blue-hover: color-mix(in srgb, var(--pf-blue) 80%, #091f54);
-  --pf-blue-soft: #eaf0ff;
-  --pf-on-blue: #fff;
-  --pf-success: #197b5a;
-  --pf-warning: #96611c;
-  --pf-danger: #ba344e;
-  --pf-elevation: 0 12px 32px rgba(29, 57, 110, 0.055);
-  --pf-elevation-strong: 0 18px 55px rgba(29, 57, 110, 0.1);
-  --pf-radius: 17px;
-  --pf-font: 'Segoe UI Variable', 'Segoe UI', Arial, sans-serif;
-  /* Shared spacing, typography, elevation and layer tokens. */
-  --pf-space-1: 4px;
-  --pf-space-2: 8px;
-  --pf-space-3: 12px;
-  --pf-space-4: 16px;
-  --pf-space-5: 20px;
-  --pf-space-6: 24px;
-  --pf-space-8: 32px;
-  --pf-space-10: 40px;
-  --pf-space-12: 48px;
-  --pf-text-xs: 12px;
-  --pf-text-sm: 14px;
-  --pf-text-md: 16px;
-  --pf-text-lg: 20px;
-  --pf-text-xl: 26px;
-  --pf-text-display: clamp(30px, 3.7vw, 52px);
-  --pf-radius-sm: 8px;
-  --pf-radius-md: 12px;
-  --pf-radius-lg: 18px;
-  --pf-layer-nav: 20;
-  --pf-layer-overlay: 60;
-  --pf-layer-toast: 80;
-  --bg: var(--pf-background);
-  --surface: var(--pf-surface);
-  --raised: var(--pf-surface-2);
-  --text: var(--pf-ink);
-  --muted: var(--pf-muted);
-  --border: var(--pf-line);
-  --accent: var(--pf-blue);
-  --accent-ink: var(--pf-on-blue);
-  --success: var(--pf-success);
-  --warning: var(--pf-warning);
-  --danger: var(--pf-danger);
-  --radius: var(--pf-radius);
-  --shadow: var(--pf-elevation);
-  --font: var(--pf-font);
-}
-:root[data-theme='dark'] {
-  color-scheme: dark;
-  --pf-background: #0b1324;
-  --pf-surface: #152038;
-  --pf-surface-2: #1c2b47;
-  --pf-surface-3: #263b5b;
-  --pf-ink: #f4f7ff;
-  --pf-text: #e3eafb;
-  --pf-muted: #b2c1d7;
-  --pf-line: #32445f;
-  --pf-control-border: #8498b0;
-  --pf-focus-ring: #8ab0ff;
-  --pf-blue: #8ab0ff;
-  --pf-blue-hover: color-mix(in srgb, var(--pf-blue) 78%, #ffffff);
-  --pf-blue-soft: #223a64;
-  --pf-on-blue: #09172b;
-  --pf-success: #70dbb1;
-  --pf-warning: #f0c781;
-  --pf-danger: #ffa0ac;
-  --pf-elevation: 0 15px 35px rgba(0, 0, 0, 0.14);
-  --pf-elevation-strong: 0 20px 55px rgba(0, 0, 0, 0.27);
-}
+@import './tokens.css';
 [hidden] {
   display: none !important;
 }
@@ -147,15 +65,15 @@ textarea {
   width: fit-content;
   padding: 11px 19px;
   border: 1px solid transparent;
-  border-radius: 12px;
+  border-radius: 7px;
   background: var(--pf-blue);
   color: var(--pf-on-blue);
-  font-weight: 750;
+  font-weight: 650;
   font-size: 13px;
   line-height: 1.3;
   text-decoration: none;
   white-space: normal;
-  box-shadow: 0 7px 16px color-mix(in srgb, var(--pf-blue) 14%, transparent);
+  box-shadow: none;
   transition:
     background 150ms ease,
     box-shadow 150ms ease,
@@ -166,7 +84,7 @@ textarea {
   background: var(--pf-blue-hover);
   filter: none;
   box-shadow: var(--pf-elevation);
-  transform: translateY(-1px);
+  transform: none;
 }
 .button.secondary {
   border-color: var(--pf-line);
@@ -206,7 +124,7 @@ textarea {
   width: 100%;
   padding: 11px 14px;
   border: 2px solid var(--pf-control-border);
-  border-radius: 12px;
+  border-radius: 7px;
   background: var(--pf-surface);
   color: var(--pf-ink);
   font-size: 14px;
@@ -256,7 +174,7 @@ label {
   border-radius: var(--pf-radius);
   background: var(--pf-surface);
   padding: 22px;
-  box-shadow: var(--pf-elevation);
+  box-shadow: none;
 }
 .card h3 {
   font-size: 16px;
@@ -269,20 +187,25 @@ label {
   width: fit-content;
   padding: 5px 10px;
   border: 1px solid var(--pf-line);
-  border-radius: 999px;
+  border-radius: 5px;
   color: var(--pf-muted);
   background: var(--pf-surface-2);
   font-size: 11px;
   font-weight: 730;
   letter-spacing: 0.015em;
 }
+.status[data-tone='success'],
 .status[data-state='LIVE'],
 .status[data-status='PAID'] {
   color: var(--pf-success);
 }
+.status[data-tone='danger'],
 .status[data-state='OFFLINE'],
 .status[data-status='REJECTED'] {
   color: var(--pf-danger);
+}
+.status[data-tone='warning'] {
+  color: var(--pf-warning);
 }
 .amount {
   color: var(--pf-ink);
@@ -306,7 +229,7 @@ label {
   overflow: auto;
   padding: clamp(22px, 4vw, 34px);
   border: 1px solid var(--pf-line);
-  border-radius: 22px;
+  border-radius: 10px;
   background: var(--pf-surface);
   color: var(--pf-ink);
   box-shadow: 0 32px 95px rgba(8, 16, 36, 0.35);
@@ -328,7 +251,7 @@ label {
 .loading {
   min-height: 140px;
   border: 1px dashed var(--pf-line);
-  border-radius: 16px;
+  border-radius: 8px;
   background: var(--pf-surface);
   color: var(--pf-muted);
   padding: 44px 28px;
@@ -358,7 +281,7 @@ label {
 }
 .table-wrap {
   border: 1px solid var(--pf-line);
-  border-radius: 16px;
+  border-radius: 8px;
   overflow: auto;
   background: var(--pf-surface);
 }

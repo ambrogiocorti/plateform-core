@@ -91,6 +91,8 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
         'quiet',
       );
       open.classList.add('cashier-search-result');
+      open.dataset.accountId = account.id;
+      open.setAttribute('aria-pressed', String(account.id === selectedAccountId));
       open.append(
         el('span', { class: 'cashier-search-result-meta' }, `${account.covers} coperti`),
         status(account.status),
@@ -108,6 +110,8 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
   async function loadAccount(accountId: string): Promise<void> {
     const revision = ++accountRevision;
     selectedAccountId = accountId;
+    for (const result of searchResults.querySelectorAll<HTMLButtonElement>('[data-account-id]'))
+      result.setAttribute('aria-pressed', String(result.dataset.accountId === accountId));
     accountWorkspace.replaceChildren(
       el('p', { class: 'loading', role: 'status' }, 'Caricamento conto…'),
     );
@@ -538,7 +542,7 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
       'div',
       { class: 'cashier-search-pane' },
       el('p', { class: 'eyebrow' }, 'INCASSO'),
-      el('h2', {}, 'Trova un conto'),
+      el('h2', {}, 'Conti aperti'),
       search.root,
       searchFeedback,
       searchResults,
@@ -553,8 +557,8 @@ export async function cashPage(context: StaffContext): Promise<HTMLElement> {
     el(
       'div',
       {},
-      el('p', { class: 'eyebrow' }, 'GESTIONE INCASSI · CASSA'),
-      el('h2', {}, 'Cassa e pagamenti'),
+      el('p', { class: 'eyebrow' }, 'INCASSI'),
+      el('h2', {}, 'Conti da incassare'),
       el('p', { class: 'muted' }, 'Trova un conto, controlla il saldo e completa il pagamento.'),
     ),
     el('span', { class: 'cash-desk-shortcut' }, 'F2 · Cerca     F4 · Incassa'),

@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - feature/customer-experience-light-theme-20261027
+      - redesign/hospitality-workspaces-20261106
   workflow_dispatch:
     inputs:
       pages_mode:
@@ -81,8 +82,8 @@ jobs:
           node scripts/check-visual-design.mjs
       - name: Install Chromium for isolated visual regression
         run: npx playwright install --with-deps chromium
-      - name: Browser audit in both themes and viewports
-        run: npx playwright test tests/e2e/report-visual.spec.ts
+      - name: Browser journeys and visual audit in both themes and viewports
+        run: npm run test:e2e
       - name: Preserve browser screenshots and traces
         if: always()
         uses: actions/upload-artifact@v4
@@ -99,17 +100,17 @@ jobs:
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 7
-      - name: Configure Pages only for explicitly approved manual release
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_after_approval && (inputs.pages_mode == 'test' || github.ref == 'refs/heads/main') }}
+      - name: Configure Pages for the requested test preview or approved manual release
+        if: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/redesign/hospitality-workspaces-20261106') || (github.event_name == 'workflow_dispatch' && inputs.publish_after_approval && (inputs.pages_mode == 'test' || github.ref == 'refs/heads/main')) }}
         uses: actions/configure-pages@v5
-      - name: Stage Pages artifact only for approved manual release
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_after_approval && (inputs.pages_mode == 'test' || github.ref == 'refs/heads/main') }}
+      - name: Stage the tested Pages artifact
+        if: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/redesign/hospitality-workspaces-20261106') || (github.event_name == 'workflow_dispatch' && inputs.publish_after_approval && (inputs.pages_mode == 'test' || github.ref == 'refs/heads/main')) }}
         uses: actions/upload-pages-artifact@v4
         with:
           path: dist/site/
 
   deploy:
-    if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_after_approval && (inputs.pages_mode == 'test' || github.ref == 'refs/heads/main') }}
+    if: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/redesign/hospitality-workspaces-20261106') || (github.event_name == 'workflow_dispatch' && inputs.publish_after_approval && (inputs.pages_mode == 'test' || github.ref == 'refs/heads/main')) }}
     needs: candidate
     runs-on: ubuntu-latest
     permissions:
@@ -119,6 +120,6 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Deploy only after operator approval and gated candidate
+      - name: Deploy the requested preview after all candidate gates
         id: deployment
         uses: actions/deploy-pages@v4

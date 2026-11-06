@@ -14,7 +14,7 @@ test('workspace V5: redesigned access page remains usable on desktop and mobile'
   await page.setViewportSize({ width: 1366, height: 900 });
   await page.goto('/login');
   await expect(page.getByRole('heading', { name: 'Bentornato.' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: /Più spazio al servizio/ })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Accesso al servizio' })).toBeVisible();
   await expect(page.getByLabel('Identificativo staff')).toBeVisible();
   await expect(page.getByLabel('Password')).toBeVisible();
   await page.screenshot({ path: 'test-results/plateform-v5-login-desktop.png', fullPage: true });

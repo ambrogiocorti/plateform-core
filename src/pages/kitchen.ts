@@ -469,6 +469,11 @@ export async function kitchenPage(context: StaffContext): Promise<HTMLElement> {
       ),
     ),
   );
+  const noMatches = emptyState(
+    'Nessuna comanda in questo stato',
+    'Scegli un altro filtro per vedere le altre comande.',
+  );
+  noMatches.hidden = true;
   if (items.length) {
     const filterActions = el('div', {
       class: 'kds-filter-actions',
@@ -480,26 +485,38 @@ export async function kitchenPage(context: StaffContext): Promise<HTMLElement> {
       ['In lavorazione', 'IN_PREPARATION'],
       ['Pronte', 'READY'],
     ];
+    const filterKey = `plateform-kds-filter:${context.venue.id}:${context.profile.role}`;
+    const saved = sessionStorage.getItem(filterKey);
+    let selected = filters.some(([, value]) => value === saved) ? saved! : 'ALL';
+    const applyFilter = () => {
+      let count = 0;
+      for (const ticket of grid.querySelectorAll<HTMLElement>('.kds-ticket')) {
+        ticket.hidden =
+          selected !== 'ALL' && !(ticket.dataset.ticketStates ?? '').split(' ').includes(selected);
+        if (!ticket.hidden) count++;
+      }
+      noMatches.hidden = count > 0;
+      for (const control of filterActions.querySelectorAll<HTMLButtonElement>('button'))
+        control.setAttribute('aria-pressed', String(control.dataset.filter === selected));
+    };
     for (const [label, value] of filters) {
       const control = button(
         label,
         () => {
-          for (const item of grid.querySelectorAll<HTMLElement>('.kds-ticket')) {
-            item.hidden =
-              value !== 'ALL' && !(item.dataset.ticketStates ?? '').split(' ').includes(value);
-          }
-          for (const element of filterActions.querySelectorAll<HTMLButtonElement>('button')) {
-            element.setAttribute('aria-pressed', String(element === control));
-          }
+          selected = value;
+          sessionStorage.setItem(filterKey, selected);
+          applyFilter();
         },
         'secondary',
       );
-      control.setAttribute('aria-pressed', String(value === 'ALL'));
+      control.dataset.filter = value;
       filterActions.append(control);
     }
+    applyFilter();
     boardShell.append(filterActions);
   }
   boardShell.append(board);
+  boardShell.append(noMatches);
   let servedRecently: HTMLElement | undefined;
   if (returnable?.enabled) {
     servedRecently = el(

@@ -15,18 +15,19 @@
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 18px;
-  padding: 29px clamp(25px, 3vw, 46px);
-  border: 1px solid var(--pf-line);
-  border-radius: 13px;
-  background: var(--pf-surface);
+  padding: 0 0 18px;
+  border: 0;
+  border-bottom: 1px solid var(--pf-line);
+  border-radius: 0;
+  background: transparent;
   box-shadow: none;
 }
 .host-desk-header h2,
 .cash-desk-header h2,
 .waiter-service-intro h2 {
-  margin: 10px 0;
+  margin: 6px 0;
   color: var(--pf-ink);
-  font-size: clamp(27px, 3vw, 42px);
+  font-size: clamp(19px, 1.8vw, 23px);
   line-height: 1.12;
   font-weight: 685;
   letter-spacing: -0.055em;
@@ -105,8 +106,8 @@
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
-  min-height: 120px;
-  padding: 22px clamp(13px, 1.8vw, 31px);
+  min-height: 86px;
+  padding: 16px clamp(13px, 1.8vw, 31px);
   border: 0;
   border-right: 1px solid var(--pf-line);
   border-radius: 0;
@@ -124,7 +125,7 @@
 .host-dashboard-v2 .host-kpi strong,
 .waiter-counter strong {
   color: var(--pf-ink);
-  font-size: clamp(31px, 3.2vw, 46px);
+  font-size: clamp(25px, 2.8vw, 34px);
   line-height: 1;
   font-weight: 685;
   letter-spacing: -0.05em;
@@ -230,17 +231,17 @@
 }
 .cashier-command-center {
   display: grid;
-  grid-template-columns: minmax(290px, 0.72fr) minmax(0, 1.42fr);
+  grid-template-columns: minmax(250px, 0.7fr) minmax(0, 1.6fr);
   align-items: start;
   min-width: 0;
-  gap: clamp(17px, 2.1vw, 29px);
+  gap: 0;
 }
 .cashier-search-pane,
 .cashier-account-workspace {
   min-width: 0;
   padding: clamp(22px, 2.5vw, 37px);
   border: 1px solid var(--pf-line);
-  border-radius: 13px;
+  border-radius: 0;
   background: var(--pf-surface);
   box-shadow: none;
 }
@@ -258,6 +259,11 @@
   gap: 7px;
   max-height: 550px;
   overflow-y: auto;
+}
+.cashier-search-result[aria-pressed='true'] {
+  border-color: var(--pf-blue);
+  background: var(--pf-blue-soft);
+  box-shadow: inset 3px 0 var(--pf-blue);
 }
 .cashier-search-results .button {
   width: 100%;

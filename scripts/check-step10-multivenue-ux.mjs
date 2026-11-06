@@ -14,7 +14,7 @@ const checks = [
   ],
   [
     'una sola sede autorizzata viene selezionata automaticamente',
-    context.includes('venues.find((venue) => venue.id === selected) ?? venues[0] ?? null'),
+    context.includes('venues.find((venue) => venue.id === selectedId) ?? venues[0] ?? null'),
   ],
   [
     'switcher solo con licenza e più sedi',
@@ -25,8 +25,11 @@ const checks = [
     app.includes('...context.venues.map((venue) =>'),
   ],
   [
-    'selezione sede è persistita per sessione',
-    app.includes("sessionStorage.setItem('plateform-venue', venueControl.value)"),
+    'selezione sede è confermata dal server e riletta dal contesto',
+    app.includes("'set_operational_venue'") &&
+      app.includes('p_venue: venueControl.value') &&
+      context.includes("'get_staff_venue_context'") &&
+      context.includes('serverContext?.current_venue_id'),
   ],
   [
     'aggregato statistiche solo CHAIN multi-sede',

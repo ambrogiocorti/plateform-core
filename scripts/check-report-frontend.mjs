@@ -39,11 +39,11 @@ requireText(staffCss, 'color: var(--accent-ink)', 'notification_badge_contrast')
 forbidText(staffCss, 'color: #111315', 'notification_badge_hardcoded_ink');
 // Report #3: form control boundaries must satisfy 3:1 non-text contrast against surfaces.
 requireText(baseCss, 'var(--pf-control-border', 'base_form_boundary_token');
-requireText(systemCss, '--pf-control-border: #8493aa', 'light_control_boundary');
-requireText(systemCss, '--pf-control-border: #8498b0', 'dark_control_boundary');
+requireText(tokens, '--pf-control-border: #827b71', 'light_control_boundary');
+requireText(tokens, '--pf-control-border: #b4a99a', 'dark_control_boundary');
 for (const [border, background, label] of [
-  ['#8493aa', '#ffffff', 'light'],
-  ['#8498b0', '#152038', 'dark'],
+  ['#827b71', '#fffdf9', 'light'],
+  ['#b4a99a', '#1c1f1d', 'dark'],
 ]) {
   const ratio = contrast(border, background);
   assert.ok(
@@ -71,6 +71,6 @@ requireText(staffMain, "class: 'brand-mark'", 'logo_mark_in_markup');
 forbidText(tokens, 'Inter, Segoe UI', 'unavailable_inter_font');
 requireText(systemCss, '@media (forced-colors: active)', 'forced_colors_support');
 for (const token of ['--pf-space-2', '--pf-text-md', '--pf-radius-md', '--pf-layer-nav']) {
-  requireText(systemCss, token, 'design_token_' + token);
+  requireText(tokens, token, 'design_token_' + token);
 }
 console.log('REPORT_FRONTEND_AUDIT=PASS');

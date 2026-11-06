@@ -30,7 +30,12 @@ export default defineConfig(({ command, mode }) => {
     },
     envDir: '../..',
     publicDir: '../../assets/staff',
-    server: { port: 5174, strictPort: true, fs: { allow: ['../..'] } },
+    server: {
+      port: 5174,
+      strictPort: true,
+      allowedHosts: ['terminal.local'],
+      fs: { allow: ['../..'] },
+    },
     build: { outDir: '../../dist/staff', emptyOutDir: true, sourcemap: false, target: 'es2022' },
   };
 });

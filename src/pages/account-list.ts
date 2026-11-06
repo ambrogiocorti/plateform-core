@@ -23,7 +23,7 @@ export async function accountList(context: StaffContext): Promise<HTMLElement> {
     el('option', { value: 'CLOSED' }, 'Conti chiusi'),
     el('option', { value: 'ALL' }, 'Tutti i conti'),
   );
-  const rows = el('div', { class: 'grid' }),
+  const rows = el('div', { class: 'account-directory' }),
     feedback = el('p', { class: 'muted', role: 'status' });
   const table = new URLSearchParams(location.search).get('tavolo');
   const tableId = table ? z.uuid().parse(table) : null;
@@ -58,11 +58,11 @@ export async function accountList(context: StaffContext): Promise<HTMLElement> {
       rows.append(
         el(
           'article',
-          { class: 'card stack' },
+          { class: 'account-directory-row' },
           el(
             'div',
             { class: 'row between' },
-            el('h2', {}, account.account_name),
+            el('h2', { class: 'account-directory-name' }, account.account_name),
             status(account.status),
           ),
           el(
@@ -82,7 +82,7 @@ export async function accountList(context: StaffContext): Promise<HTMLElement> {
   }
   const filters = el(
     'form',
-    { class: 'card stack' },
+    { class: 'account-directory-filters stack' },
     el(
       'div',
       { class: 'grid' },
@@ -105,7 +105,7 @@ export async function accountList(context: StaffContext): Promise<HTMLElement> {
   });
   const view = el(
     'section',
-    { class: 'stack' },
+    { class: 'account-directory-workspace stack' },
     filters,
     tableId ? el('a', { href: '/conti', class: 'button quiet' }, 'Mostra tutti i tavoli') : null,
     feedback,

@@ -184,8 +184,6 @@ for (const [needle, label] of [
 ])
   requireText(customerExperience, needle, label);
 for (const [needle, label] of [
-  ['--pf-background: #f5f7fc', 'light_default_palette'],
-  ['--pf-background: #0b1324', 'dark_palette'],
   ['.dialog', 'modal_design'],
   ['.table-wrap', 'tables_design'],
   ['.kpi-grid', 'metric_grid'],
@@ -193,6 +191,10 @@ for (const [needle, label] of [
   ['prefers-reduced-motion', 'reduced_motion'],
 ])
   requireText(designSystem, needle, label);
+const sharedTokens = await read('styles/tokens.css');
+requireText(designSystem, "@import './tokens.css'", 'canonical_token_owner');
+requireText(sharedTokens, '--pf-background: #f6f3ed', 'light_default_palette');
+requireText(sharedTokens, '--pf-background: #141615', 'dark_palette');
 for (const [needle, label] of [
   ["import '../../styles/staff-app.css'", 'staff_design_loaded'],
   ["import '../../styles/workspace-redesign.css'", 'staff_structural_redesign_loaded'],

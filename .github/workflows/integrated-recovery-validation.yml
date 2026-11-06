@@ -7,6 +7,7 @@ on:
     branches:
       - fix/release-edition-contracts-20261103
       - redesign/experience-shell-20261104
+      - redesign/hospitality-workspaces-20261106
   workflow_dispatch:
 
 permissions:

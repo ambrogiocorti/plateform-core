@@ -660,7 +660,7 @@ export async function hostPage(context: StaffContext): Promise<HTMLElement> {
       'div',
       {},
       el('p', { class: 'eyebrow' }, 'FRONT DESK · OGGI'),
-      el('h2', {}, 'Accoglienza e sala, in un unico posto'),
+      el('h2', {}, 'Arrivi di oggi'),
       el(
         'p',
         { class: 'muted' },

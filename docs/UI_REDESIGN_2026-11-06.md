@@ -1,0 +1,55 @@
+# Plateform — rifacimento operativo, 6 novembre 2026
+
+## Base e obiettivo
+
+Ramo `redesign/hospitality-workspaces-20261106`, derivato dal commit `12bf1ff` della PR #59 e quindi dalla candidata funzionale/grafica della PR #58. Il prompt allegato dal proprietario richiede di applicare il rifacimento nel codice, mantenendo TypeScript vanilla, Vite, servizi e contratti esistenti.
+
+## Interventi
+
+| Area                    | Comportamento della candidata                                                                                                                                                                                                                                             |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Design system           | Token semantici spostati in un solo file condiviso, `styles/tokens.css`; palette calda chiara/scura, controlli, bordi e superfici coerenti anche nei dialog aperti fuori dalla shell.                                                                                     |
+| Accesso                 | Composizione compatta con marchio originale, form centrale e informazioni essenziali; rimossi il grande messaggio promozionale e i suoi elementi decorativi. Login, MFA e recovery mantengono i servizi esistenti.                                                        |
+| Navigazione             | Menu desktop con etichette visibili come impostazione iniziale; preferenza esplicita per la modalità compatta conservata. Navigazione mobile e directory autorizzata rimangono disponibili.                                                                               |
+| Panoramica              | Stato del servizio compatto, indicatori allineati e aree operative in elenco; rimossi il grande pannello a gradiente e la griglia di schede sovradimensionate.                                                                                                            |
+| Comande                 | Catalogo e riepilogo separati; ricerca per nome/ingrediente, categorie, quantità con pulsanti, uscite, ingredienti rimossi e varianti. Filtrare il catalogo non ricrea i controlli né cancella la selezione. Prezzi indicativi, conferma server e idempotenza preservati. |
+| Conti                   | Elenco compatto al posto delle card ripetute; dettaglio con saldo allineato, azioni, storico e sezione finanziaria distinta, senza cambiare le operazioni economiche.                                                                                                     |
+| Cassa                   | Conto selezionato riconoscibile nella ricerca anche dopo un aggiornamento; conservati protezione dalle risposte obsolete, scorciatoie, residui e pagamenti parziali/misti.                                                                                                |
+| Accoglienza             | Intestazione e indicatori compatti; sala, arrivi, prenotazioni e lista d'attesa conservano i workspace e le azioni autorizzate.                                                                                                                                           |
+| Cucina/Pass             | Filtro conservato per sede e ruolo nella sessione, con stato vuoto esplicito; nessuna modifica alle transizioni o ai dati allergeni.                                                                                                                                      |
+| Catalogo/configurazione | Navigazione verticale per modulo su desktop e scorrimento orizzontale su mobile; ricerca dei record già autorizzati, conteggio e azioni di modifica conservati.                                                                                                           |
+| Pubblico                | Fallback della home con indirizzo e contatti reali al posto di grandi monogrammi decorativi; nessuna fotografia simulata per i piatti. I link alle sezioni disabilitate restano esclusi e la personalizzazione del ristorante è preservata.                               |
+| Altre schermate         | Componenti condivisi, token, superfici, controlli e dialog aggiornati; i moduli, le rotte, le licenze e i permessi restano quelli della candidata. Il completamento della revisione visiva va distinto dall'applicazione dei componenti comuni.                           |
+
+La logica dell'editor comande è separata in `src/components/order-composer.ts`; `src/pages/accounts.ts` continua a gestire autorizzazioni contestuali, validazione delle selezioni, invio, coda offline e navigazione. L'editor non calcola prezzi autorevoli né risolve disponibilità concorrenti sul client.
+
+## Verifiche locali eseguite
+
+- 389 test applicativi passati prima dell'ultima riorganizzazione dei layout; la CI ripete la suite sulla candidata pubblicata.
+- TypeScript, lint e formattazione dei sorgenti passati sulle modifiche correnti.
+- Build CORE pubblica e staff passata; profilo FULL verificato separatamente dalla CI.
+- Contratti strutturali Admin, Host, Cashier, Waiter, design system e Step 11 passati dopo gli interventi pertinenti.
+- Contrasto dei bordi dei controlli verificato: 4,12:1 chiaro e 7,19:1 scuro contro la superficie corrispondente.
+- Handoff originale conservato, verifica dei suoi 11 file immutabili passata.
+
+La distribuzione Chromium nell'ambiente locale ha restituito un archivio non valido. L'anteprima gestita disponibile è HTTP su `terminal.local`, che non fornisce il contesto sicuro richiesto da `crypto.randomUUID` usato dall'app. Non è stato inserito un fallback meno sicuro per aggirare questo limite: il collaudo browser viene eseguito nei runner GitHub e sull'anteprima HTTPS.
+
+## Verifiche browser richieste
+
+Aggiunti casi UI reali con fixture HTTP esplicite a 360, 820 e 1440 pixel: ricerca, categorie, varianti obbligatorie, ingredienti rimossi, uscita, conservazione della selezione e payload di invio. Un ulteriore caso copre ricerca e azioni autorizzate della configurazione a 390 pixel. Le fixture non vengono incluse nell'applicazione.
+
+I workflow hardening e integrazione isolata riconoscono questo ramo. Il primo conserva gli screenshot dell'accesso, del pubblico, del composer e della configurazione; il secondo ripete i percorsi con Auth, database, API e servizi isolati. Non chiamare questi risultati collaudi del database ospitato.
+
+## Anteprima richiesta su GitHub Pages
+
+Il workflow Pages può costruire e pubblicare automaticamente **solo questa candidata di test**, dal ramo esatto sopra indicato, dopo i suoi gate e l'intera suite browser. Gli altri rami conservano il comportamento precedente e il rilascio commerciale mantiene il percorso manuale. Eventuali regole di approvazione degli Environments GitHub restano applicate dal servizio.
+
+La preview usa l'ambiente GitHub `staging` già configurato e il progetto Supabase di prova esistente. Non modifica lo schema, Auth, RLS, Storage o i secrets del progetto production e non crea nuovi progetti cloud. L'unificazione Supabase resta un'attività separata, con il piano della PR #59.
+
+Il controllo iniziale del 6 novembre ha trovato GitHub Pages respinto su tutti i 12 endpoint browser. È stato aggiunto l'origin esatto `https://ambrogiocorti.github.io` a `ADDITIONAL_ALLOWED_ORIGINS` dello staging, conservando le due anteprime Vercel e il digest di `ALLOWED_ORIGINS`. Dopo il salvataggio: 12/12 preflight HTTP 204 per ciascuno dei tre origin autorizzati e 12/12 rifiuti HTTP 403 per un origin estraneo. Evidenze prima/dopo nella cartella `docs/evidence/redesign-2026-11-06/`.
+
+Due gate strutturali preesistenti cercavano ancora il vecchio schema allergeni e la selezione sede locale. Sono stati riallineati alla normalizzazione degli allergeni e al contesto autorevole server già presenti nella candidata, mantenendo le garanzie funzionali.
+
+Prima di indicare l'URL come aggiornato, controllare il successo del job deploy, il commit effettivamente distribuito e il caricamento delle pagine HTTPS. Prima di chiudere il rifacimento, rivedere gli screenshot completamente caricati e i percorsi per ruolo. Finché tali verifiche non sono concluse, la candidata resta **IN PROGRESS**.
+
+Il completamento grafico non risolve i gate aperti di backup/ripristino ospitato, provider e stampante fisica.

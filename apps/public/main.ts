@@ -669,7 +669,7 @@ function applyBrand(site: PublicSite): void {
   ])
     document.documentElement.style.removeProperty(token);
   const darkMode = preferredPublicTheme() === 'dark';
-  const defaultBackground = darkMode ? '#0b1324' : '#f5f7fc';
+  const defaultBackground = darkMode ? '#141615' : '#f6f3ed';
   // The restaurant can select a branded background for its configured mode,
   // but it must never override a guest's explicit light/dark preference.
   const brandDarkMode = site.branding.dark_mode !== false;
@@ -692,12 +692,12 @@ function applyBrand(site: PublicSite): void {
     document.documentElement.style.setProperty('--pf-on-blue', readableInk(accent));
   }
   const bodyFonts: Record<string, string> = {
-    SANS: 'Inter, Segoe UI, Arial, sans-serif',
+    SANS: '-apple-system, BlinkMacSystemFont, Segoe UI, Arial, sans-serif',
     SERIF: 'Georgia, Times New Roman, serif',
     HUMANIST: 'Trebuchet MS, Segoe UI, sans-serif',
   };
   const headingFonts: Record<string, string> = {
-    SANS: 'Inter, Segoe UI, Arial, sans-serif',
+    SANS: '-apple-system, BlinkMacSystemFont, Segoe UI, Arial, sans-serif',
     SERIF: 'Georgia, Times New Roman, serif',
     HUMANIST: 'Trebuchet MS, Segoe UI, sans-serif',
   };
@@ -760,7 +760,7 @@ async function home(
     el(
       'div',
       { class: 'restaurant-welcome-copy' },
-      el('p', { class: 'restaurant-kicker' }, 'OSPITALITÀ, OGNI GIORNO'),
+      el('p', { class: 'restaurant-kicker' }, site.name),
       el('h1', {}, textValue(site.content, 'hero_title', site.name)),
       el(
         'p',
@@ -777,17 +777,15 @@ async function home(
         el('a', { href: menuHref, class: 'button primary' }, 'Esplora il menu'),
         bookingEnabled
           ? el('a', { href: bookingHref, class: 'button secondary' }, 'Prenota un tavolo')
-          : el(
-              'a',
-              { href: venueAwarePath('/ristorante', site, venue), class: 'button secondary' },
-              'Il ristorante',
-            ),
+          : storyEnabled
+            ? el(
+                'a',
+                { href: venueAwarePath('/ristorante', site, venue), class: 'button secondary' },
+                'Il ristorante',
+              )
+            : null,
       ),
-      el(
-        'p',
-        { class: 'restaurant-welcome-caption' },
-        'Un luogo da scoprire, un’esperienza da condividere.',
-      ),
+      el('p', { class: 'restaurant-welcome-caption' }, venue?.address ?? site.name),
     ),
     homeImage
       ? el(
@@ -800,12 +798,21 @@ async function home(
             decoding: 'async',
           }),
         )
-      : el(
-          'div',
-          { class: 'restaurant-welcome-monogram', 'aria-hidden': 'true' },
-          el('span', {}, site.name.slice(0, 1).toLocaleUpperCase('it')),
-          el('small', {}, 'LA TAVOLA · LE PERSONE'),
-        ),
+      : venue && contactsEnabled
+        ? el(
+            'aside',
+            { class: 'restaurant-welcome-visit', 'aria-label': 'Organizza la visita' },
+            el('p', { class: 'restaurant-kicker' }, 'DOVE SIAMO'),
+            el('h2', {}, venue.name),
+            venue.address ? el('p', { class: 'restaurant-visit-address' }, venue.address) : null,
+            venue.phone ? el('p', { class: 'restaurant-visit-phone' }, venue.phone) : null,
+            el(
+              'a',
+              { href: venueAwarePath('/contatti', site, venue), class: 'restaurant-section-link' },
+              'Contatti e indicazioni ↗',
+            ),
+          )
+        : null,
   );
   const menuPreview = el(
     'section',
@@ -839,11 +846,7 @@ async function home(
                   loading: 'lazy',
                   decoding: 'async',
                 })
-              : el(
-                  'div',
-                  { class: 'restaurant-featured-placeholder', 'aria-hidden': 'true' },
-                  dish.name.slice(0, 1),
-                ),
+              : null,
             el(
               'div',
               { class: 'restaurant-featured-info' },
@@ -883,13 +886,15 @@ async function home(
           el('span', {}, 'Prenota un tavolo'),
           el('span', { class: 'restaurant-journey-arrow', 'aria-hidden': 'true' }, '↗'),
         )
-      : el(
-          'a',
-          { href: venueAwarePath('/ristorante', site, venue) },
-          el('span', { class: 'restaurant-journey-number', 'aria-hidden': 'true' }, '02'),
-          el('span', {}, 'La nostra storia'),
-          el('span', { class: 'restaurant-journey-arrow', 'aria-hidden': 'true' }, '↗'),
-        ),
+      : storyEnabled
+        ? el(
+            'a',
+            { href: venueAwarePath('/ristorante', site, venue) },
+            el('span', { class: 'restaurant-journey-number', 'aria-hidden': 'true' }, '02'),
+            el('span', {}, 'La nostra storia'),
+            el('span', { class: 'restaurant-journey-arrow', 'aria-hidden': 'true' }, '↗'),
+          )
+        : null,
     contactsEnabled
       ? el(
           'a',

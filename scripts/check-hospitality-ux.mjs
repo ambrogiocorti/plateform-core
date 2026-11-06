@@ -2,15 +2,17 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
 const source = async (path) => readFile(path, 'utf8');
-const [home, admin, staff, restaurant, frontDesk, staffCss, newWorkspace] = await Promise.all([
-  source('apps/public/main.ts'),
-  source('src/pages/admin-operations.ts'),
-  source('apps/staff/main.ts'),
-  source('styles/restaurant-redesign.css'),
-  source('styles/frontdesk-v4.css'),
-  source('styles/staff-app.css'),
-  source('styles/workspace-v5.css'),
-]);
+const [home, admin, staff, restaurant, frontDesk, staffCss, newWorkspace, tokens] =
+  await Promise.all([
+    source('apps/public/main.ts'),
+    source('src/pages/admin-operations.ts'),
+    source('apps/staff/main.ts'),
+    source('styles/restaurant-redesign.css'),
+    source('styles/frontdesk-v4.css'),
+    source('styles/staff-app.css'),
+    source('styles/workspace-v5.css'),
+    source('styles/tokens.css'),
+  ]);
 const must = (s, text, label) => assert.ok(s.includes(text), 'HOSPITALITY_UX_MISSING:' + label);
 const mustNot = (s, text, label) =>
   assert.ok(!s.includes(text), 'HOSPITALITY_UX_REGRESSION:' + label);
@@ -34,9 +36,13 @@ for (const [s, text, label] of [
   [frontDesk, '.host-desk-body', 'host_split_workspace'],
   [frontDesk, '.cashier-command-center', 'cash_workspace'],
   [frontDesk, '.waiter-priority-bar', 'waiter_urgency_strip'],
-  [staff, "localStorage.getItem('plateform-sidebar') !== 'expanded'", 'default_compact_sidebar'],
+  [
+    staff,
+    "localStorage.getItem('plateform-sidebar') === 'collapsed'",
+    'explicit_compact_sidebar_preference',
+  ],
   [newWorkspace, '--workspace-rail: #1a1c1b;', 'premium_navigation_material'],
-  [newWorkspace, '--pf-blue: #895b2d;', 'master_prompt_bronze_accent'],
+  [tokens, '--pf-blue: #895b2d;', 'master_prompt_bronze_accent'],
   [newWorkspace, 'logo-plateform-optimized.png', 'brand_asset_reuse'],
   [staffCss, '.login-layout', 'existing_login_contract'],
   [staff, 'loginPage(async () => {', 'login_entry_still_available'],

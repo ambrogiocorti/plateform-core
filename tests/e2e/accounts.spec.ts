@@ -13,7 +13,7 @@ const refund = 'a0000000-0000-4000-8000-000000000021',
   grant = 'a0000000-0000-4000-8000-000000000022';
 async function accountFixture(
   page: Page,
-  role: 'ADMIN' | 'CASHIER',
+  role: 'ADMIN' | 'CASHIER' | 'WAITER',
   discounted = false,
   prepaid = false,
 ) {
@@ -321,3 +321,127 @@ test('a financially closed prepaid account clearly remains in service until its 
   ).toBeVisible();
   await expect(page.getByRole('button', { name: 'Registra pagamento' })).toHaveCount(0);
 });
+
+for (const width of [360, 820, 1440]) {
+  test(
+    'order composer preserves customisations while searching and submits the reviewed lines at ' +
+      width,
+    async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await accountFixture(page, 'WAITER');
+      const dish = '40000000-0000-4000-8000-000000000001';
+      const ingredient = '40000000-0000-4000-8000-000000000003';
+      const option = '40000000-0000-4000-8000-000000000005';
+      await page.route('**/rest/v1/rpc/get_public_menu', (route) =>
+        route.fulfill({
+          json: [
+            {
+              id: dish,
+              name: 'Risotto alla zucca',
+              description: 'Riso e zucca',
+              image_path: null,
+              beverage: false,
+              category_id: '40000000-0000-4000-8000-000000000002',
+              category_name: 'Primi',
+              price_cents: 1400,
+              availability: 4,
+              ingredients: [{ id: ingredient, name: 'Parmigiano', removable: true }],
+              allergens: [{ code: 'MILK', name: 'Latte' }],
+              dietary_tags: [],
+              variant_groups: [
+                {
+                  id: '40000000-0000-4000-8000-000000000004',
+                  name: 'Porzione',
+                  required: true,
+                  max_selections: 1,
+                  options: [{ id: option, label: 'Classica' }],
+                },
+              ],
+            },
+            {
+              id: '40000000-0000-4000-8000-000000000006',
+              name: 'Acqua naturale',
+              image_path: null,
+              beverage: true,
+              category_id: '40000000-0000-4000-8000-000000000007',
+              category_name: 'Bevande',
+              price_cents: 250,
+              availability: null,
+              ingredients: [],
+              allergens: [],
+              dietary_tags: [],
+              variant_groups: [],
+            },
+          ],
+        }),
+      );
+      const sent: Record<string, unknown>[] = [];
+      await page.route('**/rest/v1/rpc/create_order', async (route) => {
+        sent.push(route.request().postDataJSON() as Record<string, unknown>);
+        await route.fulfill({ json: { id: order } });
+      });
+      await page.goto(`http://localhost:5174/conti/${account}`);
+      await page.getByRole('button', { name: 'Aggiungi ordine', exact: true }).click();
+      const editor = page.getByRole('dialog', { name: 'Nuovo ordine', exact: true });
+      await expect(editor).toBeVisible();
+      await editor.getByRole('button', { name: 'Invia ordine', exact: true }).click();
+      expect(sent).toHaveLength(0);
+      const rice = editor.locator('article.menu-choice').filter({ hasText: 'Risotto alla zucca' });
+      await rice.getByLabel('Quantità', { exact: true }).fill('2');
+      await rice.getByLabel('Uscita', { exact: true }).fill('2');
+      await rice.getByLabel('Senza Parmigiano', { exact: true }).check();
+      await editor.getByRole('button', { name: 'Invia ordine', exact: true }).click();
+      expect(sent).toHaveLength(0);
+      await rice.getByLabel('Classica', { exact: true }).check();
+      await editor.getByLabel('Cerca un piatto', { exact: true }).fill('Acqua');
+      await expect(rice).toBeHidden();
+      const cart = editor.getByRole('complementary', { name: 'Riepilogo comanda' });
+      await expect(cart).toContainText('Risotto alla zucca');
+      await expect(cart).toContainText('Senza Parmigiano');
+      await expect(cart).toContainText('Uscita 2');
+      await editor.getByLabel('Cerca un piatto', { exact: true }).fill('non esiste');
+      await expect(editor.getByRole('heading', { name: 'Nessun piatto trovato' })).toBeVisible();
+      await editor.getByLabel('Cerca un piatto', { exact: true }).fill('');
+      await editor.getByRole('button', { name: 'Bevande', exact: true }).click();
+      await expect(rice).toBeHidden();
+      await editor.getByRole('button', { name: 'Tutti', exact: true }).click();
+      await expect(rice.getByLabel('Quantità', { exact: true })).toHaveValue('2');
+      await expect(rice.getByLabel('Classica', { exact: true })).toBeChecked();
+      await expect(rice.getByLabel('Senza Parmigiano', { exact: true })).toBeChecked();
+      const bounds = await editor.evaluate((element) => {
+        const r = element.getBoundingClientRect();
+        return {
+          left: r.left,
+          right: r.right,
+          width: innerWidth,
+          scrollWidth: element.scrollWidth,
+          clientWidth: element.clientWidth,
+        };
+      });
+      expect(bounds.left).toBeGreaterThanOrEqual(0);
+      expect(bounds.right).toBeLessThanOrEqual(bounds.width + 1);
+      expect(bounds.scrollWidth).toBeLessThanOrEqual(bounds.clientWidth + 1);
+      await page.screenshot({
+        path: `test-results/hospitality-composer-${width}.png`,
+        fullPage: true,
+      });
+      await editor.getByRole('button', { name: 'Invia ordine', exact: true }).click();
+      await expect(editor).toBeHidden();
+      expect(sent).toHaveLength(1);
+      expect(sent[0]).toMatchObject({
+        p_account: account,
+        p_version: 1,
+        p_items: [
+          {
+            dish_id: dish,
+            quantity: 2,
+            step: 2,
+            removed_ingredients: [ingredient],
+            variant_options: [option],
+          },
+        ],
+      });
+      expect(sent[0]?.p_key).toMatch(/^[0-9a-f-]{36}$/i);
+    },
+  );
+}

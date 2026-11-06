@@ -70,7 +70,7 @@ const checks = [
   [
     'desktop-first responsive e target touch',
     read('styles/frontdesk-v4.css').includes('.cashier-command-center') &&
-      read('styles/frontdesk-v4.css').includes('minmax(290px, 0.72fr)') &&
+      read('styles/frontdesk-v4.css').includes('minmax(250px, 0.7fr)') &&
       read('styles/frontdesk-v4.css').includes('min-height: 43px') &&
       read('styles/frontdesk-v4.css').includes('@media (max-width: 950px)'),
   ],

@@ -4,6 +4,7 @@ import '../../styles/staff-app.css';
 import '../../styles/workspace-redesign.css';
 import '../../styles/frontdesk-v4.css';
 import '../../styles/workspace-v5.css';
+import '../../styles/staff-access.css';
 import {
   el,
   button,
@@ -373,7 +374,7 @@ async function render(): Promise<void> {
   });
   const main = el(
     'main',
-    { id: 'main', class: 'workspace' },
+    { id: 'main', class: 'workspace', 'data-area': pageLink?.path.slice(1) ?? 'operazioni' },
     el(
       'header',
       { class: 'page-heading workspace-page-heading' },
@@ -435,7 +436,7 @@ async function render(): Promise<void> {
         .catch(showError);
     });
   }
-  const collapsedSidebar = localStorage.getItem('plateform-sidebar') !== 'expanded';
+  const collapsedSidebar = localStorage.getItem('plateform-sidebar') === 'collapsed';
   const sidebarToggle = el(
     'button',
     {

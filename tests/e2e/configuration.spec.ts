@@ -331,3 +331,47 @@ test('CORE Admin does not see unlicensed food-cost navigation or economic API ca
   expect(calls.some((call) => call.name === 'get_menu_engineering')).toBe(false);
   expect(calls.some((call) => call.name === 'get_dish_food_cost')).toBe(false);
 });
+
+test('configuration search filters authorised records without losing their edit actions on mobile', async ({
+  page,
+}) => {
+  await fixture(page, 'ADMIN');
+  await page.route(/\/rest\/v1\/rooms(?:\?|$)/, (route) =>
+    route.fulfill({
+      json: [
+        {
+          id: '80000000-0000-4000-8000-000000000001',
+          name: 'Sala principale',
+          venue_id: venue,
+          active: true,
+          version: 1,
+        },
+        {
+          id: '80000000-0000-4000-8000-000000000002',
+          name: 'Giardino',
+          venue_id: venue,
+          active: true,
+          version: 1,
+        },
+      ],
+    }),
+  );
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('http://localhost:5174/gestione?modulo=rooms');
+  const panel = page.locator('.configuration-panel');
+  await expect(panel.getByText('Sala principale', { exact: true })).toBeVisible();
+  await expect(panel.getByText('Giardino', { exact: true })).toBeVisible();
+  const search = page.getByRole('searchbox');
+  await search.fill('giardino');
+  await expect(panel.getByText('Sala principale', { exact: true })).toBeHidden();
+  await expect(panel.getByRole('button', { name: 'Modifica', exact: true })).toHaveCount(1);
+  await search.fill('nessuna sala');
+  await expect(panel.getByRole('heading', { name: 'Nessun risultato', exact: true })).toBeVisible();
+  await search.fill('');
+  await expect(panel.getByRole('button', { name: 'Modifica', exact: true })).toHaveCount(2);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+  await page.screenshot({
+    path: 'test-results/hospitality-configuration-mobile.png',
+    fullPage: true,
+  });
+});
