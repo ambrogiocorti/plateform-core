@@ -46,6 +46,14 @@ test('workspace V5: primary rail, authorized directory and mobile bottom navigat
   await expect(page.locator('.workspace-context-tabs')).toHaveCount(0);
   await expect(page.locator('.ops-overview')).toBeVisible();
   await expect(page.locator('.ops-summary-grid > button')).toHaveCount(4);
+  const overviewHeight = await page
+    .locator('.ops-overview')
+    .evaluate((element) => element.getBoundingClientRect().height);
+  expect(overviewHeight).toBeLessThanOrEqual(200);
+  const serviceHeight = await page
+    .locator('.ops-service-card')
+    .evaluate((element) => element.getBoundingClientRect().height);
+  expect(serviceHeight).toBeLessThanOrEqual(500);
   const pseudoLogo = await page
     .locator('.sidebar-brand-row .brand')
     .evaluate((brand) => getComputedStyle(brand, '::before').content);

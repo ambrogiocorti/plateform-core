@@ -23,6 +23,8 @@ Ramo `redesign/hospitality-workspaces-20261106`, derivato dal commit `12bf1ff` d
 
 La logica dell'editor comande è separata in `src/components/order-composer.ts`; `src/pages/accounts.ts` continua a gestire autorizzazioni contestuali, validazione delle selezioni, invio, coda offline e navigazione. L'editor non calcola prezzi autorevoli né risolve disponibilità concorrenti sul client.
 
+La panoramica ha un solo proprietario CSS, `styles/operations.css`, importato dal componente. Sono state rimosse 155 regole dashboard preesistenti dai due fogli workspace: nessuna altezza ereditata del vecchio hero, righe operative con azione dedicata e pannello priorità alto quanto il suo contenuto. Un controllo browser misura la densità effettiva dei due pannelli principali.
+
 ## Verifiche locali eseguite
 
 - 389 test applicativi passati prima dell'ultima riorganizzazione dei layout; la CI ripete la suite sulla candidata pubblicata.

@@ -353,6 +353,7 @@
 }
 .restaurant-home-content {
   display: grid;
+  align-items: start;
   grid-template-columns: minmax(0, 1.2fr) minmax(315px, 0.8fr);
   gap: clamp(18px, 2.4vw, 32px);
   margin-top: clamp(50px, 6vw, 88px);
@@ -363,11 +364,11 @@
 .restaurant-story-panel {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 20px;
   min-height: 0;
   margin: 0;
-  padding: clamp(30px, 4vw, 59px);
+  padding: clamp(24px, 3vw, 40px);
   border: 0;
   border-radius: 13px;
   background: color-mix(in srgb, var(--hospitality-surface) 55%, #e9dfd0);
@@ -395,9 +396,9 @@
 .restaurant-visit-panel {
   position: relative;
   top: auto;
-  min-height: 420px;
+  min-height: 0;
   margin: 0;
-  padding: clamp(30px, 4vw, 55px);
+  padding: clamp(24px, 3vw, 40px);
   border: 0;
   border-radius: 13px;
   background: var(--hospitality-dark);

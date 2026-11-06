@@ -3,6 +3,7 @@ const read = (p) => fs.readFileSync(new URL(`../${p}`, import.meta.url), 'utf8')
 const app = read('apps/staff/main.ts');
 const page = read('src/pages/admin-operations.ts');
 const shell = read('styles/workspace-v5.css');
+const operations = read('styles/operations.css');
 const migration = read('supabase/migrations/20261005170559_admin_operational_overview.sql');
 
 const checks = [
@@ -74,9 +75,9 @@ const checks = [
   ],
   [
     'UI responsive e touch',
-    shell.includes('.staff-shell .ops-body-grid') &&
-      shell.includes('.staff-shell .ops-summary-grid') &&
-      shell.includes('@media (max-width: 640px)'),
+    operations.includes('.ops-body-grid') &&
+      operations.includes('.ops-summary-grid') &&
+      operations.includes('@media (max-width: 640px)'),
   ],
 ];
 let failed = 0;

@@ -428,14 +428,14 @@ for (const width of [360, 390, 768, 820, 1024, 1280, 1440]) {
       expect(bounds.scrollWidth).toBeLessThanOrEqual(bounds.clientWidth + 1);
       await page.screenshot({
         path: `test-results/hospitality-composer-${width}.png`,
-        fullPage: true,
+        fullPage: false,
       });
       await page.evaluate(() => {
         document.documentElement.dataset.theme = 'dark';
       });
       await page.screenshot({
         path: `test-results/hospitality-composer-${width}-dark.png`,
-        fullPage: true,
+        fullPage: false,
         animations: 'disabled',
       });
       if (width <= 700) {

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
 const source = async (path) => readFile(path, 'utf8');
-const [home, admin, staff, restaurant, frontDesk, staffCss, newWorkspace, tokens] =
+const [home, admin, staff, restaurant, frontDesk, staffCss, newWorkspace, operations, tokens] =
   await Promise.all([
     source('apps/public/main.ts'),
     source('src/pages/admin-operations.ts'),
@@ -11,6 +11,7 @@ const [home, admin, staff, restaurant, frontDesk, staffCss, newWorkspace, tokens
     source('styles/frontdesk-v4.css'),
     source('styles/staff-app.css'),
     source('styles/workspace-v5.css'),
+    source('styles/operations.css'),
     source('styles/tokens.css'),
   ]);
 const must = (s, text, label) => assert.ok(s.includes(text), 'HOSPITALITY_UX_MISSING:' + label);
@@ -27,8 +28,8 @@ for (const [s, text, label] of [
   [restaurant, ":root[data-theme='dark']", 'customer_dark_theme'],
   [admin, "el('div', { class: 'ops-body-grid' }, areaList, urgent)", 'area_first_action_board'],
   [admin, 'criticalCount > 0', 'actual_live_critical_language'],
-  [newWorkspace, '.staff-shell .ops-body-grid', 'operations_priority_column'],
-  [newWorkspace, '.staff-shell .ops-summary-grid', 'actionable_metric_tiles'],
+  [operations, '.ops-body-grid', 'operations_priority_column'],
+  [operations, '.ops-summary-grid', 'actionable_metric_tiles'],
   [newWorkspace, '.workspace-directory', 'accessible_workspace_directory'],
   [staff, "class: 'primary-navigation'", 'reduced_primary_navigation'],
   [staff, 'primaryNavigation(profile.role, links)', 'role_aware_navigation'],

@@ -4,6 +4,7 @@
   grid-template-rows: auto minmax(0, 1fr) auto auto;
   gap: 0;
   width: min(1160px, calc(100vw - 40px));
+  height: min(900px, calc(100dvh - 40px));
   max-height: min(900px, calc(100dvh - 40px));
   padding: 0;
   overflow: hidden;
@@ -340,6 +341,7 @@
 @media (max-width: 700px) {
   .dialog.order-editor {
     width: calc(100vw - 16px);
+    height: calc(100dvh - 16px);
     max-height: calc(100dvh - 16px);
   }
   .order-editor > header {

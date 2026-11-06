@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { rpc } from '../api/client';
 import { button, el, emptyState } from '../components/dom';
 import type { StaffContext } from './staff-context';
+import '../../styles/operations.css';
 
 const adminOverviewSchema = z.object({
   generated_at: z.string(),
