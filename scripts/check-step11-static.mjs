@@ -167,7 +167,7 @@ for (const [needle, label] of [
   ["class: 'restaurant-visit-panel'", 'visit_sidebar'],
   ["class: 'restaurant-featured-grid'", 'real_menu_highlights'],
   ["class: 'public-menu-toolbar'", 'public_menu_search'],
-  ['UI 2.0 · TEST', 'public_preview_signature'],
+  ['failClosedPublicMetadata()', 'preview_indexing_stays_closed'],
   ["document.documentElement.style.setProperty('--pf-blue', accent)", 'brand_accent_is_dynamic'],
 ])
   requireText(publicMain, needle, label);
@@ -204,7 +204,6 @@ for (const [needle, label] of [
   ["class: 'page-heading workspace-page-heading'", 'new_workspace_heading'],
   ["class: collapsedSidebar ? 'staff-shell sidebar-collapsed'", 'staff_sidebar_toggle'],
   ['navIcon(link.path)', 'staff_icon_navigation'],
-  ['NUOVA UI · TEST', 'staff_preview_signature'],
   ["localStorage.getItem('plateform-theme') ?? 'light'", 'light_default_staff'],
 ])
   requireText(staffMain, needle, label);

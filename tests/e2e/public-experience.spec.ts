@@ -21,6 +21,44 @@ const site = {
   multi_venue: false,
   venues: [venue],
 };
+
+test('restaurant, gallery and contacts show configured content with a usable photo viewer', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.route('**/rest/v1/rpc/get_public_site', (route) =>
+    route.fulfill({
+      json: {
+        ...site,
+        content: {
+          story_title: 'A tavola, insieme.',
+          story: 'Una tavola per incontrarsi.\n\nUna cucina da condividere.',
+          story_image_url: 'http://localhost:5173/demo/sala.jpg',
+          gallery: [{ url: 'http://localhost:5173/demo/pasta.jpg', alt: 'La pasta di esempio' }],
+        },
+      },
+    }),
+  );
+  await page.goto('http://localhost:5173/ristorante');
+  await expect(page.getByRole('heading', { name: 'A tavola, insieme.' })).toBeVisible();
+  await expect(page.getByText('Una cucina da condividere.', { exact: true })).toBeVisible();
+  await expect(page.locator('.restaurant-about-image')).toBeVisible();
+  await page.goto('http://localhost:5173/gallery');
+  await page.getByRole('button', { name: 'Ingrandisci: La pasta di esempio' }).click();
+  const viewer = page.getByRole('dialog', { name: 'La pasta di esempio' });
+  await expect(viewer.getByRole('img')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(viewer).toHaveCount(0);
+  await page.goto('http://localhost:5173/contatti');
+  await expect(page.getByText(venue.address, { exact: true })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Indicazioni stradali ↗' })).toHaveAttribute(
+    'href',
+    /maps\/search/,
+  );
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
+    true,
+  );
+});
 const dishId = '40000000-0000-4000-8000-000000000007';
 const categoryId = '40000000-0000-4000-8000-000000000008';
 const menuPayload = {

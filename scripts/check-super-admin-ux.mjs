@@ -57,7 +57,7 @@ const checks = [
       !/receipts_cents|average_check_cents/.test(
         page.slice(
           page.indexOf('const operationalHealth'),
-          page.indexOf('view.append(operationalHealth)') + 40,
+          page.indexOf('sections.overview.append(operationalHealth)') + 40,
         ),
       ),
   ],

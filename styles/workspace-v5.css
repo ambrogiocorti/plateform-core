@@ -59,14 +59,25 @@
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.13);
 }
 .staff-shell .sidebar-toggle {
-  width: 32px;
-  height: 32px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  padding: 7px;
   border: 1px solid rgba(217, 230, 255, 0.16);
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.05);
   color: #d4c5b2;
   font-size: 16px;
   font-weight: 600;
+}
+.staff-shell .sidebar-toggle svg {
+  width: 20px;
+  height: 20px;
+}
+.staff-shell .sidebar-toggle[aria-expanded='false'] svg {
+  transform: scaleX(-1);
 }
 .staff-shell .sidebar-toggle:hover {
   background: rgba(255, 255, 255, 0.12);
@@ -146,9 +157,44 @@
   white-space: nowrap;
 }
 .staff-shell .sidebar .nav-more {
-  margin-top: 12px;
-  border-top: 1px solid rgba(234, 241, 255, 0.12);
-  border-radius: 0 0 14px 14px;
+  margin-top: 8px;
+  border: 1px solid rgba(234, 241, 255, 0.16);
+  border-radius: 7px;
+}
+.staff-shell .sidebar .nav-more[data-current='true'] {
+  background: rgba(244, 235, 223, 0.1);
+  color: var(--workspace-rail-text);
+}
+.profile-dialog {
+  width: min(460px, calc(100vw - 32px));
+  padding: 24px;
+}
+.profile-dialog > header {
+  margin-bottom: 6px;
+}
+.profile-dialog > header h2 {
+  margin: 0;
+  font-size: 23px;
+  line-height: 1.25;
+}
+.profile-dialog .profile-role {
+  margin: 0 0 22px;
+  font-size: 13px;
+}
+.profile-action-list {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.profile-action-list > .button {
+  width: 100%;
+  min-height: 46px;
+  text-align: left;
+  padding: 12px 16px;
+}
+.profile-dialog > .button {
+  display: block;
+  margin-left: auto;
 }
 .staff-shell .sidebar-footer {
   display: flex;

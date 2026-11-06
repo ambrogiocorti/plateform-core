@@ -684,3 +684,107 @@
     color: #111 !important;
   }
 }
+/* Public editorial pages use the same measured typography as the restaurant home. */
+.public-page-heading {
+  max-width: 780px;
+  margin-bottom: 40px;
+}
+.restaurant-about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: clamp(28px, 5vw, 72px);
+}
+.restaurant-about-image {
+  width: 100%;
+  aspect-ratio: 5 / 4;
+  object-fit: cover;
+  border-radius: 8px;
+}
+.restaurant-about .story-copy {
+  font-size: 17px;
+  line-height: 1.8;
+}
+.restaurant-about .story-copy > .button {
+  display: inline-block;
+  margin-top: 16px;
+  font-size: 14px;
+  text-decoration: none;
+}
+.restaurant-about-values {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 40px;
+  margin-top: 64px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+}
+.restaurant-about-values h2 {
+  font-size: 22px;
+}
+.restaurant-about-values p {
+  color: var(--muted);
+}
+.restaurant-gallery .gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 32px 24px;
+}
+.restaurant-gallery figure {
+  min-width: 0;
+  margin: 0;
+}
+.restaurant-gallery .gallery-image-button {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--raised);
+}
+.restaurant-gallery .gallery-image-button img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  border-radius: 0;
+}
+.restaurant-gallery figcaption {
+  padding-top: 12px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.gallery-lightbox {
+  width: min(1000px, calc(100vw - 32px));
+}
+.gallery-lightbox img {
+  width: 100%;
+  max-height: 65dvh;
+  object-fit: contain;
+}
+.public-contact address {
+  margin-bottom: 16px;
+  font-style: normal;
+  line-height: 1.7;
+}
+.public-contact .public-directions {
+  display: inline-block;
+  margin: 4px 0 20px;
+  color: var(--accent);
+  font-weight: 600;
+}
+@media (max-width: 700px) {
+  .restaurant-about-grid,
+  .restaurant-about-values,
+  .restaurant-gallery .gallery-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .restaurant-about-values {
+    margin-top: 40px;
+    gap: 20px;
+  }
+  .public-page-heading {
+    margin-bottom: 28px;
+  }
+}

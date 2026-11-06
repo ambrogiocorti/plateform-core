@@ -35,6 +35,8 @@ export function client(): SupabaseClient {
 }
 
 const messages: Record<string, string> = {
+  UNAUTHORIZED: 'La sessione non è valida o è scaduta. Accedi di nuovo.',
+  OFFLINE_NOT_AVAILABLE: 'L’uso offline non è disponibile per questo ruolo o per questa sede.',
   OFFLINE_QUEUE_UNREADABLE:
     'La coda locale non è leggibile. Le operazioni sono conservate: non cancellare i dati del dispositivo e richiedi assistenza.',
   PRIVACY_HOLD:
@@ -213,15 +215,32 @@ export function safeError(
 ): ApplicationError {
   if (error instanceof ApplicationError) return error;
   const parsed = z.object({ message: z.string() }).safeParse(error);
-  const code = parsed.success
+  let code = parsed.success
     ? Object.keys(messages).find((key) => parsed.data.message === key)
     : undefined;
+  if (
+    !code &&
+    parsed.success &&
+    /Failed to fetch|NetworkError|Load failed|fetch failed|AbortError|TimeoutError/i.test(
+      parsed.data.message,
+    )
+  )
+    return new ApplicationError(
+      'NETWORK_UNAVAILABLE',
+      requestId,
+      'Connessione non disponibile. Controlla la rete e riprova.',
+    );
+  if (!code && error && typeof error === 'object' && 'code' in error) {
+    const databaseCode = String(error.code);
+    if (databaseCode === '42501') code = 'FORBIDDEN';
+    if (databaseCode === 'PGRST301' || databaseCode === 'PGRST303') code = 'FULL_AUTH_REQUIRED';
+  }
   return new ApplicationError(
     code ?? 'REQUEST_FAILED',
     requestId,
     code
       ? messages[code]!
-      : 'Operazione non completata. Verifica la connessione e aggiorna i dati prima di riprovare.',
+      : 'Non è stato possibile completare l’operazione. Riprova; se il problema continua, comunica il riferimento all’assistenza.',
   );
 }
 

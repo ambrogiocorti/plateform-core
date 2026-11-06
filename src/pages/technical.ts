@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { client, readRows, rpc, safeError } from '../api/client';
+import { client, readRows, rpc, safeError, safeEdgeError } from '../api/client';
+import '../../styles/technical.css';
 import { button, dialog, el, field, status, toast } from '../components/dom';
 import type { StaffContext } from './staff-context';
 import { stepUp } from '../auth/step-up';
@@ -130,7 +131,44 @@ export async function technicalPage(context: StaffContext): Promise<HTMLElement>
   const cutoverPendingCount = data.restores.filter(
     (row) => row.mode === 'RESTORE' && row.status === 'CUTOVER_REQUIRED',
   ).length;
-  const view = el('div', { class: 'stack' });
+  const view = el('div', { class: 'technical-workspace' });
+  const sectionLabels = {
+    overview: 'Panoramica',
+    continuity: 'Backup e ripristino',
+    resources: 'Risorse e code',
+    configuration: 'Configurazione',
+    incidents: 'Incidenti',
+  };
+  type Section = keyof typeof sectionLabels;
+  const sections = Object.fromEntries(
+    Object.entries(sectionLabels).map(([id, label]) => [
+      id,
+      el('section', { id: `health-panel-${id}`, class: 'technical-panel', 'aria-label': label }),
+    ]),
+  ) as Record<Section, HTMLElement>;
+  const navigation = el('nav', {
+    class: 'technical-navigation',
+    'aria-label': 'Sezioni stato piattaforma',
+  });
+  const controls = new Map<Section, HTMLButtonElement>();
+  const openSection = (id: Section): void => {
+    for (const [key, panel] of Object.entries(sections)) panel.hidden = key !== id;
+    for (const [key, control] of controls) control.setAttribute('aria-pressed', String(key === id));
+    sessionStorage.setItem('plateform-health-section', id);
+  };
+  for (const [id, label] of Object.entries(sectionLabels) as [Section, string][]) {
+    const control = button(label, () => openSection(id), 'quiet');
+    control.setAttribute('aria-controls', sections[id].id);
+    controls.set(id, control);
+    navigation.append(control);
+  }
+  view.append(navigation, el('div', { class: 'technical-panels' }, ...Object.values(sections)));
+  const savedSection = sessionStorage.getItem('plateform-health-section');
+  openSection(
+    savedSection && Object.hasOwn(sectionLabels, savedSection)
+      ? (savedSection as Section)
+      : 'overview',
+  );
   const continuityIncidents = data.incidents
     .filter((incident) => String(incident.automation_key ?? '').startsWith('CONTINUITY_'))
     .sort((a, b) => {
@@ -146,7 +184,7 @@ export async function technicalPage(context: StaffContext): Promise<HTMLElement>
   if (continuityIncidents.length) {
     const primary = continuityIncidents[0]!,
       urgent = ['CRITICAL', 'INCIDENT'].includes(String(primary.severity));
-    view.append(
+    sections.overview.append(
       el(
         'section',
         { class: `incident-banner ${urgent ? 'critical' : 'warning'}`, role: 'alert' },
@@ -162,7 +200,14 @@ export async function technicalPage(context: StaffContext): Promise<HTMLElement>
           el('span', { class: 'muted' }, String(primary.impact)),
         ),
         status(String(primary.severity)),
-        button('Gestisci', () => editIncident(primary), 'secondary'),
+        button(
+          'Gestisci',
+          () => {
+            openSection('incidents');
+            editIncident(primary);
+          },
+          'secondary',
+        ),
       ),
     );
   }
@@ -207,7 +252,7 @@ export async function technicalPage(context: StaffContext): Promise<HTMLElement>
         'div',
         {},
         el('p', { class: 'eyebrow' }, 'PLATEFORM TECHNICAL CONTROL'),
-        el('h1', {}, 'Operational Health'),
+        el('h2', {}, 'Stato della piattaforma'),
         el(
           'p',
           { class: 'muted' },
@@ -301,25 +346,30 @@ export async function technicalPage(context: StaffContext): Promise<HTMLElement>
       { class: 'technical-shortcuts', 'aria-label': 'Scorciatoie tecniche' },
       button(
         'SERVIZI',
-        () => document.getElementById('technical-health')?.scrollIntoView({ behavior: 'smooth' }),
+        () => {
+          openSection('overview');
+          document.getElementById('technical-health')?.scrollIntoView({ behavior: 'smooth' });
+        },
         'secondary',
       ),
-      button(
-        'CONTINUITÀ',
-        () =>
-          document.getElementById('technical-continuity')?.scrollIntoView({ behavior: 'smooth' }),
-        'secondary',
-      ),
-      button(
-        'CODE',
-        () => document.getElementById('technical-queues')?.scrollIntoView({ behavior: 'smooth' }),
-        'secondary',
-      ),
+      button('CONTINUITÀ', () => openSection('continuity'), 'secondary'),
+      button('CODE', () => openSection('resources'), 'secondary'),
       button('DISPOSITIVI', () => context.navigate('/dispositivi'), 'secondary'),
       button('AUDIT', () => context.navigate('/audit'), 'secondary'),
     ),
   );
-  view.append(operationalHealth);
+  const indicators = operationalHealth.querySelector('.technical-health-grid');
+  if (indicators) {
+    const secondary = [...indicators.children].slice(4);
+    const details = el(
+      'details',
+      { class: 'technical-secondary' },
+      el('summary', {}, 'Dispositivi, code e continuità'),
+      el('div', { class: 'technical-health-grid' }, ...secondary),
+    );
+    indicators.after(details);
+  }
+  sections.overview.append(operationalHealth);
 
   const latest =
       data.releases.find((row) => ['RELEASED', 'STAGING'].includes(String(row.status))) ??
@@ -330,7 +380,7 @@ export async function technicalPage(context: StaffContext): Promise<HTMLElement>
       .sort((a, b) =>
         String(b.last_restore_test_at).localeCompare(String(a.last_restore_test_at)),
       )[0];
-  view.append(
+  sections.continuity.append(
     el(
       'div',
       { class: 'kpi-grid' },
@@ -893,7 +943,7 @@ export async function technicalPage(context: StaffContext): Promise<HTMLElement>
       );
     }
   }
-  view.append(continuity);
+  sections.continuity.append(continuity);
   const health = el(
     'section',
     { class: 'card stack', id: 'technical-health' },
@@ -957,12 +1007,12 @@ export async function technicalPage(context: StaffContext): Promise<HTMLElement>
   health.append(
     button('Esegui controlli dei servizi', async () => {
       const { error } = await client().functions.invoke('health-probe', { body: {} });
-      if (error) throw safeError(error);
+      if (error) throw await safeEdgeError(error);
       toast('Controlli registrati.');
       await context.refresh?.();
     }),
   );
-  view.append(
+  sections.overview.append(
     health,
     el(
       'section',
@@ -1046,7 +1096,7 @@ export async function technicalPage(context: StaffContext): Promise<HTMLElement>
       'secondary',
     ),
   );
-  view.append(usage);
+  sections.resources.append(usage);
   const features = el(
     'section',
     { class: 'card stack' },
@@ -1094,7 +1144,7 @@ export async function technicalPage(context: StaffContext): Promise<HTMLElement>
         ),
       ),
     );
-  view.append(features);
+  sections.configuration.append(features);
   const limits = el('section', { class: 'card stack' }, el('h2', {}, 'Limiti delle risorse'));
   const limitNames: Record<string, string> = {
     max_users: 'Utenti',
@@ -1130,7 +1180,7 @@ export async function technicalPage(context: StaffContext): Promise<HTMLElement>
       await context.refresh?.();
     }),
   );
-  view.append(limits);
+  sections.configuration.append(limits);
   const security = el('section', { class: 'card stack' }, el('h2', {}, 'Autenticazione'));
   const adminMfa = el('input', { type: 'checkbox' }),
     cashierMfa = el('input', { type: 'checkbox' });
@@ -1183,7 +1233,7 @@ export async function technicalPage(context: StaffContext): Promise<HTMLElement>
       await context.refresh?.();
     }),
   );
-  view.append(security);
+  sections.configuration.append(security);
   const lifecycle = el(
     'section',
     { class: 'card stack' },
@@ -1234,7 +1284,7 @@ export async function technicalPage(context: StaffContext): Promise<HTMLElement>
         'secondary',
       ),
     );
-  view.append(lifecycle);
+  sections.configuration.append(lifecycle);
   const incidents = el('section', { class: 'card stack' }, el('h2', {}, 'Incidenti aperti'));
   function editIncident(existing?: Record<string, unknown>): void {
     const title = field('Titolo', 'title', 'text', String(existing?.title ?? '')),
@@ -1358,6 +1408,6 @@ export async function technicalPage(context: StaffContext): Promise<HTMLElement>
       ),
     );
   if (!data.incidents.length) incidents.append(el('p', {}, 'Nessun incidente aperto registrato.'));
-  view.append(incidents);
+  sections.incidents.append(incidents);
   return view;
 }

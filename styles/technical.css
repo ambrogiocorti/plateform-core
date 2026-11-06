@@ -1,0 +1,159 @@
+.technical-workspace {
+  display: grid;
+  grid-template-columns: 205px minmax(0, 1fr);
+  align-items: start;
+  gap: 24px;
+}
+.technical-navigation {
+  position: sticky;
+  top: 104px;
+  display: grid;
+  gap: 4px;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+}
+.technical-navigation > .button {
+  padding: 12px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 500;
+}
+.technical-navigation > [aria-pressed='true'] {
+  background: var(--raised);
+  color: var(--accent);
+  font-weight: 700;
+}
+.technical-panels,
+.technical-panel {
+  min-width: 0;
+}
+.technical-panel {
+  display: grid;
+  gap: 20px;
+}
+.technical-panel[hidden] {
+  display: none;
+}
+.technical-workspace .technical-hero {
+  padding: 24px;
+  border-radius: 10px;
+  box-shadow: none;
+}
+.technical-workspace .technical-hero-head h2 {
+  margin-bottom: 8px;
+  font-size: 25px;
+}
+.technical-workspace .technical-hero-head .eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+}
+.technical-workspace .technical-hero-head p {
+  font-size: 13px;
+}
+.technical-workspace .technical-health-card {
+  padding: 16px 12px;
+  border-radius: 6px;
+  background: var(--surface);
+  box-shadow: none;
+}
+.technical-workspace .technical-health-card > strong {
+  overflow-wrap: anywhere;
+  font-size: 21px;
+  line-height: 1.25;
+}
+.technical-workspace .technical-health-card > small {
+  font-size: 11px;
+}
+.technical-secondary {
+  padding-top: 16px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.technical-secondary > summary {
+  cursor: pointer;
+  min-height: 28px;
+}
+.technical-workspace .technical-shortcuts {
+  padding-top: 14px;
+  margin-top: 14px;
+  border-top: 1px solid var(--border);
+}
+.technical-workspace .technical-shortcuts .button {
+  min-height: 38px;
+  padding: 8px 12px;
+  font-size: 11px;
+}
+.technical-panel > .card {
+  padding: 24px;
+  border-radius: 10px;
+  box-shadow: none;
+}
+.technical-panel > .card > h2 {
+  margin-bottom: 0;
+  font-size: 20px;
+}
+.technical-panel .row.between {
+  padding-block: 12px;
+  border-bottom: 1px solid var(--border);
+  gap: 12px;
+  font-size: 13px;
+}
+.technical-panel .row.between > :first-child {
+  min-width: 0;
+  flex: 1 1 180px;
+}
+.technical-panel .row.between > strong,
+.technical-panel .status {
+  overflow-wrap: anywhere;
+}
+.technical-panel .row.between > .muted {
+  font-size: 11px;
+}
+.technical-panel .kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.technical-panel .kpi-grid h2 {
+  font-size: 15px;
+}
+.technical-panel pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 1050px) {
+  .technical-workspace {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+  .technical-navigation {
+    position: static;
+    display: flex;
+    overflow-x: auto;
+  }
+  .technical-navigation > .button {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+}
+@media (max-width: 650px) {
+  .technical-workspace .technical-health-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .technical-workspace .technical-hero,
+  .technical-panel > .card {
+    padding: 18px;
+  }
+  .technical-panel .kpi-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .technical-panel .row.between {
+    align-items: start;
+    flex-wrap: wrap;
+  }
+  .technical-workspace .technical-shortcuts .button {
+    flex: 0 1 auto;
+  }
+}

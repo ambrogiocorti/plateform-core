@@ -8,6 +8,7 @@ import type { StaffContext } from './staff-context';
 import { command } from './staff-context';
 import { environment } from '../config/environment';
 import { waitlistOfferFragment } from '../services/waitlist';
+import { publicAppUrl } from '../services/public-site';
 
 const reservationStatus = z.enum([
   'REQUESTED',
@@ -565,7 +566,9 @@ export async function hostPage(context: StaffContext): Promise<HTMLElement> {
                   if (result.entry_id !== candidate.id) throw new Error('INVALID_WAITLIST_CONTEXT');
                   confirmation.close();
                   action.disabled = true;
-                  const offerLink = new URL('lista-attesa/offerta', environment().publicBaseUrl);
+                  const offerLink = new URL(
+                    publicAppUrl('/lista-attesa/offerta', environment().publicBaseUrl),
+                  );
                   offerLink.hash = waitlistOfferFragment(result.entry_id, result.access_token);
                   waitlistResults.prepend(
                     el(

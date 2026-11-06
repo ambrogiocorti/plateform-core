@@ -1,3 +1,4 @@
+import { restaurantPage, galleryPage } from '../../src/pages/public-about';
 import { registerPwa } from '../../src/services/pwa';
 import '../../styles/public.css';
 import '../../styles/public-app.css';
@@ -428,13 +429,7 @@ async function render(): Promise<void> {
       { href: '/', class: 'restaurant-brand', 'aria-label': `${site.name} — Home` },
       logo ? el('img', { src: logo, alt: '', width: '150', decoding: 'async' }) : site.name,
     ),
-    el(
-      'div',
-      { class: 'public-header-actions' },
-      isPreview ? el('span', { class: 'design-preview-stamp' }, 'UI 2.0 · TEST') : null,
-      themeButton,
-      menuButton,
-    ),
+    el('div', { class: 'public-header-actions' }, themeButton, menuButton),
     navigation,
   );
   const path = currentPublicPath();
@@ -491,51 +486,10 @@ async function render(): Promise<void> {
       ),
     );
     if (site.multi_venue) main.append(el('a', { href: '/sedi' }, 'Visualizza le sedi'));
-  } else if (path === '/ristorante' && sectionEnabled(site, 'story'))
-    main.append(
-      el(
-        'section',
-        { class: 'public-section story-grid' },
-        el(
-          'div',
-          {},
-          el('p', { class: 'eyebrow' }, site.name),
-          el('h1', {}, textValue(site.content, 'story_title', 'Il ristorante')),
-        ),
-        el(
-          'div',
-          { class: 'story-copy' },
-          textValue(
-            site.content,
-            'story',
-            'Per conoscere la nostra cucina e organizzare la tua visita, contattaci.',
-          ),
-        ),
-      ),
-    );
-  else if (path === '/gallery' && sectionEnabled(site, 'gallery')) {
-    const photos = z
-      .array(z.object({ url: z.string(), alt: z.string() }))
-      .safeParse(site.content.gallery);
-    main.append(
-      el(
-        'section',
-        { class: 'public-section' },
-        el('p', { class: 'eyebrow' }, 'I nostri spazi'),
-        el('h1', {}, 'Gallery'),
-        (() => {
-          const imageElements = (photos.success ? photos.data : []).flatMap((photo) => {
-            const source = safeImageUrl(photo.url);
-            return source
-              ? [el('img', { src: source, alt: photo.alt, loading: 'lazy', decoding: 'async' })]
-              : [];
-          });
-          return imageElements.length
-            ? el('div', { class: 'gallery-grid' }, ...imageElements)
-            : el('p', { class: 'muted' }, 'La gallery verrà aggiornata presto.');
-        })(),
-      ),
-    );
+  } else if (path === '/ristorante' && sectionEnabled(site, 'story')) {
+    main.append(restaurantPage(site));
+  } else if (path === '/gallery' && sectionEnabled(site, 'gallery')) {
+    main.append(galleryPage(site));
   } else if (path.startsWith('/sedi/') && sectionEnabled(site, 'venues')) {
     // Respect the same fail-closed venue resolution used for SEO, menus and
     // booking links. A conflicting ?sede= must not render a different detail.
@@ -561,6 +515,15 @@ async function render(): Promise<void> {
         { class: 'public-section' },
         el('p', { class: 'eyebrow' }, 'Vieni a trovarci'),
         el('h1', {}, path === '/contatti' ? 'Contatti' : 'Le nostre sedi'),
+        el(
+          'p',
+          { class: 'public-intro' },
+          textValue(
+            site.content,
+            'contacts_intro',
+            'Scrivici o chiamaci per organizzare la tua visita.',
+          ),
+        ),
         el(
           'div',
           { class: 'grid' },
@@ -1018,7 +981,11 @@ async function menu(site: PublicSite, venue: Venue | undefined): Promise<HTMLEle
     { class: 'public-section' },
     el('p', { class: 'eyebrow' }, 'Una scelta di gusto'),
     el('h1', {}, 'Scopri la nostra cucina'),
-    el('p', { class: 'public-intro' }, 'I sapori che amiamo, preparati per essere condivisi.'),
+    el(
+      'p',
+      { class: 'public-intro' },
+      textValue(site.content, 'menu_intro', 'I sapori che amiamo, preparati per essere condivisi.'),
+    ),
   );
   if (!venue) {
     section.append(
@@ -1177,9 +1144,26 @@ function venueCard(venue: Venue, linkToVenue = false): HTMLElement {
     'article',
     { class: 'card public-contact venue-card' },
     el('h3', {}, venue.name),
-    el('p', {}, venue.address),
+    el('address', {}, venue.address),
     el('p', {}, el('a', { href: `tel:${venue.phone.replace(/[^+0-9]/g, '')}` }, venue.phone)),
     venue.email ? el('p', {}, el('a', { href: `mailto:${venue.email}` }, venue.email)) : null,
+    el(
+      'a',
+      {
+        href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(venue.address)}`,
+        target: '_blank',
+        rel: 'noopener noreferrer',
+        class: 'public-directions',
+      },
+      'Indicazioni stradali ↗',
+    ),
+    Object.keys(venue.opening_hours).length === 0
+      ? el(
+          'p',
+          { class: 'muted' },
+          'Per orari e disponibilità aggiornati, contattaci prima della visita.',
+        )
+      : null,
     ...Object.entries(venue.opening_hours).map(([day, hours]) =>
       el('p', {}, `${day} · ${typeof hours === 'string' ? hours : ''}`),
     ),

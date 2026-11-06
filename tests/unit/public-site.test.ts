@@ -7,6 +7,7 @@ import {
   isClientSidePublicPath,
   internalPublicPath,
   hostedPublicPath,
+  publicAppUrl,
   normalizePublicPath,
   readableInk,
   safeAccent,
@@ -56,6 +57,20 @@ const site: PublicSite = {
 
 describe('GitHub Pages preview path isolation', () => {
   const base = '/plateform-core/';
+  it('keeps the configured project path in generated table and waitlist links', () => {
+    const origin = 'https://ambrogiocorti.github.io/plateform-core';
+    for (const configured of [origin, origin + '/']) {
+      expect(publicAppUrl('/tavolo/seat-id', configured)).toBe(origin + '/tavolo/seat-id');
+      expect(publicAppUrl('/lista-attesa/offerta#offer', configured)).toBe(
+        origin + '/lista-attesa/offerta#offer',
+      );
+    }
+    expect(publicAppUrl('/tavolo/seat-id', 'https://restaurant.example')).toBe(
+      'https://restaurant.example/tavolo/seat-id',
+    );
+    expect(() => publicAppUrl('//other.example', origin)).toThrow('INVALID_PUBLIC_PATH');
+    expect(() => publicAppUrl('/../staff', origin)).toThrow('INVALID_PUBLIC_PATH');
+  });
   it('keeps root-domain production paths and translates only preview-owned routes', () => {
     expect(internalPublicPath('/menu', '/')).toBe('/menu');
     expect(hostedPublicPath('/menu', '/')).toBe('/menu');

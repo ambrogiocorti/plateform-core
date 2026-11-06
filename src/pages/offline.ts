@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { client, readRows, rpc, safeError } from '../api/client';
+import { client, readRows, rpc, safeEdgeError } from '../api/client';
 import { button, dialog, el, field, status, toast } from '../components/dom';
 import {
   authorizationSchema,
@@ -113,7 +113,7 @@ export async function prepareOffline(context: StaffContext, notify = true): Prom
   )
     throw new Error('OFFLINE_OTHER_USER_QUEUE');
   const { data, error } = await client().functions.invoke('offline-authorization', { body: {} });
-  if (error) throw safeError(error);
+  if (error) throw await safeEdgeError(error);
   await vaultPut('authorization', authorizationSchema.parse(data));
   if (!(await offlineAuthorization())) throw new Error('INVALID_OFFLINE_SIGNATURE');
   await vaultPut('context', {

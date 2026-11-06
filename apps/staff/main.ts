@@ -77,6 +77,7 @@ async function refreshVisiblePage(): Promise<void> {
 function navIcon(path: string): SVGSVGElement {
   // Navigation icon paths are local and role-independent; permissions remain server enforced.
   const icons: Record<string, string> = {
+    '/menu-laterale': 'M4 4h16v16H4z M9 4v16 M16 9l-3 3 3 3',
     '/operazioni': 'M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z',
     '/sala': 'M4 12h16 M7 12V6h10v6 M7 12v6 M17 12v6 M5 18h14',
     '/conti': 'M5 3h14v18l-3-2-3 2-3-2-3 2-2-2z M8 8h8 M8 12h8 M8 16h5',
@@ -105,6 +106,7 @@ function navIcon(path: string): SVGSVGElement {
   svg.setAttribute('stroke-width', '1.8');
   svg.setAttribute('stroke-linecap', 'round');
   svg.setAttribute('stroke-linejoin', 'round');
+  svg.setAttribute('aria-hidden', 'true');
   const shape = document.createElementNS('http://www.w3.org/2000/svg', 'path');
   shape.setAttribute('d', data);
   svg.append(shape);
@@ -467,7 +469,7 @@ async function render(): Promise<void> {
       'aria-expanded': String(!collapsedSidebar),
       title: collapsedSidebar ? 'Espandi menu' : 'Comprimi menu',
     },
-    el('span', { 'aria-hidden': 'true' }, '⇥'),
+    navIcon('/menu-laterale'),
   );
   const moreDialog: HTMLDialogElement = el(
     'dialog',
@@ -646,9 +648,6 @@ async function render(): Promise<void> {
             el('strong', { class: 'context' }, context.venue?.name ?? 'Configurazione iniziale'),
           ),
         ),
-        import.meta.env.VITE_PAGES_MODE === 'test'
-          ? el('span', { class: 'design-preview-stamp' }, 'NUOVA UI · TEST')
-          : null,
         el('span', { id: 'connection-state', class: 'muted', role: 'status' }, connectionLabel()),
         venueControl,
         el(
@@ -878,8 +877,26 @@ async function render(): Promise<void> {
 
 function openProfile(): void {
   if (!currentContext) return;
+  const roleLabels: Record<UserRole, string> = {
+    SUPER_ADMIN: 'Amministrazione della piattaforma',
+    ADMIN: 'Amministrazione del ristorante',
+    HOST: 'Accoglienza',
+    WAITER: 'Servizio di sala',
+    CASHIER: 'Cassa',
+    KITCHEN_ADMIN: 'Responsabile cucina',
+    KITCHEN_STAFF: 'Cucina',
+    PASS: 'Pass',
+    CUSTOMER: 'Cliente',
+    SYSTEM: 'Sistema',
+  };
+  const actions = el('div', { class: 'profile-action-list' });
   const popup = dialog(
     currentContext.profile.display_name,
+    el('p', { class: 'muted profile-role' }, roleLabels[currentContext.profile.role]),
+    actions,
+  );
+  popup.classList.add('profile-dialog');
+  actions.append(
     button(
       'Blocca postazione',
       async () => {

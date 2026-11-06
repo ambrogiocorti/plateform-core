@@ -69,19 +69,32 @@ export function loading(): HTMLElement {
 }
 export function showError(error: unknown): void {
   const failure = safeError(error);
-  toast(`${failure.message} · Rif. ${failure.requestId.slice(0, 8)}`, true);
+  toast(failure.message, true, failure.requestId);
 }
-export function toast(message: string, isError = false): void {
+export function toast(message: string, isError = false, requestId?: string): void {
   let region = document.getElementById('toasts');
   if (!region) {
     region = el('div', { id: 'toasts', class: 'toasts', 'aria-live': 'polite' });
     document.body.append(region);
   }
+  if (
+    requestId &&
+    [...region.children].some((item) => (item as HTMLElement).dataset.requestId === requestId)
+  )
+    return;
   const item = el(
     'div',
     { class: `toast ${isError ? 'error' : ''}`, role: isError ? 'alert' : 'status' },
-    message,
+    el(
+      'div',
+      { class: 'toast-content' },
+      el('p', { class: 'toast-message' }, message),
+      requestId
+        ? el('span', { class: 'toast-reference' }, `Riferimento ${requestId.slice(0, 8)}`)
+        : null,
+    ),
   );
+  if (requestId) item.dataset.requestId = requestId;
   item.append(button('Chiudi', () => item.remove(), 'quiet'));
   region.append(item);
   if (!isError) setTimeout(() => item.remove(), 7000);

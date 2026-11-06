@@ -13,6 +13,18 @@ export function hostedPublicPath(path: string, base = '/'): string {
   return base === '/' ? path : `${base.replace(/\/$/, '')}${path}`;
 }
 
+/** Build shareable links inside the configured app, including project-hosted sites. */
+export function publicAppUrl(path: string, baseUrl: string): string {
+  if (!path.startsWith('/') || path.startsWith('//') || path.includes('\\'))
+    throw new Error('INVALID_PUBLIC_PATH');
+  const base = new URL(baseUrl);
+  base.pathname = `${base.pathname.replace(/\/$/, '')}/`;
+  const target = new URL(path.slice(1), base);
+  if (target.origin !== base.origin || !target.pathname.startsWith(base.pathname))
+    throw new Error('INVALID_PUBLIC_PATH');
+  return target.href;
+}
+
 export type PublicPath =
   | '/'
   | '/menu'

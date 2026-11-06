@@ -266,9 +266,56 @@ test('technical health remains unverified until a real probe result is recorded 
   await expect(page.getByText('RAGGIUNGIBILE', { exact: true })).toHaveCount(0);
   await expect(page.getByRole('link', { name: 'Cassa', exact: true })).toHaveCount(0);
   await expect(page.getByRole('link', { name: 'Statistiche', exact: true })).toHaveCount(0);
+  await page.screenshot({ path: 'test-results/technical-overview-desktop.png', fullPage: true });
   await page.getByRole('button', { name: 'Esegui controlli dei servizi', exact: true }).click();
   await expect(page.getByText('RAGGIUNGIBILE', { exact: true })).toBeVisible();
   expect(commands.some((command) => command.name === 'health-probe')).toBe(true);
+  await page.getByRole('button', { name: 'Backup e ripristino', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Continuità operativa' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Stato dei servizi' })).not.toBeVisible();
+  await page.getByRole('button', { name: 'Configurazione', exact: true }).click();
+  await page.getByLabel('Utenti', { exact: true }).fill('120');
+  await page.getByRole('button', { name: 'Panoramica', exact: true }).click();
+  await page.getByRole('button', { name: 'Configurazione', exact: true }).click();
+  await expect(page.getByLabel('Utenti', { exact: true })).toHaveValue('120');
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
+    true,
+  );
+  await page.screenshot({
+    path: 'test-results/technical-configuration-mobile.png',
+    fullPage: true,
+  });
+});
+
+test('profile actions and error feedback remain readable on a phone', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await fixture(page, 'ADMIN');
+  await page.route('**/rest/v1/rpc/get_own_access_sessions', (route) =>
+    route.fulfill({ status: 403, json: { message: 'FORBIDDEN' } }),
+  );
+  await page.goto('http://localhost:5174/');
+  await page.locator('.topbar-profile').click();
+  const popup = page.locator('.profile-dialog');
+  await expect(
+    popup.getByRole('button', { name: 'Sicurezza account', exact: true }),
+  ).toBeInViewport({ ratio: 1 });
+  const bounds = await popup.evaluate((element) => ({
+    width: element.scrollWidth,
+    available: element.clientWidth,
+  }));
+  expect(bounds.width).toBeLessThanOrEqual(bounds.available + 1);
+  await page.screenshot({ path: 'test-results/profile-actions-mobile.png', fullPage: true });
+  await popup.getByRole('button', { name: 'Sicurezza account', exact: true }).click();
+  const alert = page.locator('.toast.error');
+  await expect(alert).toHaveCount(1);
+  await expect(alert.locator('.toast-message')).toHaveText(
+    'Non hai il permesso per questa operazione.',
+  );
+  await expect(alert.locator('.toast-reference')).toContainText('Riferimento');
+  await page.screenshot({ path: 'test-results/error-feedback-mobile.png', fullPage: true });
+  await alert.getByRole('button', { name: 'Chiudi', exact: true }).click();
+  await expect(alert).toHaveCount(0);
 });
 
 test('Admin verifies identity before exporting and rectifies contacts with a bound password grant', async ({
