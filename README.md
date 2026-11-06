@@ -13,7 +13,9 @@ La specifica completa resta [MASTER_PROMPT_PLATEFORM_COMMERCIALE.md](MASTER_PROM
 
 - Node.js 24.13 o successivo, npm.
 - Progetto Supabase di sviluppo, oppure Supabase CLI con Docker per lo stack locale.
-- Progetti e credenziali distinti per staging e production.
+- Per questa installazione: un solo progetto cloud `plateform-production`;
+  sviluppo e test distruttivi in ambienti locali o isolati. Il percorso GitHub
+  Pages di anteprima usa il backend definitivo senza costituire un rilascio commerciale.
 
 ## Sviluppo
 
