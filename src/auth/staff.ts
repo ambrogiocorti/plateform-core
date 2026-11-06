@@ -115,7 +115,7 @@ export function loginPage(onComplete: () => Promise<void>): HTMLElement {
   const submit = el('button', { type: 'submit', class: 'button primary' }, 'Accedi al servizio');
   const form = el(
     'form',
-    { class: 'login-form login-form-v5' },
+    { class: 'login-form-v5' },
     el('p', { class: 'eyebrow' }, 'Accesso personale'),
     el('h2', {}, 'Bentornato.'),
     el(

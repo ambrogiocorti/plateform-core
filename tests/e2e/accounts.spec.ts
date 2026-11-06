@@ -322,12 +322,12 @@ test('a financially closed prepaid account clearly remains in service until its 
   await expect(page.getByRole('button', { name: 'Registra pagamento' })).toHaveCount(0);
 });
 
-for (const width of [360, 820, 1440]) {
+for (const width of [360, 390, 768, 820, 1024, 1280, 1440]) {
   test(
     'order composer preserves customisations while searching and submits the reviewed lines at ' +
       width,
     async ({ page }) => {
-      await page.setViewportSize({ width, height: 900 });
+      await page.setViewportSize({ width, height: width <= 390 ? 740 : 900 });
       await accountFixture(page, 'WAITER');
       const dish = '40000000-0000-4000-8000-000000000001';
       const ingredient = '40000000-0000-4000-8000-000000000003';
@@ -395,10 +395,15 @@ for (const width of [360, 820, 1440]) {
       await rice.getByLabel('Classica', { exact: true }).check();
       await editor.getByLabel('Cerca un piatto', { exact: true }).fill('Acqua');
       await expect(rice).toBeHidden();
+      if (width <= 700)
+        await editor.getByRole('button', { name: 'Mostra piatti selezionati' }).click();
       const cart = editor.getByRole('complementary', { name: 'Riepilogo comanda' });
+      await expect(cart).toBeVisible();
       await expect(cart).toContainText('Risotto alla zucca');
       await expect(cart).toContainText('Senza Parmigiano');
       await expect(cart).toContainText('Uscita 2');
+      if (width <= 700)
+        await editor.getByRole('button', { name: 'Mostra menu dei piatti' }).click();
       await editor.getByLabel('Cerca un piatto', { exact: true }).fill('non esiste');
       await expect(editor.getByRole('heading', { name: 'Nessun piatto trovato' })).toBeVisible();
       await editor.getByLabel('Cerca un piatto', { exact: true }).fill('');
@@ -425,6 +430,22 @@ for (const width of [360, 820, 1440]) {
         path: `test-results/hospitality-composer-${width}.png`,
         fullPage: true,
       });
+      await page.evaluate(() => {
+        document.documentElement.dataset.theme = 'dark';
+      });
+      await page.screenshot({
+        path: `test-results/hospitality-composer-${width}-dark.png`,
+        fullPage: true,
+        animations: 'disabled',
+      });
+      if (width <= 700) {
+        await editor.getByRole('button', { name: 'Mostra piatti selezionati' }).click();
+        await expect(cart.getByText('Senza Parmigiano · Classica')).toBeVisible();
+        await page.screenshot({
+          path: `test-results/hospitality-composer-${width}-cart.png`,
+          animations: 'disabled',
+        });
+      }
       await editor.getByRole('button', { name: 'Invia ordine', exact: true }).click();
       await expect(editor).toBeHidden();
       expect(sent).toHaveLength(1);

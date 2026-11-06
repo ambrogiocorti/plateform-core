@@ -122,10 +122,20 @@ test('workspace V5: primary rail, authorized directory and mobile bottom navigat
   expect(Math.abs(bottom.bottom - bottom.viewport)).toBeLessThan(3);
   const topbar = await page.locator('.topbar-profile').evaluate((button) => {
     const rect = button.getBoundingClientRect();
-    return { left: rect.left, right: rect.right, viewport: window.innerWidth };
+    return {
+      left: rect.left,
+      right: rect.right,
+      width: rect.width,
+      viewport: window.innerWidth,
+      textSize: getComputedStyle(button).fontSize,
+      initials: button.getAttribute('data-initials'),
+    };
   });
   expect(topbar.left).toBeGreaterThanOrEqual(0);
   expect(topbar.right).toBeLessThanOrEqual(topbar.viewport + 1);
+  expect(topbar.width).toBeGreaterThanOrEqual(44);
+  expect(topbar.textSize).toBe('0px');
+  expect(topbar.initials).toBe('AA');
   await page.screenshot({ path: 'test-results/plateform-v5-admin-mobile.png', fullPage: true });
 
   await nav.getByRole('button', { name: 'Apri tutte le funzioni' }).click();

@@ -9,10 +9,12 @@ export type OrderComposer = {
   summary: HTMLElement;
   items: () => OrderLine[];
   reportValidity: () => boolean;
+  reveal: (dishId: string) => void;
 };
 
 /** Keeps the catalogue mounted: filtering and cart updates never erase customisations. */
 export function orderComposer(dishes: MenuDish[]): OrderComposer {
+  const root = el('div', { class: 'order-composer', 'data-mobile-panel': 'menu' });
   const cart = new Map<string, OrderLine>();
   const controls = new Map<string, { quantity: HTMLInputElement; step: HTMLInputElement }>();
   const cards = new Map<string, HTMLElement>();
@@ -34,6 +36,17 @@ export function orderComposer(dishes: MenuDish[]): OrderComposer {
     el('p', { class: 'muted' }, 'Prova un altro nome o cambia categoria.'),
   );
   let selectedCategory = '';
+  const menuTab = button('Menu', () => showPanel('menu'), 'secondary');
+  const cartTab = button('Comanda · 0', () => showPanel('cart'), 'secondary');
+  menuTab.setAttribute('aria-label', 'Mostra menu dei piatti');
+  cartTab.setAttribute('aria-label', 'Mostra piatti selezionati');
+  menuTab.setAttribute('aria-pressed', 'true');
+  cartTab.setAttribute('aria-pressed', 'false');
+  function showPanel(panel: 'menu' | 'cart'): void {
+    root.dataset.mobilePanel = panel;
+    menuTab.setAttribute('aria-pressed', String(panel === 'menu'));
+    cartTab.setAttribute('aria-pressed', String(panel === 'cart'));
+  }
 
   function updateCart(): void {
     let quantity = 0;
@@ -63,7 +76,8 @@ export function orderComposer(dishes: MenuDish[]): OrderComposer {
           line.quantity = 0;
           cart.delete(dish.id);
           updateCart();
-          controls.get(dish.id)!.quantity.focus();
+          if (cartTab.getClientRects().length) cartTab.focus();
+          else controls.get(dish.id)!.quantity.focus();
         },
         'quiet',
       );
@@ -98,6 +112,7 @@ export function orderComposer(dishes: MenuDish[]): OrderComposer {
         ),
       );
     count.textContent = String(quantity);
+    cartTab.textContent = `Comanda · ${quantity}`;
     total.textContent = formatMoney(amount);
     summary.textContent = quantity
       ? `${quantity} ${quantity === 1 ? 'piatto selezionato' : 'piatti selezionati'} · ${formatMoney(amount)} indicativi`
@@ -119,6 +134,20 @@ export function orderComposer(dishes: MenuDish[]): OrderComposer {
     }
     results.textContent = `${visible} ${visible === 1 ? 'piatto' : 'piatti'} nel menu`;
     noResults.hidden = visible > 0;
+  }
+
+  function reveal(dishId: string): void {
+    selectedCategory = '';
+    search.input.value = '';
+    for (const control of categories.querySelectorAll<HTMLButtonElement>('button'))
+      control.setAttribute('aria-pressed', String(control === categories.firstElementChild));
+    showPanel('menu');
+    filter();
+    const card = cards.get(dishId);
+    const options = card?.querySelector('details');
+    if (options) options.open = true;
+    card?.scrollIntoView({ block: 'nearest' });
+    options?.querySelector<HTMLInputElement>('input')?.focus();
   }
 
   const groups = new Map(dishes.map((dish) => [dish.category_id, dish.category_name]));
@@ -182,7 +211,7 @@ export function orderComposer(dishes: MenuDish[]): OrderComposer {
       },
       'secondary',
     );
-    minus.setAttribute('aria-label', `Riduci quantità di ${dish.name}`);
+    minus.setAttribute('aria-label', `Riduci ${dish.name} di una porzione`);
     plus.setAttribute('aria-label', `Aggiungi ${dish.name}`);
     minus.disabled = plus.disabled = dish.availability === 0;
     quantity.root.classList.add('composer-quantity');
@@ -263,9 +292,13 @@ export function orderComposer(dishes: MenuDish[]): OrderComposer {
   search.input.addEventListener('input', filter);
   filter();
   updateCart();
-  const root = el(
-    'div',
-    { class: 'order-composer' },
+  root.append(
+    el(
+      'div',
+      { class: 'composer-view-tabs', role: 'group', 'aria-label': 'Vista comanda' },
+      menuTab,
+      cartTab,
+    ),
     el(
       'section',
       { class: 'composer-menu', 'aria-label': 'Scegli i piatti' },
@@ -289,15 +322,12 @@ export function orderComposer(dishes: MenuDish[]): OrderComposer {
     root,
     summary,
     items: () => Array.from(cart.values()),
+    reveal,
     reportValidity: () => {
       for (const [id] of cart) {
         const input = controls.get(id)!;
         if (!input.quantity.checkValidity() || !input.step.checkValidity()) {
-          selectedCategory = '';
-          search.input.value = '';
-          for (const control of categories.querySelectorAll<HTMLButtonElement>('button'))
-            control.setAttribute('aria-pressed', String(control === categories.firstElementChild));
-          filter();
+          reveal(id);
           return input.quantity.reportValidity() && input.step.reportValidity();
         }
       }

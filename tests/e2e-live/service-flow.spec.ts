@@ -97,7 +97,8 @@ test('servizio completo: tavolo → ordine → cucina → Pass → consegna → 
     .locator('article.menu-choice', { hasText: 'Tiramisù' })
     .getByLabel('Quantità')
     .fill('1');
-  await expect(order.getByText('3 pietanze selezionate')).toBeVisible();
+  await expect(order.getByRole('status').filter({ hasText: '3 piatti selezionati' })).toBeVisible();
+  await waiter.screenshot({ path: 'test-results/plateform-v5-order-desktop.png' });
   await order.getByRole('button', { name: 'Invia ordine' }).click();
   await expect(waiter.getByText('Ordine inviato alla cucina.')).toBeVisible();
   await expect(waiter).toHaveURL(/\/conti\/[0-9a-f-]{36}$/);
@@ -124,8 +125,10 @@ test('servizio completo: tavolo → ordine → cucina → Pass → consegna → 
   }
 
   // Pass: verifica lo step completo e lo libera per il servizio.
+  await kitchen.screenshot({ path: 'test-results/plateform-v5-kitchen-ready.png', fullPage: true });
   await open(pass, '/pass');
   await expect(pass.getByText('2/2 piatti pronti')).toBeVisible();
+  await pass.screenshot({ path: 'test-results/plateform-v5-pass-ready.png', fullPage: true });
   await pass.getByRole('button', { name: 'AVVISA E LIBERA LO STEP' }).click();
   // Lo step resta visibile al Pass (resi possibili) finché il cameriere non lo consegna.
   await expect(pass.getByRole('button', { name: 'AVVISA E LIBERA LO STEP' })).toHaveCount(0);
@@ -146,6 +149,10 @@ test('servizio completo: tavolo → ordine → cucina → Pass → consegna → 
   await open(cashier, `/conti/${accountId}`);
   await expect(cashier.getByText('Famiglia Bianchi').first()).toBeVisible();
   await expect(cashier.getByText('34,50 €').first()).toBeVisible();
+  await cashier.screenshot({
+    path: 'test-results/plateform-v5-account-detail.png',
+    fullPage: true,
+  });
   await cashier.getByRole('button', { name: 'Registra pagamento' }).click();
   const payment = cashier.getByRole('dialog', { name: 'Registra un pagamento' });
   await expect(payment.getByLabel('Importo del conto')).toHaveValue('34.50');

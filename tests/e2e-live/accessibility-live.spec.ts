@@ -115,6 +115,10 @@ test('WCAG app staff: accesso e schermate principali per ruolo', async ({ browse
       await expect(page.locator('main')).toBeVisible();
       await page.waitForLoadState('networkidle');
       violations.push(...(await audit(page, `${member.role} ${path}`)));
+      await page.screenshot({
+        path: `test-results/plateform-v5-inspection-${member.role.toLowerCase()}-${path.slice(1)}.png`,
+        fullPage: true,
+      });
     }
     await page.context().close();
   }

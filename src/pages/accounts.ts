@@ -211,6 +211,7 @@ export async function orderDialog(
           if (!dish) throw new Error('DISH_UNAVAILABLE');
           const errors = validateOrderSelection(dish, line);
           if (errors.length) {
+            composer.reveal(line.dish_id);
             toast(errors.join(' '), true);
             return;
           }
@@ -239,4 +240,5 @@ export async function orderDialog(
       }),
     ),
   );
+  editor.querySelector<HTMLInputElement>('input[type="search"]')?.focus();
 }
