@@ -50,7 +50,7 @@ test('restaurant, gallery and contacts show configured content with a usable pho
   await page.keyboard.press('Escape');
   await expect(viewer).toHaveCount(0);
   await page.goto('http://localhost:5173/contatti');
-  await expect(page.getByText(venue.address, { exact: true })).toBeVisible();
+  await expect(page.locator('.public-contact address')).toHaveText(venue.address);
   await expect(page.getByRole('link', { name: 'Indicazioni stradali ↗' })).toHaveAttribute(
     'href',
     /maps\/search/,
