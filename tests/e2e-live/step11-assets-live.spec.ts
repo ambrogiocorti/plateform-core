@@ -88,6 +88,7 @@ test('upload Admin: logo e galleria salvati nello storage e pubblicati con il si
   ).toBeVisible();
   const logo = await admin.getByLabel('Logo', { exact: true }).inputValue();
   expect(logo).toMatch(publicUrl);
+  await admin.getByRole('button', { name: 'Galleria fotografica', exact: true }).click();
   await upload(admin, 'nuova foto della galleria', 'sala.png', 'image/png', png);
   await expect.poll(objects).toBe('2');
   // The picture joins the gallery only once asset-upload has answered, after the object exists.

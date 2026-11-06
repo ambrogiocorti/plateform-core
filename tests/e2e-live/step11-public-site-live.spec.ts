@@ -100,11 +100,15 @@ test('branding Admin: colore, testi e sezioni arrivano al sito pubblico', async 
   await expect(admin.locator('.workspace-subtitle')).toContainText('admin');
   await admin.goto('/sito');
   await admin.getByLabel('Colore principale').fill('#2a6f4e');
+  await expect(admin.getByText('Modifiche da salvare', { exact: true })).toBeVisible();
+  await admin.getByRole('button', { name: 'Home e contenuti', exact: true }).click();
   await admin.getByLabel('Titolo iniziale', { exact: true }).fill('Cucina di quartiere dal 1998');
+  await admin.getByRole('button', { name: 'SEO e condivisione', exact: true }).click();
   await admin.getByLabel('Titolo SEO', { exact: true }).fill('Trattoria E2E · Milano');
   await admin
     .getByLabel('Descrizione SEO', { exact: true })
     .fill('Trattoria milanese con cucina di stagione.');
+  await admin.getByRole('button', { name: 'Sezioni del sito', exact: true }).click();
   await admin.getByLabel('Mostra gallery').uncheck();
   // Un verde scuro su sfondo scuro non è leggibile: il server lo rifiuta, la UI lo spiega prima.
   await admin.getByRole('button', { name: 'Salva sito e branding' }).click();

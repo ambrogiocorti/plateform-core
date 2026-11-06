@@ -104,7 +104,9 @@ jobs:
           cache: npm
       - run: npm ci --no-audit --no-fund
       - name: Install browser test runtime
-        run: npx playwright install --with-deps chromium
+        run: |
+          fc-match Arial
+          npx playwright install chromium
       - name: Exercise public and staff journeys in Chromium
         run: npm run test:e2e
       - name: Preserve the redesigned interface for visual review

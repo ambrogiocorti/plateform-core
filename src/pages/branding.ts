@@ -3,6 +3,7 @@ import { client, readRows, rpc, safeError } from '../api/client';
 import { button, el, field, toast } from '../components/dom';
 import type { StaffContext } from './staff-context';
 import { safeImageUrl } from '../config/environment';
+import '../../styles/branding-editor.css';
 
 type Bucket = 'branding' | 'dishes' | 'gallery' | 'documents';
 
@@ -126,11 +127,44 @@ export async function brandingPage(context: StaffContext): Promise<HTMLElement> 
   const brand = { ...profile.branding },
     content = { ...profile.public_content },
     contact = { ...profile.contact };
-  const view = el('div', { class: 'stack' }),
-    inputs: { input: HTMLInputElement; target: Record<string, unknown>; key: string }[] = [];
+  const view = el('div', { class: 'branding-workspace' }),
+    inputs: {
+      input: HTMLInputElement | HTMLTextAreaElement;
+      target: Record<string, unknown>;
+      key: string;
+    }[] = [];
+  const navigation = el('nav', { class: 'branding-navigation', 'aria-label': 'Modifica il sito' });
+  const editor = el('div', { class: 'branding-content' });
+  const pending = el(
+    'span',
+    { class: 'branding-pending', role: 'status', hidden: '' },
+    'Modifiche da salvare',
+  );
+  const panels: { title: string; node: HTMLElement; control: HTMLButtonElement }[] = [];
+  const selectedTitle = sessionStorage.getItem('plateform-branding-section');
+  view.append(navigation, editor);
+  const markChanged = () => {
+    pending.hidden = false;
+  };
+  view.addEventListener('input', markChanged);
+  view.addEventListener('change', markChanged);
+  function selectPanel(node: HTMLElement): void {
+    for (const panel of panels) {
+      panel.node.hidden = panel.node !== node;
+      panel.control.setAttribute('aria-pressed', String(panel.node === node));
+      if (panel.node === node) sessionStorage.setItem('plateform-branding-section', panel.title);
+    }
+  }
   const section = (title: string) => {
-    const node = el('section', { class: 'card stack' }, el('h2', {}, title));
-    view.append(node);
+    const node = el(
+      'section',
+      { class: 'branding-panel', 'aria-label': title },
+      el('h2', {}, title),
+    );
+    const control = button(title, () => selectPanel(node), 'secondary');
+    panels.push({ title, node, control });
+    navigation.append(control);
+    editor.append(node);
     return node;
   };
   const visual = section('Identità visiva');
@@ -230,7 +264,22 @@ export async function brandingPage(context: StaffContext): Promise<HTMLElement> 
     ['booking_note', 'Informazioni per chi prenota'],
     ['footer', 'Testo footer'],
   ] as const) {
-    const control = field(label, key, 'text', String(content[key] ?? ''));
+    const control =
+      key === 'story'
+        ? (() => {
+            const id = `brand-story-${crypto.randomUUID()}`;
+            const input = el('textarea', { id, name: key, rows: '6' }, String(content[key] ?? ''));
+            return {
+              input,
+              root: el(
+                'div',
+                { class: 'field branding-wide' },
+                el('label', { for: id }, label),
+                input,
+              ),
+            };
+          })()
+        : field(label, key, 'text', String(content[key] ?? ''));
     editorial.append(control.root);
     inputs.push({ input: control.input, target: content, key });
   }
@@ -302,6 +351,7 @@ export async function brandingPage(context: StaffContext): Promise<HTMLElement> 
             () => {
               pictures.splice(index, 1);
               renderGallery();
+              markChanged();
             },
             'quiet',
           ),
@@ -374,39 +424,55 @@ export async function brandingPage(context: StaffContext): Promise<HTMLElement> 
   contacts.append(privacy.root);
   inputs.push({ input: privacy.input, target: content, key: 'privacy_url' });
   const key = crypto.randomUUID();
+  selectPanel(panels.find((panel) => panel.title === selectedTitle)?.node ?? visual);
   view.append(
-    button('Salva sito e branding', async () => {
-      if (inputs.some((entry) => !entry.input.reportValidity())) return;
-      for (const entry of inputs) entry.target[entry.key] = entry.input.value;
-      brand.font_heading = headingFont.value;
-      brand.font_body = bodyFont.value;
-      brand.layout = layout.value;
-      brand.dark_mode = darkMode.checked;
-      if (!accentHasReadableContrast(String(brand.accent_color), String(brand.background_color))) {
-        toast(
-          'Il colore principale non ha contrasto sufficiente con lo sfondo (minimo 4,5:1).',
-          true,
+    el(
+      'footer',
+      { class: 'branding-footer' },
+      el('div', {}, pending, el('p', {}, 'Le modifiche delle sezioni vengono pubblicate insieme.')),
+      button('Salva sito e branding', async () => {
+        for (const entry of inputs) {
+          if (!entry.input.checkValidity()) {
+            const panel = entry.input.closest<HTMLElement>('.branding-panel');
+            if (panel) selectPanel(panel);
+            entry.input.reportValidity();
+            return;
+          }
+        }
+        for (const entry of inputs) entry.target[entry.key] = entry.input.value;
+        brand.font_heading = headingFont.value;
+        brand.font_body = bodyFont.value;
+        brand.layout = layout.value;
+        brand.dark_mode = darkMode.checked;
+        if (
+          !accentHasReadableContrast(String(brand.accent_color), String(brand.background_color))
+        ) {
+          selectPanel(visual);
+          toast(
+            'Il colore principale non ha contrasto sufficiente con lo sfondo (minimo 4,5:1).',
+            true,
+          );
+          return;
+        }
+        content.gallery = pictures;
+        content.sections = Object.fromEntries(
+          sectionControls.map(({ input, key }) => [key, input.checked]),
         );
-        return;
-      }
-      content.gallery = pictures;
-      content.sections = Object.fromEntries(
-        sectionControls.map(({ input, key }) => [key, input.checked]),
-      );
-      await rpc(
-        'save_brand_content',
-        {
-          p_version: profile.version,
-          p_branding: brand,
-          p_content: content,
-          p_contact: contact,
-          p_key: key,
-        },
-        z.object({ version: z.number().int() }),
-      );
-      toast('Sito aggiornato.');
-      await context.refresh?.();
-    }),
+        await rpc(
+          'save_brand_content',
+          {
+            p_version: profile.version,
+            p_branding: brand,
+            p_content: content,
+            p_contact: contact,
+            p_key: key,
+          },
+          z.object({ version: z.number().int() }),
+        );
+        toast('Sito aggiornato.');
+        await context.refresh?.();
+      }),
+    ),
   );
   return view;
 }

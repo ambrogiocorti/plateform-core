@@ -129,6 +129,15 @@ test('statistiche §92 in edizione CORE e con Analytics avanzate', async ({ brow
   await open(cashier, '/statistiche');
   await cashier.getByRole('button', { name: 'Aggiorna statistiche' }).click();
   await expect(cashier.getByRole('heading', { name: 'Incassi' })).toBeVisible();
+  await cashier.setViewportSize({ width: 390, height: 844 });
+  expect(await cashier.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
+    390,
+  );
+  await cashier.screenshot({
+    path: 'test-results/plateform-v5-statistics-mobile.png',
+    fullPage: true,
+  });
+  await cashier.setViewportSize({ width: 1280, height: 900 });
   await expect(
     cashier.getByText('Nessun movimento contabile registrato nel periodo.'),
   ).toBeVisible();

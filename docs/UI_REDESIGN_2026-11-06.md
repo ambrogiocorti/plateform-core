@@ -25,6 +25,12 @@ La logica dell'editor comande è separata in `src/components/order-composer.ts`;
 
 La panoramica ha un solo proprietario CSS, `styles/operations.css`, importato dal componente. Sono state rimosse 155 regole dashboard preesistenti dai due fogli workspace: nessuna altezza ereditata del vecchio hero, righe operative con azione dedicata e pannello priorità alto quanto il suo contenuto. Un controllo browser misura la densità effettiva dei due pannelli principali.
 
+La revisione delle schermate secondarie ha portato a ricomporre anche Statistiche: indicatori economici compatti, periodo in una toolbar, criteri di lettura su richiesta e sezioni di dettaglio affiancate. Importi, aggregazioni, licenze ed esportazione CSV restano quelli della RPC autorevole. Il selettore d'ambito appare quando ci sono più sedi abilitate.
+
+L'editor del sito ha sei sezioni dedicate, con campi sempre montati durante la navigazione, avviso delle modifiche da salvare e pubblicazione unica. La storia usa un campo multilinea; un valore non valido riapre la sezione corretta prima della segnalazione. Il test integrato modifica più sezioni e verifica il risultato nel sito pubblico; ogni sezione viene sottoposta all'audit di accessibilità anche se inizialmente chiusa.
+
+Gli screenshot vengono copiati tra un gruppo di test e il successivo in una cartella di sole immagini, esterna a quella che Playwright ripulisce automaticamente. Il workflow conserva esclusivamente i PNG previsti, includendo le pagine per ruolo e il ciclo del servizio.
+
 ## Verifiche locali eseguite
 
 - 389 test applicativi passati prima dell'ultima riorganizzazione dei layout; la CI ripete la suite sulla candidata pubblicata.

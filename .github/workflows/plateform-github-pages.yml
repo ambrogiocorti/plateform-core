@@ -34,7 +34,7 @@ concurrency:
 
 jobs:
   candidate:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 55
     environment: ${{ inputs.pages_mode == 'commercial' && inputs.publish_after_approval && 'production' || 'staging' }}
     env:
@@ -81,7 +81,9 @@ jobs:
           npm run build:pages
           node scripts/check-visual-design.mjs
       - name: Install Chromium for isolated visual regression
-        run: npx playwright install --with-deps chromium
+        run: |
+          fc-match Arial
+          npx playwright install chromium
       - name: Browser journeys and visual audit in both themes and viewports
         run: npm run test:e2e
       - name: Preserve browser screenshots and traces

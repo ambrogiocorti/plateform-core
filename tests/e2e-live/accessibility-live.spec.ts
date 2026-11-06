@@ -115,6 +115,30 @@ test('WCAG app staff: accesso e schermate principali per ruolo', async ({ browse
       await expect(page.locator('main')).toBeVisible();
       await page.waitForLoadState('networkidle');
       violations.push(...(await audit(page, `${member.role} ${path}`)));
+      if (path === '/sito') {
+        const sections = page
+          .getByRole('navigation', { name: 'Modifica il sito' })
+          .getByRole('button');
+        await expect(sections).toHaveCount(6);
+        for (let index = 1; index < 6; index++) {
+          await sections.nth(index).click();
+          violations.push(...(await audit(page, `ADMIN sito sezione ${index}`)));
+          await page.screenshot({
+            path: `test-results/plateform-v5-branding-section-${index}.png`,
+            fullPage: true,
+          });
+        }
+        await page.setViewportSize({ width: 390, height: 844 });
+        await sections.nth(1).click();
+        await expect(page.getByLabel('Titolo iniziale', { exact: true })).toBeVisible();
+        expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
+          390,
+        );
+        violations.push(...(await audit(page, 'ADMIN sito mobile')));
+        await page.screenshot({ path: 'test-results/plateform-v5-branding-mobile.png' });
+        await page.setViewportSize({ width: 1280, height: 900 });
+        await sections.nth(0).click();
+      }
       await page.screenshot({
         path: `test-results/plateform-v5-inspection-${member.role.toLowerCase()}-${path.slice(1)}.png`,
         fullPage: true,

@@ -4,6 +4,7 @@ import { button, el, field } from '../components/dom';
 import { formatMoney } from '../services/money';
 import type { StaffContext } from './staff-context';
 import { statisticsSchema } from '../services/statistics';
+import '../../styles/statistics.css';
 const duration = (seconds: number | null) =>
   seconds === null
     ? 'Non disponibile'
@@ -45,7 +46,7 @@ export async function statisticsPage(context: StaffContext): Promise<HTMLElement
       : null,
   );
   scope.value = context.venue?.id ?? '';
-  const result = el('div', { class: 'stack' });
+  const result = el('div', { class: 'statistics-results' });
   let snapshot: z.infer<typeof statisticsSchema> | null = null;
   let snapshotDates: { start: string; end: string; scope: string } | null = null;
   const exportButton = button(
@@ -122,7 +123,7 @@ export async function statisticsPage(context: StaffContext): Promise<HTMLElement
     result.replaceChildren(
       el(
         'div',
-        { class: 'kpi-grid' },
+        { class: 'statistics-metrics statistics-money-metrics' },
         ...[
           ['Incassi', data.receipts_cents],
           ['Rimborsi', data.refunds_cents],
@@ -132,7 +133,7 @@ export async function statisticsPage(context: StaffContext): Promise<HTMLElement
         ].map(([name, amount]) =>
           el(
             'section',
-            { class: 'card' },
+            { class: 'statistics-metric' },
             el('h2', {}, String(name)),
             el('p', { class: 'amount' }, formatMoney(Number(amount))),
           ),
@@ -140,16 +141,16 @@ export async function statisticsPage(context: StaffContext): Promise<HTMLElement
       ),
       el(
         'div',
-        { class: 'kpi-grid' },
+        { class: 'statistics-metrics statistics-service-metrics' },
         el(
           'section',
-          { class: 'card' },
+          { class: 'statistics-metric' },
           el('h2', {}, 'Coperti accolti'),
           el('p', { class: 'amount' }, data.covers),
         ),
         el(
           'section',
-          { class: 'card' },
+          { class: 'statistics-metric' },
           el('h2', {}, 'Conto medio'),
           el(
             'p',
@@ -162,7 +163,7 @@ export async function statisticsPage(context: StaffContext): Promise<HTMLElement
         ),
         el(
           'section',
-          { class: 'card' },
+          { class: 'statistics-metric' },
           el('h2', {}, 'No-show'),
           el('p', { class: 'amount' }, data.no_shows),
           el(
@@ -176,12 +177,12 @@ export async function statisticsPage(context: StaffContext): Promise<HTMLElement
       ),
     );
     const maximum = Math.max(1, ...data.daily.map((day) => Math.abs(day.amount_cents))),
-      chart = el('section', { class: 'card stack' }, el('h2', {}, 'Movimenti giornalieri'));
+      chart = el('section', { class: 'statistics-section' }, el('h2', {}, 'Movimenti giornalieri'));
     for (const day of data.daily)
       chart.append(
         el(
           'div',
-          { class: 'row' },
+          { class: 'statistics-day' },
           el('span', {}, day.local_date),
           el('meter', {
             min: '0',
@@ -245,8 +246,9 @@ export async function statisticsPage(context: StaffContext): Promise<HTMLElement
         })),
       ],
     ] as const;
+    const breakdowns = el('div', { class: 'statistics-breakdowns' });
     for (const [title, rows] of groups) {
-      const section = el('section', { class: 'card stack' }, el('h2', {}, title));
+      const section = el('section', { class: 'statistics-section' }, el('h2', {}, title));
       for (const row of rows)
         section.append(
           el(
@@ -257,11 +259,12 @@ export async function statisticsPage(context: StaffContext): Promise<HTMLElement
           ),
         );
       if (!rows.length) section.append(el('p', {}, 'Nessun dato nel periodo.'));
-      result.append(section);
+      breakdowns.append(section);
     }
+    result.append(breakdowns);
     const bookings = el(
       'section',
-      { class: 'card stack' },
+      { class: 'statistics-section' },
       el('h2', {}, 'Prenotazioni e walk-in'),
       el(
         'p',
@@ -300,7 +303,7 @@ export async function statisticsPage(context: StaffContext): Promise<HTMLElement
       );
     const operations = el(
       'section',
-      { class: 'card stack' },
+      { class: 'statistics-section' },
       el('h2', {}, 'Cucina, consegne e chiamate'),
       el('p', {}, `Preparazione media: ${duration(data.preparation_seconds)}`),
       data.advanced
@@ -340,24 +343,31 @@ export async function statisticsPage(context: StaffContext): Promise<HTMLElement
           'Analisi della permanenza, degli errori e indicatori operativi sono inclusi nella licenza Analytics avanzate.',
         ),
       );
-    result.append(bookings, operations);
+    result.append(el('div', { class: 'statistics-breakdowns' }, bookings, operations));
   }
   const view = el(
     'div',
-    { class: 'stack' },
+    { class: 'statistics-workspace' },
     el(
       'div',
-      { class: 'card row' },
+      { class: 'statistics-filters' },
       start.root,
       end.root,
-      scope,
+      context.multiVenue && context.venues.length > 1
+        ? el('label', { class: 'field' }, 'Ambito', scope)
+        : null,
       button('Aggiorna statistiche', load),
       exportButton,
     ),
     el(
-      'p',
-      { class: 'muted' },
-      'Le date seguono il fuso di ciascuna sede. Incassi, rimborsi e storni seguono il giorno del movimento; le mance restano separate. Le categorie riportano gli addebiti delle comande del periodo. Il conto medio usa gli addebiti dei conti chiusi, inclusi i conti divisi.',
+      'details',
+      { class: 'statistics-context' },
+      el('summary', {}, 'Come leggere il report'),
+      el(
+        'p',
+        {},
+        'Le date seguono il fuso di ciascuna sede. Incassi, rimborsi e storni seguono il giorno del movimento; le mance restano separate. Le categorie riportano gli addebiti delle comande del periodo. Il conto medio usa gli addebiti dei conti chiusi, inclusi i conti divisi.',
+      ),
     ),
     result,
   );
