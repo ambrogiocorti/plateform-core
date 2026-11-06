@@ -234,6 +234,7 @@ for (const [needle, label] of [
 const restaurantStructure = await read('styles/restaurant-redesign.css');
 const workplaceStructure = await read('styles/workspace-redesign.css');
 const workspaceV5 = await read('styles/workspace-v5.css');
+const operationsStructure = await read('styles/operations.css');
 const adminOperations = await read('src/pages/admin-operations.ts');
 const kitchenPage = await read('src/pages/kitchen.ts');
 for (const [text, label] of [
@@ -248,14 +249,16 @@ for (const [text, label] of [
   ['.ops-body-grid', 'asymmetric_dashboard_layout'],
   ['.ops-attention-card', 'separate_priority_rail'],
   ['.ops-service-grid', 'operational_area_matrix'],
-  ['.kds-filter-actions', 'kitchen_filter_controls'],
 ])
-  requireText(workplaceStructure, text, label);
+  requireText(operationsStructure, text, label);
+requireText(workplaceStructure, '.kds-filter-actions', 'kitchen_filter_controls');
+requireText(adminOperations, "import '../../styles/operations.css'", 'dashboard_css_owned_by_page');
+if (/\.ops-/.test(workplaceStructure) || /\.ops-/.test(workspaceV5))
+  throw new Error('STEP11_STATIC_FAILED:duplicate_dashboard_style_owner');
 for (const [text, label] of [
   ['.staff-shell .primary-navigation', 'compact_role_navigation'],
   ['.workspace-directory', 'accessible_function_directory'],
   ['.staff-shell .workspace-page-heading', 'single_page_heading'],
-  ['.staff-shell .ops-body-grid', 'area_first_operational_layout'],
   ['@media (max-width: 640px)', 'five_destination_mobile_navigation'],
 ])
   requireText(workspaceV5, text, label);
