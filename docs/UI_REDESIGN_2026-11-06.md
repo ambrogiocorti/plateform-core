@@ -29,6 +29,8 @@ La revisione delle schermate secondarie ha portato a ricomporre anche Statistich
 
 L'editor del sito ha sei sezioni dedicate, con campi sempre montati durante la navigazione, avviso delle modifiche da salvare e pubblicazione unica. La storia usa un campo multilinea; un valore non valido riapre la sezione corretta prima della segnalazione. Il test integrato modifica più sezioni e verifica il risultato nel sito pubblico; ogni sezione viene sottoposta all'audit di accessibilità anche se inizialmente chiusa.
 
+La riconciliazione periodica conserva la bozza del sito anche quando il focus passa a un pulsante di sezione: mostra l'avviso di aggiornamento anziché rimontare il modulo. Il caricamento di file e gli errori di contrasto hanno un esito vicino ai controlli, senza coprire il pulsante di salvataggio. Il test di upload verifica esplicitamente la conservazione del logo durante una riconciliazione, poi il salvataggio di logo e galleria nello Storage reale isolato.
+
 Gli screenshot vengono copiati tra un gruppo di test e il successivo in una cartella di sole immagini, esterna a quella che Playwright ripulisce automaticamente. Il workflow conserva esclusivamente i PNG previsti, includendo le pagine per ruolo e il ciclo del servizio.
 
 ## Verifiche locali eseguite

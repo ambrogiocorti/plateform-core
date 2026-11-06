@@ -93,6 +93,13 @@ test('upload Admin: logo e galleria salvati nello storage e pubblicati con il si
   await expect.poll(objects).toBe('2');
   // The picture joins the gallery only once asset-upload has answered, after the object exists.
   await expect(admin.getByRole('button', { name: 'Rimuovi dalla galleria' })).toHaveCount(1);
+  // Reconciliation must leave a draft intact even when a section button has focus.
+  await admin.evaluate(() => document.dispatchEvent(new Event('visibilitychange')));
+  await expect(
+    admin.getByRole('button', { name: 'Sono disponibili dati aggiornati. Aggiorna la vista' }),
+  ).toBeVisible();
+  await expect(admin.getByLabel('Logo', { exact: true })).toHaveValue(logo);
+  await expect(admin.getByText('Modifiche da salvare', { exact: true })).toBeVisible();
   await admin.getByRole('button', { name: 'Salva sito e branding' }).click();
   await expect(admin.getByText('Sito aggiornato.')).toBeVisible();
 

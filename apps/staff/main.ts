@@ -65,7 +65,7 @@ async function refreshVisiblePage(): Promise<void> {
   void rpc('heartbeat_device', {}, z.boolean()).catch(() => undefined);
   await refreshNotificationIndicator();
   if (
-    document.querySelector('dialog[open]') ||
+    document.querySelector('dialog[open], [data-unsaved="true"]') ||
     document.activeElement?.matches('input,select,textarea,[contenteditable]')
   ) {
     const notice = document.getElementById('live-refresh');

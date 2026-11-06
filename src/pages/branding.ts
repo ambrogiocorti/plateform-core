@@ -59,6 +59,12 @@ export function assetUploadControl(
   input.addEventListener('change', () => {
     key = crypto.randomUUID();
   });
+  const feedback = el('p', { class: 'asset-upload-feedback', role: 'status', hidden: '' });
+  const report = (message: string, error = false) => {
+    feedback.textContent = message;
+    feedback.hidden = false;
+    feedback.setAttribute('role', error ? 'alert' : 'status');
+  };
   const control = el(
     'div',
     { class: 'field' },
@@ -68,7 +74,7 @@ export function assetUploadControl(
       async () => {
         const file = input.files?.[0];
         if (!file || file.size < 1 || file.size > 5242880) {
-          toast('Scegli un file fino a 5 MB.', true);
+          report('Scegli un file fino a 5 MB.', true);
           return;
         }
         const bytes = new Uint8Array(await file.arrayBuffer());
@@ -77,7 +83,7 @@ export function assetUploadControl(
           (bucket !== 'documents' && !file.type.startsWith('image/')) ||
           !validUploadSignature(file.type, bytes)
         ) {
-          toast(
+          report(
             bucket === 'documents'
               ? 'Il file non è un PDF valido.'
               : 'Il file non è un’immagine PNG, JPEG o WebP valida.',
@@ -101,10 +107,11 @@ export function assetUploadControl(
         if (error) throw safeError(error);
         const result = z.object({ id: z.uuid(), url: z.url().nullable() }).parse(data);
         onUploaded(result.url);
-        toast('File caricato. Salva la configurazione per pubblicarlo.');
+        report('File caricato. Salva la configurazione per pubblicarlo.');
       },
       'secondary',
     ),
+    feedback,
   );
   control.querySelector('button')?.setAttribute('aria-label', `Carica file: ${purpose}`);
   return control;
@@ -141,10 +148,13 @@ export async function brandingPage(context: StaffContext): Promise<HTMLElement> 
     'Modifiche da salvare',
   );
   const panels: { title: string; node: HTMLElement; control: HTMLButtonElement }[] = [];
+  const validation = el('p', { class: 'branding-feedback', role: 'alert', hidden: '' });
   const selectedTitle = sessionStorage.getItem('plateform-branding-section');
   view.append(navigation, editor);
   const markChanged = () => {
     pending.hidden = false;
+    view.dataset.unsaved = 'true';
+    validation.hidden = true;
   };
   view.addEventListener('input', markChanged);
   view.addEventListener('change', markChanged);
@@ -235,6 +245,7 @@ export async function brandingPage(context: StaffContext): Promise<HTMLElement> 
       null,
       (url) => {
         logo.input.value = url ?? '';
+        markChanged();
       },
       'logo',
     ),
@@ -249,6 +260,7 @@ export async function brandingPage(context: StaffContext): Promise<HTMLElement> 
       null,
       (url) => {
         favicon.input.value = url ?? '';
+        markChanged();
       },
       'favicon',
     ),
@@ -297,6 +309,7 @@ export async function brandingPage(context: StaffContext): Promise<HTMLElement> 
       null,
       (url) => {
         hero.input.value = url ?? '';
+        markChanged();
       },
       'fotografia iniziale',
     ),
@@ -370,6 +383,7 @@ export async function brandingPage(context: StaffContext): Promise<HTMLElement> 
         if (url) {
           pictures.push({ url, alt: `Fotografia del ristorante ${pictures.length + 1}` });
           renderGallery();
+          markChanged();
         }
       },
       'nuova foto della galleria',
@@ -429,7 +443,13 @@ export async function brandingPage(context: StaffContext): Promise<HTMLElement> 
     el(
       'footer',
       { class: 'branding-footer' },
-      el('div', {}, pending, el('p', {}, 'Le modifiche delle sezioni vengono pubblicate insieme.')),
+      el(
+        'div',
+        {},
+        pending,
+        validation,
+        el('p', {}, 'Le modifiche delle sezioni vengono pubblicate insieme.'),
+      ),
       button('Salva sito e branding', async () => {
         for (const entry of inputs) {
           if (!entry.input.checkValidity()) {
@@ -448,10 +468,9 @@ export async function brandingPage(context: StaffContext): Promise<HTMLElement> 
           !accentHasReadableContrast(String(brand.accent_color), String(brand.background_color))
         ) {
           selectPanel(visual);
-          toast(
-            'Il colore principale non ha contrasto sufficiente con lo sfondo (minimo 4,5:1).',
-            true,
-          );
+          validation.textContent =
+            'Il colore principale non ha contrasto sufficiente con lo sfondo (minimo 4,5:1).';
+          validation.hidden = false;
           return;
         }
         content.gallery = pictures;
@@ -469,6 +488,8 @@ export async function brandingPage(context: StaffContext): Promise<HTMLElement> 
           },
           z.object({ version: z.number().int() }),
         );
+        delete view.dataset.unsaved;
+        pending.hidden = true;
         toast('Sito aggiornato.');
         await context.refresh?.();
       }),
