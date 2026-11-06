@@ -249,15 +249,36 @@ function moreNavigationGroup(path: string): string {
 
 function pageDescription(path: string): string {
   const descriptions: Record<string, string> = {
-    '/operazioni': 'Tutto ciò che serve per coordinare il servizio, in un unico spazio.',
+    '/operazioni': 'Stato del servizio e attività da gestire.',
     '/sala': 'Tavoli, disponibilità e stato del servizio.',
     '/accoglienza': 'Prenotazioni, arrivi e gestione degli ospiti.',
     '/cucina': 'Comande in lavorazione, tempi e priorità.',
     '/conti': 'Conti aperti, dettagli e operazioni autorizzate.',
     '/cassa': 'Pagamenti, incassi e chiusure di cassa.',
     '/salute': 'Stato operativo della piattaforma e delle installazioni.',
+    '/statistiche': 'Incassi, servizio e report del periodo selezionato.',
+    '/sito': 'Identità, testi e informazioni pubbliche del ristorante.',
+    '/gestione': 'Sale, tavoli, menu e configurazione della sede.',
+    '/staff': 'Persone, ruoli e assegnazioni al servizio.',
+    '/stampe': 'Documenti in coda, esiti e ristampe.',
+    '/privacy': 'Richieste sui dati e tempi di conservazione.',
+    '/dispositivi': 'Postazioni, collegamenti e accessi autorizzati.',
+    '/conflitti': 'Operazioni offline da verificare e riconciliare.',
+    '/modifiche': 'Richieste di modifica e annullamento delle comande.',
+    '/editor': 'Pianta della sala e disposizione dei tavoli.',
+    '/pianificazione': 'Orari, servizi e assegnazioni dello staff.',
+    '/impostazioni': 'Regole per servizio, pagamenti e notifiche.',
+    '/preparazione': 'Menu e postazioni da preparare per il servizio.',
+    '/eccezioni': 'Chiamate, richieste e interventi da coordinare.',
+    '/menu-sede': 'Prezzi, scorte e stazioni dei piatti nella sede.',
+    '/consegne': 'Piatti pronti e consegna ai tavoli.',
+    '/pass': 'Uscite da coordinare e piatti pronti per il servizio.',
+    '/notifiche': 'Avvisi e richieste da prendere in carico.',
+    '/sedi': 'Sedi dell’installazione e configurazioni autorizzate.',
+    '/audit': 'Storico delle operazioni e delle modifiche.',
+    '/food-cost': 'Ricette, costi e margini dei piatti.',
   };
-  return descriptions[path] ?? 'Strumenti e informazioni per la tua attività.';
+  return descriptions[path] ?? 'Gestisci le operazioni disponibili per il tuo ruolo.';
 }
 
 const staffBase = import.meta.env.BASE_URL;

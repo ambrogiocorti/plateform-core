@@ -502,7 +502,7 @@ export async function hostPage(context: StaffContext): Promise<HTMLElement> {
     el(
       'p',
       { class: 'muted' },
-      'Il server ordina le richieste compatibili e verifica capienza e priorità prima di proporre un posto.',
+      'Trova le richieste compatibili con il servizio, la capienza e le priorità della lista.',
     ),
     el('label', {}, 'Servizio', waitlistService),
     waitlistTime.root,

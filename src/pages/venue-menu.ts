@@ -214,7 +214,7 @@ export async function venueMenuPage(context: StaffContext): Promise<HTMLElement>
       el(
         'p',
         { class: 'muted' },
-        'Personalizza prezzi, scorte e stazione principale della sede senza modificare il catalogo condiviso. Le autorizzazioni e i controlli di versione sono applicati dal server.',
+        'Personalizza prezzi, scorte e stazione principale della sede senza modificare il catalogo condiviso.',
       ),
       stationFeedback,
       button(
