@@ -44,7 +44,10 @@ jobs:
           # disposable service listeners (PostgreSQL, GoTrue, PostgREST, Edge).
           sudo sysctl -w net.ipv4.ip_local_port_range='25000 30000'
           docker info
-          npx playwright install --with-deps chromium
+          # ubuntu-24.04 already provides the Chromium libraries and system fonts.
+          # Playwright still validates host requirements during install and launch.
+          fc-match Arial
+          npx playwright install chromium
       - name: Exercise browser, Auth, API, database, Edge and real Storage
         run: npm run test:e2e:live
       - name: Save desktop, mobile and navigation screenshots for design review

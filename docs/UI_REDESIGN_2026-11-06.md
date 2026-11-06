@@ -59,3 +59,5 @@ Prima di indicare l'URL come aggiornato, controllare il successo del job deploy,
 Il primo job deploy del run `42135588803` è stato respinto dalle regole di protezione dell'ambiente `github-pages`: il nuovo ramo non è autorizzato a distribuire. Non è stato rimosso o aggirato l'ambiente, né promosso il ramo a main. La pubblicazione richiede l'eventuale aggiunta esplicita del solo ramo di questa candidata alle regole esistenti; il bundle di test e gli screenshot sono già disponibili come artifact GitHub.
 
 Il completamento grafico non risolve i gate aperti di backup/ripristino ospitato, provider e stampante fisica.
+
+Il runner integrato Ubuntu 24.04 usa le librerie e i font di sistema già installati, controlla il font Arial/fallback con `fc-match` e installa Chromium con la verifica delle dipendenze Playwright attiva. È stato rimosso il download ridondante di pacchetti font aggiuntivi che bloccava l'avvio sul mirror Ubuntu; nessuno scenario o controllo applicativo è stato escluso.
