@@ -231,3 +231,115 @@ test('booking availability failure shows a useful message instead of a loading s
   ).toBeVisible();
   await expect(page.getByText('Verifica disponibilità in corso…')).toHaveCount(0);
 });
+
+for (const width of [390, 1280]) {
+  test(
+    'menu categories filter products and dish popup preserves focus at ' + width,
+    async ({ page }) => {
+      await page.setViewportSize({ width, height: 844 });
+      const base = menuPayload.categories[0]!.items[0]!;
+      const dishes = [
+        {
+          ...base,
+          category_id: categoryId,
+          category_name: 'Primi',
+          variant_groups: [],
+          image_path: 'http://localhost:5173/demo/pasta.jpg',
+        },
+        {
+          ...base,
+          id: '40000000-0000-4000-8000-000000000017',
+          name: 'Tiramisù della casa',
+          category_id: '40000000-0000-4000-8000-000000000018',
+          category_name: 'Dolci',
+          description: 'Mascarpone e caffè',
+          image_path: null,
+          variant_groups: [],
+        },
+      ];
+      await page.route('**/rest/v1/rpc/get_public_site', (route) => route.fulfill({ json: site }));
+      await page.route('**/rest/v1/rpc/get_public_menu', (route) =>
+        route.fulfill({ json: dishes }),
+      );
+      await page.route('**/rest/v1/rpc/get_public_navigation', (route) =>
+        route.fulfill({ json: { menus: [] } }),
+      );
+      await page.goto('http://localhost:5173/menu');
+      const categories = page.getByRole('navigation', { name: 'Categorie del menu' });
+      await expect(page.locator('.dish-public:visible')).toHaveCount(2);
+      await categories.getByRole('button', { name: 'Dolci' }).click();
+      await expect(categories.getByRole('button', { name: 'Dolci' })).toHaveAttribute(
+        'aria-pressed',
+        'true',
+      );
+      await expect(page.locator('.dish-public:visible')).toHaveCount(1);
+      await categories.getByRole('button', { name: 'Tutti' }).click();
+      await page.getByLabel('Cerca un piatto nella carta').fill('burro');
+      await expect(page.locator('.dish-public:visible')).toHaveCount(2);
+      await page.getByLabel('Cerca un piatto nella carta').fill('risotto');
+      await expect(page.locator('.dish-public:visible')).toHaveCount(1);
+      const opener = page.getByRole('button', {
+        name: 'Scopri Risotto allo zafferano',
+        exact: true,
+      });
+      await opener.click();
+      const popup = page.getByRole('dialog', { name: 'Risotto allo zafferano', exact: true });
+      await expect(popup.getByRole('heading', { name: 'Ingredienti' })).toBeVisible();
+      await expect(popup.getByText('Burro', { exact: true })).toBeVisible();
+      await expect(popup.getByRole('heading', { name: 'Allergeni' })).toBeVisible();
+      await expect(popup.getByText('Latte', { exact: true })).toBeVisible();
+      expect(await popup.evaluate((element) => getComputedStyle(element).scrollbarWidth)).toBe(
+        'none',
+      );
+      await expect(popup.getByText('Chiudi', { exact: true })).toHaveCount(0);
+      await page.screenshot({ path: `test-results/menu-dish-dialog-${width}.png` });
+      await page.keyboard.press('Escape');
+      await expect(popup).toHaveCount(0);
+      await expect(opener).toBeFocused();
+      await opener.click();
+      await page.getByRole('button', { name: 'Chiudi finestra' }).click();
+      await expect(popup).toHaveCount(0);
+      await page.getByLabel('Cerca un piatto nella carta').fill('non-esistente');
+      await expect(page.getByRole('heading', { name: 'Nessun piatto trovato' })).toBeVisible();
+      await page.getByRole('button', { name: 'Mostra tutti i piatti' }).click();
+      await expect(page.locator('.dish-public:visible')).toHaveCount(2);
+      expect(
+        await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
+      ).toBe(true);
+      await page.screenshot({ path: `test-results/menu-category-cards-${width}.png` });
+    },
+  );
+}
+
+test('editorial navigation reuses configuration and preserves the page during a slow catalog request', async ({
+  page,
+}) => {
+  let siteRequests = 0;
+  await page.route('**/rest/v1/rpc/get_public_site', (route) => {
+    siteRequests++;
+    return route.fulfill({ json: { ...site, content: { story_title: 'La nostra tavola' } } });
+  });
+  await page.route('**/rest/v1/rpc/get_public_navigation', (route) =>
+    route.fulfill({ json: { menus: [] } }),
+  );
+  let releaseCatalog!: () => void;
+  await page.route('**/rest/v1/rpc/get_public_menu', async (route) => {
+    await new Promise<void>((resolve) => {
+      releaseCatalog = resolve;
+    });
+    await route.fulfill({ json: [] });
+  });
+  await page.goto('http://localhost:5173/ristorante');
+  await expect(page.getByRole('heading', { name: 'La nostra tavola' })).toBeVisible();
+  await page.getByRole('link', { name: 'Contatti', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Contatti', exact: true })).toBeVisible();
+  await page.getByRole('link', { name: 'Menu', exact: true }).click();
+  await expect(page.locator('#app')).toHaveAttribute('aria-busy', 'true');
+  await expect(page.getByRole('heading', { name: 'Contatti', exact: true })).toBeVisible();
+  await expect(page.locator('.public-header')).toBeVisible();
+  await expect(page.getByText('Caricamento…', { exact: true })).toHaveCount(0);
+  await expect.poll(() => typeof releaseCatalog).toBe('function');
+  releaseCatalog();
+  await expect(page.getByRole('heading', { name: 'Scopri la nostra cucina' })).toBeVisible();
+  expect(siteRequests).toBe(1);
+});

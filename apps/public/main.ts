@@ -1,8 +1,12 @@
+import { publicSnapshot } from '../../src/services/public-snapshot';
+import { publicDishCard } from '../../src/components/public-dish';
 import { restaurantPage, galleryPage } from '../../src/pages/public-about';
 import { registerPwa } from '../../src/services/pwa';
 import '../../styles/public.css';
 import '../../styles/public-app.css';
 import '../../styles/restaurant-redesign.css';
+import '../../styles/overlays.css';
+import '../../styles/menu-catalog.css';
 import { z } from 'zod';
 import { rpc } from '../../src/api/client';
 import { button, el, emptyState, loading, showError } from '../../src/components/dom';
@@ -10,7 +14,6 @@ import { watchLive } from '../../src/realtime/live';
 import { environment, safeImageUrl } from '../../src/config/environment';
 import { menuDishSchema, publicSiteSchema } from '../../src/types/domain';
 import type { PublicSite, Venue } from '../../src/types/domain';
-import { availabilityBadge } from '../../src/services/menu';
 import { formatMoney } from '../../src/services/money';
 import { setupPublicNavigation } from '../../src/services/public-navigation';
 import { preferredPublicTheme, savePublicTheme } from '../../src/services/public-theme';
@@ -68,6 +71,8 @@ let stopLive: (() => void) | undefined;
 let liveKey = '';
 let stopPerformance: (() => void) | undefined;
 let initialPage = true;
+const siteSnapshot = publicSnapshot(() => rpc('get_public_site', {}, publicSiteSchema.nullable()));
+window.addEventListener('online', () => siteSnapshot.invalidate());
 
 // A lightweight connectivity notice belongs to the public shell as well as
 // staff: cached opening hours or menus must never look freshly verified offline.
@@ -228,11 +233,13 @@ function startPublicRender(focusAfterNavigation = false): void {
     });
 }
 function route(path: string): void {
+  if (hrefForPublicRoute(path) === `${location.pathname}${location.search}`) return;
+  for (const popup of document.querySelectorAll<HTMLDialogElement>('dialog[open]')) popup.close();
   history.pushState(null, '', hrefForPublicRoute(path));
   startPublicRender(true);
 }
 
-async function render(): Promise<void> {
+async function render(refreshSnapshot = false): Promise<void> {
   const current = ++revision;
   pageLifetime.abort();
   pageLifetime = new AbortController();
@@ -243,12 +250,14 @@ async function render(): Promise<void> {
   // whenever JavaScript starts before the public RPC has responded.
   const preservePrerender = initialPage && app.querySelector('main#main') !== null;
   initialPage = false;
-  if (preservePrerender) app.setAttribute('aria-busy', 'true');
+  const retainVisiblePage = preservePrerender || app.querySelector('main#main') !== null;
+  if (retainVisiblePage) app.setAttribute('aria-busy', 'true');
   else app.replaceChildren(loading());
-  const site = await rpc('get_public_site', {}, publicSiteSchema.nullable());
+  if (refreshSnapshot) siteSnapshot.invalidate();
+  const site = await siteSnapshot.read();
   if (current !== revision) return;
-  app.removeAttribute('aria-busy');
   if (!site) {
+    app.removeAttribute('aria-busy');
     releasePublicObservers();
     failClosedPublicMetadata();
     app.replaceChildren(
@@ -459,14 +468,6 @@ async function render(): Promise<void> {
     if (current !== revision) return;
     main.append(section);
   }
-  app.replaceChildren(header, publicConnection, main, footer(site));
-  refreshPublicConnection();
-  setupPublicNavigation(menuButton, navigation, header, lifetime.signal);
-  stopPerformance?.();
-  if (!isPreview && currentPublicPath() !== '/lista-attesa/offerta') {
-    stopPerformance = observePublicPerformance(venue?.id);
-    recordPublicPageView(venue?.id);
-  }
   if (path === '/' || path === '/menu' || (path === '/prenota' && bookingEnabled)) {
     // Main content was fully assembled before its first paint on mobile.
   } else if (path.startsWith('/menu/') && venue) {
@@ -574,6 +575,18 @@ async function render(): Promise<void> {
         el('a', { href: '/' }, 'Torna alla home'),
       ),
     );
+  // Commit the completed route atomically; a slow menu must never clear the header or
+  // replace a newer destination after the visitor has already navigated elsewhere.
+  if (current !== revision) return;
+  app.replaceChildren(header, publicConnection, main, footer(site));
+  app.removeAttribute('aria-busy');
+  refreshPublicConnection();
+  setupPublicNavigation(menuButton, navigation, header, lifetime.signal);
+  stopPerformance?.();
+  if (!isPreview && currentPublicPath() !== '/lista-attesa/offerta') {
+    stopPerformance = observePublicPerformance(venue?.id);
+    recordPublicPageView(venue?.id);
+  }
   if (!venue || path.startsWith('/tavolo/')) {
     // Leaving a known public venue must unsubscribe before a stale callback
     // can refresh an invalid venue page or retain the previous venue context.
@@ -583,7 +596,7 @@ async function render(): Promise<void> {
   }
   if (venue && !path.startsWith('/tavolo/') && path !== '/lista-attesa/offerta') {
     const key = `${venue.id}:${path}`;
-    const update = button('Il menu è cambiato. Aggiorna', async () => render(), 'secondary');
+    const update = button('Il menu è cambiato. Aggiorna', async () => render(true), 'secondary');
     update.id = 'public-refresh';
     update.hidden = true;
     main.append(update);
@@ -596,6 +609,7 @@ async function render(): Promise<void> {
         refresh: async () => {
           if (
             currentPublicPath() === '/prenota' ||
+            document.querySelector('dialog[open]') ||
             document.activeElement?.matches('input,select,textarea')
           ) {
             const notice = document.getElementById('public-refresh');
@@ -603,7 +617,7 @@ async function render(): Promise<void> {
             return;
           }
           const scroll = window.scrollY;
-          await render();
+          await render(true);
           window.scrollTo(0, scroll);
         },
         state: () => {
@@ -1000,128 +1014,120 @@ async function menu(site: PublicSite, venue: Venue | undefined): Promise<HTMLEle
   }
   const picker = venuePicker(site, venue, false);
   if (picker) section.append(picker);
-  // Optional published-card navigation must never hide the main restaurant menu.
-  try {
-    const availableMenus = await (
-      await import('../../src/pages/public-menu')
-    ).publishedMenuIndex(venue, site.multi_venue);
-    if (availableMenus) section.append(availableMenus);
-  } catch {
-    // Continue with the main menu when only the card index is unavailable.
-  }
-  const dishes = await rpc('get_public_menu', { p_venue: venue.id }, z.array(menuDishSchema));
+  // Independent read-only requests run together; catalog availability stays live.
+  const [availableMenus, dishes] = await Promise.all([
+    import('../../src/pages/public-menu')
+      .then((page) => page.publishedMenuIndex(venue, site.multi_venue))
+      .catch(() => null),
+    rpc('get_public_menu', { p_venue: venue.id }, z.array(menuDishSchema)),
+  ]);
+  if (availableMenus) section.append(availableMenus);
+  section.classList.add('restaurant-menu');
   const categories = [...new Set(dishes.map((dish) => dish.category_name))];
-  if (dishes.length) {
-    const search = el('input', {
-      type: 'search',
-      class: 'public-menu-search',
-      placeholder: 'Cerca un piatto o un ingrediente...',
-      'aria-label': 'Cerca un piatto nella carta',
-      autocomplete: 'off',
-    });
-    const count = el(
-      'span',
-      { class: 'public-menu-results', role: 'status' },
-      `${dishes.length} piatti`,
-    );
+  if (!dishes.length) {
     section.append(
-      el('div', { class: 'public-menu-toolbar' }, search, count),
-      el(
-        'nav',
-        { class: 'public-category-nav', 'aria-label': 'Categorie del menu' },
-        ...categories.map((category, i) => el('a', { href: `#categoria-${i}` }, category)),
-      ),
+      emptyState('Il menu è in preparazione', 'Contattaci per conoscere le proposte della cucina.'),
     );
-    const simplify = (value: string) =>
-      value.normalize('NFD').replace(/\p{M}/gu, '').toLocaleLowerCase('it');
-    search.addEventListener('input', () => {
-      const query = simplify(search.value.trim());
-      let visible = 0;
-      for (const card of section.querySelectorAll<HTMLElement>('.dish-public')) {
-        const matched = !query || simplify(card.textContent ?? '').includes(query);
-        card.hidden = !matched;
-        if (matched) visible++;
-      }
-      for (const heading of section.querySelectorAll<HTMLElement>('.menu-category')) {
-        const grid = heading.nextElementSibling as HTMLElement | null;
-        if (!grid?.classList.contains('dish-grid')) continue;
-        const shown = Array.from(grid.children).some((card) => !(card as HTMLElement).hidden);
-        heading.hidden = !shown;
-        grid.hidden = !shown;
-      }
-      count.textContent = visible === 1 ? '1 piatto' : `${visible} piatti`;
-    });
+    return section;
   }
-  for (const category of categories) {
-    section.append(
-      el(
-        'h2',
-        { class: 'menu-category', id: `categoria-${categories.indexOf(category)}` },
-        category,
-      ),
+  const search = el('input', {
+    type: 'search',
+    class: 'public-menu-search',
+    placeholder: 'Cerca un piatto o un ingrediente…',
+    'aria-label': 'Cerca un piatto nella carta',
+    autocomplete: 'off',
+  });
+  const count = el(
+    'span',
+    { class: 'public-menu-results', role: 'status' },
+    `${dishes.length} piatti`,
+  );
+  const categoryNav = el('nav', {
+    class: 'public-category-nav',
+    'aria-label': 'Categorie del menu',
+  });
+  let selected: string | null = null;
+  const filters: HTMLButtonElement[] = [];
+  const simplify = (value: string) =>
+    value.normalize('NFD').replace(/\p{M}/gu, '').toLocaleLowerCase('it');
+  const noResults = emptyState(
+    'Nessun piatto trovato',
+    'Prova un altro nome o mostra di nuovo tutta la carta.',
+  );
+  noResults.hidden = true;
+  const applyFilter = (): void => {
+    const query = simplify(search.value.trim());
+    let visible = 0;
+    for (const card of section.querySelectorAll<HTMLElement>('.dish-public')) {
+      card.hidden =
+        (selected !== null && card.dataset.category !== selected) ||
+        Boolean(query && !simplify(card.dataset.search ?? '').includes(query));
+      if (!card.hidden) visible++;
+    }
+    for (const heading of section.querySelectorAll<HTMLElement>('.menu-category')) {
+      const grid = heading.nextElementSibling as HTMLElement;
+      const shown = [...grid.children].some((card) => !(card as HTMLElement).hidden);
+      heading.hidden = !shown;
+      grid.hidden = !shown;
+    }
+    for (const filter of filters)
+      filter.setAttribute('aria-pressed', String((filter.dataset.category ?? null) === selected));
+    count.textContent = visible === 1 ? '1 piatto' : `${visible} piatti`;
+    noResults.hidden = visible > 0;
+  };
+  for (const category of [null, ...categories]) {
+    const filter = button(
+      '',
+      () => {
+        selected = category;
+        applyFilter();
+      },
+      'quiet',
     );
+    filter.classList.add('public-category-filter');
+    filter.setAttribute('aria-pressed', String(category === null));
+    if (category !== null) filter.dataset.category = category;
+    const quantity =
+      category === null
+        ? dishes.length
+        : dishes.filter((dish) => dish.category_name === category).length;
+    filter.append(
+      el('span', {}, category ?? 'Tutti'),
+      el('span', { class: 'category-count', 'aria-hidden': 'true' }, quantity),
+    );
+    filters.push(filter);
+    categoryNav.append(filter);
+  }
+  search.addEventListener('input', applyFilter);
+  noResults.append(
+    button(
+      'Mostra tutti i piatti',
+      () => {
+        selected = null;
+        search.value = '';
+        applyFilter();
+      },
+      'secondary',
+    ),
+  );
+  section.append(el('div', { class: 'public-menu-toolbar' }, search, count), categoryNav);
+  for (const [index, category] of categories.entries()) {
     section.append(
+      el('h2', { class: 'menu-category', id: `categoria-${index}` }, category),
       el(
         'div',
         { class: 'dish-grid' },
         ...dishes
           .filter((dish) => dish.category_name === category)
           .map((dish) => {
-            const picture = safeImageUrl(dish.image_path);
-            const badge = availabilityBadge(dish.availability);
-            const ingredients = dish.ingredients.map((ingredient) => ingredient.name).join(', ');
-            const hasDistinctIngredients =
-              ingredients.length > 0 &&
-              !dish.description
-                .toLocaleLowerCase('it')
-                .includes(ingredients.toLocaleLowerCase('it'));
-            return el(
-              'article',
-              { class: 'dish-public public-dish-card public-legacy-dish' },
-              picture
-                ? el('img', { src: picture, alt: dish.name, loading: 'lazy', decoding: 'async' })
-                : null,
-              el(
-                'div',
-                { class: 'row between' },
-                el('h3', {}, dish.name),
-                el('strong', {}, formatMoney(dish.price_cents, venue.currency, venue.locale)),
-              ),
-              el('p', {}, dish.description),
-              !dish.beverage && hasDistinctIngredients
-                ? el(
-                    'details',
-                    { class: 'public-dish-ingredients' },
-                    el('summary', {}, 'Ingredienti'),
-                    el('p', {}, ingredients),
-                  )
-                : null,
-              dish.allergens.length
-                ? el(
-                    'p',
-                    { class: 'allergens' },
-                    `Contiene: ${dish.allergens.map((allergen) => allergen.name).join(', ')}`,
-                  )
-                : null,
-              el(
-                'div',
-                { class: 'row' },
-                ...dish.dietary_tags.map((tag) => el('span', { class: 'status' }, tag.label)),
-                badge.label ? el('span', { class: 'status' }, badge.label) : null,
-              ),
-            );
+            const card = publicDishCard(dish, venue);
+            card.dataset.category = category;
+            return card;
           }),
       ),
     );
   }
-  if (!dishes.length)
-    section.append(
-      el(
-        'p',
-        { class: 'muted' },
-        'Il menu viene aggiornato dal ristorante. Contattaci per conoscere le proposte disponibili.',
-      ),
-    );
+  section.append(noResults);
   return section;
 }
 

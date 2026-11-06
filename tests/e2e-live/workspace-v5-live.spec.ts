@@ -30,9 +30,7 @@ test('workspace V5: redesigned access page remains usable on desktop and mobile'
   await page.screenshot({ path: 'test-results/plateform-v5-login-mobile.png', fullPage: true });
 });
 
-test('workspace V5: primary rail, authorized directory and mobile bottom navigation', async ({
-  page,
-}) => {
+test('workspace V5: grouped authorised navigation and mobile drawer', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto('/login');
   await page.getByLabel('Identificativo staff').fill(staff.admin.email);
@@ -40,9 +38,12 @@ test('workspace V5: primary rail, authorized directory and mobile bottom navigat
   await page.getByRole('button', { name: 'Accedi al servizio' }).click();
   await expect(page.locator('.workspace-page-heading h1')).toHaveText('Operazioni');
   const nav = page.getByRole('navigation', { name: 'Aree principali' });
-  await expect(nav.locator('a')).toHaveCount(6);
+  const tree = nav.locator('.desktop-navigation');
+  await expect(tree.locator(':scope > a')).toHaveCount(1);
+  await expect(tree.locator('.nav-group')).toHaveCount(5);
   await expect(nav.getByRole('link', { name: 'Sala' })).toBeVisible();
-  await expect(nav.getByRole('link', { name: 'Cassa' })).toBeVisible();
+  await tree.getByText('Conti e cassa', { exact: true }).click();
+  await expect(nav.getByRole('link', { name: 'Cassa', exact: true })).toBeVisible();
   await expect(page.locator('.workspace-context-tabs')).toHaveCount(0);
   await expect(page.locator('.ops-overview')).toBeVisible();
   await expect(page.locator('.ops-summary-grid > button')).toHaveCount(4);
@@ -60,14 +61,11 @@ test('workspace V5: primary rail, authorized directory and mobile bottom navigat
   expect(pseudoLogo).toBe('none');
   await page.screenshot({ path: 'test-results/plateform-v5-admin-desktop.png', fullPage: true });
 
-  await nav.getByRole('button', { name: 'Apri tutte le funzioni' }).click();
-  const directory = page.getByRole('dialog', { name: 'Tutte le funzioni disponibili' });
-  await expect(directory).toBeVisible();
-  await expect(directory.getByRole('link', { name: /Menu della sede/ })).toBeVisible();
-  await expect(directory.getByRole('link', { name: /Regole del servizio/ })).toBeVisible();
+  await tree.getByText('Ristorante', { exact: true }).click();
+  await expect(tree.getByRole('link', { name: 'Menu della sede', exact: true })).toBeVisible();
+  await tree.getByText('Amministrazione', { exact: true }).click();
+  await expect(tree.getByRole('link', { name: 'Regole del servizio', exact: true })).toBeVisible();
   await page.screenshot({ path: 'test-results/plateform-v5-directory.png' });
-  await page.keyboard.press('Escape');
-  await expect(directory).not.toBeVisible();
 
   for (const destination of [
     { label: 'Sala', path: '/sala', screenshot: 'sala', content: '.floor-workspace' },
@@ -122,7 +120,7 @@ test('workspace V5: primary rail, authorized directory and mobile bottom navigat
   await expect(page.locator('.workspace-page-heading h1')).toHaveText('Operazioni');
 
   await expect(nav.locator('a:visible')).toHaveCount(4);
-  await expect(nav.getByRole('button', { name: 'Apri tutte le funzioni' })).toBeVisible();
+  await expect(nav.getByRole('button', { name: 'Apri la navigazione' })).toBeVisible();
   const bottom = await page.locator('.sidebar').evaluate((sidebar) => {
     const bounds = sidebar.getBoundingClientRect();
     return { bottom: bounds.bottom, viewport: window.innerHeight };
@@ -146,8 +144,10 @@ test('workspace V5: primary rail, authorized directory and mobile bottom navigat
   expect(topbar.initials).toBe('AA');
   await page.screenshot({ path: 'test-results/plateform-v5-admin-mobile.png', fullPage: true });
 
-  await nav.getByRole('button', { name: 'Apri tutte le funzioni' }).click();
-  await directory.getByRole('link', { name: /Menu della sede/ }).click();
+  await nav.getByRole('button', { name: 'Apri la navigazione' }).click();
+  const directory = page.getByRole('dialog', { name: 'Navigazione', exact: true });
+  await directory.getByText('Ristorante', { exact: true }).click();
+  await directory.getByRole('link', { name: 'Menu della sede', exact: true }).click();
   await expect(page).toHaveURL(/\/menu-sede$/);
   await expect(page.locator('.workspace-page-heading h1')).toHaveText('Menu della sede');
 });

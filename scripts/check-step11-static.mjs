@@ -200,7 +200,7 @@ for (const [needle, label] of [
   ["import '../../styles/workspace-redesign.css'", 'staff_structural_redesign_loaded'],
   ["import '../../styles/workspace-v5.css'", 'staff_v5_experience_loaded'],
   ["class: 'primary-navigation'", 'new_role_navigation_structure'],
-  ["class: 'workspace-directory'", 'authorized_function_directory'],
+  ["classList.add('workspace-directory')", 'authorized_function_directory'],
   ["class: 'page-heading workspace-page-heading'", 'new_workspace_heading'],
   ["class: collapsedSidebar ? 'staff-shell sidebar-collapsed'", 'staff_sidebar_toggle'],
   ['navIcon(link.path)', 'staff_icon_navigation'],

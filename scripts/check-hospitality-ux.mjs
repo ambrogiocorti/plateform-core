@@ -33,7 +33,7 @@ for (const [s, text, label] of [
   [newWorkspace, '.workspace-directory', 'accessible_workspace_directory'],
   [staff, "class: 'primary-navigation'", 'reduced_primary_navigation'],
   [staff, 'primaryNavigation(profile.role, links)', 'role_aware_navigation'],
-  [staff, "class: 'workspace-directory'", 'navigation_drawer'],
+  [staff, "classList.add('workspace-directory')", 'navigation_drawer'],
   [frontDesk, '.host-desk-body', 'host_split_workspace'],
   [frontDesk, '.cashier-command-center', 'cash_workspace'],
   [frontDesk, '.waiter-priority-bar', 'waiter_urgency_strip'],

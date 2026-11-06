@@ -71,11 +71,33 @@ export function showError(error: unknown): void {
   const failure = safeError(error);
   toast(failure.message, true, failure.requestId);
 }
+export function dismissControl(label: string, action: () => void): HTMLButtonElement {
+  const control = button('', action, 'quiet');
+  control.classList.add('dismiss-control');
+  control.setAttribute('aria-label', label);
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('stroke', 'currentColor');
+  svg.setAttribute('stroke-width', '1.7');
+  svg.setAttribute('aria-hidden', 'true');
+  const shape = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  shape.setAttribute('d', 'm6 6 12 12 M18 6 6 18');
+  svg.append(shape);
+  control.append(svg);
+  return control;
+}
 export function toast(message: string, isError = false, requestId?: string): void {
   let region = document.getElementById('toasts');
   if (!region) {
     region = el('div', { id: 'toasts', class: 'toasts', 'aria-live': 'polite' });
-    document.body.append(region);
+    if ('showPopover' in region) region.setAttribute('popover', 'manual');
+  }
+  const host =
+    [...document.querySelectorAll<HTMLDialogElement>('dialog[open]')].at(-1) ?? document.body;
+  if (region.parentElement !== host) {
+    if (region.matches(':popover-open')) region.hidePopover();
+    host.append(region);
   }
   if (
     requestId &&
@@ -85,9 +107,11 @@ export function toast(message: string, isError = false, requestId?: string): voi
   const item = el(
     'div',
     { class: `toast ${isError ? 'error' : ''}`, role: isError ? 'alert' : 'status' },
+    el('span', { class: 'toast-icon', 'aria-hidden': 'true' }, isError ? '!' : '✓'),
     el(
       'div',
       { class: 'toast-content' },
+      el('strong', { class: 'toast-title' }, isError ? 'Attenzione' : 'Confermato'),
       el('p', { class: 'toast-message' }, message),
       requestId
         ? el('span', { class: 'toast-reference' }, `Riferimento ${requestId.slice(0, 8)}`)
@@ -95,22 +119,46 @@ export function toast(message: string, isError = false, requestId?: string): voi
     ),
   );
   if (requestId) item.dataset.requestId = requestId;
-  item.append(button('Chiudi', () => item.remove(), 'quiet'));
+  item.append(dismissControl('Nascondi avviso', () => item.remove()));
   region.append(item);
+  // A manual popover keeps feedback visible even above a native modal dialog.
+  if (region.hasAttribute('popover')) {
+    if (region.matches(':popover-open')) region.hidePopover();
+    region.showPopover();
+  }
+  while (region.children.length > 3) region.firstElementChild?.remove();
   if (!isError) setTimeout(() => item.remove(), 7000);
 }
 export function dialog(title: string, ...content: Child[]): HTMLDialogElement {
   const element = el(
     'dialog',
     { class: 'dialog', 'aria-label': title },
-    el('header', {}, el('h2', {}, title)),
+    el('header', { class: 'dialog-heading' }, el('h2', {}, title)),
     ...content,
   );
-  element.append(button('Chiudi', () => element.close(), 'quiet'));
+  element.querySelector('header')!.append(dismissControl('Chiudi finestra', () => element.close()));
   const previousFocus = document.activeElement;
   element.addEventListener('close', () => {
     element.remove();
-    if (previousFocus instanceof HTMLElement) previousFocus.focus();
+    if (previousFocus instanceof HTMLElement && previousFocus.isConnected)
+      previousFocus.focus({ preventScroll: true });
+  });
+  let pressedBackdrop = false;
+  const outside = (event: MouseEvent): boolean => {
+    const bounds = element.getBoundingClientRect();
+    return (
+      event.clientX < bounds.left ||
+      event.clientX > bounds.right ||
+      event.clientY < bounds.top ||
+      event.clientY > bounds.bottom
+    );
+  };
+  element.addEventListener('pointerdown', (event) => {
+    pressedBackdrop = event.target === element && outside(event);
+  });
+  element.addEventListener('click', (event) => {
+    if (pressedBackdrop && event.target === element && outside(event)) element.close();
+    pressedBackdrop = false;
   });
   document.body.append(element);
   element.showModal();

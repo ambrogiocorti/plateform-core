@@ -5,6 +5,9 @@ import '../../styles/workspace-redesign.css';
 import '../../styles/frontdesk-v4.css';
 import '../../styles/workspace-v5.css';
 import '../../styles/staff-access.css';
+import '../../styles/overlays.css';
+import '../../styles/navigation-tree.css';
+import { groupedNavigation } from '../../src/services/navigation-groups';
 import {
   el,
   button,
@@ -77,6 +80,8 @@ async function refreshVisiblePage(): Promise<void> {
 function navIcon(path: string): SVGSVGElement {
   // Navigation icon paths are local and role-independent; permissions remain server enforced.
   const icons: Record<string, string> = {
+    '/notifiche': 'M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9 M10 21h4',
+    '/chevron': 'm6 9 6 6 6-6',
     '/menu-laterale': 'M4 4h16v16H4z M9 4v16 M16 9l-3 3 3 3',
     '/operazioni': 'M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z',
     '/sala': 'M4 12h16 M7 12V6h10v6 M7 12v6 M17 12v6 M5 18h14',
@@ -211,42 +216,76 @@ function primaryNavigation(role: UserRole, permitted: NavigationEntry[]): Naviga
   return ordered.length ? ordered : permitted.slice(0, 5);
 }
 
-function moreNavigationGroup(path: string): string {
-  if (
-    [
-      '/operazioni',
-      '/sala',
-      '/accoglienza',
-      '/cucina',
-      '/conti',
-      '/cassa',
-      '/statistiche',
-    ].includes(path)
-  )
-    return 'Servizio e controllo';
-  if (
-    ['/eccezioni', '/conflitti', '/modifiche', '/stampe', '/notifiche', '/consegne'].includes(path)
-  )
-    return 'Flussi e attività';
-  if (
-    ['/menu-sede', '/food-cost', '/editor', '/pianificazione', '/sito', '/preparazione'].includes(
-      path,
-    )
-  )
-    return 'Ristorante e contenuti';
-  if (
-    [
-      '/gestione',
-      '/impostazioni',
-      '/privacy',
-      '/staff',
-      '/dispositivi',
-      '/sedi',
-      '/audit',
-    ].includes(path)
-  )
-    return 'Amministrazione e sicurezza';
-  return 'Altre aree';
+function navigationTree(
+  permitted: NavigationEntry[],
+  selected: string | undefined,
+  landing: string | undefined,
+  role: UserRole,
+  remember = false,
+): HTMLElement {
+  const root = el('div', { class: 'navigation-tree' });
+  const link = (entry: NavigationEntry, nested = false): HTMLElement =>
+    el(
+      'a',
+      {
+        href: staffHref(entry.path),
+        class: nested ? 'nav-link nav-child' : 'nav-link',
+        title: entry.label,
+        'aria-label': entry.label,
+        ...(selected === entry.path ? { 'aria-current': 'page' } : {}),
+      },
+      nested ? null : el('span', { class: 'nav-icon', 'aria-hidden': 'true' }, navIcon(entry.path)),
+      el('span', { class: 'nav-label' }, entry.label),
+    );
+  const home = permitted.find((entry) => entry.path === landing);
+  if (home) root.append(link(home));
+  const { groups, other } = groupedNavigation(permitted, home?.path);
+  for (const group of groups) {
+    const active = group.entries.some((entry) => entry.path === selected);
+    const storageKey = `plateform-navigation:${role}:${group.id}`;
+    let stored: string | null = null;
+    if (remember) {
+      try {
+        stored = localStorage.getItem(storageKey);
+      } catch {
+        /* Optional UI preference. */
+      }
+    }
+    const open = active || stored === 'open' || (stored === null && group.id === 'service');
+    const children = el(
+      'div',
+      { class: 'nav-children' },
+      ...group.entries.map((entry) => link(entry, true)),
+    );
+    const summary = el(
+      'summary',
+      { class: 'nav-group-heading', 'aria-label': group.label, title: group.label },
+      el('span', { class: 'nav-icon', 'aria-hidden': 'true' }, navIcon(group.icon)),
+      el('span', { class: 'nav-label' }, group.label),
+      el('span', { class: 'nav-chevron', 'aria-hidden': 'true' }, navIcon('/chevron')),
+    );
+    const details = el(
+      'details',
+      {
+        class: 'nav-group',
+        ...(open ? { open: '' } : {}),
+        ...(active ? { 'data-active': 'true' } : {}),
+      },
+      summary,
+      children,
+    );
+    if (remember)
+      details.addEventListener('toggle', () => {
+        try {
+          localStorage.setItem(storageKey, details.open ? 'open' : 'closed');
+        } catch {
+          /* Optional UI preference. */
+        }
+      });
+    root.append(details);
+  }
+  root.append(...other.map((entry) => link(entry)));
+  return root;
 }
 
 function pageDescription(path: string): string {
@@ -388,8 +427,7 @@ async function render(): Promise<void> {
     (entry) => staffPath() === entry.path || staffPath().startsWith(`${entry.path}/`),
   );
   const mainLinks = primaryNavigation(profile.role, links);
-  const extraLinks = links.filter((link) => !mainLinks.includes(link));
-  const directoryLinks = [...mainLinks.slice(4), ...extraLinks];
+  const mobileLinks = mainLinks.slice(0, 4);
   const today = new Date().toLocaleDateString('it-IT', {
     weekday: 'long',
     day: 'numeric',
@@ -471,78 +509,36 @@ async function render(): Promise<void> {
     },
     navIcon('/menu-laterale'),
   );
-  const moreDialog: HTMLDialogElement = el(
-    'dialog',
-    { class: 'workspace-directory', 'aria-label': 'Tutte le funzioni disponibili' },
-    el(
-      'div',
-      { class: 'directory-header' },
-      el(
-        'div',
-        {},
-        el('span', { class: 'directory-kicker' }, 'ESPLORA PLATEFORM'),
-        el('h2', {}, 'Tutte le funzioni'),
-        el('p', {}, 'Le aree disponibili per il tuo ruolo.'),
-      ),
-      button('Chiudi', () => moreDialog.close(), 'quiet'),
-    ),
-    el(
-      'div',
-      { class: 'directory-groups' },
-      ...[
-        'Servizio e controllo',
-        'Flussi e attività',
-        'Ristorante e contenuti',
-        'Amministrazione e sicurezza',
-        'Altre aree',
-      ]
-        .map((group) => ({
-          group,
-          items: directoryLinks.filter((entry) => moreNavigationGroup(entry.path) === group),
-        }))
-        .filter(({ items }) => items.length > 0)
-        .map(({ group, items }) =>
-          el(
-            'section',
-            { class: 'directory-section' },
-            el('h3', {}, group),
-            ...items.map((entry) =>
-              el(
-                'a',
-                {
-                  href: staffHref(entry.path),
-                  class: 'directory-link',
-                  ...(pageLink?.path === entry.path ? { 'aria-current': 'page' } : {}),
-                },
-                el(
-                  'span',
-                  { class: 'directory-link-icon', 'aria-hidden': 'true' },
-                  navIcon(entry.path),
-                ),
-                el('span', {}, entry.label),
-                el('span', { class: 'directory-link-arrow', 'aria-hidden': 'true' }, '↗'),
-              ),
-            ),
-          ),
-        ),
-    ),
-  );
   const moreButton = el(
     'button',
     {
       type: 'button',
       class: 'nav-link nav-more',
-      'aria-label': 'Apri tutte le funzioni',
+      'aria-label': 'Apri la navigazione',
       'aria-haspopup': 'dialog',
-      title: 'Tutte le funzioni',
-      ...(extraLinks.some((link) => link.path === pageLink?.path)
+      title: 'Navigazione',
+      ...(!mobileLinks.some((link) => link.path === pageLink?.path)
         ? { 'data-current': 'true' }
         : {}),
     },
-    el('span', { class: 'nav-icon', 'aria-hidden': 'true' }, '⋯'),
-    el('span', { class: 'nav-label' }, 'Tutte'),
+    el('span', { class: 'nav-icon', 'aria-hidden': 'true' }, navIcon('/menu-sede')),
+    el('span', { class: 'nav-label' }, 'Menu'),
   );
-  moreButton.addEventListener('click', () => moreDialog.showModal());
+  moreButton.addEventListener('click', () => {
+    const popup = dialog(
+      'Navigazione',
+      navigationTree(links, pageLink?.path, mainLinks[0]?.path, profile.role),
+    );
+    popup.classList.add('workspace-directory');
+  });
+  const desktopNavigation = navigationTree(
+    links,
+    pageLink?.path,
+    mainLinks[0]?.path,
+    profile.role,
+    true,
+  );
+  desktopNavigation.classList.add('desktop-navigation');
   const searchControl = button('Cerca  ⌘K', () => openPalette(), 'quiet');
   searchControl.classList.add('topbar-search');
   searchControl.setAttribute('aria-label', 'Cerca funzioni, tavoli, conti e prenotazioni');
@@ -604,27 +600,63 @@ async function render(): Promise<void> {
       el(
         'nav',
         { class: 'primary-navigation', 'aria-label': 'Aree principali' },
-        ...mainLinks.map((link) =>
-          el(
-            'a',
-            {
-              href: staffHref(link.path),
-              class: 'nav-link',
-              title: link.label,
-              'aria-label': link.label,
-              ...(pageLink?.path === link.path ? { 'aria-current': 'page' } : {}),
-            },
-            el('span', { class: 'nav-icon', 'aria-hidden': 'true' }, navIcon(link.path)),
-            el('span', { class: 'nav-label' }, link.label),
+        desktopNavigation,
+        el(
+          'div',
+          { class: 'mobile-navigation' },
+          ...mobileLinks.map((link) =>
+            el(
+              'a',
+              {
+                href: staffHref(link.path),
+                class: 'nav-link',
+                title: link.label,
+                'aria-label': link.label,
+                ...(pageLink?.path === link.path ? { 'aria-current': 'page' } : {}),
+              },
+              el('span', { class: 'nav-icon', 'aria-hidden': 'true' }, navIcon(link.path)),
+              el('span', { class: 'nav-label' }, link.label),
+            ),
           ),
+          moreButton,
         ),
-        ...(directoryLinks.length ? [moreButton] : []),
       ),
       el(
         'footer',
         { class: 'sidebar-footer' },
-        el('span', { class: 'sidebar-footer-dot', 'aria-hidden': 'true' }),
-        el('span', { class: 'sidebar-footer-copy' }, `Release ${environment().releaseVersion}`),
+        (() => {
+          const account = button('', openProfile, 'quiet');
+          account.classList.add('sidebar-profile');
+          account.setAttribute('aria-label', 'Apri profilo di ' + profile.display_name);
+          const initials = profile.display_name
+            .split(/\s+/)
+            .slice(0, 2)
+            .map((part) => part[0])
+            .join('')
+            .toUpperCase();
+          account.append(
+            el('span', { class: 'sidebar-avatar', 'aria-hidden': 'true' }, initials),
+            el(
+              'span',
+              { class: 'sidebar-profile-copy' },
+              el('strong', {}, profile.display_name),
+              el(
+                'span',
+                {},
+                profile.role === 'ADMIN'
+                  ? 'Amministrazione'
+                  : profile.role.replaceAll('_', ' ').toLocaleLowerCase('it'),
+              ),
+            ),
+          );
+          return account;
+        })(),
+        el(
+          'span',
+          { class: 'sidebar-release' },
+          el('span', { class: 'sidebar-footer-dot', 'aria-hidden': 'true' }),
+          el('span', { class: 'sidebar-footer-copy' }, `Release ${environment().releaseVersion}`),
+        ),
       ),
     ),
     el(
@@ -673,10 +705,14 @@ async function render(): Promise<void> {
     sidebarToggle.title = compact ? 'Espandi menu' : 'Comprimi menu';
     localStorage.setItem('plateform-sidebar', compact ? 'collapsed' : 'expanded');
   });
-  moreDialog.addEventListener('click', (event) => {
-    if (event.target === moreDialog) moreDialog.close();
+  desktopNavigation.addEventListener('click', (event) => {
+    if (
+      shell.classList.contains('sidebar-collapsed') &&
+      event.target instanceof Element &&
+      event.target.closest('summary')
+    )
+      sidebarToggle.click();
   });
-  shell.append(moreDialog);
   const assistance = sessionStorage.getItem('plateform-impersonation');
   if (assistance) {
     const info = await rpc(

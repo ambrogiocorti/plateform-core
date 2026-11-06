@@ -19,7 +19,7 @@ const checks = [
   [
     'navigazione primaria compatta e directory per tutte le funzioni autorizzate',
     app.includes('primaryNavigation(profile.role, links)') &&
-      app.includes("class: 'workspace-directory'") &&
+      app.includes("classList.add('workspace-directory')") &&
       app.includes("class: 'primary-navigation'") &&
       shell.includes('.staff-shell .primary-navigation'),
   ],

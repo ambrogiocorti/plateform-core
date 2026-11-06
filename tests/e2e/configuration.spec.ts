@@ -318,7 +318,7 @@ test('profile actions and error feedback remain readable on a phone', async ({ p
   );
   await expect(alert.locator('.toast-reference')).toContainText('Riferimento');
   await page.screenshot({ path: 'test-results/error-feedback-mobile.png', fullPage: true });
-  await alert.getByRole('button', { name: 'Chiudi', exact: true }).click();
+  await alert.getByRole('button', { name: 'Nascondi avviso', exact: true }).click();
   await expect(alert).toHaveCount(0);
 });
 
@@ -363,7 +363,7 @@ test('Admin verifies identity before exporting and rectifies contacts with a bou
     page.getByText('Nessuna prenotazione trovata per questo telefono nella sede selezionata.'),
   ).toBeVisible();
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.getByRole('button', { name: 'Chiudi', exact: true }).last().click();
+  await page.getByRole('button', { name: 'Chiudi finestra', exact: true }).last().click();
   await expect(page.getByRole('navigation', { name: 'Aree principali' })).toBeInViewport();
   expect(
     (await page.getByRole('navigation', { name: 'Aree principali' }).boundingBox())!.height,
@@ -425,4 +425,41 @@ test('configuration search filters authorised records without losing their edit 
     path: 'test-results/hospitality-configuration-mobile.png',
     fullPage: true,
   });
+});
+
+test('grouped staff navigation exposes authorised areas on desktop and in the mobile drawer', async ({
+  page,
+}) => {
+  await fixture(page, 'ADMIN');
+  await page.setViewportSize({ width: 1360, height: 900 });
+  await page.goto('http://localhost:5174/impostazioni');
+  await expect(page.getByRole('heading', { name: 'Servizio e clienti' })).toBeVisible();
+  const nav = page.getByRole('navigation', { name: 'Aree principali' });
+  await expect(nav.getByRole('link', { name: 'Regole del servizio', exact: true })).toHaveAttribute(
+    'aria-current',
+    'page',
+  );
+  await nav.getByText('Ristorante', { exact: true }).click();
+  await expect(nav.getByRole('link', { name: 'Sito e branding', exact: true })).toBeVisible();
+  await expect(nav.getByRole('link', { name: 'Food cost e margini' })).toHaveCount(0);
+  await expect(nav.getByRole('link', { name: 'Operational Health' })).toHaveCount(0);
+  await page.screenshot({ path: 'test-results/staff-navigation-grouped-desktop.png' });
+  await page.getByRole('button', { name: 'Comprimi il menu laterale' }).click();
+  await expect(page.locator('.staff-shell')).toHaveClass(/sidebar-collapsed/);
+  await nav.getByLabel('Ristorante', { exact: true }).click();
+  await expect(page.locator('.staff-shell')).not.toHaveClass(/sidebar-collapsed/);
+  await page.setViewportSize({ width: 390, height: 844 });
+  const opener = nav.getByRole('button', { name: 'Apri la navigazione' });
+  await expect(opener).toBeInViewport({ ratio: 1 });
+  await opener.click();
+  const drawer = page.getByRole('dialog', { name: 'Navigazione', exact: true });
+  await expect(
+    drawer.getByRole('link', { name: 'Regole del servizio', exact: true }),
+  ).toBeVisible();
+  await drawer.getByText('Ristorante', { exact: true }).click();
+  await expect(drawer.getByRole('link', { name: 'Sito e branding', exact: true })).toBeVisible();
+  await page.screenshot({ path: 'test-results/staff-navigation-grouped-mobile.png' });
+  await page.keyboard.press('Escape');
+  await expect(drawer).toHaveCount(0);
+  await expect(opener).toBeFocused();
 });
