@@ -2,15 +2,17 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
 const read = (path) => readFile(path, 'utf8');
-const [publicCss, staffCss, baseCss, systemCss, tokens, publicMain, staffMain] = await Promise.all([
-  read('styles/public.css'),
-  read('styles/staff.css'),
-  read('styles/base.css'),
-  read('styles/plateform-design-system.css'),
-  read('styles/tokens.css'),
-  read('apps/public/main.ts'),
-  read('apps/staff/main.ts'),
-]);
+const [publicCss, staffCss, baseCss, systemCss, tokens, publicMain, staffMain, publicAbout] =
+  await Promise.all([
+    read('styles/public.css'),
+    read('styles/staff.css'),
+    read('styles/base.css'),
+    read('styles/plateform-design-system.css'),
+    read('styles/tokens.css'),
+    read('apps/public/main.ts'),
+    read('apps/staff/main.ts'),
+    read('src/pages/public-about.ts'),
+  ]);
 
 function requireText(haystack, needle, label) {
   assert.ok(haystack.includes(needle), 'REPORT_AUDIT_FAILED:' + label);
@@ -66,7 +68,8 @@ forbidText(staffCss, '.operational-table:focus {\n  outline: none;', 'floor_map_
 requireText(staffCss, '.operational-table:focus-visible', 'floor_map_focus_visible');
 requireText(staffCss, 'stroke: var(--accent)', 'floor_map_focus_contrast');
 forbidText(publicCss, '.gallery-grid:empty::before', 'content_in_css');
-requireText(publicMain, 'La gallery verrà aggiornata presto.', 'empty_gallery_in_dom');
+requireText(publicMain, 'galleryPage(site)', 'gallery_route_uses_component');
+requireText(publicAbout, 'La gallery verrà aggiornata presto.', 'empty_gallery_in_dom');
 requireText(staffMain, "class: 'brand-mark'", 'logo_mark_in_markup');
 forbidText(tokens, 'Inter, Segoe UI', 'unavailable_inter_font');
 requireText(systemCss, '@media (forced-colors: active)', 'forced_colors_support');

@@ -294,7 +294,8 @@ test('profile actions and error feedback remain readable on a phone', async ({ p
   await page.route('**/rest/v1/rpc/get_own_access_sessions', (route) =>
     route.fulfill({ status: 403, json: { message: 'FORBIDDEN' } }),
   );
-  await page.goto('http://localhost:5174/');
+  await page.goto('http://localhost:5174/impostazioni');
+  await expect(page.getByRole('heading', { name: 'Servizio e clienti' })).toBeVisible();
   await page.locator('.topbar-profile').click();
   const popup = page.locator('.profile-dialog');
   await expect(
