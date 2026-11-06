@@ -1080,7 +1080,7 @@ async function menu(site: PublicSite, venue: Venue | undefined): Promise<HTMLEle
               { class: 'dish-public public-dish-card public-legacy-dish' },
               picture
                 ? el('img', { src: picture, alt: dish.name, loading: 'lazy', decoding: 'async' })
-                : el('div', { class: 'public-dish-image-placeholder' }, 'La nostra cucina'),
+                : null,
               el(
                 'div',
                 { class: 'row between' },
@@ -1088,7 +1088,14 @@ async function menu(site: PublicSite, venue: Venue | undefined): Promise<HTMLEle
                 el('strong', {}, formatMoney(dish.price_cents, venue.currency, venue.locale)),
               ),
               el('p', {}, dish.description),
-              !dish.beverage && hasDistinctIngredients ? el('p', {}, ingredients) : null,
+              !dish.beverage && hasDistinctIngredients
+                ? el(
+                    'details',
+                    { class: 'public-dish-ingredients' },
+                    el('summary', {}, 'Ingredienti'),
+                    el('p', {}, ingredients),
+                  )
+                : null,
               dish.allergens.length
                 ? el(
                     'p',

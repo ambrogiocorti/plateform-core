@@ -279,6 +279,9 @@ test('technical health remains unverified until a real probe result is recorded 
   await page.getByRole('button', { name: 'Configurazione', exact: true }).click();
   await expect(page.getByLabel('Utenti', { exact: true })).toHaveValue('120');
   await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.getByRole('button', { name: 'Configurazione', exact: true })).toBeInViewport({
+    ratio: 1,
+  });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
     true,
   );

@@ -33,6 +33,14 @@ sono cambiati. Non crea utenti, ordini o pagamenti e non modifica le impostazion
 operative o la sicurezza. Il menu precisa che piatti e prezzi sono di esempio.
 La gallery precisa che le immagini non raffigurano la sede SACER.
 
+La transazione è stata applicata a production dopo la pubblicazione delle quattro
+immagini. Le proiezioni pubbliche restituiscono otto piatti, quattro categorie e
+quattro immagini; il profilo è passato alla versione 2. Ordini e pagamenti sono
+rimasti a zero. Il controllo visuale ha inoltre portato a eliminare i grandi
+riquadri segnaposto dai piatti senza foto, rendere espandibili gli ingredienti
+(allergeni sempre visibili), mantenere tutte le sezioni tecniche visibili su
+telefono e spostare i toast sopra la navigazione mobile.
+
 Il profilo prima dell'intervento è conservato in `profile-before.json`; il
 rollback disattiva soltanto gli otto piatti dell'esempio. Ripristinare il testo
 precedente richiede prima il confronto con le eventuali modifiche del gestore.

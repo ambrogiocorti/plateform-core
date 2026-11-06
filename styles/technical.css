@@ -139,6 +139,16 @@
   }
 }
 @media (max-width: 650px) {
+  .technical-navigation {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .technical-navigation > .button {
+    white-space: normal;
+  }
+  .technical-navigation > .button:last-child {
+    grid-column: 1 / -1;
+  }
   .technical-workspace .technical-health-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }

@@ -685,6 +685,26 @@
   }
 }
 /* Public editorial pages use the same measured typography as the restaurant home. */
+.public-legacy-dish:not(:has(> img)) {
+  padding-top: 22px;
+}
+.dish-public.public-legacy-dish {
+  align-self: start;
+  border-radius: 10px;
+  box-shadow: none;
+}
+.public-dish-ingredients {
+  margin-block: 0 12px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.public-dish-ingredients > summary {
+  cursor: pointer;
+  padding-block: 4px;
+}
+.public-dish-ingredients > p {
+  margin: 8px 0 0;
+}
 .public-page-heading {
   max-width: 780px;
   margin-bottom: 40px;
