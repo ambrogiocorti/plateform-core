@@ -68,4 +68,22 @@ Il primo job deploy del run `42135588803` è stato respinto dalle regole di prot
 
 Il completamento grafico non risolve i gate aperti di backup/ripristino ospitato, provider e stampante fisica.
 
+## Correzione dell'altezza del login
+
+Su richiesta del proprietario, il login ora occupa l'altezza disponibile del
+viewport senza scorrimento della pagina. `styles/staff-access.css` centra il
+pannello in `100dvh`, elimina l'altezza minima rigida e riduce gli spazi sugli
+schermi bassi. Le regole del documento si applicano soltanto quando è montato
+il login: le schermate operative conservano il proprio scorrimento. Il pannello
+del modulo resta accessibile con scorrimento interno quando errori, MFA o testo
+ingrandito richiedono più spazio.
+
+Il controllo browser esistente verifica anche l'altezza a 390 e 1280 pixel di
+larghezza con viewport alto 600 pixel: invio e recupero visibili e documento
+fermo dopo la rotella. TypeScript, lint mirato e formattazione passati localmente.
+L'avvio di Chromium locale è impedito dalle restrizioni del runtime; la CI GitHub
+esegue la verifica browser prima della pubblicazione. Nessuna modifica a schema,
+API, RLS, password o fattori MFA. Il backend del sito è quello production indicato
+nel registro `PRODUCTION_CUTOVER_2026-11-06.md`.
+
 Il runner integrato Ubuntu 24.04 usa le librerie e i font di sistema già installati, controlla il font Arial/fallback con `fc-match` e installa Chromium con la verifica delle dipendenze Playwright attiva. È stato rimosso il download ridondante di pacchetti font aggiuntivi che bloccava l'avvio sul mirror Ubuntu; nessuno scenario o controllo applicativo è stato escluso.

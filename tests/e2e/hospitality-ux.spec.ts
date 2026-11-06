@@ -76,7 +76,7 @@ for (const width of [390, 1280]) {
   });
 
   test('staff editorial login layout stays usable at ' + width, async ({ page }) => {
-    await page.setViewportSize({ width, height: 850 });
+    await page.setViewportSize({ width, height: 600 });
     await page.goto('http://localhost:5174/');
     await expect(page.getByRole('heading', { name: 'Bentornato.' })).toBeVisible();
     await expect(page.locator('.login-story')).toBeVisible();
@@ -84,6 +84,14 @@ for (const width of [390, 1280]) {
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
       true,
     );
+    expect(
+      await page.evaluate(() => document.documentElement.scrollHeight <= innerHeight + 1),
+    ).toBe(true);
+    const submit = page.getByRole('button', { name: 'Accedi al servizio' });
+    await expect(submit).toBeInViewport({ ratio: 1 });
+    await expect(page.locator('.login-footnote')).toBeInViewport({ ratio: 1 });
+    await page.mouse.wheel(0, 600);
+    expect(await page.evaluate(() => window.scrollY)).toBe(0);
     await page.screenshot({
       path: 'test-results/hospitality-staff-' + width + '.png',
       fullPage: true,
