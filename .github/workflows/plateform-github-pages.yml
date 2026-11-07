@@ -1,8 +1,9 @@
-name: Plateform GitHub Pages candidate
+name: Plateform GitHub Pages release
 
 on:
   push:
     branches:
+      - main
       - feature/customer-experience-light-theme-20261027
       - redesign/hospitality-workspaces-20261106
   workflow_dispatch:
@@ -33,6 +34,14 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  quality:
+    if: github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/release-candidate-hardening.yml
+
+  contracts:
+    if: github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/integrated-recovery-validation.yml
+
   candidate:
     runs-on: ubuntu-24.04
     timeout-minutes: 55
@@ -106,18 +115,18 @@ jobs:
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 7
-      - name: Configure Pages for the requested test preview or approved manual release
-        if: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/redesign/hospitality-workspaces-20261106') || (github.event_name == 'workflow_dispatch' && inputs.publish_after_approval && (inputs.pages_mode == 'test' || github.ref == 'refs/heads/main')) }}
+      - name: Configure Pages for the approved main release
+        if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.publish_after_approval)) }}
         uses: actions/configure-pages@v5
       - name: Stage the tested Pages artifact
-        if: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/redesign/hospitality-workspaces-20261106') || (github.event_name == 'workflow_dispatch' && inputs.publish_after_approval && (inputs.pages_mode == 'test' || github.ref == 'refs/heads/main')) }}
+        if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.publish_after_approval)) }}
         uses: actions/upload-pages-artifact@v4
         with:
           path: dist/site/
 
   deploy:
-    if: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/redesign/hospitality-workspaces-20261106') || (github.event_name == 'workflow_dispatch' && inputs.publish_after_approval && (inputs.pages_mode == 'test' || github.ref == 'refs/heads/main')) }}
-    needs: candidate
+    if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.publish_after_approval)) }}
+    needs: [candidate, quality, contracts]
     runs-on: ubuntu-latest
     permissions:
       pages: write
@@ -126,6 +135,6 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Deploy the requested preview after all candidate gates
+      - name: Deploy main after all application, browser and recovery gates
         id: deployment
         uses: actions/deploy-pages@v4

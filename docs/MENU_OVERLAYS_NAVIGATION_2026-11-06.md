@@ -20,8 +20,16 @@ Il video mostrava la sostituzione dell'intera pagina con «Caricamento…» fra 
 - Nuovi percorsi browser: filtri/ricerca e popup prodotto a 390/1280 px; focus e chiusura; navigazione con catalogo lento senza svuotare la pagina; gruppi staff e menu mobile; errore sopra una finestra aperta.
 - Percorso integrato aggiornato per verificare la struttura raggruppata e le autorizzazioni reali sullo stack isolato. Il resoconto dei job e l'artefatto distribuito sono nella PR.
 
-Nessuna migrazione o modifica a credenziali, MFA, RLS o dati commerciali. Staging non eliminato. Lo script specifico degli account è un allegato privato destinato all'esecuzione manuale dell'utente; non è una migrazione e non è stato eseguito sul database ospitato.
+Nessuna migrazione o modifica a credenziali, MFA, RLS o dati commerciali durante questo intervento. Lo script specifico degli account è un allegato privato destinato all'esecuzione manuale dell'utente; non è una migrazione del repository.
 
 ## Verifica di regressione
 
 La prima esecuzione browser ha evidenziato un’interferenza degli avvisi sovrapposti con i pulsanti, un errore di disposizione della barra mobile e i margini dell’intestazione del compositore. Corretti alla fonte: avvisi nel flusso del modulo, ripristino delle conferme alla chiusura, righe esplicite del compositore, controlli su larghezze e visibilità mobile. Eliminata la dissolvenza delle finestre per evitare fotogrammi trasparenti durante l’apertura. La verifica fotografica ora controlla il contenimento della miniatura, anziché imporre al nuovo layout l’immagine larga quanto la card.
+
+## Rilascio dal ramo principale — 7 novembre 2026
+
+Il candidato `9f97f9d` ha superato 393 test applicativi/database, 32 test Edge, 55 scenari browser, 41 scenari integrati, build CORE/FULL e ripristino isolato. Il deployment dal ramo di redesign è terminato prima dell'avvio del runner: il sito continuava quindi a mostrare il precedente rilascio `7d371c2`.
+
+Il percorso di rilascio passa ora da una normale PR verso `main`, già autorizzato nell'ambiente `github-pages`. Non cambia le regole degli ambienti. I rami di lavoro producono solo candidati; un push su `main` costruisce il pacchetto e richiama gli stessi workflow di hardening e integrazione prima di consentire il deployment. I controlli richiamati usano infrastruttura isolata e non ricevono segreti ospitati. Il build pubblico conserva il collegamento esclusivo a production e il prefisso `/plateform-core/`.
+
+La modifica al percorso di rilascio non costituisce prova di pubblicazione: l'esito del job `deploy` e la versione effettivamente servita vanno verificati dopo il merge.

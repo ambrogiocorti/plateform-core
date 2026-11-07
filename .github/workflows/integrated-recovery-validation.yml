@@ -3,6 +3,7 @@
 name: Plateform integrated recovery validation
 
 on:
+  workflow_call:
   push:
     branches:
       - fix/release-edition-contracts-20261103

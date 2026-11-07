@@ -3,6 +3,7 @@
 name: Plateform release candidate hardening
 
 on:
+  workflow_call:
   push:
     branches:
       - fix/release-candidate-hardening-20261103
