@@ -1,12 +1,13 @@
 /* One overlay system for public pages, staff forms and account actions. */
 html {
-  scrollbar-gutter: stable;
+  scrollbar-gutter: auto;
 }
 html:has(dialog[open]) {
   overflow: hidden;
 }
 dialog.dialog {
   width: min(640px, calc(100vw - 32px));
+  max-width: calc(100vw - 32px);
   max-height: calc(100dvh - 48px);
   padding: 28px;
   border: 1px solid var(--border);
@@ -31,9 +32,6 @@ dialog.dialog *::-webkit-scrollbar {
 dialog.dialog::backdrop {
   background: #131a25a6;
   backdrop-filter: none;
-}
-dialog.dialog[open] {
-  animation: overlay-enter 150ms ease-out;
 }
 dialog.dialog > .dialog-heading {
   position: sticky;
@@ -127,6 +125,20 @@ dialog.dialog.profile-dialog {
 .toasts::backdrop {
   background: transparent;
   pointer-events: none;
+}
+.toasts:empty {
+  display: none;
+}
+dialog.dialog > .toasts {
+  position: static;
+  width: 100%;
+  margin: 0 0 20px;
+  pointer-events: auto;
+}
+dialog.dialog > .toasts .toast {
+  padding: 13px;
+  box-shadow: none;
+  background: var(--raised);
 }
 .toast,
 .toast.error {
@@ -223,19 +235,10 @@ dialog.gallery-lightbox > img {
   object-fit: contain;
   border-radius: 8px;
 }
-@keyframes overlay-enter {
-  from {
-    opacity: 0;
-    transform: translateY(5px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
 @media (max-width: 600px) {
   dialog.dialog {
     width: calc(100vw - 24px);
+    max-width: calc(100vw - 24px);
     max-height: calc(100dvh - 32px);
     padding: 20px;
     border-radius: 17px;
@@ -257,6 +260,11 @@ dialog.gallery-lightbox > img {
     top: auto;
     margin: 0 0 12px;
     padding: 0;
+  }
+}
+@media (min-width: 641px) {
+  html {
+    scrollbar-gutter: stable;
   }
 }
 @media (max-width: 640px) {

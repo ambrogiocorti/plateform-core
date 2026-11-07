@@ -392,6 +392,10 @@ for (const width of [360, 390, 768, 820, 1024, 1280, 1440]) {
       await rice.getByLabel('Senza Parmigiano', { exact: true }).check();
       await editor.getByRole('button', { name: 'Invia ordine', exact: true }).click();
       expect(sent).toHaveLength(0);
+      await expect(editor.locator('.toast')).toHaveCount(1);
+      await expect(editor.locator('.toast-message')).not.toHaveText(
+        'Aggiungi almeno un piatto alla comanda.',
+      );
       await rice.getByLabel('Classica', { exact: true }).check();
       await editor.getByLabel('Cerca un piatto', { exact: true }).fill('Acqua');
       await expect(rice).toBeHidden();

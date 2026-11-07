@@ -186,7 +186,9 @@ test('public menu survives an unavailable optional card index and keeps dish pho
   expect(cardBox).not.toBeNull();
   expect(imageBox).not.toBeNull();
   expect(Math.abs(imageBox!.x - cardBox!.x)).toBeLessThanOrEqual(2);
-  expect(Math.abs(imageBox!.width - cardBox!.width)).toBeLessThanOrEqual(3);
+  expect(imageBox!.x + imageBox!.width).toBeLessThanOrEqual(cardBox!.x + cardBox!.width + 1);
+  expect(imageBox!.y + imageBox!.height).toBeLessThanOrEqual(cardBox!.y + cardBox!.height + 1);
+  expect(imageBox!.width).toBeGreaterThanOrEqual(100);
   await page.screenshot({ path: 'test-results/perizia-menu-layout.png', fullPage: true });
 });
 

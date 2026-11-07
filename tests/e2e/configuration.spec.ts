@@ -363,7 +363,7 @@ test('Admin verifies identity before exporting and rectifies contacts with a bou
     page.getByText('Nessuna prenotazione trovata per questo telefono nella sede selezionata.'),
   ).toBeVisible();
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.getByRole('button', { name: 'Chiudi finestra', exact: true }).last().click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
   await expect(page.getByRole('navigation', { name: 'Aree principali' })).toBeInViewport();
   expect(
     (await page.getByRole('navigation', { name: 'Aree principali' }).boundingBox())!.height,

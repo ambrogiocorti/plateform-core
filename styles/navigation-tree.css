@@ -279,16 +279,26 @@ dialog.dialog.workspace-directory {
   }
 }
 @media (max-width: 640px) {
-  .staff-shell .sidebar {
+  .staff-shell .sidebar,
+  .staff-shell.sidebar-collapsed .sidebar {
+    gap: 0;
+    padding: 7px 6px max(7px, env(safe-area-inset-bottom));
     border-right: 0;
     border-top: 1px solid var(--border);
     box-shadow: 0 -4px 20px #10182008;
+  }
+  .staff-shell .sidebar .sidebar-footer,
+  .staff-shell .sidebar-brand-row {
+    display: none;
   }
   .staff-shell .primary-navigation > .desktop-navigation {
     display: none;
   }
   .staff-shell .mobile-navigation {
     display: flex;
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 0;
     width: 100%;
     align-items: stretch;
     gap: 2px;
@@ -296,6 +306,7 @@ dialog.dialog.workspace-directory {
   .staff-shell .sidebar .nav-link,
   .staff-shell.sidebar-collapsed .sidebar .nav-link {
     flex: 1 1 0;
+    min-width: 0;
     min-height: 61px;
     gap: 4px;
     padding: 7px 2px;

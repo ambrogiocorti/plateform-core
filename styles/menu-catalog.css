@@ -126,6 +126,9 @@
   text-align: left;
   cursor: pointer;
 }
+.restaurant-menu .public-legacy-dish > .dish-card-open {
+  margin: 0;
+}
 .dish-card-open:has(.dish-card-photo) {
   grid-template-columns: 140px minmax(0, 1fr);
 }

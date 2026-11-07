@@ -1,7 +1,7 @@
 /* Order entry owns its layout. No selectors reach into other dialogs or pages. */
 .dialog.order-editor {
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
   gap: 0;
   width: min(1160px, calc(100vw - 40px));
   height: min(900px, calc(100dvh - 40px));
@@ -10,7 +10,9 @@
   overflow: hidden;
   border-radius: 12px;
 }
-.order-editor > header {
+dialog.dialog.order-editor > .dialog-heading {
+  position: static;
+  grid-row: 1;
   margin: 0;
   padding: 22px 26px;
   border-bottom: 1px solid var(--border);
@@ -19,10 +21,15 @@
   margin: 0;
   font-size: 23px;
 }
-.order-editor > .button.quiet {
-  grid-row: 4;
-  justify-self: end;
-  margin: 0 22px 12px;
+.order-editor > .order-composer {
+  grid-row: 3;
+}
+dialog.dialog.order-editor > .toasts {
+  grid-row: 2;
+  max-height: min(160px, 25dvh);
+  overflow: auto;
+  margin: 0;
+  padding: 10px 16px;
 }
 .order-composer {
   display: grid;
@@ -311,13 +318,14 @@
   font-size: 10px;
 }
 .order-editor > .cart-summary {
+  grid-row: 4;
   position: static;
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 16px;
   margin: 0;
-  padding: 16px 24px 8px;
+  padding: 16px 24px;
   border: 0;
   border-top: 1px solid var(--border);
   border-radius: 0;
@@ -341,10 +349,11 @@
 @media (max-width: 700px) {
   .dialog.order-editor {
     width: calc(100vw - 16px);
+    max-width: calc(100vw - 16px);
     height: calc(100dvh - 16px);
     max-height: calc(100dvh - 16px);
   }
-  .order-editor > header {
+  dialog.dialog.order-editor > .dialog-heading {
     padding: 16px;
   }
   .order-composer {

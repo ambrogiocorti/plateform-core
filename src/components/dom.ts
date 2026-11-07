@@ -91,19 +91,16 @@ export function toast(message: string, isError = false, requestId?: string): voi
   let region = document.getElementById('toasts');
   if (!region) {
     region = el('div', { id: 'toasts', class: 'toasts', 'aria-live': 'polite' });
-    if ('showPopover' in region) region.setAttribute('popover', 'manual');
   }
-  const host =
-    [...document.querySelectorAll<HTMLDialogElement>('dialog[open]')].at(-1) ?? document.body;
-  if (region.parentElement !== host) {
-    if (region.matches(':popover-open')) region.hidePopover();
-    host.append(region);
-  }
+  placeFeedback(region);
   if (
     requestId &&
     [...region.children].some((item) => (item as HTMLElement).dataset.requestId === requestId)
   )
     return;
+  // A form shows its current validation state, rather than accumulating errors
+  // from earlier attempts that the operator has already corrected.
+  if (region.parentElement instanceof HTMLDialogElement) region.replaceChildren();
   const item = el(
     'div',
     { class: `toast ${isError ? 'error' : ''}`, role: isError ? 'alert' : 'status' },
@@ -121,13 +118,15 @@ export function toast(message: string, isError = false, requestId?: string): voi
   if (requestId) item.dataset.requestId = requestId;
   item.append(dismissControl('Nascondi avviso', () => item.remove()));
   region.append(item);
-  // A manual popover keeps feedback visible even above a native modal dialog.
-  if (region.hasAttribute('popover')) {
-    if (region.matches(':popover-open')) region.hidePopover();
-    region.showPopover();
-  }
   while (region.children.length > 3) region.firstElementChild?.remove();
   if (!isError) setTimeout(() => item.remove(), 7000);
+}
+function placeFeedback(region: HTMLElement): void {
+  const host = [...document.querySelectorAll<HTMLDialogElement>('dialog[open]')].at(-1);
+  if (host) {
+    const heading = host.querySelector(':scope > .dialog-heading');
+    host.insertBefore(region, heading?.nextSibling ?? host.firstChild);
+  } else document.body.append(region);
 }
 export function dialog(title: string, ...content: Child[]): HTMLDialogElement {
   const element = el(
@@ -139,7 +138,12 @@ export function dialog(title: string, ...content: Child[]): HTMLDialogElement {
   element.querySelector('header')!.append(dismissControl('Chiudi finestra', () => element.close()));
   const previousFocus = document.activeElement;
   element.addEventListener('close', () => {
+    const feedback = element.querySelector<HTMLElement>(':scope > #toasts');
+    // Successful operations often close their form immediately. Keep their confirmation
+    // in the next open dialog, or in the page, instead of removing it with the old form.
+    if (feedback) document.body.append(feedback);
     element.remove();
+    if (feedback) placeFeedback(feedback);
     if (previousFocus instanceof HTMLElement && previousFocus.isConnected)
       previousFocus.focus({ preventScroll: true });
   });
