@@ -462,6 +462,14 @@ test('grouped staff navigation exposes authorised areas on desktop and in the mo
   ).toBeVisible();
   await drawer.getByText('Ristorante', { exact: true }).click();
   await expect(drawer.getByRole('link', { name: 'Sito e branding', exact: true })).toBeVisible();
+  const label = drawer
+    .getByRole('link', { name: 'Sito e branding', exact: true })
+    .locator('.nav-label');
+  const labelSize = await label.evaluate((node) => ({
+    height: node.getBoundingClientRect().height,
+    line: Number.parseFloat(getComputedStyle(node).lineHeight),
+  }));
+  expect(labelSize.height).toBeLessThanOrEqual(labelSize.line + 1);
   await page.screenshot({ path: 'test-results/staff-navigation-grouped-mobile.png' });
   await page.keyboard.press('Escape');
   await expect(drawer).toHaveCount(0);
