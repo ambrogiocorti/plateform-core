@@ -282,6 +282,10 @@ test('technical health remains unverified until a real probe result is recorded 
   await expect(page.getByRole('button', { name: 'Configurazione', exact: true })).toBeInViewport({
     ratio: 1,
   });
+  await page.mouse.wheel(0, 450);
+  await expect(page.getByRole('button', { name: 'Configurazione', exact: true })).toBeInViewport({
+    ratio: 1,
+  });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
     true,
   );

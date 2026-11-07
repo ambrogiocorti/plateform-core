@@ -125,17 +125,26 @@
 }
 @media (max-width: 1050px) {
   .technical-workspace {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 16px;
+    display: block;
+  }
+  .technical-workspace .technical-panels {
+    margin-top: 16px;
   }
   .technical-navigation {
-    position: static;
+    position: sticky;
+    top: 92px;
+    z-index: 12;
     display: flex;
     overflow-x: auto;
   }
   .technical-navigation > .button {
     flex: 0 0 auto;
     white-space: nowrap;
+  }
+}
+@media (max-width: 640px) {
+  .technical-navigation {
+    top: 76px;
   }
 }
 @media (max-width: 650px) {
