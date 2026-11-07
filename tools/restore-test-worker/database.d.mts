@@ -1,0 +1,1 @@
+export const RESET_TARGET_DEFAULT_PRIVILEGES_SQL: string;

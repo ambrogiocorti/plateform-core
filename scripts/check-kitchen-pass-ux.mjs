@@ -11,7 +11,11 @@ const migration = fs.readFileSync(
 );
 
 const checks = [
-  ['allergen schema', kitchen.includes('allergens: z.array(z.string())')],
+  [
+    'allergen schema',
+    kitchen.includes('allergens: kitchenAllergensSchema') &&
+      kitchen.includes('export const kitchenAllergensSchema'),
+  ],
   ['allergen UI', kitchen.includes('ALLERGENI:')],
   ['elapsed timer', kitchen.includes('elapsedLabel') && kitchen.includes('kds-timer')],
   ['pass ready banner', kitchen.includes('PRONTO PER IL SERVIZIO')],

@@ -9,6 +9,7 @@ import { readRows, rpc } from '../api/client';
 import { button, dialog, el, emptyState, field, toast } from '../components/dom';
 import type { StaffContext } from './staff-context';
 import { assetUploadControl } from './branding';
+import { dishFoodCostDialog, foodCostLicensed, ingredientCostDialog } from './food-cost';
 
 interface ConfigField {
   key: string;
@@ -142,17 +143,18 @@ export async function configurationPage(context: StaffContext): Promise<HTMLElem
       'Seleziona un modulo compreso nel tuo ambito di gestione.',
     );
   const [entity, definition] = module;
-  const rows = await readRows(
-    entity,
-    recordSchema,
-    definition.shared ? undefined : context.venue?.id,
-  );
+  const [rows, hasFoodCost] = await Promise.all([
+    readRows(entity, recordSchema, definition.shared ? undefined : context.venue?.id),
+    entity === 'dishes' || entity === 'ingredients'
+      ? foodCostLicensed(context)
+      : Promise.resolve(false),
+  ]);
   const view = el(
     'div',
-    { class: 'stack' },
+    { class: 'configuration-workspace' },
     el(
       'nav',
-      { class: 'row', 'aria-label': 'Configurazioni' },
+      { class: 'configuration-navigation', 'aria-label': 'Configurazioni' },
       ...visible.map(([key, value]) =>
         el(
           'a',
@@ -202,12 +204,30 @@ export async function configurationPage(context: StaffContext): Promise<HTMLElem
           el(
             'div',
             { class: 'configuration-row' },
-            el('strong', {}, String(row.name ?? row.code ?? 'Elemento')),
+            el(
+              'strong',
+              { class: 'configuration-name' },
+              String(row.name ?? row.code ?? 'Elemento'),
+            ),
             entity === 'dishes'
-              ? button('Ingredienti e varianti', () => compositionDialog(context, row), 'secondary')
+              ? button(
+                  'Ingredienti e varianti',
+                  () => compositionDialog(context, row, hasFoodCost),
+                  'secondary',
+                )
               : null,
             entity === 'dishes'
               ? button('Sede e disponibilità', () => venueDishDialog(context, row), 'secondary')
+              : null,
+            entity === 'dishes' && hasFoodCost
+              ? button('Food cost e margine', () => dishFoodCostDialog(context, row), 'secondary')
+              : null,
+            entity === 'ingredients' && hasFoodCost
+              ? button(
+                  'Registra costo acquisto',
+                  () => ingredientCostDialog(context, row),
+                  'secondary',
+                )
               : null,
             entity === 'dishes'
               ? button(
@@ -228,6 +248,38 @@ export async function configurationPage(context: StaffContext): Promise<HTMLElem
         ),
       ),
     );
+  const panel = el('section', { class: 'configuration-panel stack' });
+  for (const child of [...view.children].slice(1)) panel.append(child);
+  const collection = panel.querySelector<HTMLElement>('section.card');
+  if (collection) {
+    collection.classList.add('configuration-collection');
+    const search = field(
+      `Cerca in ${definition.label.toLowerCase()}`,
+      'configuration-search',
+      'search',
+    );
+    search.input.placeholder = 'Nome o codice…';
+    const matches = el('span', { class: 'muted', role: 'status', 'aria-live': 'polite' });
+    const empty = emptyState('Nessun risultato', 'Prova un altro nome o cancella la ricerca.');
+    const filter = () => {
+      const query = search.input.value.trim().toLocaleLowerCase('it-IT');
+      let count = 0;
+      for (const row of collection.querySelectorAll<HTMLElement>('.configuration-row')) {
+        row.hidden = !(row.querySelector('.configuration-name')?.textContent ?? '')
+          .toLocaleLowerCase('it-IT')
+          .includes(query);
+        if (!row.hidden) count++;
+      }
+      matches.textContent = `${count} ${count === 1 ? 'elemento' : 'elementi'}`;
+      empty.hidden = count > 0;
+    };
+    search.input.addEventListener('input', filter);
+    const tools = el('div', { class: 'configuration-toolbar' }, search.root, matches);
+    collection.before(tools);
+    collection.after(empty);
+    filter();
+  }
+  view.append(panel);
   return view;
 }
 

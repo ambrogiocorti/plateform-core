@@ -1,0 +1,472 @@
+{
+  "checked_at": "2026-11-03T17:38:46.892084+00:00",
+  "project_ref": "qfgoatdabgnzozxuzxku",
+  "environment": "staging",
+  "change": "Add exact preview origin without replacing the existing write-only allowlist",
+  "original_allowed_origins_sha256": "76c5a075b3a99dca191d6df19e70c1f9421a065a050a950cb78f1e82d8b4da0d",
+  "original_allowed_origins_updated_at_unchanged": "2026-10-26T22:42:55Z",
+  "additional_allowed_origins": "https://plateform-development-git-fix-releas-94ed70-sambrogiocorti-5259.vercel.app",
+  "additional_allowed_origins_sha256": "6c9e3c294d777098e87574dc15602cc9c1b891d5b42b23059543dd16b2978d29",
+  "production_modified": false,
+  "functions": [
+    {
+      "function": "asset-upload",
+      "source_snapshot_version": 9,
+      "deployed_version": 11,
+      "verify_jwt": true,
+      "before_bundle_sha256": "bbf812d0022ca7c3b7be5398f16c684370998802602ffe2f5eb49276faee7d9b",
+      "after_bundle_sha256": "3aa387e1babdf94dbedf22c6306a41234f067171abc6851f9efdb6781fea9f83",
+      "changed_files": ["supabase/functions/_shared/http.ts"],
+      "before_http_sha256": "5dd36e277aa75c35273f50304434c5c5a29e2373d1270af4682c969497a84611",
+      "after_http_sha256": "933fabb7ccb2dab280c2ebd2120fe18bb10dc69c11aa964cc4ca3695793c6112",
+      "all_other_source_bytes_preserved": true
+    },
+    {
+      "function": "customer-session",
+      "source_snapshot_version": 9,
+      "deployed_version": 11,
+      "verify_jwt": false,
+      "before_bundle_sha256": "e00ff823f90ec3c5949bf8045e80c4f87a7de31ceadfc888c51de6fe66e0223b",
+      "after_bundle_sha256": "441e829452e32c093909be74596deea0273d578775991e8a4866bbc1e72d8f2b",
+      "changed_files": ["supabase/functions/_shared/http.ts"],
+      "before_http_sha256": "5dd36e277aa75c35273f50304434c5c5a29e2373d1270af4682c969497a84611",
+      "after_http_sha256": "933fabb7ccb2dab280c2ebd2120fe18bb10dc69c11aa964cc4ca3695793c6112",
+      "all_other_source_bytes_preserved": true
+    },
+    {
+      "function": "health-probe",
+      "source_snapshot_version": 10,
+      "deployed_version": 12,
+      "verify_jwt": false,
+      "before_bundle_sha256": "64840039f72bf23d38da73269809815df72cfe4ff8a9a7ced81f74489285ce76",
+      "after_bundle_sha256": "dc8974faa1fac64caf1b881df0448623e700f3edde908b24859f0b68b4cc17d2",
+      "changed_files": ["supabase/functions/_shared/http.ts"],
+      "before_http_sha256": "5dd36e277aa75c35273f50304434c5c5a29e2373d1270af4682c969497a84611",
+      "after_http_sha256": "933fabb7ccb2dab280c2ebd2120fe18bb10dc69c11aa964cc4ca3695793c6112",
+      "all_other_source_bytes_preserved": true
+    },
+    {
+      "function": "maintenance",
+      "source_snapshot_version": 9,
+      "deployed_version": 11,
+      "verify_jwt": false,
+      "before_bundle_sha256": "4b3cb4ab467de3e16eb09f9d60bc7f22e8a2a7a1725116261ace074e2059b3f5",
+      "after_bundle_sha256": "24877c0e89abe5b46712e7f9b0f68c02788abcb5f088e4ced2bec717e37206c1",
+      "changed_files": ["supabase/functions/_shared/http.ts"],
+      "before_http_sha256": "5dd36e277aa75c35273f50304434c5c5a29e2373d1270af4682c969497a84611",
+      "after_http_sha256": "933fabb7ccb2dab280c2ebd2120fe18bb10dc69c11aa964cc4ca3695793c6112",
+      "all_other_source_bytes_preserved": true
+    },
+    {
+      "function": "offline-authorization",
+      "source_snapshot_version": 9,
+      "deployed_version": 11,
+      "verify_jwt": false,
+      "before_bundle_sha256": "367a6fe15b6b2ae469fc85d1e7811708cfd6def6a886a7c9bd43e71b05599718",
+      "after_bundle_sha256": "862bc554072970b6d94a3fdf869d3f1e696eb46d4a946e1b2b29e92a86fdcfda",
+      "changed_files": ["supabase/functions/_shared/http.ts"],
+      "before_http_sha256": "5dd36e277aa75c35273f50304434c5c5a29e2373d1270af4682c969497a84611",
+      "after_http_sha256": "933fabb7ccb2dab280c2ebd2120fe18bb10dc69c11aa964cc4ca3695793c6112",
+      "all_other_source_bytes_preserved": true
+    },
+    {
+      "function": "payments",
+      "source_snapshot_version": 10,
+      "deployed_version": 12,
+      "verify_jwt": true,
+      "before_bundle_sha256": "98461fc5a8b6b65e336e731386db36f38b44cbdf9cfe39c179ca86532c6cee96",
+      "after_bundle_sha256": "6472e72defca5d8b040ad1e72aa80b8e03d90e881378a0ea5e24da0153160812",
+      "changed_files": ["supabase/functions/_shared/http.ts"],
+      "before_http_sha256": "5dd36e277aa75c35273f50304434c5c5a29e2373d1270af4682c969497a84611",
+      "after_http_sha256": "933fabb7ccb2dab280c2ebd2120fe18bb10dc69c11aa964cc4ca3695793c6112",
+      "all_other_source_bytes_preserved": true
+    },
+    {
+      "function": "print-authorization",
+      "source_snapshot_version": 9,
+      "deployed_version": 11,
+      "verify_jwt": false,
+      "before_bundle_sha256": "2eb0f06e731925d83aad80830f2fb799fc48511a0d1fd994194853e2ee6eca35",
+      "after_bundle_sha256": "9a59003809d611788f35c38175d7b5585a9bfaa7a1b0ec4d9631f1455ee108ca",
+      "changed_files": ["supabase/functions/_shared/http.ts"],
+      "before_http_sha256": "5dd36e277aa75c35273f50304434c5c5a29e2373d1270af4682c969497a84611",
+      "after_http_sha256": "933fabb7ccb2dab280c2ebd2120fe18bb10dc69c11aa964cc4ca3695793c6112",
+      "all_other_source_bytes_preserved": true
+    },
+    {
+      "function": "public-telemetry",
+      "source_snapshot_version": 9,
+      "deployed_version": 11,
+      "verify_jwt": false,
+      "before_bundle_sha256": "3963d9584534b7e6163a29d049f34d07290025bce463058f15c0ea673f12813b",
+      "after_bundle_sha256": "1bd689ec2e3bdcbef86e0bda18bb902c1800d3357920f96e960907c53bb27c90",
+      "changed_files": ["supabase/functions/_shared/http.ts"],
+      "before_http_sha256": "5dd36e277aa75c35273f50304434c5c5a29e2373d1270af4682c969497a84611",
+      "after_http_sha256": "933fabb7ccb2dab280c2ebd2120fe18bb10dc69c11aa964cc4ca3695793c6112",
+      "all_other_source_bytes_preserved": true
+    },
+    {
+      "function": "reservation",
+      "source_snapshot_version": 10,
+      "deployed_version": 12,
+      "verify_jwt": false,
+      "before_bundle_sha256": "5d1002dbefa445c9a3d882777369071d415ba472253f88d66a99e36f8ec824ce",
+      "after_bundle_sha256": "e88302fb0088798bb2ec7708a75a2c133d84a9f5594f90a4d3231f48fb2c0e67",
+      "changed_files": ["supabase/functions/_shared/http.ts"],
+      "before_http_sha256": "32195291875460923e92d5e8053d5f3286a62aa3e690534a90576b7388a14efa",
+      "after_http_sha256": "e2bece9267d03555c4324511110b2a18bb4968ee98b9a6b060453c79de4e4cb8",
+      "all_other_source_bytes_preserved": true
+    },
+    {
+      "function": "reservation-deposit",
+      "source_snapshot_version": 3,
+      "deployed_version": 5,
+      "verify_jwt": false,
+      "before_bundle_sha256": "dc0c11e335d25fc76ec877995cebafc894d180b0f2546150f92a09ccbab793ce",
+      "after_bundle_sha256": "cd750b23f5649ef0a7690de89dbfc0b6a0320216d96e163dfa979471e51fb4c2",
+      "changed_files": ["supabase/functions/_shared/http.ts"],
+      "before_http_sha256": "32195291875460923e92d5e8053d5f3286a62aa3e690534a90576b7388a14efa",
+      "after_http_sha256": "e2bece9267d03555c4324511110b2a18bb4968ee98b9a6b060453c79de4e4cb8",
+      "all_other_source_bytes_preserved": true
+    },
+    {
+      "function": "staff-admin",
+      "source_snapshot_version": 9,
+      "deployed_version": 11,
+      "verify_jwt": false,
+      "before_bundle_sha256": "404b73dffe1f1fe4f996ba1f637fd95e1dd36e6c6744041b679dd408b62b40dd",
+      "after_bundle_sha256": "ecb7ddaf8210bfedf145b537aec8e422e5ddfdc3820d07e088646a4b98f9fc8c",
+      "changed_files": ["supabase/functions/_shared/http.ts"],
+      "before_http_sha256": "5dd36e277aa75c35273f50304434c5c5a29e2373d1270af4682c969497a84611",
+      "after_http_sha256": "933fabb7ccb2dab280c2ebd2120fe18bb10dc69c11aa964cc4ca3695793c6112",
+      "all_other_source_bytes_preserved": true
+    },
+    {
+      "function": "step-up",
+      "source_snapshot_version": 9,
+      "deployed_version": 11,
+      "verify_jwt": false,
+      "before_bundle_sha256": "e5f29a1073bd226adcb8011633ee3a94be05da1c439d0b95b3a58bc3eb68d4ce",
+      "after_bundle_sha256": "d629acc62f2eb66b32668fbf336c1aa64903ebd3ac5ca08e053cfb73434d42dc",
+      "changed_files": ["supabase/functions/_shared/http.ts"],
+      "before_http_sha256": "5dd36e277aa75c35273f50304434c5c5a29e2373d1270af4682c969497a84611",
+      "after_http_sha256": "933fabb7ccb2dab280c2ebd2120fe18bb10dc69c11aa964cc4ca3695793c6112",
+      "all_other_source_bytes_preserved": true
+    }
+  ],
+  "http_checks": {
+    "cors": {
+      "passed": true,
+      "results": [
+        {
+          "function": "public-telemetry",
+          "status": 204,
+          "pass": true
+        },
+        {
+          "function": "reservation",
+          "status": 204,
+          "pass": true
+        },
+        {
+          "function": "customer-session",
+          "status": 204,
+          "pass": true
+        },
+        {
+          "function": "staff-admin",
+          "status": 204,
+          "pass": true
+        },
+        {
+          "function": "step-up",
+          "status": 204,
+          "pass": true
+        },
+        {
+          "function": "offline-authorization",
+          "status": 204,
+          "pass": true
+        },
+        {
+          "function": "reservation-deposit",
+          "status": 204,
+          "pass": true
+        },
+        {
+          "function": "payments",
+          "status": 204,
+          "pass": true
+        },
+        {
+          "function": "asset-upload",
+          "status": 204,
+          "pass": true
+        },
+        {
+          "function": "health-probe",
+          "status": 204,
+          "pass": true
+        },
+        {
+          "function": "maintenance",
+          "status": 204,
+          "pass": true
+        },
+        {
+          "function": "print-authorization",
+          "status": 204,
+          "pass": true
+        }
+      ]
+    },
+    "denial": {
+      "passed": true,
+      "results": [
+        {
+          "function": "health-probe",
+          "status": 401,
+          "pass": true
+        },
+        {
+          "function": "maintenance",
+          "status": 401,
+          "pass": true
+        },
+        {
+          "function": "offline-authorization",
+          "status": 401,
+          "pass": true
+        },
+        {
+          "function": "step-up",
+          "status": 401,
+          "pass": true
+        },
+        {
+          "function": "payments",
+          "status": 401,
+          "pass": true
+        },
+        {
+          "function": "print-authorization",
+          "status": 401,
+          "pass": true
+        },
+        {
+          "function": "audit-archive-worker",
+          "status": 401,
+          "pass": true
+        },
+        {
+          "function": "reservation-deposit-no-show-worker",
+          "status": 401,
+          "pass": true
+        },
+        {
+          "function": "reservation-message-worker",
+          "status": 401,
+          "pass": true
+        },
+        {
+          "function": "continuity-retention-worker",
+          "status": 401,
+          "pass": true
+        },
+        {
+          "function": "audit-archive-verify",
+          "status": 401,
+          "pass": true
+        },
+        {
+          "function": "database-unavailable-chaos-probe",
+          "status": 401,
+          "pass": true
+        }
+      ]
+    },
+    "boundary": {
+      "passed": true,
+      "results": [
+        {
+          "function": "public-telemetry",
+          "origin": "https://untrusted-origin.invalid",
+          "status": 403,
+          "pass": true
+        },
+        {
+          "function": "public-telemetry",
+          "origin": "https://plateform-development-git-fix-releas-94ed70-sambrogiocorti-5259.vercel.app.attacker.invalid",
+          "status": 403,
+          "pass": true
+        },
+        {
+          "function": "reservation",
+          "origin": "https://untrusted-origin.invalid",
+          "status": 403,
+          "pass": true
+        },
+        {
+          "function": "reservation",
+          "origin": "https://plateform-development-git-fix-releas-94ed70-sambrogiocorti-5259.vercel.app.attacker.invalid",
+          "status": 403,
+          "pass": true
+        },
+        {
+          "function": "customer-session",
+          "origin": "https://untrusted-origin.invalid",
+          "status": 403,
+          "pass": true
+        },
+        {
+          "function": "customer-session",
+          "origin": "https://plateform-development-git-fix-releas-94ed70-sambrogiocorti-5259.vercel.app.attacker.invalid",
+          "status": 403,
+          "pass": true
+        },
+        {
+          "function": "staff-admin",
+          "origin": "https://untrusted-origin.invalid",
+          "status": 403,
+          "pass": true
+        },
+        {
+          "function": "staff-admin",
+          "origin": "https://plateform-development-git-fix-releas-94ed70-sambrogiocorti-5259.vercel.app.attacker.invalid",
+          "status": 403,
+          "pass": true
+        },
+        {
+          "function": "step-up",
+          "origin": "https://untrusted-origin.invalid",
+          "status": 403,
+          "pass": true
+        },
+        {
+          "function": "step-up",
+          "origin": "https://plateform-development-git-fix-releas-94ed70-sambrogiocorti-5259.vercel.app.attacker.invalid",
+          "status": 403,
+          "pass": true
+        },
+        {
+          "function": "offline-authorization",
+          "origin": "https://untrusted-origin.invalid",
+          "status": 403,
+          "pass": true
+        },
+        {
+          "function": "offline-authorization",
+          "origin": "https://plateform-development-git-fix-releas-94ed70-sambrogiocorti-5259.vercel.app.attacker.invalid",
+          "status": 403,
+          "pass": true
+        },
+        {
+          "function": "reservation-deposit",
+          "origin": "https://untrusted-origin.invalid",
+          "status": 403,
+          "pass": true
+        },
+        {
+          "function": "reservation-deposit",
+          "origin": "https://plateform-development-git-fix-releas-94ed70-sambrogiocorti-5259.vercel.app.attacker.invalid",
+          "status": 403,
+          "pass": true
+        },
+        {
+          "function": "payments",
+          "origin": "https://untrusted-origin.invalid",
+          "status": 403,
+          "pass": true
+        },
+        {
+          "function": "payments",
+          "origin": "https://plateform-development-git-fix-releas-94ed70-sambrogiocorti-5259.vercel.app.attacker.invalid",
+          "status": 403,
+          "pass": true
+        },
+        {
+          "function": "asset-upload",
+          "origin": "https://untrusted-origin.invalid",
+          "status": 403,
+          "pass": true
+        },
+        {
+          "function": "asset-upload",
+          "origin": "https://plateform-development-git-fix-releas-94ed70-sambrogiocorti-5259.vercel.app.attacker.invalid",
+          "status": 403,
+          "pass": true
+        },
+        {
+          "function": "health-probe",
+          "origin": "https://untrusted-origin.invalid",
+          "status": 403,
+          "pass": true
+        },
+        {
+          "function": "health-probe",
+          "origin": "https://plateform-development-git-fix-releas-94ed70-sambrogiocorti-5259.vercel.app.attacker.invalid",
+          "status": 403,
+          "pass": true
+        },
+        {
+          "function": "maintenance",
+          "origin": "https://untrusted-origin.invalid",
+          "status": 403,
+          "pass": true
+        },
+        {
+          "function": "maintenance",
+          "origin": "https://plateform-development-git-fix-releas-94ed70-sambrogiocorti-5259.vercel.app.attacker.invalid",
+          "status": 403,
+          "pass": true
+        },
+        {
+          "function": "print-authorization",
+          "origin": "https://untrusted-origin.invalid",
+          "status": 403,
+          "pass": true
+        },
+        {
+          "function": "print-authorization",
+          "origin": "https://plateform-development-git-fix-releas-94ed70-sambrogiocorti-5259.vercel.app.attacker.invalid",
+          "status": 403,
+          "pass": true
+        }
+      ]
+    },
+    "preservation": {
+      "passed": true,
+      "results": [
+        {
+          "origin": "http://localhost:5173",
+          "baseline_status": 403,
+          "current_status": 403,
+          "pass": true
+        },
+        {
+          "origin": "http://localhost:5174",
+          "baseline_status": 403,
+          "current_status": 403,
+          "pass": true
+        },
+        {
+          "origin": "https://plateform-development-git-plateform-99a6ea-sambrogiocorti-5259.vercel.app",
+          "baseline_status": 204,
+          "current_status": 204,
+          "pass": true
+        }
+      ]
+    }
+  },
+  "test_scope": "HTTP preflight and unauthenticated-denial smoke checks; no payment, booking, authenticated staff flow or physical hardware certified",
+  "local_edge_tests": {
+    "passed": 32,
+    "failed": 0,
+    "runtime": "Deno 2.9.6; dependencies from locked node_modules via manual mode"
+  },
+  "screenshot": "../screenshots/staging-cors-origins-1793727234491.jpg",
+  "rollback": "Retrieve each currently deployed bundle, replace only _shared/http.ts with the matching original-http-<before_http_sha256>.txt, preserve all other files and verify_jwt, redeploy on the staging ref. Leaving ADDITIONAL_ALLOWED_ORIGINS configured has no effect on the original helper.",
+  "database_migrations_applied": false,
+  "restaurant_business_data_modified": false,
+  "normal_access_denied_telemetry_may_be_recorded": true
+}

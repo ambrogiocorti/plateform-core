@@ -1,0 +1,18 @@
+{
+  "host": "127.0.0.1",
+  "port": 7443,
+  "origin": "https://localhost:7443",
+  "issuer": "https://PROJECT_REF.supabase.co",
+  "allowed_origins": ["https://staff.restaurant.example"],
+  "public_keys": [],
+  "certificate_file": "tls/bridge.crt",
+  "private_key_file": "tls/bridge.key",
+  "database_file": "data/jobs.sqlite",
+  "printers": [
+    {
+      "device_id": "10000000-0000-4000-8000-000000000001",
+      "kind": "WINDOWS_USB",
+      "windows_printer_name": "EPSON TM-T20III Receipt"
+    }
+  ]
+}

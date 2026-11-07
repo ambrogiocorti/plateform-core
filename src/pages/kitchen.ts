@@ -4,14 +4,31 @@ import { button, dialog, el, emptyState, status } from '../components/dom';
 import { command } from './staff-context';
 import type { StaffContext } from './staff-context';
 
+// PostgreSQL stores allergen snapshots as {code,name}; older test/cache records
+// may contain names directly. Normalize both shapes before rendering the KDS.
+export const kitchenAllergensSchema = z
+  .array(z.union([z.string(), z.object({ code: z.string(), name: z.string() })]))
+  .transform((entries) => {
+    if (entries.every((entry) => typeof entry === 'string')) return entries as string[];
+    const normalized: { code: string; name: string }[] = [];
+    for (const entry of entries) {
+      normalized.push(typeof entry === 'string' ? { code: entry, name: entry } : entry);
+    }
+    normalized.sort((a, b) => a.code.localeCompare(b.code));
+    return normalized.map((entry) => entry.name);
+  });
+
 const itemSchema = z.object({
   id: z.uuid(),
   order_id: z.uuid(),
   step_id: z.uuid(),
   step_number: z.number(),
   step_status: z.string(),
-  table_name: z.string(),
-  table_number: z.number(),
+  order_source: z.string().optional(),
+  table_name: z.string().nullable(),
+  table_number: z.number().nullable(),
+  service_label: z.string().nullable().optional(),
+  pickup_at: z.string().nullable().optional(),
   dish_name: z.string(),
   quantity: z.number(),
   status: z.string(),
@@ -23,7 +40,7 @@ const itemSchema = z.object({
   can_deliver: z.boolean(),
   removed_ingredients: z.array(z.string()),
   variants: z.array(z.object({ group: z.string(), option: z.string() })),
-  allergens: z.array(z.string()),
+  allergens: kitchenAllergensSchema,
 });
 
 const kitchenAdminOverviewSchema = z.object({
@@ -59,6 +76,17 @@ const kitchenAdminOverviewSchema = z.object({
     }),
   ),
 });
+
+type KitchenBoardItem = z.infer<typeof itemSchema>;
+
+export function kitchenTicketHeading(
+  item: Pick<KitchenBoardItem, 'order_source' | 'table_name' | 'table_number' | 'service_label'>,
+): { eyebrow: string; title: string } {
+  return {
+    eyebrow: item.order_source === 'TAKEAWAY' ? 'ASPORTO' : `TAVOLO ${item.table_number ?? '—'}`,
+    title: item.service_label ?? item.table_name ?? 'Ordine da asporto',
+  };
+}
 
 type KitchenAdminOverview = z.infer<typeof kitchenAdminOverviewSchema>;
 
@@ -206,14 +234,63 @@ function urgencyClass(value: string): string {
   return 'is-normal';
 }
 
+function returnOrderItemButton(
+  context: StaffContext,
+  item: { id: string; dish_name: string; version: number },
+): HTMLButtonElement {
+  return button(
+    'Piatto tornato indietro',
+    () => {
+      const popup = dialog('Errore ordine', el('p', {}, item.dish_name));
+      const key = crypto.randomUUID();
+      for (const action of ['REMAKE', 'CANCEL_REQUEST']) {
+        popup.append(
+          button(
+            action === 'REMAKE' ? 'Rifare il piatto' : 'Richiedi annullamento Admin',
+            async () => {
+              await rpc(
+                'return_order_item',
+                { p_item: item.id, p_action: action, p_version: item.version, p_key: key },
+                z.record(z.string(), z.unknown()),
+              );
+              popup.close();
+              await context.refresh?.();
+            },
+            'secondary',
+          ),
+        );
+      }
+    },
+    'quiet',
+  );
+}
+
 export async function kitchenPage(context: StaffContext): Promise<HTMLElement> {
   if (!context.venue)
     return emptyState('Nessuna sede', 'Verifica le assegnazioni del tuo account.');
 
-  const [items, adminOverview] = await Promise.all([
+  const [items, adminOverview, returnable] = await Promise.all([
     rpc('get_kitchen_board', { p_venue: context.venue.id }, z.array(itemSchema)),
     context.profile.role === 'KITCHEN_ADMIN'
       ? rpc('get_kitchen_admin_overview', { p_venue: context.venue.id }, kitchenAdminOverviewSchema)
+      : Promise.resolve(null),
+    ['PASS', 'KITCHEN_ADMIN'].includes(context.profile.role)
+      ? rpc(
+          'get_returnable_items',
+          { p_venue: context.venue.id },
+          z.object({
+            enabled: z.boolean(),
+            items: z.array(
+              z.object({
+                id: z.uuid(),
+                dish_name: z.string(),
+                quantity: z.number(),
+                version: z.number(),
+                table_name: z.string().nullable(),
+              }),
+            ),
+          }),
+        )
       : Promise.resolve(null),
   ]);
 
@@ -228,6 +305,7 @@ export async function kitchenPage(context: StaffContext): Promise<HTMLElement> {
     const rows = items.filter((item) => item.step_id === step);
     const first = rows[0];
     if (!first) continue;
+    const heading = kitchenTicketHeading(first);
 
     const readyCount = rows.filter((item) => item.status === 'READY').length;
     const complete = readyCount === rows.length;
@@ -236,16 +314,12 @@ export async function kitchenPage(context: StaffContext): Promise<HTMLElement> {
       {
         class: `kds-ticket ${urgencyClass(first.created_at)}${complete ? ' is-complete' : ''}`,
         'data-step-status': first.step_status,
+        'data-ticket-states': rows.map((item) => item.status).join(' '),
       },
       el(
         'header',
         { class: 'kds-ticket-head' },
-        el(
-          'div',
-          {},
-          el('p', { class: 'eyebrow' }, `TAVOLO ${first.table_number}`),
-          el('h2', {}, first.table_name),
-        ),
+        el('div', {}, el('p', { class: 'eyebrow' }, heading.eyebrow), el('h2', {}, heading.title)),
         el(
           'div',
           { class: 'kds-ticket-meta' },
@@ -309,33 +383,9 @@ export async function kitchenPage(context: StaffContext): Promise<HTMLElement> {
       }
 
       if (['PASS', 'KITCHEN_ADMIN'].includes(context.profile.role) && item.status === 'READY') {
-        line.append(
-          button(
-            'Piatto tornato indietro',
-            () => {
-              const popup = dialog('Errore ordine', el('p', {}, item.dish_name));
-              const key = crypto.randomUUID();
-              for (const action of ['REMAKE', 'CANCEL_REQUEST'])
-                popup.append(
-                  button(
-                    action === 'REMAKE' ? 'Rifare il piatto' : 'Richiedi annullamento Admin',
-                    async () => {
-                      await rpc(
-                        'return_order_item',
-                        { p_item: item.id, p_action: action, p_version: item.version, p_key: key },
-                        z.record(z.string(), z.unknown()),
-                      );
-                      popup.close();
-                      await context.refresh?.();
-                    },
-                    'secondary',
-                  ),
-                );
-            },
-            'quiet',
-          ),
-        );
+        line.append(returnOrderItemButton(context, item));
       }
+
       card.append(line);
     }
 
@@ -365,27 +415,6 @@ export async function kitchenPage(context: StaffContext): Promise<HTMLElement> {
       );
     }
 
-    if (first.can_deliver && first.step_status === 'READY') {
-      card.append(
-        el(
-          'div',
-          { class: 'kds-delivery-actions' },
-          button(
-            'PRENDI IN CARICO',
-            async () => {
-              await command('deliver_step', { p_step: step, p_served: false });
-              await context.refresh?.();
-            },
-            'secondary',
-          ),
-          button('CONSEGNATO', async () => {
-            await command('deliver_step', { p_step: step, p_served: true });
-            await context.refresh?.();
-          }),
-        ),
-      );
-    }
-
     grid.append(card);
   }
 
@@ -397,6 +426,129 @@ export async function kitchenPage(context: StaffContext): Promise<HTMLElement> {
           ? 'Gli step pronti o in coordinamento compariranno qui in tempo reale.'
           : 'Le comande pertinenti alla tua postazione compariranno qui in tempo reale.',
       );
-  if (!adminOverview) return board;
-  return el('div', { class: 'stack' }, kitchenAdminPanel(adminOverview, board), board);
+
+  const boardShell = el(
+    'section',
+    { class: 'kds-workspace', 'aria-label': 'Comande in lavorazione' },
+    el(
+      'header',
+      { class: 'kds-workspace-header' },
+      el(
+        'div',
+        {},
+        el('p', { class: 'eyebrow' }, 'PRODUZIONE · LIVE'),
+        el(
+          'h2',
+          {},
+          context.profile.role === 'PASS' ? 'Comande da coordinare' : 'Comande in cucina',
+        ),
+        el('p', {}, 'Lavora per priorità e concentrati sullo stato di ogni comanda.'),
+      ),
+      el(
+        'div',
+        { class: 'kds-overview-strip', role: 'status' },
+        el('div', {}, el('strong', {}, String(steps.length)), el('span', {}, 'Step')),
+        el(
+          'div',
+          {},
+          el('strong', {}, String(items.filter((item) => item.status === 'RECEIVED').length)),
+          el('span', {}, 'Ricevuti'),
+        ),
+        el(
+          'div',
+          {},
+          el('strong', {}, String(items.filter((item) => item.status === 'IN_PREPARATION').length)),
+          el('span', {}, 'In preparazione'),
+        ),
+        el(
+          'div',
+          {},
+          el('strong', {}, String(items.filter((item) => item.status === 'READY').length)),
+          el('span', {}, 'Pronti'),
+        ),
+      ),
+    ),
+  );
+  const noMatches = emptyState(
+    'Nessuna comanda in questo stato',
+    'Scegli un altro filtro per vedere le altre comande.',
+  );
+  noMatches.hidden = true;
+  if (items.length) {
+    const filterActions = el('div', {
+      class: 'kds-filter-actions',
+      'aria-label': 'Filtra le comande',
+    });
+    const filters: [string, string][] = [
+      ['Tutte', 'ALL'],
+      ['Da preparare', 'RECEIVED'],
+      ['In lavorazione', 'IN_PREPARATION'],
+      ['Pronte', 'READY'],
+    ];
+    const filterKey = `plateform-kds-filter:${context.venue.id}:${context.profile.role}`;
+    const saved = sessionStorage.getItem(filterKey);
+    let selected = filters.some(([, value]) => value === saved) ? saved! : 'ALL';
+    const applyFilter = () => {
+      let count = 0;
+      for (const ticket of grid.querySelectorAll<HTMLElement>('.kds-ticket')) {
+        ticket.hidden =
+          selected !== 'ALL' && !(ticket.dataset.ticketStates ?? '').split(' ').includes(selected);
+        if (!ticket.hidden) count++;
+      }
+      noMatches.hidden = count > 0;
+      for (const control of filterActions.querySelectorAll<HTMLButtonElement>('button'))
+        control.setAttribute('aria-pressed', String(control.dataset.filter === selected));
+    };
+    for (const [label, value] of filters) {
+      const control = button(
+        label,
+        () => {
+          selected = value;
+          sessionStorage.setItem(filterKey, selected);
+          applyFilter();
+        },
+        'secondary',
+      );
+      control.dataset.filter = value;
+      filterActions.append(control);
+    }
+    applyFilter();
+    boardShell.append(filterActions);
+  }
+  boardShell.append(board);
+  boardShell.append(noMatches);
+  let servedRecently: HTMLElement | undefined;
+  if (returnable?.enabled) {
+    servedRecently = el(
+      'section',
+      { class: 'card stack', role: 'region', 'aria-label': 'Piatti serviti di recente' },
+      el('h2', {}, 'Piatti serviti di recente'),
+    );
+    if (!returnable.items.length) {
+      servedRecently.append(el('p', { class: 'muted' }, 'Nessun piatto da rendere.'));
+    }
+    for (const item of returnable.items) {
+      servedRecently.append(
+        el(
+          'article',
+          { class: 'row between' },
+          el(
+            'div',
+            {},
+            el('strong', {}, `${item.quantity} × ${item.dish_name}`),
+            el('p', { class: 'muted' }, item.table_name ?? 'Asporto'),
+          ),
+          returnOrderItemButton(context, item),
+        ),
+      );
+    }
+  }
+  if (servedRecently) boardShell.append(servedRecently);
+  if (!adminOverview) return boardShell;
+  return el(
+    'div',
+    { class: 'stack kitchen-operations-dashboard' },
+    kitchenAdminPanel(adminOverview, boardShell),
+    boardShell,
+  );
 }

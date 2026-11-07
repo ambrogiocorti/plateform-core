@@ -1,3 +1,4 @@
+
 create or replace function private.effective_payment_allocation(p_allocation uuid)
 returns bigint
 language sql

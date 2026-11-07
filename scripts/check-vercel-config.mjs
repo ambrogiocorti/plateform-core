@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
+import { spawnSync } from 'node:child_process';
 import { createVercelConfiguration } from './vercel-configuration.mjs';
-const project = 'https://abdxvlykasqmknexxhjo.supabase.co';
+const project = 'https://qfgoatdabgnzozxuzxku.supabase.co';
 const staging = createVercelConfiguration({ supabaseUrl: project, mode: 'staging' });
 const verified = JSON.parse(await readFile('vercel.json', 'utf8'));
 let n = 0;
@@ -18,6 +19,8 @@ check(() => assert.equal(Object.hasOwn(verified, 'public'), false));
 const paths = verified.rewrites.map((r) => r.source);
 check(() => assert.ok(paths.includes('/staff/:page([a-z0-9-]+)')));
 check(() => assert.ok(paths.includes('/menu/:slug([a-z0-9-]+)')));
+check(() => assert.ok(paths.includes('/lista-attesa')));
+check(() => assert.ok(paths.includes('/lista-attesa/offerta')));
 check(() => assert.ok(paths.includes('/tavolo/:token([a-zA-Z0-9-]+)')));
 check(() =>
   assert.equal(
@@ -42,10 +45,10 @@ const global = Object.fromEntries(
 );
 check(() => assert.match(global['Content-Security-Policy'], /default-src 'none'/));
 check(() =>
-  assert.match(global['Content-Security-Policy'], /https:\/\/abdxvlykasqmknexxhjo\.supabase\.co/),
+  assert.match(global['Content-Security-Policy'], /https:\/\/qfgoatdabgnzozxuzxku\.supabase\.co/),
 );
 check(() =>
-  assert.match(global['Content-Security-Policy'], /wss:\/\/abdxvlykasqmknexxhjo\.supabase\.co/),
+  assert.match(global['Content-Security-Policy'], /wss:\/\/qfgoatdabgnzozxuzxku\.supabase\.co/),
 );
 check(() =>
   assert.doesNotMatch(
@@ -55,6 +58,14 @@ check(() =>
 );
 check(() => assert.equal(global['X-Robots-Tag'], 'noindex, nofollow'));
 check(() => assert.equal(global['Strict-Transport-Security'], 'max-age=31536000'));
+check(() =>
+  assert.equal(
+    verified.headers
+      .find((r) => r.source === '/lista-attesa/offerta')
+      ?.headers.some((h) => h.key === 'Cache-Control' && h.value === 'private, no-store'),
+    true,
+  ),
+);
 check(() =>
   assert.equal(
     verified.headers.some(
@@ -107,5 +118,17 @@ check(() => assert.match(workflow, /node scripts\/reconcile-migrations\.mjs --dr
 check(() => assert.match(workflow, /run: npm run build:pages/));
 check(() => assert.match(workflow, /run: npm run check:staging-http/));
 check(() => assert.match(workflow, /STAGING_SUPABASE_DB_URL/));
+
+for (const [backend, succeeds] of [
+  [project, true],
+  ['https://other-project.supabase.co', false],
+]) {
+  const result = spawnSync(process.execPath, ['scripts/check-vercel-runtime.mjs'], {
+    env: { ...process.env, VERCEL: '1', VITE_SUPABASE_URL: backend },
+    encoding: 'utf8',
+  });
+  check(() => assert.equal(result.status === 0, succeeds));
+  if (!succeeds) check(() => assert.match(result.stderr, /VERCEL_BACKEND_CSP_MISMATCH/));
+}
 
 console.log(`STEP11_VERCEL_STAGING_CONFIG=PASS (${n}/${n} assertions)`);

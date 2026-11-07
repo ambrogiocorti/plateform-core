@@ -11,6 +11,10 @@ export function plateformPwa(
     generateBundle(_options, bundle) {
       const files = Object.keys(bundle).filter((file) => /\.(js|css|woff2|svg|png)$/.test(file));
       const versionHash = createHash('sha256');
+      // Deployment identity changes even when compiled assets are byte-for-byte
+      // identical, so a deliberate release activates the update prompt.
+      versionHash.update(process.env.VITE_RELEASE_VERSION ?? '');
+      versionHash.update('\0');
       for (const file of Object.keys(bundle).sort()) {
         const output = bundle[file];
         if (!output) continue;
@@ -42,8 +46,8 @@ if(ASSETS.includes(url.pathname))event.respondWith(caches.match(event.request).t
           start_url: base,
           scope: base,
           display: 'standalone',
-          background_color: '#111315',
-          theme_color: '#111315',
+          background_color: '#f5f7fc',
+          theme_color: '#f5f7fc',
           lang: 'it',
           icons: [{ src: base + 'icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' }],
         }),

@@ -1,3 +1,4 @@
+
 create or replace function public.get_host_reservations(
   p_venue uuid,p_date date,p_service uuid default null,p_status public.reservation_status default null,
   p_search text default '',p_after_time time default null,p_after_id uuid default null,p_limit integer default 50

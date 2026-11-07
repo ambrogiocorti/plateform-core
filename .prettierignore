@@ -6,3 +6,12 @@ MASTER_PROMPT_PLATEFORM_COMMERCIALE.md
 coverage
 playwright-report
 test-results
+# Historical SQL bytes and SHA-256 manifest must never be auto-formatted.
+supabase/migrations/
+supabase/migration-manifest.json
+# Original handoff files retain the bytes recorded in SHA256SUMS.txt.
+# format:check verifies their hashes separately.
+CLAUDE.md
+PROMPT_DA_INCOLLARE_IN_CLAUDE_CODE.md
+README_INIZIA_QUI.md
+docs/plateform-handoff/

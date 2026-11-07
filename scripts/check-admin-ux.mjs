@@ -2,7 +2,8 @@ import fs from 'node:fs';
 const read = (p) => fs.readFileSync(new URL(`../${p}`, import.meta.url), 'utf8');
 const app = read('apps/staff/main.ts');
 const page = read('src/pages/admin-operations.ts');
-const css = read('styles/staff.css');
+const shell = read('styles/workspace-v5.css');
+const operations = read('styles/operations.css');
 const migration = read('supabase/migrations/20261005170559_admin_operational_overview.sql');
 
 const checks = [
@@ -16,8 +17,11 @@ const checks = [
     app.includes("pageLink.path === '/operazioni'") && app.includes('adminOperationsPage(context)'),
   ],
   [
-    'sidebar separa operatività e configurazione',
-    app.includes("['OPERATIVITÀ', 'CONFIGURAZIONE'] as const") && css.includes('.sidebar-section'),
+    'navigazione primaria compatta e directory per tutte le funzioni autorizzate',
+    app.includes('primaryNavigation(profile.role, links)') &&
+      app.includes("classList.add('workspace-directory')") &&
+      app.includes("class: 'primary-navigation'") &&
+      shell.includes('.staff-shell .primary-navigation'),
   ],
   [
     'overview usa una RPC authoritative',
@@ -25,7 +29,9 @@ const checks = [
   ],
   [
     'priorità immediate presenti',
-    page.includes('Richiede intervento') && page.includes('activePriorities'),
+    page.includes("class: 'ops-attention-card'") &&
+      page.includes('priorities.filter((item) => item.value > 0)') &&
+      page.includes('severity'),
   ],
   [
     'sala nel colpo d’occhio',
@@ -53,7 +59,9 @@ const checks = [
   ],
   [
     'azioni rapide operative',
-    ['SALA', 'ACCOGLIENZA', 'CUCINA', 'CASSA', 'NOTIFICHE'].every((x) => page.includes(`'${x}'`)),
+    ['/sala', '/accoglienza', '/cucina', '/cassa', '/notifiche'].every(
+      (path) => page.includes(`context.navigate('${path}')`) || page.includes(`path: '${path}'`),
+    ),
   ],
   ['nessun KPI fatturato nella home', !/fatturato|revenue|receipts_cents|net_cents/i.test(page)],
   [
@@ -67,9 +75,9 @@ const checks = [
   ],
   [
     'UI responsive e touch',
-    css.includes('.admin-priority-grid') &&
-      css.includes('min-height: 48px') &&
-      css.includes('@media (max-width: 700px)'),
+    operations.includes('.ops-body-grid') &&
+      operations.includes('.ops-summary-grid') &&
+      operations.includes('@media (max-width: 640px)'),
   ],
 ];
 let failed = 0;

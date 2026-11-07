@@ -3,10 +3,11 @@ import { z } from 'zod';
 import { accountPrintAction } from './printing';
 import { orderCorrectionButton } from './order-changes';
 import { rpc } from '../api/client';
-import { button, dialog, el, emptyState, field, status, toast } from '../components/dom';
+import { button, dialog, el, emptyState, status, toast } from '../components/dom';
+import { orderComposer } from '../components/order-composer';
 import { menuDishSchema, orderLineSchema } from '../types/domain';
 import type { OrderLine } from '../types/domain';
-import { availabilityBadge, validateOrderSelection } from '../services/menu';
+import { validateOrderSelection } from '../services/menu';
 import { formatMoney } from '../services/money';
 import { accountWorkspaceSchema } from '../types/accounts';
 import { accountList } from './account-list';
@@ -32,11 +33,21 @@ export async function accountsPage(
     return emptyState('Conto in un’altra sede', 'Seleziona la sede del conto per aprirlo.');
   const view = el(
     'div',
-    { class: 'stack' },
-    el('div', { class: 'row between' }, el('h2', {}, account.account_name), status(account.status)),
+    { class: 'stack account-detail' },
+    el(
+      'header',
+      { class: 'row between account-detail-header' },
+      el(
+        'div',
+        {},
+        el('p', { class: 'eyebrow' }, `${account.table_name} · ${account.covers} coperti`),
+        el('h2', {}, account.account_name),
+      ),
+      status(account.status),
+    ),
     el(
       'div',
-      { class: 'kpi-grid' },
+      { class: 'kpi-grid account-balance-summary' },
       ...[
         ['Totale', balance.total_cents],
         ['Pagato', balance.paid_cents],
@@ -58,7 +69,7 @@ export async function accountsPage(
         )
       : null,
   );
-  const actions = el('div', { class: 'row' });
+  const actions = el('div', { class: 'row account-detail-actions' });
   if (account.status === 'CLOSED' && account.unserved_items > 0)
     view.append(
       el(
@@ -148,12 +159,21 @@ export async function accountsPage(
     'secondary',
   );
   more.hidden = !workspace.has_more;
-  view.append(orderHistory, more);
+  const body = el(
+    'div',
+    { class: 'account-detail-body' },
+    el('div', { class: 'stack' }, orderHistory, more),
+  );
   if (['ADMIN', 'CASHIER'].includes(context.profile.role))
-    view.append(
-      await billingSection(context, account),
-      await accountPaymentHistory(context, account),
+    body.append(
+      el(
+        'aside',
+        { class: 'stack account-detail-finance', 'aria-label': 'Pagamenti e suddivisioni' },
+        await billingSection(context, account),
+        await accountPaymentHistory(context, account),
+      ),
     );
+  view.append(body);
   return view;
 }
 
@@ -168,93 +188,30 @@ export async function orderDialog(
     { p_venue: context.venue?.id },
     z.array(menuDishSchema),
   );
-  const cart = new Map<string, OrderLine>();
-  const summary = el('p', { class: 'muted' }, 'Seleziona le pietanze da inviare.');
+  const composer = orderComposer(dishes);
   const key = crypto.randomUUID();
   const editor = dialog('Nuovo ordine');
-  for (const dish of dishes) {
-    const quantity = field('Quantità', `qty-${dish.id}`, 'number', '0');
-    quantity.input.min = '0';
-    quantity.input.max = String(Math.min(dish.availability ?? 999, 999));
-    if (dish.availability === 0) quantity.input.disabled = true;
-    const step = field('Step', `step-${dish.id}`, 'number', '1');
-    step.input.min = '1';
-    step.input.max = '99';
-    const line: OrderLine = {
-      dish_id: dish.id,
-      quantity: 0,
-      step: 1,
-      removed_ingredients: [],
-      variant_options: [],
-    };
-    const update = () => {
-      line.quantity = Number(quantity.input.value);
-      line.step = Number(step.input.value);
-      if (line.quantity > 0) cart.set(dish.id, line);
-      else cart.delete(dish.id);
-      summary.textContent = `${Array.from(cart.values()).reduce((sum, row) => sum + row.quantity, 0)} pietanze selezionate · prezzi confermati all’invio`;
-    };
-    quantity.input.addEventListener('input', update);
-    step.input.addEventListener('input', update);
-    const item = el(
-      'article',
-      { class: 'menu-choice' },
-      el(
-        'div',
-        { class: 'row' },
-        el('h3', {}, dish.name),
-        el('strong', {}, formatMoney(dish.price_cents)),
-      ),
-      el('p', { class: 'muted' }, dish.ingredients.map((ingredient) => ingredient.name).join(', ')),
-      dish.allergens.length
-        ? el('p', {}, `Contiene: ${dish.allergens.map((allergen) => allergen.name).join(', ')}`)
-        : null,
-      availabilityBadge(dish.availability).label
-        ? status(availabilityBadge(dish.availability).label)
-        : null,
-      el('div', { class: 'row' }, quantity.root, step.root),
-    );
-    for (const ingredient of dish.ingredients.filter((ingredient) => ingredient.removable)) {
-      const check = el('input', { type: 'checkbox' });
-      check.addEventListener('change', () => {
-        line.removed_ingredients = check.checked
-          ? [...line.removed_ingredients, ingredient.id]
-          : line.removed_ingredients.filter((id) => id !== ingredient.id);
-      });
-      item.append(el('label', { class: 'checkbox-line' }, check, `Senza ${ingredient.name}`));
-    }
-    for (const group of dish.variant_groups) {
-      item.append(
-        el(
-          'p',
-          {},
-          `${group.name}${group.required ? ' · obbligatoria' : ''} · max ${group.max_selections}`,
-        ),
-      );
-      for (const option of group.options) {
-        const check = el('input', { type: 'checkbox' });
-        check.addEventListener('change', () => {
-          line.variant_options = check.checked
-            ? [...line.variant_options, option.id]
-            : line.variant_options.filter((id) => id !== option.id);
-        });
-        item.append(el('label', { class: 'checkbox-line' }, check, option.label));
-      }
-    }
-    editor.append(item);
-  }
+  editor.classList.add('order-editor');
+  editor.append(composer.root);
   editor.append(
     el(
       'footer',
       { class: 'cart-summary' },
-      summary,
+      composer.summary,
       button('Invia ordine', async () => {
-        const items = z.array(orderLineSchema).min(1).parse(Array.from(cart.values()));
+        if (!composer.reportValidity()) return;
+        const selected = composer.items();
+        if (!selected.length) {
+          toast('Aggiungi almeno un piatto alla comanda.', true);
+          return;
+        }
+        const items = z.array(orderLineSchema).min(1).parse(selected);
         for (const line of items) {
           const dish = dishes.find((entry) => entry.id === line.dish_id);
           if (!dish) throw new Error('DISH_UNAVAILABLE');
           const errors = validateOrderSelection(dish, line);
           if (errors.length) {
+            composer.reveal(line.dish_id);
             toast(errors.join(' '), true);
             return;
           }
@@ -283,4 +240,5 @@ export async function orderDialog(
       }),
     ),
   );
+  editor.querySelector<HTMLInputElement>('input[type="search"]')?.focus();
 }

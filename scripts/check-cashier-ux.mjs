@@ -4,7 +4,8 @@ const read = (path) => fs.readFileSync(new URL(`../${path}`, import.meta.url), '
 const cash = read('src/pages/cash.ts');
 const payment = read('src/pages/account-payments.ts');
 const provider = read('src/pages/provider-payments.ts');
-const css = read('styles/staff.css');
+const manualPayment = read('src/pages/manual-payment-resolution.ts');
+const settlement = read('src/services/account-settlement.ts');
 
 const checks = [
   [
@@ -58,19 +59,20 @@ const checks = [
   ],
   [
     'operatività secondaria cassa preservata',
-    [
-      'set_cash_register_open',
-      'open_service_session',
-      'reconciliationDialog',
-      'confirm_manual_payment',
-    ].every((value) => cash.includes(value)),
+    ['set_cash_register_open', 'open_service_session', 'reconciliationDialog'].every((value) =>
+      cash.includes(value),
+    ) &&
+      cash.includes('resolveManualPayment') &&
+      manualPayment.includes("'confirm_manual_payment'") &&
+      manualPayment.includes('if (!mayResolveManualPayment(payment)) return') &&
+      settlement.includes('permittedPaymentMethod(payment.method)'),
   ],
   [
     'desktop-first responsive e target touch',
-    css.includes('.cashier-command-center') &&
-      css.includes('grid-template-columns: minmax(18rem, 0.72fr) minmax(32rem, 1.6fr)') &&
-      css.includes('min-height: 48px') &&
-      css.includes('@media (max-width: 980px)'),
+    read('styles/frontdesk-v4.css').includes('.cashier-command-center') &&
+      read('styles/frontdesk-v4.css').includes('minmax(250px, 0.7fr)') &&
+      read('styles/frontdesk-v4.css').includes('min-height: 43px') &&
+      read('styles/frontdesk-v4.css').includes('@media (max-width: 950px)'),
   ],
 ];
 

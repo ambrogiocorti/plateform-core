@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { ApplicationError, client, rpc, safeError } from '../api/client';
 import { button, el, emptyState, field } from '../components/dom';
 import type { Venue } from '../types/domain';
+import { rememberDepositAccess } from '../services/deposit-access';
 import {
   addCalendarDays,
   bookableSlots,
@@ -86,6 +87,7 @@ const bookingResult = z.discriminatedUnion('status', [
       currency: z.literal('EUR'),
       expires_at: z.iso.datetime({ offset: true }),
       access_token: z.string().min(32),
+      providers: z.array(z.enum(['STRIPE', 'SATISPAY'])).min(1),
     }),
   }),
 ]);
@@ -98,6 +100,8 @@ const checkoutResult = z.object({
 
 /** A public booking is online-only; a lost response is never presented as success. */
 export async function bookingPage(venue: Venue, privacyUrl?: string): Promise<HTMLElement> {
+  const deposit = new URL(location.href).searchParams.get('deposito');
+  if (deposit) return (await import('./public-deposit')).publicDepositPage(venue, deposit);
   if (!venue.reservations_enabled || !privacyUrl || !privacyUrl.startsWith('https://'))
     return emptyState(
       'Prenotazioni online non disponibili',
@@ -118,12 +122,12 @@ export async function bookingPage(venue: Venue, privacyUrl?: string): Promise<HT
   const form = el('section', { class: 'booking-form card' });
   const first = field('Nome', 'first');
   const last = field('Cognome', 'last');
-  const phone = field('Telefono con prefisso internazionale', 'phone', 'tel');
-  phone.input.placeholder = '+39';
-  phone.input.pattern = '\\+[0-9]{7,15}';
+  const phone = field('Telefono', 'phone', 'tel');
+  phone.input.placeholder = '333 123 4567 oppure +39 333 123 4567';
+  phone.input.pattern = '(?:\\+|00)?[0-9 ().-]{7,24}';
   const party = field('Persone', 'party', 'number', '2');
   party.input.min = '1';
-  party.input.max = '1000';
+  party.input.max = '30';
   party.input.step = '1';
   const date = field('Data', 'date', 'date');
   date.input.min = venueLocalToday(venue.timezone);
@@ -137,6 +141,17 @@ export async function bookingPage(venue: Venue, privacyUrl?: string): Promise<HT
   const time = el('select', { 'aria-label': 'Orario' });
   time.required = true;
   const status = el('p', { role: 'status', 'aria-live': 'polite', class: 'muted' });
+  const depositTerms = el('p', { id: 'booking-deposit-terms', class: 'muted' });
+  let offeredSlots: z.infer<typeof slotSchema>[] = [];
+  const waitlistLink = el(
+    'a',
+    {
+      href: `/lista-attesa?sede=${encodeURIComponent(venue.slug)}`,
+      class: 'button secondary',
+    },
+    'Richiedi un posto in lista d’attesa',
+  );
+  waitlistLink.hidden = true;
   let sequence = 0;
   let verifiedKey: SearchKey | undefined;
   let submitted = false;
@@ -144,7 +159,10 @@ export async function bookingPage(venue: Venue, privacyUrl?: string): Promise<HT
   const resetTime = () => {
     sequence++;
     verifiedKey = undefined;
+    offeredSlots = [];
+    depositTerms.textContent = '';
     time.disabled = true;
+    waitlistLink.hidden = true;
     time.replaceChildren(el('option', { value: '' }, 'Verifica prima la disponibilità'));
     status.textContent = '';
   };
@@ -162,17 +180,25 @@ export async function bookingPage(venue: Venue, privacyUrl?: string): Promise<HT
         date: date.input.value,
         party: Number(party.input.value),
       };
-      status.textContent = 'Verifica disponibilità in corso…';
-      const result = await rpc(
-        'get_public_booking_availability',
-        {
-          p_venue: key.venueId,
-          p_service: key.serviceId,
-          p_date: key.date,
-          p_party: key.party,
-        },
-        availabilitySchema,
-      );
+      status.textContent = 'Cerchiamo un tavolo disponibile…';
+      let result: z.infer<typeof availabilitySchema>;
+      try {
+        result = await rpc(
+          'get_public_booking_availability',
+          {
+            p_venue: key.venueId,
+            p_service: key.serviceId,
+            p_date: key.date,
+            p_party: key.party,
+          },
+          availabilitySchema,
+        );
+      } catch {
+        if (token === sequence && form.isConnected) {
+          status.textContent = `Non riusciamo a verificare gli orari. Chiamaci al ${venue.phone}.`;
+        }
+        return;
+      }
       if (token !== sequence || !form.isConnected) return;
       // In the core-only edition, never offer a time slot that requires an
       // unavailable online deposit provider. The authoritative server may have
@@ -183,9 +209,13 @@ export async function bookingPage(venue: Venue, privacyUrl?: string): Promise<HT
         status.textContent = confirmedSlots.some(requiresExcludedDeposit)
           ? 'Gli orari disponibili richiedono una caparra online non gestita in questa edizione. Contatta il ristorante.'
           : 'Non ci sono orari disponibili per questa richiesta.';
+        // The waitlist API itself still checks license, service, date and rate
+        // limits; no capacity is promised merely by displaying this link.
+        waitlistLink.hidden = confirmedSlots.some(requiresExcludedDeposit);
         return;
       }
       verifiedKey = key;
+      offeredSlots = slots;
       time.disabled = false;
       time.replaceChildren(
         el('option', { value: '' }, 'Seleziona un orario'),
@@ -193,9 +223,22 @@ export async function bookingPage(venue: Venue, privacyUrl?: string): Promise<HT
       );
       time.value = '';
       status.textContent = `${slots.length} orari disponibili. Selezionane uno per continuare.`;
+      if (slots.some((slot) => slot.deposit))
+        status.textContent += ' Per questo gruppo il ristorante chiede una caparra di garanzia.';
     },
     'secondary',
   );
+  time.addEventListener('change', () => {
+    const selected = offeredSlots.find((slot) => slot.time === time.value);
+    const amount = selected?.deposit?.amount_cents;
+    depositTerms.textContent =
+      typeof amount === 'number'
+        ? 'Per confermare la prenotazione è richiesta una caparra di garanzia di ' +
+          (amount / 100).toLocaleString('it-IT', { style: 'currency', currency: 'EUR' }) +
+          '. Non è un anticipo sul conto: viene restituita secondo le ' +
+          'condizioni di cancellazione del ristorante.'
+        : '';
+  });
   for (const control of [service, date.input, party.input])
     control.addEventListener('change', resetTime);
   for (const control of [service, date.input, party.input])
@@ -209,6 +252,8 @@ export async function bookingPage(venue: Venue, privacyUrl?: string): Promise<HT
     checkAvailability,
     el('div', { class: 'field' }, el('label', {}, 'Orario', time)),
     status,
+    depositTerms,
+    waitlistLink,
   );
   const answers = new Map(configuration.fields.map((entry) => [entry.id, bookingField(entry)]));
   for (const input of answers.values()) form.append(input.root);
@@ -276,6 +321,11 @@ export async function bookingPage(venue: Venue, privacyUrl?: string): Promise<HT
       const result = bookingResult.parse(data);
       submitted = true;
       if (result.status === 'PENDING_DEPOSIT') {
+        const returnAccess = rememberDepositAccess(sessionStorage, {
+          deposit: result.deposit.id,
+          venue: venue.id,
+          token: result.deposit.access_token,
+        });
         if (!externalPaymentProvidersIncluded) {
           form.replaceChildren(
             el('h2', {}, 'Prenotazione non ancora confermata'),
@@ -303,7 +353,7 @@ export async function bookingPage(venue: Venue, privacyUrl?: string): Promise<HT
         );
         let checkoutStarted = false;
         const checkoutStatus = el('p', { role: 'status', 'aria-live': 'polite' });
-        for (const provider of ['STRIPE', 'SATISPAY'] as const) {
+        for (const provider of result.deposit.providers) {
           form.append(
             button(
               `Paga la caparra con ${provider === 'STRIPE' ? 'Stripe' : 'Satispay'}`,
@@ -331,7 +381,20 @@ export async function bookingPage(venue: Venue, privacyUrl?: string): Promise<HT
                     checkoutStatus.textContent =
                       'Pagamento non riuscito. Contatta il ristorante per verificare la prenotazione.';
                   } else if (next.action === 'REDIRECT') {
-                    window.location.assign(next.url);
+                    if (returnAccess) window.location.assign(next.url);
+                    else
+                      form.append(
+                        el(
+                          'a',
+                          {
+                            href: next.url,
+                            target: '_blank',
+                            rel: 'noopener noreferrer',
+                            class: 'button',
+                          },
+                          'Apri il pagamento e poi torna a questa pagina',
+                        ),
+                      );
                   } else {
                     checkoutStatus.textContent =
                       'Il pagamento è in elaborazione. Contatta il ristorante prima di riprovare.';
@@ -346,7 +409,24 @@ export async function bookingPage(venue: Venue, privacyUrl?: string): Promise<HT
             ),
           );
         }
-        form.append(checkoutStatus);
+        form.append(
+          checkoutStatus,
+          button(
+            'Verifica esito della caparra',
+            async () => {
+              form.replaceChildren(
+                await (
+                  await import('./public-deposit')
+                ).publicDepositPage(venue, result.deposit.id, {
+                  deposit: result.deposit.id,
+                  venue: venue.id,
+                  token: result.deposit.access_token,
+                }),
+              );
+            },
+            'secondary',
+          ),
+        );
       } else {
         form.replaceChildren(
           el('p', { class: 'eyebrow' }, 'A presto'),
@@ -367,11 +447,9 @@ export async function bookingPage(venue: Venue, privacyUrl?: string): Promise<HT
           el('a', { href: `tel:${venue.phone.replace(/[^+0-9]/g, '')}` }, venue.phone),
         );
       }
-    } catch (error) {
+    } catch {
       // A request may already have committed even if its response was lost: never create a second booking.
-      status.textContent =
-        'Non è possibile verificare l’esito dell’invio. Non ripetere la prenotazione: contatta il ristorante.';
-      throw error;
+      status.textContent = `Non riusciamo a confermare ora. Non ripetere la richiesta: chiamaci al ${venue.phone} per verificare l’esito.`;
     }
   });
   form.append(submit);

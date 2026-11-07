@@ -26,15 +26,18 @@ jobs:
     if: github.repository_owner == 'ambrogiocorti'
     runs-on: ubuntu-24.04
     timeout-minutes: 40
+    environment: Production
     env:
       CI: 'true'
+      PAGES_MODE: test
+      VITE_PAGES_MODE: test
       VITE_ENVIRONMENT: production
       VITE_PUBLIC_BASE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
       VITE_STAFF_BASE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/staff/
-      PUBLIC_SITE_ORIGIN: https://${{ github.repository_owner }}.github.io
-      # plateform-production (ref xzateqavvaparjoybbhr).
-      VITE_SUPABASE_URL: ${{ vars.PLATEFORM_SUPABASE_URL || 'https://xzateqavvaparjoybbhr.supabase.co' }}
-      VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.PLATEFORM_SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_lzxUoPlNBdEvFcuG987Y7Q_YxEx7JZ-' }}
+      PUBLIC_SITE_ORIGIN: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
+      PLATEFORM_CHECK_PROJECT_REF: xzateqavvaparjoybbhr
+      VITE_SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+      VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
       VITE_OFFLINE_PUBLIC_KEYS_JWK: ${{ vars.PLATEFORM_OFFLINE_PUBLIC_KEYS_JWK || '[{"kty":"EC","crv":"P-256","x":"3oW3zCsVr60PTD5moATzX44UYzBHUWjLF3LlH0-PbWQ","y":"DQXnap9zLQYoVTOI-6JPbE69q3ifP3GrHX2gGWnI1C8"}]' }}
     steps:
       - name: Checkout without persistent credentials
@@ -54,7 +57,9 @@ jobs:
         run: npm ci --no-audit --no-fund
 
       - name: Checks, tests and site build
-        run: npm run build:pages
+        run: |
+          node scripts/check-staging-public-contract.mjs
+          npm run build:pages
 
       - name: Configure Pages
         uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5.0.0

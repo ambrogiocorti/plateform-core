@@ -35,6 +35,8 @@ export function client(): SupabaseClient {
 }
 
 const messages: Record<string, string> = {
+  UNAUTHORIZED: 'La sessione non è valida o è scaduta. Accedi di nuovo.',
+  OFFLINE_NOT_AVAILABLE: 'L’uso offline non è disponibile per questo ruolo o per questa sede.',
   OFFLINE_QUEUE_UNREADABLE:
     'La coda locale non è leggibile. Le operazioni sono conservate: non cancellare i dati del dispositivo e richiedi assistenza.',
   PRIVACY_HOLD:
@@ -44,6 +46,19 @@ const messages: Record<string, string> = {
   INVALID_RETENTION: 'Inserisci tempi di conservazione compresi tra 1 e 3650 giorni.',
   CHAIN_SCOPE_REQUIRED: 'Questa configurazione richiede un amministratore della catena.',
   FEATURE_NOT_LICENSED: 'La funzionalità deve essere abilitata dal responsabile tecnico.',
+  INVALID_INGREDIENT_COST: 'Controlla prezzo, unità di acquisto, data di validità e fornitore.',
+  COST_EFFECTIVE_ORDER: 'La nuova quotazione deve essere successiva a quella attualmente valida.',
+  INGREDIENT_RECIPE_UNIT_MISMATCH:
+    'Questa unità non è compatibile con quella già usata nella ricetta.',
+  INGREDIENT_UNIT_DIMENSION_MISMATCH:
+    'La stessa materia prima ha unità incompatibili in un altro piatto.',
+  INGREDIENT_COST_UNIT_MISMATCH:
+    'L’unità di acquisto non è compatibile con le quantità delle ricette.',
+  INVALID_RECIPE_LINE: 'Controlla quantità, unità, resa e scarto di ciascun ingrediente.',
+  FOOD_COST_INCOMPLETE:
+    'Completa quantità e prezzi di ogni ingrediente prima di registrare lo snapshot.',
+  INVALID_FOOD_COST_REQUEST: 'Seleziona un piatto e una sede validi per il food cost.',
+  INVALID_FOOD_COST_SNAPSHOT: 'Impossibile registrare lo snapshot: aggiorna la ricetta e riprova.',
   MULTI_VENUE_DISABLED: 'La gestione di più sedi non è abilitata.',
   LAYOUT_IN_SERVICE: 'Completa il servizio della sala prima di modificare il layout.',
   USE_ROOM_EDITOR:
@@ -58,6 +73,12 @@ const messages: Record<string, string> = {
     'Verifica il documento fisico e l’esito della stampa prima di proseguire.',
   PRINT_DEVICE_IN_USE:
     'Scollega la stampante dalle postazioni e verifica le stampe in attesa prima di archiviarla.',
+  PRINT_DRIVER_NOT_INCLUDED:
+    'La stampa Epson richiede l’abilitazione della licenza di stampa da parte dell’amministratore tecnico.',
+  PRINT_DEVICES_STILL_CONFIGURED:
+    'Disattiva e scollega le stampanti Epson o bridge prima di revocare la licenza di stampa.',
+  PRINT_JOBS_PENDING:
+    'Verifica le stampe in coda e gli esiti incerti prima di revocare la licenza di stampa.',
   INVALID_PRINT_ENDPOINT: 'Controlla l’indirizzo HTTPS e il percorso della stampante o del bridge.',
   OFFLINE_VERIFICATION_KEY_REQUIRED:
     'Configura la chiave pubblica di verifica prima di abilitare l’uso offline.',
@@ -122,6 +143,11 @@ const messages: Record<string, string> = {
   BOOKING_SLOT_UNAVAILABLE: 'L’orario selezionato non è prenotabile.',
   BOOKING_DATE_UNAVAILABLE: 'La data selezionata non è prenotabile per questo servizio.',
   BOOKING_IN_PAST: 'Scegli un orario futuro.',
+  WAITLIST_DISABLED: 'La lista d’attesa non è abilitata per questa sede.',
+  WAITLIST_NO_COMPATIBLE_CAPACITY: 'Non ci sono posti compatibili da proporre in questo momento.',
+  WAITLIST_PRIORITY_CONFLICT: 'Un’altra richiesta ha priorità per questo posto.',
+  WAITLIST_NOT_WAITING: 'Questa richiesta non è più in attesa.',
+  WAITLIST_CAPACITY_LOST: 'Il posto è appena diventato indisponibile. Aggiorna le proposte.',
   NONEXISTENT_LOCAL_TIME: 'Questo orario non esiste nel fuso orario della sede. Scegline un altro.',
   CONTACT_RESTAURANT_FOR_LARGE_PARTY:
     'Per questo numero di persone è necessario contattare direttamente il ristorante.',
@@ -189,15 +215,32 @@ export function safeError(
 ): ApplicationError {
   if (error instanceof ApplicationError) return error;
   const parsed = z.object({ message: z.string() }).safeParse(error);
-  const code = parsed.success
+  let code = parsed.success
     ? Object.keys(messages).find((key) => parsed.data.message === key)
     : undefined;
+  if (
+    !code &&
+    parsed.success &&
+    /Failed to fetch|NetworkError|Load failed|fetch failed|AbortError|TimeoutError/i.test(
+      parsed.data.message,
+    )
+  )
+    return new ApplicationError(
+      'NETWORK_UNAVAILABLE',
+      requestId,
+      'Connessione non disponibile. Controlla la rete e riprova.',
+    );
+  if (!code && error && typeof error === 'object' && 'code' in error) {
+    const databaseCode = String(error.code);
+    if (databaseCode === '42501') code = 'FORBIDDEN';
+    if (databaseCode === 'PGRST301' || databaseCode === 'PGRST303') code = 'FULL_AUTH_REQUIRED';
+  }
   return new ApplicationError(
     code ?? 'REQUEST_FAILED',
     requestId,
     code
       ? messages[code]!
-      : 'Operazione non completata. Verifica la connessione e aggiorna i dati prima di riprovare.',
+      : 'Non è stato possibile completare l’operazione. Riprova; se il problema continua, comunica il riferimento all’assistenza.',
   );
 }
 
@@ -243,12 +286,19 @@ export async function rpc<T>(
   const { data, error } = await client().rpc(name, args).setHeader('x-request-id', requestId);
   if (error) throw safeError(error, requestId);
   const parsed = schema.safeParse(data);
-  if (!parsed.success)
+  if (!parsed.success) {
+    if (import.meta.env.DEV)
+      console.warn(
+        '[RPC INVALID_RESPONSE]',
+        name,
+        parsed.error.issues.map((issue) => ({ path: issue.path.join('.'), code: issue.code })),
+      );
     throw new ApplicationError(
       'INVALID_RESPONSE',
       requestId,
       'La risposta ricevuta non è valida. Aggiorna la pagina.',
     );
+  }
   if (
     location.pathname.startsWith(new URL(environment().staffBaseUrl).pathname) &&
     location.origin === new URL(environment().staffBaseUrl).origin
@@ -269,6 +319,7 @@ export async function readRows<T>(
     'ingredient_allergens',
     'venue_dish_settings',
     'dish_station_assignments',
+    'step_deliveries',
     'service_booking_rules',
     'staff_venue_assignments',
     'station_staff_assignments',
@@ -341,8 +392,22 @@ export async function readPage<T>(
   if (error) throw safeError(error, requestId);
   const raw = z.array(z.record(z.string(), z.unknown())).parse(data);
   const page = raw.slice(0, limit);
+  const checked = z.array(schema).safeParse(page);
+  if (!checked.success) {
+    if (import.meta.env.DEV)
+      console.warn(
+        '[TABLE INVALID_RESPONSE]',
+        table,
+        checked.error.issues.map((issue) => ({ path: issue.path.join('.'), code: issue.code })),
+      );
+    throw new ApplicationError(
+      'INVALID_RESPONSE',
+      requestId,
+      'La risposta ricevuta non è valida. Aggiorna la pagina.',
+    );
+  }
   return {
-    rows: z.array(schema).parse(page),
+    rows: checked.data,
     next: raw.length > limit ? z.string().parse(page.at(-1)?.[key]) : null,
   };
 }

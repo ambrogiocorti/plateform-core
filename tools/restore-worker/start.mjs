@@ -13,6 +13,8 @@ import {
   quiesceTargetAutomation,
   sanitizeRestoredSecurityState,
   verifyPrivateState,
+  restoreManagedOverlay,
+  verifyManagedSurface,
 } from '../restore-test-worker/database.mjs';
 import {
   restoreStorage,
@@ -110,6 +112,7 @@ async function restoreArtifacts(config, manifest, backupDir, temp, createClient,
   }
   validateAuthManifest(manifest);
   await restoreDatabase(config, files);
+  await restoreManagedOverlay(config, manifest, backupDir, dbDir, encryptionKey);
   await quiesceTargetAutomation(config);
   await sanitizeRestoredSecurityState(config);
   await restoreStorage(config, manifest, backupDir, temp, createClient, encryptionKey);
@@ -118,6 +121,7 @@ async function verifyTarget(config, manifest, createClient) {
   const db = await verifyDatabase(config);
   const migrationHistory = await verifyMigrationHistory(config, {
     count: manifest.components.migrations.count,
+    latest_version: manifest.components.migrations.latest_version,
     aggregate_sha256: manifest.components.migrations.aggregate_sha256,
   });
   const privateState = await verifyPrivateState(config, manifest.components.private_state);
@@ -127,8 +131,10 @@ async function verifyTarget(config, manifest, createClient) {
     config.targetDatabaseUrl,
     manifest.components.storage.metadata_fingerprint,
   );
+  const managedSurface = await verifyManagedSurface(config, manifest);
   return {
     ...db,
+    ...managedSurface,
     ...migrationHistory,
     ...privateState,
     ...storageMetadata,
@@ -194,6 +200,8 @@ async function processJob(config, job, temp, prerequisite) {
       'audit',
       'sessions',
       'devices',
+      'managed_overlay',
+      'security_surface',
     ];
     if (!required.every((key) => verification[key] === true))
       throw new Error('RESTORE_VERIFICATION_FAILED');
@@ -232,17 +240,31 @@ const config = loadConfig();
 const prerequisite = await checkPrerequisites(config);
 if (mode === '--check') {
   await rm(prerequisite.temp, { recursive: true, force: true });
+  const blocked = prerequisite.targetOccupied === true;
   console.log(
     JSON.stringify({
-      status: 'READY',
+      status: blocked ? 'BLOCKED' : 'READY',
+      reason: blocked ? 'RESTORE_TARGET_NOT_EMPTY' : null,
       targetProjectRef: config.targetProjectRef,
-      targetOccupied: prerequisite.targetOccupied,
+      targetOccupied: blocked,
       psql: config.psql,
     }),
   );
-  process.exit(0);
+  process.exit(blocked ? 2 : 0);
 }
 if (mode !== '--once') throw new Error('USAGE: restore-worker --check|--once');
+// Do not claim or change a queued restore job when the destination is occupied.
+if (prerequisite.targetOccupied === true) {
+  await rm(prerequisite.temp, { recursive: true, force: true });
+  console.error(
+    JSON.stringify({
+      status: 'BLOCKED',
+      reason: 'RESTORE_TARGET_NOT_EMPTY',
+      targetProjectRef: config.targetProjectRef,
+    }),
+  );
+  process.exit(2);
+}
 const job = await claimRestore(config);
 if (!job) {
   await rm(prerequisite.temp, { recursive: true, force: true });

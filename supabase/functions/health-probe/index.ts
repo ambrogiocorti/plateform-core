@@ -1,4 +1,4 @@
-import { z } from 'npm:zod@4.6.5';
+import { z } from 'npm:zod@4.6.7';
 import { endpoint, rateLimit, serverClient, userClient } from '../_shared/http.ts';
 type Probe = { component: string; status: string; latency: number | null; code: string };
 Deno.serve(

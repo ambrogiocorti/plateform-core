@@ -60,9 +60,9 @@ select,
 textarea {
   width: 100%;
   min-height: 46px;
-  border: 1px solid var(--border);
+  border: 2px solid var(--pf-control-border, var(--border));
   border-radius: 8px;
-  padding: 11px 13px;
+  padding: 10px 12px;
   color: var(--text);
   background: var(--bg);
 }
@@ -224,11 +224,36 @@ img {
   gap: 12px;
 }
 .toast {
-  padding: 18px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 16px;
   background: var(--raised);
   border: 1px solid var(--success);
   border-radius: 10px;
   box-shadow: var(--shadow);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.toast-content {
+  min-width: 0;
+  flex: 1;
+}
+.toast-message {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.toast-reference {
+  display: block;
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 11px;
+}
+.toast > .button {
+  flex: 0 0 auto;
+  min-height: 36px;
+  padding: 6px 8px;
+  font-size: 12px;
 }
 .toast.error {
   border-color: var(--danger);

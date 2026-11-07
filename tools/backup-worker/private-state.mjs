@@ -46,11 +46,11 @@ function rowHashSql(schema, table) {
 export function durablePrivateStateSql() {
   const rows = DURABLE_PRIVATE_TABLES.map(
     (table) =>
-      `json_build_object('table',${JSON.stringify(table)},'count',(select count(*) from private.${q(table)}),'sha256',${rowHashSql('private', table)})`,
+      `json_build_object('table','${table}','count',(select count(*) from private.${q(table)}),'sha256',${rowHashSql('private', table)})`,
   ).join(',');
   const aggregate = DURABLE_PRIVATE_TABLES.map(
     (table) =>
-      `${JSON.stringify(table)}||'|'||(select count(*)::text from private.${q(table)})||'|'||${rowHashSql('private', table)}`,
+      `'${table}'||'|'||(select count(*)::text from private.${q(table)})||'|'||${rowHashSql('private', table)}`,
   ).join(',');
   return `json_build_object(
     'table_count',${DURABLE_PRIVATE_TABLES.length},

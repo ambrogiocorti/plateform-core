@@ -1,6 +1,7 @@
 import { defineConfig, loadEnv } from 'vite';
 import { plateformPwa } from './vite.pwa.ts';
 import { plateformSecurity } from './vite.security.ts';
+import { commercialEditionMetadata } from './vite.edition.ts';
 import { fileURLToPath } from 'node:url';
 
 export default defineConfig(({ command, mode }) => {
@@ -15,11 +16,26 @@ export default defineConfig(({ command, mode }) => {
   return {
     base,
     define: { 'import.meta.env.PLATEFORM_AREA': JSON.stringify('staff') },
-    plugins: [plateformPwa('staff', base, staffBase), plateformSecurity('staff', env)],
+    plugins: [
+      commercialEditionMetadata(env),
+      plateformPwa('staff', base, staffBase),
+      plateformSecurity('staff', env),
+    ],
     root: fileURLToPath(new URL('./apps/staff', import.meta.url)),
+    // Dynamic staff/public views must not trigger new dependency hashes while
+    // an operational dialog is loading in a browser.
+    optimizeDeps: {
+      noDiscovery: true,
+      include: ['@supabase/supabase-js', 'idb', 'qrcode', 'saxes', 'zod'],
+    },
     envDir: '../..',
     publicDir: '../../assets/staff',
-    server: { port: 5174, strictPort: true, fs: { allow: ['../..'] } },
+    server: {
+      port: 5174,
+      strictPort: true,
+      allowedHosts: ['terminal.local'],
+      fs: { allow: ['../..'] },
+    },
     build: { outDir: '../../dist/staff', emptyOutDir: true, sourcemap: false, target: 'es2022' },
   };
 });

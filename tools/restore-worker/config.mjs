@@ -1,4 +1,5 @@
 import { assertSupabaseServerKey } from '../continuity/server-key.mjs';
+import { TARGET_OCCUPANCY_SQL, parseTargetOccupancy } from '../continuity/target-occupancy.mjs';
 import { loadEncryptionKeyring } from '../backup-worker/keyring.mjs';
 import { access, mkdtemp } from 'node:fs/promises';
 import { constants } from 'node:fs';
@@ -118,7 +119,7 @@ export async function checkPrerequisites(config) {
   } catch {
     throw new Error('PREREQUISITE_MISSING:SUPABASE_JS');
   }
-  const occupied = (
+  const occupied = parseTargetOccupancy(
     await commandOutput(config.psql, [
       '-X',
       '-A',
@@ -128,14 +129,14 @@ export async function checkPrerequisites(config) {
       '--dbname',
       config.targetDatabaseUrl,
       '--command',
-      "select (to_regclass('public.restaurant_profile') is not null)::text;",
-    ])
-  ).trim();
+      TARGET_OCCUPANCY_SQL,
+    ]),
+  );
   const temp = await mkdtemp(`${tmpdir()}/plateform-restore-`);
   return {
     psql: config.psql,
     targetProjectRef: config.targetProjectRef,
     temp,
-    targetOccupied: occupied === 'true' || occupied === 't',
+    targetOccupied: occupied,
   };
 }

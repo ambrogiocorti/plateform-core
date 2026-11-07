@@ -57,6 +57,10 @@ test('menu renders allergen information and treats untrusted dish names as text'
   page,
 }) => {
   await page.route('**/rest/v1/rpc/get_public_site', (route) => route.fulfill({ json: site }));
+  // The public menu now requests its published-card index before the dish catalog.
+  await page.route('**/rest/v1/rpc/get_public_navigation', (route) =>
+    route.fulfill({ json: { menus: [] } }),
+  );
   await page.route('**/rest/v1/rpc/get_public_menu', (route) =>
     route.fulfill({
       json: [

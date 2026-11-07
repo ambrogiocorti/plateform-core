@@ -7,6 +7,7 @@ import {
   splitEqually,
 } from '../../src/services/money';
 import { canTransition, stateMachines } from '../../src/services/state-machine';
+import { menuDishSchema } from '../../src/types/domain';
 
 describe('Financial presentation uses exact integer arithmetic', () => {
   it('parses Italian decimals exactly and rejects ambiguous precision', () => {
@@ -51,5 +52,36 @@ describe('Operational boundaries', () => {
     expect(canTransition(stateMachines.reservation, 'REQUESTED', 'SEATED')).toBe(false);
     expect(canTransition(stateMachines.payment, 'FAILED', 'COMPLETED')).toBe(false);
     expect(canTransition(stateMachines.order, 'IN_PREPARATION', 'READY')).toBe(true);
+  });
+});
+
+describe('Public menu payload boundaries', () => {
+  const fixture = {
+    id: '00000000-0000-4000-8000-000000000001',
+    name: 'Carbonara',
+    description: null,
+    image_path: null,
+    beverage: false,
+    category_id: '00000000-0000-4000-8000-000000000002',
+    category_name: 'Primi',
+    price_cents: 1400,
+    availability: null,
+    ingredients: [],
+    allergens: [],
+    dietary_tags: [],
+    variant_groups: [],
+  };
+
+  it('accepts an absent optional dish description without hiding the published menu', () => {
+    expect(menuDishSchema.parse(fixture).description).toBe('');
+    expect(menuDishSchema.parse({ ...fixture, description: undefined }).description).toBe('');
+  });
+
+  it('preserves descriptions and rejects an invalid price or image path', () => {
+    expect(menuDishSchema.parse({ ...fixture, description: 'Pasta fresca' }).description).toBe(
+      'Pasta fresca',
+    );
+    expect(menuDishSchema.safeParse({ ...fixture, price_cents: -1 }).success).toBe(false);
+    expect(menuDishSchema.safeParse({ ...fixture, image_path: 123 }).success).toBe(false);
   });
 });

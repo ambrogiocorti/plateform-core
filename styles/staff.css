@@ -228,6 +228,7 @@
     border-right: 0;
     border-top: 1px solid var(--border);
   }
+  .sidebar-section,
   .sidebar > .brand,
   .sidebar > footer {
     display: none;
@@ -260,7 +261,7 @@
     font-size: 12px;
   }
   .topbar .context {
-    max-width: 120px;
+    max-width: min(65vw, 340px);
   }
   .workspace {
     padding: 24px 18px;
@@ -301,7 +302,7 @@
   min-width: 0;
   border: 1px solid var(--border);
   border-radius: 12px;
-  background: #202326;
+  background: var(--raised);
 }
 .room-canvas {
   display: block;
@@ -546,7 +547,7 @@
   margin-inline-start: 5px;
   border-radius: 999px;
   background: var(--accent);
-  color: #111315;
+  color: var(--accent-ink);
   font-weight: 700;
 }
 .notification-badge[hidden] {
@@ -569,7 +570,7 @@
 }
 .floor-map-viewport {
   overflow: auto;
-  background: #171b20;
+  background: var(--raised);
   border-radius: 12px;
   max-height: 70vh;
 }
@@ -582,12 +583,13 @@
 .operational-table {
   cursor: pointer;
 }
-.operational-table:focus {
-  outline: none;
+.operational-table:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 4px;
 }
-.operational-table:focus > rect,
-.operational-table:focus > ellipse {
-  stroke: #fff;
+.operational-table:focus-visible > rect,
+.operational-table:focus-visible > ellipse {
+  stroke: var(--accent);
   stroke-width: 8;
 }
 .host-workspace {
@@ -792,9 +794,8 @@
     gap: 18px;
   }
   .waiter-priority-bar {
-    position: sticky;
-    top: 56px;
-    z-index: 8;
+    position: static;
+    z-index: auto;
     padding: 8px 0;
     background: var(--bg);
   }

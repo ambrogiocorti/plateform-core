@@ -1,4 +1,4 @@
-import { z } from 'npm:zod@4.6.5';
+import { z } from 'npm:zod@4.6.7';
 import { endpoint, rateLimit, secret, serverClient, userClient } from '../_shared/http.ts';
 Deno.serve(
   endpoint(z.object({}).strict(), async (_body, request) => {

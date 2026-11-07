@@ -5,6 +5,7 @@ import { button, dialog, el, emptyState, status } from '../components/dom';
 import type { StaffContext } from './staff-context';
 import { command } from './staff-context';
 import { environment } from '../config/environment';
+import { publicAppUrl } from '../services/public-site';
 import { openAccountCreation } from './account-create';
 
 export async function floorPage(context: StaffContext): Promise<HTMLElement> {
@@ -25,7 +26,7 @@ export async function floorPage(context: StaffContext): Promise<HTMLElement> {
         'QR del tavolo',
         async () => {
           const { toDataURL } = await import('qrcode');
-          const url = new URL(`/tavolo/${table.public_table_id}`, environment().publicBaseUrl).href;
+          const url = publicAppUrl(`/tavolo/${table.public_table_id}`, environment().publicBaseUrl);
           const source = await toDataURL(url, {
             width: 360,
             margin: 2,

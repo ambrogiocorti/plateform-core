@@ -190,12 +190,17 @@ describe('Authoritative service workflows', () => {
       tableWaiter,
       table,
     ]);
+    // Direct API-role execution was intentionally revoked: inspect the
+    // authoritative assignment using the migration/test owner instead.
+    await db.exec('reset role');
     expect(
       (await db.query('select private.responsible_waiter($1) waiter', [table])).rows[0],
     ).toEqual({
       waiter: tableWaiter,
     });
+    await identity(db, ids.admin);
     await db.query("select public.assign_waiter($1,$2,'RUNNER',null,null)", [ids.venue, runner]);
+    await db.exec('reset role');
     expect(
       (await db.query('select private.responsible_waiter($1) waiter', [table])).rows[0],
     ).toEqual({
@@ -209,6 +214,13 @@ describe('Authoritative service workflows', () => {
         )
       ).rows,
     ).toEqual([{ mode: 'RUNNER', table_id: null, zone_id: null }]);
+  });
+
+  it('keeps the internal responsible waiter lookup inaccessible to API roles', async () => {
+    await identity(db, ids.waiter);
+    await expect(db.query('select private.responsible_waiter($1)', [table])).rejects.toThrow(
+      'permission denied',
+    );
   });
 
   async function attachCustomer(account: { id: string; code: string }, user = customer) {
@@ -557,7 +569,8 @@ describe('Authoritative service workflows', () => {
       (await db.query('select public.verify_customer_code($1,$2) as result', [newQr, account.code]))
         .rows[0],
     ).toMatchObject({ result: { account_id: account.id, table_id: target } });
-    await identity(db, ids.waiter);
+    // An authenticated waiter cannot query this internal helper directly.
+    await db.exec('reset role');
     expect(
       (await db.query('select private.responsible_waiter($1) as waiter', [target])).rows[0],
     ).toEqual({ waiter: ids.waiter });
@@ -820,6 +833,11 @@ describe('Authoritative service workflows', () => {
     await db.exec('reset role');
     await identity(db, ids.waiter);
     await db.query('select public.deliver_step($1,false)', [item.step_id]);
+    const ownPickup = await db.query<{ step_id: string; served_at: string | null }>(
+      'select step_id, served_at from public.step_deliveries where step_id=$1 and waiter_id=$2',
+      [item.step_id, ids.waiter],
+    );
+    expect(ownPickup.rows).toEqual([{ step_id: item.step_id, served_at: null }]);
     await db.query('select public.deliver_step($1,true)', [item.step_id]);
     expect((await db.query('select status from public.orders')).rows).toEqual([
       { status: 'SERVED' },
@@ -866,6 +884,11 @@ describe('Authoritative service workflows', () => {
       ]),
     );
     await db.query('select public.deliver_step($1,false)', [item.step_id]);
+    const runnerPickup = await db.query<{ step_id: string; served_at: string | null }>(
+      'select step_id, served_at from public.step_deliveries where step_id=$1 and waiter_id=$2',
+      [item.step_id, runner],
+    );
+    expect(runnerPickup.rows).toEqual([{ step_id: item.step_id, served_at: null }]);
     await db.query('select public.deliver_step($1,true)', [item.step_id]);
     // The Runner can deliver this step but cannot read orders directly.
     expect((await db.query('select status from public.orders')).rows).toEqual([]);
@@ -991,6 +1014,29 @@ describe('Authoritative service workflows', () => {
     expect(await payment(account, 1800)).toEqual(first);
     expect((await db.query('select id from public.payments')).rows).toHaveLength(1);
     await expect(payment(account, 1)).rejects.toThrow('IDEMPOTENCY_MISMATCH');
+  });
+
+  it('resumes the exact PENDING cash payment after UI reload without charging again', async () => {
+    const account = await payableAccount();
+    const pending = await payment(account, 1800);
+    const history = await db.query<{ result: { items: { id: string; status: string }[] } }>(
+      'select public.get_account_payments($1) as result',
+      [account],
+    );
+    expect(history.rows[0]?.result.items).toEqual(
+      expect.arrayContaining([expect.objectContaining({ id: pending.id, status: 'PENDING' })]),
+    );
+    const first = await db.query<{ result: { id: string; status: string } }>(
+      'select public.confirm_manual_payment($1,true) as result',
+      [pending.id],
+    );
+    const repeated = await db.query<{ result: { id: string; status: string } }>(
+      'select public.confirm_manual_payment($1,true) as result',
+      [pending.id],
+    );
+    expect(first.rows[0]?.result).toEqual({ id: pending.id, status: 'COMPLETED' });
+    expect(repeated.rows[0]?.result).toEqual(first.rows[0]?.result);
+    expect((await db.query('select id from public.payments')).rows).toHaveLength(1);
   });
 
   it('records revenue and tips separately, closes only a fully settled account and invalidates the code', async () => {

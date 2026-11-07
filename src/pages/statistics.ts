@@ -3,65 +3,8 @@ import { rpc } from '../api/client';
 import { button, el, field } from '../components/dom';
 import { formatMoney } from '../services/money';
 import type { StaffContext } from './staff-context';
-const aggregate = z.object({ amount_cents: z.number().int(), tip_cents: z.number().int() });
-const counts = z.object({ reservations: z.number().int(), covers: z.number().int() });
-const products = z.object({
-  name: z.string(),
-  quantity: z.number().int(),
-  amount_cents: z.number().int(),
-});
-const statisticsSchema = z.object({
-  receipts_cents: z.number().int(),
-  refunds_cents: z.number().int(),
-  reversals_cents: z.number().int(),
-  net_cents: z.number().int(),
-  tips_cents: z.number().int(),
-  covers: z.number().int(),
-  reservations: z.number().int(),
-  preparation_seconds: z.number().nullable(),
-  daily: z.array(aggregate.extend({ local_date: z.string() })),
-  methods: z.array(aggregate.extend({ method: z.string(), entries: z.number().int() })),
-  venues: z.array(aggregate.extend({ id: z.uuid(), name: z.string() })),
-  products: z.array(products),
-  categories: z.array(products),
-  closed_accounts: z.number().int(),
-  average_check_cents: z.number().int().nullable(),
-  no_shows: z.number().int(),
-  no_show_percent: z.number().nullable(),
-  cancelled_reservations: z.number().int(),
-  walk_ins: z.number().int(),
-  booking_states: z.array(counts.extend({ status: z.string() })),
-  booking_slots: z.array(counts.extend({ slot_time: z.string() })),
-  returns: z.number().int(),
-  calls: z.number().int(),
-  call_acceptance_seconds: z.number().nullable(),
-  call_completion_seconds: z.number().nullable(),
-  stations: z.array(
-    z.object({
-      id: z.uuid(),
-      name: z.string(),
-      items: z.number().int(),
-      preparation_seconds: z.number().nullable(),
-      delivery_seconds: z.number().nullable(),
-    }),
-  ),
-  registers: z.array(aggregate.extend({ id: z.uuid(), name: z.string() })),
-  services: z.array(aggregate.extend({ name: z.string() })),
-  average_stay_seconds: z.number().nullable(),
-  cancelled_items: z.number().int(),
-  operational_errors: z.number().int(),
-  incidents: z.number().int(),
-  open_incidents: z.number().int(),
-  capacity_services: z.array(
-    z.object({
-      id: z.uuid(),
-      name: z.string(),
-      capacity_covers: z.number().int().nullable(),
-      used_covers: z.number().int(),
-      utilization_percent: z.number().nullable(),
-    }),
-  ),
-});
+import { statisticsSchema } from '../services/statistics';
+import '../../styles/statistics.css';
 const duration = (seconds: number | null) =>
   seconds === null
     ? 'Non disponibile'
@@ -103,7 +46,7 @@ export async function statisticsPage(context: StaffContext): Promise<HTMLElement
       : null,
   );
   scope.value = context.venue?.id ?? '';
-  const result = el('div', { class: 'stack' });
+  const result = el('div', { class: 'statistics-results' });
   let snapshot: z.infer<typeof statisticsSchema> | null = null;
   let snapshotDates: { start: string; end: string; scope: string } | null = null;
   const exportButton = button(
@@ -125,11 +68,15 @@ export async function statisticsPage(context: StaffContext): Promise<HTMLElement
         ['No-show', snapshot.no_shows],
         ['Chiamate', snapshot.calls],
         ['Resi', snapshot.returns],
-        ['Permanenza media secondi', snapshot.average_stay_seconds ?? ''],
-        ['Piatti annullati', snapshot.cancelled_items],
-        ['Errori operativi', snapshot.operational_errors],
-        ['Incidenti', snapshot.incidents],
-        ['Incidenti aperti', snapshot.open_incidents],
+        ...(snapshot.advanced
+          ? [
+              ['Permanenza media secondi', snapshot.average_stay_seconds ?? ''],
+              ['Piatti annullati', snapshot.cancelled_items],
+              ['Errori operativi', snapshot.operational_errors],
+              ['Incidenti', snapshot.incidents],
+              ['Incidenti aperti', snapshot.open_incidents],
+            ]
+          : []),
         [],
         ['Giorno', 'Movimenti centesimi', 'Mance centesimi'],
         ...snapshot.daily.map((row) => [row.local_date, row.amount_cents, row.tip_cents]),
@@ -176,7 +123,7 @@ export async function statisticsPage(context: StaffContext): Promise<HTMLElement
     result.replaceChildren(
       el(
         'div',
-        { class: 'kpi-grid' },
+        { class: 'statistics-metrics statistics-money-metrics' },
         ...[
           ['Incassi', data.receipts_cents],
           ['Rimborsi', data.refunds_cents],
@@ -186,7 +133,7 @@ export async function statisticsPage(context: StaffContext): Promise<HTMLElement
         ].map(([name, amount]) =>
           el(
             'section',
-            { class: 'card' },
+            { class: 'statistics-metric' },
             el('h2', {}, String(name)),
             el('p', { class: 'amount' }, formatMoney(Number(amount))),
           ),
@@ -194,16 +141,16 @@ export async function statisticsPage(context: StaffContext): Promise<HTMLElement
       ),
       el(
         'div',
-        { class: 'kpi-grid' },
+        { class: 'statistics-metrics statistics-service-metrics' },
         el(
           'section',
-          { class: 'card' },
+          { class: 'statistics-metric' },
           el('h2', {}, 'Coperti accolti'),
           el('p', { class: 'amount' }, data.covers),
         ),
         el(
           'section',
-          { class: 'card' },
+          { class: 'statistics-metric' },
           el('h2', {}, 'Conto medio'),
           el(
             'p',
@@ -216,7 +163,7 @@ export async function statisticsPage(context: StaffContext): Promise<HTMLElement
         ),
         el(
           'section',
-          { class: 'card' },
+          { class: 'statistics-metric' },
           el('h2', {}, 'No-show'),
           el('p', { class: 'amount' }, data.no_shows),
           el(
@@ -230,12 +177,12 @@ export async function statisticsPage(context: StaffContext): Promise<HTMLElement
       ),
     );
     const maximum = Math.max(1, ...data.daily.map((day) => Math.abs(day.amount_cents))),
-      chart = el('section', { class: 'card stack' }, el('h2', {}, 'Movimenti giornalieri'));
+      chart = el('section', { class: 'statistics-section' }, el('h2', {}, 'Movimenti giornalieri'));
     for (const day of data.daily)
       chart.append(
         el(
           'div',
-          { class: 'row' },
+          { class: 'statistics-day' },
           el('span', {}, day.local_date),
           el('meter', {
             min: '0',
@@ -299,8 +246,9 @@ export async function statisticsPage(context: StaffContext): Promise<HTMLElement
         })),
       ],
     ] as const;
+    const breakdowns = el('div', { class: 'statistics-breakdowns' });
     for (const [title, rows] of groups) {
-      const section = el('section', { class: 'card stack' }, el('h2', {}, title));
+      const section = el('section', { class: 'statistics-section' }, el('h2', {}, title));
       for (const row of rows)
         section.append(
           el(
@@ -311,11 +259,12 @@ export async function statisticsPage(context: StaffContext): Promise<HTMLElement
           ),
         );
       if (!rows.length) section.append(el('p', {}, 'Nessun dato nel periodo.'));
-      result.append(section);
+      breakdowns.append(section);
     }
+    result.append(breakdowns);
     const bookings = el(
       'section',
-      { class: 'card stack' },
+      { class: 'statistics-section' },
       el('h2', {}, 'Prenotazioni e walk-in'),
       el(
         'p',
@@ -340,8 +289,9 @@ export async function statisticsPage(context: StaffContext): Promise<HTMLElement
           `${row.slot_time.slice(0, 5)} · ${row.reservations} gruppi · ${row.covers} coperti`,
         ),
       );
-    if (data.capacity_services.length) bookings.append(el('h3', {}, 'Utilizzo capacità servizi'));
-    for (const service of data.capacity_services)
+    if (data.advanced && data.capacity_services.length)
+      bookings.append(el('h3', {}, 'Utilizzo capacità servizi'));
+    for (const service of data.advanced ? data.capacity_services : [])
       bookings.append(
         el(
           'p',
@@ -353,20 +303,24 @@ export async function statisticsPage(context: StaffContext): Promise<HTMLElement
       );
     const operations = el(
       'section',
-      { class: 'card stack' },
+      { class: 'statistics-section' },
       el('h2', {}, 'Cucina, consegne e chiamate'),
       el('p', {}, `Preparazione media: ${duration(data.preparation_seconds)}`),
-      el('p', {}, `Permanenza media al tavolo: ${duration(data.average_stay_seconds)}`),
+      data.advanced
+        ? el('p', {}, `Permanenza media al tavolo: ${duration(data.average_stay_seconds)}`)
+        : null,
       el(
         'p',
         {},
-        `${data.returns} resi · ${data.cancelled_items} piatti annullati · ${data.calls} chiamate clienti`,
+        `${data.returns} resi · ${data.calls} chiamate clienti${data.advanced ? ` · ${data.cancelled_items} piatti annullati` : ''}`,
       ),
-      el(
-        'p',
-        {},
-        `${data.operational_errors} errori operativi · ${data.incidents} incidenti nel periodo · ${data.open_incidents} incidenti aperti`,
-      ),
+      data.advanced
+        ? el(
+            'p',
+            {},
+            `${data.operational_errors} errori operativi · ${data.incidents} incidenti nel periodo · ${data.open_incidents} incidenti aperti`,
+          )
+        : null,
       el(
         'p',
         {},
@@ -381,24 +335,39 @@ export async function statisticsPage(context: StaffContext): Promise<HTMLElement
           `${station.name} · ${station.items} righe comanda · Preparazione ${duration(station.preparation_seconds)} · Da pronto a servito ${duration(station.delivery_seconds)}`,
         ),
       );
-    result.append(bookings, operations);
+    if (!data.advanced)
+      result.append(
+        el(
+          'p',
+          { class: 'muted', role: 'note' },
+          'Analisi della permanenza, degli errori e indicatori operativi sono inclusi nella licenza Analytics avanzate.',
+        ),
+      );
+    result.append(el('div', { class: 'statistics-breakdowns' }, bookings, operations));
   }
   const view = el(
     'div',
-    { class: 'stack' },
+    { class: 'statistics-workspace' },
     el(
       'div',
-      { class: 'card row' },
+      { class: 'statistics-filters' },
       start.root,
       end.root,
-      scope,
+      context.multiVenue && context.venues.length > 1
+        ? el('label', { class: 'field' }, 'Ambito', scope)
+        : null,
       button('Aggiorna statistiche', load),
       exportButton,
     ),
     el(
-      'p',
-      { class: 'muted' },
-      'Le date seguono il fuso di ciascuna sede. Incassi, rimborsi e storni seguono il giorno del movimento; le mance restano separate. Le categorie riportano gli addebiti delle comande del periodo. Il conto medio usa gli addebiti dei conti chiusi, inclusi i conti divisi.',
+      'details',
+      { class: 'statistics-context' },
+      el('summary', {}, 'Come leggere il report'),
+      el(
+        'p',
+        {},
+        'Le date seguono il fuso di ciascuna sede. Incassi, rimborsi e storni seguono il giorno del movimento; le mance restano separate. Le categorie riportano gli addebiti delle comande del periodo. Il conto medio usa gli addebiti dei conti chiusi, inclusi i conti divisi.',
+      ),
     ),
     result,
   );

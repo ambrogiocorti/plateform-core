@@ -86,7 +86,27 @@ export function floorView(data: FloorWorkspace, open: (table: FloorTable) => voi
     el('option', { value: 'map' }, 'Pianta'),
     el('option', { value: 'list' }, 'Elenco tavoli'),
   );
+  // A scaled room plan is difficult to read and tap on a phone. Start with
+  // the actionable list there; the operator can still choose the map.
+  if (window.matchMedia('(max-width: 600px)').matches) mode.value = 'list';
+  const search = el('input', {
+    type: 'search',
+    'aria-label': 'Cerca tavolo o cameriere',
+    placeholder: 'Nome, numero o cameriere',
+    autocomplete: 'off',
+  });
+  const state = el(
+    'select',
+    { 'aria-label': 'Stato del tavolo' },
+    el('option', { value: '' }, 'Tutti gli stati'),
+    ...[...new Set(data.tables.map((table) => table.technical_status))].map((value) => {
+      const sample = data.tables.find((table) => table.technical_status === value)!;
+      return el('option', { value }, tableLabel(data, sample));
+    }),
+  );
   const canvas = el('div', { class: 'floor-map-list stack' });
+  const summary = el('div', { class: 'floor-summary', 'aria-label': 'Riepilogo tavoli mostrati' });
+  const result = el('p', { class: 'floor-result', role: 'status', 'aria-live': 'polite' });
   let zoom = 1;
   const labelFor = (table: FloorTable) =>
     `${table.name} · ${tableLabel(data, table)} · ${table.covers} ospiti · ${table.seats} posti${table.waiter_name ? ` · ${table.waiter_name}` : ''}`;
@@ -98,42 +118,80 @@ export function floorView(data: FloorWorkspace, open: (table: FloorTable) => voi
       ? value
       : (colors[table.technical_status] ?? '#92979f');
   };
+  const normalize = (value: string) =>
+    value
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLocaleLowerCase('it-IT');
+  function renderList(tables: FloorTable[]): HTMLElement {
+    const grid = el('div', { class: 'floor-grid' });
+    for (const table of tables) {
+      const tile = button('', () => open(table), 'table-button');
+      tile.setAttribute('aria-label', labelFor(table));
+      tile.style.borderColor = colorFor(table);
+      tile.append(
+        el(
+          'span',
+          { class: 'floor-table-heading' },
+          el('strong', { class: 'table-number' }, table.number),
+          el('span', { class: 'floor-table-state' }, tableLabel(data, table)),
+        ),
+        el('span', { class: 'floor-table-name' }, table.name),
+        el(
+          'span',
+          { class: 'muted floor-table-meta' },
+          `${table.covers}/${table.seats} ospiti · ${table.open_accounts} conti`,
+        ),
+      );
+      if (table.waiter_name) tile.append(el('span', { class: 'muted' }, table.waiter_name));
+      grid.append(tile);
+    }
+    return grid;
+  }
   function draw(): void {
     canvas.replaceChildren();
+    const query = normalize(search.value.trim());
     const tables = data.tables.filter(
       (table) =>
         (!room.value || table.room_id === room.value) &&
-        (!zone.value || table.zone_id === zone.value),
+        (!zone.value || table.zone_id === zone.value) &&
+        (!state.value || table.technical_status === state.value) &&
+        (!query ||
+          normalize(`${table.name} ${table.number} ${table.waiter_name ?? ''}`).includes(query)),
     );
+    const metrics: [string, number][] = [
+      ['Tavoli mostrati', tables.length],
+      ['Disponibili', tables.filter((table) => table.technical_status === 'AVAILABLE').length],
+      [
+        'Conto richiesto',
+        tables.filter((table) => table.technical_status === 'WAITING_BILL').length,
+      ],
+      [
+        'Da riapparecchiare',
+        tables.filter((table) => table.technical_status === 'TO_RESET').length,
+      ],
+    ];
+    summary.replaceChildren(
+      ...metrics.map(([label, value]) =>
+        el('div', { class: 'floor-summary-item' }, el('span', {}, label), el('strong', {}, value)),
+      ),
+    );
+    result.textContent = `${tables.length} ${tables.length === 1 ? 'tavolo mostrato' : 'tavoli mostrati'}`;
     if (!tables.length) {
-      canvas.append(emptyState('Nessun tavolo in questa selezione', 'Cambia sala o zona.'));
+      canvas.append(
+        emptyState('Nessun tavolo in questa selezione', 'Modifica la ricerca o i filtri.'),
+      );
       return;
     }
     if (mode.value === 'list') {
-      const grid = el('div', { class: 'floor-grid' });
-      for (const table of tables) {
-        const tile = button('', () => open(table), 'table-button');
-        tile.setAttribute('aria-label', labelFor(table));
-        tile.style.borderColor = colorFor(table);
-        tile.append(
-          el('strong', { class: 'table-number' }, table.number),
-          el('span', {}, table.name),
-          el('span', {}, tableLabel(data, table)),
-          el(
-            'span',
-            { class: 'muted' },
-            `${table.covers}/${table.seats} ospiti · ${table.open_accounts} conti`,
-          ),
-        );
-        if (table.waiter_name) tile.append(el('span', { class: 'muted' }, table.waiter_name));
-        grid.append(tile);
-      }
-      canvas.append(grid);
+      canvas.append(renderList(tables));
       return;
     }
+    const mapped = new Set<string>();
     for (const selected of data.rooms.filter((r) => !room.value || r.id === room.value)) {
       const visible = tables.filter((table) => table.layout_id === selected.layout.id);
       if (!visible.length) continue;
+      for (const table of visible) mapped.add(table.id);
       const svg = svgElement('svg', {
         viewBox: `0 0 ${selected.layout.width} ${selected.layout.height}`,
         class: 'operational-floor',
@@ -188,8 +246,17 @@ export function floorView(data: FloorWorkspace, open: (table: FloorTable) => voi
       canvas.append(
         el(
           'section',
-          { class: 'card stack' },
-          el('h3', {}, selected.name),
+          { class: 'card stack floor-room' },
+          el(
+            'div',
+            { class: 'floor-room-heading' },
+            el('h3', {}, selected.name),
+            el(
+              'span',
+              { class: 'muted' },
+              `${visible.length} ${visible.length === 1 ? 'tavolo' : 'tavoli'}`,
+            ),
+          ),
           el(
             'div',
             {
@@ -202,41 +269,60 @@ export function floorView(data: FloorWorkspace, open: (table: FloorTable) => voi
         ),
       );
     }
+    const unmapped = tables.filter((table) => !mapped.has(table.id));
+    if (unmapped.length) {
+      canvas.append(
+        el(
+          'section',
+          { class: 'card stack floor-unmapped' },
+          el('h3', {}, 'Tavoli senza pianta disponibile'),
+          el('p', { class: 'muted' }, 'Questi tavoli restano accessibili qui in elenco.'),
+          renderList(unmapped),
+        ),
+      );
+    }
   }
   const toolbar = el(
     'div',
     { class: 'row floor-toolbar' },
+    el('label', { class: 'floor-search' }, 'Cerca', search),
     el('label', {}, 'Sala', room),
     el('label', {}, 'Zona', zone),
+    el('label', {}, 'Stato', state),
     el('label', {}, 'Visualizzazione', mode),
-    button(
-      '−',
-      () => {
-        zoom = Math.max(1, zoom - 0.25);
-        draw();
-      },
-      'secondary',
-    ),
-    button(
-      '+',
-      () => {
-        zoom = Math.min(3, zoom + 0.25);
-        draw();
-      },
-      'secondary',
-    ),
-    button(
-      'Adatta',
-      () => {
-        zoom = 1;
-        draw();
-      },
-      'quiet',
+    el(
+      'div',
+      { class: 'floor-zoom', 'aria-label': 'Dimensione della pianta' },
+      button(
+        '−',
+        () => {
+          zoom = Math.max(1, zoom - 0.25);
+          draw();
+        },
+        'secondary',
+      ),
+      button(
+        '+',
+        () => {
+          zoom = Math.min(3, zoom + 0.25);
+          draw();
+        },
+        'secondary',
+      ),
+      button(
+        'Adatta',
+        () => {
+          zoom = 1;
+          draw();
+        },
+        'quiet',
+      ),
     ),
   );
   toolbar.querySelectorAll('button')[0]?.setAttribute('aria-label', 'Riduci pianta');
   toolbar.querySelectorAll('button')[1]?.setAttribute('aria-label', 'Ingrandisci pianta');
-  for (const input of [room, zone, mode]) input.addEventListener('change', draw);
+  for (const input of [room, zone, state, mode]) input.addEventListener('change', draw);
+  search.addEventListener('input', draw);
   const legend = el('div', { class: 'floor-legend', 'aria-label': 'Legenda degli stati' });
   for (const state of [...new Set(data.tables.map((table) => table.technical_status))]) {
     const sample = data.tables.find((table) => table.technical_status === state)!;
@@ -244,7 +330,38 @@ export function floorView(data: FloorWorkspace, open: (table: FloorTable) => voi
     label.style.borderColor = colorFor(sample);
     legend.append(label);
   }
-  root.append(toolbar, legend, canvas);
+  const clear = button(
+    'Azzera filtri',
+    () => {
+      search.value = '';
+      room.value = '';
+      zone.value = '';
+      state.value = '';
+      draw();
+    },
+    'quiet',
+  );
+  root.append(
+    el(
+      'div',
+      { class: 'floor-intro' },
+      el('div', {}, el('p', { class: 'eyebrow' }, 'PANORAMICA'), el('h2', {}, 'La tua sala')),
+      el(
+        'p',
+        { class: 'muted' },
+        'Trova un tavolo e aprilo per gestire le operazioni disponibili.',
+      ),
+    ),
+    summary,
+    el(
+      'section',
+      { class: 'floor-controls', 'aria-label': 'Filtri e visualizzazione' },
+      toolbar,
+      el('div', { class: 'floor-controls-footer' }, result, clear),
+    ),
+    legend,
+    canvas,
+  );
   draw();
   return root;
 }

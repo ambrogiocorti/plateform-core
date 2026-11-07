@@ -1,0 +1,131 @@
+# Isolated validation only: never deploy, migrate, or access a hosted project.
+# Results are development evidence, not go-live approval or fiscal certification.
+name: Plateform release candidate hardening
+
+on:
+  workflow_call:
+  push:
+    branches:
+      - fix/release-candidate-hardening-20261103
+      - fix/release-edition-contracts-20261103
+      - redesign/experience-shell-20261104
+      - redesign/hospitality-workspaces-20261106
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: plateform-release-candidate-hardening-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  application:
+    if: github.repository == 'ambrogiocorti/plateform-core'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 55
+    env:
+      CI: 'true'
+      SUPABASE_TELEMETRY_DISABLED: 'true'
+    steps:
+      - name: Check out exactly the reviewed candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Node.js 24.13
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24.13.0'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Application and authorization regression suite
+        run: npm run check
+      - name: Operational behavior contracts
+        run: npm run check:operational-readiness
+      - name: Local continuity and restore-safety contracts
+        run: npm run check:continuity-isolated
+      - name: Migration promotion classifier self-tests
+        run: npm run check:migration-promotion
+      - name: Publication bootstrap and recovery source checks
+        run: |
+          npm run check:local-bootstrap
+          node scripts/check-continuity-bootstrap-recovery.mjs
+          npm run check:kitchen-admin-ux
+          npm run check:staging-release-fixtures
+          npm run format:check
+      # A failed format gate stays failed; print the exact mechanical suggestion for review.
+      - name: Explain source formatting differences without modifying the branch
+        if: failure()
+        run: |
+          node node_modules/prettier/bin/prettier.cjs --write scripts/check-hosted-release-readiness.mjs src/pages/kitchen.ts src/pages/planning.ts apps/public/main.ts apps/staff/main.ts src/pages/branding.ts src/pages/offline.ts src/pages/venues.ts src/pages/staff-context.ts src/pages/admin-operations.ts src/types/domain.ts tests/unit/domain.test.ts tests/e2e/configuration.spec.ts tests/e2e-live/room-editor-live.spec.ts tests/e2e-live/large-group-deposit-live.spec.ts tests/e2e-live/workspace-v5-live.spec.ts styles/workspace-v5.css scripts/check-admin-ux.mjs scripts/check-hospitality-ux.mjs scripts/check-step11-static.mjs scripts/check-visual-design.mjs docs/UI_REDESIGN_FROM_SCRATCH_2026-11-04.md
+          git diff -- scripts/check-hosted-release-readiness.mjs src/pages/kitchen.ts src/pages/planning.ts apps/public/main.ts apps/staff/main.ts src/pages/branding.ts src/pages/offline.ts src/pages/venues.ts src/pages/staff-context.ts src/pages/admin-operations.ts src/types/domain.ts tests/unit/domain.test.ts tests/e2e/configuration.spec.ts tests/e2e-live/room-editor-live.spec.ts tests/e2e-live/large-group-deposit-live.spec.ts tests/e2e-live/workspace-v5-live.spec.ts styles/workspace-v5.css scripts/check-admin-ux.mjs scripts/check-hospitality-ux.mjs scripts/check-step11-static.mjs scripts/check-visual-design.mjs docs/UI_REDESIGN_FROM_SCRATCH_2026-11-04.md
+      - name: Validate explicit FULL application profile
+        env:
+          VITE_PLATEFORM_EDITION: FULL
+        run: |
+          npm run test:unit
+          npm run build
+
+  database:
+    if: github.repository == 'ambrogiocorti/plateform-core'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 55
+    env:
+      CI: 'true'
+      SUPABASE_TELEMETRY_DISABLED: 'true'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24.13.0'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Verify historical SQL against the immutable manifest
+        run: npm run check:migrations
+      - name: Reproduce database policies and workflows in disposable PGlite
+        run: npm run test:db
+
+  browser:
+    if: github.repository == 'ambrogiocorti/plateform-core'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 55
+    env:
+      CI: 'true'
+      SUPABASE_TELEMETRY_DISABLED: 'true'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24.13.0'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Install browser test runtime
+        run: |
+          fc-match Arial
+          npx playwright install chromium
+      - name: Exercise public and staff journeys in Chromium
+        run: npm run test:e2e
+      - name: Preserve the redesigned interface for visual review
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: plateform-hospitality-design-review
+          path: |
+            test-results/hospitality-*.png
+            test-results/report-staff-*.png
+            test-results/report-public-*.png
+          if-no-files-found: ignore
+          retention-days: 14
+      - name: Keep diagnostic traces on failures
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: plateform-candidate-playwright-failures
+          path: test-results/
+          if-no-files-found: ignore
+          retention-days: 7

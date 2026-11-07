@@ -42,6 +42,7 @@ begin
   if not coalesce((select licensed from public.feature_flags where name='MULTI_VENUE'),false) then
     raise exception 'FEATURE_NOT_LICENSED';
   end if;
+
   if p_name is null or length(trim(p_name)) not between 1 and 160
      or p_slug is null or trim(p_slug) !~ '^[a-z0-9]+(-[a-z0-9]+)*$'
      or normalized_code !~ '^[A-Z0-9][A-Z0-9_-]{1,31}$'
@@ -53,7 +54,6 @@ begin
      or (normalized_email is not null and normalized_email !~ '^[^@[:space:]]+@[^@[:space:]]+\.[^@[:space:]]+$') then
     raise exception 'INVALID_VENUE';
   end if;
-
 
   perform pg_advisory_xact_lock(71467002);
   perform 1 from public.restaurant_profile where id for update;

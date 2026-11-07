@@ -1,10 +1,11 @@
 /**
- * Product boundary for the initial cash/POS + browser/PDF commercial edition.
- * Provider payments and Epson drivers require a separately certified release.
- * This is presentation gating only: database licensing must also deny access.
+ * CORE remains the fail-closed default. FULL exposes installed integrations;
+ * their database licence and operational configuration remain authoritative.
  */
-export const externalPaymentProvidersIncluded = false;
-export const epsonPrintingIncluded = false;
+import { commercialScopeForEdition } from '../../shared/commercial-edition.ts';
+const scope = commercialScopeForEdition(import.meta.env?.VITE_PLATEFORM_EDITION);
+export const externalPaymentProvidersIncluded = scope.externalPaymentProvidersIncluded;
+export const epsonPrintingIncluded = scope.epsonPrintingIncluded;
 
 export function permittedPaymentMethod(method: string): boolean {
   return (
@@ -42,11 +43,11 @@ export function requiresExcludedDeposit(slot: CoreBookingSlot): boolean {
 }
 
 export function permittedBookingSlots<T extends CoreBookingSlot>(slots: readonly T[]): T[] {
-  return externalPaymentProvidersIncluded
-    ? [...slots]
-    : slots.filter(
-        (slot) =>
-          (slot.status_if_booked === 'RESERVED' || slot.status_if_booked === 'REQUESTED') &&
-          !requiresExcludedDeposit(slot),
-      );
+  return slots.filter(
+    (slot) =>
+      (slot.status_if_booked === 'RESERVED' ||
+        slot.status_if_booked === 'REQUESTED' ||
+        (externalPaymentProvidersIncluded && slot.status_if_booked === 'PENDING_DEPOSIT')) &&
+      !requiresExcludedDeposit(slot),
+  );
 }

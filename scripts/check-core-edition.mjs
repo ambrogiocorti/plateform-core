@@ -86,6 +86,8 @@ const publicBooking = readFileSync('src/pages/public-booking.ts', 'utf8');
 const printing = readFileSync('src/pages/printing.ts', 'utf8');
 const accountFinance = readFileSync('src/pages/account-finance.ts', 'utf8');
 const cashPage = readFileSync('src/pages/cash.ts', 'utf8');
+const settlement = readFileSync('src/services/account-settlement.ts', 'utf8');
+const manualPayment = readFileSync('src/pages/manual-payment-resolution.ts', 'utf8');
 const providerPayments = readFileSync('src/pages/provider-payments.ts', 'utf8');
 const technicalPage = readFileSync('src/pages/technical.ts', 'utf8');
 check(() => assert.match(accountPayments, /const allowed = permittedPaymentMethods\(/));
@@ -124,7 +126,12 @@ check(() =>
     /refund\.status === 'PENDING' &&\s*!manual\(payment\.method\) &&\s*permittedPaymentMethod\(payment\.method\)/,
   ),
 );
-check(() => assert.match(cashPage, /if \(permittedPaymentMethod\(payment\.method\)\)/));
+check(() => assert.match(cashPage, /if \(mayResolveManualPayment\(payment\)\)/));
+check(() => assert.match(cashPage, /if \(mayResolveManualPayment\(pending\)\)/));
+check(() => assert.match(accountFinance, /if \(mayResolveManualPayment\(payment\)\)/));
+check(() => assert.match(settlement, /permittedPaymentMethod\(payment\.method\)/));
+check(() => assert.match(settlement, /payment\.status === 'PENDING'/));
+check(() => assert.match(manualPayment, /if \(!mayResolveManualPayment\(payment\)\) return/));
 check(() => assert.match(providerPayments, /if \(!externalPaymentProvidersIncluded\) \{/));
 check(() => assert.match(technicalPage, /FUORI PERIMETRO CORE/));
 check(() => assert.match(technicalPage, /excludedFromCore/));

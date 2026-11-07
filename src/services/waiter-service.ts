@@ -94,3 +94,16 @@ export function groupWaiterSteps<T extends WaiterKitchenItemSummary>(
       left.tableNumber - right.tableNumber,
   );
 }
+
+/**
+ * READY is the SQL step status even after a waiter claims delivery.
+ * Claimed delivery ownership is stored separately in step_deliveries.
+ * Do not show "served" until that same waiter has claimed the step.
+ */
+export function waiterDeliveryAction(
+  step: Pick<WaiterStepSummary, 'id' | 'status' | 'canDeliver'>,
+  ownClaimedStepIds: ReadonlySet<string>,
+): 'NONE' | 'CLAIM' | 'CONFIRM_SERVED' {
+  if (step.status !== 'READY' || !step.canDeliver) return 'NONE';
+  return ownClaimedStepIds.has(step.id) ? 'CONFIRM_SERVED' : 'CLAIM';
+}

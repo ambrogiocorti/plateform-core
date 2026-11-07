@@ -1,4 +1,14 @@
 import { spawn } from 'node:child_process';
+import { randomBytes } from 'node:crypto';
+import { join } from 'node:path';
+import { decryptVerified } from '../backup-worker/crypto.mjs';
+import { resolveBackupArtifact } from '../backup-worker/filesystem.mjs';
+import {
+  SECURITY_SURFACE_KEYS,
+  applyManagedOverlay,
+  managedOverlayCounts,
+  securitySurfaceState,
+} from '../backup-worker/managed-surface.mjs';
 import {
   DURABLE_PRIVATE_TABLES,
   durablePrivateStateSql,
@@ -29,6 +39,33 @@ function run(command, args, secrets = []) {
   });
 }
 
+// A fresh Supabase project ships ALTER DEFAULT PRIVILEGES that grant ALL on new
+// public tables/functions/sequences to anon and authenticated. pg_dump writes ACLs
+// relative to the built-in defaults, so without this reset every restored object
+// would silently regain privileges the migrations revoked (anon TRUNCATE, EXECUTE
+// on SECURITY DEFINER functions, ...). Clear the defaults the restoring role owns
+// inside the restore transaction; schema.sql re-applies the source defaults last.
+export const RESET_TARGET_DEFAULT_PRIVILEGES_SQL = `do $reset$
+declare r record;
+begin
+  for r in
+    select d.defaclnamespace,n.nspname,d.defaclobjtype,a.grantee
+      from pg_default_acl d
+      left join pg_namespace n on n.oid=d.defaclnamespace
+      cross join lateral aclexplode(d.defaclacl) a
+     where d.defaclrole=current_user::regrole
+       and a.grantee<>d.defaclrole
+  loop
+    execute format(
+      'alter default privileges %s revoke all on %s from %s',
+      case when r.defaclnamespace=0 then '' else 'in schema '||quote_ident(r.nspname) end,
+      case r.defaclobjtype when 'r' then 'tables' when 'S' then 'sequences'
+        when 'f' then 'functions' when 'T' then 'types' when 'n' then 'schemas' end,
+      case when r.grantee=0 then 'public' else quote_ident(r.grantee::regrole::text) end
+    );
+  end loop;
+end $reset$;`;
+
 export async function restoreDatabase(config, files) {
   // Match Supabase's documented logical restore sequence. Auth data and Storage
   // metadata are already part of data.sql; Storage object bytes are restored later.
@@ -40,6 +77,8 @@ export async function restoreDatabase(config, files) {
       'ON_ERROR_STOP=1',
       '--file',
       files.roles,
+      '--command',
+      RESET_TARGET_DEFAULT_PRIVILEGES_SQL,
       '--file',
       files.schema,
       '--command',
@@ -66,6 +105,54 @@ export async function restoreDatabase(config, files) {
     ],
     [config.targetDatabaseUrl],
   );
+}
+
+async function targetJson(config, sql) {
+  const output = await run(
+    config.psql,
+    [
+      '-X',
+      '-A',
+      '-t',
+      '--set',
+      'ON_ERROR_STOP=1',
+      '--dbname',
+      config.targetDatabaseUrl,
+      '--command',
+      sql,
+    ],
+    [config.targetDatabaseUrl],
+  );
+  return JSON.parse(output.trim() || 'null');
+}
+
+// The Storage upload API rewrites storage.objects metadata (eTag timestamps,
+// lastModified, owner) on upsert. data.sql already restored the authoritative
+// rows, so capture them before the byte upload and re-apply them afterwards;
+// bytes are proven separately by SHA-256 and metadata by its fingerprint.
+const OBJECT_COLUMNS = 'owner uuid,owner_id text,metadata jsonb,user_metadata jsonb';
+export async function captureStorageObjectRows(config) {
+  return (
+    (await targetJson(
+      config,
+      `select coalesce(jsonb_agg(jsonb_build_object('bucket_id',bucket_id,'name',name,'owner',owner,'owner_id',owner_id,'metadata',metadata,'user_metadata',user_metadata)),'[]') from storage.objects`,
+    )) ?? []
+  );
+}
+export async function reapplyStorageObjectRows(config, rows) {
+  if (!rows.length) return 0;
+  const tag = `$rows${randomBytes(8).toString('hex')}$`;
+  const payload = JSON.stringify(rows);
+  if (payload.includes(tag)) throw new Error('RESTORE_STORAGE_METADATA_PAYLOAD_INVALID');
+  const updated = await targetJson(
+    config,
+    `with r as (select * from jsonb_to_recordset(${tag}${payload}${tag}::jsonb) as x(bucket_id text,name text,${OBJECT_COLUMNS})),
+     u as (update storage.objects o set owner=r.owner,owner_id=r.owner_id,metadata=r.metadata,user_metadata=r.user_metadata
+             from r where o.bucket_id=r.bucket_id and o.name=r.name returning 1)
+     select count(*) from u`,
+  );
+  if (Number(updated) !== rows.length) throw new Error('RESTORE_STORAGE_METADATA_REAPPLY_FAILED');
+  return rows.length;
 }
 
 export async function verifyDatabase(config) {
@@ -241,5 +328,58 @@ export async function verifyPrivateState(config, expected) {
     private_durable_rows: Number(durable.row_count ?? -1),
     private_durable_hash: String(durable.aggregate_sha256 ?? ''),
     sessions: sessionsSanitized,
+  };
+}
+
+function overlayManifest(manifest) {
+  const overlay = manifest.components?.managed_overlay;
+  const surface = manifest.components?.security_surface;
+  if (
+    overlay?.policy !== 'managed-overlay-v1' ||
+    !Array.isArray(overlay.files) ||
+    !Number.isInteger(overlay.policy_count) ||
+    !Number.isInteger(overlay.trigger_count) ||
+    surface?.policy !== 'security-surface-v1' ||
+    !SECURITY_SURFACE_KEYS.every((key) => /^[0-9a-f]{64}$/.test(String(surface[key] ?? '')))
+  )
+    // Backups taken before managed-overlay-v1 cannot prove Storage policies,
+    // managed triggers or grants after restore: fail closed.
+    throw new Error('BACKUP_MANAGED_OVERLAY_MISSING');
+  return { overlay, surface };
+}
+
+// Re-applies policies/triggers that Plateform adds on Supabase-managed tables
+// (dropped by the managed-schema exclusions of the logical dump). pg_cron
+// schedules are deliberately NOT applied here: restored automation stays
+// quiesced until cutover.
+export async function restoreManagedOverlay(config, manifest, backupDir, tempDir, encryptionKey) {
+  const { overlay } = overlayManifest(manifest);
+  const meta = overlay.files.find((row) => row.file === 'managed_overlay.sql.enc');
+  if (!meta) throw new Error('BACKUP_ARTIFACT_MISSING:managed_overlay.sql');
+  const target = join(tempDir, 'managed_overlay.sql');
+  await decryptVerified(
+    await resolveBackupArtifact(backupDir, meta.file),
+    target,
+    encryptionKey,
+    meta,
+  );
+  await applyManagedOverlay(config.psql, config.targetDatabaseUrl, target);
+}
+
+export async function verifyManagedSurface(config, manifest) {
+  const { overlay, surface } = overlayManifest(manifest);
+  const counts = await managedOverlayCounts(config.psql, config.targetDatabaseUrl);
+  const actual = await securitySurfaceState(config.psql, config.targetDatabaseUrl);
+  const mismatch = SECURITY_SURFACE_KEYS.filter((key) => actual.hashes[key] !== surface[key]);
+  return {
+    managed_overlay:
+      Number(counts.policy_count) === overlay.policy_count &&
+      Number(counts.trigger_count) === overlay.trigger_count,
+    managed_policy_count: Number(counts.policy_count),
+    managed_trigger_count: Number(counts.trigger_count),
+    schedules_quiesced: Number(counts.schedule_count) === 0,
+    security_surface: mismatch.length === 0,
+    security_surface_hash: actual.hashes.aggregate_sha256,
+    ...(mismatch.length ? { security_surface_mismatch: mismatch } : {}),
   };
 }

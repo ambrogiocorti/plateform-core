@@ -11,6 +11,7 @@ import {
 import { invoiceDocument, isPdfOutput } from '../printing/invoice';
 import { safeImageUrl } from '../config/environment';
 import { permittedPrintDriver } from '../services/commercial-scope';
+import { automaticReceiptPrinter } from '../printing/default-printer';
 import type { StaffContext } from './staff-context';
 const jobSchema = z.object({
   id: z.uuid(),
@@ -36,9 +37,38 @@ export async function accountPrintAction(
       active: 'true',
     })
   ).filter((device) => permittedPrintDriver(device.driver));
+  // Direct Epson Ethernet and signed bridge printing use the same one-click UI,
+  // regardless of the operating system of the staff member's device.
+  const automaticPrinter = automaticReceiptPrinter(devices);
+  let directBusy = false;
   return button(
-    'Stampa conto',
-    () => {
+    automaticPrinter ? 'Stampa scontrino' : 'Stampa conto',
+    async () => {
+      if (automaticPrinter) {
+        if (directBusy) return;
+        directBusy = true;
+        try {
+          const result = await rpc(
+            'request_account_print',
+            {
+              p_account: account,
+              p_device: automaticPrinter.id,
+              p_kind: 'RECEIPT',
+              p_key: crypto.randomUUID(),
+            },
+            z.object({ id: z.uuid() }),
+          );
+          await processPrint(context, result.id);
+        } catch {
+          toast(
+            'Impossibile avviare la stampa. Controlla il collegamento e il registro stampe.',
+            true,
+          );
+        } finally {
+          directBusy = false;
+        }
+        return;
+      }
       const device = el(
         'select',
         { 'aria-label': 'Stampante' },

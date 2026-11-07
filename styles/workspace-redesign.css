@@ -1,0 +1,483 @@
+/* Plateform Operations / architectural refresh.
+   The workspace is a quiet operational canvas: one information hierarchy, not card-on-card UI. */
+.configuration-workspace {
+  display: grid;
+  grid-template-columns: 180px minmax(0, 1fr);
+  align-items: start;
+  gap: 28px;
+}
+.configuration-navigation {
+  display: grid;
+  gap: 3px;
+  padding-right: 16px;
+  border-right: 1px solid var(--pf-line);
+}
+.configuration-navigation .nav-link {
+  min-height: 44px;
+  padding: 11px 12px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  font-size: 12px;
+}
+.configuration-navigation [aria-current='page'] {
+  border-color: var(--pf-line);
+  background: var(--pf-surface);
+  color: var(--pf-ink);
+  font-weight: 650;
+}
+.configuration-panel {
+  min-width: 0;
+}
+.configuration-panel > .row h2 {
+  margin: 0;
+  font-size: 23px;
+}
+.configuration-toolbar {
+  display: flex;
+  align-items: end;
+  gap: 20px;
+}
+.configuration-toolbar .field {
+  width: min(100%, 400px);
+  margin: 0;
+}
+.configuration-toolbar > span {
+  padding-bottom: 12px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.configuration-collection.card {
+  padding: 0 20px;
+  box-shadow: none;
+}
+.configuration-collection .configuration-row {
+  min-height: 78px;
+  gap: 9px;
+  padding-block: 16px;
+}
+.configuration-name {
+  flex: 1 1 180px;
+  min-width: 0;
+  font-size: 14px;
+}
+.configuration-collection .button {
+  padding-inline: 10px;
+  min-height: 40px;
+  font-size: 11px;
+  box-shadow: none;
+}
+.account-directory {
+  display: grid;
+  border: 1px solid var(--pf-line);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.account-directory-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(200px, 1fr) auto;
+  align-items: center;
+  gap: 18px;
+  min-height: 90px;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--pf-line);
+  background: var(--pf-surface);
+}
+.account-directory-row:last-child {
+  border-bottom: 0;
+}
+.account-directory-row > .row {
+  justify-content: start;
+}
+.account-directory-name {
+  margin: 0;
+  font-size: 16px;
+  letter-spacing: -0.02em;
+}
+.account-directory-row > p {
+  margin: 0;
+  font-size: 12px;
+}
+.account-directory-row > .button {
+  min-height: 44px;
+  background: var(--pf-surface);
+  border-color: var(--pf-line);
+  color: var(--pf-ink);
+  box-shadow: none;
+}
+.account-directory-filters {
+  padding: 0 0 22px;
+  border-bottom: 1px solid var(--pf-line);
+}
+.account-directory-filters > .button {
+  justify-self: end;
+}
+.account-detail-header h2 {
+  margin: 0;
+  font-size: 25px;
+  font-weight: 600;
+}
+.account-detail-header .eyebrow {
+  margin-bottom: 8px;
+  color: var(--pf-muted);
+  letter-spacing: 0.04em;
+}
+.account-balance-summary {
+  overflow: hidden;
+  gap: 0;
+  border: 1px solid var(--pf-line);
+  border-radius: 8px;
+}
+.account-balance-summary .card {
+  padding: 18px 22px;
+  border: 0;
+  border-right: 1px solid var(--pf-line);
+  border-radius: 0;
+  box-shadow: none;
+}
+.account-balance-summary .card:last-child {
+  border-right: 0;
+  background: var(--pf-surface-2);
+}
+.account-balance-summary p {
+  margin-bottom: 5px;
+  font-size: 12px;
+}
+.account-balance-summary .amount {
+  font-size: clamp(24px, 2.8vw, 34px);
+  font-weight: 600;
+}
+.account-detail-actions {
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--pf-line);
+}
+.account-detail-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(300px, 1fr);
+  align-items: start;
+  gap: 24px;
+}
+.account-detail-body:not(:has(.account-detail-finance)) {
+  grid-template-columns: minmax(0, 1fr);
+}
+.account-detail-body > * {
+  min-width: 0;
+}
+@media (max-width: 1000px) {
+  .account-detail-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 760px) {
+  .configuration-workspace {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+  }
+  .configuration-navigation {
+    display: flex;
+    overflow-x: auto;
+    gap: 5px;
+    padding: 0 0 10px;
+    border-right: 0;
+    border-bottom: 1px solid var(--pf-line);
+  }
+  .configuration-navigation .nav-link {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+  .configuration-toolbar {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .configuration-toolbar > span {
+    padding: 0;
+  }
+  .account-directory-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding: 16px;
+    gap: 9px;
+  }
+  .account-directory-row > p {
+    grid-column: 1;
+  }
+  .account-directory-row > .button {
+    grid-column: 2;
+    grid-row: 1 / 3;
+  }
+}
+.workspace {
+  width: min(100%, 1640px);
+  max-width: none;
+  margin-inline: auto;
+  padding: clamp(25px, 2.65vw, 47px);
+}
+.workspace-page-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 18px 28px;
+  margin: 0 0 clamp(24px, 3vw, 40px);
+  padding: 0 0 20px;
+  border: 0;
+  border-bottom: 1px solid var(--pf-line);
+  background: transparent;
+}
+.workspace-title-group {
+  min-width: 0;
+}
+.workspace-breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 13px;
+  color: var(--pf-muted);
+  font-size: 11px;
+  font-weight: 600;
+}
+.workspace-breadcrumb strong {
+  color: var(--pf-ink);
+  font-weight: 730;
+}
+.workspace-page-heading .eyebrow {
+  margin: 0 0 9px;
+  color: var(--pf-muted);
+  font-size: 11px;
+  text-transform: capitalize;
+  letter-spacing: 0.02em;
+}
+.workspace-page-heading h1 {
+  margin: 0 0 9px;
+  color: var(--pf-ink);
+  font-size: clamp(32px, 3.2vw, 52px);
+  line-height: 1.07;
+  font-weight: 710;
+  letter-spacing: -0.06em;
+}
+.workspace-subtitle {
+  margin: 0;
+  color: var(--pf-muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.workspace-heading-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+.workspace-heading-actions .button {
+  min-height: 43px;
+  padding: 10px 15px;
+  font-size: 12px;
+  border-radius: 10px;
+}
+.workspace-heading-actions .button:last-child {
+  border-color: var(--pf-control-border);
+}
+.workspace-context-tabs {
+  display: flex;
+  grid-column: 1 / -1;
+  gap: 0;
+  align-items: center;
+  overflow-x: auto;
+  width: 100%;
+  margin: 10px 0 -21px;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid var(--pf-line);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  scrollbar-width: thin;
+}
+.workspace-context-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  min-height: 51px;
+  padding: 13px clamp(12px, 1.4vw, 22px);
+  border: 0;
+  border-bottom: 3px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  color: var(--pf-muted);
+  font-size: 12px;
+  font-weight: 650;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.workspace-context-link:hover {
+  color: var(--pf-ink);
+  background: color-mix(in srgb, var(--pf-ink) 3%, transparent);
+}
+.workspace-context-link.is-current {
+  color: var(--pf-ink);
+  background: transparent;
+  border-bottom-color: var(--pf-blue);
+  box-shadow: none;
+  font-weight: 780;
+}
+.kds-workspace {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  padding: clamp(22px, 2.4vw, 35px);
+  background: var(--pf-surface);
+  border: 1px solid var(--pf-line);
+  border-radius: 13px;
+}
+.kds-workspace-header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 24px;
+}
+.kds-workspace-header h2 {
+  margin: 7px 0;
+  font-size: clamp(24px, 2.65vw, 36px);
+  font-weight: 690;
+  letter-spacing: -0.045em;
+}
+.kds-workspace-header p:not(.eyebrow) {
+  color: var(--pf-muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.kds-overview-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(65px, 1fr));
+  min-width: min(100%, 430px);
+  gap: 0;
+  border: 1px solid var(--pf-line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.kds-overview-strip > div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+  padding: 14px 9px;
+  border-right: 1px solid var(--pf-line);
+  background: var(--pf-background);
+  text-align: center;
+}
+.kds-overview-strip > div:last-child {
+  border-right: 0;
+}
+.kds-overview-strip strong {
+  color: var(--pf-ink);
+  font-size: 25px;
+  font-weight: 730;
+  line-height: 1;
+}
+.kds-overview-strip span {
+  color: var(--pf-muted);
+  font-size: 10px;
+}
+.kds-filter-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  padding: 0 0 18px;
+  border-bottom: 1px solid var(--pf-line);
+}
+.kds-filter-actions .button {
+  min-height: 39px;
+  padding: 8px 14px;
+  background: transparent;
+  border-radius: 9px;
+  font-size: 12px;
+}
+.kds-filter-actions .button[aria-pressed='true'] {
+  color: var(--pf-on-blue);
+  background: var(--pf-blue);
+  border-color: var(--pf-blue);
+}
+.kds-workspace .kitchen-grid {
+  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+  gap: 16px;
+}
+.kds-workspace .kds-ticket {
+  background: var(--pf-surface);
+  border: 1px solid var(--pf-line);
+  border-radius: 12px;
+  box-shadow: none;
+  overflow: hidden;
+}
+.kds-workspace .kds-ticket-head {
+  padding: 17px;
+  border-bottom: 1px solid var(--pf-line);
+}
+.kds-workspace .kds-ticket.is-critical {
+  border-left: 4px solid var(--pf-danger);
+}
+.kds-workspace .kds-ticket.is-warning {
+  border-left: 4px solid var(--pf-warning);
+}
+.kds-workspace .kds-ticket.is-normal {
+  border-left: 4px solid var(--pf-blue);
+}
+.kds-workspace .kds-step-summary {
+  padding: 12px 17px;
+  background: var(--pf-background);
+  color: var(--pf-muted);
+}
+.kds-workspace .kitchen-line {
+  padding: 17px;
+}
+.kds-workspace .kitchen-line h3 {
+  font-size: 17px;
+}
+@media (max-width: 980px) {
+  .kds-workspace-header {
+    flex-direction: column;
+  }
+}
+@media (max-width: 640px) {
+  .workspace {
+    padding: 22px 16px 104px;
+  }
+  .workspace-page-heading {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding-bottom: 0;
+    margin-bottom: 23px;
+  }
+  .workspace-page-heading h1 {
+    font-size: 33px;
+  }
+  .workspace-heading-actions {
+    justify-content: flex-start;
+  }
+  .workspace-context-tabs {
+    grid-column: 1;
+    margin-top: 0;
+  }
+  .workspace-context-link {
+    min-height: 44px;
+    padding: 11px 13px;
+  }
+  .kds-workspace {
+    padding: 17px;
+  }
+  .kds-overview-strip {
+    width: 100%;
+    min-width: 0;
+  }
+  .kds-overview-strip > div {
+    padding: 10px 5px;
+  }
+  .kds-overview-strip strong {
+    font-size: 21px;
+  }
+}
+@media print {
+  .workspace-context-tabs,
+  .workspace-heading-actions,
+  .kds-filter-actions {
+    display: none !important;
+  }
+}

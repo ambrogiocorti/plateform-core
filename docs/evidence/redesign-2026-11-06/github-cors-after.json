@@ -1,0 +1,321 @@
+{
+  "checked_at": "2026-11-06T00:12:47.236Z",
+  "project_ref": "qfgoatdabgnzozxuzxku",
+  "additional_origins_sha256": "78fc01054f7526ab4b06f933f7c167845b30aa95005fdcb7af59e719a7282141",
+  "base_origins_sha256": "76c5a075b3a99dca191d6df19e70c1f9421a065a050a950cb78f1e82d8b4da0d",
+  "results": [
+    {
+      "origin": "https://plateform-development-git-fix-releas-94ed70-sambrogiocorti-5259.vercel.app",
+      "probes": [
+        {
+          "endpoint": "public-telemetry",
+          "status": 204,
+          "allowed_origin": "https://plateform-development-git-fix-releas-94ed70-sambrogiocorti-5259.vercel.app",
+          "pass": true
+        },
+        {
+          "endpoint": "reservation",
+          "status": 204,
+          "allowed_origin": "https://plateform-development-git-fix-releas-94ed70-sambrogiocorti-5259.vercel.app",
+          "pass": true
+        },
+        {
+          "endpoint": "customer-session",
+          "status": 204,
+          "allowed_origin": "https://plateform-development-git-fix-releas-94ed70-sambrogiocorti-5259.vercel.app",
+          "pass": true
+        },
+        {
+          "endpoint": "staff-admin",
+          "status": 204,
+          "allowed_origin": "https://plateform-development-git-fix-releas-94ed70-sambrogiocorti-5259.vercel.app",
+          "pass": true
+        },
+        {
+          "endpoint": "step-up",
+          "status": 204,
+          "allowed_origin": "https://plateform-development-git-fix-releas-94ed70-sambrogiocorti-5259.vercel.app",
+          "pass": true
+        },
+        {
+          "endpoint": "offline-authorization",
+          "status": 204,
+          "allowed_origin": "https://plateform-development-git-fix-releas-94ed70-sambrogiocorti-5259.vercel.app",
+          "pass": true
+        },
+        {
+          "endpoint": "reservation-deposit",
+          "status": 204,
+          "allowed_origin": "https://plateform-development-git-fix-releas-94ed70-sambrogiocorti-5259.vercel.app",
+          "pass": true
+        },
+        {
+          "endpoint": "payments",
+          "status": 204,
+          "allowed_origin": "https://plateform-development-git-fix-releas-94ed70-sambrogiocorti-5259.vercel.app",
+          "pass": true
+        },
+        {
+          "endpoint": "asset-upload",
+          "status": 204,
+          "allowed_origin": "https://plateform-development-git-fix-releas-94ed70-sambrogiocorti-5259.vercel.app",
+          "pass": true
+        },
+        {
+          "endpoint": "health-probe",
+          "status": 204,
+          "allowed_origin": "https://plateform-development-git-fix-releas-94ed70-sambrogiocorti-5259.vercel.app",
+          "pass": true
+        },
+        {
+          "endpoint": "maintenance",
+          "status": 204,
+          "allowed_origin": "https://plateform-development-git-fix-releas-94ed70-sambrogiocorti-5259.vercel.app",
+          "pass": true
+        },
+        {
+          "endpoint": "print-authorization",
+          "status": 204,
+          "allowed_origin": "https://plateform-development-git-fix-releas-94ed70-sambrogiocorti-5259.vercel.app",
+          "pass": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "origin": "https://plateform-development-git-redesign-e-d8ae9a-sambrogiocorti-5259.vercel.app",
+      "probes": [
+        {
+          "endpoint": "public-telemetry",
+          "status": 204,
+          "allowed_origin": "https://plateform-development-git-redesign-e-d8ae9a-sambrogiocorti-5259.vercel.app",
+          "pass": true
+        },
+        {
+          "endpoint": "reservation",
+          "status": 204,
+          "allowed_origin": "https://plateform-development-git-redesign-e-d8ae9a-sambrogiocorti-5259.vercel.app",
+          "pass": true
+        },
+        {
+          "endpoint": "customer-session",
+          "status": 204,
+          "allowed_origin": "https://plateform-development-git-redesign-e-d8ae9a-sambrogiocorti-5259.vercel.app",
+          "pass": true
+        },
+        {
+          "endpoint": "staff-admin",
+          "status": 204,
+          "allowed_origin": "https://plateform-development-git-redesign-e-d8ae9a-sambrogiocorti-5259.vercel.app",
+          "pass": true
+        },
+        {
+          "endpoint": "step-up",
+          "status": 204,
+          "allowed_origin": "https://plateform-development-git-redesign-e-d8ae9a-sambrogiocorti-5259.vercel.app",
+          "pass": true
+        },
+        {
+          "endpoint": "offline-authorization",
+          "status": 204,
+          "allowed_origin": "https://plateform-development-git-redesign-e-d8ae9a-sambrogiocorti-5259.vercel.app",
+          "pass": true
+        },
+        {
+          "endpoint": "reservation-deposit",
+          "status": 204,
+          "allowed_origin": "https://plateform-development-git-redesign-e-d8ae9a-sambrogiocorti-5259.vercel.app",
+          "pass": true
+        },
+        {
+          "endpoint": "payments",
+          "status": 204,
+          "allowed_origin": "https://plateform-development-git-redesign-e-d8ae9a-sambrogiocorti-5259.vercel.app",
+          "pass": true
+        },
+        {
+          "endpoint": "asset-upload",
+          "status": 204,
+          "allowed_origin": "https://plateform-development-git-redesign-e-d8ae9a-sambrogiocorti-5259.vercel.app",
+          "pass": true
+        },
+        {
+          "endpoint": "health-probe",
+          "status": 204,
+          "allowed_origin": "https://plateform-development-git-redesign-e-d8ae9a-sambrogiocorti-5259.vercel.app",
+          "pass": true
+        },
+        {
+          "endpoint": "maintenance",
+          "status": 204,
+          "allowed_origin": "https://plateform-development-git-redesign-e-d8ae9a-sambrogiocorti-5259.vercel.app",
+          "pass": true
+        },
+        {
+          "endpoint": "print-authorization",
+          "status": 204,
+          "allowed_origin": "https://plateform-development-git-redesign-e-d8ae9a-sambrogiocorti-5259.vercel.app",
+          "pass": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "origin": "https://ambrogiocorti.github.io",
+      "probes": [
+        {
+          "endpoint": "public-telemetry",
+          "status": 204,
+          "allowed_origin": "https://ambrogiocorti.github.io",
+          "pass": true
+        },
+        {
+          "endpoint": "reservation",
+          "status": 204,
+          "allowed_origin": "https://ambrogiocorti.github.io",
+          "pass": true
+        },
+        {
+          "endpoint": "customer-session",
+          "status": 204,
+          "allowed_origin": "https://ambrogiocorti.github.io",
+          "pass": true
+        },
+        {
+          "endpoint": "staff-admin",
+          "status": 204,
+          "allowed_origin": "https://ambrogiocorti.github.io",
+          "pass": true
+        },
+        {
+          "endpoint": "step-up",
+          "status": 204,
+          "allowed_origin": "https://ambrogiocorti.github.io",
+          "pass": true
+        },
+        {
+          "endpoint": "offline-authorization",
+          "status": 204,
+          "allowed_origin": "https://ambrogiocorti.github.io",
+          "pass": true
+        },
+        {
+          "endpoint": "reservation-deposit",
+          "status": 204,
+          "allowed_origin": "https://ambrogiocorti.github.io",
+          "pass": true
+        },
+        {
+          "endpoint": "payments",
+          "status": 204,
+          "allowed_origin": "https://ambrogiocorti.github.io",
+          "pass": true
+        },
+        {
+          "endpoint": "asset-upload",
+          "status": 204,
+          "allowed_origin": "https://ambrogiocorti.github.io",
+          "pass": true
+        },
+        {
+          "endpoint": "health-probe",
+          "status": 204,
+          "allowed_origin": "https://ambrogiocorti.github.io",
+          "pass": true
+        },
+        {
+          "endpoint": "maintenance",
+          "status": 204,
+          "allowed_origin": "https://ambrogiocorti.github.io",
+          "pass": true
+        },
+        {
+          "endpoint": "print-authorization",
+          "status": 204,
+          "allowed_origin": "https://ambrogiocorti.github.io",
+          "pass": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "origin": "https://untrusted.example",
+      "probes": [
+        {
+          "endpoint": "public-telemetry",
+          "status": 403,
+          "allowed_origin": null,
+          "pass": true
+        },
+        {
+          "endpoint": "reservation",
+          "status": 403,
+          "allowed_origin": null,
+          "pass": true
+        },
+        {
+          "endpoint": "customer-session",
+          "status": 403,
+          "allowed_origin": null,
+          "pass": true
+        },
+        {
+          "endpoint": "staff-admin",
+          "status": 403,
+          "allowed_origin": null,
+          "pass": true
+        },
+        {
+          "endpoint": "step-up",
+          "status": 403,
+          "allowed_origin": null,
+          "pass": true
+        },
+        {
+          "endpoint": "offline-authorization",
+          "status": 403,
+          "allowed_origin": null,
+          "pass": true
+        },
+        {
+          "endpoint": "reservation-deposit",
+          "status": 403,
+          "allowed_origin": null,
+          "pass": true
+        },
+        {
+          "endpoint": "payments",
+          "status": 403,
+          "allowed_origin": null,
+          "pass": true
+        },
+        {
+          "endpoint": "asset-upload",
+          "status": 403,
+          "allowed_origin": null,
+          "pass": true
+        },
+        {
+          "endpoint": "health-probe",
+          "status": 403,
+          "allowed_origin": null,
+          "pass": true
+        },
+        {
+          "endpoint": "maintenance",
+          "status": 403,
+          "allowed_origin": null,
+          "pass": true
+        },
+        {
+          "endpoint": "print-authorization",
+          "status": 403,
+          "allowed_origin": null,
+          "pass": true
+        }
+      ],
+      "passed": true
+    }
+  ],
+  "passed": true
+}

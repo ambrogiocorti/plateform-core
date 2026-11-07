@@ -9,6 +9,7 @@ import {
   permittedPaymentMethods,
   permittedPrintDriver,
   permittedPrintDrivers,
+  epsonPrintingIncluded,
 } from '../services/commercial-scope';
 
 const record = z.record(z.string(), z.unknown());
@@ -247,7 +248,9 @@ export async function operationalSettingsPage(context: StaffContext): Promise<HT
     el(
       'p',
       { class: 'muted' },
-      'Edizione CORE: stampa via browser/PDF. Driver Epson e bridge non inclusi.',
+      epsonPrintingIncluded
+        ? 'Stampa browser/PDF o stampanti Epson abilitate per la sede. I documenti sono non fiscali.'
+        : 'Edizione CORE: stampa via browser/PDF. Driver Epson e bridge non inclusi.',
     ),
   );
   for (const register of registers)
@@ -397,7 +400,9 @@ async function printerConfiguration(context: StaffContext): Promise<HTMLElement>
       el(
         'p',
         { class: 'muted' },
-        'Questa edizione include soltanto la stampa tramite browser e PDF.',
+        epsonPrintingIncluded
+          ? 'Per Epson o bridge servono la licenza di stampa, un collegamento HTTPS configurato e una stampa di prova.'
+          : 'Questa edizione include soltanto la stampa tramite browser e PDF.',
       ),
       roles.root,
       el('label', {}, active, 'Stampante attiva'),

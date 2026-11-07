@@ -1,3 +1,4 @@
+
 create or replace function public.get_admin_operational_overview(p_venue uuid)
 returns jsonb
 language plpgsql
@@ -32,10 +33,38 @@ begin
       'to_reset',(select count(*)::integer from public.tables t where t.venue_id=p_venue and t.active and t.technical_status='TO_RESET')
     ),
     'kitchen',jsonb_build_object(
-      'active_items',(select count(*)::integer from public.order_items i join public.orders o on o.id=i.order_id join public.accounts a on a.id=o.account_id where i.venue_id=p_venue and i.status not in ('SERVED','CANCELLED') and a.floor_released_at is null),
-      'ready',(select count(*)::integer from public.order_items i join public.orders o on o.id=i.order_id join public.accounts a on a.id=o.account_id where i.venue_id=p_venue and i.status='READY' and a.floor_released_at is null),
-      'delayed',(select count(*)::integer from public.order_items i join public.orders o on o.id=i.order_id join public.accounts a on a.id=o.account_id where i.venue_id=p_venue and i.status not in ('SERVED','CANCELLED') and a.floor_released_at is null and o.created_at <= now()-interval '10 minutes'),
-      'critical',(select count(*)::integer from public.order_items i join public.orders o on o.id=i.order_id join public.accounts a on a.id=o.account_id where i.venue_id=p_venue and i.status not in ('SERVED','CANCELLED') and a.floor_released_at is null and o.created_at <= now()-interval '20 minutes')
+      'active_items',(
+        select count(*)::integer
+        from public.order_items i
+        join public.orders o on o.id=i.order_id
+        join public.accounts a on a.id=o.account_id
+        where i.venue_id=p_venue and i.status not in ('SERVED','CANCELLED') and a.floor_released_at is null
+      ),
+      'ready',(
+        select count(*)::integer
+        from public.order_items i
+        join public.orders o on o.id=i.order_id
+        join public.accounts a on a.id=o.account_id
+        where i.venue_id=p_venue and i.status='READY' and a.floor_released_at is null
+      ),
+      'delayed',(
+        select count(*)::integer
+        from public.order_items i
+        join public.orders o on o.id=i.order_id
+        join public.accounts a on a.id=o.account_id
+        where i.venue_id=p_venue and i.status not in ('SERVED','CANCELLED')
+          and a.floor_released_at is null
+          and o.created_at <= now()-interval '10 minutes'
+      ),
+      'critical',(
+        select count(*)::integer
+        from public.order_items i
+        join public.orders o on o.id=i.order_id
+        join public.accounts a on a.id=o.account_id
+        where i.venue_id=p_venue and i.status not in ('SERVED','CANCELLED')
+          and a.floor_released_at is null
+          and o.created_at <= now()-interval '20 minutes'
+      )
     ),
     'reservations',jsonb_build_object(
       'today',(select count(*)::integer from public.reservations r where r.venue_id=p_venue and r.service_date=local_date and r.status not in ('CANCELLED','NO_SHOW')),
@@ -54,8 +83,21 @@ begin
       'pending_reconciliations',(select count(*)::integer from public.cash_reconciliation_requests r where r.venue_id=p_venue and r.status='PENDING')
     ),
     'attention',jsonb_build_object(
-      'notifications',(select count(*)::integer from public.notifications n where n.venue_id=p_venue and n.status in ('NEW','ACKNOWLEDGED') and (n.recipient_user_id=actor or n.recipient_role='ADMIN')),
-      'high_notifications',(select count(*)::integer from public.notifications n where n.venue_id=p_venue and n.status in ('NEW','ACKNOWLEDGED') and n.priority in ('INCIDENT','CRITICAL') and (n.recipient_user_id=actor or n.recipient_role='ADMIN')),
+      'notifications',(
+        select count(*)::integer
+        from public.notifications n
+        where n.venue_id=p_venue
+          and n.status in ('NEW','ACKNOWLEDGED')
+          and (n.recipient_user_id=actor or n.recipient_role='ADMIN')
+      ),
+      'high_notifications',(
+        select count(*)::integer
+        from public.notifications n
+        where n.venue_id=p_venue
+          and n.status in ('NEW','ACKNOWLEDGED')
+          and n.priority in ('INCIDENT','CRITICAL')
+          and (n.recipient_user_id=actor or n.recipient_role='ADMIN')
+      ),
       'conflicts',(select count(*)::integer from public.sync_conflicts c where c.venue_id=p_venue and c.status='OPEN'),
       'failed_prints',(select count(*)::integer from public.print_jobs p where p.venue_id=p_venue and p.status='FAILED'),
       'queued_prints',(select count(*)::integer from public.print_jobs p where p.venue_id=p_venue and p.status in ('QUEUED','SENT')),

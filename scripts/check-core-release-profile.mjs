@@ -1,3 +1,4 @@
+import { masterSpecificationDigest } from './master-requirements.mjs';
 import assert from 'node:assert/strict';
 import {
   releaseProblems,
@@ -8,10 +9,12 @@ import {
 
 const digest = 'a'.repeat(64);
 const allVerified = {
-  sections: Array.from({ length: 151 }, (_, section) => ({ section, status: 'verified' })),
+  specification_sha256: masterSpecificationDigest,
+  sections: Array.from({ length: 158 }, (_, section) => ({ section, status: 'verified' })),
 };
 const evidence = (edition = 'CORE') => ({
   edition,
+  build_edition: edition,
   source_digest: digest,
   version: '1.0.0',
   local_checks: Object.fromEntries(
@@ -63,7 +66,7 @@ check(() => assert.ok(releaseProblems(core, evidence('FULL'), digest).length > 0
 const altered = structuredClone(core);
 altered.sections[91].status = 'out_of_scope_core';
 check(() =>
-  assert.ok(releaseProblems(altered, evidence(), digest).some((x) => x.includes('151 sezioni'))),
+  assert.ok(releaseProblems(altered, evidence(), digest).some((x) => x.includes('158 sezioni'))),
 );
 for (const required of requiredCoreIntegrationChecks) {
   const record = evidence();

@@ -115,10 +115,14 @@ export function loginPage(onComplete: () => Promise<void>): HTMLElement {
   const submit = el('button', { type: 'submit', class: 'button primary' }, 'Accedi al servizio');
   const form = el(
     'form',
-    { class: 'login-form' },
-    el('p', { class: 'eyebrow' }, 'Area riservata'),
+    { class: 'login-form-v5' },
+    el('p', { class: 'eyebrow' }, 'Accesso personale'),
     el('h2', {}, 'Bentornato.'),
-    el('p', { class: 'muted' }, 'Il tuo spazio, prima e durante il servizio.'),
+    el(
+      'p',
+      { class: 'muted login-form-intro' },
+      'Accedi alla tua postazione per iniziare il servizio.',
+    ),
     identity.root,
     password.root,
     feedback,
@@ -174,20 +178,48 @@ export function loginPage(onComplete: () => Promise<void>): HTMLElement {
   });
   return el(
     'main',
-    { id: 'main', class: 'login-layout' },
+    { id: 'main', class: 'login-layout login-layout-v5', tabindex: '-1' },
     el(
-      'section',
-      { class: 'login-story' },
-      el('a', { href: '/', class: 'brand' }, 'Plateform'),
+      'aside',
+      { class: 'login-story', 'aria-label': 'Plateform' },
+      el(
+        'a',
+        { href: '/', class: 'brand login-brand' },
+        el('span', { class: 'login-brand-symbol', 'aria-hidden': 'true' }, 'P'),
+        el('span', {}, 'Plateform'),
+      ),
       el(
         'div',
-        {},
-        el('p', { class: 'eyebrow' }, 'People. Food. Service. Together.'),
-        el('h1', {}, 'Ogni dettaglio.', el('br'), el('span', {}, 'Un grande servizio.')),
+        { class: 'login-story-content' },
+        el('p', { class: 'eyebrow' }, 'AREA PERSONALE'),
+        el('h1', {}, 'Accesso al servizio'),
+        el('p', { class: 'login-story-lead' }, 'Il tuo ristorante, nello stesso spazio di lavoro.'),
+        el(
+          'ul',
+          { class: 'login-areas', 'aria-label': 'Aree di lavoro' },
+          el('li', {}, el('span', {}, '01'), 'Sala e accoglienza'),
+          el('li', {}, el('span', {}, '02'), 'Cucina e servizio'),
+          el('li', {}, el('span', {}, '03'), 'Conti e cassa'),
+        ),
       ),
-      el('footer', { class: 'muted' }, 'Restaurant operating system'),
+      el('p', { class: 'login-story-footer' }, 'Restaurant operating system'),
     ),
-    el('section', { class: 'login-panel' }, form),
+    el(
+      'section',
+      { class: 'login-panel' },
+      el(
+        'div',
+        { class: 'login-panel-content' },
+        el(
+          'div',
+          { class: 'login-panel-topline' },
+          el('span', {}, 'PLATEFORM'),
+          el('span', {}, 'Accesso staff'),
+        ),
+        form,
+        el('p', { class: 'login-panel-security' }, 'Area riservata al personale autorizzato.'),
+      ),
+    ),
   );
 }
 

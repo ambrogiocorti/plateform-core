@@ -1,0 +1,83 @@
+name: Epson TM-T20III USB candidate checks
+
+on:
+  push:
+    branches:
+      - feature/epson-tmt20iii-usb-20261103
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      CI: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.13.0'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Format isolated changes
+        run: |
+          node node_modules/prettier/bin/prettier.cjs --write tools/print-bridge/service.ts tools/print-bridge/usb-print.ts tools/print-bridge/config.windows-usb.example.json src/pages/printing.ts tests/unit/usb-escpos.test.ts src/printing/default-printer.ts tests/unit/default-printer.test.ts tools/print-bridge/config.ethernet.example.json
+          if ! git diff --quiet; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add -- tools/print-bridge/service.ts tools/print-bridge/usb-print.ts tools/print-bridge/config.windows-usb.example.json src/pages/printing.ts tests/unit/usb-escpos.test.ts src/printing/default-printer.ts tests/unit/default-printer.test.ts tools/print-bridge/config.ethernet.example.json
+            git commit -m 'style(print): format isolated Epson USB candidate'
+            git push origin "HEAD:$GITHUB_REF"
+          fi
+      - name: Verify formatting
+        run: node node_modules/prettier/bin/prettier.cjs --check tools/print-bridge/service.ts tools/print-bridge/usb-print.ts tools/print-bridge/config.windows-usb.example.json src/pages/printing.ts tests/unit/usb-escpos.test.ts src/printing/default-printer.ts tests/unit/default-printer.test.ts tools/print-bridge/config.ethernet.example.json
+      - name: TypeScript
+        if: success() || failure()
+        run: npm run typecheck
+      - name: Receipt, bridge and regressions
+        if: success() || failure()
+        run: npm run test:unit
+      - name: Preserve CORE edition gate
+        if: success() || failure()
+        run: npm run check:core-edition
+      - name: Browser and staff builds
+        if: success() || failure()
+        run: npm run build
+
+  windows-smoke:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fail closed when the Windows printer queue is unavailable
+        shell: cmd
+        run: |
+          @echo off
+          echo G0AKHVYB | powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File tools\\print-bridge\\win-raw-print.ps1 -PrinterName PLATEFORM_TEST_QUEUE_NOT_INSTALLED 2> raw-print-error.txt
+          if not "%errorlevel%"=="1" exit /b 2
+          findstr /C:"RAW_PRINT_FAILED" raw-print-error.txt
+
+  cross-platform:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    env:
+      CI: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.13.0'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: TypeScript
+        run: npm run typecheck
+      - name: Test cross-platform ePOS receipt selection and encoding
+        run: npx vitest run tests/unit/default-printer.test.ts tests/unit/printing.test.ts tests/unit/usb-escpos.test.ts

@@ -28,13 +28,11 @@ declare
   result jsonb;
 begin
   perform private.authorize(null,array['SUPER_ADMIN']::public.user_role[]);
+  perform private.consume_step_up(p_grant,'FEATURE_CHANGE');
 
   if p_key is null or p_values is null or jsonb_typeof(p_values)<>'object' or p_values='{}'::jsonb then
     raise exception 'INVALID_REQUEST';
   end if;
-
-  perform private.consume_step_up(p_grant,'FEATURE_CHANGE');
-
   if exists(
     select 1 from jsonb_object_keys(p_values) k
     where k not in (
@@ -78,7 +76,7 @@ begin
      or next_code is null or next_code !~ '^[A-Z0-9][A-Z0-9_-]{1,31}$'
      or next_address is null or length(next_address) not between 3 and 500
      or next_phone is null or length(next_phone) not between 3 and 40
-     or (next_email is not null and next_email !~ '^[^@[:space:]]+@[^@[:space:]]+\.[^@[:space:]]+$')
+     or next_email is not null and next_email !~ '^[^@[:space:]]+@[^@[:space:]]+\.[^@[:space:]]+$'
      or next_opening_hours is null or jsonb_typeof(next_opening_hours)<>'object'
      or pg_column_size(next_opening_hours)>32768
      or next_timezone is null or not exists(select 1 from pg_catalog.pg_timezone_names where name=next_timezone)

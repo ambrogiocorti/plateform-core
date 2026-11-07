@@ -10,7 +10,18 @@ export function el<K extends keyof HTMLElementTagNameMap>(
   for (const [name, value] of Object.entries(attributes)) {
     if (name.startsWith('on') || name === 'innerHTML' || name === 'srcdoc')
       throw new Error('Unsafe attribute');
-    element.setAttribute(name, value);
+    // Rewrite absolute internal anchors in public GitHub Pages project previews.
+    const base = import.meta.env.BASE_URL;
+    const localPublicLink =
+      tag === 'a' &&
+      name === 'href' &&
+      import.meta.env.PLATEFORM_AREA === 'public' &&
+      typeof base === 'string' &&
+      base !== '/' &&
+      value.startsWith('/') &&
+      !value.startsWith('//') &&
+      !value.startsWith(base);
+    element.setAttribute(name, localPublicLink ? `${base.replace(/\/$/, '')}${value}` : value);
   }
   for (const child of children)
     if (child !== null && child !== undefined && child !== false)
@@ -58,35 +69,100 @@ export function loading(): HTMLElement {
 }
 export function showError(error: unknown): void {
   const failure = safeError(error);
-  toast(`${failure.message} · Rif. ${failure.requestId.slice(0, 8)}`, true);
+  toast(failure.message, true, failure.requestId);
 }
-export function toast(message: string, isError = false): void {
+export function dismissControl(label: string, action: () => void): HTMLButtonElement {
+  const control = button('', action, 'quiet');
+  control.classList.add('dismiss-control');
+  control.setAttribute('aria-label', label);
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('stroke', 'currentColor');
+  svg.setAttribute('stroke-width', '1.7');
+  svg.setAttribute('aria-hidden', 'true');
+  const shape = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  shape.setAttribute('d', 'm6 6 12 12 M18 6 6 18');
+  svg.append(shape);
+  control.append(svg);
+  return control;
+}
+export function toast(message: string, isError = false, requestId?: string): void {
   let region = document.getElementById('toasts');
   if (!region) {
     region = el('div', { id: 'toasts', class: 'toasts', 'aria-live': 'polite' });
-    document.body.append(region);
   }
+  placeFeedback(region);
+  if (
+    requestId &&
+    [...region.children].some((item) => (item as HTMLElement).dataset.requestId === requestId)
+  )
+    return;
+  // A form shows its current validation state, rather than accumulating errors
+  // from earlier attempts that the operator has already corrected.
+  if (region.parentElement instanceof HTMLDialogElement) region.replaceChildren();
   const item = el(
     'div',
     { class: `toast ${isError ? 'error' : ''}`, role: isError ? 'alert' : 'status' },
-    message,
+    el('span', { class: 'toast-icon', 'aria-hidden': 'true' }, isError ? '!' : '✓'),
+    el(
+      'div',
+      { class: 'toast-content' },
+      el('strong', { class: 'toast-title' }, isError ? 'Attenzione' : 'Confermato'),
+      el('p', { class: 'toast-message' }, message),
+      requestId
+        ? el('span', { class: 'toast-reference' }, `Riferimento ${requestId.slice(0, 8)}`)
+        : null,
+    ),
   );
-  item.append(button('Chiudi', () => item.remove(), 'quiet'));
+  if (requestId) item.dataset.requestId = requestId;
+  item.append(dismissControl('Nascondi avviso', () => item.remove()));
   region.append(item);
+  while (region.children.length > 3) region.firstElementChild?.remove();
   if (!isError) setTimeout(() => item.remove(), 7000);
+}
+function placeFeedback(region: HTMLElement): void {
+  const host = [...document.querySelectorAll<HTMLDialogElement>('dialog[open]')].at(-1);
+  if (host) {
+    const heading = host.querySelector(':scope > .dialog-heading');
+    host.insertBefore(region, heading?.nextSibling ?? host.firstChild);
+  } else document.body.append(region);
 }
 export function dialog(title: string, ...content: Child[]): HTMLDialogElement {
   const element = el(
     'dialog',
     { class: 'dialog', 'aria-label': title },
-    el('header', {}, el('h2', {}, title)),
+    el('header', { class: 'dialog-heading' }, el('h2', {}, title)),
     ...content,
   );
-  element.append(button('Chiudi', () => element.close(), 'quiet'));
+  element.querySelector('header')!.append(dismissControl('Chiudi finestra', () => element.close()));
   const previousFocus = document.activeElement;
   element.addEventListener('close', () => {
+    const feedback = element.querySelector<HTMLElement>(':scope > #toasts');
+    // Successful operations often close their form immediately. Keep their confirmation
+    // in the next open dialog, or in the page, instead of removing it with the old form.
+    if (feedback) document.body.append(feedback);
     element.remove();
-    if (previousFocus instanceof HTMLElement) previousFocus.focus();
+    if (feedback) placeFeedback(feedback);
+    if (previousFocus instanceof HTMLElement && previousFocus.isConnected)
+      previousFocus.focus({ preventScroll: true });
+  });
+  let pressedBackdrop = false;
+  const outside = (event: MouseEvent): boolean => {
+    const bounds = element.getBoundingClientRect();
+    return (
+      event.clientX < bounds.left ||
+      event.clientX > bounds.right ||
+      event.clientY < bounds.top ||
+      event.clientY > bounds.bottom
+    );
+  };
+  element.addEventListener('pointerdown', (event) => {
+    pressedBackdrop = event.target === element && outside(event);
+  });
+  element.addEventListener('click', (event) => {
+    if (pressedBackdrop && event.target === element && outside(event)) element.close();
+    pressedBackdrop = false;
   });
   document.body.append(element);
   element.showModal();

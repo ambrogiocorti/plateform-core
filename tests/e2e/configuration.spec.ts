@@ -175,6 +175,40 @@ async function fixture(page: Page, role: 'ADMIN' | 'SUPER_ADMIN') {
             ]
           : [],
         backups: [],
+        restores: [],
+        backup_health: {
+          last_success_at: null,
+          last_failure_at: null,
+          last_restore_test_at: null,
+          last_backup_duration_seconds: null,
+          backup_age_minutes: null,
+          last_restore_test_duration_seconds: null,
+          rpo_within_target: false,
+          rto_last_test_within_target: null,
+          pending_count: 0,
+          failed_24h: 0,
+          expiring_7d: 0,
+          expired_unpurged_count: 0,
+          purge_in_progress_count: 0,
+          purge_failed_count: 0,
+          last_artifacts_purged_at: null,
+          latest_purge_error_code: null,
+          latest_status: null,
+          latest_integrity_verified: null,
+          latest_retention_until: null,
+          restore_pending_count: 0,
+          restore_failed_24h: 0,
+          latest_restore_status: null,
+          cron_active: false,
+          cron_schedule: null,
+        },
+        continuity_targets: {
+          rpo_target_minutes: 60,
+          rto_target_minutes: 120,
+          backup_retention_days: 30,
+          restore_test_interval_days: 7,
+          version: 1,
+        },
         releases: [],
         schema_version: null,
         incidents: [],
@@ -232,9 +266,64 @@ test('technical health remains unverified until a real probe result is recorded 
   await expect(page.getByText('RAGGIUNGIBILE', { exact: true })).toHaveCount(0);
   await expect(page.getByRole('link', { name: 'Cassa', exact: true })).toHaveCount(0);
   await expect(page.getByRole('link', { name: 'Statistiche', exact: true })).toHaveCount(0);
+  await page.screenshot({ path: 'test-results/technical-overview-desktop.png', fullPage: true });
   await page.getByRole('button', { name: 'Esegui controlli dei servizi', exact: true }).click();
   await expect(page.getByText('RAGGIUNGIBILE', { exact: true })).toBeVisible();
   expect(commands.some((command) => command.name === 'health-probe')).toBe(true);
+  await page.getByRole('button', { name: 'Backup e ripristino', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Continuità operativa' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Stato dei servizi' })).not.toBeVisible();
+  await page.getByRole('button', { name: 'Configurazione', exact: true }).click();
+  await page.getByLabel('Utenti', { exact: true }).fill('120');
+  await page.getByRole('button', { name: 'Panoramica', exact: true }).click();
+  await page.getByRole('button', { name: 'Configurazione', exact: true }).click();
+  await expect(page.getByLabel('Utenti', { exact: true })).toHaveValue('120');
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.getByRole('button', { name: 'Configurazione', exact: true })).toBeInViewport({
+    ratio: 1,
+  });
+  await page.mouse.wheel(0, 450);
+  await expect(page.getByRole('button', { name: 'Configurazione', exact: true })).toBeInViewport({
+    ratio: 1,
+  });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
+    true,
+  );
+  await page.screenshot({
+    path: 'test-results/technical-configuration-mobile.png',
+    fullPage: true,
+  });
+});
+
+test('profile actions and error feedback remain readable on a phone', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await fixture(page, 'ADMIN');
+  await page.route('**/rest/v1/rpc/get_own_access_sessions', (route) =>
+    route.fulfill({ status: 403, json: { message: 'FORBIDDEN' } }),
+  );
+  await page.goto('http://localhost:5174/impostazioni');
+  await expect(page.getByRole('heading', { name: 'Servizio e clienti' })).toBeVisible();
+  await page.locator('.topbar-profile').click();
+  const popup = page.locator('.profile-dialog');
+  await expect(
+    popup.getByRole('button', { name: 'Sicurezza account', exact: true }),
+  ).toBeInViewport({ ratio: 1 });
+  const bounds = await popup.evaluate((element) => ({
+    width: element.scrollWidth,
+    available: element.clientWidth,
+  }));
+  expect(bounds.width).toBeLessThanOrEqual(bounds.available + 1);
+  await page.screenshot({ path: 'test-results/profile-actions-mobile.png', fullPage: true });
+  await popup.getByRole('button', { name: 'Sicurezza account', exact: true }).click();
+  const alert = page.locator('.toast.error');
+  await expect(alert).toHaveCount(1);
+  await expect(alert.locator('.toast-message')).toHaveText(
+    'Non hai il permesso per questa operazione.',
+  );
+  await expect(alert.locator('.toast-reference')).toContainText('Riferimento');
+  await page.screenshot({ path: 'test-results/error-feedback-mobile.png', fullPage: true });
+  await alert.getByRole('button', { name: 'Nascondi avviso', exact: true }).click();
+  await expect(alert).toHaveCount(0);
 });
 
 test('Admin verifies identity before exporting and rectifies contacts with a bound password grant', async ({
@@ -278,11 +367,111 @@ test('Admin verifies identity before exporting and rectifies contacts with a bou
     page.getByText('Nessuna prenotazione trovata per questo telefono nella sede selezionata.'),
   ).toBeVisible();
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.getByRole('button', { name: 'Chiudi', exact: true }).last().click();
-  await expect(page.getByRole('navigation', { name: 'Gestionale' })).toBeInViewport();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(page.getByRole('navigation', { name: 'Aree principali' })).toBeInViewport();
   expect(
-    (await page.getByRole('navigation', { name: 'Gestionale' }).boundingBox())!.height,
+    (await page.getByRole('navigation', { name: 'Aree principali' }).boundingBox())!.height,
   ).toBeGreaterThanOrEqual(44);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: '.local/screenshots/privacy-mobile.png' });
+});
+
+test('CORE Admin does not see unlicensed food-cost navigation or economic API calls', async ({
+  page,
+}) => {
+  const calls = await fixture(page, 'ADMIN');
+  await page.goto('http://localhost:5174/operazioni');
+  await expect(page.getByRole('link', { name: 'Food cost e margini' })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'FOOD COST' })).toHaveCount(0);
+  expect(calls.some((call) => call.name === 'get_menu_engineering')).toBe(false);
+  expect(calls.some((call) => call.name === 'get_dish_food_cost')).toBe(false);
+});
+
+test('configuration search filters authorised records without losing their edit actions on mobile', async ({
+  page,
+}) => {
+  await fixture(page, 'ADMIN');
+  await page.route(/\/rest\/v1\/rooms(?:\?|$)/, (route) =>
+    route.fulfill({
+      json: [
+        {
+          id: '80000000-0000-4000-8000-000000000001',
+          name: 'Sala principale',
+          venue_id: venue,
+          active: true,
+          version: 1,
+        },
+        {
+          id: '80000000-0000-4000-8000-000000000002',
+          name: 'Giardino',
+          venue_id: venue,
+          active: true,
+          version: 1,
+        },
+      ],
+    }),
+  );
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('http://localhost:5174/gestione?modulo=rooms');
+  const panel = page.locator('.configuration-panel');
+  await expect(panel.getByText('Sala principale', { exact: true })).toBeVisible();
+  await expect(panel.getByText('Giardino', { exact: true })).toBeVisible();
+  const search = page.getByRole('searchbox');
+  await search.fill('giardino');
+  await expect(panel.getByText('Sala principale', { exact: true })).toBeHidden();
+  await expect(panel.getByRole('button', { name: 'Modifica', exact: true })).toHaveCount(1);
+  await search.fill('nessuna sala');
+  await expect(panel.getByRole('heading', { name: 'Nessun risultato', exact: true })).toBeVisible();
+  await search.fill('');
+  await expect(panel.getByRole('button', { name: 'Modifica', exact: true })).toHaveCount(2);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+  await page.screenshot({
+    path: 'test-results/hospitality-configuration-mobile.png',
+    fullPage: true,
+  });
+});
+
+test('grouped staff navigation exposes authorised areas on desktop and in the mobile drawer', async ({
+  page,
+}) => {
+  await fixture(page, 'ADMIN');
+  await page.setViewportSize({ width: 1360, height: 900 });
+  await page.goto('http://localhost:5174/impostazioni');
+  await expect(page.getByRole('heading', { name: 'Servizio e clienti' })).toBeVisible();
+  const nav = page.getByRole('navigation', { name: 'Aree principali' });
+  await expect(nav.getByRole('link', { name: 'Regole del servizio', exact: true })).toHaveAttribute(
+    'aria-current',
+    'page',
+  );
+  await nav.getByText('Ristorante', { exact: true }).click();
+  await expect(nav.getByRole('link', { name: 'Sito e branding', exact: true })).toBeVisible();
+  await expect(nav.getByRole('link', { name: 'Food cost e margini' })).toHaveCount(0);
+  await expect(nav.getByRole('link', { name: 'Operational Health' })).toHaveCount(0);
+  await page.screenshot({ path: 'test-results/staff-navigation-grouped-desktop.png' });
+  await page.getByRole('button', { name: 'Comprimi il menu laterale' }).click();
+  await expect(page.locator('.staff-shell')).toHaveClass(/sidebar-collapsed/);
+  await nav.getByLabel('Ristorante', { exact: true }).click();
+  await expect(page.locator('.staff-shell')).not.toHaveClass(/sidebar-collapsed/);
+  await page.setViewportSize({ width: 390, height: 844 });
+  const opener = nav.getByRole('button', { name: 'Apri la navigazione' });
+  await expect(opener).toBeInViewport({ ratio: 1 });
+  await opener.click();
+  const drawer = page.getByRole('dialog', { name: 'Navigazione', exact: true });
+  await expect(
+    drawer.getByRole('link', { name: 'Regole del servizio', exact: true }),
+  ).toBeVisible();
+  await drawer.getByText('Ristorante', { exact: true }).click();
+  await expect(drawer.getByRole('link', { name: 'Sito e branding', exact: true })).toBeVisible();
+  const label = drawer
+    .getByRole('link', { name: 'Sito e branding', exact: true })
+    .locator('.nav-label');
+  const labelSize = await label.evaluate((node) => ({
+    height: node.getBoundingClientRect().height,
+    line: Number.parseFloat(getComputedStyle(node).lineHeight),
+  }));
+  expect(labelSize.height).toBeLessThanOrEqual(labelSize.line + 1);
+  await page.screenshot({ path: 'test-results/staff-navigation-grouped-mobile.png' });
+  await page.keyboard.press('Escape');
+  await expect(drawer).toHaveCount(0);
+  await expect(opener).toBeFocused();
 });

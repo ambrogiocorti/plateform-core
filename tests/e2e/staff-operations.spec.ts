@@ -191,12 +191,15 @@ test('Host assigns a table with confirmation and has no financial navigation', a
   await expect(page.getByRole('heading', { name: 'Marta Rossi' })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Conti', exact: true })).toHaveCount(0);
   await expect(page.getByRole('link', { name: 'Cassa', exact: true })).toHaveCount(0);
-  await page.getByRole('button', { name: 'Gestisci', exact: true }).click();
-  await page.getByRole('button', { name: 'Scegli tavolo', exact: true }).click();
+  await page.getByRole('button', { name: 'Dettagli', exact: true }).click();
+  await page
+    .getByRole('dialog', { name: 'Marta Rossi' })
+    .getByRole('button', { name: 'Assegna tavolo', exact: true })
+    .click();
   await page.getByRole('button', { name: 'Tavolo 4 · 4 posti' }).click();
   await page
-    .getByRole('dialog', { name: 'Conferma assegnazione' })
-    .getByRole('button', { name: 'Conferma', exact: true })
+    .getByRole('dialog', { name: 'Marta Rossi' })
+    .getByRole('button', { name: 'Chiudi finestra', exact: true })
     .click();
   await expect(page.getByText('2 persone · Tavolo 4')).toBeVisible();
   expect(commands.find((command) => command.name === 'assign_table_group')?.body).toEqual({
@@ -225,6 +228,33 @@ test('the operational map exposes a keyboard accessible table without Host finan
   await expect(popup.getByRole('button', { name: 'Visualizza i conti' })).toHaveCount(0);
 });
 
+test('room filters find tables and keep the real table actions accessible on mobile', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await hostFixture(page);
+  await page.goto('http://localhost:5174/sala');
+  const floor = page.getByRole('region', { name: 'Pianta operativa della sala' });
+  await expect(floor.getByText('1 tavolo mostrato', { exact: true })).toBeVisible();
+  await expect(floor.getByLabel('Vista sala')).toHaveValue('list');
+
+  await floor.getByLabel('Cerca tavolo o cameriere').fill('INESISTENTE');
+  await expect(floor.getByText('Nessun tavolo in questa selezione')).toBeVisible();
+  await expect(floor.getByText('0 tavoli mostrati', { exact: true })).toBeVisible();
+  await floor.getByRole('button', { name: 'Azzera filtri' }).click();
+  await floor.getByLabel('Cerca tavolo o cameriere').fill('luca');
+  await floor.getByLabel('Stato del tavolo').selectOption('AVAILABLE');
+  const table = floor.getByRole('button', {
+    name: 'Tavolo 4 · Disponibile · 0 ospiti · 4 posti · Luca',
+  });
+  await expect(table).toBeVisible();
+  await table.click();
+  const popup = page.getByRole('dialog', { name: 'Tavolo 4 · 4 coperti' });
+  await expect(popup.getByRole('button', { name: 'QR del tavolo' })).toBeVisible();
+  await expect(popup.getByRole('button', { name: 'Visualizza i conti' })).toHaveCount(0);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+});
+
 test('a locked session requires a valid PIN before showing operations', async ({ page }) => {
   await hostFixture(page, true);
   await page.goto('http://localhost:5174/accoglienza');
@@ -249,7 +279,7 @@ test('Host workspace fits a mobile screen and sends its filters to the server', 
   const commands = await hostFixture(page);
   await page.goto('http://localhost:5174/accoglienza');
   await page.getByLabel('Nome o telefono').fill('Rossi');
-  await page.getByRole('button', { name: 'Applica filtri' }).click();
+  await page.getByRole('button', { name: 'FILTRA', exact: true }).click();
   await expect
     .poll(
       () =>
@@ -258,4 +288,27 @@ test('Host workspace fits a mobile screen and sends its filters to the server', 
     .toBe('Rossi');
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
   await page.screenshot({ path: 'test-results/host-mobile.png', fullPage: true });
+});
+
+test('error feedback remains visible and dismissible above an open staff dialog', async ({
+  page,
+}) => {
+  await hostFixture(page);
+  await page.route('**/rest/v1/rpc/suggest_tables', (route) =>
+    route.fulfill({ status: 403, json: { message: 'FORBIDDEN' } }),
+  );
+  await page.goto('http://localhost:5174/accoglienza');
+  await page.getByRole('button', { name: 'Dettagli', exact: true }).click();
+  const popup = page.getByRole('dialog', { name: 'Marta Rossi' });
+  await popup.getByRole('button', { name: 'Assegna tavolo', exact: true }).click();
+  const feedback = page.locator('.toast.error');
+  await expect(popup).toBeVisible();
+  await expect(feedback).toBeVisible();
+  await expect(feedback.locator('.toast-message')).toHaveText(
+    'Non hai il permesso per questa operazione.',
+  );
+  await feedback.getByRole('button', { name: 'Nascondi avviso' }).click();
+  await expect(feedback).toHaveCount(0);
+  await page.keyboard.press('Escape');
+  await expect(popup).toHaveCount(0);
 });

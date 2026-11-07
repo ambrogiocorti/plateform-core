@@ -1,0 +1,153 @@
+import { expect, test } from '@playwright/test';
+import { password, staff } from './stack/seed.mjs';
+import { reset } from './stack/stack.mjs';
+
+// Visual and functional evidence on the isolated stack, never on customer data.
+// Screenshots are artifacts for design review, not a replacement for approval.
+test.beforeEach(async () => {
+  await reset();
+});
+
+test('workspace V5: redesigned access page remains usable on desktop and mobile', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1366, height: 900 });
+  await page.goto('/login');
+  await expect(page.getByRole('heading', { name: 'Bentornato.' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Accesso al servizio' })).toBeVisible();
+  await expect(page.getByLabel('Identificativo staff')).toBeVisible();
+  await expect(page.getByLabel('Password')).toBeVisible();
+  await page.screenshot({ path: 'test-results/plateform-v5-login-desktop.png', fullPage: true });
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.getByRole('button', { name: 'Accedi al servizio' })).toBeVisible();
+  const panel = await page.locator('.login-panel').evaluate((element) => {
+    const rect = element.getBoundingClientRect();
+    return { x: rect.x, right: rect.right, width: window.innerWidth };
+  });
+  expect(panel.x).toBeGreaterThanOrEqual(-1);
+  expect(panel.right).toBeLessThanOrEqual(panel.width + 1);
+  await page.screenshot({ path: 'test-results/plateform-v5-login-mobile.png', fullPage: true });
+});
+
+test('workspace V5: grouped authorised navigation and mobile drawer', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto('/login');
+  await page.getByLabel('Identificativo staff').fill(staff.admin.email);
+  await page.getByLabel('Password').fill(password);
+  await page.getByRole('button', { name: 'Accedi al servizio' }).click();
+  await expect(page.locator('.workspace-page-heading h1')).toHaveText('Operazioni');
+  const nav = page.getByRole('navigation', { name: 'Aree principali' });
+  const tree = nav.locator('.desktop-navigation');
+  await expect(tree.locator(':scope > a')).toHaveCount(1);
+  await expect(tree.locator('.nav-group')).toHaveCount(5);
+  await expect(nav.getByRole('link', { name: 'Sala' })).toBeVisible();
+  await tree.getByText('Conti e cassa', { exact: true }).click();
+  await expect(nav.getByRole('link', { name: 'Cassa', exact: true })).toBeVisible();
+  await expect(page.locator('.workspace-context-tabs')).toHaveCount(0);
+  await expect(page.locator('.ops-overview')).toBeVisible();
+  await expect(page.locator('.ops-summary-grid > button')).toHaveCount(4);
+  const overviewHeight = await page
+    .locator('.ops-overview')
+    .evaluate((element) => element.getBoundingClientRect().height);
+  expect(overviewHeight).toBeLessThanOrEqual(200);
+  const serviceHeight = await page
+    .locator('.ops-service-card')
+    .evaluate((element) => element.getBoundingClientRect().height);
+  expect(serviceHeight).toBeLessThanOrEqual(500);
+  const pseudoLogo = await page
+    .locator('.sidebar-brand-row .brand')
+    .evaluate((brand) => getComputedStyle(brand, '::before').content);
+  expect(pseudoLogo).toBe('none');
+  await page.screenshot({ path: 'test-results/plateform-v5-admin-desktop.png', fullPage: true });
+
+  await tree.getByText('Ristorante', { exact: true }).click();
+  await expect(tree.getByRole('link', { name: 'Menu della sede', exact: true })).toBeVisible();
+  await tree.getByText('Amministrazione', { exact: true }).click();
+  await expect(tree.getByRole('link', { name: 'Regole del servizio', exact: true })).toBeVisible();
+  await page.screenshot({ path: 'test-results/plateform-v5-directory.png' });
+
+  for (const destination of [
+    { label: 'Sala', path: '/sala', screenshot: 'sala', content: '.floor-workspace' },
+    {
+      label: 'Accoglienza',
+      path: '/accoglienza',
+      screenshot: 'accoglienza',
+      content: '.host-workspace',
+    },
+    {
+      label: 'Cucina',
+      path: '/cucina',
+      screenshot: 'cucina',
+      content: '.kds-workspace',
+    },
+  ]) {
+    await nav.getByRole('link', { name: destination.label, exact: true }).click();
+    await expect(page).toHaveURL(new RegExp(`${destination.path}$`));
+    await expect(page.locator('.workspace-page-heading h1')).toHaveText(destination.label);
+    // The shell title appears before the asynchronously loaded workspace.
+    // A screenshot of only the loading state cannot validate the actual screen.
+    await expect(page.locator(destination.content)).toBeVisible();
+    if (destination.label === 'Accoglienza') {
+      // The embedded floor must fit its column, not overlap the arrival panel.
+      const fits = await page.locator('.host-floor .floor-workspace').evaluate((floor) => {
+        const parent = floor.closest('.host-floor')!.getBoundingClientRect();
+        return Array.from(
+          floor.querySelectorAll('.floor-summary, .floor-controls, .floor-room'),
+        ).every((item) => {
+          const bounds = item.getBoundingClientRect();
+          return bounds.left >= parent.left - 1 && bounds.right <= parent.right + 1;
+        });
+      });
+      expect(fits).toBe(true);
+    }
+    await page.screenshot({
+      path: `test-results/plateform-v5-${destination.screenshot}-desktop.png`,
+      fullPage: true,
+    });
+  }
+  await nav.getByRole('link', { name: 'Sala', exact: true }).click();
+  await expect(page.locator('.floor-workspace')).toBeVisible();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.reload();
+  await expect(page.locator('.workspace-page-heading h1')).toHaveText('Sala');
+  await expect(page.getByLabel('Cerca tavolo o cameriere')).toBeVisible();
+  await expect(page.getByLabel('Vista sala')).toHaveValue('list');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+  await page.screenshot({ path: 'test-results/plateform-v5-sala-mobile.png', fullPage: true });
+
+  await nav.getByRole('link', { name: 'Operazioni' }).click();
+  await expect(page.locator('.workspace-page-heading h1')).toHaveText('Operazioni');
+
+  await expect(nav.locator('a:visible')).toHaveCount(4);
+  await expect(nav.getByRole('button', { name: 'Apri la navigazione' })).toBeVisible();
+  const bottom = await page.locator('.sidebar').evaluate((sidebar) => {
+    const bounds = sidebar.getBoundingClientRect();
+    return { bottom: bounds.bottom, viewport: window.innerHeight };
+  });
+  expect(Math.abs(bottom.bottom - bottom.viewport)).toBeLessThan(3);
+  const topbar = await page.locator('.topbar-profile').evaluate((button) => {
+    const rect = button.getBoundingClientRect();
+    return {
+      left: rect.left,
+      right: rect.right,
+      width: rect.width,
+      viewport: window.innerWidth,
+      textSize: getComputedStyle(button).fontSize,
+      initials: button.getAttribute('data-initials'),
+    };
+  });
+  expect(topbar.left).toBeGreaterThanOrEqual(0);
+  expect(topbar.right).toBeLessThanOrEqual(topbar.viewport + 1);
+  expect(topbar.width).toBeGreaterThanOrEqual(44);
+  expect(topbar.textSize).toBe('0px');
+  expect(topbar.initials).toBe('AA');
+  await page.screenshot({ path: 'test-results/plateform-v5-admin-mobile.png', fullPage: true });
+
+  await nav.getByRole('button', { name: 'Apri la navigazione' }).click();
+  const directory = page.getByRole('dialog', { name: 'Navigazione', exact: true });
+  await directory.getByText('Ristorante', { exact: true }).click();
+  await directory.getByRole('link', { name: 'Menu della sede', exact: true }).click();
+  await expect(page).toHaveURL(/\/menu-sede$/);
+  await expect(page.locator('.workspace-page-heading h1')).toHaveText('Menu della sede');
+});

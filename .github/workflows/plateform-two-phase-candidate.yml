@@ -1,0 +1,112 @@
+# Non-production source verification on an ephemeral GitHub-hosted runner.
+# No Supabase production credentials, database access, backup/restore or deploy.
+name: Plateform two-phase candidate verification
+
+on:
+  push:
+    branches:
+      - plateform/two-phase-completion-20261013
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: plateform-two-phase-candidate
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    if: github.repository == 'ambrogiocorti/plateform-core' && github.ref == 'refs/heads/plateform/two-phase-completion-20261013'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      CI: 'true'
+      GIT_CONFIG_COUNT: '1'
+      GIT_CONFIG_KEY_0: core.autocrlf
+      GIT_CONFIG_VALUE_0: 'false'
+    steps:
+      - name: Checkout candidate without persistent credentials
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+          ref: ${{ github.sha }}
+
+      - name: Confirm byte-exact checkout of tracked SQL
+        run: |
+          git -c core.autocrlf=false checkout-index --all --force
+          git diff --exit-code
+
+      - name: Configure Node 24.13
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24.13.0'
+          cache: npm
+
+      - name: Install pinned dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Security and migration integrity
+        run: |
+          node scripts/report-dependency-audit.mjs
+          npm run check:migrations
+          npm run check:migration-promotion
+          npm run check:local-bootstrap
+          npm run check:continuity-isolated
+          node scripts/check-continuity-bootstrap-recovery.mjs
+          node scripts/check-restore-target-occupancy.mjs
+
+      - name: Enforce repository formatting (historical SQL excluded)
+        run: npm run format:check
+
+      - name: Unit, PGlite, source contracts and TypeScript
+        run: |
+          npm run lint
+          npm run check:core-edition
+          npm run check:core-release-profile
+          npm run check:step8
+          npm run check:step10-cross-venue
+          npm run check:step11-static
+          npm run test:unit
+          npm run test:db
+          npm run build
+
+      - name: Install Deno for real Edge Function checks
+        uses: denoland/setup-deno@v2.0.5
+        with:
+          deno-version: v2.9.6
+
+      - name: Validate all Edge modules and run isolated Edge tests
+        run: |
+          mapfile -t modules < <(find supabase/functions -mindepth 2 -maxdepth 2 -name index.ts -not -path '*/_*/*' | sort)
+          if [ "${#modules[@]}" -lt 5 ]; then
+            echo "EDGE_MODULE_INVENTORY_UNEXPECTED"
+            exit 1
+          fi
+          deno check --config supabase/functions/deno.json "${modules[@]}"
+          deno test --config supabase/functions/deno.json --allow-env supabase/functions/_tests
+
+      - name: Install headless Chromium with system dependencies
+        run: npx playwright install --with-deps chromium
+
+      - name: Verify rendered website assembly with real Chromium
+        run: node scripts/check-step11-build-assembly.mjs --browser-node
+
+      - name: Execute real Chromium UI regression against local fixtures
+        run: npm run test:e2e
+
+      - name: Upload browser failures only
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: plateform-candidate-browser-failures
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 3
+
+# PASS only attests local source/PGlite/Chromium fixtures at the exact commit.
+# Staging, physical printer, payment providers, live Auth/RLS and
+# independent database+storage restore remain separate commercial gates.

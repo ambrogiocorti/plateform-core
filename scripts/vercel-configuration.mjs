@@ -42,7 +42,15 @@ export function createVercelConfiguration({ supabaseUrl, mode = 'staging' }) {
   ];
   // Do not use a wildcard SPA rewrite. An asset that does not exist MUST get a 404,
   // not HTML with status 200. Vercel checks real files before rewrites.
-  const publicRoutes = ['/menu', '/ristorante', '/gallery', '/prenota', '/contatti', '/sedi'];
+  const publicRoutes = [
+    '/menu',
+    '/ristorante',
+    '/gallery',
+    '/prenota',
+    '/contatti',
+    '/sedi',
+    '/lista-attesa',
+  ];
   return {
     $schema: 'https://openapi.vercel.sh/vercel.json',
     framework: null,
@@ -53,6 +61,7 @@ export function createVercelConfiguration({ supabaseUrl, mode = 'staging' }) {
       { source: '/staff', destination: '/staff/index.html' },
       { source: '/staff/:page([a-z0-9-]+)', destination: '/staff/index.html' },
       { source: '/menu/:slug([a-z0-9-]+)', destination: '/index.html' },
+      { source: '/lista-attesa/offerta', destination: '/index.html' },
       { source: '/sedi/:slug([a-z0-9-]+)', destination: '/index.html' },
       { source: '/tavolo/:token([a-zA-Z0-9-]+)', destination: '/index.html' },
       ...publicRoutes.map((source) => ({ source, destination: '/index.html' })),
@@ -63,6 +72,13 @@ export function createVercelConfiguration({ supabaseUrl, mode = 'staging' }) {
         headers: [
           ...common,
           ...(mode === 'staging' ? [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }] : []),
+        ],
+      },
+      {
+        source: '/lista-attesa/offerta',
+        headers: [
+          { key: 'X-Robots-Tag', value: 'noindex, nofollow' },
+          { key: 'Cache-Control', value: 'private, no-store' },
         ],
       },
       {

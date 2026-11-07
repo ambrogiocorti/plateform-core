@@ -1,3 +1,4 @@
+
 create or replace function public.get_kitchen_board(p_venue uuid)
 returns jsonb
 language plpgsql
