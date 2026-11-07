@@ -1107,7 +1107,34 @@ export async function technicalPage(context: StaffContext): Promise<HTMLElement>
       el(
         'div',
         { class: 'row between' },
-        el('span', {}, flag.name),
+        el(
+          'div',
+          { class: 'license-identity' },
+          el(
+            'strong',
+            {},
+            (
+              {
+                RESERVATION_MESSAGING: 'Messaggi prenotazioni',
+                WHATSAPP_TELEGRAM_SMS_MESSAGING: 'WhatsApp, Telegram e SMS',
+                ADVANCED_ANALYTICS: 'Statistiche avanzate',
+                ADVANCED_ROOM_EDITOR: 'Editor sala avanzato',
+                CLIENT_ORDERING: 'Ordinazione dal tavolo',
+                MULTI_MENU_QR: 'Menu multipli e QR',
+                BOOKING_DEPOSITS: 'Caparre prenotazioni',
+                FOOD_COST: 'Food cost',
+                MENU_PROMOTIONS: 'Promozioni menu',
+                MULTI_VENUE: 'Gestione più sedi',
+                OFFLINE: 'Continuità offline',
+                SATISPAY_API: 'Satispay online',
+                STRIPE: 'Pagamenti Stripe',
+                TAKEAWAY: 'Asporto',
+                WAITLIST: 'Lista d’attesa',
+              } as Record<string, string>
+            )[flag.name] ?? flag.name,
+          ),
+          el('small', {}, flag.name),
+        ),
         status(flag.licensed ? 'ATTIVA' : 'DISATTIVA'),
         button(
           flag.licensed ? 'Disattiva licenza' : 'Attiva licenza',
@@ -1122,20 +1149,20 @@ export async function technicalPage(context: StaffContext): Promise<HTMLElement>
                 ),
               );
             popup.append(
-              button('Conferma con password', async () => {
-                const grant = await stepUp('FEATURE_CHANGE');
+              button(flag.licensed ? 'Disattiva licenza' : 'Attiva licenza', async () => {
                 await rpc(
                   'save_feature_license',
                   {
                     p_name: flag.name,
                     p_licensed: !flag.licensed,
                     p_version: flag.version,
-                    p_grant: grant,
+                    p_grant: null,
                     p_key: key,
                   },
                   record,
                 );
                 popup.close();
+                toast('Licenza aggiornata.');
                 await context.refresh?.();
               }),
             );
@@ -1163,9 +1190,9 @@ export async function technicalPage(context: StaffContext): Promise<HTMLElement>
     return { key, ...control };
   });
   limits.append(
-    button('Salva limiti con password', async () => {
+    button('Salva limiti', async () => {
       if (limitFields.some((control) => !control.input.reportValidity())) return;
-      const grant = await stepUp('FEATURE_CHANGE');
+      const grant = null;
       await rpc(
         'configure_system_limits',
         {
@@ -1262,9 +1289,9 @@ export async function technicalPage(context: StaffContext): Promise<HTMLElement>
             ),
             key = crypto.randomUUID();
           popup.append(
-            button('Conferma con password', async () => {
+            button('Conferma modifica', async () => {
               if (!reason.input.reportValidity()) return;
-              const grant = await stepUp('INSTALLATION_STATUS');
+              const grant = null;
               await rpc(
                 'change_installation_status',
                 {

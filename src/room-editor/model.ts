@@ -88,7 +88,7 @@ export function renderDrawing(
           });
     shape.setAttribute('fill', item.kind === 'TEXT' ? 'transparent' : item.color);
     shape.setAttribute('opacity', item.kind === 'ZONE' ? '0.2' : '1');
-    shape.setAttribute('stroke', selected.has(item.id) ? '#f4f0e8' : '#747474');
+    shape.setAttribute('stroke', selected.has(item.id) ? '#2563eb' : '#74849a');
     shape.setAttribute('stroke-width', selected.has(item.id) ? '4' : '1');
     g.append(shape);
     if (item.text) {
@@ -119,15 +119,15 @@ export function renderDrawing(
           ry: String(item.height / 2),
         })
       : svgElement('rect', { width: String(item.width), height: String(item.height), rx: '8' });
-    shape.setAttribute('fill', '#68523c');
-    shape.setAttribute('stroke', selected.has(item.id) ? '#f4f0e8' : '#b88a55');
+    shape.setAttribute('fill', selected.has(item.id) ? '#dbeafe' : '#eff5ff');
+    shape.setAttribute('stroke', selected.has(item.id) ? '#2563eb' : '#a7bfe6');
     shape.setAttribute('stroke-width', selected.has(item.id) ? '4' : '2');
     g.append(shape);
     const text = svgElement('text', {
       x: String(item.width / 2),
       y: String(item.height / 2 + 6),
       'text-anchor': 'middle',
-      fill: '#fff',
+      fill: '#174da8',
       'font-size': '20',
     });
     text.textContent = String(item.number);

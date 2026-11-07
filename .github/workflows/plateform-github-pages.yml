@@ -3,6 +3,7 @@ name: Plateform GitHub Pages release
 on:
   push:
     branches:
+      - fix/staff-workspaces-and-settings-20261107
       - main
       - feature/customer-experience-light-theme-20261027
       - redesign/hospitality-workspaces-20261106

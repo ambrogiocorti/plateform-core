@@ -176,7 +176,7 @@ test('multi-sede: il Super Admin crea una sede, lo switcher la mostra solo a chi
   await form.getByLabel('Indirizzo', { exact: true }).fill('Alzaia Naviglio Grande 10, Milano');
   await form.getByLabel('Telefono').fill('+390200000002');
   await form.getByRole('button', { name: 'Crea sede' }).click();
-  await confirmStepUp(superAdmin);
+  await expect(superAdmin.getByRole('dialog', { name: 'Conferma la tua identità' })).toHaveCount(0);
   await expect(superAdmin.getByText('Sede Sede Navigli creata.')).toBeVisible();
   await expect(superAdmin.locator('article', { hasText: 'Sede Navigli' })).toContainText(
     'N2 · /sedi/sede-navigli',
@@ -184,7 +184,7 @@ test('multi-sede: il Super Admin crea una sede, lo switcher la mostra solo a chi
   const second = sql(`select id from public.venues where slug='sede-navigli'`);
   expect(sql(`select count(*) from public.audit_log where action='VENUE_CREATED'`)).toBe('1');
 
-  // Modifica con step-up, versione e audit.
+  // Reversible changes use the authorised MFA session, version and audit.
   await superAdmin
     .locator('article', { hasText: 'Sede Navigli' })
     .getByRole('button', { name: 'Modifica sede' })
@@ -192,7 +192,7 @@ test('multi-sede: il Super Admin crea una sede, lo switcher la mostra solo a chi
   const edit = superAdmin.getByRole('dialog', { name: 'Modifica Sede Navigli' });
   await edit.getByLabel('Telefono').fill('+390200000099');
   await edit.getByRole('button', { name: 'Salva sede' }).click();
-  await confirmStepUp(superAdmin);
+  await expect(superAdmin.getByRole('dialog', { name: 'Conferma la tua identità' })).toHaveCount(0);
   await expect(superAdmin.getByText('Sede aggiornata.')).toBeVisible();
   expect(sql(`select phone||':'||version from public.venues where id='${second}'`)).toBe(
     '+390200000099:2',
@@ -241,7 +241,7 @@ test('multi-sede: il Super Admin crea una sede, lo switcher la mostra solo a chi
     .getByRole('button', { name: 'Disattiva sede' })
     .click();
   await superAdmin.getByRole('button', { name: 'Conferma disattivazione' }).click();
-  await confirmStepUp(superAdmin);
+  await expect(superAdmin.getByRole('dialog', { name: 'Conferma la tua identità' })).toHaveCount(0);
   await expect(superAdmin.getByText('Sede disattivata.')).toBeVisible();
   await expect(
     superAdmin

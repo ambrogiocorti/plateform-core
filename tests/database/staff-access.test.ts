@@ -33,6 +33,28 @@ describe('Step 1 staff access and credential lifecycle', () => {
   afterAll(async () => {
     await db?.close();
   });
+  it('creates ordinary staff without a second password and still protects Admin provisioning', async () => {
+    await identity(db, ids.admin);
+    const values = {
+      display_name: 'Collega cucina',
+      identifier: 'collega.cucina@staff.test',
+      role: 'KITCHEN_STAFF',
+      scope: 'VENUE',
+      venue_ids: [ids.venue],
+    };
+    const result = await db.query<{ job: { status: string } }>(
+      "select public.begin_staff_admin_job('CREATE',$1,$2,null) job",
+      [JSON.stringify(values), crypto.randomUUID()],
+    );
+    expect(result.rows[0]!.job.status).toBe('PENDING');
+    await identity(db, ids.superAdmin);
+    await expect(
+      db.query("select public.begin_staff_admin_job('CREATE',$1,$2,null)", [
+        JSON.stringify({ ...values, identifier: 'nuovo.admin@staff.test', role: 'ADMIN' }),
+        crypto.randomUUID(),
+      ]),
+    ).rejects.toThrow('STEP_UP_REQUIRED');
+  });
 
   it('returns only staff inside the administrator management boundary', async () => {
     await identity(db, ids.admin);

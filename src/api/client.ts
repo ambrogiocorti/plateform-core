@@ -35,6 +35,22 @@ export function client(): SupabaseClient {
 }
 
 const messages: Record<string, string> = {
+  BOOKING_DEPOSITS_PROVIDER_LICENCE_REQUIRED:
+    'Per le caparre attiva prima la licenza Stripe oppure Satispay online.',
+  BOOKING_DEPOSITS_STILL_LICENSED:
+    'Disattiva prima le caparre: richiedono almeno un provider di pagamento attivo.',
+  PROVIDER_STILL_CONFIGURED:
+    'Rimuovi questo metodo dalle impostazioni di pagamento delle sedi prima di disattivare la licenza.',
+  RATE_LIMITED:
+    'Hai effettuato troppe verifiche ravvicinate. Attendi qualche minuto prima di riprovare.',
+  SOURCE_TABLE_EMPTY:
+    'Questo tavolo è libero: non ci sono ospiti da spostare. Per cambiare la posizione del tavolo apri Editor sala.',
+  TABLE_FORBIDDEN: 'Seleziona due tavoli attivi della stessa sala e dello stesso layout.',
+  TABLE_ALREADY_MERGED:
+    'Il tavolo appartiene già a un gruppo. Seleziona il tavolo principale o separa prima il gruppo.',
+  PRIMARY_STATION_REQUIRED:
+    'Non puoi preparare questo piatto con le autorizzazioni correnti. Aggiorna la vista cucina.',
+  INVALID_SETTINGS: 'Controlla i valori delle impostazioni prima di salvare.',
   UNAUTHORIZED: 'La sessione non è valida o è scaduta. Accedi di nuovo.',
   OFFLINE_NOT_AVAILABLE: 'L’uso offline non è disponibile per questo ruolo o per questa sede.',
   OFFLINE_QUEUE_UNREADABLE:

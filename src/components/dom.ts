@@ -1,4 +1,5 @@
 import { safeError } from '../api/client';
+import { appLink } from '../services/app-links';
 
 export type Child = Node | string | number | null | undefined | false;
 export function el<K extends keyof HTMLElementTagNameMap>(
@@ -10,18 +11,14 @@ export function el<K extends keyof HTMLElementTagNameMap>(
   for (const [name, value] of Object.entries(attributes)) {
     if (name.startsWith('on') || name === 'innerHTML' || name === 'srcdoc')
       throw new Error('Unsafe attribute');
-    // Rewrite absolute internal anchors in public GitHub Pages project previews.
+    // Both applications live below a repository path on GitHub Pages.
     const base = import.meta.env.BASE_URL;
-    const localPublicLink =
-      tag === 'a' &&
-      name === 'href' &&
-      import.meta.env.PLATEFORM_AREA === 'public' &&
-      typeof base === 'string' &&
-      base !== '/' &&
-      value.startsWith('/') &&
-      !value.startsWith('//') &&
-      !value.startsWith(base);
-    element.setAttribute(name, localPublicLink ? `${base.replace(/\/$/, '')}${value}` : value);
+    element.setAttribute(
+      name,
+      tag === 'a' && name === 'href' && typeof base === 'string'
+        ? appLink(value, base, import.meta.env.PLATEFORM_AREA)
+        : value,
+    );
   }
   for (const child of children)
     if (child !== null && child !== undefined && child !== false)
@@ -136,8 +133,25 @@ export function dialog(title: string, ...content: Child[]): HTMLDialogElement {
     ...content,
   );
   element.querySelector('header')!.append(dismissControl('Chiudi finestra', () => element.close()));
+  // Older screens append their actions after creating the dialog. Gather those
+  // buttons in one consistent action bar without changing the native dialog API.
+  const organize = () => {
+    if (element.matches('.order-editor, .gallery-lightbox, .dish-detail-dialog')) return;
+    const actions = [...element.children].filter(
+      (child): child is HTMLButtonElement => child instanceof HTMLButtonElement,
+    );
+    if (!actions.length) return;
+    let footer = element.querySelector<HTMLElement>(':scope > .dialog-actions');
+    if (!footer) footer = el('footer', { class: 'dialog-actions', 'aria-label': 'Azioni' });
+    footer.append(...actions);
+    if (element.lastElementChild !== footer) element.append(footer);
+  };
+  const observer = new MutationObserver(organize);
+  observer.observe(element, { childList: true });
+  queueMicrotask(organize);
   const previousFocus = document.activeElement;
   element.addEventListener('close', () => {
+    observer.disconnect();
     const feedback = element.querySelector<HTMLElement>(':scope > #toasts');
     // Successful operations often close their form immediately. Keep their confirmation
     // in the next open dialog, or in the page, instead of removing it with the old form.

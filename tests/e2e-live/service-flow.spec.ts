@@ -38,6 +38,9 @@ test.beforeEach(async () => {
 test('servizio completo: tavolo → ordine → cucina → Pass → consegna → cassa → chiusura', async ({
   browser,
 }) => {
+  sql(
+    `delete from public.station_staff_assignments where user_id=(select id from auth.users where email='${staff.kitchen.email}')`,
+  );
   const [waiter, kitchen, pass, cashier] = await Promise.all([
     device(browser, staff.waiter),
     device(browser, staff.kitchen),

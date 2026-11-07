@@ -6,6 +6,7 @@ on:
   workflow_call:
   push:
     branches:
+      - fix/staff-workspaces-and-settings-20261107
       - fix/release-edition-contracts-20261103
       - redesign/experience-shell-20261104
       - redesign/hospitality-workspaces-20261106

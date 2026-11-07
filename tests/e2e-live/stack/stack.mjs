@@ -126,6 +126,7 @@ const gotrueEnv = (database) => ({
 // Bind edge test listeners below the Linux ephemeral outbound TCP port range.
 // All public calls still use the single local gateway, never these private ports.
 const functionPorts = {
+  'staff-admin': 22153,
   'offline-authorization': 22141,
   reservation: 22142,
   'asset-upload': 22143,

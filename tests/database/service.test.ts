@@ -898,7 +898,7 @@ describe('Authoritative service workflows', () => {
     ]);
   });
 
-  it('gives observing stations visibility without permission to change preparation', async () => {
+  it('lets kitchen staff cover another department in their authorised venue', async () => {
     const account = await createAccount();
     await submit(account.id);
     await db.exec('reset role');
@@ -908,13 +908,30 @@ describe('Authoritative service workflows', () => {
     }>('select public.get_kitchen_board($1) as board', [ids.venue]);
     const item = board.rows[0]?.board[0];
     if (!item) throw new Error('Missing observer ticket');
-    expect(item.can_prepare).toBe(false);
-    await expect(
-      db.query("select public.transition_order_item($1,'IN_PREPARATION',$2)", [
-        item.id,
-        item.version,
-      ]),
-    ).rejects.toThrow('PRIMARY_STATION_REQUIRED');
+    expect(item.can_prepare).toBe(true);
+    await db.query("select public.transition_order_item($1,'IN_PREPARATION',$2)", [
+      item.id,
+      item.version,
+    ]);
+    await expect(db.query('select public.get_kitchen_board($1)', [ids.otherVenue])).rejects.toThrow(
+      'VENUE_FORBIDDEN',
+    );
+  });
+  it('lets kitchen staff work without a fixed station assignment', async () => {
+    const account = await createAccount();
+    await submit(account.id);
+    await db.exec('reset role');
+    await db.query('delete from public.station_staff_assignments where user_id=$1', [cook]);
+    await identity(db, cook);
+    const result = await db.query<{
+      board: { can_prepare: boolean; category_id: string; station_name: string }[];
+    }>('select public.get_kitchen_board($1) board', [ids.venue]);
+    expect(result.rows[0]!.board.length).toBeGreaterThan(0);
+    expect(
+      result.rows[0]!.board.every(
+        (item) => item.can_prepare && item.category_id === category && Boolean(item.station_name),
+      ),
+    ).toBe(true);
   });
 
   it('lets KITCHEN_ADMIN supervise every station without a station assignment', async () => {

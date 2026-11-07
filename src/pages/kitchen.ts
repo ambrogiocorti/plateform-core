@@ -33,6 +33,9 @@ const itemSchema = z.object({
   quantity: z.number(),
   status: z.string(),
   station_id: z.uuid(),
+  category_id: z.uuid().nullable().optional(),
+  category_name: z.string().nullable().optional(),
+  station_name: z.string().nullable().optional(),
   created_at: z.string(),
   started_at: z.string().nullable(),
   version: z.number(),
@@ -300,6 +303,88 @@ export async function kitchenPage(context: StaffContext): Promise<HTMLElement> {
     'data-kds-role': context.profile.role,
     id: 'kitchen-operational-board',
   });
+  const category = el(
+    'select',
+    { 'aria-label': 'Categoria piatti' },
+    el('option', { value: '' }, 'Tutte le categorie'),
+  );
+  const department = el(
+    'select',
+    { 'aria-label': 'Reparto di preparazione' },
+    el('option', { value: '' }, 'Tutti i reparti'),
+  );
+  const categoryNames = new Map(
+    items
+      .filter((i) => i.category_id)
+      .map((i) => [i.category_id!, i.category_name ?? 'Altri piatti']),
+  );
+  const departmentNames = new Map(
+    items.map((i) => [i.station_id, i.station_name ?? 'Reparto cucina']),
+  );
+  for (const [id, name] of [...categoryNames].sort((a, b) => a[1].localeCompare(b[1], 'it')))
+    category.append(el('option', { value: id }, name));
+  for (const [id, name] of [...departmentNames].sort((a, b) => a[1].localeCompare(b[1], 'it')))
+    department.append(el('option', { value: id }, name));
+  const preferenceKey = `plateform-kitchen-filter:${context.profile.id}:${context.venue.id}`;
+  try {
+    const pref = JSON.parse(sessionStorage.getItem(preferenceKey) ?? '{}');
+    if (categoryNames.has(pref.category)) category.value = pref.category;
+    if (departmentNames.has(pref.department)) department.value = pref.department;
+  } catch {
+    /* Optional display preference. */
+  }
+  const filterCount = el('span', { class: 'muted', role: 'status' });
+  const filterEmpty = emptyState(
+    'Nessuna comanda per questi filtri',
+    'Scegli tutte le categorie o un altro reparto.',
+  );
+  let statusFilter = 'ALL';
+  const filterBoard = () => {
+    let count = 0;
+    for (const card of grid.querySelectorAll<HTMLElement>('.kds-ticket')) {
+      let visible = 0;
+      for (const line of card.querySelectorAll<HTMLElement>('.kitchen-line')) {
+        line.hidden = Boolean(
+          (category.value && line.dataset.category !== category.value) ||
+          (department.value && line.dataset.department !== department.value) ||
+          (statusFilter !== 'ALL' && line.dataset.itemStatus !== statusFilter),
+        );
+        if (!line.hidden) {
+          visible++;
+          count++;
+        }
+      }
+      card.hidden = visible === 0;
+    }
+    filterCount.textContent = `${count} ${count === 1 ? 'piatto' : 'piatti'} in vista`;
+    filterEmpty.hidden = count > 0 || items.length === 0;
+    try {
+      sessionStorage.setItem(
+        preferenceKey,
+        JSON.stringify({ category: category.value, department: department.value }),
+      );
+    } catch {
+      /* The filters also work without storage. */
+    }
+  };
+  category.addEventListener('change', filterBoard);
+  department.addEventListener('change', filterBoard);
+  const filters = el(
+    'section',
+    { class: 'kitchen-filters', 'aria-label': 'Filtra le comande' },
+    el('label', {}, 'Categoria piatti', category),
+    el('label', {}, 'Reparto di preparazione', department),
+    button(
+      'Mostra tutto',
+      () => {
+        category.value = '';
+        department.value = '';
+        filterBoard();
+      },
+      'secondary',
+    ),
+    filterCount,
+  );
 
   for (const step of steps) {
     const rows = items.filter((item) => item.step_id === step);
@@ -344,7 +429,12 @@ export async function kitchenPage(context: StaffContext): Promise<HTMLElement> {
       ];
       const line = el(
         'section',
-        { class: `kitchen-line kitchen-status-${item.status.toLowerCase()}` },
+        {
+          class: `kitchen-line kitchen-status-${item.status.toLowerCase()}`,
+          'data-category': item.category_id ?? '',
+          'data-department': item.station_id,
+          'data-item-status': item.status,
+        },
         el(
           'div',
           { class: 'kitchen-line-main' },
@@ -424,7 +514,7 @@ export async function kitchenPage(context: StaffContext): Promise<HTMLElement> {
         context.profile.role === 'PASS' ? 'Pass libero' : 'Nessuna comanda in attesa',
         context.profile.role === 'PASS'
           ? 'Gli step pronti o in coordinamento compariranno qui in tempo reale.'
-          : 'Le comande pertinenti alla tua postazione compariranno qui in tempo reale.',
+          : 'Le comande della sede compariranno qui. Categoria e reparto sono filtri che puoi cambiare liberamente.',
       );
 
   const boardShell = el(
@@ -473,6 +563,7 @@ export async function kitchenPage(context: StaffContext): Promise<HTMLElement> {
     'Nessuna comanda in questo stato',
     'Scegli un altro filtro per vedere le altre comande.',
   );
+  boardShell.append(filters);
   noMatches.hidden = true;
   if (items.length) {
     const filterActions = el('div', {
@@ -489,13 +580,9 @@ export async function kitchenPage(context: StaffContext): Promise<HTMLElement> {
     const saved = sessionStorage.getItem(filterKey);
     let selected = filters.some(([, value]) => value === saved) ? saved! : 'ALL';
     const applyFilter = () => {
-      let count = 0;
-      for (const ticket of grid.querySelectorAll<HTMLElement>('.kds-ticket')) {
-        ticket.hidden =
-          selected !== 'ALL' && !(ticket.dataset.ticketStates ?? '').split(' ').includes(selected);
-        if (!ticket.hidden) count++;
-      }
-      noMatches.hidden = count > 0;
+      statusFilter = selected;
+      filterBoard();
+      noMatches.hidden = true;
       for (const control of filterActions.querySelectorAll<HTMLButtonElement>('button'))
         control.setAttribute('aria-pressed', String(control.dataset.filter === selected));
     };
@@ -516,7 +603,8 @@ export async function kitchenPage(context: StaffContext): Promise<HTMLElement> {
     boardShell.append(filterActions);
   }
   boardShell.append(board);
-  boardShell.append(noMatches);
+  boardShell.append(noMatches, filterEmpty);
+  filterBoard();
   let servedRecently: HTMLElement | undefined;
   if (returnable?.enabled) {
     servedRecently = el(

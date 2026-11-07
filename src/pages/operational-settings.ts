@@ -76,6 +76,16 @@ export async function operationalSettingsPage(context: StaffContext): Promise<HT
   if (error) throw safeError(error);
   const settings = record.parse(data),
     view = el('div', { class: 'stack' });
+  view.classList.add('operational-settings');
+  const markDirty = (event: Event) => {
+    view.dataset.unsaved = 'true';
+    if (event.target instanceof Element) {
+      const section = event.target.closest<HTMLElement>('section.card');
+      if (section) section.dataset.unsaved = 'true';
+    }
+  };
+  view.addEventListener('input', markDirty);
+  view.addEventListener('change', markDirty);
   const workflow = el('section', { class: 'card stack' }, el('h2', {}, 'Servizio e clienti'));
   const switches = ['reservations_enabled', 'customer_bill_request', 'returns_enabled'].map(
     (key) => {
@@ -110,26 +120,39 @@ export async function operationalSettingsPage(context: StaffContext): Promise<HT
     z.array(z.string()).parse(settings.delivery_routing),
   );
   workflow.append(el('label', {}, 'Ordinazione cliente', ordering), stepRoles.root, routing.root);
-  const key = crypto.randomUUID();
+  let key = crypto.randomUUID();
   workflow.append(
     button('Salva flussi operativi', async () => {
+      const submitted: Record<string, unknown> = {
+        ...Object.fromEntries(switches.map((entry) => [entry.key, entry.input.checked])),
+        customer_ordering: ordering.value,
+        step_starter_roles: stepRoles.values(),
+        delivery_routing: routing.values(),
+      };
       await rpc(
         'save_operational_settings',
         {
           p_venue: context.venue?.id,
           p_version: settings.version,
           p_key: key,
-          p_values: {
-            ...Object.fromEntries(switches.map((entry) => [entry.key, entry.input.checked])),
-            customer_ordering: ordering.value,
-            step_starter_roles: stepRoles.values(),
-            delivery_routing: routing.values(),
-          },
+          p_values: submitted,
         },
         record,
       );
-      toast('Flussi aggiornati.');
-      await context.refresh?.();
+      const { data: saved, error: readError } = await client()
+        .from('venue_settings')
+        .select('*')
+        .eq('venue_id', context.venue!.id)
+        .single();
+      if (readError) throw safeError(readError);
+      const confirmed = record.parse(saved);
+      if (switches.some(({ key }) => confirmed[key] !== submitted[key]))
+        throw new Error('VERSION_CONFLICT');
+      Object.assign(settings, confirmed);
+      key = crypto.randomUUID();
+      workflow.dataset.unsaved = 'false';
+      view.dataset.unsaved = String(Boolean(view.querySelector('section[data-unsaved="true"]')));
+      toast('Flussi salvati e verificati.');
     }),
   );
   const financial = el('section', { class: 'card stack' }, el('h2', {}, 'Pagamenti e riduzioni'));
