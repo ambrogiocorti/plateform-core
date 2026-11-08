@@ -2993,6 +2993,12 @@
       "version": "20261103213000",
       "name": "conflict_center_empty_order_discard",
       "sha256": "2db62ea1a8bcddc202abf6577ea0eceab6bf0ff6fcc441a304fb206474313c84"
+    },
+    {
+      "filename": "20261107152151_flexible_kitchen_and_routine_settings.sql",
+      "version": "20261107152151",
+      "name": "flexible_kitchen_and_routine_settings",
+      "sha256": "8c3005a559fe07aae73d26c8a576f2a539179895f11c2b3204d57a237be09363"
     }
   ]
 }

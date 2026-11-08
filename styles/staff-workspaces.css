@@ -1,0 +1,446 @@
+/* Staff workspaces use cool surfaces; the established navigation keeps its structure. */
+body.staff-workspace {
+  --pf-background: #f3f6fb;
+  --pf-surface: #fff;
+  --pf-surface-2: #eef3fb;
+  --pf-surface-3: #e3ebf7;
+  --pf-ink: #15243b;
+  --pf-text: #33445e;
+  --pf-muted: #596b85;
+  --pf-line: #dce4ef;
+  --pf-control-border: #a4b4cb;
+  --pf-focus-ring: #2563eb;
+  --pf-blue: #245edb;
+  --pf-blue-hover: #184ab4;
+  --pf-blue-soft: #eaf1ff;
+  --pf-elevation: 0 3px 16px #1b3e7710;
+  --bg: var(--pf-background);
+  --surface: var(--pf-surface);
+  --raised: var(--pf-surface-2);
+  --text: var(--pf-ink);
+  --muted: var(--pf-muted);
+  --border: var(--pf-line);
+  --accent: var(--pf-blue);
+}
+:root[data-theme='dark'] body.staff-workspace {
+  --pf-background: #101927;
+  --pf-surface: #172338;
+  --pf-surface-2: #20304a;
+  --pf-surface-3: #2b3c58;
+  --pf-ink: #edf3ff;
+  --pf-text: #d2dcee;
+  --pf-muted: #a4b4cd;
+  --pf-line: #34445e;
+  --pf-control-border: #758baa;
+  --pf-blue: #81adff;
+  --pf-blue-hover: #a5c5ff;
+  --pf-blue-soft: #233e68;
+  --pf-on-blue: #102344;
+}
+body.staff-workspace .staff-shell {
+  --workspace-canvas: var(--pf-background);
+}
+.staff-workspace .workspace-page-heading {
+  margin-bottom: 24px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--border);
+}
+.staff-workspace .workspace-page-heading h1 {
+  font-weight: 720;
+  letter-spacing: -0.035em;
+}
+.staff-workspace .main :where(.card, .empty-state),
+.staff-workspace .workspace-main :where(.card, .empty-state) {
+  border-radius: 14px;
+  box-shadow: var(--pf-elevation);
+}
+.staff-workspace :where(.ops-overview, .ops-service-card, .ops-area-card) {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: var(--pf-elevation);
+}
+.staff-workspace .ops-overview {
+  padding: 22px 24px;
+}
+.staff-workspace .ops-summary-grid {
+  gap: 14px;
+  border: 0;
+  border-radius: 0;
+  overflow: visible;
+}
+.staff-workspace .ops-metric {
+  min-height: 125px;
+  padding: 20px;
+  gap: 10px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--pf-elevation);
+}
+.staff-workspace .ops-metric:last-child {
+  border-right: 1px solid var(--border);
+}
+.staff-workspace .ops-metric strong {
+  color: var(--accent);
+  font-size: 34px;
+  letter-spacing: -0.04em;
+}
+.staff-workspace .ops-metric::after {
+  position: absolute;
+  right: 18px;
+  top: 18px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  content: '';
+}
+.staff-workspace :where(.ops-area-card, .ops-service-card) {
+  padding: 22px;
+}
+.staff-workspace :where(.technical-health-card, .kitchen-admin-kpi, .kpi-card) {
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+}
+.staff-workspace :where(.technical-health-card, .kitchen-admin-kpi) > strong {
+  color: var(--accent);
+}
+.staff-workspace .license-identity {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+  flex: 1;
+}
+.license-identity small {
+  color: var(--muted);
+  font-size: 10px;
+  overflow-wrap: anywhere;
+  letter-spacing: 0.025em;
+}
+.staff-workspace .incident-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px 20px;
+  padding: 18px;
+  border-radius: 12px;
+  border-left: 3px solid var(--warning);
+  box-shadow: none;
+}
+.incident-identity {
+  display: grid;
+  gap: 7px;
+}
+.incident-identity small {
+  font-size: 11px;
+}
+.incident-labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  grid-column: 1;
+}
+.incident-row > .button {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  min-height: 40px;
+  font-size: 12px;
+  padding: 10px 14px;
+}
+.staff-workspace .incident-row[data-severity='CRITICAL'] {
+  border-left-color: var(--danger);
+}
+.staff-workspace .technical-panel .row.between > .button {
+  min-height: 40px;
+  padding: 10px 14px;
+  font-size: 12px;
+}
+.staff-workspace .technical-panel .row.between {
+  padding: 14px 0;
+}
+.staff-workspace .status {
+  padding: 6px 9px;
+  border-radius: 6px;
+  font-size: 11px;
+  letter-spacing: 0.025em;
+}
+.staff-workspace dialog.dialog {
+  border-radius: 18px;
+  padding: 26px;
+}
+dialog.dialog:not(.order-editor, .gallery-lightbox, .dish-detail-dialog)
+  > :where(.field, label, fieldset, section, p, select, input, textarea) {
+  margin-block: 0 16px;
+}
+dialog.dialog fieldset {
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+dialog.dialog legend {
+  padding: 0 6px;
+  font-size: 12px;
+  font-weight: 650;
+}
+dialog.dialog .checkbox-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  margin: 0;
+}
+dialog.dialog .dialog-actions {
+  position: sticky;
+  bottom: -26px;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 22px -26px -26px;
+  padding: 18px 26px;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+}
+dialog.dialog .dialog-actions .button {
+  min-height: 44px;
+  padding: 11px 16px;
+  border-radius: 9px;
+  font-size: 13px;
+  line-height: 1.35;
+}
+dialog.dialog.table-detail-dialog {
+  width: min(580px, calc(100vw - 32px));
+}
+.table-detail-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 22px;
+}
+.table-detail-summary > div {
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--raised);
+}
+.table-detail-summary span {
+  color: var(--muted);
+  font-size: 11px;
+}
+.table-detail-dialog .dialog-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.staff-workspace .toast {
+  border-radius: 13px;
+  border-color: var(--border);
+  box-shadow: 0 10px 36px #162a4721;
+}
+.staff-workspace .toast.error {
+  border-left: 3px solid var(--danger);
+}
+.operational-settings .checkbox-line {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  margin: 0;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface);
+}
+.operational-settings .checkbox-line:has(:checked) {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+  background: var(--pf-blue-soft);
+}
+.kitchen-filters {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
+  align-items: end;
+  gap: 16px;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+}
+.kds-ticket[hidden],
+.kitchen-line[hidden] {
+  display: none;
+}
+.kitchen-filters label {
+  margin: 0;
+}
+.kitchen-filters select {
+  margin-top: 7px;
+}
+.room-editor-workspace {
+  display: grid;
+  gap: 18px;
+}
+.editor-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+.editor-topbar select {
+  min-width: 220px;
+  background: var(--surface);
+  font-weight: 650;
+}
+.editor-topbar p[role='status'] {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+.editor-top-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.room-editor-workspace .editor-grid {
+  grid-template-columns: 154px minmax(0, 1fr) 244px;
+  align-items: start;
+  gap: 14px;
+}
+.room-editor-workspace .editor-tools {
+  display: grid;
+  gap: 6px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+}
+.room-editor-workspace .editor-tools .button {
+  justify-content: flex-start;
+  text-align: left;
+  padding: 9px 10px;
+  min-height: 38px;
+  font-size: 12px;
+  background: transparent;
+  border: 0;
+  border-radius: 7px;
+}
+.room-editor-workspace .editor-tools [aria-pressed='true'] {
+  outline: 0;
+  background: var(--pf-blue-soft);
+  color: var(--accent);
+  box-shadow: inset 3px 0 var(--accent);
+}
+.room-editor-workspace .canvas-scroll {
+  position: sticky;
+  top: 90px;
+  border-radius: 14px;
+  box-shadow: 0 5px 24px #203b6910;
+  background: var(--surface);
+  overflow: hidden;
+}
+.room-editor-workspace .room-canvas {
+  height: min(70dvh, 780px);
+  min-height: 480px;
+  background-image: radial-gradient(var(--pf-control-border) 0.7px, transparent 0.7px);
+  background-size: 18px 18px;
+}
+.editor-canvas-hint {
+  margin: 0;
+  padding: 12px 15px;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 10px;
+}
+.room-editor-workspace .inspector {
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+  border-radius: 12px;
+}
+.room-editor-workspace .inspector h3 {
+  margin: 0;
+  font-size: 15px;
+}
+.room-editor-workspace .inspector .button {
+  width: 100%;
+  text-align: left;
+}
+.room-editor-workspace .inspector .field {
+  min-width: 0;
+}
+.staff-workspace .workspace-content:has(.room-editor-workspace) {
+  max-width: none;
+}
+@media (max-width: 1100px) {
+  .room-editor-workspace .editor-grid {
+    grid-template-columns: minmax(0, 1fr) 220px;
+  }
+  .room-editor-workspace .editor-tools {
+    grid-column: 1 / -1;
+    display: flex;
+    overflow-x: auto;
+    flex-wrap: wrap;
+  }
+  .room-editor-workspace .editor-tools .button {
+    flex: 0 0 auto;
+  }
+  .room-editor-workspace .editor-tools .checkbox-line {
+    width: auto;
+  }
+}
+@media (max-width: 700px) {
+  .staff-workspace .incident-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .incident-row > .button {
+    grid-column: 1;
+    grid-row: auto;
+    justify-self: start;
+  }
+  .staff-workspace .ops-overview {
+    padding: 18px;
+  }
+  .staff-workspace .ops-metric {
+    min-height: 112px;
+    padding: 16px;
+  }
+  .staff-workspace .ops-summary-grid {
+    gap: 10px;
+  }
+  .kitchen-filters {
+    grid-template-columns: 1fr;
+  }
+  .staff-workspace dialog.dialog .dialog-actions {
+    bottom: -20px;
+    margin: 18px -20px -20px;
+    padding: 16px 20px;
+  }
+  .table-detail-summary {
+    gap: 8px;
+  }
+  .table-detail-summary > div {
+    padding: 10px;
+  }
+  .license-identity {
+    flex-basis: 100%;
+  }
+  .editor-topbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .editor-top-actions .button {
+    flex: 1;
+  }
+  .room-editor-workspace .editor-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .room-editor-workspace .canvas-scroll {
+    position: static;
+  }
+  .room-editor-workspace .room-canvas {
+    min-height: 390px;
+    height: 55dvh;
+  }
+}

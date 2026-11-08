@@ -289,6 +289,21 @@ async function editConfiguration(
   definition: Module,
   existing?: Record<string, unknown>,
 ): Promise<void> {
+  if (entity === 'tables') {
+    const layouts = await readRows('room_layouts', recordSchema, context.venue?.id, {
+      archived: 'false',
+    });
+    if (!layouts.length) {
+      context.navigate('/gestione?modulo=room_layouts');
+      toast('Crea un layout per aggiungere e disporre i tavoli.');
+      return;
+    }
+    const layoutId = String(existing?.layout_id ?? layouts[0]!.id);
+    context.navigate(
+      `/editor?layout=${layoutId}${existing ? `&tavolo=${existing.id}` : '&nuovo=tavolo'}`,
+    );
+    return;
+  }
   const editor = dialog(`${existing ? 'Modifica' : 'Aggiungi'} · ${definition.label}`);
   const inputs = new Map<string, HTMLInputElement | HTMLSelectElement>();
   for (const entry of definition.fields) {

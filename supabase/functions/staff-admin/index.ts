@@ -2,7 +2,7 @@ import { z } from 'npm:zod@4.6.7';
 import { endpoint, rateKey, rateLimit, serverClient, userClient } from '../_shared/http.ts';
 import { staffCommandError, staffPasswordFingerprint } from '../_shared/staff-command.ts';
 
-const access = z.object({ grant_id: z.uuid(), idempotency_key: z.uuid() });
+const access = z.object({ grant_id: z.uuid().nullable(), idempotency_key: z.uuid() });
 const createSchema = access
   .extend({
     action: z.literal('CREATE'),

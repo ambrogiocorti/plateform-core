@@ -21,6 +21,32 @@ export async function floorPage(context: StaffContext): Promise<HTMLElement> {
       `${table.name} · ${table.seats} coperti`,
       status(tableLabel(data, table)),
     );
+    detail.classList.add('table-detail-dialog');
+    detail.append(
+      el(
+        'section',
+        { class: 'table-detail-summary' },
+        el('div', {}, el('span', {}, 'Capienza'), el('strong', {}, `${table.seats} posti`)),
+        el('div', {}, el('span', {}, 'Ospiti'), el('strong', {}, String(table.covers))),
+        el(
+          'div',
+          {},
+          el('span', {}, 'Conti aperti'),
+          el('strong', {}, String(table.open_accounts)),
+        ),
+      ),
+    );
+    if (context.profile.role === 'ADMIN')
+      detail.append(
+        button(
+          'Modifica posizione e posti',
+          () => {
+            detail.close();
+            context.navigate(`/editor?layout=${table.layout_id}&tavolo=${table.id}`);
+          },
+          'secondary',
+        ),
+      );
     detail.append(
       button(
         'QR del tavolo',
@@ -58,7 +84,11 @@ export async function floorPage(context: StaffContext): Promise<HTMLElement> {
         }),
       );
     }
-    if (['ADMIN', 'HOST', 'WAITER'].includes(context.profile.role))
+    if (
+      ['ADMIN', 'HOST', 'WAITER'].includes(context.profile.role) &&
+      table.technical_status !== 'AVAILABLE' &&
+      table.open_accounts === 0
+    )
       detail.append(
         button(
           'Imposta il tavolo disponibile',
@@ -71,12 +101,22 @@ export async function floorPage(context: StaffContext): Promise<HTMLElement> {
         ),
       );
     if (['ADMIN', 'HOST'].includes(context.profile.role)) {
-      const selectTarget = (title: string, action: (target: string) => Promise<void>) => {
+      const selectTarget = (
+        title: string,
+        action: (target: string) => Promise<void>,
+        sameLayout = false,
+      ) => {
         const selector = el(
           'select',
           {},
           ...tables
-            .filter((other) => other.id !== table.id)
+            .filter(
+              (other) =>
+                other.id !== table.id &&
+                (!sameLayout || other.layout_id === table.layout_id) &&
+                other.technical_status === 'AVAILABLE' &&
+                !other.primary_table_id,
+            )
             .map((other) =>
               el('option', { value: other.id }, `${other.name} · ${other.seats} posti`),
             ),
@@ -92,33 +132,43 @@ export async function floorPage(context: StaffContext): Promise<HTMLElement> {
           }),
         );
       };
+      if (table.covers > 0 || table.open_accounts > 0)
+        detail.append(
+          button(
+            'Sposta gruppo',
+            () =>
+              selectTarget(`Sposta ${table.name} e i suoi ospiti`, async (target) => {
+                await command('move_table', { p_from: table.id, p_to: target, p_confirm: true });
+              }),
+            'secondary',
+          ),
+        );
       detail.append(
-        button(
-          'Sposta gruppo',
-          () =>
-            selectTarget(`Sposta ${table.name} e i suoi ospiti`, async (target) => {
-              await command('move_table', { p_from: table.id, p_to: target, p_confirm: true });
-            }),
-          'secondary',
-        ),
         button(
           'Unisci un tavolo',
           () =>
-            selectTarget(`Unisci a ${table.name}`, async (target) => {
-              await rpc('merge_tables', { p_primary: table.id, p_secondary: target }, z.uuid());
-            }),
-          'secondary',
-        ),
-        button(
-          'Separa tavoli',
-          async () => {
-            await command('split_tables', { p_primary: table.id });
-            detail.close();
-            context.navigate('/sala');
-          },
+            selectTarget(
+              `Unisci a ${table.name}`,
+              async (target) => {
+                await rpc('merge_tables', { p_primary: table.id, p_secondary: target }, z.uuid());
+              },
+              true,
+            ),
           'secondary',
         ),
       );
+      if (tables.some((other) => other.primary_table_id === table.id))
+        detail.append(
+          button(
+            'Separa tavoli',
+            async () => {
+              await command('split_tables', { p_primary: table.id });
+              detail.close();
+              context.navigate('/sala');
+            },
+            'secondary',
+          ),
+        );
       if (context.profile.role === 'ADMIN')
         detail.append(
           button(

@@ -4,7 +4,7 @@ import type { Page } from '@playwright/test';
 const user = '20000000-0000-4000-8000-000000000001',
   venue = '10000000-0000-4000-8000-000000000001',
   grant = '90000000-0000-4000-8000-000000000001';
-async function fixture(page: Page, role: 'ADMIN' | 'SUPER_ADMIN') {
+async function fixture(page: Page, role: 'ADMIN' | 'SUPER_ADMIN' | 'KITCHEN_STAFF') {
   await page.addInitScript(
     ({ user, role }) => {
       const token = `${btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }))}.${btoa(JSON.stringify({ sub: user, aal: 'aal2', role: 'authenticated', exp: Math.floor(Date.now() / 1000) + 3600 }))}.fixture`;
@@ -57,6 +57,11 @@ async function fixture(page: Page, role: 'ADMIN' | 'SUPER_ADMIN') {
     complimentary_policy: 'ADMIN_APPROVAL_REQUIRED',
     sounds: {},
   };
+  const flags = [
+    { name: 'MULTI_VENUE', licensed: false, version: 1 },
+    { name: 'OFFLINE', licensed: true, version: 1 },
+    { name: 'RESERVATION_MESSAGING', licensed: false, version: 1 },
+  ];
   let probed = false;
   const booking = 'e0000000-0000-4000-8000-000000000002';
   let rectified = false;
@@ -100,9 +105,16 @@ async function fixture(page: Page, role: 'ADMIN' | 'SUPER_ADMIN') {
     else if (name === 'venue_settings') data = settings;
     else if (name === 'get_notification_summary')
       data = { new_count: 0, badge_count: 0, active_count: 0, alerts: [], rules: {} };
-    else if (name === 'save_financial_settings' || name === 'save_operational_settings')
+    else if (name === 'save_financial_settings' || name === 'save_operational_settings') {
+      if (name === 'save_operational_settings')
+        Object.assign(settings, body.p_values, { version: settings.version + 1 });
       data = { id: venue };
-    else if (name === 'get_privacy_configuration')
+    } else if (name === 'save_feature_license') {
+      const flag = flags.find((f) => f.name === body.p_name)!;
+      flag.licensed = Boolean(body.p_licensed);
+      flag.version++;
+      data = { name: flag.name, licensed: flag.licensed };
+    } else if (name === 'get_privacy_configuration')
       data = {
         version: 1,
         retention: {
@@ -159,10 +171,7 @@ async function fixture(page: Page, role: 'ADMIN' | 'SUPER_ADMIN') {
           max_devices: 100,
           max_storage_bytes: 10737418240,
         },
-        features: [
-          { name: 'MULTI_VENUE', licensed: false, version: 1 },
-          { name: 'OFFLINE', licensed: true, version: 1 },
-        ],
+        features: flags,
         health: probed
           ? [
               {
@@ -238,6 +247,7 @@ test('Admin saves service flags with a version and an idempotent command', async
   await expect(page.getByRole('heading', { name: 'Servizio e clienti' })).toBeVisible();
   await page.getByLabel('Prenotazioni online', { exact: true }).check();
   await page.getByLabel('Il cliente può richiedere il conto').check();
+  await page.getByLabel('Gestione piatti tornati indietro').check();
   await page.getByLabel('Ordinazione cliente', { exact: true }).selectOption('DISABLED');
   await page.getByRole('button', { name: 'Salva flussi operativi', exact: true }).click();
   await expect
@@ -256,6 +266,14 @@ test('Admin saves service flags with a version and an idempotent command', async
   expect(
     commands.find((command) => command.name === 'save_operational_settings')?.body.p_key,
   ).toMatch(/^[a-f0-9-]{36}$/);
+  await expect(page.getByText('Flussi salvati e verificati.')).toBeVisible();
+  await page.reload();
+  for (const label of [
+    'Prenotazioni online',
+    'Il cliente può richiedere il conto',
+    'Gestione piatti tornati indietro',
+  ])
+    await expect(page.getByLabel(label, { exact: true })).toBeChecked();
 });
 test('technical health remains unverified until a real probe result is recorded and hides economic navigation', async ({
   page,
@@ -291,6 +309,99 @@ test('technical health remains unverified until a real probe result is recorded 
   );
   await page.screenshot({
     path: 'test-results/technical-configuration-mobile.png',
+    fullPage: true,
+  });
+});
+
+test('a licence change uses the current authorised session without another password', async ({
+  page,
+}) => {
+  const commands = await fixture(page, 'SUPER_ADMIN');
+  await page.goto('http://localhost:5174/salute');
+  await page.getByRole('button', { name: 'Configurazione', exact: true }).click();
+  const row = page
+    .locator('.row.between')
+    .filter({ has: page.getByText('RESERVATION_MESSAGING', { exact: true }) });
+  await row.getByRole('button', { name: 'Attiva licenza', exact: true }).click();
+  const popup = page.getByRole('dialog', { name: 'Modifica RESERVATION_MESSAGING', exact: true });
+  await popup.getByRole('button', { name: 'Attiva licenza', exact: true }).click();
+  await expect
+    .poll(() => commands.find((c) => c.name === 'save_feature_license')?.body)
+    .toMatchObject({ p_name: 'RESERVATION_MESSAGING', p_licensed: true, p_grant: null });
+  await expect(page.getByRole('dialog', { name: 'Conferma la tua identità' })).toHaveCount(0);
+  expect(commands.filter((c) => c.name === 'step-up')).toHaveLength(0);
+  await expect(row.getByRole('button', { name: 'Disattiva licenza', exact: true })).toBeVisible();
+  await page.screenshot({ path: 'test-results/technical-blue-licences.png', fullPage: true });
+});
+
+test('kitchen staff switch category, department and order status without a fixed assignment', async ({
+  page,
+}) => {
+  await fixture(page, 'KITCHEN_STAFF');
+  const categoryA = '40000000-0000-4000-8000-000000000001',
+    categoryB = '40000000-0000-4000-8000-000000000002',
+    hot = '50000000-0000-4000-8000-000000000001',
+    cold = '50000000-0000-4000-8000-000000000002';
+  const base = {
+    order_id: '60000000-0000-4000-8000-000000000001',
+    step_id: '60000000-0000-4000-8000-000000000002',
+    step_number: 1,
+    step_status: 'ACTIVE',
+    table_name: 'Tavolo 2',
+    table_number: 2,
+    quantity: 1,
+    created_at: new Date().toISOString(),
+    started_at: null,
+    version: 1,
+    can_prepare: true,
+    can_deliver: false,
+    removed_ingredients: [],
+    variants: [],
+    allergens: [],
+  };
+  await page.route('**/rest/v1/rpc/get_kitchen_board', (route) =>
+    route.fulfill({
+      json: [
+        {
+          ...base,
+          id: '70000000-0000-4000-8000-000000000001',
+          dish_name: 'Pasta calda',
+          status: 'RECEIVED',
+          category_id: categoryA,
+          category_name: 'Primi',
+          station_id: hot,
+          station_name: 'Caldi',
+        },
+        {
+          ...base,
+          id: '70000000-0000-4000-8000-000000000002',
+          dish_name: 'Dolce freddo',
+          status: 'IN_PREPARATION',
+          category_id: categoryB,
+          category_name: 'Dolci',
+          station_id: cold,
+          station_name: 'Freddi',
+        },
+      ],
+    }),
+  );
+  await page.goto('http://localhost:5174/cucina');
+  await expect(page.locator('.kitchen-line:visible')).toHaveCount(2);
+  await page.getByLabel('Categoria piatti', { exact: true }).selectOption(categoryB);
+  await expect(page.locator('.kitchen-line:visible')).toHaveCount(1);
+  await expect(page.locator('.kitchen-line:visible')).toContainText('Dolce freddo');
+  await page.getByLabel('Reparto di preparazione', { exact: true }).selectOption(hot);
+  await expect(page.locator('.kitchen-line:visible')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Mostra tutto', exact: true }).click();
+  await expect(page.locator('.kitchen-line:visible')).toHaveCount(2);
+  await page.getByRole('button', { name: 'In lavorazione', exact: true }).click();
+  await expect(page.locator('.kitchen-line:visible')).toHaveCount(1);
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
+    true,
+  );
+  await page.screenshot({
+    path: 'test-results/plateform-kitchen-category-filters-mobile.png',
     fullPage: true,
   });
 });

@@ -95,7 +95,7 @@ for (const width of [1280, 390]) {
         .trim(),
     }));
     expect(dark.theme).toBe('dark');
-    expect(dark.token).toBe('#b4a99a');
+    expect(dark.token).toBe('#758baa');
     // Inputs animate border-color for 130ms: assert the settled style, not the first animation frame.
     await expect
       .poll(() => input.evaluate((element) => getComputedStyle(element).borderLeftColor))

@@ -162,9 +162,7 @@ export async function staffManagementPage(context: StaffContext): Promise<HTMLEl
               toast('Assegna almeno una sede allo staff con ambito sede.', true);
               return;
             }
-            const grant = await stepUp(
-              role.value === 'ADMIN' ? 'PRIVILEGED_STAFF' : 'STAFF_CHANGE',
-            );
+            const grant = role.value === 'ADMIN' ? await stepUp('PRIVILEGED_STAFF') : null;
             const secret = password.input.value;
             password.input.value = '';
             const { data, error } = await client().functions.invoke('staff-admin', {
@@ -276,10 +274,15 @@ export async function staffManagementPage(context: StaffContext): Promise<HTMLEl
                   toast('Assegna almeno una sede allo staff con ambito sede.', true);
                   return;
                 }
-                const grant = await stepUp(
-                  context.profile.role === 'SUPER_ADMIN' ? 'PRIVILEGED_STAFF' : 'STAFF_CHANGE',
-                  user.id,
-                );
+                const grant =
+                  user.role === 'ADMIN' || role.value === 'ADMIN'
+                    ? await stepUp(
+                        context.profile.role === 'SUPER_ADMIN'
+                          ? 'PRIVILEGED_STAFF'
+                          : 'STAFF_CHANGE',
+                        user.id,
+                      )
+                    : null;
                 await rpc(
                   'update_staff_access',
                   {
@@ -452,7 +455,7 @@ export async function staffManagementPage(context: StaffContext): Promise<HTMLEl
     if (
       context.profile.role === 'ADMIN' &&
       context.venue &&
-      ['WAITER', 'CASHIER', 'KITCHEN_STAFF'].includes(user.role)
+      ['WAITER', 'CASHIER'].includes(user.role)
     )
       card.append(
         button(

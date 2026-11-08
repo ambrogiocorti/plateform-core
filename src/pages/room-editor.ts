@@ -37,8 +37,11 @@ export async function roomEditorPage(context: StaffContext): Promise<HTMLElement
   let currentLayout = layout;
   const history = new History({ elements: layout.elements, tables });
   const selected = new Set<string>();
+  const requestedTable = new URLSearchParams(location.search).get('tavolo');
+  if (tables.some((table) => table.id === requestedTable)) selected.add(requestedTable!);
+  let savedDrawing = JSON.stringify(history.current);
   let tool = 'SELECT',
-    snap = true,
+    snap = false,
     zoom = 1,
     panX = 0,
     panY = 0;
@@ -60,9 +63,19 @@ export async function roomEditorPage(context: StaffContext): Promise<HTMLElement
     'aria-label': 'Proprietà selezione',
   });
   const count = el('p', { role: 'status' });
-  const view = el('div', { class: 'stack' }, el('div', { class: 'row' }, picker, count));
-  const tools = el('div', {
-    class: 'row editor-tools',
+  const topActions = el('div', { class: 'editor-top-actions' });
+  const view = el(
+    'div',
+    { class: 'room-editor-workspace' },
+    el(
+      'header',
+      { class: 'editor-topbar' },
+      el('div', {}, el('p', { class: 'eyebrow' }, 'PROGETTA LA SALA'), picker, count),
+      topActions,
+    ),
+  );
+  const tools = el('aside', {
+    class: 'editor-tools',
     role: 'toolbar',
     'aria-label': 'Strumenti disegno',
   });
@@ -109,14 +122,24 @@ export async function roomEditorPage(context: StaffContext): Promise<HTMLElement
       'secondary',
     );
   const grid = el('input', { type: 'checkbox' });
-  grid.checked = true;
+  grid.checked = false;
   grid.addEventListener('change', () => {
     snap = grid.checked;
   });
   tools.append(
     undo,
     redo,
-    el('label', {}, grid, 'Snap'),
+    el('label', { class: 'checkbox-line' }, grid, 'Aggancia alla griglia'),
+    button(
+      'Centra vista',
+      () => {
+        zoom = 1;
+        panX = 0;
+        panY = 0;
+        draw();
+      },
+      'quiet',
+    ),
     button(
       'Riduci vista',
       () => {
@@ -141,7 +164,30 @@ export async function roomEditorPage(context: StaffContext): Promise<HTMLElement
     const id = [...selected][0],
       element = history.current.elements.find((e) => e.id === id),
       table = history.current.tables.find((t) => t.id === id);
-    if (selected.size !== 1 || (!element && !table)) return;
+    if (selected.size !== 1 || (!element && !table)) {
+      inspector.append(
+        el(
+          'p',
+          { class: 'muted' },
+          selected.size
+            ? 'Trascina insieme gli elementi selezionati. Maiusc + clic per modificare la selezione.'
+            : 'Seleziona un elemento sulla pianta oppure scegli un tavolo dall’elenco.',
+        ),
+        el('h3', {}, 'Tavoli del layout'),
+        ...history.current.tables.map((t) =>
+          button(
+            `${t.name} · ${t.seats} posti`,
+            () => {
+              selected.clear();
+              selected.add(t.id);
+              draw();
+            },
+            'quiet',
+          ),
+        ),
+      );
+      return;
+    }
     const name = field(element ? 'Testo' : 'Nome', 'name', 'text', element?.text ?? table!.name);
     const fields = ['x', 'y', 'width', 'height', 'rotation'].map((key) => {
       const value =
@@ -256,6 +302,9 @@ export async function roomEditorPage(context: StaffContext): Promise<HTMLElement
     count.textContent = `${history.current.tables.length} tavoli · Zoom ${Math.round(zoom * 100)}%`;
     undo.disabled = !history.canUndo;
     redo.disabled = !history.canRedo;
+    view.dataset.unsaved = String(JSON.stringify(history.current) !== savedDrawing);
+    for (const control of tools.querySelectorAll('button'))
+      control.setAttribute('aria-pressed', String(names[tool] === control.textContent));
     updateInspector();
   }
   function point(event: PointerEvent): { x: number; y: number } {
@@ -269,6 +318,7 @@ export async function roomEditorPage(context: StaffContext): Promise<HTMLElement
     resize: string | null;
     pan: boolean;
     originalPan: { x: number; y: number };
+    panClient?: { x: number; y: number; scaleX: number; scaleY: number };
   } | null = null;
   svg.addEventListener('pointerdown', (event) => {
     const p = point(event);
@@ -276,12 +326,19 @@ export async function roomEditorPage(context: StaffContext): Promise<HTMLElement
     const id = target?.closest('[data-id]')?.getAttribute('data-id');
     const resize = target?.getAttribute('data-resize') ?? null;
     if (tool === 'PAN') {
+      const inverse = svg.getScreenCTM()?.inverse();
       drag = {
         start: p,
         drawing: structuredClone(history.current),
         resize: null,
         pan: true,
         originalPan: { x: panX, y: panY },
+        panClient: {
+          x: event.clientX,
+          y: event.clientY,
+          scaleX: inverse?.a ?? 1,
+          scaleY: inverse?.d ?? 1,
+        },
       };
       svg.setPointerCapture(event.pointerId);
       return;
@@ -319,8 +376,8 @@ export async function roomEditorPage(context: StaffContext): Promise<HTMLElement
         seats: 4,
         zone_id: null,
         shape: 'ROUND',
-        position_x: snapped(p.x, snap),
-        position_y: snapped(p.y, snap),
+        position_x: Math.max(0, Math.min(layout.width - 90, snapped(p.x, snap))),
+        position_y: Math.max(0, Math.min(layout.height - 90, snapped(p.y, snap))),
         width: 90,
         height: 90,
         rotation: 0,
@@ -329,13 +386,19 @@ export async function roomEditorPage(context: StaffContext): Promise<HTMLElement
       next.elements.push({
         id: fresh,
         kind: tool as LayoutElement['kind'],
-        x: snapped(p.x, snap),
-        y: snapped(p.y, snap),
+        x: Math.max(0, Math.min(layout.width - (tool === 'WALL' ? 200 : 140), snapped(p.x, snap))),
+        y: Math.max(
+          0,
+          Math.min(
+            layout.height - (['WALL', 'WINDOW', 'DOOR'].includes(tool) ? 16 : 80),
+            snapped(p.y, snap),
+          ),
+        ),
         width: tool === 'WALL' ? 200 : 140,
         height: ['WALL', 'WINDOW', 'DOOR'].includes(tool) ? 16 : 80,
         rotation: 0,
         text: tool === 'TEXT' ? 'Testo' : '',
-        color: tool === 'WALL' ? '#747474' : '#b88a55',
+        color: tool === 'WALL' ? '#64748b' : '#3b82f6',
         layer: next.elements.length,
       });
     history.commit(next);
@@ -350,9 +413,9 @@ export async function roomEditorPage(context: StaffContext): Promise<HTMLElement
       dx = p.x - drag.start.x,
       dy = p.y - drag.start.y;
     if (drag.pan) {
-      panX = Math.max(0, drag.originalPan.x - dx);
-      panY = Math.max(0, drag.originalPan.y - dy);
-      draw();
+      panX = drag.originalPan.x - (event.clientX - drag.panClient!.x) * drag.panClient!.scaleX;
+      panY = drag.originalPan.y - (event.clientY - drag.panClient!.y) * drag.panClient!.scaleY;
+      svg.setAttribute('viewBox', `${panX} ${panY} ${layout.width / zoom} ${layout.height / zoom}`);
       return;
     }
     const next = transformDrawing(drag.drawing, selected, {
@@ -388,6 +451,20 @@ export async function roomEditorPage(context: StaffContext): Promise<HTMLElement
   }
   svg.addEventListener('pointerup', (event) => endDrag(event));
   svg.addEventListener('pointercancel', (event) => endDrag(event, true));
+  svg.addEventListener(
+    'wheel',
+    (event) => {
+      if (!event.ctrlKey && !event.metaKey) return;
+      event.preventDefault();
+      const anchor = point(event as unknown as PointerEvent),
+        previous = zoom;
+      zoom = Math.max(0.25, Math.min(4, zoom * (event.deltaY < 0 ? 1.15 : 1 / 1.15)));
+      panX = anchor.x - ((anchor.x - panX) * previous) / zoom;
+      panY = anchor.y - ((anchor.y - panY) * previous) / zoom;
+      draw();
+    },
+    { passive: false },
+  );
   function remove(): void {
     const next = structuredClone(history.current);
     next.elements = next.elements.filter((i) => !selected.has(i.id));
@@ -460,7 +537,21 @@ export async function roomEditorPage(context: StaffContext): Promise<HTMLElement
   view.addEventListener('keydown', (event) => {
     if (event.target instanceof HTMLInputElement || event.target instanceof HTMLSelectElement)
       return;
-    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'z') {
+    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key) && selected.size) {
+      event.preventDefault();
+      const distance = event.shiftKey ? 10 : 1;
+      history.commit(
+        transformDrawing(history.current, selected, {
+          resizeId: null,
+          dx: event.key === 'ArrowLeft' ? -distance : event.key === 'ArrowRight' ? distance : 0,
+          dy: event.key === 'ArrowUp' ? -distance : event.key === 'ArrowDown' ? distance : 0,
+          snap: false,
+          layoutWidth: layout.width,
+          layoutHeight: layout.height,
+        }),
+      );
+      draw();
+    } else if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'z') {
       event.preventDefault();
       if (event.shiftKey) history.redo();
       else history.undo();
@@ -480,7 +571,7 @@ export async function roomEditorPage(context: StaffContext): Promise<HTMLElement
   });
   let saveKey = crypto.randomUUID(),
     savePayload: Drawing | null = null;
-  tools.append(
+  topActions.append(
     button('Salva layout', async () => {
       if (!savePayload) {
         savePayload = structuredClone(history.current);
@@ -497,10 +588,21 @@ export async function roomEditorPage(context: StaffContext): Promise<HTMLElement
         z.object({ layout: layoutSchema, tables: z.array(layoutTableSchema) }),
       );
       currentLayout = result.layout;
-      history.current = { elements: result.layout.elements, tables: result.tables };
+      const newerChanges = JSON.stringify(history.current) !== JSON.stringify(savePayload);
+      const serverDrawing = { elements: result.layout.elements, tables: result.tables };
+      if (newerChanges) {
+        const versions = new Map(result.tables.map((table) => [table.id, table.version]));
+        history.current.tables = history.current.tables.map((table) => ({
+          ...table,
+          version: versions.get(table.id) ?? table.version,
+        }));
+      } else history.current = serverDrawing;
+      savedDrawing = JSON.stringify(serverDrawing);
       savePayload = null;
       saveKey = crypto.randomUUID();
-      toast('Layout salvato.');
+      toast(
+        newerChanges ? 'Layout salvato. Restano nuove modifiche da salvare.' : 'Layout salvato.',
+      );
       draw();
     }),
     button(
@@ -518,9 +620,24 @@ export async function roomEditorPage(context: StaffContext): Promise<HTMLElement
     ),
   );
   view.append(
-    tools,
-    el('div', { class: 'editor-grid' }, el('div', { class: 'canvas-scroll' }, svg), inspector),
+    el(
+      'div',
+      { class: 'editor-grid' },
+      tools,
+      el(
+        'section',
+        { class: 'canvas-scroll', 'aria-label': 'Area di disegno' },
+        svg,
+        el(
+          'p',
+          { class: 'editor-canvas-hint' },
+          'Trascina per spostare · Maiusc + clic per selezionare più elementi · ⌘/Ctrl + rotella per lo zoom',
+        ),
+      ),
+      inspector,
+    ),
   );
+  if (new URLSearchParams(location.search).get('nuovo') === 'tavolo') tool = 'TABLE';
   draw();
   return view;
 }

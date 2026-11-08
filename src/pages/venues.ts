@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import { readRows, rpc } from '../api/client';
 import { button, dialog, el, field, toast } from '../components/dom';
-import { stepUp } from '../auth/step-up';
 import type { StaffContext } from './staff-context';
 
 // All writes are performed by version-checked, audited, Super Admin-only RPCs.
@@ -93,7 +92,7 @@ export async function venuesPage(context: StaffContext): Promise<HTMLElement> {
           )
         )
           return;
-        const grant = await stepUp('FEATURE_CHANGE');
+        const grant = null;
         if (existing) {
           await rpc(
             'update_venue',
@@ -167,7 +166,7 @@ export async function venuesPage(context: StaffContext): Promise<HTMLElement> {
             const key = crypto.randomUUID();
             popup.append(
               button('Conferma disattivazione', async () => {
-                const grant = await stepUp('FEATURE_CHANGE');
+                const grant = null;
                 await rpc(
                   'update_venue',
                   {

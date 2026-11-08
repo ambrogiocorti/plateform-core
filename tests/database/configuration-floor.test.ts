@@ -27,6 +27,37 @@ describe('configuration and operational floor boundaries', () => {
   afterAll(async () => {
     await db?.close();
   });
+  it('persists all service switches together and supports a second versioned save', async () => {
+    await identity(db, ids.admin);
+    for (const enabled of [true, false]) {
+      const version = (
+        await db.query<{ version: number }>(
+          'select version from public.venue_settings where venue_id=$1',
+          [ids.venue],
+        )
+      ).rows[0]!.version;
+      await db.query('select public.save_operational_settings($1,$2,$3,$4)', [
+        ids.venue,
+        version,
+        JSON.stringify({
+          reservations_enabled: enabled,
+          customer_bill_request: enabled,
+          returns_enabled: enabled,
+        }),
+        crypto.randomUUID(),
+      ]);
+      expect(
+        (
+          await db.query(
+            'select reservations_enabled,customer_bill_request,returns_enabled from public.venue_settings where venue_id=$1',
+            [ids.venue],
+          )
+        ).rows,
+      ).toEqual([
+        { reservations_enabled: enabled, customer_bill_request: enabled, returns_enabled: enabled },
+      ]);
+    }
+  });
   it('Host sees active layout occupancy without account names, balance or payment data', async () => {
     await identity(db, ids.waiter);
     await db.query("select public.create_account($1,'Private group',3,null,$2)", [

@@ -20,6 +20,26 @@ test('a table is added on the canvas, saved, activated and saved again', async (
   await expect(page.locator('.workspace-subtitle')).toContainText('admin');
   await page.goto('/editor');
   await expect(page.getByRole('button', { name: 'Muro' })).toBeVisible();
+  await page.getByRole('button', { name: 'Sposta vista', exact: true }).click();
+  const canvas = page.locator('svg.room-canvas');
+  const bounds = await canvas.boundingBox();
+  if (!bounds) throw new Error('Missing editor canvas');
+  await page.mouse.move(bounds.x + 100, bounds.y + 100);
+  await page.mouse.down();
+  await page.mouse.move(bounds.x + 140, bounds.y + 130, { steps: 4 });
+  const firstPan = (await canvas.getAttribute('viewBox'))!.split(' ').map(Number);
+  await page.mouse.move(bounds.x + 160, bounds.y + 150, { steps: 4 });
+  const secondPan = (await canvas.getAttribute('viewBox'))!.split(' ').map(Number);
+  expect(firstPan[0]).toBeLessThan(0);
+  expect(secondPan[0]).toBeLessThan(firstPan[0]!);
+  expect(secondPan[1]).toBeLessThan(firstPan[1]!);
+  await page.mouse.up();
+  await page.getByRole('button', { name: 'Centra vista', exact: true }).click();
+  expect((await canvas.getAttribute('viewBox'))!.split(' ').slice(0, 2)).toEqual(['0', '0']);
+  await page.screenshot({
+    path: 'test-results/plateform-v5-room-editor-blue-desktop.png',
+    fullPage: true,
+  });
   await page.getByRole('button', { name: 'Tavolo', exact: true }).click();
   await page.locator('svg.room-canvas').click({ position: { x: 320, y: 220 } });
   await expect(page.getByLabel('Numero tavolo')).toHaveValue('3');

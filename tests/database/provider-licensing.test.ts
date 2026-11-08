@@ -49,11 +49,20 @@ describe('current provider licensing and booking-deposit dependencies', () => {
       expect(result.rows).toEqual([{ licensed: true }]);
     },
   );
-  it('requires a fresh step-up even for the technical Super Admin', async () => {
+  it('lets an authenticated MFA Super Admin change reversible licences without another password', async () => {
     await identity(db, ids.superAdmin);
+    await db.query("select public.configure_feature('RESERVATION_MESSAGING',true,null)");
+    expect(
+      (
+        await db.query(
+          "select licensed from public.feature_flags where name='RESERVATION_MESSAGING'",
+        )
+      ).rows,
+    ).toEqual([{ licensed: true }]);
+    await identity(db, ids.superAdmin, 'aal1');
     await expect(
-      db.query("select public.configure_feature('STRIPE',true,$1)", [crypto.randomUUID()]),
-    ).rejects.toThrow('STEP_UP_REQUIRED');
+      db.query("select public.configure_feature('RESERVATION_MESSAGING',false,null)"),
+    ).rejects.toThrow();
   });
   it.each([ids.admin, ids.cashier, ids.waiter, ids.host])(
     'prevents staff %s from licensing providers',

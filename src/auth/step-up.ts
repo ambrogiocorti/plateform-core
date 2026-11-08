@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { client } from '../api/client';
+import { client, safeEdgeError } from '../api/client';
 import { button, dialog, el, field } from '../components/dom';
 
 export function stepUp(action: string, resource: string | null = null): Promise<string> {
@@ -24,7 +24,7 @@ export function stepUp(action: string, resource: string | null = null): Promise<
         const { data, error } = await client().functions.invoke('step-up', {
           body: { password: secret, action, resource_id: resource },
         });
-        if (error) throw error;
+        if (error) throw await safeEdgeError(error);
         const grant = z.object({ grant_id: z.uuid() }).parse(data);
         completed = true;
         confirmation.close();

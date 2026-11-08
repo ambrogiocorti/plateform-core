@@ -7,6 +7,7 @@ import '../../styles/workspace-v5.css';
 import '../../styles/staff-access.css';
 import '../../styles/overlays.css';
 import '../../styles/navigation-tree.css';
+import '../../styles/staff-workspaces.css';
 import { groupedNavigation } from '../../src/services/navigation-groups';
 import {
   el,
@@ -43,6 +44,7 @@ import {
 const root = document.getElementById('app');
 if (!root) throw new Error('Missing application root');
 const app: HTMLElement = root;
+document.body.classList.add('staff-workspace');
 let renderRevision = 0;
 let recoveryIntent = consumePasswordRecoveryIntent();
 let currentContext: StaffContext | null = null;
