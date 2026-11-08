@@ -224,10 +224,12 @@ export function contrastRatio(first: string, second: string): number {
   return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
 }
 
-export function readableInk(background: string): '#15243b' | '#ffffff' {
-  return contrastRatio(background, '#15243b') >= contrastRatio(background, '#ffffff')
-    ? '#15243b'
-    : '#ffffff';
+export function readableInk(background: string): '#15243b' | '#ffffff' | '#000000' {
+  const preferred =
+    contrastRatio(background, '#15243b') >= contrastRatio(background, '#ffffff')
+      ? '#15243b'
+      : '#ffffff';
+  return contrastRatio(background, preferred) >= 4.5 ? preferred : '#000000';
 }
 
 export function safeBackground(candidate: string, darkMode: boolean): string | undefined {

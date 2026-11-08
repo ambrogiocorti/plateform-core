@@ -53,7 +53,7 @@ body:has(#app > .login-layout-v5) {
 .login-brand::before {
   content: none;
 }
-.login-brand-symbol {
+.login-layout-v5 .login-brand-symbol {
   display: inline-block;
   flex: 0 0 34px;
   width: 34px;
