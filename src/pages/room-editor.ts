@@ -248,7 +248,7 @@ export async function roomEditorPage(context: StaffContext): Promise<HTMLElement
       ...zones.map((z) => el('option', { value: z.id }, z.name)),
     );
     zone.value = table?.zone_id ?? '';
-    const color = field('Colore', 'color', 'color', element?.color ?? '#b88a55');
+    const color = field('Colore', 'color', 'color', element?.color ?? '#245edb');
     inspector.append(name.root, ...fields.map((f) => f.root));
     if (table) inspector.append(number.root, seats.root, shape, zone);
     else inspector.append(color.root);

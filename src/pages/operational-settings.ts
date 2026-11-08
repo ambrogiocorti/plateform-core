@@ -523,7 +523,7 @@ async function tableLabelSettings(context: StaffContext): Promise<HTMLElement> {
         `${label} → ${current?.label ?? label}`,
         () => {
           const name = field('Etichetta', 'label', 'text', current?.label ?? label),
-            color = field('Colore', 'color', 'color', current?.color ?? '#B88A55'),
+            color = field('Colore', 'color', 'color', current?.color ?? '#245edb'),
             icon = field('Simbolo breve', 'icon', 'text', current?.icon ?? '');
           name.input.required = true;
           name.input.maxLength = 80;
