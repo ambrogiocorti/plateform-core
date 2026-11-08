@@ -42,6 +42,19 @@ for (const width of [1280, 390]) {
       await expect(page.getByRole('heading', { name: 'La cucina che ci unisce' })).toBeVisible();
       await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
       await expect(page.locator('.restaurant-home')).toBeVisible();
+      await expect(page.locator('.public-brand-symbol')).toHaveCSS(
+        'background-color',
+        'rgb(36, 94, 219)',
+      );
+      expect(
+        await page
+          .locator('html')
+          .evaluate((root) => getComputedStyle(root).getPropertyValue('--pf-background').trim()),
+      ).toBe('#f3f6fb');
+      await expect(page.locator('link[rel="icon"]')).toHaveAttribute(
+        'href',
+        /icon\.svg\?v=blue-20261108$/,
+      );
       await expect(page.locator('.restaurant-discover')).toBeVisible();
       expect(
         await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
@@ -52,6 +65,10 @@ for (const width of [1280, 390]) {
       });
       await page.getByRole('button', { name: 'Attiva tema scuro' }).click();
       await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+      await expect(page.locator('.public-brand-symbol')).toHaveCSS(
+        'background-color',
+        'rgb(129, 173, 255)',
+      );
       expect(
         await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
       ).toBe(true);
@@ -68,6 +85,11 @@ for (const width of [1280, 390]) {
     await page.setViewportSize({ width, height: 840 });
     await page.goto('http://localhost:5174');
     await expect(page.getByRole('heading', { name: 'Bentornato.' })).toBeVisible();
+    await expect(page.locator('.login-story')).toHaveCSS('background-color', 'rgb(18, 51, 104)');
+    await expect(page.locator('.login-brand-symbol')).toHaveCSS(
+      'background-color',
+      'rgb(255, 255, 255)',
+    );
     const input = page.getByLabel('Identificativo staff');
     await expect(input).toBeVisible();
     const state = await input.evaluate((element) => {

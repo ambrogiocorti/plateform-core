@@ -26,7 +26,15 @@ export function plateformPwa(
         versionHash.update('\0');
       }
       const version = versionHash.digest('hex').slice(0, 16);
-      const assets = [`${base}index.html`, ...files.map((file) => base + file), `${base}icon.svg`];
+      const assets = [
+        `${base}index.html`,
+        ...files.map((file) => base + file),
+        `${base}icon.svg`,
+        `${base}icon.svg?v=blue-20261108`,
+        `${base}icon-blue-192.png`,
+        `${base}icon-blue-512.png`,
+        `${base}apple-touch-icon-blue.png`,
+      ];
       const source = `const CACHE=${JSON.stringify(`plateform-${area}-${version}`)},PREFIX=${JSON.stringify(`plateform-${area}-`)},BASE=${JSON.stringify(base)},STAFF=${JSON.stringify(staffBase)},ASSETS=${JSON.stringify(assets)};
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS))));
 self.addEventListener('activate',event=>event.waitUntil((async()=>{for(const name of await caches.keys())if(name.startsWith(PREFIX)&&name!==CACHE)await caches.delete(name);await self.clients.claim();})()));
@@ -46,10 +54,29 @@ if(ASSETS.includes(url.pathname))event.respondWith(caches.match(event.request).t
           start_url: base,
           scope: base,
           display: 'standalone',
-          background_color: '#f5f7fc',
-          theme_color: '#f5f7fc',
+          background_color: '#f3f6fb',
+          theme_color: '#245edb',
           lang: 'it',
-          icons: [{ src: base + 'icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' }],
+          icons: [
+            {
+              src: base + 'icon.svg?v=blue-20261108',
+              sizes: 'any',
+              type: 'image/svg+xml',
+              purpose: 'any',
+            },
+            {
+              src: base + 'icon-blue-192.png',
+              sizes: '192x192',
+              type: 'image/png',
+              purpose: 'any maskable',
+            },
+            {
+              src: base + 'icon-blue-512.png',
+              sizes: '512x512',
+              type: 'image/png',
+              purpose: 'any maskable',
+            },
+          ],
         }),
       });
     },

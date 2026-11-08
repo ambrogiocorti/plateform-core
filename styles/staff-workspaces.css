@@ -1,42 +1,4 @@
-/* Staff workspaces use cool surfaces; the established navigation keeps its structure. */
-body.staff-workspace {
-  --pf-background: #f3f6fb;
-  --pf-surface: #fff;
-  --pf-surface-2: #eef3fb;
-  --pf-surface-3: #e3ebf7;
-  --pf-ink: #15243b;
-  --pf-text: #33445e;
-  --pf-muted: #596b85;
-  --pf-line: #dce4ef;
-  --pf-control-border: #a4b4cb;
-  --pf-focus-ring: #2563eb;
-  --pf-blue: #245edb;
-  --pf-blue-hover: #184ab4;
-  --pf-blue-soft: #eaf1ff;
-  --pf-elevation: 0 3px 16px #1b3e7710;
-  --bg: var(--pf-background);
-  --surface: var(--pf-surface);
-  --raised: var(--pf-surface-2);
-  --text: var(--pf-ink);
-  --muted: var(--pf-muted);
-  --border: var(--pf-line);
-  --accent: var(--pf-blue);
-}
-:root[data-theme='dark'] body.staff-workspace {
-  --pf-background: #101927;
-  --pf-surface: #172338;
-  --pf-surface-2: #20304a;
-  --pf-surface-3: #2b3c58;
-  --pf-ink: #edf3ff;
-  --pf-text: #d2dcee;
-  --pf-muted: #a4b4cd;
-  --pf-line: #34445e;
-  --pf-control-border: #758baa;
-  --pf-blue: #81adff;
-  --pf-blue-hover: #a5c5ff;
-  --pf-blue-soft: #233e68;
-  --pf-on-blue: #102344;
-}
+/* Workspaces share the platform palette defined in tokens.css. */
 body.staff-workspace .staff-shell {
   --workspace-canvas: var(--pf-background);
 }
@@ -234,6 +196,36 @@ dialog.dialog.table-detail-dialog {
 .table-detail-dialog .dialog-actions {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.table-group-summary {
+  padding: 16px;
+  border: 1px solid var(--pf-line);
+  border-radius: 12px;
+  background: var(--pf-blue-soft);
+}
+.table-group-summary h3 {
+  margin: 0 0 8px;
+  color: var(--pf-blue);
+}
+.table-group-summary p:last-child {
+  margin-bottom: 0;
+  font-size: 12px;
+}
+.floor-group-badge {
+  width: fit-content;
+  padding: 5px 8px;
+  border-radius: 6px;
+  background: var(--pf-blue-soft);
+  color: var(--pf-blue);
+  font-size: 11px;
+  font-weight: 650;
+}
+.floor-group-link {
+  stroke: var(--pf-blue);
+  stroke-width: 3px;
+  stroke-dasharray: 7 5;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
 }
 .staff-workspace .toast {
   border-radius: 13px;

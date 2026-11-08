@@ -2,10 +2,10 @@
    A compact role-aware rail, a single page header and an operational dashboard. */
 
 .staff-shell {
-  --workspace-rail: #1a1c1b;
-  --workspace-rail-text: #f3eee5;
-  --workspace-rail-muted: #bcb4a9;
-  --workspace-canvas: #f6f3ed;
+  --workspace-rail: var(--pf-surface);
+  --workspace-rail-text: var(--pf-ink);
+  --workspace-rail-muted: var(--pf-muted);
+  --workspace-canvas: var(--pf-background);
   display: grid;
   grid-template-columns: 224px minmax(0, 1fr);
   background: var(--workspace-canvas);
@@ -15,10 +15,10 @@
   grid-template-columns: 84px minmax(0, 1fr);
 }
 :root[data-theme='dark'] .staff-shell {
-  --workspace-rail: #0e100f;
-  --workspace-rail-text: #f5efe3;
-  --workspace-rail-muted: #bcb4a9;
-  --workspace-canvas: #141615;
+  --workspace-rail: var(--pf-surface);
+  --workspace-rail-text: var(--pf-ink);
+  --workspace-rail-muted: var(--pf-muted);
+  --workspace-canvas: var(--pf-background);
 }
 .staff-shell > div:not(.assistance-banner) {
   min-width: 0;
@@ -52,8 +52,8 @@
   height: 38px;
   margin-right: 12px;
   border-radius: 13px;
-  background: #d9ac70;
-  color: #1d1e1b;
+  background: var(--pf-blue);
+  color: var(--pf-on-blue);
   font-size: 22px;
   font-weight: 800;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.13);
@@ -68,7 +68,7 @@
   border: 1px solid rgba(217, 230, 255, 0.16);
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.05);
-  color: #d4c5b2;
+  color: var(--workspace-rail-muted);
   font-size: 16px;
   font-weight: 600;
 }
@@ -122,8 +122,8 @@
 .staff-shell .sidebar .nav-link[aria-current='page'],
 .staff-shell .sidebar .nav-more[data-current='true'] {
   border: 0;
-  background: #f4ebdf;
-  color: #714923;
+  background: var(--pf-blue-soft);
+  color: var(--pf-blue);
   box-shadow: none;
 }
 .staff-shell .sidebar .nav-link[aria-current='page']::before,
@@ -134,7 +134,7 @@
   left: -13px;
   width: 4px;
   border-radius: 0 4px 4px 0;
-  background: #b78950;
+  background: var(--pf-blue);
   content: '';
 }
 .staff-shell .sidebar .nav-icon {
@@ -162,7 +162,7 @@
   border-radius: 7px;
 }
 .staff-shell .sidebar .nav-more[data-current='true'] {
-  background: rgba(244, 235, 223, 0.1);
+  background: var(--pf-blue-soft);
   color: var(--workspace-rail-text);
 }
 .profile-dialog {
@@ -714,18 +714,16 @@
   content: none;
 }
 
-/* The emblem is a CSS crop of the original Plateform artwork already shipped
-   with the project. Keep the wordmark as real text for accessibility. */
+/* Scalable plate-and-fork emblem; the wordmark remains accessible live text. */
 .staff-shell .sidebar .brand-mark,
 .login-layout-v5 .login-brand-symbol {
-  border: 1px solid rgba(205, 161, 102, 0.38);
-  background-color: #111211;
-  background-image: url('../assets/plateform/logo-plateform-optimized.png');
-  background-repeat: no-repeat;
-  background-position: center -14px;
-  background-size: 154px 103px;
+  border: 0;
+  border-radius: 0;
+  background: var(--pf-blue);
+  mask: url('../assets/plateform/mark.svg') center / contain no-repeat;
   color: transparent;
   font-size: 0;
+  box-shadow: none;
 }
 
 /* Room workspace: operational information first, with filters close to the map. */
@@ -845,7 +843,7 @@
 }
 .staff-shell .floor-map-viewport {
   border: 1px solid var(--pf-line);
-  background: #262a28;
+  background: var(--pf-surface-2);
 }
 .staff-shell .floor-grid .table-button {
   justify-content: flex-start;

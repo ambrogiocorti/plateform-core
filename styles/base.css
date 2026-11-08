@@ -130,12 +130,11 @@ img {
   text-decoration: none;
 }
 .brand::before {
-  content: 'P';
+  content: '';
   display: inline-grid;
   place-items: center;
   background: var(--accent);
-  color: var(--accent-ink);
-  border-radius: 9px;
+  mask: url('../assets/plateform/mark.svg') center / contain no-repeat;
   width: 33px;
   height: 36px;
   margin-right: 10px;

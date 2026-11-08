@@ -436,7 +436,12 @@ async function render(refreshSnapshot = false): Promise<void> {
     el(
       'a',
       { href: '/', class: 'restaurant-brand', 'aria-label': `${site.name} — Home` },
-      logo ? el('img', { src: logo, alt: '', width: '150', decoding: 'async' }) : site.name,
+      ...(logo
+        ? [el('img', { src: logo, alt: '', width: '150', decoding: 'async' })]
+        : [
+            el('span', { class: 'public-brand-symbol', 'aria-hidden': 'true' }),
+            el('span', { class: 'restaurant-brand-name' }, site.name),
+          ]),
     ),
     el('div', { class: 'public-header-actions' }, themeButton, menuButton),
     navigation,
@@ -646,7 +651,7 @@ function applyBrand(site: PublicSite): void {
   ])
     document.documentElement.style.removeProperty(token);
   const darkMode = preferredPublicTheme() === 'dark';
-  const defaultBackground = darkMode ? '#141615' : '#f6f3ed';
+  const defaultBackground = darkMode ? '#101927' : '#f3f6fb';
   // The restaurant can select a branded background for its configured mode,
   // but it must never override a guest's explicit light/dark preference.
   const brandDarkMode = site.branding.dark_mode !== false;
@@ -692,7 +697,7 @@ function applyBrand(site: PublicSite): void {
     : 'editorial';
   document.documentElement.dataset.theme = darkMode ? 'dark' : 'light';
   const themeColor = document.head.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
-  if (themeColor) themeColor.content = background ?? defaultBackground;
+  if (themeColor) themeColor.content = accent ?? (darkMode ? '#172338' : '#245edb');
   const favicon = safeImageUrl(site.branding.favicon_url);
   if (favicon) {
     let icon = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
@@ -704,7 +709,7 @@ function applyBrand(site: PublicSite): void {
   } else {
     // A previously configured favicon must not survive its removal.
     const icon = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
-    if (icon) icon.href = hrefForPublicRoute('/icon.svg');
+    if (icon) icon.href = hrefForPublicRoute('/icon.svg?v=blue-20261108');
   }
 }
 

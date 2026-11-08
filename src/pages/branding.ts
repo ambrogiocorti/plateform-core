@@ -178,9 +178,10 @@ export async function brandingPage(context: StaffContext): Promise<HTMLElement> 
     return node;
   };
   const visual = section('Identità visiva');
+  const configuredDarkMode = brand.dark_mode === true;
   for (const [key, label, fallback] of [
-    ['accent_color', 'Colore principale', '#B88A55'],
-    ['background_color', 'Sfondo', '#111315'],
+    ['accent_color', 'Colore principale', configuredDarkMode ? '#81adff' : '#245edb'],
+    ['background_color', 'Sfondo', configuredDarkMode ? '#101927' : '#f3f6fb'],
   ] as const) {
     const control = field(label, key, 'color', String(brand[key] ?? fallback));
     visual.append(control.root);
@@ -234,7 +235,7 @@ export async function brandingPage(context: StaffContext): Promise<HTMLElement> 
   );
   const darkModeId = `brand-dark-${crypto.randomUUID()}`;
   const darkMode = el('input', { id: darkModeId, type: 'checkbox' });
-  darkMode.checked = brand.dark_mode !== false;
+  darkMode.checked = configuredDarkMode;
   visual.append(el('label', { for: darkModeId, class: 'row' }, darkMode, 'Tema scuro'));
   const logo = field('Logo', 'logo_url', 'url', String(brand.logo_url ?? ''));
   visual.append(

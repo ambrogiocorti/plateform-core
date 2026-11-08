@@ -7,8 +7,9 @@ const venue = '10000000-0000-4000-8000-000000000001';
 const booking = '80000000-0000-4000-8000-000000000006';
 const service = '80000000-0000-4000-8000-000000000005';
 const table = '80000000-0000-4000-8000-000000000003';
+const secondTable = '80000000-0000-4000-8000-000000000010';
 
-async function hostFixture(page: Page, locked = false) {
+async function hostFixture(page: Page, locked = false, withSecondTable = false) {
   await page.addInitScript(
     ({ id }) => {
       const token = `${btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }))}.${btoa(JSON.stringify({ sub: id, exp: Math.floor(Date.now() / 1000) + 3600, role: 'authenticated' }))}.fixture`;
@@ -35,6 +36,7 @@ async function hostFixture(page: Page, locked = false) {
   );
   const commands: { name: string; body: Record<string, unknown> }[] = [];
   let tableAssigned = false;
+  let merged = false;
   await page.route('**/rest/v1/**', async (route) => {
     const url = new URL(route.request().url());
     const name = url.pathname.split('/').at(-1)!;
@@ -85,7 +87,7 @@ async function hostFixture(page: Page, locked = false) {
         },
       ];
     else if (name === 'feature_flags') data = [{ name: 'MULTI_VENUE', licensed: false }];
-    else if (name === 'get_floor_workspace')
+    else if (name === 'get_floor_workspace') {
       data = {
         rooms: [
           {
@@ -131,7 +133,26 @@ async function hostFixture(page: Page, locked = false) {
         zones: [],
         labels: [],
       };
-    else if (name === 'services') data = [{ id: service, name: 'Cena', active: true }];
+      if (withSecondTable) {
+        const workspace = data as { tables: Record<string, unknown>[] };
+        workspace.tables.push({
+          ...workspace.tables[0],
+          id: secondTable,
+          name: 'Tavolo 5',
+          number: 5,
+          seats: 2,
+          position_x: 450,
+          public_table_id: '80000000-0000-4000-8000-000000000011',
+          primary_table_id: merged ? table : null,
+        });
+      }
+    } else if (name === 'merge_tables') {
+      merged = true;
+      data = '80000000-0000-4000-8000-000000000012';
+    } else if (name === 'split_tables') {
+      merged = false;
+      data = null;
+    } else if (name === 'services') data = [{ id: service, name: 'Cena', active: true }];
     else if (name === 'get_host_reservations')
       data = {
         items: [
@@ -270,6 +291,54 @@ test('a locked session requires a valid PIN before showing operations', async ({
   await expect(page.getByRole('heading', { name: 'Marta Rossi' })).toBeVisible();
   await page.getByRole('button', { name: 'Blocca', exact: true }).click();
   await expect(page.getByText('Sessione bloccata')).toBeVisible();
+});
+
+test('joined tables stay visible after reload and can be split from the secondary table', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const commands = await hostFixture(page, false, true);
+  await page.goto('http://localhost:5174/sala');
+  await page.getByRole('button', { name: /^Tavolo 4 ·/ }).click();
+  await page.getByRole('button', { name: 'Unisci un tavolo' }).click();
+  await page
+    .getByRole('dialog', { name: 'Unisci a Tavolo 4' })
+    .getByRole('button', { name: 'Conferma', exact: true })
+    .click();
+  await expect(page.locator('.floor-group-badge')).toHaveCount(2);
+  expect(commands.find((entry) => entry.name === 'merge_tables')?.body).toEqual({
+    p_primary: table,
+    p_secondary: secondTable,
+  });
+  await page.reload();
+  await expect(page.locator('.floor-group-badge')).toHaveCount(2);
+  await page.getByLabel('Vista sala').selectOption('map');
+  await expect(page.locator('.floor-group-link')).toHaveCount(1);
+  await page.getByLabel('Vista sala').selectOption('list');
+  await page.getByRole('button', { name: /^Tavolo 5 ·/ }).click();
+  const group = page.getByRole('dialog', { name: 'Gruppo tavoli 4 + 5 · 6 posti' });
+  await expect(group.getByText('Tavolo principale: Tavolo 4.', { exact: false })).toBeVisible();
+  await group.getByRole('button', { name: 'Separa tavoli' }).click();
+  await expect(page.locator('.floor-group-badge')).toHaveCount(0);
+  await expect(
+    page.getByText('Tavoli separati. Ogni tavolo è di nuovo indipendente.'),
+  ).toBeVisible();
+  expect(commands.find((entry) => entry.name === 'split_tables')?.body).toEqual({
+    p_primary: table,
+  });
+});
+
+test('joining with no eligible tables explains the reason and disables confirmation', async ({
+  page,
+}) => {
+  const commands = await hostFixture(page);
+  await page.goto('http://localhost:5174/sala');
+  await page.getByRole('button', { name: /^Tavolo 4 ·/ }).click();
+  await page.getByRole('button', { name: 'Unisci un tavolo' }).click();
+  const selector = page.getByRole('dialog', { name: 'Unisci a Tavolo 4' });
+  await expect(selector.getByRole('heading', { name: 'Nessun tavolo disponibile' })).toBeVisible();
+  await expect(selector.getByRole('button', { name: 'Conferma', exact: true })).toBeDisabled();
+  expect(commands.some((entry) => entry.name === 'merge_tables')).toBe(false);
 });
 
 test('Host workspace fits a mobile screen and sends its filters to the server', async ({

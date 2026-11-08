@@ -41,11 +41,11 @@ requireText(staffCss, 'color: var(--accent-ink)', 'notification_badge_contrast')
 forbidText(staffCss, 'color: #111315', 'notification_badge_hardcoded_ink');
 // Report #3: form control boundaries must satisfy 3:1 non-text contrast against surfaces.
 requireText(baseCss, 'var(--pf-control-border', 'base_form_boundary_token');
-requireText(tokens, '--pf-control-border: #827b71', 'light_control_boundary');
-requireText(tokens, '--pf-control-border: #b4a99a', 'dark_control_boundary');
+requireText(tokens, '--pf-control-border: #7a8ba5', 'light_control_boundary');
+requireText(tokens, '--pf-control-border: #758baa', 'dark_control_boundary');
 for (const [border, background, label] of [
-  ['#827b71', '#fffdf9', 'light'],
-  ['#b4a99a', '#1c1f1d', 'dark'],
+  ['#7a8ba5', '#ffffff', 'light'],
+  ['#758baa', '#172338', 'dark'],
 ]) {
   const ratio = contrast(border, background);
   assert.ok(

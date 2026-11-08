@@ -99,6 +99,12 @@ test('branding Admin: colore, testi e sezioni arrivano al sito pubblico', async 
   await expect(admin.locator('.workspace-subtitle')).toContainText(staff.admin.name);
   await expect(admin.locator('.workspace-subtitle')).toContainText('admin');
   await admin.goto('/sito');
+  await expect(admin.getByLabel('Colore principale')).toHaveValue('#245edb');
+  await expect(admin.getByLabel('Sfondo', { exact: true })).toHaveValue('#f3f6fb');
+  await expect(admin.getByLabel('Tema scuro', { exact: true })).not.toBeChecked();
+  // Exercise custom dark branding explicitly; the platform now defaults to white and blue.
+  await admin.getByLabel('Sfondo', { exact: true }).fill('#111315');
+  await admin.getByLabel('Tema scuro', { exact: true }).check();
   await admin.getByLabel('Colore principale').fill('#2a6f4e');
   await expect(admin.getByText('Modifiche da salvare', { exact: true })).toBeVisible();
   await admin.getByRole('button', { name: 'Home e contenuti', exact: true }).click();

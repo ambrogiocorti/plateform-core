@@ -3,6 +3,7 @@ name: Plateform GitHub Pages release
 on:
   push:
     branches:
+      - feat/platform-blue-brand-20261108
       - fix/staff-workspaces-and-settings-20261107
       - main
       - feature/customer-experience-light-theme-20261027

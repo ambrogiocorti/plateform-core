@@ -1,20 +1,20 @@
 /* Grouped navigation follows the clear, nested structure of the FASAS reference. */
 .staff-shell {
-  --workspace-rail: #fff;
-  --workspace-rail-text: #26313e;
-  --workspace-rail-muted: #657080;
-  --nav-hover: #f6f7f9;
-  --nav-selected: #f6f0e7;
-  --nav-selected-ink: #80552a;
+  --workspace-rail: var(--pf-surface);
+  --workspace-rail-text: var(--pf-ink);
+  --workspace-rail-muted: var(--pf-muted);
+  --nav-hover: var(--pf-surface-2);
+  --nav-selected: var(--pf-blue-soft);
+  --nav-selected-ink: var(--pf-blue);
   grid-template-columns: 264px minmax(0, 1fr);
 }
 :root[data-theme='dark'] .staff-shell {
-  --workspace-rail: #191d22;
-  --workspace-rail-text: #e7ebf0;
-  --workspace-rail-muted: #a3aebb;
-  --nav-hover: #ffffff09;
-  --nav-selected: #b8895219;
-  --nav-selected-ink: #dbb586;
+  --workspace-rail: var(--pf-surface);
+  --workspace-rail-text: var(--pf-ink);
+  --workspace-rail-muted: var(--pf-muted);
+  --nav-hover: var(--pf-surface-2);
+  --nav-selected: var(--pf-blue-soft);
+  --nav-selected-ink: var(--pf-blue);
 }
 .staff-shell .sidebar {
   gap: 28px;

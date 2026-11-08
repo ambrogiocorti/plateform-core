@@ -64,3 +64,43 @@ test('a table is added on the canvas, saved, activated and saved again', async (
     '4',
   );
 });
+
+test('merging tables persists a visible group and splitting works from either member', async ({
+  page,
+}) => {
+  sql(`update public.room_layouts set active=true where id='${ids.layout}'`);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/login');
+  await page.getByLabel('Identificativo staff').fill(staff.admin.email);
+  await page.getByLabel('Password').fill(password);
+  await page.getByRole('button', { name: 'Accedi al servizio' }).click();
+  await expect(page.locator('.workspace-subtitle')).toContainText(staff.admin.name);
+  await page.goto('/sala');
+  await page.getByRole('button', { name: /^Tavolo 1 ·/ }).click();
+  await page.getByRole('button', { name: 'Unisci un tavolo' }).click();
+  await page
+    .getByRole('dialog', { name: 'Unisci a Tavolo 1' })
+    .getByRole('button', { name: 'Conferma', exact: true })
+    .click();
+  await expect(page.locator('.floor-group-badge')).toHaveCount(2);
+  expect(
+    sql(
+      `select count(*) from public.table_merges where primary_table_id='${ids.table1}' and secondary_table_id='${ids.table2}' and split_at is null`,
+    ),
+  ).toBe('1');
+  await page.reload();
+  await expect(page.locator('.floor-group-badge')).toHaveCount(2);
+  await page.screenshot({
+    path: 'test-results/plateform-blue-merged-tables-mobile.png',
+    fullPage: true,
+  });
+  await page.getByRole('button', { name: /^Tavolo 2 ·/ }).click();
+  const group = page.getByRole('dialog', { name: /Gruppo tavoli 1 \+ 2/ });
+  await group.getByRole('button', { name: 'Separa tavoli' }).click();
+  await expect(page.locator('.floor-group-badge')).toHaveCount(0);
+  expect(
+    sql(
+      `select count(*) from public.table_merges where primary_table_id='${ids.table1}' and split_at is null`,
+    ),
+  ).toBe('0');
+});

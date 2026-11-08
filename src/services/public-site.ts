@@ -224,15 +224,17 @@ export function contrastRatio(first: string, second: string): number {
   return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
 }
 
-export function readableInk(background: string): '#111315' | '#fffdf8' {
-  return contrastRatio(background, '#111315') >= contrastRatio(background, '#fffdf8')
-    ? '#111315'
-    : '#fffdf8';
+export function readableInk(background: string): '#15243b' | '#ffffff' | '#000000' {
+  const preferred =
+    contrastRatio(background, '#15243b') >= contrastRatio(background, '#ffffff')
+      ? '#15243b'
+      : '#ffffff';
+  return contrastRatio(background, preferred) >= 4.5 ? preferred : '#000000';
 }
 
 export function safeBackground(candidate: string, darkMode: boolean): string | undefined {
   if (!/^#[0-9a-f]{6}$/i.test(candidate)) return undefined;
-  const preferredText = darkMode ? '#f4f0e8' : '#181b1d';
+  const preferredText = darkMode ? '#edf3ff' : '#15243b';
   return contrastRatio(candidate, preferredText) >= 4.5 ? candidate : undefined;
 }
 

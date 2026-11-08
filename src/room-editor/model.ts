@@ -149,8 +149,8 @@ export function renderDrawing(
         y: String(y + h - 12),
         width: '24',
         height: '24',
-        fill: '#f4f0e8',
-        stroke: '#111315',
+        fill: '#ffffff',
+        stroke: '#245edb',
         cursor: 'nwse-resize',
       }),
     );
