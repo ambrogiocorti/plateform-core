@@ -6,7 +6,7 @@ body.staff-workspace {
   --pf-surface-3: #e3ebf7;
   --pf-ink: #15243b;
   --pf-text: #33445e;
-  --pf-muted: #627189;
+  --pf-muted: #596b85;
   --pf-line: #dce4ef;
   --pf-control-border: #a4b4cb;
   --pf-focus-ring: #2563eb;
@@ -118,6 +118,44 @@ body.staff-workspace .staff-shell {
   font-size: 10px;
   overflow-wrap: anywhere;
   letter-spacing: 0.025em;
+}
+.staff-workspace .incident-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px 20px;
+  padding: 18px;
+  border-radius: 12px;
+  border-left: 3px solid var(--warning);
+  box-shadow: none;
+}
+.incident-identity {
+  display: grid;
+  gap: 7px;
+}
+.incident-identity small {
+  font-size: 11px;
+}
+.incident-labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  grid-column: 1;
+}
+.incident-row > .button {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  min-height: 40px;
+  font-size: 12px;
+  padding: 10px 14px;
+}
+.staff-workspace .incident-row[data-severity='CRITICAL'] {
+  border-left-color: var(--danger);
+}
+.staff-workspace .technical-panel .row.between > .button {
+  min-height: 40px;
+  padding: 10px 14px;
+  font-size: 12px;
 }
 .staff-workspace .technical-panel .row.between {
   padding: 14px 0;
@@ -353,6 +391,14 @@ dialog.dialog.table-detail-dialog {
   }
 }
 @media (max-width: 700px) {
+  .staff-workspace .incident-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .incident-row > .button {
+    grid-column: 1;
+    grid-row: auto;
+    justify-self: start;
+  }
   .staff-workspace .ops-overview {
     padding: 18px;
   }

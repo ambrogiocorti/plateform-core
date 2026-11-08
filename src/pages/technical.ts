@@ -1426,11 +1426,41 @@ export async function technicalPage(context: StaffContext): Promise<HTMLElement>
     incidents.append(
       el(
         'article',
-        { class: 'card row between' },
-        el('strong', {}, String(incident.title)),
-        ...(incident.automation_key ? [status('AUTO')] : []),
-        status(String(incident.severity)),
-        status(String(incident.status)),
+        { class: 'card incident-row', 'data-severity': String(incident.severity) },
+        el(
+          'div',
+          { class: 'incident-identity' },
+          el('strong', {}, String(incident.title)),
+          el(
+            'small',
+            { class: 'muted' },
+            incident.automation_key
+              ? 'Rilevato dal monitoraggio automatico'
+              : 'Segnalazione del personale',
+          ),
+        ),
+        el(
+          'div',
+          { class: 'incident-labels' },
+          status(
+            (
+              {
+                DEGRADED: 'Servizio ridotto',
+                WARNING: 'Da verificare',
+                CRITICAL: 'Critico',
+                INFO: 'Informativo',
+              } as Record<string, string>
+            )[String(incident.severity)] ?? String(incident.severity),
+          ),
+          status(
+            (
+              { OPEN: 'Aperto', INVESTIGATING: 'In verifica', RESOLVED: 'Risolto' } as Record<
+                string,
+                string
+              >
+            )[String(incident.status)] ?? String(incident.status),
+          ),
+        ),
         button('Gestisci incidente', () => editIncident(incident), 'secondary'),
       ),
     );

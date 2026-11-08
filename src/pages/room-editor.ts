@@ -318,6 +318,7 @@ export async function roomEditorPage(context: StaffContext): Promise<HTMLElement
     resize: string | null;
     pan: boolean;
     originalPan: { x: number; y: number };
+    panClient?: { x: number; y: number; scaleX: number; scaleY: number };
   } | null = null;
   svg.addEventListener('pointerdown', (event) => {
     const p = point(event);
@@ -325,12 +326,19 @@ export async function roomEditorPage(context: StaffContext): Promise<HTMLElement
     const id = target?.closest('[data-id]')?.getAttribute('data-id');
     const resize = target?.getAttribute('data-resize') ?? null;
     if (tool === 'PAN') {
+      const inverse = svg.getScreenCTM()?.inverse();
       drag = {
         start: p,
         drawing: structuredClone(history.current),
         resize: null,
         pan: true,
         originalPan: { x: panX, y: panY },
+        panClient: {
+          x: event.clientX,
+          y: event.clientY,
+          scaleX: inverse?.a ?? 1,
+          scaleY: inverse?.d ?? 1,
+        },
       };
       svg.setPointerCapture(event.pointerId);
       return;
@@ -368,8 +376,8 @@ export async function roomEditorPage(context: StaffContext): Promise<HTMLElement
         seats: 4,
         zone_id: null,
         shape: 'ROUND',
-        position_x: snapped(p.x, snap),
-        position_y: snapped(p.y, snap),
+        position_x: Math.max(0, Math.min(layout.width - 90, snapped(p.x, snap))),
+        position_y: Math.max(0, Math.min(layout.height - 90, snapped(p.y, snap))),
         width: 90,
         height: 90,
         rotation: 0,
@@ -378,8 +386,14 @@ export async function roomEditorPage(context: StaffContext): Promise<HTMLElement
       next.elements.push({
         id: fresh,
         kind: tool as LayoutElement['kind'],
-        x: snapped(p.x, snap),
-        y: snapped(p.y, snap),
+        x: Math.max(0, Math.min(layout.width - (tool === 'WALL' ? 200 : 140), snapped(p.x, snap))),
+        y: Math.max(
+          0,
+          Math.min(
+            layout.height - (['WALL', 'WINDOW', 'DOOR'].includes(tool) ? 16 : 80),
+            snapped(p.y, snap),
+          ),
+        ),
         width: tool === 'WALL' ? 200 : 140,
         height: ['WALL', 'WINDOW', 'DOOR'].includes(tool) ? 16 : 80,
         rotation: 0,
@@ -399,8 +413,8 @@ export async function roomEditorPage(context: StaffContext): Promise<HTMLElement
       dx = p.x - drag.start.x,
       dy = p.y - drag.start.y;
     if (drag.pan) {
-      panX = drag.originalPan.x - dx;
-      panY = drag.originalPan.y - dy;
+      panX = drag.originalPan.x - (event.clientX - drag.panClient!.x) * drag.panClient!.scaleX;
+      panY = drag.originalPan.y - (event.clientY - drag.panClient!.y) * drag.panClient!.scaleY;
       svg.setAttribute('viewBox', `${panX} ${panY} ${layout.width / zoom} ${layout.height / zoom}`);
       return;
     }
@@ -574,11 +588,21 @@ export async function roomEditorPage(context: StaffContext): Promise<HTMLElement
         z.object({ layout: layoutSchema, tables: z.array(layoutTableSchema) }),
       );
       currentLayout = result.layout;
-      history.current = { elements: result.layout.elements, tables: result.tables };
-      savedDrawing = JSON.stringify(history.current);
+      const newerChanges = JSON.stringify(history.current) !== JSON.stringify(savePayload);
+      const serverDrawing = { elements: result.layout.elements, tables: result.tables };
+      if (newerChanges) {
+        const versions = new Map(result.tables.map((table) => [table.id, table.version]));
+        history.current.tables = history.current.tables.map((table) => ({
+          ...table,
+          version: versions.get(table.id) ?? table.version,
+        }));
+      } else history.current = serverDrawing;
+      savedDrawing = JSON.stringify(serverDrawing);
       savePayload = null;
       saveKey = crypto.randomUUID();
-      toast('Layout salvato.');
+      toast(
+        newerChanges ? 'Layout salvato. Restano nuove modifiche da salvare.' : 'Layout salvato.',
+      );
       draw();
     }),
     button(
