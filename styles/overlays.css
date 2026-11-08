@@ -203,8 +203,8 @@ dialog.dialog > .toasts .toast {
 dialog.dialog.gallery-lightbox {
   width: min(1100px, calc(100vw - 40px));
   padding: 20px;
-  background: #131614;
-  color: #f6f3ed;
+  background: var(--pf-surface);
+  color: var(--pf-ink);
   border-color: #ffffff1a;
 }
 dialog.gallery-lightbox > .dialog-heading {
@@ -222,7 +222,7 @@ dialog.gallery-lightbox > .dialog-heading h2 {
   margin: 0;
 }
 dialog.gallery-lightbox .dismiss-control {
-  color: #f6f3ed;
+  color: var(--pf-ink);
 }
 dialog.gallery-lightbox .dismiss-control:hover {
   background: #ffffff15;

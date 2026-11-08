@@ -6,6 +6,7 @@ on:
   workflow_call:
   push:
     branches:
+      - feat/platform-blue-brand-20261108
       - fix/staff-workspaces-and-settings-20261107
       - fix/release-candidate-hardening-20261103
       - fix/release-edition-contracts-20261103

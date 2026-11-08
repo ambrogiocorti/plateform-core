@@ -1,4 +1,4 @@
-/* Reserved staff access: a quiet form, with the original restaurant software identity. */
+/* Reserved staff access shares Plateform's white and blue identity. */
 html:has(#app > .login-layout-v5),
 body:has(#app > .login-layout-v5) {
   height: 100dvh;
@@ -35,8 +35,8 @@ body:has(#app > .login-layout-v5) {
   padding: 36px 32px;
   border: 0;
   border-radius: 0;
-  background: #191c1f;
-  color: #f4f0e8;
+  background: #123368;
+  color: #fff;
 }
 .login-layout-v5 .login-story::before {
   content: none;
@@ -45,7 +45,7 @@ body:has(#app > .login-layout-v5) {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  color: #f4f0e8;
+  color: #fff;
   font-size: 22px;
   letter-spacing: -0.04em;
   text-decoration: none;
@@ -59,10 +59,8 @@ body:has(#app > .login-layout-v5) {
   width: 34px;
   height: 40px;
   overflow: hidden;
-  background-image: url('../assets/plateform/logo-plateform-optimized.png');
-  background-repeat: no-repeat;
-  background-size: 111px 74px;
-  background-position: -40px -9px;
+  background: #fff;
+  mask: url('../assets/plateform/mark.svg') center / contain no-repeat;
   color: transparent;
 }
 .login-story-content {
@@ -71,21 +69,21 @@ body:has(#app > .login-layout-v5) {
 .login-layout-v5 .login-story h1 {
   max-width: 10ch;
   margin: 16px 0;
-  color: #f4f0e8;
+  color: #fff;
   font-size: 36px;
   line-height: 1.12;
   letter-spacing: -0.045em;
   font-weight: 600;
 }
 .login-story .eyebrow {
-  color: #d8b58a;
+  color: #b6d0ff;
   font-size: 10px;
   letter-spacing: 0.12em;
 }
 .login-story-lead {
   max-width: 27ch;
   margin: 0;
-  color: #c2bdb4;
+  color: #d2e0f7;
   font-size: 13px;
   line-height: 1.65;
 }
@@ -95,22 +93,22 @@ body:has(#app > .login-layout-v5) {
   list-style: none;
   margin: 32px 0 0;
   padding: 0;
-  border-top: 1px solid #41413d;
+  border-top: 1px solid #ffffff30;
 }
 .login-areas li {
   display: flex;
   gap: 14px;
   padding: 13px 0;
-  border-bottom: 1px solid #41413d;
+  border-bottom: 1px solid #ffffff30;
   font-size: 12px;
 }
 .login-areas span {
-  color: #c5a47b;
+  color: #b6d0ff;
   font-variant-numeric: tabular-nums;
 }
 .login-story-footer {
   margin: 0;
-  color: #c2bdb4;
+  color: #d2e0f7;
   font-size: 10px;
   letter-spacing: 0.03em;
 }

@@ -48,6 +48,16 @@
   max-width: min(220px, 30vw);
   object-fit: contain;
 }
+.public-brand-symbol {
+  flex: 0 0 30px;
+  width: 30px;
+  height: 36px;
+  background: var(--pf-blue);
+  mask: url('../assets/plateform/mark.svg') center / contain no-repeat;
+}
+.restaurant-brand-name {
+  min-width: 0;
+}
 .public-nav {
   display: flex;
   align-items: center;

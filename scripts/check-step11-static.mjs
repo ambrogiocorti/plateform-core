@@ -54,7 +54,10 @@ for (const [needle, label] of [
   ["textValue(site.branding, 'font_body')", 'public_body_font'],
   ["textValue(site.branding, 'layout', 'EDITORIAL')", 'public_layout'],
   ['safeImageUrl(site.branding.favicon_url)', 'public_favicon'],
-  ["if (icon) icon.href = hrefForPublicRoute('/icon.svg')", 'public_removed_favicon_resets'],
+  [
+    "if (icon) icon.href = hrefForPublicRoute('/icon.svg?v=blue-20261108')",
+    'public_removed_favicon_resets',
+  ],
   ['document.documentElement.style.removeProperty(token)', 'public_brand_tokens_reset'],
   [
     'else document.head.querySelector(\'meta[property="og:image"]\')?.remove()',
@@ -193,8 +196,8 @@ for (const [needle, label] of [
   requireText(designSystem, needle, label);
 const sharedTokens = await read('styles/tokens.css');
 requireText(designSystem, "@import './tokens.css'", 'canonical_token_owner');
-requireText(sharedTokens, '--pf-background: #f6f3ed', 'light_default_palette');
-requireText(sharedTokens, '--pf-background: #141615', 'dark_palette');
+requireText(sharedTokens, '--pf-background: #f3f6fb', 'light_default_palette');
+requireText(sharedTokens, '--pf-background: #101927', 'dark_palette');
 for (const [needle, label] of [
   ["import '../../styles/staff-app.css'", 'staff_design_loaded'],
   ["import '../../styles/workspace-redesign.css'", 'staff_structural_redesign_loaded'],

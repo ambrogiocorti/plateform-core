@@ -14,6 +14,20 @@ export const floorTableSchema = layoutTableSchema.extend({
   primary_table_id: z.uuid().nullable(),
 });
 export type FloorTable = z.infer<typeof floorTableSchema>;
+export function tableGroup(tables: FloorTable[], selected: FloorTable): FloorTable[] {
+  const primary = tables.find((table) => table.id === (selected.primary_table_id ?? selected.id));
+  if (!primary) return [selected];
+  return [
+    primary,
+    ...tables
+      .filter((table) => table.primary_table_id === primary.id)
+      .sort((first, second) => first.number - second.number),
+  ];
+}
+
+export function tableGroupLabel(group: FloorTable[]): string {
+  return `Gruppo tavoli ${group.map((table) => table.number).join(' + ')}`;
+}
 export const floorSchema = z.object({
   rooms: z.array(z.object({ id: z.uuid(), name: z.string(), layout: layoutSchema })),
   tables: z.array(floorTableSchema),
@@ -108,8 +122,11 @@ export function floorView(data: FloorWorkspace, open: (table: FloorTable) => voi
   const summary = el('div', { class: 'floor-summary', 'aria-label': 'Riepilogo tavoli mostrati' });
   const result = el('p', { class: 'floor-result', role: 'status', 'aria-live': 'polite' });
   let zoom = 1;
-  const labelFor = (table: FloorTable) =>
-    `${table.name} · ${tableLabel(data, table)} · ${table.covers} ospiti · ${table.seats} posti${table.waiter_name ? ` · ${table.waiter_name}` : ''}`;
+  const labelFor = (table: FloorTable) => {
+    const group = tableGroup(data.tables, table);
+    const groupLabel = group.length > 1 ? ` · ${tableGroupLabel(group)}` : '';
+    return `${table.name} · ${tableLabel(data, table)} · ${table.covers} ospiti · ${table.seats} posti${table.waiter_name ? ` · ${table.waiter_name}` : ''}${groupLabel}`;
+  };
   const colorFor = (table: FloorTable) => {
     const value = data.labels.find(
       (label) => label.technical_status === table.technical_status,
@@ -144,6 +161,9 @@ export function floorView(data: FloorWorkspace, open: (table: FloorTable) => voi
         ),
       );
       if (table.waiter_name) tile.append(el('span', { class: 'muted' }, table.waiter_name));
+      const group = tableGroup(data.tables, table);
+      if (group.length > 1)
+        tile.append(el('span', { class: 'floor-group-badge' }, tableGroupLabel(group)));
       grid.append(tile);
     }
     return grid;
@@ -200,6 +220,24 @@ export function floorView(data: FloorWorkspace, open: (table: FloorTable) => voi
       });
       svg.style.width = `${zoom * 100}%`;
       renderDrawing(svg, { elements: selected.layout.elements, tables: visible });
+      const connections = svgElement('g', {
+        class: 'floor-group-connections',
+        'aria-hidden': 'true',
+      });
+      for (const member of visible.filter((table) => table.primary_table_id)) {
+        const primary = visible.find((table) => table.id === member.primary_table_id);
+        if (!primary) continue;
+        connections.append(
+          svgElement('line', {
+            x1: String(primary.position_x + primary.width / 2),
+            y1: String(primary.position_y + primary.height / 2),
+            x2: String(member.position_x + member.width / 2),
+            y2: String(member.position_y + member.height / 2),
+            class: 'floor-group-link',
+          }),
+        );
+      }
+      svg.prepend(connections);
       for (const node of svg.querySelectorAll<SVGGElement>('g[data-id]')) {
         const table = visible.find((t) => t.id === node.dataset.id);
         if (!table) {
@@ -211,16 +249,17 @@ export function floorView(data: FloorWorkspace, open: (table: FloorTable) => voi
         node.setAttribute('aria-label', labelFor(table));
         node.classList.add('operational-table');
         const shape = node.querySelector('rect,ellipse');
-        shape?.setAttribute('fill', '#292d33');
+        shape?.setAttribute('fill', 'var(--pf-surface-2)');
         shape?.setAttribute('stroke', colorFor(table));
         shape?.setAttribute('stroke-width', '6');
+        node.querySelector('text')?.setAttribute('fill', 'var(--pf-ink)');
         const title = svgElement('title', {});
         title.textContent = labelFor(table);
         node.prepend(title);
         const count = svgElement('text', {
           x: String(table.width / 2),
           y: String(table.height / 2 + 26),
-          fill: '#f4f0e8',
+          fill: 'var(--pf-ink)',
           'font-size': '12',
           'text-anchor': 'middle',
         });
@@ -229,12 +268,27 @@ export function floorView(data: FloorWorkspace, open: (table: FloorTable) => voi
         const state = svgElement('text', {
           x: String(table.width / 2),
           y: String(table.height + 17),
-          fill: '#f4f0e8',
+          fill: 'var(--pf-muted)',
           'font-size': '12',
           'text-anchor': 'middle',
         });
         state.textContent = tableLabel(data, table);
         node.append(state);
+        const group = tableGroup(data.tables, table);
+        if (group.length > 1) {
+          node.dataset.groupPrimary = group[0]!.id;
+          const groupText = svgElement('text', {
+            x: String(table.width / 2),
+            y: String(table.height + 34),
+            fill: 'var(--pf-blue)',
+            'font-size': '11',
+            'font-weight': '700',
+            'text-anchor': 'middle',
+            class: 'floor-group-label',
+          });
+          groupText.textContent = tableGroupLabel(group);
+          node.append(groupText);
+        }
         node.addEventListener('click', () => open(table));
         node.addEventListener('keydown', (event) => {
           if (event.key === 'Enter' || event.key === ' ') {

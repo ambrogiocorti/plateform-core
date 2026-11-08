@@ -42,9 +42,9 @@ for (const [s, text, label] of [
     "localStorage.getItem('plateform-sidebar') === 'collapsed'",
     'explicit_compact_sidebar_preference',
   ],
-  [newWorkspace, '--workspace-rail: #1a1c1b;', 'premium_navigation_material'],
-  [tokens, '--pf-blue: #895b2d;', 'master_prompt_bronze_accent'],
-  [newWorkspace, 'logo-plateform-optimized.png', 'brand_asset_reuse'],
+  [newWorkspace, '--workspace-rail: var(--pf-surface);', 'shared_navigation_surface'],
+  [tokens, '--pf-blue: #245edb;', 'platform_blue_accent'],
+  [newWorkspace, "url('../assets/plateform/mark.svg')", 'scalable_plateform_emblem'],
   [staffCss, '.login-layout', 'existing_login_contract'],
   [staff, 'loginPage(async () => {', 'login_entry_still_available'],
 ])

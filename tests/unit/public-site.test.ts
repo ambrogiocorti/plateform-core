@@ -165,8 +165,8 @@ describe('public telemetry privacy', () => {
 
 describe('public branding contrast', () => {
   it('chooses readable ink and rejects inaccessible backgrounds', () => {
-    expect(readableInk('#f4f0e8')).toBe('#111315');
-    expect(readableInk('#111315')).toBe('#fffdf8');
+    expect(readableInk('#f3f6fb')).toBe('#15243b');
+    expect(readableInk('#15243b')).toBe('#ffffff');
     expect(contrastRatio('#111315', '#f4f0e8')).toBeGreaterThan(7);
     expect(safeBackground('#ffffff', true)).toBeUndefined();
     expect(safeBackground('#111315', true)).toBe('#111315');

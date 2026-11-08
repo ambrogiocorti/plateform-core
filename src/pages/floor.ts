@@ -1,7 +1,14 @@
 import { z } from 'zod';
 import { rpc } from '../api/client';
-import { floorSchema, floorView, tableLabel, type FloorTable } from '../components/floor-view';
-import { button, dialog, el, emptyState, status } from '../components/dom';
+import {
+  floorSchema,
+  floorView,
+  tableGroup,
+  tableGroupLabel,
+  tableLabel,
+  type FloorTable,
+} from '../components/floor-view';
+import { button, dialog, el, emptyState, status, toast } from '../components/dom';
 import type { StaffContext } from './staff-context';
 import { command } from './staff-context';
 import { environment } from '../config/environment';
@@ -16,9 +23,16 @@ export async function floorPage(context: StaffContext): Promise<HTMLElement> {
     );
   const data = await rpc('get_floor_workspace', { p_venue: context.venue.id }, floorSchema);
   const tables = data.tables;
-  const open = (table: FloorTable): void => {
+  const open = (selected: FloorTable): void => {
+    const group = tableGroup(tables, selected);
+    const table = group[0]!;
+    const seats = group.reduce((total, member) => total + member.seats, 0);
+    const covers = group.reduce((total, member) => total + member.covers, 0);
+    const openAccounts = group.reduce((total, member) => total + member.open_accounts, 0);
     const detail = dialog(
-      `${table.name} · ${table.seats} coperti`,
+      group.length > 1
+        ? `${tableGroupLabel(group)} · ${seats} posti`
+        : `${table.name} · ${table.seats} coperti`,
       status(tableLabel(data, table)),
     );
     detail.classList.add('table-detail-dialog');
@@ -26,16 +40,25 @@ export async function floorPage(context: StaffContext): Promise<HTMLElement> {
       el(
         'section',
         { class: 'table-detail-summary' },
-        el('div', {}, el('span', {}, 'Capienza'), el('strong', {}, `${table.seats} posti`)),
-        el('div', {}, el('span', {}, 'Ospiti'), el('strong', {}, String(table.covers))),
-        el(
-          'div',
-          {},
-          el('span', {}, 'Conti aperti'),
-          el('strong', {}, String(table.open_accounts)),
-        ),
+        el('div', {}, el('span', {}, 'Capienza'), el('strong', {}, `${seats} posti`)),
+        el('div', {}, el('span', {}, 'Ospiti'), el('strong', {}, String(covers))),
+        el('div', {}, el('span', {}, 'Conti aperti'), el('strong', {}, String(openAccounts))),
       ),
     );
+    if (group.length > 1)
+      detail.append(
+        el(
+          'section',
+          { class: 'table-group-summary' },
+          el('h3', {}, 'Tavoli uniti'),
+          el('p', {}, group.map((member) => member.name).join(' + ')),
+          el(
+            'p',
+            { class: 'muted' },
+            `Tavolo principale: ${table.name}. Puoi gestire il gruppo da ogni tavolo che ne fa parte.`,
+          ),
+        ),
+      );
     if (context.profile.role === 'ADMIN')
       detail.append(
         button(
@@ -87,7 +110,7 @@ export async function floorPage(context: StaffContext): Promise<HTMLElement> {
     if (
       ['ADMIN', 'HOST', 'WAITER'].includes(context.profile.role) &&
       table.technical_status !== 'AVAILABLE' &&
-      table.open_accounts === 0
+      openAccounts === 0
     )
       detail.append(
         button(
@@ -104,42 +127,77 @@ export async function floorPage(context: StaffContext): Promise<HTMLElement> {
       const selectTarget = (
         title: string,
         action: (target: string) => Promise<void>,
-        sameLayout = false,
+        operation: 'move' | 'merge' | 'configure',
+        successMessage: string,
       ) => {
+        const targets = tables.filter(
+          (other) =>
+            !group.some((member) => member.id === other.id) &&
+            (operation === 'move' || other.layout_id === table.layout_id) &&
+            other.technical_status === 'AVAILABLE' &&
+            !other.primary_table_id &&
+            (operation !== 'merge' ||
+              !tables.some((member) => member.primary_table_id === other.id)),
+        );
         const selector = el(
           'select',
           {},
-          ...tables
-            .filter(
-              (other) =>
-                other.id !== table.id &&
-                (!sameLayout || other.layout_id === table.layout_id) &&
-                other.technical_status === 'AVAILABLE' &&
-                !other.primary_table_id,
-            )
-            .map((other) =>
-              el('option', { value: other.id }, `${other.name} · ${other.seats} posti`),
-            ),
-        );
-        const popup = dialog(title, el('label', {}, 'Tavolo di destinazione', selector));
-        popup.append(
-          button('Conferma', async () => {
-            if (!selector.value) return;
-            await action(selector.value);
-            popup.close();
-            detail.close();
-            context.navigate('/sala');
+          ...targets.map((other) => {
+            const targetGroup = tableGroup(tables, other);
+            const capacity = targetGroup.reduce((total, member) => total + member.seats, 0);
+            return el(
+              'option',
+              { value: other.id },
+              `${targetGroup.length > 1 ? tableGroupLabel(targetGroup) : other.name} · ${capacity} posti`,
+            );
           }),
         );
+        const popup = dialog(
+          title,
+          el(
+            'p',
+            { class: 'muted' },
+            operation === 'merge'
+              ? 'Il gruppo sarà indicato nella pianta con un collegamento blu e nell’elenco con i numeri dei tavoli.'
+              : 'Seleziona un tavolo disponibile per completare l’operazione.',
+          ),
+          el('label', {}, 'Tavolo di destinazione', selector),
+        );
+        const confirm = button('Conferma', async () => {
+          if (!selector.value) return;
+          await action(selector.value);
+          popup.close();
+          detail.close();
+          context.navigate('/sala');
+          toast(successMessage);
+        });
+        if (!targets.length) {
+          selector.disabled = true;
+          confirm.disabled = true;
+          popup.append(
+            emptyState(
+              'Nessun tavolo disponibile',
+              operation === 'merge'
+                ? 'Servono tavoli liberi della stessa pianta che non appartengano già a un altro gruppo.'
+                : 'Non ci sono altri tavoli liberi compatibili con questa operazione.',
+            ),
+          );
+        }
+        popup.append(confirm);
       };
-      if (table.covers > 0 || table.open_accounts > 0)
+      if (covers > 0 || openAccounts > 0)
         detail.append(
           button(
             'Sposta gruppo',
             () =>
-              selectTarget(`Sposta ${table.name} e i suoi ospiti`, async (target) => {
-                await command('move_table', { p_from: table.id, p_to: target, p_confirm: true });
-              }),
+              selectTarget(
+                `Sposta ${table.name} e i suoi ospiti`,
+                async (target) => {
+                  await command('move_table', { p_from: table.id, p_to: target, p_confirm: true });
+                },
+                'move',
+                'Gruppo spostato. La pianta è aggiornata.',
+              ),
             'secondary',
           ),
         );
@@ -152,12 +210,13 @@ export async function floorPage(context: StaffContext): Promise<HTMLElement> {
               async (target) => {
                 await rpc('merge_tables', { p_primary: table.id, p_secondary: target }, z.uuid());
               },
-              true,
+              'merge',
+              'Tavoli uniti. Il gruppo è evidenziato nella pianta.',
             ),
           'secondary',
         ),
       );
-      if (tables.some((other) => other.primary_table_id === table.id))
+      if (group.length > 1)
         detail.append(
           button(
             'Separa tavoli',
@@ -165,6 +224,7 @@ export async function floorPage(context: StaffContext): Promise<HTMLElement> {
               await command('split_tables', { p_primary: table.id });
               detail.close();
               context.navigate('/sala');
+              toast('Tavoli separati. Ogni tavolo è di nuovo indipendente.');
             },
             'secondary',
           ),
@@ -174,13 +234,18 @@ export async function floorPage(context: StaffContext): Promise<HTMLElement> {
           button(
             'Configura tavolo unibile',
             () =>
-              selectTarget(`Consenti suggerimenti di unione con ${table.name}`, async (target) => {
-                await command('configure_table_join', {
-                  p_first: table.id,
-                  p_second: target,
-                  p_enabled: true,
-                });
-              }),
+              selectTarget(
+                `Consenti suggerimenti di unione con ${table.name}`,
+                async (target) => {
+                  await command('configure_table_join', {
+                    p_first: table.id,
+                    p_second: target,
+                    p_enabled: true,
+                  });
+                },
+                'configure',
+                'Unione disponibile per i suggerimenti di prenotazione.',
+              ),
             'quiet',
           ),
         );

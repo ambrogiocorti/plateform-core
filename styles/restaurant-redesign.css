@@ -1,19 +1,19 @@
 /* Plateform Hospitality: an editorial restaurant experience, not an app dashboard.
    Replaces the previous public landing layout. Theme and venue branding remain authoritative. */
 :root {
-  --hospitality-canvas: color-mix(in srgb, var(--pf-background) 64%, #faf6ee);
+  --hospitality-canvas: var(--pf-background);
   --hospitality-ink: var(--pf-ink);
   --hospitality-muted: var(--pf-muted);
-  --hospitality-rule: color-mix(in srgb, var(--pf-line) 75%, #d6c9b5);
+  --hospitality-rule: var(--pf-line);
   --hospitality-accent: var(--pf-blue);
   --hospitality-surface: var(--pf-surface);
-  --hospitality-dark: #1c2527;
+  --hospitality-dark: #123368;
   --hospitality-display: var(--public-heading-font, Georgia, 'Times New Roman', serif);
 }
 :root[data-theme='dark'] {
-  --hospitality-canvas: #121b21;
-  --hospitality-rule: #33434c;
-  --hospitality-dark: #0b1218;
+  --hospitality-canvas: var(--pf-background);
+  --hospitality-rule: var(--pf-line);
+  --hospitality-dark: #102344;
 }
 #app:has(.restaurant-home) {
   background: var(--hospitality-canvas);
@@ -134,12 +134,12 @@
   text-decoration: none;
 }
 .restaurant-welcome-actions .button.primary {
-  background: var(--hospitality-ink);
-  color: var(--hospitality-surface);
+  background: var(--hospitality-accent);
+  color: var(--pf-on-blue);
   box-shadow: none;
 }
 .restaurant-welcome-actions .button.primary:hover {
-  background: var(--hospitality-accent);
+  background: var(--pf-blue-hover);
   color: var(--pf-on-blue);
 }
 .restaurant-welcome-actions .button.secondary {
@@ -371,7 +371,7 @@
   padding: clamp(24px, 3vw, 40px);
   border: 0;
   border-radius: 13px;
-  background: color-mix(in srgb, var(--hospitality-surface) 55%, #e9dfd0);
+  background: var(--pf-blue-soft);
 }
 .restaurant-story-panel h2 {
   max-width: 560px;
@@ -403,22 +403,22 @@
   border-radius: 13px;
   background: var(--hospitality-dark);
   box-shadow: none;
-  color: #f3f0e9;
+  color: #fff;
 }
 .restaurant-visit-panel .restaurant-kicker {
-  color: #d6b68a;
+  color: #b6d0ff;
 }
 .restaurant-visit-panel h2 {
   max-width: 450px;
   margin: 19px 0 13px;
-  color: #f3f0e9;
+  color: #fff;
   font: 500 clamp(31px, 3.6vw, 49px)/1.14 var(--hospitality-display);
   letter-spacing: -0.045em;
 }
 .restaurant-visit-panel > p:not(.restaurant-kicker) {
   margin: 0;
   max-width: 400px;
-  color: #bac8cb;
+  color: #d2e0f7;
   font-size: 13px;
   line-height: 1.75;
 }
@@ -436,17 +436,17 @@
   padding: 13px 0;
   gap: 20px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.18);
-  color: #f3f0e9;
+  color: #fff;
   font-size: 13px;
   font-weight: 650;
   text-decoration: none;
 }
 .restaurant-visit-links a > span:last-child {
-  color: #d6b68a;
+  color: #b6d0ff;
   font-size: 20px;
 }
 .restaurant-visit-links a:hover {
-  color: #d6b68a;
+  color: #b6d0ff;
 }
 .restaurant-location-panel {
   margin-top: clamp(45px, 6vw, 80px);
