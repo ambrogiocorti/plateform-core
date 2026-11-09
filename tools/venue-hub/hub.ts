@@ -367,6 +367,44 @@ export class VenueHub {
     );
   }
 
+  /**
+   * Working context of the person acting, read under their RLS: own profile,
+   * visible venues, licensed features and, with MULTI_VENUE, the device's
+   * current venue as decided by get_staff_venue_context.
+   */
+  async context(actor: Actor) {
+    return this.asUser(actor, async (tx) => {
+      const profile = (
+        await tx.query<Record<string, unknown>>(
+          `select id::text, display_name, role::text, scope::text, active, version
+           from public.staff_profiles where id = auth.uid()`,
+        )
+      ).rows[0];
+      if (!profile || profile.active !== true) throw new HubError('STAFF_SESSION_INVALID', 401);
+      const venues = (
+        await tx.query<Record<string, unknown>>(
+          `select id::text, name, slug, address, phone, email, opening_hours, timezone,
+                  currency, locale, version
+           from public.venues order by name`,
+        )
+      ).rows;
+      const flags = (
+        await tx.query<{ name: string; licensed: boolean }>(
+          'select name::text, licensed from public.feature_flags order by name',
+        )
+      ).rows;
+      const multiVenue = flags.some((flag) => flag.name === 'MULTI_VENUE' && flag.licensed);
+      const current = multiVenue
+        ? ((
+            await tx.query<{ c: { current_venue_id?: string } }>(
+              'select public.get_staff_venue_context() as c',
+            )
+          ).rows[0]?.c.current_venue_id ?? null)
+        : null;
+      return { profile, venues, feature_flags: flags, current_venue_id: current };
+    });
+  }
+
   /** Venues for which a user may receive venue-wide signals (owner query, never over HTTP). */
   async venuesOf(userId: string) {
     const rows = await this.db.query<{ venue_id: string }>(

@@ -53,6 +53,42 @@ export function saveHubLink(link: HubLink | null): void {
   }
 }
 
+// Staff session opened on the hub with a PIN ("Accesso in sede"). It belongs to
+// this tab only (sessionStorage), so closing the tab on a shared terminal ends
+// it; the hub also expires and revokes it on its own.
+const STAFF_KEY = 'plateform-hub-staff';
+const staffSessionSchema = z.object({
+  token: z.string().min(32).max(256),
+  user_id: z.uuid(),
+  expires_at: z.string(),
+});
+export type HubStaffSession = z.infer<typeof staffSessionSchema>;
+
+export function hubStaffSession(): HubStaffSession | null {
+  if (!hubLink()) return null;
+  try {
+    const raw = sessionStorage.getItem(STAFF_KEY);
+    const parsed = raw ? staffSessionSchema.safeParse(JSON.parse(raw)) : null;
+    if (!parsed?.success) return null;
+    if (Date.parse(parsed.data.expires_at) <= Date.now()) {
+      sessionStorage.removeItem(STAFF_KEY);
+      return null;
+    }
+    return parsed.data;
+  } catch {
+    return null;
+  }
+}
+
+function storeStaffSession(session: HubStaffSession | null): void {
+  try {
+    if (session) sessionStorage.setItem(STAFF_KEY, JSON.stringify(session));
+    else sessionStorage.removeItem(STAFF_KEY);
+  } catch {
+    // Storage unavailable: the person will be asked for the PIN again.
+  }
+}
+
 export function routesToHub(kind: 'rpc' | 'table', name: string): boolean {
   if (!hubLink()) return false;
   return kind === 'rpc' ? isLanRpc(name) : LAN_TABLES.has(name);
@@ -71,6 +107,7 @@ async function call(path: string, init: RequestInit = {}, timeout = 8_000): Prom
       ...init,
       headers: {
         ...(init.body ? { 'content-type': 'application/json' } : {}),
+        ...staffHeader(),
         authorization: `Bearer ${link.token}`,
       },
       cache: 'no-store',
@@ -82,9 +119,51 @@ async function call(path: string, init: RequestInit = {}, timeout = 8_000): Prom
   const body: unknown = await response.json().catch(() => null);
   if (!response.ok) {
     const code = z.object({ error: z.string().max(100) }).safeParse(body);
+    // An expired or revoked staff session is dropped so the PIN is asked again.
+    if (code.success && code.data.error === 'STAFF_SESSION_INVALID') storeStaffSession(null);
     throw new HubFailure(code.success ? code.data.error : 'HUB_UNREACHABLE');
   }
   return body;
+}
+
+function staffHeader(): Record<string, string> {
+  const session = hubStaffSession();
+  return session ? { 'x-plateform-staff-session': session.token } : {};
+}
+
+const staffMemberSchema = z.object({ id: z.uuid(), display_name: z.string(), role: z.string() });
+export type HubStaffMember = z.infer<typeof staffMemberSchema>;
+
+/** People who may unlock on this device (names and roles only). */
+export async function hubStaffList(): Promise<HubStaffMember[]> {
+  return z.object({ staff: z.array(staffMemberSchema) }).parse(await call('/v1/staff')).staff;
+}
+
+/** Opens a staff session on the hub with the PIN, under the database unlock rules. */
+export async function openHubStaffSession(userId: string, pin: string): Promise<HubStaffSession> {
+  const session = staffSessionSchema.parse(
+    await call('/v1/session', { method: 'POST', body: JSON.stringify({ user_id: userId, pin }) }),
+  );
+  storeStaffSession(session);
+  return session;
+}
+
+export async function closeHubStaffSession(): Promise<void> {
+  if (!hubStaffSession()) return;
+  await call('/v1/session', { method: 'DELETE' }).catch(() => undefined);
+  storeStaffSession(null);
+}
+
+export const hubContextSchema = z.object({
+  profile: z.record(z.string(), z.unknown()),
+  venues: z.array(z.record(z.string(), z.unknown())),
+  feature_flags: z.array(z.object({ name: z.string(), licensed: z.boolean() })),
+  current_venue_id: z.string().nullable(),
+});
+
+/** Profile, venues and licensed features of the person acting on the hub. */
+export async function hubContext(): Promise<z.infer<typeof hubContextSchema>> {
+  return hubContextSchema.parse(await call('/v1/context'));
 }
 
 export async function hubRpc(name: string, args: Record<string, unknown>): Promise<unknown> {
@@ -156,7 +235,7 @@ export async function hubEvents(
   const link = hubLink();
   if (!link) throw new HubFailure('HUB_NOT_PAIRED');
   const response = await fetch(`${link.url}/v1/events`, {
-    headers: { authorization: `Bearer ${link.token}` },
+    headers: { ...staffHeader(), authorization: `Bearer ${link.token}` },
     cache: 'no-store',
     signal,
   });

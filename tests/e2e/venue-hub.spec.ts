@@ -4,7 +4,9 @@ import type { AddressInfo } from 'node:net';
 import type { Server } from 'node:http';
 import { VenueHub } from '../../tools/venue-hub/hub.ts';
 import { createHubServer } from '../../tools/venue-hub/server.ts';
-import { client, devices, dish, ids, SEED, table, tokens } from '../hub/fixture';
+import { client, cook, devices, dish, ids, SEED, table, tokens } from '../hub/fixture';
+
+const COOK_PIN = '614273';
 
 // Browser proof for ADR-0001: the real staff UI, paired with a real venue hub
 // (all migrations, RLS, RPCs), receives a waiter's order through the hub event
@@ -21,6 +23,8 @@ test.beforeAll(async () => {
   test.setTimeout(300_000);
   hub = await VenueHub.open({ hubId: 'hub-browser', generation: 1, devices });
   await hub.admin(SEED);
+  await hub.admin(`insert into private.staff_pins(user_id,pin_hash)
+    values('${cook}',extensions.crypt('${COOK_PIN}',extensions.gen_salt('bf',4)))`);
   const allowedHosts: string[] = [];
   server = createHubServer(hub, { allowedHosts, allowedOrigins: ['http://localhost:5174'] });
   await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
@@ -170,4 +174,54 @@ test('a paired kitchen screen receives a LAN order live and prepares it through 
   // Responses from the hub keep the cloud contract: no error toast is shown.
   await expect(page.locator('.toast.error')).toHaveCount(0);
   await page.screenshot({ path: 'test-results/venue-hub-kitchen.png', fullPage: true });
+});
+
+test('with the cloud unreachable, a cook unlocks on the paired screen with the PIN', async ({
+  page,
+}) => {
+  // Only the pairing is on this device: no cloud session, and every cloud call fails.
+  await page.addInitScript(
+    ({ hubUrl, token }) => {
+      localStorage.setItem(
+        'plateform-venue-hub',
+        JSON.stringify({ url: hubUrl, token, label: 'Cucina' }),
+      );
+    },
+    { hubUrl: base, token: tokens.kitchen },
+  );
+  const cloudCalls: string[] = [];
+  for (const pattern of ['**/auth/v1/**', '**/rest/v1/**', '**/functions/v1/**'])
+    await page.route(pattern, async (route) => {
+      cloudCalls.push(new URL(route.request().url()).pathname);
+      await route.abort('internetdisconnected');
+    });
+  await page.goto('http://localhost:5174/cucina');
+
+  await expect(page.getByRole('heading', { name: 'Chi inizia il servizio?' })).toBeVisible();
+  await page.screenshot({ path: 'test-results/venue-hub-pin-picker.png', fullPage: true });
+  await page.getByRole('button', { name: 'Cuoco · Cucina' }).click();
+  await page.getByLabel('PIN').fill('000000');
+  await page.getByRole('button', { name: 'Inizia', exact: true }).click();
+  await expect(page.getByRole('alert')).toHaveText(/PIN non corretto/);
+
+  // The wrong PIN started the database's progressive lock (1 s after the first error).
+  await page.waitForTimeout(1500);
+  await page.getByLabel('PIN').fill(COOK_PIN);
+  await page.getByRole('button', { name: 'Inizia', exact: true }).click();
+  await expect(page.locator('.workspace-session')).toContainText('Cuoco');
+  await expect(page).toHaveURL(/\/cucina$/);
+  // The kitchen board comes from the hub: the line prepared in the previous test is there.
+  await expect(page.locator('.kitchen-line', { hasText: 'Carbonara' })).toHaveCount(1, {
+    timeout: 15_000,
+  });
+  await expect(page.locator('.connectivity-badge')).toHaveAttribute(
+    'title',
+    /Hub di sede: raggiungibile/,
+  );
+  await page.screenshot({ path: 'test-results/venue-hub-pin-access.png', fullPage: true });
+  expect(cloudCalls.some((path) => path.endsWith('/get_kitchen_board'))).toBe(false);
+
+  // Locking the screen ends the hub session; the next person unlocks with their own PIN.
+  await page.getByRole('button', { name: 'Blocca', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Chi inizia il servizio?' })).toBeVisible();
 });

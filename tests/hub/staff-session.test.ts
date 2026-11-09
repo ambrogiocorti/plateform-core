@@ -83,6 +83,13 @@ describe('Venue hub staff sessions with PIN', () => {
     expect(actor.user_id).toBe(ids.cashier);
     const read = await call('/v1/table/cash_registers', { staff: token });
     expect(read.status).toBe(200);
+    // The working context is the person's, read under their RLS.
+    const context = await call('/v1/context', { staff: token });
+    expect(context.status).toBe(200);
+    expect(context.body.profile).toMatchObject({ id: ids.cashier, role: 'CASHIER' });
+    expect((context.body.venues as { id: string }[]).map((v) => v.id)).toEqual([ids.venue]);
+    const kitchenContext = await call('/v1/context');
+    expect(kitchenContext.body.profile).toMatchObject({ id: cook, role: 'KITCHEN_STAFF' });
 
     // The token is bound to the paired device that opened it.
     const elsewhere = await call('/v1/table/accounts', { token: tokens.waiter, staff: token });

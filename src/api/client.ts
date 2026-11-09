@@ -39,6 +39,9 @@ const messages: Record<string, string> = {
   HUB_UNREACHABLE:
     'L’hub di sede non risponde. Verifica che il computer dell’hub sia acceso e collegato alla rete del locale.',
   HUB_NOT_PAIRED: 'Questo dispositivo non è associato all’hub di sede.',
+  STAFF_SESSION_INVALID: 'La sessione in sede è scaduta. Inserisci di nuovo il PIN.',
+  PIN_INVALID: 'PIN non corretto. Attendi qualche secondo prima di riprovare.',
+  INVALID_STAFF: 'Questa persona non può accedere da questo dispositivo.',
   DEVICE_NOT_PAIRED: 'Questo dispositivo non è associato all’hub di sede. Ripeti l’associazione.',
   DEVICE_BINDING_EXPIRED: 'L’associazione con l’hub di sede è scaduta. Ripeti l’associazione.',
   RPC_NOT_AVAILABLE_ON_LAN:
