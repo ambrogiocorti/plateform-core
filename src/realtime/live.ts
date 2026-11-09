@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { client } from '../api/client';
 import { SnapshotReconciler } from './reconcile';
+import { hubEvents, hubLink } from '../api/venue-hub';
 
 export type ConnectionState = 'CONNECTING' | 'LIVE' | 'DEGRADED' | 'OFFLINE';
 const signalSchema = z.object({ id: z.uuid(), topic: z.string() });
@@ -36,7 +37,11 @@ export function watchLive(options: LiveOptions): () => void {
     () => state('DEGRADED'),
     0,
   );
-  const channel = client().channel(`plateform:${crypto.randomUUID()}`);
+  // A device paired with the venue hub listens to the hub, which applies the
+  // same venue/recipient filters as the cloud subscription below (ADR-0001).
+  const hubMode = hubLink() !== null;
+  const hubAbort = new AbortController();
+  const channel = hubMode ? null : client().channel(`plateform:${crypto.randomUUID()}`);
   const receive = (payload: { new: Record<string, unknown> }) => {
     const parsed = signalSchema.safeParse(payload.new);
     if (!parsed.success) {
@@ -48,7 +53,7 @@ export function watchLive(options: LiveOptions): () => void {
       access.invalidate(parsed.data.id);
     } else if (options.topics.includes(parsed.data.topic)) reconciler.invalidate(parsed.data.id);
   };
-  if (options.venueId)
+  if (channel && options.venueId)
     channel.on(
       'postgres_changes',
       {
@@ -59,7 +64,7 @@ export function watchLive(options: LiveOptions): () => void {
       },
       receive,
     );
-  if (options.userId)
+  if (channel && options.userId)
     channel.on(
       'postgres_changes',
       {
@@ -71,7 +76,31 @@ export function watchLive(options: LiveOptions): () => void {
       receive,
     );
   state(navigator.onLine ? 'CONNECTING' : 'OFFLINE');
-  channel.subscribe((status) => {
+  if (hubMode)
+    void (async () => {
+      let delay = 1_000;
+      while (!disposed) {
+        try {
+          await hubEvents((event) => {
+            if (event.type === 'hello') {
+              connected = true;
+              delay = 1_000;
+              state('LIVE');
+              reconciler.invalidate();
+              access.invalidate();
+            } else if (event.type === 'signal') receive({ new: event });
+          }, hubAbort.signal);
+        } catch {
+          // Unreachable hub: polling below keeps reconciling; retry with backoff.
+        }
+        connected = false;
+        if (disposed) return;
+        state('DEGRADED');
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        delay = Math.min(delay * 2, 30_000);
+      }
+    })();
+  channel?.subscribe((status) => {
     connected = status === 'SUBSCRIBED';
     if (connected) {
       reconciler.invalidate();
@@ -108,6 +137,7 @@ export function watchLive(options: LiveOptions): () => void {
     window.removeEventListener('online', online);
     window.removeEventListener('offline', offline);
     document.removeEventListener('visibilitychange', focus);
-    void client().removeChannel(channel);
+    hubAbort.abort();
+    if (channel) void client().removeChannel(channel);
   };
 }

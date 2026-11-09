@@ -6,107 +6,17 @@ import { request } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import type { Server } from 'node:http';
 import type { PGlite } from '@electric-sql/pglite';
-import { VenueHub, tokenDigest, type DeviceBinding } from '../../tools/venue-hub/hub.ts';
+import { VenueHub } from '../../tools/venue-hub/hub.ts';
 import { createHubServer } from '../../tools/venue-hub/server.ts';
 import { applyBatch, promoteGeneration, ReplicaFenced } from '../../tools/venue-hub/replication.ts';
-import { database, ids, sessionId } from '../database/harness';
+import { database } from '../database/harness';
+import { ids, table, dish, register, table2, tokens, devices, SEED, client } from './fixture';
 
 // Minimal LAN cycle proof for ADR-0001. It runs the real hub (persistent
 // embedded PostgreSQL + every versioned migration) behind its HTTP surface and
 // drives it with three independent HTTP clients holding distinct device tokens.
 // Scope of the evidence: same machine, loopback HTTP, no TLS, no real devices
 // or network partition. It does NOT replace acceptance tests LAN-01..LAN-07.
-
-const room = '40000000-0000-4000-8000-000000000001';
-const layout = '40000000-0000-4000-8000-000000000002';
-const table = '40000000-0000-4000-8000-000000000003';
-const zone = '40000000-0000-4000-8000-000000000004';
-const station = '40000000-0000-4000-8000-000000000005';
-const category = '40000000-0000-4000-8000-000000000006';
-const dish = '40000000-0000-4000-8000-000000000007';
-const register = '60000000-0000-4000-8000-000000000001';
-const ingredient = '40000000-0000-4000-8000-000000000008';
-const table2 = '40000000-0000-4000-8000-000000000013';
-const cook = '20000000-0000-4000-8000-000000000010';
-const pass = '20000000-0000-4000-8000-000000000012';
-
-const tokens = {
-  waiter: 'waiter-device-token-0123456789abcdef0123456789',
-  kitchen: 'kitchen-device-token-0123456789abcdef012345678',
-  pass: 'pass-device-token-0123456789abcdef0123456789abc',
-  cashier: 'cashier-device-token-0123456789abcdef01234567',
-};
-const future = new Date(Date.now() + 8 * 3600_000).toISOString();
-const devices: DeviceBinding[] = [
-  { token: tokens.waiter, user: ids.waiter, label: 'Cameriere tablet' },
-  { token: tokens.kitchen, user: cook, label: 'Cucina KDS' },
-  { token: tokens.pass, user: pass, label: 'Pass' },
-  { token: tokens.cashier, user: ids.cashier, label: 'Cassa' },
-].map((d) => ({
-  token_sha256: tokenDigest(d.token),
-  user_id: d.user,
-  session_id: sessionId(d.user),
-  label: d.label,
-  expires_at: future,
-}));
-
-const SEED = `begin;
-  insert into public.restaurant_profile(name,public_base_url,staff_base_url,staff_identity_domain)
-    values('Trattoria LAN','https://restaurant.test','https://staff.restaurant.test','staff.test');
-  insert into public.restaurant_settings(id) values(true);
-  insert into public.system_limits(id) values(true);
-  insert into public.venues(id,name,slug,code,address,phone)
-    values('${ids.venue}','Sede uno','sede-uno','V1','Via test 1','+390000000001');
-  insert into public.venue_settings(venue_id) values('${ids.venue}');
-  insert into auth.users(id) values('${ids.admin}'),('${ids.waiter}'),('${ids.cashier}'),('${cook}'),('${pass}');
-  insert into public.staff_profiles(id,display_name,role,scope) values
-    ('${ids.admin}','Admin','ADMIN','VENUE'),('${ids.waiter}','Cameriere','WAITER','VENUE'),
-    ('${ids.cashier}','Cassa','CASHIER','VENUE'),('${cook}','Cuoco','KITCHEN_STAFF','VENUE'),
-    ('${pass}','Pass','PASS','VENUE');
-  insert into public.staff_venue_assignments(user_id,venue_id) select id,'${ids.venue}' from public.staff_profiles;
-  insert into auth.sessions(id,user_id) select replace(id::text,'20000000-','30000000-')::uuid,id from public.staff_profiles;
-  insert into private.staff_sessions(session_id,user_id,full_auth_at,unlocked_until)
-    select id,user_id,now(),now()+interval '8 hours' from auth.sessions;
-  insert into public.rooms(id,venue_id,name) values('${room}','${ids.venue}','Sala');
-  insert into public.room_layouts(id,venue_id,room_id,name,active) values('${layout}','${ids.venue}','${room}','Cena',true);
-  insert into public.zones(id,venue_id,room_id,name) values('${zone}','${ids.venue}','${room}','Interno');
-  insert into public.tables(id,venue_id,room_id,layout_id,zone_id,number,name,seats) values('${table}','${ids.venue}','${room}','${layout}','${zone}',1,'Tavolo 1',4),
-    ('${table2}','${ids.venue}','${room}','${layout}','${zone}',2,'Tavolo 2',4);
-  insert into public.stations(id,venue_id,name) values('${station}','${ids.venue}','Cucina');
-  insert into public.table_assignments(venue_id,waiter_id,mode,zone_id) values('${ids.venue}','${ids.waiter}','ZONE','${zone}');
-  insert into public.categories(id,name) values('${category}','Primi');
-  insert into public.dishes(id,category_id,name,price_cents) values('${dish}','${category}','Carbonara',1250);
-  insert into public.ingredients(id,name) values('${ingredient}','Guanciale');
-  insert into public.dish_ingredients values('${dish}','${ingredient}',false);
-  insert into public.venue_dish_settings(venue_id,dish_id,availability,availability_date,local_station_id)
-    values('${ids.venue}','${dish}',10,(now() at time zone 'Europe/Rome')::date,'${station}');
-  insert into public.dish_station_assignments values('${ids.venue}','${dish}','${station}',true);
-  insert into public.station_staff_assignments values('${ids.venue}','${station}','${cook}',true);
-  insert into public.cash_registers(id,venue_id,name,code,status) values('${register}','${ids.venue}','Cassa 1','R1','OPEN');
-  insert into public.cashier_assignments(venue_id,cash_register_id,user_id) values('${ids.venue}','${register}','${ids.cashier}');
-commit;`;
-
-function client(base: string, token: string) {
-  const headers = { authorization: `Bearer ${token}`, 'content-type': 'application/json' };
-  return {
-    async rpc<T = unknown>(name: string, args: unknown[]) {
-      const res = await fetch(`${base}/v1/rpc/${name}`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ args }),
-      });
-      const body = (await res.json()) as { result?: T; error?: string };
-      if (!res.ok) throw new Error(body.error ?? `HTTP_${res.status}`);
-      return body.result as T;
-    },
-    async read<T = Record<string, unknown>>(table: string, id?: string) {
-      const res = await fetch(`${base}/v1/table/${table}${id ? `?id=${id}` : ''}`, { headers });
-      const body = (await res.json()) as { rows?: T[]; error?: string };
-      if (!res.ok) throw new Error(body.error ?? `HTTP_${res.status}`);
-      return body.rows ?? [];
-    },
-  };
-}
 
 function rawRequest(port: number, headers: Record<string, string>, path = '/v1/health') {
   return new Promise<number>((resolve, reject) => {
@@ -189,57 +99,88 @@ describe('Venue hub LAN cycle (ADR-0001 minimal proof)', () => {
       }
     })();
 
-    const account = await waiter.rpc<{ id: string; code: string }>('create_account', [
-      table,
-      'Rossi',
-      2,
-      null,
-      accountKey,
-    ]);
+    const account = await waiter.rpc<{ id: string; code: string }>('create_account', {
+      p_table: table,
+      p_name: 'Rossi',
+      p_covers: 2,
+      p_note: null,
+      p_key: accountKey,
+    });
     accountId = account.id;
     const [row] = await waiter.read<{ version: number }>('accounts', account.id);
     const items = [{ dish_id: dish, quantity: 2, step: 1 }];
-    await waiter.rpc('create_order', [account.id, items, orderKey, row!.version]);
+    const order = {
+      p_account: account.id,
+      p_items: items,
+      p_key: orderKey,
+      p_version: row!.version,
+    };
+    await waiter.rpc('create_order', order);
     // Retrying the same command (lost response) must not duplicate the order or stock.
-    await waiter.rpc('create_order', [account.id, items, orderKey, row!.version]);
+    await waiter.rpc('create_order', order);
 
     type Ticket = { id: string; step_id: string; version: number };
-    const board = await kitchen.rpc<Ticket[]>('get_kitchen_board', [ids.venue]);
+    const board = await kitchen.rpc<Ticket[]>('get_kitchen_board', { p_venue: ids.venue });
     expect(board).toHaveLength(1);
     const ticket = board[0]!;
-    await kitchen.rpc('transition_order_item', [ticket.id, 'IN_PREPARATION', ticket.version]);
-    await kitchen.rpc('transition_order_item', [ticket.id, 'READY', ticket.version + 1]);
-    await passClient.rpc('mark_step_ready', [ticket.step_id]);
-    await waiter.rpc('deliver_step', [ticket.step_id, false]);
-    await waiter.rpc('deliver_step', [ticket.step_id, true]);
+    await kitchen.rpc('transition_order_item', {
+      p_item: ticket.id,
+      p_status: 'IN_PREPARATION',
+      p_version: ticket.version,
+    });
+    await kitchen.rpc('transition_order_item', {
+      p_item: ticket.id,
+      p_status: 'READY',
+      p_version: ticket.version + 1,
+    });
+    await passClient.rpc('mark_step_ready', { p_step: ticket.step_id });
+    await waiter.rpc('deliver_step', { p_step: ticket.step_id, p_served: false });
+    await waiter.rpc('deliver_step', { p_step: ticket.step_id, p_served: true });
 
     // The waiter is not a cashier: payment through the hub is refused server-side.
     await expect(
-      waiter.rpc('create_payment', [
-        account.id,
-        register,
-        2500,
-        0,
-        'CASH',
-        crypto.randomUUID(),
-        [],
-      ]),
+      waiter.rpc('create_payment', {
+        p_account: account.id,
+        p_register: register,
+        p_amount: 2500,
+        p_tip: 0,
+        p_method: 'CASH',
+        p_key: crypto.randomUUID(),
+      }),
     ).rejects.toThrow();
+    // Online providers are never recorded by the hub, whoever asks.
+    await expect(
+      cashier.rpc('create_payment', {
+        p_account: account.id,
+        p_register: register,
+        p_amount: 2500,
+        p_tip: 0,
+        p_method: 'STRIPE',
+        p_key: crypto.randomUUID(),
+      }),
+    ).rejects.toThrow('PAYMENT_METHOD_UNAVAILABLE_ON_LAN');
 
-    await cashier.rpc('open_service_session', [ids.venue, null, register, 0, crypto.randomUUID()]);
-    const balance = await cashier.rpc<{ total_cents: number }>('get_account_balance', [account.id]);
+    await cashier.rpc('open_service_session', {
+      p_venue: ids.venue,
+      p_service: null,
+      p_register: register,
+      p_float: 0,
+      p_key: crypto.randomUUID(),
+    });
+    const balance = await cashier.rpc<{ total_cents: number }>('get_account_balance', {
+      p_account: account.id,
+    });
     expect(balance.total_cents).toBe(2500);
-    const payment = await cashier.rpc<{ id: string }>('create_payment', [
-      account.id,
-      register,
-      2500,
-      0,
-      'CASH',
-      paymentKey,
-      [],
-    ]);
-    await cashier.rpc('confirm_manual_payment', [payment.id, true]);
-    await cashier.rpc('close_account', [account.id]);
+    const payment = await cashier.rpc<{ id: string }>('create_payment', {
+      p_account: account.id,
+      p_register: register,
+      p_amount: 2500,
+      p_tip: 0,
+      p_method: 'CASH',
+      p_key: paymentKey,
+    });
+    await cashier.rpc('confirm_manual_payment', { p_payment: payment.id, p_success: true });
+    await cashier.rpc('close_account', { p_account: account.id });
 
     const orders = await cashier.read<{ status: string }>('orders');
     expect(orders.map((o) => o.status)).toEqual(['SERVED']);
@@ -249,7 +190,19 @@ describe('Venue hub LAN cycle (ADR-0001 minimal proof)', () => {
 
     events.abort();
     await pump;
-    expect(received.join('')).toContain('"rpc":"create_order"');
+    // The kitchen received venue signals (no business data) and sync progress.
+    const lines = received
+      .join('')
+      .split('\n\n')
+      .filter((l) => l.startsWith('data: '))
+      .map((l) => JSON.parse(l.slice(6)) as { type: string; venue_id?: string; topic?: string });
+    const signals = lines.filter((e) => e.type === 'signal');
+    expect(signals.length).toBeGreaterThan(0);
+    expect(signals.every((e) => e.venue_id === ids.venue)).toBe(true);
+    expect(Object.keys(signals[0]!).sort()).toEqual(
+      ['id', 'recipient_user_id', 'topic', 'type', 'venue_id'].sort(),
+    );
+    expect(lines.some((e) => e.type === 'sync')).toBe(true);
   }, 120_000);
 
   it('rejects unpaired devices, foreign origins, rebinding hosts and non-LAN RPCs', async () => {
@@ -267,8 +220,17 @@ describe('Venue hub LAN cycle (ADR-0001 minimal proof)', () => {
     const intruder = client(base, 'unpaired-token-0123456789abcdef0123456789');
     await expect(intruder.read('accounts')).rejects.toThrow('DEVICE_NOT_PAIRED');
     const waiter = client(base, tokens.waiter);
-    await expect(waiter.rpc('save_staff_profile', [])).rejects.toThrow('RPC_NOT_AVAILABLE_ON_LAN');
+    await expect(waiter.rpc('save_staff_profile', {})).rejects.toThrow('RPC_NOT_AVAILABLE_ON_LAN');
     await expect(waiter.read('staff_profiles')).rejects.toThrow('TABLE_NOT_AVAILABLE_ON_LAN');
+    // Argument names come from the shared contract: anything else is refused.
+    await expect(
+      waiter.rpc('close_account', { p_account: crypto.randomUUID(), p_force: true }),
+    ).rejects.toThrow('RPC_UNKNOWN_ARGUMENT');
+    // Column names in filters are validated against the table definition.
+    const bad = await fetch(`${base}/v1/table/accounts?eq.${encodeURIComponent('id;drop')}=1`, {
+      headers: { authorization: `Bearer ${tokens.waiter}` },
+    });
+    expect(bad.status).toBe(400);
   });
 
   it('keeps confirmed operations across a hub restart and refuses a generation regression', async () => {
@@ -338,7 +300,13 @@ describe('Venue hub LAN cycle (ADR-0001 minimal proof)', () => {
     // The replacement hub (generation 2) is promoted on the cloud and writes.
     await promoteGeneration(cloud, 'hub-sede-uno', 2);
     const waiter = client(base, tokens.waiter);
-    await waiter.rpc('create_account', [table2, 'Bianchi', 3, null, crypto.randomUUID()]);
+    await waiter.rpc('create_account', {
+      p_table: table2,
+      p_name: 'Bianchi',
+      p_covers: 3,
+      p_note: null,
+      p_key: crypto.randomUUID(),
+    });
     const next = await hub.pendingChanges();
     expect(next.every((c) => c.generation === 2)).toBe(true);
     expect((await applyBatch(cloud, 'hub-sede-uno', next)).applied).toBe(next.length);

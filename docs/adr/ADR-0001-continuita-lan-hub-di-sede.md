@@ -72,7 +72,7 @@ Limiti dichiarati: stessa macchina, loopback HTTP senza TLS, nessuna partizione 
 
 ## Conseguenze e lavoro aperto
 
-1. Adattatore dati nel frontend (`src/api/client.ts`) che instrada RPC e letture verso l'hub in modalità sede; indicatori distinti Internet / hub / cloud / sync pendente.
+1. ~~Adattatore dati nel frontend~~ **Fatto il 9/11/2026, da completare:** contratto condiviso `shared/lan-contract.ts` (RPC con argomenti nominali, tabelle, metodi di pagamento ammessi), instradamento in `src/api/client.ts` tramite `src/api/venue-hub.ts`, eventi dell'hub nella vista live (`src/realtime/live.ts`), pagina staff "Hub di sede" e indicatore separato Internet / hub / cloud / sincronizzazione. Prova browser in `tests/e2e/venue-hub.spec.ts`. Mancano: login e contesto staff senza cloud (oggi accesso, profilo e sede arrivano ancora dal cloud), copertura delle viste sala/conti/cassa con dati dall'hub, servizio dell'app staff dall'hub stesso.
 2. Ingest cloud (Edge Function service-only + RPC) con le stesse semantiche di `tools/venue-hub/replication.ts`; migrazione per la guardia di replica; registro generazione per sede.
 3. AUD-SYNC, INBOX, pairing e sessioni locali da snapshot firmati, revoche.
 4. Integrazione del print bridge nel processo hub; coda stampe locale.

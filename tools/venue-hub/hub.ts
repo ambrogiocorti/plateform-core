@@ -4,6 +4,14 @@ import { join } from 'node:path';
 import { PGlite } from '@electric-sql/pglite';
 import { pgcrypto } from '@electric-sql/pglite/contrib/pgcrypto';
 import { installPlatformShim, replayMigrations } from './platform-schema.ts';
+import {
+  LAN_FILTER_COLUMN,
+  LAN_PAYMENT_METHODS,
+  LAN_RPCS,
+  LAN_TABLES,
+} from '../../shared/lan-contract.ts';
+
+export { LAN_RPCS, LAN_TABLES } from '../../shared/lan-contract.ts';
 
 // Venue hub core. One hub per venue is the single write authority for service
 // operations (ADR docs/adr/ADR-0001-continuita-lan-hub-di-sede.md). It executes
@@ -28,25 +36,12 @@ export type HubOptions = {
   devices: DeviceBinding[];
 };
 
-// Allowlist of RPCs reachable from LAN clients, with exact arity. Everything
-// else (administration, credentials, restore, provider payments) is refused by
-// the hub: those operations require the cloud and a full authentication.
-export const LAN_RPCS: Record<string, { arity: number; write: boolean }> = {
-  create_account: { arity: 5, write: true },
-  create_order: { arity: 4, write: true },
-  get_kitchen_board: { arity: 1, write: false },
-  transition_order_item: { arity: 3, write: true },
-  mark_step_ready: { arity: 1, write: true },
-  deliver_step: { arity: 2, write: true },
-  open_service_session: { arity: 5, write: true },
-  create_payment: { arity: 7, write: true },
-  confirm_manual_payment: { arity: 2, write: true },
-  get_account_balance: { arity: 1, write: false },
-  close_account: { arity: 1, write: true },
+export type HubSignal = {
+  id: string;
+  topic: string;
+  venue_id: string | null;
+  recipient_user_id: string | null;
 };
-
-// Tables readable over the LAN, always under the caller's RLS policies.
-export const LAN_TABLES = new Set(['accounts', 'orders', 'tables', 'payments']);
 
 export class HubError extends Error {
   constructor(
@@ -204,42 +199,127 @@ export class VenueHub {
     this.devices.delete(tokenSha256);
   }
 
-  async rpc(device: DeviceBinding, name: string, args: unknown[]) {
-    const spec = LAN_RPCS[name];
+  async rpc(device: DeviceBinding, name: string, args: Record<string, unknown>) {
+    const spec = Object.prototype.hasOwnProperty.call(LAN_RPCS, name) ? LAN_RPCS[name] : undefined;
     if (!spec) throw new HubError('RPC_NOT_AVAILABLE_ON_LAN', 404);
-    if (!Array.isArray(args) || args.length !== spec.arity)
-      throw new HubError('RPC_ARITY_MISMATCH', 400);
-    const params = args.map((value) =>
-      value !== null && typeof value === 'object' ? JSON.stringify(value) : value,
-    );
-    const placeholders = params.map((_, i) => `$${i + 1}`).join(',');
+    if (args === null || typeof args !== 'object' || Array.isArray(args))
+      throw new HubError('RPC_ARGUMENTS_REQUIRED', 400);
+    const names = Object.keys(args);
+    if (names.some((key) => !spec.params.includes(key)))
+      throw new HubError('RPC_UNKNOWN_ARGUMENT', 400);
+    // Online providers cannot be confirmed without the cloud (ADR-0001).
+    if (name === 'create_payment' && !LAN_PAYMENT_METHODS.has(String(args.p_method)))
+      throw new HubError('PAYMENT_METHOD_UNAVAILABLE_ON_LAN', 409);
+    const params = names.map((key) => {
+      const value = args[key];
+      return value !== null && typeof value === 'object' ? JSON.stringify(value) : value;
+    });
+    // PostgreSQL named notation: parameter names come from the contract, never from input.
+    const call = names.map((key, i) => `${key} => $${i + 1}`).join(', ');
     return this.asUser(device, async (tx) => {
+      await tx.exec('reset role');
+      const before = spec.write ? await this.lastSeq(tx) : 0;
+      await tx.exec('set local role authenticated');
       const result = await tx.query<{ result: unknown }>(
-        `select public.${name}(${placeholders}) as result`,
+        `select public.${name}(${call}) as result`,
         params,
       );
       // The change log is private to the hub owner: leave the caller role first.
       await tx.exec('reset role');
-      const seq = spec.write
-        ? Number(
-            (
-              await tx.query<{ seq: string | null }>(
-                'select max(seq)::text as seq from hub.changelog',
+      const seq = spec.write ? await this.lastSeq(tx) : null;
+      const signals =
+        seq !== null && seq > before
+          ? (
+              await tx.query<HubSignal>(
+                `select row_data->>'id' as id, row_data->>'topic' as topic,
+                        row_data->>'venue_id' as venue_id,
+                        row_data->>'recipient_user_id' as recipient_user_id
+                 from hub.changelog
+                 where seq > $1 and seq <= $2 and op = 'INSERT'
+                   and table_name = 'public.realtime_signals'
+                 order by seq`,
+                [before, seq],
               )
-            ).rows[0]?.seq ?? 0,
-          )
-        : null;
-      return { result: result.rows[0]?.result ?? null, seq, write: spec.write };
+            ).rows
+          : [];
+      // PostgREST returns null for `returns void`; PGlite yields ''. Keep the cloud contract.
+      const value = (await this.returnsVoid(tx, name)) ? null : (result.rows[0]?.result ?? null);
+      return { result: value, seq, write: spec.write, signals };
     });
   }
 
-  async read(device: DeviceBinding, table: string, id?: string) {
+  private voidCache = new Map<string, boolean>();
+  private async returnsVoid(tx: Pick<PGlite, 'query'>, name: string) {
+    const known = this.voidCache.get(name);
+    if (known !== undefined) return known;
+    const rows = await tx.query<{ v: boolean }>(
+      `select bool_and(p.prorettype = 'void'::regtype) as v from pg_proc p
+       where p.proname = $1 and p.pronamespace = 'public'::regnamespace`,
+      [name],
+    );
+    const value = rows.rows[0]?.v === true;
+    this.voidCache.set(name, value);
+    return value;
+  }
+
+  private async lastSeq(tx: Pick<PGlite, 'query'>) {
+    return Number(
+      (await tx.query<{ seq: string | null }>('select max(seq)::text as seq from hub.changelog'))
+        .rows[0]?.seq ?? 0,
+    );
+  }
+
+  /** Venues for which a user may receive venue-wide signals (owner query, never over HTTP). */
+  async venuesOf(userId: string) {
+    const rows = await this.db.query<{ venue_id: string }>(
+      `select v.id as venue_id from public.venues v
+       where exists (select 1 from public.staff_profiles p where p.id = $1 and p.scope = 'CHAIN')
+          or exists (select 1 from public.staff_venue_assignments a
+                     where a.user_id = $1 and a.venue_id = v.id)`,
+      [userId],
+    );
+    return new Set(rows.rows.map((r) => r.venue_id));
+  }
+
+  async read(
+    device: DeviceBinding,
+    table: string,
+    options: { filters?: Record<string, string>; after?: string; limit?: number } = {},
+  ) {
     if (!LAN_TABLES.has(table)) throw new HubError('TABLE_NOT_AVAILABLE_ON_LAN', 404);
-    if (id !== undefined && !/^[0-9a-f-]{36}$/i.test(id)) throw new HubError('INVALID_ID', 400);
+    const limit = options.limit ?? 200;
+    if (!Number.isInteger(limit) || limit < 1 || limit > 1001)
+      throw new HubError('INVALID_LIMIT', 400);
+    const filters = Object.entries(options.filters ?? {});
+    if (
+      filters.length > 8 ||
+      filters.some(([k, v]) => !LAN_FILTER_COLUMN.test(k) || v.length > 200)
+    )
+      throw new HubError('INVALID_FILTER', 400);
+    if (options.after !== undefined && options.after.length > 200)
+      throw new HubError('INVALID_FILTER', 400);
     return this.asUser(device, async (tx) => {
+      const columns = new Set(
+        (
+          await tx.query<{ name: string }>(
+            `select attname as name from pg_attribute
+             where attrelid = $1::regclass and attnum > 0 and not attisdropped`,
+            [`public.${table}`],
+          )
+        ).rows.map((r) => r.name),
+      );
+      if (filters.some(([k]) => !columns.has(k))) throw new HubError('INVALID_FILTER', 400);
+      const key = columns.has('id') ? 'id' : null;
+      const where = filters.map(([k], i) => `"${k}"::text = $${i + 1}`);
+      const values: unknown[] = filters.map(([, v]) => v);
+      if (options.after !== undefined && key) {
+        values.push(options.after);
+        where.push(`${key}::text > $${values.length}`);
+      }
       const rows = await tx.query<Record<string, unknown>>(
-        `select * from public.${table}${id ? ' where id = $1' : ''} limit 200`,
-        id ? [id] : [],
+        `select * from public.${table}${where.length ? ` where ${where.join(' and ')}` : ''}
+         ${key ? `order by ${key}::text` : ''} limit ${limit}`,
+        values,
       );
       return rows.rows;
     });

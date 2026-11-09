@@ -1,5 +1,5 @@
 import { createServer, type IncomingMessage, type ServerResponse, type Server } from 'node:http';
-import { HubError, type VenueHub } from './hub.ts';
+import { HubError, type HubSignal, type VenueHub } from './hub.ts';
 
 // LAN HTTP surface of the venue hub. In production it is served over HTTPS with
 // a certificate trusted by the paired devices (see ADR-0001); the transport is
@@ -13,7 +13,7 @@ export type HubServerOptions = {
   maxBodyBytes?: number;
 };
 
-type Subscriber = { res: ServerResponse; userId: string };
+type Subscriber = { res: ServerResponse; userId: string; venues: Set<string> };
 
 export function createHubServer(hub: VenueHub, options: HubServerOptions): Server {
   const subscribers = new Set<Subscriber>();
@@ -36,6 +36,21 @@ export function createHubServer(hub: VenueHub, options: HubServerOptions): Serve
   const broadcast = (event: unknown) => {
     const line = `data: ${JSON.stringify(event)}\n\n`;
     for (const s of subscribers) s.res.write(line);
+  };
+
+  // Same delivery rule as the cloud Realtime filters used by src/realtime/live.ts:
+  // a personal signal reaches only its recipient, a venue signal only staff of
+  // that venue. Signals carry identifiers and topics, never business data.
+  const deliver = (signals: HubSignal[]) => {
+    for (const signal of signals) {
+      const line = `data: ${JSON.stringify({ type: 'signal', ...signal })}\n\n`;
+      for (const s of subscribers) {
+        const allowed = signal.recipient_user_id
+          ? signal.recipient_user_id === s.userId
+          : signal.venue_id !== null && s.venues.has(signal.venue_id);
+        if (allowed) s.res.write(line);
+      }
+    }
   };
 
   const readBody = (req: IncomingMessage) =>
@@ -114,7 +129,7 @@ export function createHubServer(hub: VenueHub, options: HubServerOptions): Serve
             : {}),
         });
         res.write(`data: ${JSON.stringify({ type: 'hello', generation: hub.generation })}\n\n`);
-        const sub = { res, userId: device.user_id };
+        const sub = { res, userId: device.user_id, venues: await hub.venuesOf(device.user_id) };
         subscribers.add(sub);
         req.on('close', () => subscribers.delete(sub));
         return;
@@ -122,8 +137,20 @@ export function createHubServer(hub: VenueHub, options: HubServerOptions): Serve
 
       const table = /^\/v1\/table\/([a-z_]{1,64})$/.exec(url.pathname)?.[1];
       if (req.method === 'GET' && table) {
-        const id = url.searchParams.get('id') ?? undefined;
-        send(res, 200, { rows: await hub.read(device, table, id) }, allowedOrigin);
+        // Equality filters use `eq.<column>=<value>`; pagination uses `after` and `limit`.
+        const filters: Record<string, string> = {};
+        for (const [key, value] of url.searchParams)
+          if (key.startsWith('eq.')) filters[key.slice(3)] = value;
+        const after = url.searchParams.get('after') ?? undefined;
+        const limit = url.searchParams.has('limit')
+          ? Number(url.searchParams.get('limit'))
+          : undefined;
+        const rows = await hub.read(device, table, {
+          filters,
+          ...(after !== undefined ? { after } : {}),
+          ...(limit !== undefined ? { limit } : {}),
+        });
+        send(res, 200, { rows }, allowedOrigin);
         return;
       }
 
@@ -133,11 +160,15 @@ export function createHubServer(hub: VenueHub, options: HubServerOptions): Serve
         if (!(req.headers['content-type'] ?? '').startsWith('application/json'))
           throw new HubError('JSON_REQUIRED', 415);
         const body = (await readBody(req)) as { args?: unknown };
-        const outcome = await hub.rpc(device, rpc, Array.isArray(body?.args) ? body.args : []);
+        const args = body?.args;
+        if (args === null || typeof args !== 'object' || Array.isArray(args))
+          throw new HubError('RPC_ARGUMENTS_REQUIRED', 400);
+        const outcome = await hub.rpc(device, rpc, args as Record<string, unknown>);
         send(res, 200, { result: outcome.result }, allowedOrigin);
-        // Invalidation only: clients re-read through authorised RPCs, so the
+        // Invalidations only: clients re-read through authorised RPCs, so the
         // event stream never carries data a subscriber could not read itself.
-        if (outcome.write) broadcast({ type: 'changed', rpc, seq: outcome.seq });
+        deliver(outcome.signals);
+        if (outcome.write) broadcast({ type: 'sync', seq: outcome.seq });
         return;
       }
       throw new HubError('NOT_FOUND', 404);

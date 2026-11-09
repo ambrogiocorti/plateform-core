@@ -35,6 +35,8 @@ import type { ConnectionState } from '../../src/realtime/live';
 import { loadContext } from '../../src/pages/staff-context';
 import type { StaffContext } from '../../src/pages/staff-context';
 import type { UserRole } from '../../src/types/domain';
+import { hubLink } from '../../src/api/venue-hub';
+import { connectivitySummary, probeConnectivity } from '../../src/services/connectivity';
 import {
   clearNotificationIndicator,
   notificationIndicator,
@@ -59,6 +61,40 @@ function connectionLabel(): string {
     DEGRADED: 'Aggiornamenti da verificare',
     OFFLINE: 'MODALITÀ OFFLINE',
   }[connectionState];
+}
+// Shown only on devices paired with the venue hub: Internet, hub, cloud and
+// sync are reported separately so a working Wi-Fi is never read as "cloud OK".
+// The shell re-renders often: keep one probe loop and repaint each new badge
+// from the last known state, so a refresh never flashes "unknown" or adds traffic.
+let connectivityLoop: ReturnType<typeof setTimeout> | undefined;
+let lastConnectivity: ReturnType<typeof connectivitySummary> | undefined;
+function paintConnectivity(): void {
+  const badge = document.querySelector<HTMLElement>('.connectivity-badge');
+  if (!badge || !lastConnectivity) return;
+  badge.textContent = lastConnectivity.text;
+  badge.dataset.tone = lastConnectivity.tone;
+  badge.title = lastConnectivity.detail.join('\n');
+}
+function connectivityBadge(): HTMLElement | null {
+  if (!hubLink()) return null;
+  const badge = el(
+    'span',
+    { class: 'status connectivity-badge', role: 'status', 'aria-live': 'polite' },
+    lastConnectivity?.text ?? 'Verifica hub…',
+  );
+  if (lastConnectivity) {
+    badge.dataset.tone = lastConnectivity.tone;
+    badge.title = lastConnectivity.detail.join('\n');
+  }
+  if (!connectivityLoop) {
+    const probe = async () => {
+      lastConnectivity = connectivitySummary(await probeConnectivity());
+      paintConnectivity();
+      connectivityLoop = setTimeout(() => void probe(), 20_000);
+    };
+    connectivityLoop = setTimeout(() => void probe(), 0);
+  }
+  return badge;
 }
 function disconnectLive(): void {
   stopLive?.();
@@ -150,6 +186,12 @@ const navigation: {
     section: 'OPERATIVITÀ',
   },
   { path: '/conflitti', label: 'Conflitti offline', roles: ['ADMIN'], section: 'OPERATIVITÀ' },
+  {
+    path: '/hub',
+    label: 'Hub di sede',
+    roles: ['ADMIN', 'SUPER_ADMIN'],
+    section: 'CONFIGURAZIONE',
+  },
   {
     path: '/dispositivi',
     label: 'Dispositivi',
@@ -306,6 +348,7 @@ function pageDescription(path: string): string {
     '/stampe': 'Documenti in coda, esiti e ristampe.',
     '/privacy': 'Richieste sui dati e tempi di conservazione.',
     '/dispositivi': 'Postazioni, collegamenti e accessi autorizzati.',
+    '/hub': 'Continuità del servizio sulla rete del locale e stato dei collegamenti.',
     '/conflitti': 'Operazioni offline da verificare e riconciliare.',
     '/modifiche': 'Richieste di modifica e annullamento delle comande.',
     '/editor': 'Pianta della sala e disposizione dei tavoli.',
@@ -683,6 +726,7 @@ async function render(): Promise<void> {
           ),
         ),
         el('span', { id: 'connection-state', class: 'muted', role: 'status' }, connectionLabel()),
+        connectivityBadge(),
         venueControl,
         el(
           'div',
@@ -856,6 +900,8 @@ async function render(): Promise<void> {
       content = await (await import('../../src/pages/offline')).conflictPage(context);
     else if (pageLink.path === '/sedi')
       content = await (await import('../../src/pages/venues')).venuesPage(context);
+    else if (pageLink.path === '/hub')
+      content = await (await import('../../src/pages/venue-hub')).venueHubPage();
     else if (pageLink.path === '/dispositivi')
       content = await (await import('../../src/pages/devices')).devicesPage(context);
     else if (pageLink.path === '/stampe')
