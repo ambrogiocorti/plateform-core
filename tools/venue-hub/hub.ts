@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto';
+import { createHash, randomBytes } from 'node:crypto';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { PGlite } from '@electric-sql/pglite';
@@ -27,6 +27,10 @@ export type DeviceBinding = {
   // Absolute expiry: a stale binding is refused even when the cloud is unreachable.
   expires_at: string;
 };
+
+// Identity under which an operation runs: the user and the staff session whose
+// policies (role, venue, PIN unlock window) the database checks.
+export type Actor = { user_id: string; session_id: string };
 
 export type HubOptions = {
   dataDir?: string; // undefined = in-memory (tests only)
@@ -78,6 +82,17 @@ create table if not exists hub.sync_state(
   acknowledged_seq bigint not null default 0
 );
 insert into hub.sync_state(id) values(true) on conflict do nothing;
+-- Staff sessions opened on the hub with a PIN. Only the SHA-256 of the token is
+-- stored; a session is bound to the paired device that opened it.
+create table if not exists hub.local_sessions(
+  token_sha256 text primary key,
+  user_id uuid not null,
+  session_id uuid not null,
+  device_sha256 text not null,
+  created_at timestamptz not null default now(),
+  expires_at timestamptz not null,
+  revoked_at timestamptz
+);
 create or replace function hub.capture() returns trigger
 language plpgsql security definer set search_path = '' as $$
 declare
@@ -199,7 +214,90 @@ export class VenueHub {
     this.devices.delete(tokenSha256);
   }
 
-  async rpc(device: DeviceBinding, name: string, args: Record<string, unknown>) {
+  /**
+   * Resolves who acts for a request. With a staff session token the person who
+   * unlocked with their PIN on this device acts; otherwise the device's own
+   * binding (single-purpose screens such as a kitchen display).
+   */
+  async actor(device: DeviceBinding, sessionToken?: string, now = new Date()): Promise<Actor> {
+    if (!sessionToken) return device;
+    if (sessionToken.length < 32 || sessionToken.length > 256)
+      throw new HubError('STAFF_SESSION_INVALID', 401);
+    const row = (
+      await this.db.query<{ user_id: string; session_id: string }>(
+        `select user_id::text, session_id::text from hub.local_sessions
+         where token_sha256 = $1 and device_sha256 = $2 and revoked_at is null and expires_at > $3`,
+        [tokenDigest(sessionToken), device.token_sha256, now.toISOString()],
+      )
+    ).rows[0];
+    if (!row) throw new HubError('STAFF_SESSION_INVALID', 401);
+    return row;
+  }
+
+  /** Active staff who share a venue with the paired device (names and roles only). */
+  async staffFor(device: DeviceBinding) {
+    const rows = await this.db.query<{ id: string; display_name: string; role: string }>(
+      `select distinct p.id::text, p.display_name, p.role::text
+       from public.staff_profiles p
+       join public.staff_venue_assignments a on a.user_id = p.id
+       where p.active and p.role <> 'SUPER_ADMIN'
+         and a.venue_id in (select venue_id from public.staff_venue_assignments where user_id = $1)
+       order by p.display_name`,
+      [device.user_id],
+    );
+    return rows.rows;
+  }
+
+  /**
+   * Opens a staff session with the PIN, using the database's own unlock rules
+   * (attempt counter, exponential lock, full-authentication window). The hub
+   * never creates a full authentication: it reuses the most recent valid staff
+   * session of that person replicated from the cloud.
+   */
+  async openSession(device: DeviceBinding, userId: string, pin: string, now = new Date()) {
+    if (!/^[0-9a-f-]{36}$/i.test(userId)) throw new HubError('INVALID_STAFF', 400);
+    const allowed = await this.staffFor(device);
+    if (!allowed.some((staff) => staff.id === userId)) throw new HubError('INVALID_STAFF', 403);
+    const session = (
+      await this.db.query<{ session_id: string }>(
+        `select session_id::text from private.staff_sessions
+         where user_id = $1 and revoked_at is null
+         order by full_auth_at desc nulls last limit 1`,
+        [userId],
+      )
+    ).rows[0];
+    if (!session) throw new HubError('FULL_AUTH_REQUIRED', 401);
+    const actor = { user_id: userId, session_id: session.session_id };
+    const outcome = await this.asUser(actor, async (tx) => {
+      const result = await tx.query<{
+        r: { ok: boolean; expires_at?: string; password_required?: boolean };
+      }>('select public.unlock_staff_session($1) as r', [pin]);
+      return result.rows[0]!.r;
+    });
+    if (!outcome.ok || !outcome.expires_at)
+      throw new HubError(outcome.password_required ? 'FULL_AUTH_REQUIRED' : 'PIN_INVALID', 401);
+    const token = randomBytes(32).toString('base64url');
+    const maxHours = 12;
+    const expires = new Date(
+      Math.min(Date.parse(outcome.expires_at), now.getTime() + maxHours * 3600_000),
+    ).toISOString();
+    await this.db.query(
+      `insert into hub.local_sessions(token_sha256, user_id, session_id, device_sha256, expires_at)
+       values ($1, $2, $3, $4, $5)`,
+      [tokenDigest(token), userId, session.session_id, device.token_sha256, expires],
+    );
+    return { token, user_id: userId, expires_at: expires };
+  }
+
+  async closeSession(device: DeviceBinding, sessionToken: string) {
+    await this.db.query(
+      `update hub.local_sessions set revoked_at = now()
+       where token_sha256 = $1 and device_sha256 = $2 and revoked_at is null`,
+      [tokenDigest(sessionToken), device.token_sha256],
+    );
+  }
+
+  async rpc(device: Actor, name: string, args: Record<string, unknown>) {
     const spec = Object.prototype.hasOwnProperty.call(LAN_RPCS, name) ? LAN_RPCS[name] : undefined;
     if (!spec) throw new HubError('RPC_NOT_AVAILABLE_ON_LAN', 404);
     if (args === null || typeof args !== 'object' || Array.isArray(args))
@@ -282,7 +380,7 @@ export class VenueHub {
   }
 
   async read(
-    device: DeviceBinding,
+    device: Actor,
     table: string,
     options: { filters?: Record<string, string>; after?: string; limit?: number } = {},
   ) {
@@ -326,7 +424,7 @@ export class VenueHub {
   }
 
   private async asUser<T>(
-    device: DeviceBinding,
+    device: Actor,
     work: (tx: Parameters<Parameters<PGlite['transaction']>[0]>[0]) => Promise<T>,
   ) {
     const claims = JSON.stringify({
