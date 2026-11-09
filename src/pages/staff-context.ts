@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { readRows, rpc } from '../api/client';
-import { venueSchema } from '../types/domain';
+import { hubContext } from '../api/venue-hub';
+import { staffProfileSchema, venueSchema } from '../types/domain';
 import type { StaffProfile, Venue } from '../types/domain';
 
 export interface StaffContext {
@@ -50,6 +51,30 @@ export async function loadContext(
     venue: venues.find((venue) => venue.id === selectedId) ?? venues[0] ?? null,
     multiVenue,
     licensedFeatures: new Set(flags.filter((flag) => flag.licensed).map((flag) => flag.name)),
+    navigate,
+  };
+}
+
+/**
+ * Context of a person who unlocked on the venue hub with the PIN. Everything is
+ * read from the hub under that person's RLS; the cloud is not needed.
+ */
+export async function loadHubContext(navigate: (path: string) => void): Promise<StaffContext> {
+  const data = await hubContext();
+  const profile = staffProfileSchema.parse(data.profile);
+  const venues = z.array(venueSchema).parse(data.venues);
+  const multiVenue = data.feature_flags.some(
+    (flag) => flag.name === 'MULTI_VENUE' && flag.licensed,
+  );
+  const selectedId = data.current_venue_id ?? sessionStorage.getItem('plateform-venue');
+  return {
+    profile,
+    venues,
+    venue: venues.find((venue) => venue.id === selectedId) ?? venues[0] ?? null,
+    multiVenue,
+    licensedFeatures: new Set(
+      data.feature_flags.filter((flag) => flag.licensed).map((flag) => flag.name),
+    ),
     navigate,
   };
 }

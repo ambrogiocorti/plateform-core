@@ -142,6 +142,11 @@ export function createHubServer(hub: VenueHub, options: HubServerOptions): Serve
       }
       const actor = await hub.actor(device, sessionToken);
 
+      if (req.method === 'GET' && url.pathname === '/v1/context') {
+        send(res, 200, await hub.context(actor), allowedOrigin);
+        return;
+      }
+
       if (req.method === 'GET' && url.pathname === '/v1/events') {
         res.writeHead(200, {
           'content-type': 'text/event-stream',

@@ -32,10 +32,11 @@ import { client } from '../../src/api/client';
 import { lockedPage, lockSession, editPin } from '../../src/auth/lock';
 import { watchLive } from '../../src/realtime/live';
 import type { ConnectionState } from '../../src/realtime/live';
-import { loadContext } from '../../src/pages/staff-context';
+import { loadContext, loadHubContext } from '../../src/pages/staff-context';
 import type { StaffContext } from '../../src/pages/staff-context';
 import type { UserRole } from '../../src/types/domain';
-import { hubLink } from '../../src/api/venue-hub';
+import { closeHubStaffSession, hubLink, hubStaffSession } from '../../src/api/venue-hub';
+import { hubLoginPage } from '../../src/auth/hub-login';
 import { connectivitySummary, probeConnectivity } from '../../src/services/connectivity';
 import {
   clearNotificationIndicator,
@@ -50,6 +51,8 @@ document.body.classList.add('staff-workspace');
 let renderRevision = 0;
 let recoveryIntent = consumePasswordRecoveryIntent();
 let currentContext: StaffContext | null = null;
+// Set when someone at a paired device prefers the cloud login over the PIN.
+let passwordLoginChosen = false;
 let authExpiryTimer: ReturnType<typeof setTimeout> | undefined;
 let liveKey = '';
 let stopLive: (() => void) | undefined;
@@ -416,29 +419,53 @@ async function render(): Promise<void> {
     if (revision === renderRevision) app.replaceChildren(page);
     return;
   }
+  // A person who unlocked on the venue hub with the PIN works through the hub
+  // only: profile, venues and features come from the hub under their RLS.
+  const hubStaff = hubStaffSession();
   const {
     data: { session },
-  } = await client().auth.getSession();
-  const authInfo = session ? await requirements() : null;
+  } = hubStaff ? { data: { session: null } } : await client().auth.getSession();
+  // With a paired hub, an unreachable cloud leads to the PIN access in the venue
+  // instead of an error: the cloud login cannot be completed anyway.
+  let cloudUnreachable = false;
+  const authInfo = session
+    ? await requirements().catch((error: unknown) => {
+        if (!hubLink()) throw error;
+        cloudUnreachable = true;
+        return null;
+      })
+    : null;
   if (revision !== renderRevision) return;
   if (authInfo && !authInfo.session_unlocked) {
     disconnectLive();
     app.replaceChildren(lockedPage(authInfo, render));
     return;
   }
-  const profile = session ? await activeProfile() : null;
+  const hubContextLoaded = hubStaff ? await loadHubContext(navigate) : null;
+  const profile =
+    hubContextLoaded?.profile ?? (session && !cloudUnreachable ? await activeProfile() : null);
   if (revision !== renderRevision) return;
   if (!profile) {
     disconnectLive();
     if (staffPath() !== '/login') history.replaceState(null, '', staffHref('/login'));
     app.replaceChildren(
-      loginPage(async () => {
-        navigate('/');
-      }),
+      hubLink() && (cloudUnreachable || !passwordLoginChosen)
+        ? hubLoginPage(
+            async () => {
+              navigate('/');
+            },
+            () => {
+              passwordLoginChosen = true;
+              void render().catch(showError);
+            },
+          )
+        : loginPage(async () => {
+            navigate('/');
+          }),
     );
     return;
   }
-  const context = await loadContext(profile, navigate);
+  const context = hubContextLoaded ?? (await loadContext(profile, navigate));
   if (revision !== renderRevision) return;
   currentContext = context;
   context.refresh = async () => {
@@ -447,12 +474,13 @@ async function render(): Promise<void> {
     window.scrollTo(0, position);
   };
   if (revision !== renderRevision) return;
-  if (authInfo?.full_auth_expires_at)
+  const accessExpiry = hubStaff?.expires_at ?? authInfo?.full_auth_expires_at;
+  if (accessExpiry)
     authExpiryTimer = setTimeout(
       () => {
         void render().catch(showError);
       },
-      Math.max(0, Date.parse(authInfo.full_auth_expires_at) - Date.now()) + 1000,
+      Math.max(0, Date.parse(accessExpiry) - Date.now()) + 1000,
     );
   const links = navigation.filter(
     (entry) =>
@@ -604,7 +632,8 @@ async function render(): Promise<void> {
   const lockControl = button(
     'Blocca',
     async () => {
-      await lockSession();
+      if (hubStaffSession()) await closeHubStaffSession();
+      else await lockSession();
       await render();
     },
     'quiet',
@@ -985,7 +1014,8 @@ function openProfile(): void {
       'Blocca postazione',
       async () => {
         popup.close();
-        await lockSession();
+        if (hubStaffSession()) await closeHubStaffSession();
+        else await lockSession();
         await render();
       },
       'secondary',
@@ -1028,7 +1058,8 @@ function openProfile(): void {
     button(
       'Esci',
       async () => {
-        await signOut();
+        if (hubStaffSession()) await closeHubStaffSession();
+        else await signOut();
         popup.close();
         navigate('/login');
       },
