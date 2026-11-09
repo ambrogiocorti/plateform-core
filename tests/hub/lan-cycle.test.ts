@@ -8,9 +8,15 @@ import type { Server } from 'node:http';
 import type { PGlite } from '@electric-sql/pglite';
 import { VenueHub } from '../../tools/venue-hub/hub.ts';
 import { createHubServer } from '../../tools/venue-hub/server.ts';
-import { applyBatch, promoteGeneration, ReplicaFenced } from '../../tools/venue-hub/replication.ts';
-import { database } from '../database/harness';
-import { ids, table, dish, register, table2, tokens, devices, SEED, client } from './fixture';
+import { createHash } from 'node:crypto';
+import {
+  IngestError,
+  syncPending,
+  type Ingest,
+  type IngestResult,
+} from '../../tools/venue-hub/replication.ts';
+import { database, identity } from '../database/harness';
+import { ids, table, dish, register, tokens, devices, SEED, client } from './fixture';
 
 // Minimal LAN cycle proof for ADR-0001. It runs the real hub (persistent
 // embedded PostgreSQL + every versioned migration) behind its HTTP surface and
@@ -259,21 +265,41 @@ describe('Venue hub LAN cycle (ADR-0001 minimal proof)', () => {
     await start(2);
   }, 300_000);
 
-  it('replicates the change log to the cloud once, idempotently, and fences an older generation', async () => {
+  it('replicates the change log to the cloud once, only for its venue, and fences a deposed hub', async () => {
+    // The cloud holds the same configuration; an administrator registers the hub
+    // (generation 1) and later promotes it (generation 2, new secret).
+    await cloud.exec(SEED);
+    await cloud.exec(`update public.feature_flags set licensed=true where name='MULTI_VENUE';
+      insert into public.venues(id,name,slug,code,address,phone)
+      values('${ids.otherVenue}','Sede due','sede-due','V2','Via test 2','+390000000002')`);
+    await identity(cloud, ids.admin);
+    const registered = await cloud.query<{ r: { secret: string; generation: number } }>(
+      `select public.register_venue_hub($1,'hub-sede-uno') as r`,
+      [ids.venue],
+    );
+    const firstSecret = registered.rows[0]!.r.secret;
+    const promoted = await cloud.query<{ r: { secret: string; generation: number } }>(
+      `select public.promote_venue_hub('hub-sede-uno') as r`,
+    );
+    await cloud.exec('reset role');
+    const secret = promoted.rows[0]!.r.secret;
+    expect(promoted.rows[0]!.r.generation).toBe(hub.generation);
+
+    const ingest = sqlIngest(cloud, secret);
     const changes = await hub.pendingChanges(100000);
     expect(changes.length).toBeGreaterThan(0);
-    // Batches must not mix generations: replicate generation by generation.
-    const byGeneration = new Map<number, typeof changes>();
-    for (const c of changes)
-      byGeneration.set(c.generation, [...(byGeneration.get(c.generation) ?? []), c]);
-    for (const [, batch] of [...byGeneration].sort((a, b) => a[0] - b[0])) {
-      await applyBatch(cloud, 'hub-sede-uno', batch);
-      // Simulated lost acknowledgement: the same batch is delivered again.
-      const replay = await applyBatch(cloud, 'hub-sede-uno', batch);
-      expect(replay.applied).toBe(0);
-    }
-    await hub.acknowledge(changes.at(-1)!.seq);
+    // Small batches: several round trips, never splitting a hub transaction.
+    const sent = await syncPending(hub, ingest, 40);
+    expect(sent.sent).toBe(changes.length);
     expect(await hub.pendingChanges()).toEqual([]);
+
+    // A lost acknowledgement makes the hub send the same changes again: nothing is applied twice.
+    const replay = await ingest({
+      hub_id: 'hub-sede-uno',
+      generation: 2,
+      changes: changes.slice(0, 200),
+    });
+    expect(replay.applied).toBe(0);
 
     const count = async (sql: string) =>
       Number(
@@ -296,26 +322,118 @@ describe('Venue hub LAN cycle (ADR-0001 minimal proof)', () => {
         ])
       ).rows[0]?.status,
     ).toBe('CLOSED');
+    // Bootstrap configuration written on the hub is not service data: kept aside, not applied.
+    expect(
+      await count(`private.venue_hub_quarantine where reason='TABLE_NOT_REPLICATED'`),
+    ).toBeGreaterThan(0);
+    expect(await count(`public.audit_log where action='VENUE_HUB_BATCH_INGESTED'`)).toBeGreaterThan(
+      0,
+    );
 
-    // The replacement hub (generation 2) is promoted on the cloud and writes.
-    await promoteGeneration(cloud, 'hub-sede-uno', 2);
-    const waiter = client(base, tokens.waiter);
-    await waiter.rpc('create_account', {
-      p_table: table2,
-      p_name: 'Bianchi',
-      p_covers: 3,
-      p_note: null,
-      p_key: crypto.randomUUID(),
-    });
-    const next = await hub.pendingChanges();
-    expect(next.every((c) => c.generation === 2)).toBe(true);
-    expect((await applyBatch(cloud, 'hub-sede-uno', next)).applied).toBe(next.length);
-    await hub.acknowledge(next.at(-1)!.seq);
-    expect(await count(`public.accounts where status<>'CLOSED'`)).toBe(1);
+    // A hub cannot write outside its venue, take over another venue's row, or delete.
+    const foreignAccount = '50000000-0000-4000-8000-0000000000aa';
+    // Fixture only: an account of the other venue, written directly as data.
+    await cloud.exec('set session_replication_role = replica');
+    await cloud.query(
+      `insert into public.accounts select (jsonb_populate_record(null::public.accounts,
+         to_jsonb(a) || jsonb_build_object('id',$1::text,'venue_id',$2::text,'code','ZZ9999'))).*
+       from public.accounts a where id=$3`,
+      [foreignAccount, ids.otherVenue, accountId],
+    );
+    await cloud.exec('set session_replication_role = origin');
+    const own = (
+      await cloud.query<Record<string, unknown>>('select * from public.accounts where id=$1', [
+        accountId,
+      ])
+    ).rows[0]!;
+    const ownOrder = (await cloud.query<Record<string, unknown>>('select * from public.orders'))
+      .rows[0]!;
+    const base = changes.at(-1)!.seq + 10_000;
+    const forged = [
+      {
+        table_name: 'public.accounts',
+        op: 'INSERT',
+        row_data: { ...own, id: crypto.randomUUID(), venue_id: ids.otherVenue },
+      },
+      { table_name: 'public.accounts', op: 'UPDATE', row_data: { ...own, id: foreignAccount } },
+      {
+        table_name: 'public.orders',
+        op: 'INSERT',
+        row_data: { ...ownOrder, id: crypto.randomUUID(), account_id: foreignAccount },
+      },
+      {
+        table_name: 'public.orders',
+        op: 'INSERT',
+        row_data: { id: crypto.randomUUID(), venue_id: ids.venue, account_id: accountId },
+      },
+      {
+        table_name: 'public.staff_profiles',
+        op: 'UPDATE',
+        row_data: { id: ids.waiter, role: 'ADMIN' },
+      },
+      { table_name: 'public.accounts', op: 'DELETE', row_data: null },
+    ].map((c, i) => ({
+      ...c,
+      seq: base + i,
+      generation: 2,
+      txid: 1,
+      pk: { id: own.id },
+    })) as Parameters<typeof ingest>[0]['changes'];
+    const forgedResult = await ingest({ hub_id: 'hub-sede-uno', generation: 2, changes: forged });
+    expect(forgedResult).toMatchObject({ applied: 0, quarantined: forged.length });
+    const reasons = (
+      await cloud.query<{ seq: string; reason: string }>(
+        'select seq::text, reason from private.venue_hub_quarantine where seq >= $1 order by seq',
+        [base],
+      )
+    ).rows.map((r) => r.reason.replace(/:.*/, ''));
+    expect(reasons).toEqual([
+      'ROW_OUTSIDE_VENUE',
+      'ROW_OUTSIDE_VENUE',
+      'REFERENCE_OUTSIDE_VENUE',
+      'ROW_REJECTED',
+      'TABLE_NOT_REPLICATED',
+      'DELETE_NOT_REPLICATED',
+    ]);
+    expect(
+      await count(`public.accounts where id='${foreignAccount}' and venue_id='${ids.otherVenue}'`),
+    ).toBe(1);
+    expect(await count(`public.staff_profiles where id='${ids.waiter}' and role='WAITER'`)).toBe(1);
 
-    // A deposed hub (generation 1) reconnecting later cannot write to the cloud,
-    // even with sequence numbers the cloud has never seen.
-    const stale = [{ ...next.at(-1)!, seq: next.at(-1)!.seq + 1000, generation: 1 }];
-    await expect(applyBatch(cloud, 'hub-sede-uno', stale)).rejects.toBeInstanceOf(ReplicaFenced);
-  }, 120_000);
+    // Fencing: the secret of generation 1 was rotated, generation 1 is refused even
+    // with the current secret, and a generation that was never promoted is refused.
+    const next = [{ ...forged[0]!, seq: base + 100 }];
+    await expect(
+      sqlIngest(cloud, firstSecret)({ hub_id: 'hub-sede-uno', generation: 2, changes: next }),
+    ).rejects.toThrow('UNAUTHORIZED');
+    await expect(ingest({ hub_id: 'hub-sede-uno', generation: 1, changes: next })).rejects.toThrow(
+      'HUB_GENERATION_FENCED',
+    );
+    await expect(ingest({ hub_id: 'hub-sede-uno', generation: 3, changes: next })).rejects.toThrow(
+      'HUB_GENERATION_NOT_PROMOTED',
+    );
+  }, 180_000);
 });
+
+// Same call the `venue-hub-ingest` Edge Function makes with the service role.
+function sqlIngest(db: PGlite, secret: string): Ingest {
+  return async (batch) => {
+    try {
+      await db.exec('reset role; set role service_role');
+      const result = await db.query<{ r: IngestResult }>(
+        'select public.ingest_venue_hub_batch($1,$2,$3,$4::jsonb) as r',
+        [
+          batch.hub_id,
+          createHash('sha256').update(secret).digest('hex'),
+          batch.generation,
+          JSON.stringify(batch.changes),
+        ],
+      );
+      return result.rows[0]!.r;
+    } catch (error) {
+      throw new IngestError(error instanceof Error ? error.message : 'INGEST_FAILED');
+    } finally {
+      await db.exec('reset role');
+    }
+  };
+}

@@ -319,6 +319,9 @@ export function endpoint<T>(
         'DEPOSIT_NOT_PENDING',
         'DEPOSIT_PROVIDER_UNAVAILABLE',
         'DEPOSIT_PROVIDER_ALREADY_SELECTED',
+        'HUB_REVOKED',
+        'HUB_GENERATION_FENCED',
+        'HUB_GENERATION_NOT_PROMOTED',
       ];
       const code = allowed.includes(rawCode)
         ? rawCode
@@ -371,6 +374,9 @@ export function endpoint<T>(
                     'WAITLIST_NOT_OFFERED',
                     'WAITLIST_CAPACITY_LOST',
                     'WAITLIST_OFFER_EXPIRED',
+                    'HUB_REVOKED',
+                    'HUB_GENERATION_FENCED',
+                    'HUB_GENERATION_NOT_PROMOTED',
                   ].includes(code)
                 ? 409
                 : [
