@@ -1,121 +1,138 @@
-import type { PGlite } from '@electric-sql/pglite';
+import type { VenueHub } from './hub.ts';
 
-// Cloud-side application of the hub change log. The replica stores, per hub,
-// the highest applied sequence and authority generation:
-//  - a batch is applied in one transaction, in seq order, skipping seq <= last;
-//  - a batch from an older generation than the one already accepted is refused
-//    (fencing), so a deposed hub can never overwrite the promoted one;
-//  - business triggers are not re-executed on the replica: the hub already ran
-//    them and its resulting rows (including audit) are replicated as data.
-// This module is the reference implementation exercised against an embedded
-// PostgreSQL. The hosted Supabase ingest (Edge Function + service-only RPC) must
-// keep exactly these semantics; see the ADR for the hosted constraints.
+// Hub → cloud replication of the change log (ADR-0001).
+// The cloud side is public.ingest_venue_hub_batch (migration
+// 20261109140000_venue_hub_cloud_ingest.sql), reached through the Edge Function
+// `venue-hub-ingest`. It applies each change exactly once, only for the service
+// tables of the hub's venue, and fences a hub that is no longer the promoted
+// generation. This module only sends: it never decides what the cloud accepts.
 
 export type Change = {
   seq: number;
   generation: number;
+  txid: number;
   table_name: string;
   op: 'INSERT' | 'UPDATE' | 'DELETE';
   pk: Record<string, unknown>;
   row_data: Record<string, unknown> | null;
 };
 
-export const REPLICA_STATE_SQL = `
-create schema if not exists hub_replica;
-revoke all on schema hub_replica from public, anon, authenticated;
-create table if not exists hub_replica.state(
-  hub_id text primary key,
-  generation integer not null,
-  applied_seq bigint not null default 0,
-  updated_at timestamptz not null default now()
-);
-`;
+export type IngestBatch = { hub_id: string; generation: number; changes: Change[] };
+export type IngestResult = { applied: number; quarantined: number; applied_seq: number };
+export type Ingest = (batch: IngestBatch) => Promise<IngestResult>;
 
-export class ReplicaFenced extends Error {
-  constructor() {
-    super('HUB_GENERATION_FENCED');
+/** Codes that a retry cannot fix: an administrator must act. */
+const TERMINAL = new Set([
+  'UNAUTHORIZED',
+  'HUB_REVOKED',
+  'HUB_GENERATION_FENCED',
+  'HUB_GENERATION_NOT_PROMOTED',
+]);
+
+export class IngestError extends Error {
+  constructor(
+    readonly code: string,
+    readonly terminal = TERMINAL.has(code),
+  ) {
+    super(code);
   }
 }
 
-const IDENT = /^[a-z_][a-z0-9_]*\.[a-z_][a-z0-9_]*$/;
-
-export async function applyBatch(replica: PGlite, hubId: string, batch: Change[]) {
-  if (batch.length === 0) return { applied: 0, last: null as number | null };
-  const generation = batch[0]!.generation;
-  if (batch.some((c) => c.generation !== generation)) throw new Error('MIXED_GENERATION_BATCH');
-  return replica.transaction(async (tx) => {
-    await tx.exec(REPLICA_STATE_SQL);
-    const state = (
-      await tx.query<{ generation: number; applied_seq: string }>(
-        'select generation, applied_seq::text from hub_replica.state where hub_id = $1 for update',
-        [hubId],
-      )
-    ).rows[0];
-    if (state && generation < state.generation) throw new ReplicaFenced();
-    // A new generation restarts nothing: seq is global to the hub data directory.
-    const last = state ? Number(state.applied_seq) : 0;
-    await tx.exec(`set local session_replication_role = replica`);
-    let applied = 0;
-    for (const change of batch.sort((a, b) => a.seq - b.seq)) {
-      if (change.seq <= last) continue;
-      if (!IDENT.test(change.table_name)) throw new Error('INVALID_TABLE');
-      const columns = (
-        await tx.query<{ name: string; generated: string; identity: string }>(
-          `select a.attname as name, a.attgenerated as generated, a.attidentity as identity
-           from pg_attribute a
-           where a.attrelid = $1::regclass and a.attnum > 0 and not a.attisdropped`,
-          [change.table_name],
-        )
-      ).rows.filter((c) => c.generated === '');
-      const pkCols = Object.keys(change.pk);
-      if (pkCols.length === 0) throw new Error('MISSING_PRIMARY_KEY');
-      const q = (n: string) => `"${n.replaceAll('"', '""')}"`;
-      if (change.op === 'DELETE') {
-        const where = pkCols.map((c, i) => `${q(c)} = $${i + 1}`).join(' and ');
-        await tx.query(
-          `delete from ${change.table_name} where ${where}`,
-          pkCols.map((c) => change.pk[c]),
-        );
-      } else {
-        const names = columns.map((c) => q(c.name)).join(',');
-        const updates = columns
-          .filter((c) => !pkCols.includes(c.name))
-          .map((c) => `${q(c.name)} = excluded.${q(c.name)}`)
-          .join(',');
-        const overriding = columns.some((c) => c.identity === 'a')
-          ? ' overriding system value'
-          : '';
-        await tx.query(
-          `insert into ${change.table_name}(${names})${overriding}
-           select ${names} from jsonb_populate_record(null::${change.table_name}, $1::jsonb)
-           on conflict (${pkCols.map(q).join(',')}) do ${updates ? `update set ${updates}` : 'nothing'}`,
-          [JSON.stringify(change.row_data)],
-        );
-      }
-      applied += 1;
+/**
+ * Sends every pending change, in order, and acknowledges locally only what the
+ * cloud confirmed. A hub transaction is never split across two batches unless
+ * it alone exceeds the batch size, so the cloud does not expose half of it.
+ */
+export async function syncPending(hub: VenueHub, ingest: Ingest, batchSize = 200) {
+  let sent = 0;
+  for (;;) {
+    let changes = (await hub.pendingChanges(batchSize)) as Change[];
+    if (changes.length === 0) return { sent };
+    if (changes.length === batchSize) {
+      const lastTx = changes.at(-1)!.txid;
+      const whole = changes.filter((change) => change.txid !== lastTx);
+      if (whole.length > 0) changes = whole;
     }
-    const top = Math.max(last, ...batch.map((c) => c.seq));
-    await tx.query(
-      `insert into hub_replica.state(hub_id, generation, applied_seq) values($1,$2,$3)
-       on conflict (hub_id) do update set generation = excluded.generation,
-         applied_seq = greatest(hub_replica.state.applied_seq, excluded.applied_seq), updated_at = now()`,
-      [hubId, generation, top],
-    );
-    return { applied, last: top };
-  });
+    const last = changes.at(-1)!.seq;
+    const result = await ingest({ hub_id: hub.hubId, generation: hub.generation, changes });
+    if (!(result.applied_seq >= last)) throw new IngestError('INGEST_INCOMPLETE', false);
+    await hub.acknowledge(last);
+    sent += changes.length;
+  }
 }
 
-// Explicit administrative promotion of a replacement hub on the cloud side.
-// Monotonic: the recorded generation can only increase. After promotion any
-// batch from an older generation is refused, even if it carries new seq values.
-export async function promoteGeneration(replica: PGlite, hubId: string, generation: number) {
-  await replica.transaction(async (tx) => {
-    await tx.exec(REPLICA_STATE_SQL);
-    await tx.query(
-      `insert into hub_replica.state(hub_id, generation) values($1,$2)
-       on conflict (hub_id) do update set generation = greatest(hub_replica.state.generation, excluded.generation),
-         updated_at = now()`,
-      [hubId, generation],
-    );
-  });
+/** HTTPS sender for the `venue-hub-ingest` Edge Function. */
+export function httpIngest(url: string, secret: string, timeoutMs = 20_000): Ingest {
+  return async (batch) => {
+    let response: Response;
+    try {
+      response = await fetch(url, {
+        method: 'POST',
+        headers: { authorization: `Bearer ${secret}`, 'content-type': 'application/json' },
+        body: JSON.stringify(batch),
+        signal: AbortSignal.timeout(timeoutMs),
+      });
+    } catch {
+      throw new IngestError('CLOUD_UNREACHABLE', false);
+    }
+    const body = (await response.json().catch(() => null)) as
+      (Partial<IngestResult> & { code?: string }) | null;
+    if (!response.ok) throw new IngestError(body?.code ?? `HTTP_${response.status}`);
+    if (typeof body?.applied_seq !== 'number') throw new IngestError('INVALID_RESPONSE', false);
+    return body as IngestResult;
+  };
+}
+
+export type SyncState = {
+  status: 'IDLE' | 'SYNCING' | 'RETRYING' | 'STOPPED';
+  last_success_at: string | null;
+  last_error: string | null;
+};
+
+/**
+ * Background loop: retries with exponential backoff while the cloud is
+ * unreachable, stops on a terminal answer (revoked or fenced hub).
+ */
+export function startSync(
+  hub: VenueHub,
+  ingest: Ingest,
+  options: { intervalMs?: number; maxBackoffMs?: number; onState?: (s: SyncState) => void } = {},
+) {
+  const interval = options.intervalMs ?? 5_000;
+  const maxBackoff = options.maxBackoffMs ?? 60_000;
+  const state: SyncState = { status: 'IDLE', last_success_at: null, last_error: null };
+  let delay = interval;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  let stopped = false;
+  const publish = (patch: Partial<SyncState>) => {
+    Object.assign(state, patch);
+    options.onState?.({ ...state });
+  };
+  const tick = async () => {
+    if (stopped) return;
+    publish({ status: 'SYNCING' });
+    try {
+      await syncPending(hub, ingest);
+      delay = interval;
+      publish({ status: 'IDLE', last_success_at: new Date().toISOString(), last_error: null });
+    } catch (error) {
+      const code = error instanceof IngestError ? error.code : 'SYNC_FAILED';
+      if (error instanceof IngestError && error.terminal) {
+        stopped = true;
+        publish({ status: 'STOPPED', last_error: code });
+        return;
+      }
+      delay = Math.min(delay * 2, maxBackoff);
+      publish({ status: 'RETRYING', last_error: code });
+    }
+    if (!stopped) timer = setTimeout(() => void tick(), delay);
+  };
+  timer = setTimeout(() => void tick(), 0);
+  return {
+    state: () => ({ ...state }),
+    stop() {
+      stopped = true;
+      if (timer) clearTimeout(timer);
+    },
+  };
 }

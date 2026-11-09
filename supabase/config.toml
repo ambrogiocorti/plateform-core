@@ -84,5 +84,8 @@ verify_jwt = false
 [functions.maintenance]
 verify_jwt = false
 
+[functions.venue-hub-ingest]
+verify_jwt = false
+
 [functions.public-telemetry]
 verify_jwt = false
