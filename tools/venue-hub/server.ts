@@ -88,8 +88,9 @@ export function createHubServer(hub: VenueHub, options: HubServerOptions): Serve
           ...(allowedOrigin
             ? {
                 'access-control-allow-origin': allowedOrigin,
-                'access-control-allow-methods': 'GET, POST',
-                'access-control-allow-headers': 'authorization, content-type',
+                'access-control-allow-methods': 'GET, POST, DELETE',
+                'access-control-allow-headers':
+                  'authorization, content-type, x-plateform-staff-session',
                 'access-control-max-age': '600',
                 vary: 'Origin',
               }
@@ -118,6 +119,28 @@ export function createHubServer(hub: VenueHub, options: HubServerOptions): Serve
 
       const token = /^Bearer (.+)$/.exec(req.headers.authorization ?? '')?.[1];
       const device = hub.authenticate(token);
+      const staffToken = req.headers['x-plateform-staff-session'];
+      const sessionToken = typeof staffToken === 'string' ? staffToken : undefined;
+
+      if (req.method === 'GET' && url.pathname === '/v1/staff') {
+        send(res, 200, { staff: await hub.staffFor(device) }, allowedOrigin);
+        return;
+      }
+      if (url.pathname === '/v1/session' && req.method === 'POST') {
+        if (!(req.headers['content-type'] ?? '').startsWith('application/json'))
+          throw new HubError('JSON_REQUIRED', 415);
+        const body = (await readBody(req)) as { user_id?: unknown; pin?: unknown };
+        if (typeof body?.user_id !== 'string' || typeof body.pin !== 'string')
+          throw new HubError('INVALID_STAFF', 400);
+        send(res, 200, await hub.openSession(device, body.user_id, body.pin), allowedOrigin);
+        return;
+      }
+      if (url.pathname === '/v1/session' && req.method === 'DELETE') {
+        if (sessionToken) await hub.closeSession(device, sessionToken);
+        send(res, 200, { closed: true }, allowedOrigin);
+        return;
+      }
+      const actor = await hub.actor(device, sessionToken);
 
       if (req.method === 'GET' && url.pathname === '/v1/events') {
         res.writeHead(200, {
@@ -129,7 +152,7 @@ export function createHubServer(hub: VenueHub, options: HubServerOptions): Serve
             : {}),
         });
         res.write(`data: ${JSON.stringify({ type: 'hello', generation: hub.generation })}\n\n`);
-        const sub = { res, userId: device.user_id, venues: await hub.venuesOf(device.user_id) };
+        const sub = { res, userId: actor.user_id, venues: await hub.venuesOf(actor.user_id) };
         subscribers.add(sub);
         req.on('close', () => subscribers.delete(sub));
         return;
@@ -145,7 +168,7 @@ export function createHubServer(hub: VenueHub, options: HubServerOptions): Serve
         const limit = url.searchParams.has('limit')
           ? Number(url.searchParams.get('limit'))
           : undefined;
-        const rows = await hub.read(device, table, {
+        const rows = await hub.read(actor, table, {
           filters,
           ...(after !== undefined ? { after } : {}),
           ...(limit !== undefined ? { limit } : {}),
@@ -163,7 +186,7 @@ export function createHubServer(hub: VenueHub, options: HubServerOptions): Serve
         const args = body?.args;
         if (args === null || typeof args !== 'object' || Array.isArray(args))
           throw new HubError('RPC_ARGUMENTS_REQUIRED', 400);
-        const outcome = await hub.rpc(device, rpc, args as Record<string, unknown>);
+        const outcome = await hub.rpc(actor, rpc, args as Record<string, unknown>);
         send(res, 200, { result: outcome.result }, allowedOrigin);
         // Invalidations only: clients re-read through authorised RPCs, so the
         // event stream never carries data a subscriber could not read itself.
