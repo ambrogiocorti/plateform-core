@@ -43,13 +43,15 @@ Gli artefatti scadono dopo 14 giorni e vivono sullo stesso account GitHub del co
 
 ## Test di restore non distruttivo
 
-Production non viene mai usata come target. Il restore avviene su un **secondo progetto Free temporaneo** (`plateform-restore-test`, eu-west-1), creato solo per la prova ed eliminato subito dopo; non è uno staging.
+Production non viene mai usata come target. Il restore avviene su un **secondo progetto Free temporaneo** (`plateform-restore-test`, eu-west-1), creato solo per la prova ed eliminato subito dopo; non è uno staging. Il workflow manuale `.github/workflows/production-restore-test.yml` scarica l'artefatto cifrato, verifica che il target sia vuoto, accoda il test con `enqueue_restore_test_job` e lo esegue con `tools/restore-test-worker`.
 
-1. Scaricare l'artefatto ed estrarlo in una cartella qualsiasi, da indicare in `PLATEFORM_BACKUP_ROOT` (i riferimenti `plateform-backup://<id>/manifest.json` sono relativi alla radice). Servono anche le stesse `PLATEFORM_BACKUP_ENCRYPTION_KEY_*` e le credenziali server-side della sorgente, che il worker usa per reclamare e chiudere il job.
-2. Impostare le variabili `PLATEFORM_RESTORE_TEST_*` (vedi `tools/restore-test-worker/README.md`), con `PLATEFORM_RESTORE_TEST_CONFIRM_PROJECT_REF` uguale al ref del progetto temporaneo.
-3. `npm run restore-test:check`, poi richiedere il restore test dal pannello Super Admin e `npm run restore-test:once`.
-4. Il job passa solo se risultano veri i gate `database`, `auth`, `storage`, `manifest`, `rls`, `accounts`, `payments`, `audit`, `sessions`, `devices`.
-5. Annotare commit, data, durata ed esiti nel registro continuità; eliminare il progetto temporaneo.
+1. Creare dal dashboard Supabase il progetto `plateform-restore-test` (Free, eu-west-1) e annotare il suo ref.
+2. Aggiungere all'environment `plateform-production-backup` tre secret del progetto temporaneo: `PLATEFORM_RESTORE_TEST_SUPABASE_URL` (`https://<ref>.supabase.co`), `PLATEFORM_RESTORE_TEST_SECRET_KEY` (`sb_secret_…`) e `PLATEFORM_RESTORE_TEST_DB_URL` (Session pooler).
+3. _Actions → Plateform production restore test → Run workflow_, indicando il run id del backup, l'id del backup (`backup_metadata.id`) e il ref del progetto temporaneo.
+4. Il job passa solo se il worker chiude con `SUCCEEDED` e tutti i gate risultano veri: `database`, `auth`, `storage`, `manifest`, `rls`, `accounts`, `payments`, `audit`, `sessions`, `devices`.
+5. Annotare commit, data, durata ed esiti; eliminare il progetto temporaneo e i tre secret `PLATEFORM_RESTORE_TEST_*`.
+
+La chiave di cifratura usata dal test deve essere quella con cui il backup è stato creato. Se si ruota la chiave, i backup precedenti restano leggibili solo con la chiave vecchia.
 
 ## Limiti accettati
 
