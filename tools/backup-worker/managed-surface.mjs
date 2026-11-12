@@ -1,6 +1,6 @@
 import { spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 
 // `supabase db dump` excludes the managed schemas (auth, storage, cron, ...).
 // Objects that Plateform migrations add ON managed tables are therefore lost by a
@@ -127,9 +127,7 @@ function query(psql, databaseUrl, sql, code) {
     child.once('exit', (exit) => {
       if (exit !== 0)
         return reject(
-          new Error(
-            `${code}:${exit}:${stderr.replaceAll(databaseUrl, '[REDACTED]').slice(0, 400)}`,
-          ),
+          new Error(`${code}:${exit}:${stderr.replaceAll(databaseUrl, '[REDACTED]').slice(-600)}`),
         );
       resolve(stdout.trim());
     });
@@ -178,7 +176,28 @@ export async function captureManagedOverlay(psql, databaseUrl, overlayPath, sche
   };
 }
 
+// The overlay also captures triggers that Supabase itself installs on its
+// managed tables (storage.protect_delete, storage.enforce_bucket_name_length,
+// ...). Their functions live in the storage/auth schemas, a hosted target
+// already has them, and its `postgres` role cannot drop or recreate them.
+// Re-apply only Plateform's own triggers (functions outside storage/auth);
+// policies are always re-applied.
+const PLATFORM_MANAGED_TRIGGER =
+  /^drop trigger if exists \S+ on (storage|auth)\.\S+; CREATE (CONSTRAINT )?TRIGGER .* EXECUTE FUNCTION (storage|auth)\./i;
+
+export function withoutPlatformManagedTriggers(sql) {
+  const kept = [];
+  let removed = 0;
+  for (const line of sql.split('\n')) {
+    if (PLATFORM_MANAGED_TRIGGER.test(line)) removed += 1;
+    else kept.push(line);
+  }
+  return { sql: kept.join('\n'), removed };
+}
+
 export async function applyManagedOverlay(psql, databaseUrl, overlayPath) {
+  const { sql, removed } = withoutPlatformManagedTriggers(await readFile(overlayPath, 'utf8'));
+  if (removed) await writeFile(overlayPath, sql, { mode: 0o600 });
   await new Promise((resolve, reject) => {
     const child = spawn(
       psql,
