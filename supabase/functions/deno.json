@@ -1,0 +1,8 @@
+{
+  "nodeModulesDir": "none",
+  "compilerOptions": {
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true
+  }
+}

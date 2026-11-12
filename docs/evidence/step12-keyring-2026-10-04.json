@@ -1,0 +1,17 @@
+{
+  "date": "2026-10-04",
+  "status": "PASSED_STATIC_FAIL_CLOSED",
+  "active_key_contract": [
+    "PLATEFORM_BACKUP_ENCRYPTION_KEY_ID",
+    "PLATEFORM_BACKUP_ENCRYPTION_KEY_BASE64"
+  ],
+  "historical_key_contract": "PLATEFORM_BACKUP_KEYRING_JSON",
+  "checks": {
+    "active_key_resolution": "PASSED",
+    "historical_key_resolution": "PASSED",
+    "missing_historical_key": "BACKUP_ENCRYPTION_KEY_UNAVAILABLE",
+    "active_key_id_conflict": "CONFIG_KEYRING_ACTIVE_KEY_MISMATCH"
+  },
+  "guarantee": "Restore selects the encryption key by the backup encryption_key_id and fails closed when unavailable.",
+  "remaining_external_gate": "External escrow/recovery of historical keys must be exercised on production infrastructure."
+}

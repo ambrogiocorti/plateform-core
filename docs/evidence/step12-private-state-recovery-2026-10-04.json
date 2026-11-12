@@ -1,0 +1,26 @@
+{
+  "date": "2026-10-04",
+  "step": 12,
+  "status": "PASSED_INTERNAL_FAIL_CLOSED",
+  "migration": "20261004205734_step12_private_state_recovery_policy",
+  "migration_sha256": "443fa9ba39721c8eb571985bd2c60fa7805d01fe45cd7ddedea31c641613abe0",
+  "policy": {
+    "durable_private_tables": 11,
+    "backup_fingerprint_required": true,
+    "snapshot_change_fail_closed": true,
+    "runtime_security_state_invalidated_after_restore": true,
+    "server_side_backup_guard": "BACKUP_PRIVATE_STATE_REQUIRED",
+    "server_side_restore_guard": "RESTORE_PRIVATE_STATE_REQUIRED"
+  },
+  "tests": [
+    "npm run check:private-recovery",
+    "npm run check:snapshot-consistency",
+    "npm run check:backup-worker",
+    "npm run check:restore-test-worker",
+    "npm run check:restore-worker"
+  ],
+  "disposable_transactional_test": {
+    "durable_unchanged": true,
+    "security_zero": true
+  }
+}

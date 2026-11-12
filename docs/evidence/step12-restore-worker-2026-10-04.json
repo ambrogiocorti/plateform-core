@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-04",
+  "project_id": "abdxvlykasqmknexxhjo",
+  "step": 12,
+  "status": "IN_PROGRESS_REAL_RESTORE_WORKER_IMPLEMENTED_NOT_LIVE_TESTED",
+  "migration": "20261004123554_step12_restore_mode_isolation",
+  "implementation": {
+    "worker": "tools/restore-worker",
+    "strategy": "replacement project / blue-green data restore; never in-place on source",
+    "scope": "INSTALLATION only",
+    "pre_restore_snapshot_required": true,
+    "restore_test_and_restore_queues_isolated": true,
+    "verify_resume_without_second_restore": true,
+    "cutover_automatic": false
+  },
+  "auth_backup_correction": {
+    "database_dump": "Supabase CLI roles/schema/application data",
+    "auth_dump": "separate pg_dump data-only schema auth",
+    "excluded": ["auth.instances", "auth.schema_migrations"],
+    "manifest_user_count": true,
+    "restore_user_count_verification": true
+  },
+  "security": {
+    "replacement_project_must_differ_from_source": true,
+    "destructive_ack_required": true,
+    "target_project_ref_confirmation_required": true,
+    "target_database_empty_on_initial_restore": true,
+    "target_storage_empty_on_initial_restore": true,
+    "storage_object_sha256_verified_after_restore": true
+  },
+  "checks": {
+    "restore_worker_static_gate": "PASSED",
+    "restore_test_worker_static_gate": "PASSED",
+    "backup_worker_static_gate": "PASSED",
+    "preflight_fail_closed": "PASSED_PREREQUISITE_MISSING_PSQL",
+    "restore_jobs_unchanged_after_failed_preflight": true
+  },
+  "remaining": [
+    "execute a complete backup using a host with Supabase CLI and pg_dump",
+    "execute isolated restore test against disposable Supabase project",
+    "execute real replacement-project restore rehearsal",
+    "perform and time infrastructure cutover/rollback rehearsal",
+    "measure observed RPO/RTO before any commercial guarantee"
+  ]
+}

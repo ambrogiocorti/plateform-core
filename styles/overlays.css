@@ -1,0 +1,279 @@
+/* One overlay system for public pages, staff forms and account actions. */
+html {
+  scrollbar-gutter: auto;
+}
+html:has(dialog[open]) {
+  overflow: hidden;
+}
+dialog.dialog {
+  width: min(640px, calc(100vw - 32px));
+  max-width: calc(100vw - 32px);
+  max-height: calc(100dvh - 48px);
+  padding: 28px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow:
+    0 24px 90px #10182026,
+    0 4px 20px #10182012;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+dialog.dialog *,
+dialog.dialog {
+  scrollbar-width: none;
+}
+dialog.dialog::-webkit-scrollbar,
+dialog.dialog *::-webkit-scrollbar {
+  display: none;
+}
+dialog.dialog::backdrop {
+  background: #131a25a6;
+  backdrop-filter: none;
+}
+dialog.dialog > .dialog-heading {
+  position: sticky;
+  top: -28px;
+  z-index: 2;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  margin: -28px -28px 24px;
+  padding: 24px 28px 18px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+dialog.dialog > .dialog-heading h2 {
+  margin: 3px 0 0;
+  font-size: clamp(20px, 2vw, 25px);
+  line-height: 1.25;
+  letter-spacing: -0.035em;
+}
+.button.dismiss-control {
+  display: grid;
+  flex: 0 0 34px;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  min-height: 34px;
+  padding: 7px;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--muted);
+  box-shadow: none;
+}
+.button.dismiss-control svg {
+  width: 20px;
+  height: 20px;
+}
+.button.dismiss-control:hover {
+  background: var(--raised);
+  color: var(--text);
+}
+.button.dismiss-control:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+dialog.dialog > footer {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+dialog.dialog :where(.field, .stack) {
+  gap: 10px;
+}
+dialog.dialog :where(input:not([type='checkbox']):not([type='radio']), select, textarea) {
+  border-radius: 10px;
+}
+dialog.dialog > .row {
+  flex-wrap: wrap;
+  gap: 10px;
+}
+dialog.dialog.profile-dialog {
+  width: min(440px, calc(100vw - 32px));
+}
+.profile-dialog .profile-role {
+  margin-bottom: 20px;
+}
+.profile-action-list {
+  margin: 0;
+}
+.profile-action-list > .button {
+  min-height: 48px;
+  border-radius: 10px;
+}
+
+.toasts {
+  inset: auto 20px 20px auto;
+  width: min(390px, calc(100vw - 32px));
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  overflow: visible;
+  pointer-events: none;
+}
+.toasts::backdrop {
+  background: transparent;
+  pointer-events: none;
+}
+.toasts:empty {
+  display: none;
+}
+dialog.dialog > .toasts {
+  position: static;
+  width: 100%;
+  margin: 0 0 20px;
+  pointer-events: auto;
+}
+dialog.dialog > .toasts .toast {
+  padding: 13px;
+  box-shadow: none;
+  background: var(--raised);
+}
+.toast,
+.toast.error {
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow:
+    0 12px 35px #1018201a,
+    0 2px 8px #10182008;
+  pointer-events: auto;
+}
+.toast-icon {
+  display: grid;
+  flex: 0 0 30px;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--success) 12%, var(--surface));
+  color: var(--success);
+  font-size: 17px;
+  font-weight: 700;
+}
+.toast.error .toast-icon {
+  background: color-mix(in srgb, var(--danger) 10%, var(--surface));
+  color: var(--danger);
+}
+.toast-title {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 13px;
+  line-height: 1.4;
+  font-weight: 650;
+}
+.toast-message {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.toast-reference {
+  margin-top: 8px;
+  font-size: 10px;
+  letter-spacing: 0.015em;
+}
+.toast > .dismiss-control {
+  flex-basis: 28px;
+  width: 28px;
+  height: 28px;
+  min-height: 28px;
+  margin: -4px -5px 0 0;
+  padding: 5px;
+}
+.toast > .dismiss-control svg {
+  width: 17px;
+  height: 17px;
+}
+
+dialog.dialog.gallery-lightbox {
+  width: min(1100px, calc(100vw - 40px));
+  padding: 20px;
+  background: var(--pf-surface);
+  color: var(--pf-ink);
+  border-color: #ffffff1a;
+}
+dialog.gallery-lightbox > .dialog-heading {
+  position: static;
+  margin: -4px 0 16px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  align-items: center;
+}
+dialog.gallery-lightbox > .dialog-heading h2 {
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0;
+  margin: 0;
+}
+dialog.gallery-lightbox .dismiss-control {
+  color: var(--pf-ink);
+}
+dialog.gallery-lightbox .dismiss-control:hover {
+  background: #ffffff15;
+}
+dialog.gallery-lightbox > img {
+  display: block;
+  width: 100%;
+  max-height: calc(100dvh - 150px);
+  height: auto;
+  object-fit: contain;
+  border-radius: 8px;
+}
+@media (max-width: 600px) {
+  dialog.dialog {
+    width: calc(100vw - 24px);
+    max-width: calc(100vw - 24px);
+    max-height: calc(100dvh - 32px);
+    padding: 20px;
+    border-radius: 17px;
+  }
+  dialog.dialog > .dialog-heading {
+    top: -20px;
+    margin: -20px -20px 20px;
+    padding: 20px 20px 16px;
+    gap: 12px;
+  }
+  .toasts {
+    right: 16px;
+    bottom: 16px;
+  }
+  dialog.dialog.gallery-lightbox {
+    padding: 14px;
+  }
+  dialog.gallery-lightbox > .dialog-heading {
+    top: auto;
+    margin: 0 0 12px;
+    padding: 0;
+  }
+}
+@media (min-width: 641px) {
+  html {
+    scrollbar-gutter: stable;
+  }
+}
+@media (max-width: 640px) {
+  body:has(.staff-shell) .toasts {
+    bottom: 94px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  dialog.dialog[open] {
+    animation: none;
+  }
+}

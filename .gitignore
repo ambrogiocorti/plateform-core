@@ -1,0 +1,26 @@
+node_modules/
+dist/
+coverage/
+test-results/
+playwright-report/
+.env
+.env.*
+!.env.example
+!.env.*.example
+.supabase/
+.local/
+*.log
+*.tsbuildinfo
+backups/
+supabase/migration-recovery-backups/
+supabase/.migration-recovery-staging-*/
+
+release/
+
+# Local device certificates, configuration and durable print state
+tools/print-bridge/config.json
+tools/print-bridge/data/
+tools/print-bridge/tls/
+
+# Disposable browser stack keys and runtime state
+tests/e2e-live/.stack/

@@ -1,0 +1,84 @@
+# Zero-cost daily logical backup of plateform-production while the project stays on the Supabase Free plan.
+#
+# Runs tools/backup-worker (roles/schema/data dump incl. Auth + Storage objects, AES-256-GCM encrypted,
+# replica verified byte-per-byte) on an ephemeral GitHub-hosted runner and keeps the ENCRYPTED output as a
+# workflow artifact. The artifact is the off-site copy: the runner disk (primary + replica) is discarded at the
+# end of the job, which is why the same-device replica and rootful Docker overrides are enabled here only.
+#
+# Disabled until the owner sets the repository variable PLATEFORM_PRODUCTION_BACKUP_ENABLED=true and the
+# secrets of the `plateform-production-backup` environment (see docs/operations/PRODUCTION_BACKUP_FREE_PLAN.md).
+# It never applies migrations, never writes outside backup_metadata/audit and never runs a restore.
+name: Plateform production backup
+
+on:
+  schedule:
+    - cron: '30 2 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: plateform-production-backup
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    if: github.repository == 'ambrogiocorti/plateform-core' && vars.PLATEFORM_PRODUCTION_BACKUP_ENABLED == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    environment: plateform-production-backup
+    env:
+      SUPABASE_TELEMETRY_DISABLED: 'true'
+      SUPABASE_URL: ${{ secrets.PLATEFORM_BACKUP_SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.PLATEFORM_BACKUP_SUPABASE_SECRET_KEY }}
+      SUPABASE_DB_URL: ${{ secrets.PLATEFORM_BACKUP_SUPABASE_DB_URL }}
+      PLATEFORM_BACKUP_ENCRYPTION_KEY_BASE64: ${{ secrets.PLATEFORM_BACKUP_ENCRYPTION_KEY_BASE64 }}
+      PLATEFORM_BACKUP_ENCRYPTION_KEY_ID: ${{ vars.PLATEFORM_BACKUP_ENCRYPTION_KEY_ID }}
+      PLATEFORM_BACKUP_ROOT: /home/runner/plateform-backup/primary
+      PLATEFORM_BACKUP_REPLICA_ROOT: /home/runner/plateform-backup-replica
+      PLATEFORM_ALLOW_SAME_DEVICE_REPLICA: 'true'
+      PLATEFORM_ALLOW_ROOTFUL_DOCKER: 'true'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24.13.0'
+          cache: npm
+      # The worker loads @supabase/supabase-js for the Storage export.
+      - name: Install dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - uses: supabase/setup-cli@45a513f8c64c0bc8e0e3dfe572b5c95be85f6359 # v3
+        with:
+          version: 2.119.0
+      - name: Install PostgreSQL 17 client
+        run: |
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl -fsSL -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt noble-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list >/dev/null
+          sudo apt-get update -q
+          sudo apt-get install -y -q postgresql-client-17
+          echo "PSQL_BIN=/usr/lib/postgresql/17/bin/psql" >> "$GITHUB_ENV"
+      - name: Preflight (no job claimed)
+        run: node tools/backup-worker/start.mjs --check
+      # enqueue_due_backup() (pg_cron, every 5 minutes) keeps at most one SCHEDULED job queued; this step
+      # drains it together with any MANUAL request made from the Super Admin panel.
+      - name: Process queued backups
+        run: |
+          for attempt in 1 2 3 4 5; do
+            output="$(node tools/backup-worker/start.mjs --once)"
+            echo "$output"
+            if [ "$(node -e 'process.stdout.write(JSON.parse(process.argv[1]).status ?? "")' "$output")" = "IDLE" ]; then
+              exit 0
+            fi
+          done
+      - name: Keep the encrypted backup off the runner
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: plateform-production-backup-${{ github.run_id }}
+          path: /home/runner/plateform-backup/primary
+          if-no-files-found: warn
+          retention-days: 14
+          compression-level: 0

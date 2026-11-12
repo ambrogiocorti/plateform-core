@@ -1,0 +1,622 @@
+@import './base.css';
+.public-header {
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 6vw;
+  border-bottom: 1px solid var(--border);
+  gap: 30px;
+}
+.public-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  order: 3;
+}
+.public-theme-toggle {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 9px 14px;
+  min-height: 44px;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 600;
+}
+.public-theme-toggle:hover {
+  background: var(--raised);
+}
+.public-nav {
+  order: 2;
+}
+.restaurant-brand {
+  font-family: var(--public-heading-font, Georgia, serif);
+  font-size: 26px;
+  letter-spacing: -0.03em;
+  text-decoration: none;
+}
+.public-nav {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  font-size: 13px;
+}
+.public-nav a {
+  text-decoration: none;
+  color: var(--muted);
+}
+.public-nav a:hover,
+.public-nav a[aria-current='page'] {
+  color: var(--text);
+}
+.public-hero {
+  position: relative;
+  min-height: 640px;
+  height: calc(95dvh - 100px);
+  display: flex;
+  align-items: center;
+  isolation: isolate;
+  padding: 8vw;
+  overflow: hidden;
+  background: var(--surface);
+}
+.public-hero > img {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  z-index: -2;
+}
+.public-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--surface) 85%, transparent),
+    transparent
+  );
+  z-index: -1;
+}
+.public-hero h1,
+.public-hero .eyebrow {
+  color: var(--text);
+}
+.public-hero p {
+  color: var(--muted);
+}
+.public-hero h1 {
+  font-family: var(--public-heading-font, Georgia, serif);
+  font-weight: 400;
+  font-size: clamp(48px, 7vw, 104px);
+  max-width: 900px;
+  letter-spacing: -0.035em;
+}
+.public-hero p {
+  max-width: 520px;
+  color: var(--muted);
+  font-size: 18px;
+}
+.public-hero .eyebrow {
+  color: var(--accent);
+  font-size: 11px;
+  margin-bottom: 32px;
+}
+.public-hero .button {
+  display: inline-flex;
+  text-decoration: none;
+  align-items: center;
+  margin-top: 22px;
+}
+.public-section {
+  max-width: 1260px;
+  margin: auto;
+  padding: 90px 6vw;
+}
+.public-section h1,
+.public-section h2 {
+  font-family: var(--public-heading-font, Georgia, serif);
+  font-weight: 400;
+}
+.public-section h2 {
+  font-size: clamp(32px, 4vw, 54px);
+}
+.story-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: start;
+}
+.story-copy {
+  font-size: 18px;
+  line-height: 1.8;
+  color: var(--muted);
+  white-space: pre-line;
+}
+.public-footer {
+  padding: 55px 6vw;
+  border-top: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 30px;
+  color: var(--muted);
+}
+.public-footer p {
+  font-size: 13px;
+}
+.public-footer .restaurant-brand {
+  color: var(--text);
+}
+.powered {
+  grid-column: 1/-1;
+  border-top: 1px solid var(--border);
+  padding-top: 28px;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+}
+.menu-category {
+  margin-top: 50px;
+}
+.dish-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+}
+.customer-menu {
+  min-width: 0;
+}
+.customer-account-summary {
+  display: grid;
+  gap: 12px;
+  align-items: end;
+}
+.customer-account-total {
+  align-items: flex-start;
+}
+.dish-public {
+  padding: 30px 0;
+  border-bottom: 1px solid var(--border);
+}
+.dish-public h3 {
+  font-family: var(--public-heading-font, Georgia, serif);
+  font-size: 25px;
+  font-weight: 400;
+}
+.dish-public p {
+  color: var(--muted);
+  font-size: 13px;
+}
+.dish-public img {
+  width: 100%;
+  height: 240px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 18px;
+}
+.public-dish-card {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 20px;
+  padding: 0 0 22px;
+  overflow: hidden;
+  min-width: 0;
+}
+.public-dish-card
+  > :not(.public-dish-card-image, .public-dish-image-placeholder, .customer-dish-photo, img) {
+  margin-inline: 22px;
+}
+.public-dish-card-image {
+  display: block;
+  text-decoration: none;
+  overflow: hidden;
+}
+.public-dish-card-image img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 0;
+  margin: 0;
+  transition: transform 0.25s ease;
+}
+.public-dish-card-image:hover img {
+  transform: scale(1.025);
+}
+.public-dish-image-placeholder {
+  background: var(--raised);
+  color: var(--muted);
+  min-height: 220px;
+  aspect-ratio: 4 / 3;
+  display: grid;
+  place-items: center;
+  font-family: var(--public-heading-font, Georgia, serif);
+  font-size: 22px;
+}
+.public-dish-card-title {
+  margin-top: 20px;
+  align-items: baseline;
+}
+.public-dish-card-title h3 {
+  margin: 0;
+}
+.public-dish-card-title a {
+  text-decoration: none;
+}
+.public-dish-card-title a:hover {
+  text-decoration: underline;
+}
+.public-dish-card-more,
+.public-back-link,
+.public-offer-link {
+  display: inline-block;
+  font-weight: 600;
+  color: var(--text);
+  text-underline-offset: 4px;
+}
+.public-dish-card-more {
+  margin-top: 14px;
+  font-size: 13px;
+}
+.customer-menu .dish-grid {
+  gap: 18px;
+}
+.customer-menu .public-dish-card {
+  padding-bottom: 22px;
+}
+.customer-menu .public-dish-card > .customer-dish-photo {
+  margin: 0 0 20px;
+}
+.customer-menu .public-dish-card > .public-dish-image-placeholder {
+  margin: 0 0 20px;
+}
+.customer-menu .customer-dish-photo {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 0;
+}
+.customer-dedicated-page {
+  width: min(100%, 760px);
+  padding: 32px 0;
+  margin-inline: auto;
+}
+.customer-dedicated-page > .button {
+  justify-self: start;
+}
+.customer-cart-row {
+  display: grid;
+  gap: 12px;
+}
+.customer-cart-row .field {
+  max-width: 220px;
+}
+.customer-menu-actions {
+  padding: 22px;
+}
+.customer-choice-section {
+  margin-top: 24px;
+}
+.customer-history .customer-timeline-entry {
+  margin-left: 8px;
+  border-left: 3px solid var(--accent);
+  padding-left: 20px;
+}
+.customer-timeline-entry time {
+  display: block;
+  margin-bottom: 9px;
+  font-size: 12px;
+}
+.customer-notification-item {
+  border-top: 1px solid var(--border);
+  padding-top: 17px;
+  margin-top: 17px;
+}
+.customer-notification-item p {
+  margin-top: 8px;
+  margin-bottom: 4px;
+}
+.customer-notification-item time {
+  font-size: 12px;
+}
+.public-back-link {
+  margin-bottom: 34px;
+}
+.public-dish-detail {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(300px, 0.9fr);
+  gap: clamp(25px, 6vw, 75px);
+  align-items: start;
+}
+.public-dish-detail-image,
+.public-dish-detail > .public-dish-image-placeholder {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  border-radius: 20px;
+  object-fit: cover;
+}
+.public-dish-detail-content {
+  display: grid;
+  gap: 20px;
+}
+.public-dish-detail-content h1 {
+  font-size: clamp(40px, 5vw, 68px);
+  margin: 0;
+}
+.public-dish-detail-content h2 {
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+.public-dish-detail-content p {
+  margin-bottom: 0;
+}
+.public-dish-price {
+  font-size: 26px;
+  font-weight: 700;
+}
+.public-offers {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(260px, 43%);
+  overflow-x: auto;
+  gap: 16px;
+  padding: 0 2px 16px;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-inline: contain;
+}
+.public-offer-card {
+  scroll-snap-align: start;
+  min-width: 0;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  overflow: hidden;
+}
+.public-offer-card img {
+  width: 100%;
+  height: 190px;
+  object-fit: cover;
+}
+.public-offer-card > div {
+  padding: 22px;
+}
+.public-offer-card h3 {
+  font-size: 22px;
+  margin-bottom: 8px;
+}
+.public-offer-card p {
+  color: var(--muted);
+}
+.public-offer-link {
+  margin-top: 12px;
+}
+.dish-public .allergens {
+  color: var(--text);
+  font-size: 12px;
+}
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+.gallery-grid img {
+  width: 100%;
+  height: 350px;
+  object-fit: cover;
+}
+.booking-form {
+  max-width: 680px;
+  margin: auto;
+}
+.venue-selection {
+  max-width: 330px;
+  margin-bottom: 35px;
+}
+.public-error {
+  min-height: 65dvh;
+  display: grid;
+  align-content: center;
+  padding: 10vw;
+}
+.public-contact {
+  white-space: pre-line;
+}
+@media (max-width: 780px) {
+  .public-header-actions {
+    grid-column: 2;
+  }
+  .public-header {
+    height: auto;
+    min-height: 90px;
+    align-items: flex-start;
+    padding: 24px;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .public-nav {
+    gap: 18px;
+    flex-wrap: wrap;
+    font-size: 12px;
+  }
+  .public-hero {
+    height: auto;
+    min-height: 600px;
+    padding: 60px 24px;
+  }
+  .public-hero h1 {
+    font-size: 56px;
+  }
+  .public-section {
+    padding: 60px 24px;
+  }
+  .public-dish-detail {
+    grid-template-columns: 1fr;
+  }
+  .public-offers {
+    grid-auto-columns: minmax(255px, 86%);
+  }
+  .story-grid {
+    grid-template-columns: 1fr;
+    gap: 25px;
+  }
+
+  .public-footer {
+    grid-template-columns: 1fr;
+    padding: 40px 24px;
+  }
+  .gallery-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .gallery-grid img {
+    height: 240px;
+  }
+}
+
+@media (min-width: 781px) {
+  .dish-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 55px;
+  }
+  .public-section > .dish-grid {
+    grid-template-columns: repeat(auto-fill, minmax(285px, 1fr));
+    gap: 24px;
+  }
+  .customer-account-summary {
+    grid-template-columns: 1fr auto;
+  }
+  .customer-account-total {
+    align-items: flex-end;
+    text-align: right;
+  }
+}
+
+.account-history-line + .account-history-line {
+  border-top: 1px solid var(--border);
+  margin-top: 12px;
+  padding-top: 12px;
+}
+
+:root[data-public-layout='modern'] .public-section,
+:root[data-public-layout='modern'] .public-header {
+  max-width: 1440px;
+  margin-inline: auto;
+}
+:root[data-public-layout='modern'] .public-hero h1,
+:root[data-public-layout='modern'] .public-section h1,
+:root[data-public-layout='modern'] .public-section h2,
+:root[data-public-layout='modern'] .dish-public h3 {
+  letter-spacing: -0.045em;
+}
+:root[data-public-layout='classic'] .public-section {
+  max-width: 1120px;
+}
+:root[data-public-layout='classic'] .public-hero > div {
+  max-width: 760px;
+  margin-inline: auto;
+  text-align: center;
+}
+:root[data-public-layout='classic'] .public-hero p {
+  margin-inline: auto;
+}
+
+.public-menu-toggle {
+  display: none;
+  min-width: 48px;
+  min-height: 48px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 10px 16px;
+  color: var(--text);
+}
+.public-nav a[aria-current='page'] {
+  text-decoration-thickness: 2px;
+  text-decoration-color: var(--accent);
+}
+.venue-card {
+  min-width: 0;
+}
+.venue-page-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+  gap: clamp(28px, 6vw, 80px);
+  align-items: start;
+  margin-top: 36px;
+}
+.venue-actions {
+  display: grid;
+  gap: 14px;
+}
+.venue-actions .button {
+  width: fit-content;
+  text-decoration: none;
+}
+
+@media (max-width: 780px) {
+  .public-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 14px;
+  }
+  .restaurant-brand {
+    min-width: 0;
+  }
+  .restaurant-brand img {
+    max-height: 48px;
+    width: auto;
+  }
+  .public-menu-toggle {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .public-nav {
+    display: none;
+    order: 4;
+    grid-column: 1 / -1;
+    width: 100%;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+  .public-dish-card {
+    margin-bottom: 16px;
+  }
+  .public-nav.is-open {
+    display: grid;
+    gap: 0;
+  }
+  .public-nav a {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    text-decoration: none;
+    font-size: 15px;
+  }
+  .venue-page-grid {
+    grid-template-columns: 1fr;
+  }
+  .gallery-grid {
+    grid-template-columns: 1fr;
+  }
+  .gallery-grid img {
+    height: auto;
+    max-height: 70vh;
+    aspect-ratio: 4 / 3;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

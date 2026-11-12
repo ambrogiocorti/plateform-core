@@ -1,0 +1,44 @@
+{
+  "date": "2026-10-04",
+  "step": 12,
+  "status": "DEPLOYMENT_CONTRACT_IMPLEMENTED_HOST_NOT_READY_IN_CURRENT_CONTAINER",
+  "implementation": [
+    "scripts/check-continuity-host.mjs",
+    "scripts/check-continuity-contract.mjs",
+    "deploy/continuity/plateform-backup-worker.service",
+    "deploy/continuity/plateform-backup-worker.timer",
+    "deploy/continuity/continuity.env.example",
+    "deploy/continuity/install-user-service.sh",
+    "deploy/continuity/README.md"
+  ],
+  "required_runtime": {
+    "node": ">=24.13.0",
+    "supabase_cli": true,
+    "psql": true,
+    "docker_for_supabase_dump": true,
+    "docker_rootless_default_on_linux": true,
+    "persistent_backup_root": true,
+    "server_side_secrets": true
+  },
+  "preclaim_guards": [
+    "Supabase CLI available",
+    "supabase db dump command available",
+    "Docker daemon available",
+    "rootless Docker unless explicitly overridden",
+    "persistent backup root writable"
+  ],
+  "current_container_check": {
+    "status": "NOT_READY",
+    "expected_fail_closed": true,
+    "node": "22.16.0",
+    "missing": ["supabase", "psql", "docker", "runtime secrets"]
+  },
+  "production_gate": "Deploy on a dedicated continuity host, pass host preflight, execute a real encrypted backup and an isolated restore test.",
+  "live_development_observation": {
+    "backup_job_id": "b182b690-8aec-4c46-856f-60cd72a19507",
+    "backup_status": "QUEUED",
+    "attempts": 0,
+    "automatic_incident": "CONTINUITY_BACKUP_QUEUE_STUCK",
+    "incident_severity": "DEGRADED"
+  }
+}

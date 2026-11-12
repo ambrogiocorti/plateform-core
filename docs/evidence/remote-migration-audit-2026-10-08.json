@@ -1,0 +1,64 @@
+{
+  "evidence_type": "READ_ONLY_REMOTE_HISTORY_AUDIT",
+  "release_authorization": false,
+  "checked_on": "2026-10-08",
+  "environment": "plateform-development",
+  "supabase_project_ref": "abdxvlykasqmknexxhjo",
+  "remote": {
+    "migration_count": 456,
+    "sql_bytes": 2200970,
+    "first_version": "20261003165439",
+    "latest_version": "20261008181605",
+    "inventory_sha256": "988224616fc43432904246360f87c7e637d4a64444dd2af2b0d60aa498f62b43"
+  },
+  "local": {
+    "migration_count": 133,
+    "missing_from_local": 323,
+    "matching_remote_versions": 133,
+    "nonmatching_after_boundary_whitespace_normalization": [
+      "20261005062508_step10_venue_lifecycle_management.sql",
+      "20261005062556_step10_venue_idempotent_step_up_retry.sql",
+      "20261005165352_host_operational_summary.sql",
+      "20261005170110_kitchen_admin_operational_overview.sql",
+      "20261005170559_admin_operational_overview.sql",
+      "20261005221652_step12_continuity_worker_heartbeat.sql",
+      "20261005223140_step12_continuity_worker_health.sql"
+    ]
+  },
+  "safe_recovery": {
+    "state": "BLOCKED_AWAITING_COMPLETE_CANONICAL_SQL_EXPORT",
+    "required_input": "Full, original JSONL of supabase_migrations.schema_migrations: version, name, SQL statements joined by newline, ordered by version",
+    "command": "node scripts/reconcile-migrations.mjs --input-file <complete-jsonl> --write --adopt-remote-with-backup --expected-remote-count 456 --expected-inventory-sha256 988224616fc43432904246360f87c7e637d4a64444dd2af2b0d60aa498f62b43",
+    "note": "The 456-entry SHA-256 fingerprint is the independent current database observation. Never synthesize or silently overwrite the seven divergent local migrations. The adoption command creates a complete local backup. Recheck the count and fingerprint if Development migrations change."
+  },
+  "continuity": {
+    "latest_successful_backup_schema_version": "20261008181605",
+    "latest_successful_backup_completed_at_utc": "2026-10-08T20:11:39.326415+00:00",
+    "latest_successful_backup_integrity_verified": true,
+    "latest_successful_restore_test_schema_version": "20261006051256",
+    "latest_successful_restore_test_completed_at_utc": "2026-10-06T12:09:11.99+00:00",
+    "restore_test_current_version_verified": false,
+    "existing_restore_test_target_empty": false,
+    "existing_restore_test_target_auth_users": 12,
+    "existing_restore_test_target_public_tables": 95,
+    "existing_restore_test_target_migrations": 135
+  },
+  "pipeline": {
+    "required_node": ">=24.13.0",
+    "local_node": "22.16.0",
+    "local_npm_registry_dns_reachable": false,
+    "local_node_modules_present": false,
+    "typescript_source_files_parsed": 141,
+    "typescript_parse_errors": 0,
+    "available_offline_check_groups_passed": 22,
+    "available_offline_check_groups_total": 23,
+    "database_tests_blocked_by_missing_pglite": true,
+    "full_typecheck_build_e2e_verified": false
+  },
+  "staging": {
+    "vercel_projects_visible": 0,
+    "deployed_https_app_verified": false,
+    "real_jwt_http_browser_e2e_verified": false
+  },
+  "go_no_go": "NO_GO"
+}

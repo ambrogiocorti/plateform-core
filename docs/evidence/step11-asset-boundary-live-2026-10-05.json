@@ -1,0 +1,33 @@
+{
+  "date": "2026-10-05",
+  "step": "11B",
+  "status": "PASSED_15_OF_15",
+  "environment": "Supabase development transactional rollback fixture",
+  "checks": [
+    "gallery reservation created",
+    "venue path scoped",
+    "idempotent retry",
+    "idempotency mismatch denied",
+    "invalid MIME denied",
+    "oversize denied",
+    "invalid checksum denied",
+    "WAITER denied",
+    "finish_asset_upload denied to authenticated",
+    "private document hidden before SAVED for Admin",
+    "private document hidden before SAVED for WAITER",
+    "private document visible after SAVED for Admin",
+    "private document hidden after SAVED for WAITER",
+    "checksum/status SAVED authoritative",
+    "audit result present"
+  ],
+  "cleanup": {
+    "sessions": 0,
+    "asset_rows": 0,
+    "storage_objects": 0
+  },
+  "remaining": [
+    "real Edge Function HTTP upload with authenticated JWT",
+    "actual Storage byte upload/download over HTTPS",
+    "deployment WCAG/Web Vitals"
+  ]
+}

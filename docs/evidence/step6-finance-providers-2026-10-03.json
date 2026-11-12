@@ -1,0 +1,124 @@
+{
+  "date": "2026-10-04",
+  "project_id": "abdxvlykasqmknexxhjo",
+  "step": 6,
+  "status": "IN_PROGRESS_SATISPAY_EXTERNAL_CREDENTIALS",
+  "migration_inventory": 71,
+  "database_gate": {
+    "result": "PASSED",
+    "runner": "PGlite via node --experimental-strip-types",
+    "marker": "STEP_6_INTERNAL_FINANCE_GATE=PASSED",
+    "coverage": [
+      "discount_percentage_autonomous",
+      "discount_admin_approval_one_shot_step_up",
+      "tip_separate_from_revenue",
+      "manual_partial_refund_original_payment_immutable",
+      "manual_payment_reversal_open_account",
+      "satispay_pos_manual_confirmation",
+      "force_close_admin_step_up_audit",
+      "reopen_admin_step_up_audit",
+      "provider_operation_service_role_boundary",
+      "authoritative_provider_amount_currency_verification",
+      "online_refund_pending_until_provider_completion"
+    ]
+  },
+  "live_database": {
+    "authenticated_can_prepare_provider_operation": true,
+    "authenticated_cannot_claim_provider_operation": true,
+    "service_role_can_claim_and_finish_provider_operation": true,
+    "stripe_licensed": true,
+    "satispay_api_licensed": false,
+    "venue_payment_methods": ["STRIPE", "CARD_POS", "CASH"],
+    "pending_provider_operations": 0,
+    "completed_stripe_provider_operations": 2,
+    "satispay_provider_operations": 0
+  },
+  "edge_functions": {
+    "payments": {
+      "status": "ACTIVE",
+      "version": 8,
+      "verify_jwt": true,
+      "sha256": "cffa0cf1d9c442751aff65ece58302bfbd2aab0209a49191e72d9b89d001a0f8"
+    },
+    "stripe-webhook": {
+      "status": "ACTIVE",
+      "version": 7,
+      "verify_jwt": false,
+      "sha256": "6b51f74312a5ac5c627b6a111b957e0ef1f25015b62fe148f562fa3ce1bb91f8"
+    },
+    "satispay-callback": {
+      "status": "ACTIVE",
+      "version": 7,
+      "verify_jwt": false,
+      "sha256": "054590d46272d081e310ef8fc5cc80761e42d39892039a4fc14d2fab2b716efb"
+    },
+    "payment-return": {
+      "status": "ACTIVE",
+      "version": 4,
+      "verify_jwt": false,
+      "sha256": "e37d720464460cf0ccf160b28b57b6419483eba139cf8929ad06ca9d99055f3a"
+    }
+  },
+  "provider_design": {
+    "stripe": "Checkout Session server-side; idempotency key; signature-verified webhook; authoritative provider re-fetch; refund by provider API",
+    "satispay_api": "MATCH_CODE/REFUND; signed HTTP messages; Idempotency-Key; callback token; authoritative signed GET",
+    "satispay_pos": "manual POS confirmation, tested",
+    "browser_authoritative": false
+  },
+  "source_checks": {
+    "provider_edge_typescript_transpile": "PASSED",
+    "provider_frontend_typescript_transpile": "PASSED",
+    "provider_error_mapping": "PASSED",
+    "provider_configuration_template": "PASSED",
+    "provider_edge_typescript_transpile_after_stripe_gate": "PASSED",
+    "satispay_setup_key_generation_4096_pkcs8": "PASSED",
+    "satispay_sandbox_config_gate_with_ephemeral_valid_fixture": "PASSED",
+    "migration_inventory_after_provider_changes": "PASSED_71",
+    "satispay_operation_scoped_callback_token": "PASSED",
+    "satispay_redirect_allowlist_current_hosts": "PASSED",
+    "satispay_authentication_self_test_setup": "PASSED_STATIC_READY",
+    "satispay_remote_edge_hardening": "PASSED_PAYMENTS_V8_CALLBACK_V7"
+  },
+  "external_blockers": [
+    "Satispay sandbox request submitted; waiting for Satispay to provide staging app access and the disposable activation code required to issue a real sandbox KeyId."
+  ],
+  "safety_state": "Stripe is enabled only in the development sandbox after the real Stripe gate passed. SATISPAY_API remains unlicensed/disabled until its real sandbox gate passes.",
+  "next": "Wait for Satispay sandbox email. When the activation code arrives, run the setup script, configure Edge secrets, and complete MATCH_CODE/callback/cancel/refund. Do not start Step 7 until Step 6 is DONE.",
+  "stripe_sandbox_verification": {
+    "sandbox_account": "Plateform",
+    "livemode": false,
+    "webhook_endpoint": "configured_and_restored",
+    "webhook_signature_secret": "PASSED",
+    "stripe_secret_key": "PASSED",
+    "signed_probe_http_status": 200,
+    "stripe_event_pending_webhooks": 0,
+    "metadata_parser_bug_fixed": true,
+    "temporary_probe": "neutralized_410",
+    "public_base_url": "PASSED",
+    "checkout_payment": "PASSED",
+    "checkout_session_completed_webhook": "PASSED_HTTP_200",
+    "ledger_completion": "PASSED",
+    "refund": "PASSED",
+    "refund_idempotency": "PASSED",
+    "payment_return_version": 4
+  },
+  "satispay_sandbox_readiness": {
+    "api_contract_review": "PASSED",
+    "setup_script_dry_run": "PASSED",
+    "sandbox_account": "AWAITING_PROVIDER_EMAIL",
+    "activation_code": "AWAITING_PROVIDER_EMAIL",
+    "end_to_end": "BLOCKED_EXTERNAL_CREDENTIALS",
+    "sandbox_request": "SUBMITTED",
+    "callback_security_hardening": "PASSED",
+    "authentication_self_test_ready": "PASSED_STATIC",
+    "remote_edge_versions": "payments_v8_callback_v7"
+  },
+  "test_fixture_cleanup": {
+    "active_test_staff": 0,
+    "live_test_staff_sessions": 0,
+    "test_table_active": false,
+    "test_register_active": false,
+    "test_service_status": "CLOSED",
+    "financial_and_audit_evidence_retained": true
+  }
+}

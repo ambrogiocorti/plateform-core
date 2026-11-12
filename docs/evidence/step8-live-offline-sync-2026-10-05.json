@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-05",
+  "environment": "Supabase development abdxvlykasqmknexxhjo",
+  "mode": "transactional rollback fixture",
+  "identity": "WAITER:VENUE + ADMIN:VENUE conflict resolution",
+  "trusted_signer_boundary": "prepare_offline_authorization executed as authenticated; store_offline_authorization executed outside authenticated role because direct authenticated EXECUTE is denied by design",
+  "checks": {
+    "authorization_contains_probe_venue": true,
+    "workspace_reset_tables": true,
+    "e1_synced": true,
+    "e1_replay_same_event": true,
+    "single_e1_row": true,
+    "e2_causal_synced": true,
+    "e3_missing_predecessor_conflict": true,
+    "e4_version_conflict": true,
+    "successful_tables_mutated": true,
+    "rejected_tables_untouched": true,
+    "discard_marks_source_rejected": true,
+    "discard_marks_conflict_discarded": true,
+    "status_reconciliation_terminal": true,
+    "device_revoke_revokes_snapshot": true,
+    "device_revoke_revokes_session": true,
+    "post_revoke_event_conflict": true,
+    "post_revoke_table_untouched": true,
+    "conflict_notifications_created": true,
+    "sync_audit_present": true,
+    "conflict_audit_present": true,
+    "resolution_audit_present": true
+  },
+  "observed": {
+    "missing_predecessor_reason": "CAUSAL_PREDECESSOR_REQUIRED",
+    "version_conflict_reason": "VERSION_CONFLICT",
+    "post_revoke_reason": "OFFLINE_AUTHORIZATION_CHANGED",
+    "resolved_source_status": "REJECTED",
+    "resolved_conflict_status": "DISCARDED"
+  },
+  "cleanup": {
+    "probe_venue": 0,
+    "probe_events": 0,
+    "probe_tables": 0,
+    "probe_devices": 0,
+    "probe_sessions": 0,
+    "offline_licensed_restored": false,
+    "multi_venue_licensed_restored": false
+  },
+  "remaining": "Browser PWA release gate: install/update, real online→offline→online and IndexedDB persistence in release build."
+}

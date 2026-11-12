@@ -1,0 +1,20 @@
+{
+  "date": "2026-10-06",
+  "scope": "STEP 12 control-plane live hardening; all data probes executed inside rollback transactions unless migration DDL",
+  "migration_inventory": 129,
+  "checks": {
+    "restore_reference_indexes": "PASSED; backup_id/pre_restore_backup_id plus requested_by/cutover_confirmed_by covered; unindexed_foreign_keys cleared",
+    "pre_restore_failed_snapshot_propagation": "PASSED 6/6",
+    "restore_worker_state_machine": "PASSED 12/12",
+    "restore_test_worker_state_machine": "PASSED 9/9",
+    "backup_retention_lease_purge": "PASSED 9/9",
+    "backup_retention_active_restore_guard": "PASSED 4/4",
+    "backup_retention_failure_retry": "PASSED 9/9",
+    "restore_cutover_live_tool_probe": "BLOCKED_TOOLING; existing static cutover gate remains PASS"
+  },
+  "release_claim": false,
+  "notes": [
+    "No synthetic backup/restore probe is counted as a physical production backup or restore rehearsal.",
+    "Step 12 remains IN_PROGRESS until a real verified encrypted backup, isolated restore test and measured RPO/RTO exist."
+  ]
+}

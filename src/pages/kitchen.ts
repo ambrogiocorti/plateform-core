@@ -1,0 +1,642 @@
+import { z } from 'zod';
+import { rpc } from '../api/client';
+import { button, dialog, el, emptyState, status } from '../components/dom';
+import { command } from './staff-context';
+import type { StaffContext } from './staff-context';
+
+// PostgreSQL stores allergen snapshots as {code,name}; older test/cache records
+// may contain names directly. Normalize both shapes before rendering the KDS.
+export const kitchenAllergensSchema = z
+  .array(z.union([z.string(), z.object({ code: z.string(), name: z.string() })]))
+  .transform((entries) => {
+    if (entries.every((entry) => typeof entry === 'string')) return entries as string[];
+    const normalized: { code: string; name: string }[] = [];
+    for (const entry of entries) {
+      normalized.push(typeof entry === 'string' ? { code: entry, name: entry } : entry);
+    }
+    normalized.sort((a, b) => a.code.localeCompare(b.code));
+    return normalized.map((entry) => entry.name);
+  });
+
+const itemSchema = z.object({
+  id: z.uuid(),
+  order_id: z.uuid(),
+  step_id: z.uuid(),
+  step_number: z.number(),
+  step_status: z.string(),
+  order_source: z.string().optional(),
+  table_name: z.string().nullable(),
+  table_number: z.number().nullable(),
+  service_label: z.string().nullable().optional(),
+  pickup_at: z.string().nullable().optional(),
+  dish_name: z.string(),
+  quantity: z.number(),
+  status: z.string(),
+  station_id: z.uuid(),
+  category_id: z.uuid().nullable().optional(),
+  category_name: z.string().nullable().optional(),
+  station_name: z.string().nullable().optional(),
+  created_at: z.string(),
+  started_at: z.string().nullable(),
+  version: z.number(),
+  can_prepare: z.boolean(),
+  can_deliver: z.boolean(),
+  removed_ingredients: z.array(z.string()),
+  variants: z.array(z.object({ group: z.string(), option: z.string() })),
+  allergens: kitchenAllergensSchema,
+});
+
+const kitchenAdminOverviewSchema = z.object({
+  summary: z.object({
+    steps: z.number().int(),
+    received: z.number().int(),
+    in_preparation: z.number().int(),
+    ready: z.number().int(),
+    delayed: z.number().int(),
+    critical: z.number().int(),
+  }),
+  stations: z.array(
+    z.object({
+      id: z.uuid(),
+      name: z.string(),
+      active: z.boolean(),
+      received: z.number().int(),
+      in_preparation: z.number().int(),
+      ready: z.number().int(),
+      delayed: z.number().int(),
+      critical: z.number().int(),
+      oldest_created_at: z.string().nullable(),
+    }),
+  ),
+  returns: z.array(
+    z.object({
+      id: z.uuid(),
+      created_at: z.string(),
+      action: z.string(),
+      dish_name: z.string(),
+      table_name: z.string(),
+      step_number: z.number().int(),
+    }),
+  ),
+});
+
+type KitchenBoardItem = z.infer<typeof itemSchema>;
+
+export function kitchenTicketHeading(
+  item: Pick<KitchenBoardItem, 'order_source' | 'table_name' | 'table_number' | 'service_label'>,
+): { eyebrow: string; title: string } {
+  return {
+    eyebrow: item.order_source === 'TAKEAWAY' ? 'ASPORTO' : `TAVOLO ${item.table_number ?? '—'}`,
+    title: item.service_label ?? item.table_name ?? 'Ordine da asporto',
+  };
+}
+
+type KitchenAdminOverview = z.infer<typeof kitchenAdminOverviewSchema>;
+
+function kitchenAdminPanel(data: KitchenAdminOverview, board: HTMLElement): HTMLElement {
+  const { summary } = data;
+  const summaryGrid = el(
+    'div',
+    { class: 'kitchen-admin-summary' },
+    kitchenAdminKpi('STEP ATTIVI', summary.steps),
+    kitchenAdminKpi('RICEVUTI', summary.received),
+    kitchenAdminKpi('IN PREPARAZIONE', summary.in_preparation),
+    kitchenAdminKpi('PRONTI', summary.ready),
+    kitchenAdminKpi('RITARDO >10′', summary.delayed, summary.delayed ? 'is-warning' : ''),
+    kitchenAdminKpi('CRITICI >20′', summary.critical, summary.critical ? 'is-critical' : ''),
+  );
+
+  const stations = el(
+    'section',
+    { class: 'kitchen-admin-panel stack', 'aria-label': 'Carico per stazione' },
+    el(
+      'div',
+      { class: 'row between' },
+      el('div', {}, el('p', { class: 'eyebrow' }, 'COORDINAMENTO'), el('h2', {}, 'Stazioni')),
+      button(
+        'VAI ALLA KDS',
+        () => board.scrollIntoView({ behavior: 'smooth', block: 'start' }),
+        'secondary',
+      ),
+    ),
+  );
+  if (!data.stations.length)
+    stations.append(el('p', { class: 'muted' }, 'Nessuna stazione attiva configurata.'));
+  for (const station of data.stations) {
+    const severity = station.critical ? 'is-critical' : station.delayed ? 'is-warning' : '';
+    stations.append(
+      el(
+        'article',
+        { class: `kitchen-admin-station ${severity}`.trim() },
+        el(
+          'div',
+          {},
+          el('h3', {}, station.name),
+          el(
+            'p',
+            { class: 'muted' },
+            station.oldest_created_at
+              ? `Comanda più vecchia ${elapsedLabel(station.oldest_created_at)}`
+              : 'Nessuna comanda attiva',
+          ),
+        ),
+        el(
+          'div',
+          { class: 'kitchen-admin-station-counts' },
+          el('span', {}, `Ricevuti ${station.received}`),
+          el('span', {}, `Preparazione ${station.in_preparation}`),
+          el('span', {}, `Pronti ${station.ready}`),
+          station.delayed ? el('strong', {}, `Ritardi ${station.delayed}`) : null,
+          station.critical ? el('strong', {}, `Critici ${station.critical}`) : null,
+        ),
+      ),
+    );
+  }
+
+  const returned = el(
+    'section',
+    { class: 'kitchen-admin-panel stack', 'aria-label': 'Piatti tornati indietro' },
+    el('p', { class: 'eyebrow' }, 'PROBLEMI'),
+    el('h2', {}, 'Piatti tornati indietro'),
+  );
+  if (!data.returns.length) returned.append(el('p', { class: 'muted' }, 'Nessun reso recente.'));
+  for (const item of data.returns)
+    returned.append(
+      el(
+        'article',
+        { class: 'kitchen-admin-return' },
+        el(
+          'div',
+          {},
+          el('strong', {}, `${item.table_name} · STEP ${item.step_number}`),
+          el('p', {}, item.dish_name),
+        ),
+        el(
+          'div',
+          { class: 'kitchen-admin-return-meta' },
+          status(item.action),
+          el(
+            'span',
+            { class: 'muted' },
+            new Date(item.created_at).toLocaleTimeString('it-IT', {
+              hour: '2-digit',
+              minute: '2-digit',
+            }),
+          ),
+        ),
+      ),
+    );
+
+  return el(
+    'section',
+    { class: 'stack kitchen-admin-overview', 'data-kitchen-admin-overview': 'true' },
+    el(
+      'header',
+      { class: 'kitchen-admin-head' },
+      el(
+        'div',
+        {},
+        el('p', { class: 'eyebrow' }, 'REGIA CUCINA'),
+        el('h1', {}, 'Coordinamento servizio'),
+      ),
+      el(
+        'p',
+        { class: 'muted' },
+        summary.critical
+          ? `${summary.critical} piatti oltre i 20 minuti richiedono intervento.`
+          : summary.delayed
+            ? `${summary.delayed} piatti oltre i 10 minuti da monitorare.`
+            : 'Nessuna criticità di tempo rilevata.',
+      ),
+    ),
+    summaryGrid,
+    el('div', { class: 'kitchen-admin-columns' }, stations, returned),
+  );
+}
+
+function kitchenAdminKpi(label: string, value: number, severity = ''): HTMLElement {
+  return el(
+    'article',
+    { class: `kitchen-admin-kpi ${severity}`.trim() },
+    el('span', {}, label),
+    el('strong', {}, String(value)),
+  );
+}
+
+function elapsedLabel(value: string): string {
+  const minutes = Math.max(0, Math.floor((Date.now() - Date.parse(value)) / 60000));
+  if (minutes < 1) return 'Adesso';
+  if (minutes === 1) return '1 min';
+  return `${minutes} min`;
+}
+
+function urgencyClass(value: string): string {
+  const minutes = Math.max(0, Math.floor((Date.now() - Date.parse(value)) / 60000));
+  if (minutes >= 20) return 'is-critical';
+  if (minutes >= 10) return 'is-warning';
+  return 'is-normal';
+}
+
+function returnOrderItemButton(
+  context: StaffContext,
+  item: { id: string; dish_name: string; version: number },
+): HTMLButtonElement {
+  return button(
+    'Piatto tornato indietro',
+    () => {
+      const popup = dialog('Errore ordine', el('p', {}, item.dish_name));
+      const key = crypto.randomUUID();
+      for (const action of ['REMAKE', 'CANCEL_REQUEST']) {
+        popup.append(
+          button(
+            action === 'REMAKE' ? 'Rifare il piatto' : 'Richiedi annullamento Admin',
+            async () => {
+              await rpc(
+                'return_order_item',
+                { p_item: item.id, p_action: action, p_version: item.version, p_key: key },
+                z.record(z.string(), z.unknown()),
+              );
+              popup.close();
+              await context.refresh?.();
+            },
+            'secondary',
+          ),
+        );
+      }
+    },
+    'quiet',
+  );
+}
+
+export async function kitchenPage(context: StaffContext): Promise<HTMLElement> {
+  if (!context.venue)
+    return emptyState('Nessuna sede', 'Verifica le assegnazioni del tuo account.');
+
+  const [items, adminOverview, returnable] = await Promise.all([
+    rpc('get_kitchen_board', { p_venue: context.venue.id }, z.array(itemSchema)),
+    context.profile.role === 'KITCHEN_ADMIN'
+      ? rpc('get_kitchen_admin_overview', { p_venue: context.venue.id }, kitchenAdminOverviewSchema)
+      : Promise.resolve(null),
+    ['PASS', 'KITCHEN_ADMIN'].includes(context.profile.role)
+      ? rpc(
+          'get_returnable_items',
+          { p_venue: context.venue.id },
+          z.object({
+            enabled: z.boolean(),
+            items: z.array(
+              z.object({
+                id: z.uuid(),
+                dish_name: z.string(),
+                quantity: z.number(),
+                version: z.number(),
+                table_name: z.string().nullable(),
+              }),
+            ),
+          }),
+        )
+      : Promise.resolve(null),
+  ]);
+
+  const steps = [...new Set(items.map((item) => item.step_id))];
+  const grid = el('div', {
+    class: 'grid kitchen-grid',
+    'data-kds-role': context.profile.role,
+    id: 'kitchen-operational-board',
+  });
+  const category = el(
+    'select',
+    { 'aria-label': 'Categoria piatti' },
+    el('option', { value: '' }, 'Tutte le categorie'),
+  );
+  const department = el(
+    'select',
+    { 'aria-label': 'Reparto di preparazione' },
+    el('option', { value: '' }, 'Tutti i reparti'),
+  );
+  const categoryNames = new Map(
+    items
+      .filter((i) => i.category_id)
+      .map((i) => [i.category_id!, i.category_name ?? 'Altri piatti']),
+  );
+  const departmentNames = new Map(
+    items.map((i) => [i.station_id, i.station_name ?? 'Reparto cucina']),
+  );
+  for (const [id, name] of [...categoryNames].sort((a, b) => a[1].localeCompare(b[1], 'it')))
+    category.append(el('option', { value: id }, name));
+  for (const [id, name] of [...departmentNames].sort((a, b) => a[1].localeCompare(b[1], 'it')))
+    department.append(el('option', { value: id }, name));
+  const preferenceKey = `plateform-kitchen-filter:${context.profile.id}:${context.venue.id}`;
+  try {
+    const pref = JSON.parse(sessionStorage.getItem(preferenceKey) ?? '{}');
+    if (categoryNames.has(pref.category)) category.value = pref.category;
+    if (departmentNames.has(pref.department)) department.value = pref.department;
+  } catch {
+    /* Optional display preference. */
+  }
+  const filterCount = el('span', { class: 'muted', role: 'status' });
+  const filterEmpty = emptyState(
+    'Nessuna comanda per questi filtri',
+    'Scegli tutte le categorie o un altro reparto.',
+  );
+  let statusFilter = 'ALL';
+  const filterBoard = () => {
+    let count = 0;
+    for (const card of grid.querySelectorAll<HTMLElement>('.kds-ticket')) {
+      let visible = 0;
+      for (const line of card.querySelectorAll<HTMLElement>('.kitchen-line')) {
+        line.hidden = Boolean(
+          (category.value && line.dataset.category !== category.value) ||
+          (department.value && line.dataset.department !== department.value) ||
+          (statusFilter !== 'ALL' && line.dataset.itemStatus !== statusFilter),
+        );
+        if (!line.hidden) {
+          visible++;
+          count++;
+        }
+      }
+      card.hidden = visible === 0;
+    }
+    filterCount.textContent = `${count} ${count === 1 ? 'piatto' : 'piatti'} in vista`;
+    filterEmpty.hidden = count > 0 || items.length === 0;
+    try {
+      sessionStorage.setItem(
+        preferenceKey,
+        JSON.stringify({ category: category.value, department: department.value }),
+      );
+    } catch {
+      /* The filters also work without storage. */
+    }
+  };
+  category.addEventListener('change', filterBoard);
+  department.addEventListener('change', filterBoard);
+  const filters = el(
+    'section',
+    { class: 'kitchen-filters', 'aria-label': 'Filtra le comande' },
+    el('label', {}, 'Categoria piatti', category),
+    el('label', {}, 'Reparto di preparazione', department),
+    button(
+      'Mostra tutto',
+      () => {
+        category.value = '';
+        department.value = '';
+        filterBoard();
+      },
+      'secondary',
+    ),
+    filterCount,
+  );
+
+  for (const step of steps) {
+    const rows = items.filter((item) => item.step_id === step);
+    const first = rows[0];
+    if (!first) continue;
+    const heading = kitchenTicketHeading(first);
+
+    const readyCount = rows.filter((item) => item.status === 'READY').length;
+    const complete = readyCount === rows.length;
+    const card = el(
+      'article',
+      {
+        class: `kds-ticket ${urgencyClass(first.created_at)}${complete ? ' is-complete' : ''}`,
+        'data-step-status': first.step_status,
+        'data-ticket-states': rows.map((item) => item.status).join(' '),
+      },
+      el(
+        'header',
+        { class: 'kds-ticket-head' },
+        el('div', {}, el('p', { class: 'eyebrow' }, heading.eyebrow), el('h2', {}, heading.title)),
+        el(
+          'div',
+          { class: 'kds-ticket-meta' },
+          el('strong', { class: 'kds-timer' }, elapsedLabel(first.created_at)),
+          status(first.step_status),
+        ),
+      ),
+      el(
+        'div',
+        { class: 'kds-step-summary' },
+        el('strong', {}, `STEP ${first.step_number}`),
+        context.profile.role === 'PASS'
+          ? el('span', {}, `${readyCount}/${rows.length} piatti pronti`)
+          : el('span', {}, `${rows.length} ${rows.length === 1 ? 'piatto' : 'piatti'}`),
+      ),
+    );
+
+    for (const item of rows) {
+      const modifiers = [
+        ...item.removed_ingredients.map((name) => `SENZA ${name}`),
+        ...item.variants.map((variant) => `${variant.group}: ${variant.option}`),
+      ];
+      const line = el(
+        'section',
+        {
+          class: `kitchen-line kitchen-status-${item.status.toLowerCase()}`,
+          'data-category': item.category_id ?? '',
+          'data-department': item.station_id,
+          'data-item-status': item.status,
+        },
+        el(
+          'div',
+          { class: 'kitchen-line-main' },
+          el('h3', {}, `${item.quantity} × ${item.dish_name}`),
+          status(item.status),
+        ),
+        ...(modifiers.length
+          ? [el('p', { class: 'kitchen-modifier' }, modifiers.join(' · '))]
+          : []),
+        ...(item.allergens.length
+          ? [
+              el(
+                'p',
+                { class: 'kitchen-allergens', role: 'note' },
+                `ALLERGENI: ${item.allergens.join(' · ')}`,
+              ),
+            ]
+          : []),
+      );
+
+      if (
+        item.can_prepare &&
+        item.step_status === 'ACTIVE' &&
+        ['RECEIVED', 'IN_PREPARATION'].includes(item.status)
+      ) {
+        line.append(
+          button(item.status === 'RECEIVED' ? 'RICEVUTO → PREPARA' : 'SEGNA PRONTO', async () => {
+            await command('transition_order_item', {
+              p_item: item.id,
+              p_status: item.status === 'RECEIVED' ? 'IN_PREPARATION' : 'READY',
+              p_version: item.version,
+            });
+            await context.refresh?.();
+          }),
+        );
+      }
+
+      if (['PASS', 'KITCHEN_ADMIN'].includes(context.profile.role) && item.status === 'READY') {
+        line.append(returnOrderItemButton(context, item));
+      }
+
+      card.append(line);
+    }
+
+    if (context.profile.role === 'PASS' && first.step_status === 'ACTIVE' && complete) {
+      card.append(
+        el('div', { class: 'pass-ready-banner', role: 'status' }, 'PRONTO PER IL SERVIZIO'),
+        button('AVVISA E LIBERA LO STEP', async () => {
+          await command('mark_step_ready', { p_step: step });
+          await context.refresh?.();
+        }),
+      );
+    }
+
+    if (
+      ['WAITER', 'PASS', 'KITCHEN_ADMIN'].includes(context.profile.role) &&
+      first.step_status === 'WAITING'
+    ) {
+      card.append(
+        button(
+          'Avvia step',
+          async () => {
+            await command('start_order_step', { p_step: step });
+            await context.refresh?.();
+          },
+          'secondary',
+        ),
+      );
+    }
+
+    grid.append(card);
+  }
+
+  const board: HTMLElement = items.length
+    ? grid
+    : emptyState(
+        context.profile.role === 'PASS' ? 'Pass libero' : 'Nessuna comanda in attesa',
+        context.profile.role === 'PASS'
+          ? 'Gli step pronti o in coordinamento compariranno qui in tempo reale.'
+          : 'Le comande della sede compariranno qui. Categoria e reparto sono filtri che puoi cambiare liberamente.',
+      );
+
+  const boardShell = el(
+    'section',
+    { class: 'kds-workspace', 'aria-label': 'Comande in lavorazione' },
+    el(
+      'header',
+      { class: 'kds-workspace-header' },
+      el(
+        'div',
+        {},
+        el('p', { class: 'eyebrow' }, 'PRODUZIONE · LIVE'),
+        el(
+          'h2',
+          {},
+          context.profile.role === 'PASS' ? 'Comande da coordinare' : 'Comande in cucina',
+        ),
+        el('p', {}, 'Lavora per priorità e concentrati sullo stato di ogni comanda.'),
+      ),
+      el(
+        'div',
+        { class: 'kds-overview-strip', role: 'status' },
+        el('div', {}, el('strong', {}, String(steps.length)), el('span', {}, 'Step')),
+        el(
+          'div',
+          {},
+          el('strong', {}, String(items.filter((item) => item.status === 'RECEIVED').length)),
+          el('span', {}, 'Ricevuti'),
+        ),
+        el(
+          'div',
+          {},
+          el('strong', {}, String(items.filter((item) => item.status === 'IN_PREPARATION').length)),
+          el('span', {}, 'In preparazione'),
+        ),
+        el(
+          'div',
+          {},
+          el('strong', {}, String(items.filter((item) => item.status === 'READY').length)),
+          el('span', {}, 'Pronti'),
+        ),
+      ),
+    ),
+  );
+  const noMatches = emptyState(
+    'Nessuna comanda in questo stato',
+    'Scegli un altro filtro per vedere le altre comande.',
+  );
+  boardShell.append(filters);
+  noMatches.hidden = true;
+  if (items.length) {
+    const filterActions = el('div', {
+      class: 'kds-filter-actions',
+      'aria-label': 'Filtra le comande',
+    });
+    const filters: [string, string][] = [
+      ['Tutte', 'ALL'],
+      ['Da preparare', 'RECEIVED'],
+      ['In lavorazione', 'IN_PREPARATION'],
+      ['Pronte', 'READY'],
+    ];
+    const filterKey = `plateform-kds-filter:${context.venue.id}:${context.profile.role}`;
+    const saved = sessionStorage.getItem(filterKey);
+    let selected = filters.some(([, value]) => value === saved) ? saved! : 'ALL';
+    const applyFilter = () => {
+      statusFilter = selected;
+      filterBoard();
+      noMatches.hidden = true;
+      for (const control of filterActions.querySelectorAll<HTMLButtonElement>('button'))
+        control.setAttribute('aria-pressed', String(control.dataset.filter === selected));
+    };
+    for (const [label, value] of filters) {
+      const control = button(
+        label,
+        () => {
+          selected = value;
+          sessionStorage.setItem(filterKey, selected);
+          applyFilter();
+        },
+        'secondary',
+      );
+      control.dataset.filter = value;
+      filterActions.append(control);
+    }
+    applyFilter();
+    boardShell.append(filterActions);
+  }
+  boardShell.append(board);
+  boardShell.append(noMatches, filterEmpty);
+  filterBoard();
+  let servedRecently: HTMLElement | undefined;
+  if (returnable?.enabled) {
+    servedRecently = el(
+      'section',
+      { class: 'card stack', role: 'region', 'aria-label': 'Piatti serviti di recente' },
+      el('h2', {}, 'Piatti serviti di recente'),
+    );
+    if (!returnable.items.length) {
+      servedRecently.append(el('p', { class: 'muted' }, 'Nessun piatto da rendere.'));
+    }
+    for (const item of returnable.items) {
+      servedRecently.append(
+        el(
+          'article',
+          { class: 'row between' },
+          el(
+            'div',
+            {},
+            el('strong', {}, `${item.quantity} × ${item.dish_name}`),
+            el('p', { class: 'muted' }, item.table_name ?? 'Asporto'),
+          ),
+          returnOrderItemButton(context, item),
+        ),
+      );
+    }
+  }
+  if (servedRecently) boardShell.append(servedRecently);
+  if (!adminOverview) return boardShell;
+  return el(
+    'div',
+    { class: 'stack kitchen-operations-dashboard' },
+    kitchenAdminPanel(adminOverview, boardShell),
+    boardShell,
+  );
+}

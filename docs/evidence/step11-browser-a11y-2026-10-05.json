@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-05",
+  "renderer": "apps/public/main.ts",
+  "css": "styles/public.css",
+  "browser": "system Chromium",
+  "viewport": "390x844",
+  "checks": {
+    "header_nav_main_footer": true,
+    "single_h1": true,
+    "mobile_menu_aria": true,
+    "programmatic_main_focus": true,
+    "named_links": true,
+    "contrast_ratio": 9.35
+  },
+  "scope": "browser accessibility smoke only",
+  "remaining": [
+    "full WCAG AA/manual audit",
+    "Web Vitals on real HTTPS deployment",
+    "authenticated asset upload E2E",
+    "real public/staff HTTPS routing/cache separation"
+  ]
+}

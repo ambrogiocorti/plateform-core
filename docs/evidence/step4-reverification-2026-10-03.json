@@ -1,0 +1,74 @@
+{
+  "date": "2026-10-03",
+  "project_id": "abdxvlykasqmknexxhjo",
+  "status": "PASSED",
+  "scope": "Step 4 granular re-verification",
+  "migrations_verified": 70,
+  "substeps": {
+    "4.1_qr_customer_session": {
+      "status": "PASSED",
+      "evidence": "docs/evidence/step4-1-customer-access-2026-10-03.json"
+    },
+    "4.2_customer_menu": {
+      "status": "PASSED",
+      "checks": [
+        "categories and dish ordering projection",
+        "dish description and public HTTPS image URL projection",
+        "ingredients, inherited allergens and dietary tags",
+        "daily availability with stock decrement reflected",
+        "active variant groups/options",
+        "customer account history with removals and variants",
+        "current total and remaining balance projection",
+        "mobile-first customer menu layout",
+        "category grouping by immutable category id"
+      ],
+      "database_gate": "STEP_4_2_DATABASE_GATE=PASSED"
+    },
+    "4.3_waiter_call": {
+      "status": "PASSED",
+      "checks": [
+        "ZONE fallback",
+        "TABLE precedence over ZONE",
+        "single assigned recipient without broadcast",
+        "acceptance and completion state machine",
+        "stored response_time",
+        "notification acknowledgement/resolution synchronized with call lifecycle"
+      ],
+      "migration": "supabase/migrations/20261003212934_step4_waiter_call_lifecycle.sql",
+      "database_gate": "STEP_4_3_DATABASE_GATE=PASSED",
+      "live_gate": "response_time column, timeline constraint and notification sync present; anon execute denied"
+    },
+    "4.4_customer_ordering": {
+      "status": "PASSED",
+      "checks": [
+        "WAITER_APPROVAL default",
+        "sent request not directly mutable by customer",
+        "responsible waiter only APPROVE/REJECT",
+        "approval creates CUSTOMER order and kitchen ticket",
+        "rejection creates no order and preserves reason",
+        "DIRECT creates order immediately and notifies responsible waiter",
+        "DISABLED rejected server-side"
+      ],
+      "database_gate": "STEP_4_4_DATABASE_GATE=PASSED"
+    }
+  },
+  "frontend_changes": [
+    "customer total now shows total_cents and shows remaining amount separately when different",
+    "customer menu groups categories by category_id instead of category name",
+    "cart review quantity max follows current dish availability",
+    "customer menu uses single-column mobile-first base layout with desktop enhancement"
+  ],
+  "verification": {
+    "migration_manifest": "70 versioned migrations verified",
+    "typescript_transpile": "PASSED for modified Step 4 sources/tests",
+    "prettier": "PASSED for modified customer source and public CSS",
+    "full_local_runner": "BLOCKED_BY_CHECKPOINT_PLATFORM_DEPENDENCIES"
+  },
+  "security_advisor_notes": [
+    "public.get_public_menu anon SECURITY DEFINER warning is intentional because it is the public menu projection",
+    "authenticated SECURITY DEFINER warnings are expected for the RPC command surface and remain protected by internal authorization checks",
+    "private RLS-enabled/no-policy INFO findings are intentional for private RPC-only tables",
+    "Leaked Password Protection warning is an existing project-level hardening item, not introduced by Step 4"
+  ],
+  "next": "Step 5 — Prenotazioni e Host"
+}

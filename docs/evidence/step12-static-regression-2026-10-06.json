@@ -1,0 +1,13 @@
+{
+  "date": "2026-10-06",
+  "status": "PASSED",
+  "gate_count": 30,
+  "new_gates": {
+    "runbook_post_restore": "11/11",
+    "continuity_worker_health": "12/12",
+    "audit_observability": "7/7",
+    "api_permission_manifest": "14/14"
+  },
+  "migration_count": 130,
+  "latest_version": "20261006051256"
+}

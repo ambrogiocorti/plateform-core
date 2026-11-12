@@ -1,0 +1,62 @@
+{
+  "date": "2026-10-04",
+  "project_id": "abdxvlykasqmknexxhjo",
+  "step": 6,
+  "provider": "STRIPE",
+  "status": "PASSED_SANDBOX_END_TO_END",
+  "sandbox": {
+    "name": "Plateform",
+    "livemode": false,
+    "live_account_touched": false
+  },
+  "payment": {
+    "amount_cents": 100,
+    "currency": "EUR",
+    "checkout_session": "cs_test_a1D445L0k2dfPzgLEUTsyjawRVwfdYjtZ25h6NCb0AUGAL6tFDq8S2Xlpx",
+    "stripe_status": "complete/paid",
+    "provider_operation": "7f7dc6a0-e4e4-44e0-812d-52ad1d7d0b0b",
+    "plateform_payment_status": "COMPLETED",
+    "plateform_operation_status": "COMPLETED",
+    "account_status": "PAID",
+    "remaining_cents": 0,
+    "receipt_journal_rows": 1
+  },
+  "webhook": {
+    "checkout_session_completed_event": "evt_1UMcd3Cs978fOWHz8O79tGdb",
+    "stripe_pending_webhooks": 0,
+    "supabase_http_status": 200,
+    "signature_verification": "PASSED",
+    "authoritative_reconciliation": "PASSED"
+  },
+  "refund": {
+    "amount_cents": 100,
+    "stripe_refund": "re_3UMcd1Cs978fOWHz1kKElLSi",
+    "stripe_status": "succeeded",
+    "plateform_refund_status": "COMPLETED",
+    "plateform_payment_status": "REFUNDED",
+    "provider_operation_status": "COMPLETED",
+    "provider_attempts_after_idempotent_retry": 1,
+    "stripe_refund_count_after_retry": 1,
+    "refund_journal_rows": 1,
+    "server_side_provider_call": "PASSED",
+    "specific_refund_webhook_delivery_observed": false,
+    "specific_refund_webhook_note": "The refund was created while the controlled provider runner temporarily subscribed the sandbox endpoint only to product.created. The financial endpoint was restored immediately afterward. Refund event handling remains configured and the shared webhook signature/reconciliation path was live-verified by Checkout; refund server-side authoritative completion and idempotency were live-verified."
+  },
+  "fixes": [
+    "Stripe webhook metadata parser now tolerates metadata without operation_id and ignores unrelated events safely.",
+    "payment-return v4 uses HTML entities for non-ASCII display text to avoid mojibake in clients that mishandle encoding."
+  ],
+  "temporary_test_endpoints": {
+    "stripe-sandbox-probe": "neutralized_410",
+    "step6-stripe-e2e": "neutralized_410",
+    "step6-refund-runner": "neutralized_410"
+  },
+  "result": "Stripe sandbox gate is complete. Step 6 remains open only for Satispay API sandbox.",
+  "cleanup": {
+    "technical_staff_disabled": true,
+    "technical_sessions_revoked": true,
+    "technical_table_register_station_menu_disabled": true,
+    "technical_service_closed": true,
+    "financial_audit_rows_retained": true
+  }
+}

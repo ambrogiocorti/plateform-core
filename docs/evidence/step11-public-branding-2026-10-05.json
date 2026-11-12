@@ -1,0 +1,70 @@
+{
+  "date": "2026-10-05",
+  "project_id": "abdxvlykasqmknexxhjo",
+  "step": 11,
+  "status": "IN_PROGRESS_GATES_REMAIN",
+  "remote_migrations": {
+    "count": 106,
+    "latest": "20261004205734_step12_private_state_recovery_policy",
+    "local_remote_sync": "PASSED_106_EXACT_HASH",
+    "step11_contract_present": true
+  },
+  "edge_functions": {
+    "asset_upload": {
+      "status": "ACTIVE",
+      "version": 4,
+      "verify_jwt": true
+    },
+    "public_telemetry": {
+      "status": "ACTIVE",
+      "version": 1,
+      "verify_jwt": false,
+      "sha256": "eebc726f3ca509177341793fe24411376e94b6e5c860e81bfa721855944bf00e",
+      "public_boundary": "closed schema + trusted-IP rate limit + active venue validation"
+    }
+  },
+  "public_contract": {
+    "anonymous_get_public_site": "PASSED_LIVE",
+    "anonymous_get_public_menu": "PASSED_LIVE",
+    "anonymous_direct_telemetry_insert": "DENIED_LIVE",
+    "anonymous_audit_read_write": "DENIED_LIVE"
+  },
+  "implementation": [
+    "multi-venue selection is deterministic from /sedi/{slug} or ?sede= and is preserved across menu/booking links",
+    "booking falls back only to a reservation-enabled venue instead of silently using a disabled first venue",
+    "/sedi/{slug} renders a dedicated venue page with venue-specific menu/booking actions",
+    "mobile public navigation exposes aria-expanded/aria-controls and responsive open state",
+    "branding background and accent are applied only when contrast guards preserve WCAG-oriented readability",
+    "configurable social/privacy links reject non-http(s) schemes such as javascript:",
+    "technical SEO includes canonical/OpenGraph, Restaurant JSON-LD, and noindex,nofollow for QR/customer routes",
+    "public page-view and TTFB/FCP/LCP/CLS/INP telemetry is best-effort, minimized and separate from security audit",
+    "public/staff Vite outputs remain distinct and staff pages remain noindex"
+  ],
+  "local_checks": {
+    "step11_static_gate": "PASSED",
+    "migration_integrity": "PASSED_106",
+    "changed_typescript_transpile_diagnostics": "PASSED",
+    "public_site_pure_runtime_gate": "PASSED",
+    "full_typecheck_lint_build": "BLOCKED_LOCAL_TOOLCHAIN_NODE22_AND_MISSING_DEPENDENCIES",
+    "npm_ci": "BLOCKED_ENVIRONMENT_TIMEOUT",
+    "edge_http_probe_from_container": "BLOCKED_CONTAINER_DNS"
+  },
+  "definition_of_done_open": [
+    "authenticated asset-upload E2E from a real staff browser session",
+    "full strict typecheck/lint/format/build on Node >=24.13 with lockfile dependencies installed",
+    "real-browser WCAG AA and Web Vitals/performance verification",
+    "real HTTPS deployment proving public/staff routing, origin and cache separation"
+  ],
+  "decision": "STEP 11 remains IN PROGRESS; no COMPLETE claim until all remaining DoD gates are proven.",
+  "deployment_config": {
+    "asset_upload_verify_jwt": true,
+    "public_telemetry_verify_jwt": false,
+    "payments_verify_jwt": true,
+    "alignment": "PASSED_WITH_LIVE"
+  },
+  "security_advisor": {
+    "reviewed": true,
+    "step11_regression": "NONE_IDENTIFIED",
+    "global_warning": "auth_leaked_password_protection disabled; current Supabase organization is Free and feature is Pro+"
+  }
+}

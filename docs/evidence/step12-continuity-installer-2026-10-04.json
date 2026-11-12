@@ -1,0 +1,37 @@
+{
+  "date": "2026-10-04",
+  "step": 12,
+  "status": "PASSED_STATIC_FAIL_CLOSED",
+  "verified_at": "2026-10-04T23:29:00+02:00",
+  "checks": {
+    "replica_root_requires_explicit_absolute_path": true,
+    "same_home_fake_replica_removed": true,
+    "systemd_replica_write_path_dropin_generated": true,
+    "placeholder_does_not_create_directory": true,
+    "server_key_rejects_publishable_anon_placeholder": true,
+    "server_key_accepts_sb_secret_or_legacy_service_role": true,
+    "installer_has_no_python_runtime_dependency": true,
+    "timers_not_enabled_by_installer_before_doctor": true,
+    "node_24_13_0_user_install_checksum_verified": true,
+    "supabase_cli_2_119_0_pinned_user_install": true,
+    "psql_minimum_version_enforced_by_doctor": true,
+    "rootless_docker_uidmap_subid_preflight": true,
+    "rootless_docker_user_service_setup": true,
+    "toolchain_environment_0600": true,
+    "systemd_services_load_explicit_toolchain_environment": true,
+    "activation_rejects_placeholders_and_unsafe_env_permissions": true,
+    "activation_runs_host_backup_retention_checks_before_enable": true,
+    "activation_verifies_timers_enabled_and_active": true,
+    "deactivation_path_available": true,
+    "interactive_secret_prompts_no_echo": true,
+    "secret_configuration_atomic_0600": true,
+    "secret_configuration_validated_by_backup_worker_parser": true,
+    "secret_values_not_passed_as_cli_arguments": true
+  },
+  "production_requirement": "Replica mount must be an independent persistent filesystem/device; off-host/WORM and key escrow remain infrastructure gates.",
+  "toolchain_lock": {
+    "node": "24.13.0",
+    "supabase_cli": "2.119.0",
+    "minimum_psql_major": 14
+  }
+}

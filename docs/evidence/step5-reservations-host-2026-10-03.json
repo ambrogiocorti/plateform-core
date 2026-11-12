@@ -1,0 +1,74 @@
+{
+  "date": "2026-10-03",
+  "step": 5,
+  "name": "Prenotazioni e Host",
+  "status": "PASSED_WITH_ENVIRONMENT_LIMIT",
+  "development_project": "abdxvlykasqmknexxhjo",
+  "migration_inventory": 71,
+  "migrations_added": ["20261003214003_step5_booking_integrity.sql"],
+  "edge_functions": {
+    "reservation": {
+      "status": "ACTIVE",
+      "version": 1,
+      "verify_jwt": false,
+      "sha256": "9e8fbd7acc124da0e096d1d847b9caee91e08eeaedf07f80a466f6c03d344ff1",
+      "source_bundle_verified": true,
+      "reason_verify_jwt_false": "Public booking endpoint; CORS, strict schema validation, IP rate limiting and server-side privileged RPC boundary are implemented in-function."
+    }
+  },
+  "gates": {
+    "reservations_on_off": "PASSED",
+    "form_builder_standard_and_custom_fields": "PASSED",
+    "services_slots_capacity_booking_pacing": "PASSED",
+    "duplicate_protection_clean_error": "PASSED",
+    "large_party_requested_and_reject_modes": "PASSED",
+    "reservation_state_machine": "PASSED",
+    "host_dashboard_and_floor_map": "PASSED",
+    "walk_in_independent_when_public_booking_disabled": "PASSED",
+    "table_suggestions_assignment_change_and_joined_tables": "PASSED",
+    "arrival_seating_completion_and_no_show": "PASSED",
+    "standard_note_allergy_answer_sync": "PASSED",
+    "special_occasion_host_projection": "PASSED",
+    "public_booking_direct_anon_rpc_denied": "PASSED",
+    "reservation_edge_deployed_live": "PASSED",
+    "frontend_modified_sources_syntax": "PASSED",
+    "migration_manifest": "PASSED"
+  },
+  "tests": [
+    {
+      "name": "STEP5_BOOKING_HARDENING_GATE",
+      "result": "PASSED",
+      "runner": "PGlite standalone"
+    },
+    {
+      "name": "STEP_5_FULL_DATABASE_GATE",
+      "result": "PASSED",
+      "runner": "PGlite standalone"
+    },
+    {
+      "name": "live Supabase schema/grants/function checks",
+      "result": "PASSED"
+    },
+    {
+      "name": "npm run check:migrations",
+      "result": "PASSED",
+      "detail": "71 migrations"
+    }
+  ],
+  "security_advisors": {
+    "status": "REVIEWED",
+    "summary": [
+      "rls_enabled_no_policy INFO on intentionally RPC-only/private tables",
+      "SECURITY DEFINER executable warnings reviewed against explicit RPC authorization model",
+      "leaked-password protection warning belongs to later auth/go-live hardening"
+    ]
+  },
+  "environment_limitations": [
+    "The container cannot resolve the hosted Supabase function hostname and the browsing verifier cannot access the Edge URL; therefore a fresh external HTTP request to reservation could not be executed in this checkpoint.",
+    "The full Vitest/Vite/TypeScript/Deno runners remain unavailable because the archived node_modules contain Windows native bindings while this runtime is Linux and package registry access is unavailable."
+  ],
+  "notes": [
+    "No persistent demo reservation fixtures were left in the development database.",
+    "The public browser path invokes the deployed reservation Edge Function; direct anonymous execution of create_public_reservation remains denied."
+  ]
+}

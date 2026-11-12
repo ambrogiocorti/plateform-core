@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-06",
+  "check": "CONTINUITY_RETENTION_OVERDUE lifecycle",
+  "result": "PASSED 5/5",
+  "rollback": true,
+  "checks": [
+    "expired artifacts beyond six-hour tolerance open alert",
+    "purged artifacts resolve alert",
+    "automation incident key present",
+    "AUTO_OPEN event written",
+    "AUTO_RESOLVED event written"
+  ],
+  "disposable_target": {
+    "project": "plateform-restore-test",
+    "status": "INACTIVE",
+    "reactivation": "BLOCKED",
+    "reason": "Supabase free plan active-project limit reached; unrelated project was not paused or modified."
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-06",
+  "project": "abdxvlykasqmknexxhjo",
+  "status": "PASSED",
+  "transactional_probes": {
+    "worker_alert_recovery": "7/7",
+    "rpo_scheduler_idempotency": "5/5",
+    "backup_lease_reclaim": "8/8",
+    "restore_ineligible_backup_fail_closed": "6/6",
+    "backup_finish_failure_guards_and_audit": "8/8",
+    "client_api_permission_manifest": "5/5",
+    "restore_test_ineligible_backup_fail_closed": "5/5",
+    "retention_restore_race_guard": "5/5",
+    "backup_queue_priority": "7/7",
+    "single_active_restore_invariant": "4/4",
+    "restore_test_lease_reclaim": "7/7",
+    "restore_finish_failure_guards_and_audit": "7/7",
+    "restore_test_success_state_machine": "8/8",
+    "operational_health_positive_rpo": "7/7",
+    "operational_health_positive_rto": "7/7",
+    "rto_alert_recovery": "5/5",
+    "rpo_alert_recovery": "5/5",
+    "rto_alert_dynamic_recovery": "5/5",
+    "rpo_alert_dynamic_recovery": "5/5",
+    "continuity_table_rls": "8/8",
+    "restore_cutover_required_fail_safe": "8/8"
+  },
+  "migration_added": "20261006045641_step12_restore_reference_indexes",
+  "migration_count": 130,
+  "rollback": "All state-changing live probes were executed inside transactions and rolled back.",
+  "security": "No anon/authenticated grants outside the API permission manifest; continuity heartbeat remains service-role only.",
+  "static_regression": "33/33",
+  "performance_hardening": {
+    "restore_jobs_backup_id_idx": true,
+    "restore_jobs_pre_restore_backup_id_idx": true,
+    "restore_jobs_requested_by_idx": true,
+    "restore_jobs_cutover_confirmed_by_idx": true,
+    "performance_advisor_restore_fk_findings": 0,
+    "backup_metadata_requested_by_idx": true,
+    "step12_unindexed_foreign_key_findings": 0
+  }
+}

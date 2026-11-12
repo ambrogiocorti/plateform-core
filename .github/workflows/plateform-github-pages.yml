@@ -1,0 +1,138 @@
+name: Plateform GitHub Pages release
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      pages_mode:
+        description: 'test = /plateform-core/; commercial = custom domain root'
+        type: choice
+        options:
+          - test
+          - commercial
+        required: true
+        default: test
+      site_origin:
+        description: 'Only for commercial: https://restaurant.example.org (root origin)'
+        type: string
+        required: false
+      publish_after_approval:
+        description: 'Publish only after an explicit release decision'
+        type: boolean
+        required: true
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: plateform-pages-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  quality:
+    if: github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/release-candidate-hardening.yml
+
+  contracts:
+    if: github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/integrated-recovery-validation.yml
+
+  candidate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 55
+    # This installation now uses one hosted Supabase project. Hosting under
+    # the GitHub Pages test path does not select a separate cloud database.
+    environment: Production
+    env:
+      PAGES_MODE: ${{ inputs.pages_mode || 'test' }}
+      VITE_PAGES_MODE: ${{ inputs.pages_mode || 'test' }}
+      PUBLIC_SITE_ORIGIN: ${{ inputs.pages_mode == 'commercial' && inputs.site_origin || 'https://ambrogiocorti.github.io/plateform-core' }}
+      VITE_PUBLIC_BASE_URL: ${{ inputs.pages_mode == 'commercial' && inputs.site_origin || 'https://ambrogiocorti.github.io/plateform-core' }}
+      VITE_STAFF_BASE_URL: ${{ format('{0}/staff', inputs.pages_mode == 'commercial' && inputs.site_origin || 'https://ambrogiocorti.github.io/plateform-core') }}
+      VITE_ENVIRONMENT: production
+      VITE_SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+      VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+      VITE_OFFLINE_PUBLIC_KEYS_JWK: ${{ vars.PLATEFORM_OFFLINE_PUBLIC_KEYS_JWK || '[{"kty":"EC","crv":"P-256","x":"3oW3zCsVr60PTD5moATzX44UYzBHUWjLF3LlH0-PbWQ","y":"DQXnap9zLQYoVTOI-6JPbE69q3ifP3GrHX2gGWnI1C8"}]' }}
+      PLATEFORM_CHECK_PROJECT_REF: xzateqavvaparjoybbhr
+      VITE_RELEASE_VERSION: '0.1.0'
+    steps:
+      - name: Checkout candidate
+        uses: actions/checkout@v4
+      - name: Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Validate selected deployment mode and backend binding
+        run: |
+          test -n "$VITE_SUPABASE_URL" || { echo 'Environment variable SUPABASE_URL missing'; exit 1; }
+          test -n "$VITE_SUPABASE_PUBLISHABLE_KEY" || { echo 'Environment secret SUPABASE_PUBLISHABLE_KEY missing'; exit 1; }
+          node --input-type=module -e '
+            const raw = process.env.PUBLIC_SITE_ORIGIN;
+            const url = new URL(raw);
+            const mode = process.env.PAGES_MODE;
+            if (url.protocol !== "https:" || url.search || url.hash || url.username || url.password) throw Error("INVALID_SITE_ORIGIN");
+            if (mode === "test" && raw !== "https://ambrogiocorti.github.io/plateform-core") throw Error("INVALID_TEST_ORIGIN");
+            if (mode === "commercial" && (raw !== url.origin || url.hostname.endsWith(".github.io"))) throw Error("CUSTOM_ROOT_DOMAIN_REQUIRED");
+            if (!["test", "commercial"].includes(mode)) throw Error("INVALID_PAGES_MODE");
+          '
+          if [ "$PAGES_MODE" = "commercial" ]; then echo "PAGES_CUSTOM_DOMAIN=${PUBLIC_SITE_ORIGIN#https://}" >> "$GITHUB_ENV"; fi
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Check the selected production backend can render real data
+        run: node scripts/check-staging-public-contract.mjs
+      - name: Quality gates and static bundle
+        run: |
+          npm run format:check
+          node scripts/check-report-frontend.mjs
+          npm run check:step11-prerender
+          npm run build:pages
+          node scripts/check-visual-design.mjs
+      - name: Install Chromium for isolated visual regression
+        run: |
+          fc-match Arial
+          npx playwright install chromium
+      - name: Browser journeys and visual audit in both themes and viewports
+        run: npm run test:e2e
+      - name: Preserve browser screenshots and traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: plateform-report-visual-evidence
+          path: test-results/
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Preserve candidate artifact (not published)
+        uses: actions/upload-artifact@v4
+        with:
+          name: plateform-pages-${{ env.PAGES_MODE }}-candidate
+          path: dist/site/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
+      - name: Configure Pages for the approved main release
+        if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.publish_after_approval)) }}
+        uses: actions/configure-pages@v5
+      - name: Stage the tested Pages artifact
+        if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.publish_after_approval)) }}
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist/site/
+
+  deploy:
+    if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.publish_after_approval)) }}
+    needs: [candidate, quality, contracts]
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy main after all application, browser and recovery gates
+        id: deployment
+        uses: actions/deploy-pages@v4

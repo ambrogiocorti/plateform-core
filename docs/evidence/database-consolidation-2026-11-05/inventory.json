@@ -1,0 +1,116 @@
+{
+  "observed_at_utc": "2026-11-05T23:25:35.062Z",
+  "source": "Read-only Supabase project listing and exact SQL counts",
+  "goal": "One hosted Supabase project for the current installation; isolated local development and tests",
+  "target_project_proposed": {
+    "name": "plateform-production",
+    "ref": "xzateqavvaparjoybbhr"
+  },
+  "status": "BLOCKED_BEFORE_DATA_CUTOVER",
+  "migration_history_fingerprint": {
+    "algorithm": "MD5 over ordered versions and statement hashes; comparison fingerprint only",
+    "production": "51d5150c1a159405fc34c9a36fced4e1",
+    "staging": "51d5150c1a159405fc34c9a36fced4e1",
+    "entries_each": 496,
+    "limitation": "This does not prove equality of current data, policies, secrets, Auth configuration or deployed Edge Functions"
+  },
+  "projects": [
+    {
+      "name": "plateform-production",
+      "ref": "xzateqavvaparjoybbhr",
+      "status": "ACTIVE_HEALTHY",
+      "staff": 7,
+      "dishes": 0,
+      "orders": 0,
+      "tables": 15,
+      "payments": 0,
+      "auth_users": 7,
+      "reservations": 0,
+      "storage_objects": 0,
+      "backups": [
+        {
+          "scope": "INSTALLATION",
+          "status": "QUEUED",
+          "includes_auth": false,
+          "includes_storage": false,
+          "integrity_verified": false,
+          "last_restore_test_at": null
+        },
+        {
+          "scope": "INSTALLATION",
+          "status": "QUEUED",
+          "includes_auth": false,
+          "includes_storage": false,
+          "integrity_verified": false,
+          "last_restore_test_at": null
+        }
+      ],
+      "verified_restores": 0
+    },
+    {
+      "name": "plateform-staging",
+      "ref": "qfgoatdabgnzozxuzxku",
+      "status": "ACTIVE_HEALTHY",
+      "staff": 6,
+      "dishes": 2,
+      "orders": 22,
+      "tables": 2,
+      "payments": 23,
+      "auth_users": 7,
+      "reservations": 18,
+      "storage_objects": 41,
+      "backups": [
+        {
+          "scope": "INSTALLATION",
+          "status": "QUEUED",
+          "includes_auth": false,
+          "includes_storage": false,
+          "integrity_verified": false,
+          "last_restore_test_at": null
+        }
+      ],
+      "verified_restores": 0
+    },
+    {
+      "name": "plateform-development",
+      "ref": "abdxvlykasqmknexxhjo",
+      "status": "INACTIVE",
+      "data_inspected": false,
+      "export": "Download requested through dashboard; local complete bytes not verified"
+    },
+    {
+      "name": "plateform-restore-test",
+      "ref": "dkbjgvovxgglqhqxmuyb",
+      "status": "INACTIVE",
+      "data_inspected": false,
+      "export": "Not performed"
+    }
+  ],
+  "changes_performed": {
+    "deleted_projects": [],
+    "migrated_business_records": 0,
+    "production_configuration_changed": false
+  },
+  "blockers": [
+    "No verified installation backup including Auth and Storage for either active project",
+    "No verified restore from those backups",
+    "Paused projects not fully inventoried",
+    "No final classification of data to merge or archive",
+    "No full parity check of configuration, Edge Functions, callbacks and cloud workers"
+  ],
+  "separate_completed_task": {
+    "staging_cors_added": true,
+    "origin": "https://plateform-development-git-redesign-e-d8ae9a-sambrogiocorti-5259.vercel.app",
+    "preflight_new_origin": "12/12",
+    "preflight_previous_origin": "12/12",
+    "rejected_untrusted_origin": "12/12"
+  },
+  "github_pages": {
+    "candidate_run": 42067303517,
+    "candidate_commit": "da64978e4f3c579d22854a52ccccc54f1c13a815",
+    "candidate_result": "success",
+    "candidate_deploy": "skipped",
+    "new_dispatch_attempts": 2,
+    "new_dispatch_result": "Workflow dispatch failed; no new run verified"
+  }
+}

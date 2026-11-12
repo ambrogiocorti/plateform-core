@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-05",
+  "environment": "Supabase development abdxvlykasqmknexxhjo",
+  "method": "transactional SQL probes with ROLLBACK",
+  "identity_probe": {
+    "actor": "ADMIN:VENUE",
+    "own_venue_visible": 1,
+    "foreign_venue_visible": 0,
+    "foreign_room_visible": 0,
+    "foreign_table_visible": 0,
+    "foreign_reservation_visible": 0,
+    "foreign_realtime_signal_visible": 0,
+    "foreign_asset_metadata_visible": 0,
+    "foreign_storage_object_visible": 0,
+    "foreign_rpc": "42501:VENUE_FORBIDDEN"
+  },
+  "direct_write_probe": {
+    "foreign_direct_write": "42501:permission denied for table tables",
+    "foreign_record_unchanged": true
+  },
+  "multi_venue_disabled_probe": {
+    "second_active_venue": "23514:MULTI_VENUE_DISABLED",
+    "active_venues": 1,
+    "probe_persisted": 0
+  },
+  "chain_scope_probe": {
+    "identity": "ADMIN:CHAIN",
+    "visible_active_venues": 2,
+    "has_original": true,
+    "has_second": true
+  },
+  "cleanup": {
+    "active_venues_after_rollback": 1,
+    "multi_venue_licensed_after_rollback": false,
+    "probe_venues_remaining": 0
+  },
+  "limitations": [
+    "No real WebSocket cross-venue subscription was executed in this container.",
+    "No real Storage HTTP upload/download cross-venue request was executed in this container.",
+    "The PGlite cross-venue test remains required in a complete Node toolchain."
+  ]
+}

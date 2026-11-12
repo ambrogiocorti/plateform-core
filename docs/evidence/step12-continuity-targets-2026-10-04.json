@@ -1,0 +1,67 @@
+{
+  "date": "2026-10-04",
+  "project_id": "abdxvlykasqmknexxhjo",
+  "step": 12,
+  "status": "IN_PROGRESS_RPO_RTO_TARGETS_IMPLEMENTED_NOT_CERTIFIED",
+  "migration": "20261004122645_step12_continuity_targets",
+  "remote_migration_sha256": "9d727fe4f9ad2b8b948a53957392030e94106e1b92be79fc3626e0ef5c95af35",
+  "defaults": {
+    "rpo_target_minutes": 60,
+    "rto_target_minutes": 60,
+    "backup_retention_days": 30,
+    "restore_test_interval_days": 30,
+    "guaranteed_sla": false
+  },
+  "scheduler": {
+    "job": "plateform-daily-backup",
+    "schedule": "*/5 * * * *",
+    "command": "select public.enqueue_due_backup();",
+    "behavior": "enqueue only when no active scheduled job and latest verified success is outside RPO target; failed attempts use 15 minute cooldown"
+  },
+  "live_due_check": {
+    "first_call": "RPO_TARGET_DUE -> QUEUED",
+    "second_call": "ACTIVE_JOB -> same queued backup",
+    "deduplication": "PASSED",
+    "retention_days": 30,
+    "queued_backup_id": "b182b690-8aec-4c46-856f-60cd72a19507"
+  },
+  "security": {
+    "configure_continuity_targets_anon_execute": false,
+    "configure_continuity_targets_authenticated_execute": true,
+    "authorization_inside_rpc": "SUPER_ADMIN + CHAIN scope",
+    "enqueue_due_backup_anon_execute": false,
+    "enqueue_due_backup_authenticated_execute": false,
+    "enqueue_due_backup_service_role_execute": true,
+    "public_configure_rpc_security": "SECURITY_INVOKER",
+    "private_impl_security": "SECURITY_DEFINER",
+    "api_hardening_migration": "20261004123049_step12_continuity_targets_api_hardening",
+    "supabase_advisor_new_warning": false
+  },
+  "observability": [
+    "last_backup_duration_seconds",
+    "backup_age_minutes",
+    "last_restore_test_duration_seconds",
+    "rpo_within_target",
+    "rto_last_test_within_target",
+    "cron_schedule"
+  ],
+  "ui": {
+    "targets_editable_by_super_admin": true,
+    "wording_marks_targets_as_not_sla": true,
+    "manual_backup_uses_configured_retention": true
+  },
+  "checks": {
+    "static_gate": "PASSED",
+    "typescript_parser": "PASSED",
+    "continuity_alerting_static_gate": "PASSED",
+    "backup_worker_static_gate": "PASSED",
+    "backup_encryption_roundtrip": "PASSED",
+    "backup_preflight_fail_closed": "PASSED",
+    "restore_test_static_gate": "PASSED"
+  },
+  "remaining": [
+    "execute queued backup with production-capable external worker",
+    "perform isolated restore test",
+    "replace target-only values with observed evidence before commercial guarantee"
+  ]
+}

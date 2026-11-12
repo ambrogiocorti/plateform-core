@@ -1,0 +1,28 @@
+name: Configured data retention
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/15 * * * *'
+permissions: {}
+jobs:
+  retention:
+    if: vars.PLATEFORM_RETENTION_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    environment: production
+    steps:
+      - name: Apply approved retention policy
+        env:
+          RETENTION_ENDPOINT: ${{ secrets.PLATEFORM_RETENTION_ENDPOINT }}
+          RETENTION_WORKER_SECRET: ${{ secrets.PLATEFORM_RETENTION_WORKER_SECRET }}
+        run: |
+          set -euo pipefail
+          case "$RETENTION_ENDPOINT" in
+            https://*/functions/v1/maintenance) ;;
+            *) exit 1 ;;
+          esac
+          curl --silent --show-error --fail-with-body --max-time 110 \
+            --request POST "$RETENTION_ENDPOINT" \
+            --header "Content-Type: application/json" \
+            --header "x-worker-secret: $RETENTION_WORKER_SECRET" \
+            --data '{}'

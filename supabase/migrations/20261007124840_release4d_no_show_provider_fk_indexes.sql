@@ -1,0 +1,6 @@
+
+create index if not exists reservation_deposit_no_show_actions_venue_idx
+on private.reservation_deposit_no_show_actions(venue_id);
+
+create index if not exists reservation_deposit_no_show_provider_events_action_idx
+on private.reservation_deposit_no_show_provider_events(action_id);

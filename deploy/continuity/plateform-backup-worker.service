@@ -1,0 +1,23 @@
+[Unit]
+Description=Plateform continuity backup worker (one job)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=%h/plateform
+EnvironmentFile=%h/.config/plateform/continuity.env
+ExecStart=/usr/bin/env node tools/backup-worker/start.mjs --once
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=read-only
+ProtectSystem=strict
+ReadWritePaths=%h/.local/share/plateform/backups
+
+# Supabase CLI db dump uses a container runtime. Prefer a dedicated rootless
+# Docker/Podman socket for this unprivileged user; never expose a host root
+# Docker socket to a shared application process.
+
+[Install]
+WantedBy=default.target

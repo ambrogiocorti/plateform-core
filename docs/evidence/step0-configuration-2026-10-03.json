@@ -1,0 +1,45 @@
+{
+  "checked_at": "2026-10-03T18:01:01.018Z",
+  "project_ref": "abdxvlykasqmknexxhjo",
+  "environment": "development",
+  "status": "PASSED",
+  "auth": {
+    "signup": false,
+    "anonymous": false,
+    "email": true,
+    "password_minimum": 12,
+    "jwt_expiry_seconds": 900,
+    "totp": true,
+    "aal1_limit_minutes": 15,
+    "site_url": "http://localhost:5174",
+    "redirect_urls": ["http://localhost:5174/", "http://localhost:5174/login"]
+  },
+  "edge": {
+    "environment": "development",
+    "release_version": "0.1.0",
+    "telemetry": true,
+    "allowed_origins": ["http://localhost:5173", "http://localhost:5174"],
+    "rate_secret_present": true,
+    "rate_secret_value_recorded": false,
+    "trusted_client_ip_header": "cf-connecting-ip",
+    "version": 7,
+    "restore_matches_local": true,
+    "project_ref": "abdxvlykasqmknexxhjo"
+  },
+  "telemetry": {
+    "expected_events": 9,
+    "matching_events": 9,
+    "metadata_correct": true,
+    "audit_events": 0,
+    "system_errors": 0
+  },
+  "rate_counter": {
+    "buckets": 1,
+    "attempts": 3,
+    "limit_enforced": true
+  },
+  "limits": [
+    "Development foundation only; authenticated workflows belong to Step 1.",
+    "Hosted gateway path must be reverified after infrastructure changes."
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "origin": "https://ambrogiocorti.github.io",
+  "project_ref": "qfgoatdabgnzozxuzxku",
+  "tested_at": "2026-11-06T00:07:05.593Z",
+  "results": [
+    {
+      "function": "public-telemetry",
+      "status": 403,
+      "allowed_origin": null,
+      "pass": false
+    },
+    {
+      "function": "reservation",
+      "status": 403,
+      "allowed_origin": null,
+      "pass": false
+    },
+    {
+      "function": "customer-session",
+      "status": 403,
+      "allowed_origin": null,
+      "pass": false
+    },
+    {
+      "function": "staff-admin",
+      "status": 403,
+      "allowed_origin": null,
+      "pass": false
+    },
+    {
+      "function": "step-up",
+      "status": 403,
+      "allowed_origin": null,
+      "pass": false
+    },
+    {
+      "function": "offline-authorization",
+      "status": 403,
+      "allowed_origin": null,
+      "pass": false
+    },
+    {
+      "function": "reservation-deposit",
+      "status": 403,
+      "allowed_origin": null,
+      "pass": false
+    },
+    {
+      "function": "payments",
+      "status": 403,
+      "allowed_origin": null,
+      "pass": false
+    },
+    {
+      "function": "asset-upload",
+      "status": 403,
+      "allowed_origin": null,
+      "pass": false
+    },
+    {
+      "function": "health-probe",
+      "status": 403,
+      "allowed_origin": null,
+      "pass": false
+    },
+    {
+      "function": "maintenance",
+      "status": 403,
+      "allowed_origin": null,
+      "pass": false
+    },
+    {
+      "function": "print-authorization",
+      "status": 403,
+      "allowed_origin": null,
+      "pass": false
+    }
+  ]
+}

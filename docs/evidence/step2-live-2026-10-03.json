@@ -1,0 +1,27 @@
+{
+  "date": "2026-10-03",
+  "environment": "development",
+  "supabase_project": "plateform-development",
+  "result": "PASSED",
+  "fixture_policy": "transactional fixtures rolled back",
+  "gates": [
+    "waiter creates account with server-generated six-digit access code",
+    "order price and allergen snapshot are server-derived",
+    "availability decrements atomically",
+    "required variants and removable ingredients are enforced",
+    "idempotent retry does not duplicate order or consume stock twice",
+    "oversell attempt rolls back the entire order and stock change",
+    "forged client price field is rejected",
+    "waiter change request requires Admin resolution and restores unstarted stock",
+    "primary kitchen station transitions RECEIVED to IN_PREPARATION to READY",
+    "Pass coordinates ready step and waiter delivery reaches SERVED",
+    "table move carries the open account and source becomes TO_RESET",
+    "temporary table merge/split works outside active service",
+    "client cannot forge realtime_signals",
+    "public menu exposes inherited allergen data without operational station fields"
+  ],
+  "notes": [
+    "No persistent demo menu, table, account or order was created by these gates.",
+    "Realtime transport delivery is tested separately; this gate verifies authoritative signal generation, RLS and snapshot-reconciliation code paths."
+  ]
+}

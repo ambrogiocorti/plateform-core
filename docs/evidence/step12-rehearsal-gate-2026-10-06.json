@@ -1,0 +1,35 @@
+{
+  "date": "2026-10-06",
+  "migration_baseline": {
+    "count": 130,
+    "latest_version": "20261006051256",
+    "aggregate_sha256": "7cb63618015f92a81eac5871e82904a845546f64cf0114d25958a8c09a668e9c"
+  },
+  "static_regression": "PASSED_34_OF_34",
+  "real_rehearsal_gate_contract": "PASSED_7_OF_7",
+  "finalizer_fail_closed": true,
+  "runner_fail_closed": {
+    "stage": "HOST_PREFLIGHT",
+    "current_environment": "BLOCKED_NO_EGRESS_NODE22_NO_PSQL_NO_DOCKER_NO_SUPABASE_CLI"
+  },
+  "source_project": {
+    "ref": "abdxvlykasqmknexxhjo",
+    "state": "ACTIVE_HEALTHY"
+  },
+  "target_project": {
+    "ref": "dkbjgvovxgglqhqxmuyb",
+    "name": "plateform-restore-test",
+    "state": "INACTIVE",
+    "reactivation": "BLOCKED_SUPABASE_FREE_ACTIVE_PROJECT_LIMIT"
+  },
+  "remaining_step12_dod": [
+    "real database/Auth/Storage backup on current baseline with integrity verification",
+    "successful isolated restore test on current baseline",
+    "real rehearsal certification gate PASS"
+  ],
+  "not_step12_blockers": [
+    "production RPO/RTO measurement or guarantee",
+    "production cutover rehearsal",
+    "full release build gate (Step 13/go-live)"
+  ]
+}

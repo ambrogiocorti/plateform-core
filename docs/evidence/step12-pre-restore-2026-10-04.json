@@ -1,0 +1,14 @@
+{
+  "status": "IN_PROGRESS_PRE_RESTORE_STATE_MACHINE_VERIFIED_LIVE_RESTORE_PENDING",
+  "migration": "20261004160452_step12_pre_restore_priority_and_retention",
+  "verified_transactionally": {
+    "pre_restore_backup_priority_over_queued_scheduled_backup": true,
+    "successful_verified_snapshot_transitions_restore_to_RESTORING": true,
+    "failed_snapshot_transitions_restore_to_FAILED": true,
+    "failed_snapshot_error_code": "PRE_RESTORE_BACKUP_FAILED",
+    "confirm_restore_rechecks_backup_eligibility": true,
+    "confirm_restore_uses_clock_timestamp_for_expiry": true,
+    "snapshot_retention_uses_continuity_settings": true
+  },
+  "external_gate": "A real pre-restore snapshot plus replacement restore rehearsal is still required."
+}

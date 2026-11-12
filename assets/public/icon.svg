@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 128 128" fill="none">
+  <title>Plateform</title>
+  <rect width="128" height="128" rx="28" fill="#245edb"/>
+  <g transform="translate(25 16) scale(.95)">
+  <path d="M30 6h11c20 0 35 14 35 33S61 72 41 72h-3V61h3c14 0 24-9 24-22S55 17 41 17h-3v66c0 6-3 10-8 10V6Z" fill="#ffffff"/>
+  <path d="M43 23c10 1 17 7 17 16s-7 15-17 16" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+  <path d="M7 25v18c0 6 2 9 7 12v31a5 5 0 0 0 10 0V55c4-3 6-6 6-12V25h-5v18h-4V25h-4v18h-4V25H7Z" fill="#ffffff"/>
+  </g>
+</svg>

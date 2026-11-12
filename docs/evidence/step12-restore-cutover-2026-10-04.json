@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-04",
+  "project_id": "abdxvlykasqmknexxhjo",
+  "step": 12,
+  "status": "PASSED_CONTROL_PLANE_AND_STATIC_GATES_REAL_REHEARSAL_PENDING",
+  "migrations": [
+    "20261004125043_step12_restore_cutover_gate",
+    "20261004125610_step12_restore_cutover_alerting"
+  ],
+  "state_machine_test": {
+    "transaction_rolled_back": true,
+    "restore_test_verifying_to": "SUCCEEDED",
+    "real_restore_verifying_to": "CUTOVER_REQUIRED",
+    "real_restore_completed_at_before_cutover": null,
+    "single_active_restore_guard": "PASSED"
+  },
+  "cutover_security": {
+    "confirm_public_wrapper_security_definer": false,
+    "abort_public_wrapper_security_definer": false,
+    "anonymous_execute": false,
+    "step_up_action": "RESTORE",
+    "exact_target_reference_required": true,
+    "operator_note_required": true
+  },
+  "alerting": {
+    "key": "CONTINUITY_CUTOVER_PENDING",
+    "severity": "CRITICAL",
+    "threshold": "configured RTO target",
+    "transactional_open_test": "PASSED",
+    "cron": "*/10 * * * *",
+    "cron_rpc": "reconcile_all_continuity_alerts"
+  },
+  "ui": {
+    "cutover_required_visible": true,
+    "confirm_cutover": true,
+    "abort_cutover": true,
+    "typed_restaurant_confirmation": true,
+    "typed_target_project_ref_confirmation": true
+  },
+  "static_gate": "STEP12_RESTORE_CUTOVER_STATIC_GATE=PASSED",
+  "external_gate": "A real replacement restore plus platform reconfiguration/smoke tests/cutover rehearsal is still required."
+}

@@ -1,0 +1,18 @@
+{
+  "timestamp": "2026-10-06T06:15:00+02:00",
+  "step": 12,
+  "microstep": "12A-operational-health-live",
+  "checks_passed": 12,
+  "checks_total": 12,
+  "observed": {
+    "backup_status": "QUEUED",
+    "pending_backup_count": 1,
+    "verified_backup": false,
+    "rpo_within_target": false,
+    "restore_jobs": 0,
+    "workers_unhealthy": 4,
+    "rpo_target_minutes": 60,
+    "rto_target_minutes": 60
+  },
+  "note": "Probe used a rollback-only SUPER_ADMIN session with password+TOTP claims; no test rows persisted."
+}

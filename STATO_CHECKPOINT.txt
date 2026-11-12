@@ -1,0 +1,30 @@
+Plateform — checkpoint sviluppo 4 ottobre 2026
+
+Step 12 Backup/Restore/Continuità: IN_PROGRESS. Control plane interno consolidato; nessuna dichiarazione di production readiness.
+
+Migrazioni development/local correnti: 130/130. Il rehearsal storico del 4 ottobre era stato eseguito su 106/106 migration con hash aggregato 74776e587ba374f2be0f7efc55aff8bf933d4cce18d9040d0c8d8be79e01068b e deve essere rieseguito sulla migration history corrente prima della certificazione Step 12.
+
+Regressione Step 12 corrente: 34/34 gate PASS, inclusi backup/restore workers, retention, migration history, Storage metadata, private-state recovery/sanitization, replica, HMAC, ambiguous commit, keyring, pre-restore, release metadata, server-key validation, installer con replica indipendente e hardening control plane del 6 ottobre 2026.
+
+Rehearsal disposable assistito: schema/public/Auth/Storage e smoke Super Admin verificati; target plateform-restore-test poi messo in pausa. Non equivale al restore-test worker da artefatto cifrato.
+
+Live development: control plane Step 12 fail-closed e verificato; il rehearsal reale su artefatto cifrato/target disposable resta il gate aperto prima della certificazione.
+
+Bloccanti Step 12: esecuzione del continuity runtime Plateform nell’ambiente di deployment conforme; primary+replica persistenti indipendenti; backup reale database/Auth/Storage; restore-test worker su target disposable fresco/riallineato alle 130 migration correnti. I target RPO/RTO 60/60 sono documentati ma non dichiarati garantiti; misure production, cutover rehearsal, off-host/WORM e key escrow appartengono al go-live/hardening successivo. Il progetto disposable `plateform-restore-test` esiste ma la sua riattivazione è attualmente bloccata dal limite Supabase Free di due progetti attivi.
+
+Typecheck/lint/build completi: BLOCKED_LOCAL_ENVIRONMENT (runtime corrente Node 22.16 e dipendenze non installabili completamente).
+
+Nuovo hardening host: toolchain.lock.env, bootstrap user-level con checksum Node, Supabase CLI pin, rootless Docker preflight e activation/deactivation fail-closed dei timer.
+Configurazione secret: configuratore interattivo no-echo, validazione col parser reale, write atomico continuity.env 0600; activation resta fail-closed.
+
+STEP11 update 2026-10-05:
+- Recovered checkpoint aligned to 106/106 live migrations on plateform-development.
+- Public multi-venue routing/booking context hardened; dedicated venue page added.
+- Mobile public navigation accessibility, contrast guards, safe social/privacy links and technical SEO hardened.
+- public-telemetry Edge Function deployed ACTIVE v1; anon direct telemetry/audit writes denied live.
+- STEP11 static gate, migration gate, changed-source TS transpile diagnostics and pure runtime gate pass.
+- STEP11 remains IN_PROGRESS: authenticated asset upload browser E2E, Node>=24.13 full toolchain gate, real-browser WCAG/performance and real HTTPS public/staff separation remain open.
+- Progress registry corrected: STEP7-10 are IN_PROGRESS (live implementation exists), not TODO; none are marked COMPLETE without DoD revalidation.
+
+- Deployment config drift fixed: asset-upload/payments JWT settings aligned to live; public-telemetry registered.
+- Security Advisor reviewed; leaked-password protection remains an infrastructure/go-live item because current Supabase org is Free.

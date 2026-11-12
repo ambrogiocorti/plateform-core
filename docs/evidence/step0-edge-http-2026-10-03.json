@@ -1,0 +1,257 @@
+{
+  "checked_at": "2026-10-03T17:57:56.999Z",
+  "project_ref": "abdxvlykasqmknexxhjo",
+  "environment": "development",
+  "endpoint": "health-probe",
+  "status": "PASSED",
+  "results": [
+    {
+      "name": "anonymous_denied",
+      "status": "PASSED",
+      "http_status": 401,
+      "code": "UNAUTHORIZED",
+      "request_id": "ad1936b9-ac23-4ce7-9c56-a5509524f78d",
+      "correlation_id": "f5ccfd08-52f1-40ae-9575-4f94c0d8cda8",
+      "assertions": {
+        "status": true,
+        "code": true,
+        "request_context": true,
+        "correlation_context": true,
+        "body_context": true,
+        "minimal_error": true,
+        "no_store": true,
+        "no_sniff": true,
+        "cors": true
+      }
+    },
+    {
+      "name": "allowed_staff_origin",
+      "status": "PASSED",
+      "http_status": 401,
+      "code": "UNAUTHORIZED",
+      "request_id": "30c4ce5a-1d3a-4680-a96d-5848de64db09",
+      "correlation_id": "959ab4ae-24cf-49ad-bc50-09a70010e0d9",
+      "assertions": {
+        "status": true,
+        "code": true,
+        "request_context": true,
+        "correlation_context": true,
+        "body_context": true,
+        "minimal_error": true,
+        "no_store": true,
+        "no_sniff": true,
+        "cors": true
+      }
+    },
+    {
+      "name": "allowed_public_origin",
+      "status": "PASSED",
+      "http_status": 401,
+      "code": "UNAUTHORIZED",
+      "request_id": "0a55970b-82ea-4aa8-92c8-14d1d595252f",
+      "correlation_id": "40d05c2e-b10f-4c1a-8de7-69bc3a279d11",
+      "assertions": {
+        "status": true,
+        "code": true,
+        "request_context": true,
+        "correlation_context": true,
+        "body_context": true,
+        "minimal_error": true,
+        "no_store": true,
+        "no_sniff": true,
+        "cors": true
+      }
+    },
+    {
+      "name": "forbidden_origin",
+      "status": "PASSED",
+      "http_status": 403,
+      "code": "ORIGIN_FORBIDDEN",
+      "request_id": "4ee11aee-fef7-47f1-b421-d85b2c4dda1f",
+      "correlation_id": "dbf59ff5-4ec7-4bc1-897d-3cfbb26bf20b",
+      "assertions": {
+        "status": true,
+        "code": true,
+        "request_context": true,
+        "correlation_context": true,
+        "body_context": true,
+        "minimal_error": true,
+        "no_store": true,
+        "no_sniff": true,
+        "cors": true
+      }
+    },
+    {
+      "name": "allowed_preflight",
+      "status": "PASSED",
+      "http_status": 204,
+      "code": null,
+      "request_id": "c44a548c-7bed-4a28-b52f-89540cc1ead2",
+      "correlation_id": "f52966ef-0c37-4852-99bd-ea3119bf3319",
+      "assertions": {
+        "status": true,
+        "code": true,
+        "request_context": true,
+        "correlation_context": true,
+        "body_context": true,
+        "minimal_error": true,
+        "no_store": true,
+        "no_sniff": true,
+        "cors": true
+      }
+    },
+    {
+      "name": "forbidden_preflight",
+      "status": "PASSED",
+      "http_status": 403,
+      "code": "ORIGIN_FORBIDDEN",
+      "request_id": "5f4b8868-a28a-44df-bdac-09e74a3753a4",
+      "correlation_id": "105c0e30-092b-484a-ba38-a30ed769a6c1",
+      "assertions": {
+        "status": true,
+        "code": true,
+        "request_context": true,
+        "correlation_context": true,
+        "body_context": true,
+        "minimal_error": true,
+        "no_store": true,
+        "no_sniff": true,
+        "cors": true
+      }
+    },
+    {
+      "name": "method_rejected",
+      "status": "PASSED",
+      "http_status": 405,
+      "code": "METHOD_NOT_ALLOWED",
+      "request_id": "8db87a71-a32c-4b95-b9f8-ca3b8ad69eec",
+      "correlation_id": "ff57789b-9417-491d-85c0-ef0ff4bb1154",
+      "assertions": {
+        "status": true,
+        "code": true,
+        "request_context": true,
+        "correlation_context": true,
+        "body_context": true,
+        "minimal_error": true,
+        "no_store": true,
+        "no_sniff": true,
+        "cors": true
+      }
+    },
+    {
+      "name": "content_type_rejected",
+      "status": "PASSED",
+      "http_status": 400,
+      "code": "INVALID_PAYLOAD",
+      "request_id": "69334e36-87f8-48bd-b7e8-e576627dfdc4",
+      "correlation_id": "0089db78-09a6-46df-95b5-63bd9894d002",
+      "assertions": {
+        "status": true,
+        "code": true,
+        "request_context": true,
+        "correlation_context": true,
+        "body_context": true,
+        "minimal_error": true,
+        "no_store": true,
+        "no_sniff": true,
+        "cors": true
+      }
+    },
+    {
+      "name": "malformed_json",
+      "status": "PASSED",
+      "http_status": 400,
+      "code": "INVALID_PAYLOAD",
+      "request_id": "fc4736e0-10d7-45dc-9fbd-24a80db90b04",
+      "correlation_id": "76933251-03f5-4d4b-9b7e-68950c539de8",
+      "assertions": {
+        "status": true,
+        "code": true,
+        "request_context": true,
+        "correlation_context": true,
+        "body_context": true,
+        "minimal_error": true,
+        "no_store": true,
+        "no_sniff": true,
+        "cors": true
+      }
+    },
+    {
+      "name": "unknown_fields_rejected",
+      "status": "PASSED",
+      "http_status": 400,
+      "code": "INVALID_PAYLOAD",
+      "request_id": "9dbb01fb-9dbe-4c42-96ff-cab60fc943cc",
+      "correlation_id": "430794d9-9682-41d3-9868-1e43dd197678",
+      "assertions": {
+        "status": true,
+        "code": true,
+        "request_context": true,
+        "correlation_context": true,
+        "body_context": true,
+        "minimal_error": true,
+        "no_store": true,
+        "no_sniff": true,
+        "cors": true
+      }
+    },
+    {
+      "name": "oversized_body_rejected",
+      "status": "PASSED",
+      "http_status": 400,
+      "code": "PAYLOAD_TOO_LARGE",
+      "request_id": "24b8c28e-16cd-4c89-a53c-578f8d14d4ed",
+      "correlation_id": "ad6ece4b-80a6-4de4-8f01-c87db7e54545",
+      "assertions": {
+        "status": true,
+        "code": true,
+        "request_context": true,
+        "correlation_context": true,
+        "body_context": true,
+        "minimal_error": true,
+        "no_store": true,
+        "no_sniff": true,
+        "cors": true
+      }
+    },
+    {
+      "name": "invalid_context_regenerated",
+      "status": "PASSED",
+      "http_status": 401,
+      "code": "UNAUTHORIZED",
+      "request_id": "40b9126b-8008-4715-92e6-881a563680fc",
+      "correlation_id": "40b9126b-8008-4715-92e6-881a563680fc",
+      "assertions": {
+        "status": true,
+        "code": true,
+        "request_context": true,
+        "correlation_context": true,
+        "body_context": true,
+        "minimal_error": true,
+        "no_store": true,
+        "no_sniff": true,
+        "cors": true
+      }
+    },
+    {
+      "name": "forged_authentication_denied",
+      "status": "PASSED",
+      "http_status": 401,
+      "code": "UNAUTHORIZED",
+      "request_id": "ea2e7eca-f6a8-4165-a621-38289c44308a",
+      "correlation_id": "ae0efe4b-8011-4f2b-98ae-cb9b59507440",
+      "assertions": {
+        "status": true,
+        "code": true,
+        "request_context": true,
+        "correlation_context": true,
+        "body_context": true,
+        "minimal_error": true,
+        "no_store": true,
+        "no_sniff": true,
+        "cors": true
+      }
+    }
+  ],
+  "limits": ["Does not certify privileged health probes or authenticated domain workflows."]
+}

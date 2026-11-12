@@ -1,0 +1,134 @@
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import { spawnSync } from 'node:child_process';
+import { createVercelConfiguration } from './vercel-configuration.mjs';
+const project = 'https://qfgoatdabgnzozxuzxku.supabase.co';
+const staging = createVercelConfiguration({ supabaseUrl: project, mode: 'staging' });
+const verified = JSON.parse(await readFile('vercel.json', 'utf8'));
+let n = 0;
+const check = (fn) => {
+  fn();
+  n++;
+};
+check(() => assert.deepEqual(verified, staging));
+check(() => assert.equal(verified.framework, null));
+check(() => assert.equal(verified.outputDirectory, 'dist/site'));
+check(() => assert.equal(verified.installCommand, 'npm ci'));
+check(() => assert.equal(verified.buildCommand, 'npm run build:pages'));
+check(() => assert.equal(Object.hasOwn(verified, 'public'), false));
+const paths = verified.rewrites.map((r) => r.source);
+check(() => assert.ok(paths.includes('/staff/:page([a-z0-9-]+)')));
+check(() => assert.ok(paths.includes('/menu/:slug([a-z0-9-]+)')));
+check(() => assert.ok(paths.includes('/lista-attesa')));
+check(() => assert.ok(paths.includes('/lista-attesa/offerta')));
+check(() => assert.ok(paths.includes('/tavolo/:token([a-zA-Z0-9-]+)')));
+check(() =>
+  assert.equal(
+    paths.some((p) => p === '/:path*' || p === '/(.*)'),
+    false,
+  ),
+);
+check(() =>
+  assert.equal(
+    paths.some((p) => p.includes('assets')),
+    false,
+  ),
+);
+check(() =>
+  assert.equal(
+    verified.headers.some((r) => r.source === '/(.*)'),
+    true,
+  ),
+);
+const global = Object.fromEntries(
+  verified.headers.find((r) => r.source === '/(.*)').headers.map((h) => [h.key, h.value]),
+);
+check(() => assert.match(global['Content-Security-Policy'], /default-src 'none'/));
+check(() =>
+  assert.match(global['Content-Security-Policy'], /https:\/\/qfgoatdabgnzozxuzxku\.supabase\.co/),
+);
+check(() =>
+  assert.match(global['Content-Security-Policy'], /wss:\/\/qfgoatdabgnzozxuzxku\.supabase\.co/),
+);
+check(() =>
+  assert.doesNotMatch(
+    global['Content-Security-Policy'],
+    /script-src 'unsafe-inline'|https:\/\/\*\.supabase\.co/,
+  ),
+);
+check(() => assert.equal(global['X-Robots-Tag'], 'noindex, nofollow'));
+check(() => assert.equal(global['Strict-Transport-Security'], 'max-age=31536000'));
+check(() =>
+  assert.equal(
+    verified.headers
+      .find((r) => r.source === '/lista-attesa/offerta')
+      ?.headers.some((h) => h.key === 'Cache-Control' && h.value === 'private, no-store'),
+    true,
+  ),
+);
+check(() =>
+  assert.equal(
+    verified.headers.some(
+      (r) =>
+        r.source === '/staff/:path*' &&
+        r.headers.some((h) => h.key === 'Cache-Control' && h.value === 'private, no-store'),
+    ),
+    true,
+  ),
+);
+check(() =>
+  assert.doesNotMatch(
+    JSON.stringify(verified),
+    /service_role|sb_secret_|PRIVATE_KEY|STRIPE_SECRET/,
+  ),
+);
+check(() =>
+  assert.throws(
+    () =>
+      createVercelConfiguration({
+        supabaseUrl: 'https://someone@abdxvlykasqmknexxhjo.supabase.co',
+      }),
+    /INVALID_VERCEL_SUPABASE_ORIGIN/,
+  ),
+);
+check(() =>
+  assert.throws(
+    () => createVercelConfiguration({ supabaseUrl: 'http://localhost:54321' }),
+    /INVALID_VERCEL_SUPABASE_ORIGIN/,
+  ),
+);
+check(() =>
+  assert.throws(
+    () => createVercelConfiguration({ supabaseUrl: project, mode: 'production' }),
+    /PRODUCTION_CONFIG_REQUIRES_EXPLICIT_AUTHORIZATION/,
+  ),
+);
+
+const workflow = (await readFile('.github/workflows/staging-readiness.yml', 'utf8')).replace(
+  /\r\n/g,
+  '\n',
+);
+check(() => assert.match(workflow, /node-version: '24'/));
+check(() => assert.match(workflow, /run: npm ci/));
+check(() => assert.match(workflow, /npm run format:check/));
+check(() => assert.match(workflow, /npm run check\n/));
+check(() => assert.match(workflow, /npx playwright install --with-deps chromium/));
+check(() => assert.match(workflow, /run: npm run test:e2e/));
+check(() => assert.match(workflow, /node scripts\/reconcile-migrations\.mjs --dry-run/));
+check(() => assert.match(workflow, /run: npm run build:pages/));
+check(() => assert.match(workflow, /run: npm run check:staging-http/));
+check(() => assert.match(workflow, /STAGING_SUPABASE_DB_URL/));
+
+for (const [backend, succeeds] of [
+  [project, true],
+  ['https://other-project.supabase.co', false],
+]) {
+  const result = spawnSync(process.execPath, ['scripts/check-vercel-runtime.mjs'], {
+    env: { ...process.env, VERCEL: '1', VITE_SUPABASE_URL: backend },
+    encoding: 'utf8',
+  });
+  check(() => assert.equal(result.status === 0, succeeds));
+  if (!succeeds) check(() => assert.match(result.stderr, /VERCEL_BACKEND_CSP_MISMATCH/));
+}
+
+console.log(`STEP11_VERCEL_STAGING_CONFIG=PASS (${n}/${n} assertions)`);

@@ -1,0 +1,34 @@
+{
+  "date": "2026-10-04",
+  "step": 12,
+  "status": "CANONICAL_DUMP_RESTORE_CONTRACT_PASSED_STATIC",
+  "basis": "Current Supabase backup/restore documentation",
+  "backup_contract": {
+    "roles": "supabase db dump --role-only",
+    "schema": "supabase db dump",
+    "data": "supabase db dump --use-copy --data-only",
+    "auth": "verified inside data.sql via COPY auth.users",
+    "separate_auth_sql": false,
+    "storage_metadata": "database dump",
+    "storage_bytes": "separate service-role export",
+    "encryption": "AES-256-GCM per artifact"
+  },
+  "restore_contract": {
+    "database_sequence": [
+      "roles.sql",
+      "schema.sql",
+      "SET session_replication_role = replica",
+      "data.sql"
+    ],
+    "storage_bytes": "upload with upsert onto database-restored metadata",
+    "auth_user_count_gate": true,
+    "storage_sha256_gate": true
+  },
+  "regression": {
+    "backup_worker": "PASSED",
+    "restore_test_worker": "PASSED",
+    "restore_worker": "PASSED",
+    "continuity_contract": "PASSED"
+  },
+  "remaining_gate": "Real backup + isolated restore test on operational infrastructure"
+}
