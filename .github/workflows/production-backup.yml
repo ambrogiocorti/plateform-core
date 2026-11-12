@@ -46,6 +46,10 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '24.13.0'
+          cache: npm
+      # The worker loads @supabase/supabase-js for the Storage export.
+      - name: Install dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
       - uses: supabase/setup-cli@45a513f8c64c0bc8e0e3dfe572b5c95be85f6359 # v3
         with:
           version: 2.119.0
