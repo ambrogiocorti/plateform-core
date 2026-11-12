@@ -1,0 +1,101 @@
+# Manual, non-destructive restore test of a production backup made by production-backup.yml.
+#
+# Restores the encrypted artifact into a SEPARATE, EMPTY, disposable Supabase project (never production:
+# tools/restore-test-worker refuses the source ref and an occupied target) and runs the worker's gates
+# (database, auth, storage, manifest, rls, accounts, payments, audit, sessions, devices). On production it only
+# writes the restore_jobs lifecycle, backup_metadata.last_restore_test_at and audit rows.
+#
+# Needs, in the `plateform-production-backup` environment, the production backup secrets plus:
+#   PLATEFORM_RESTORE_TEST_SUPABASE_URL, PLATEFORM_RESTORE_TEST_SECRET_KEY, PLATEFORM_RESTORE_TEST_DB_URL
+# Delete the disposable project after the run.
+name: Plateform production restore test
+
+on:
+  workflow_dispatch:
+    inputs:
+      backup_run_id:
+        description: 'Run id of the "Plateform production backup" run that holds the artifact'
+        required: true
+      backup_id:
+        description: 'backup_metadata.id to restore (UUID)'
+        required: true
+      target_project_ref:
+        description: 'Ref of the disposable target project (typed again as confirmation)'
+        required: true
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: plateform-production-restore-test
+  cancel-in-progress: false
+
+jobs:
+  restore-test:
+    if: github.repository == 'ambrogiocorti/plateform-core'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    environment: plateform-production-backup
+    env:
+      SUPABASE_URL: ${{ secrets.PLATEFORM_BACKUP_SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.PLATEFORM_BACKUP_SUPABASE_SECRET_KEY }}
+      PLATEFORM_BACKUP_ENCRYPTION_KEY_BASE64: ${{ secrets.PLATEFORM_BACKUP_ENCRYPTION_KEY_BASE64 }}
+      PLATEFORM_BACKUP_ENCRYPTION_KEY_ID: ${{ vars.PLATEFORM_BACKUP_ENCRYPTION_KEY_ID }}
+      PLATEFORM_BACKUP_ROOT: /home/runner/plateform-backup/primary
+      PLATEFORM_RESTORE_TEST_SUPABASE_URL: ${{ secrets.PLATEFORM_RESTORE_TEST_SUPABASE_URL }}
+      PLATEFORM_RESTORE_TEST_SERVICE_ROLE_KEY: ${{ secrets.PLATEFORM_RESTORE_TEST_SECRET_KEY }}
+      PLATEFORM_RESTORE_TEST_DB_URL: ${{ secrets.PLATEFORM_RESTORE_TEST_DB_URL }}
+      PLATEFORM_RESTORE_TEST_CONFIRM_PROJECT_REF: ${{ inputs.target_project_ref }}
+      PLATEFORM_RESTORE_TEST_ALLOW_DESTRUCTIVE: 'true'
+      BACKUP_ID: ${{ inputs.backup_id }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24.13.0'
+          cache: npm
+      - name: Install dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Install PostgreSQL 17 client
+        run: |
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl -fsSL -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt noble-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list >/dev/null
+          sudo apt-get update -q
+          sudo apt-get install -y -q postgresql-client-17
+          echo "PSQL_BIN=/usr/lib/postgresql/17/bin/psql" >> "$GITHUB_ENV"
+      - name: Download the encrypted backup
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: plateform-production-backup-${{ inputs.backup_run_id }}
+          run-id: ${{ inputs.backup_run_id }}
+          github-token: ${{ github.token }}
+          path: /home/runner/plateform-backup/primary
+      - name: Check the backup and the target
+        run: |
+          case "$BACKUP_ID" in
+            *[!0-9a-f-]*|'') echo 'backup_id must be a lowercase UUID' >&2; exit 1 ;;
+          esac
+          test -f "/home/runner/plateform-backup/primary/$BACKUP_ID/manifest.json"
+          chmod -R go-rwx /home/runner/plateform-backup
+          node tools/restore-test-worker/start.mjs --check
+      - name: Queue the restore test on production
+        run: |
+          node --input-type=module -e '
+            const { createClient } = await import("@supabase/supabase-js");
+            const db = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, {
+              auth: { persistSession: false, autoRefreshToken: false },
+            });
+            const { data, error } = await db.rpc("enqueue_restore_test_job", { p_backup: process.env.BACKUP_ID });
+            if (error) { console.error(JSON.stringify({ status: "ENQUEUE_FAILED", code: error.code, message: error.message })); process.exit(1); }
+            console.log(JSON.stringify(data));
+          '
+      - name: Restore into the disposable project and verify
+        run: |
+          output="$(node tools/restore-test-worker/start.mjs --once)"
+          echo "$output"
+          status="$(node -e 'process.stdout.write(JSON.parse(process.argv[1]).status ?? "")' "$output")"
+          test "$status" = "SUCCEEDED"
