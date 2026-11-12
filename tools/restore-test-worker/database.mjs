@@ -1,5 +1,6 @@
 import { spawn } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
+import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { decryptVerified } from '../backup-worker/crypto.mjs';
 import { resolveBackupArtifact } from '../backup-worker/filesystem.mjs';
@@ -66,9 +67,36 @@ begin
   end loop;
 end $reset$;`;
 
+// pg_dumpall (behind `supabase db dump --role-only`) also dumps parameter
+// privileges such as `GRANT SET ON PARAMETER log_min_messages TO
+// "supabase_realtime_admin"`. They are granted by supabase_admin and managed by
+// the platform: a hosted target already carries them and its `postgres` role
+// cannot re-grant them ("permission denied for parameter"). Drop only those
+// statements; every role, membership and attribute is still restored.
+const PARAMETER_PRIVILEGE_STATEMENT = /^\s*(GRANT|REVOKE)\b[^;]*\bON\s+PARAMETER\b[^;]*;\s*$/i;
+
+export function withoutParameterPrivileges(sql) {
+  const kept = [];
+  let removed = 0;
+  for (const line of sql.split('\n')) {
+    if (PARAMETER_PRIVILEGE_STATEMENT.test(line)) removed += 1;
+    else kept.push(line);
+  }
+  return { sql: kept.join('\n'), removed };
+}
+
+async function restorableRoles(path) {
+  const { sql, removed } = withoutParameterPrivileges(await readFile(path, 'utf8'));
+  if (!removed) return path;
+  const filtered = `${path}.restore.sql`;
+  await writeFile(filtered, sql, { mode: 0o600 });
+  return filtered;
+}
+
 export async function restoreDatabase(config, files) {
   // Match Supabase's documented logical restore sequence. Auth data and Storage
   // metadata are already part of data.sql; Storage object bytes are restored later.
+  const roles = await restorableRoles(files.roles);
   await run(
     config.psql,
     [
@@ -76,7 +104,7 @@ export async function restoreDatabase(config, files) {
       '--variable',
       'ON_ERROR_STOP=1',
       '--file',
-      files.roles,
+      roles,
       '--command',
       RESET_TARGET_DEFAULT_PRIVILEGES_SQL,
       '--file',
