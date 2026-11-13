@@ -3005,6 +3005,12 @@
       "version": "20261109140000",
       "name": "venue_hub_cloud_ingest",
       "sha256": "a196bae56e1735acce66dd3cc36a42545ef2b68581e660f35ec0584258dabee3"
+    },
+    {
+      "filename": "20261113150000_venue_hub_status.sql",
+      "version": "20261113150000",
+      "name": "venue_hub_status",
+      "sha256": "361999aac0c3d345a542a864f9557a551810ff5996a0c030e40dcb76e7be7142"
     }
   ]
 }

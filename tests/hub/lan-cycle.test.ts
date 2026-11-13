@@ -400,6 +400,21 @@ describe('Venue hub LAN cycle (ADR-0001 minimal proof)', () => {
     ).toBe(1);
     expect(await count(`public.staff_profiles where id='${ids.waiter}' and role='WAITER'`)).toBe(1);
 
+    // The venue administrator sees the hub status (never its secret digest); other roles do not.
+    await identity(cloud, ids.admin);
+    const status = (
+      await cloud.query<{ r: Record<string, unknown>[] }>('select public.get_venue_hubs($1) as r', [
+        ids.venue,
+      ])
+    ).rows[0]!.r;
+    expect(status).toHaveLength(1);
+    expect(status[0]).toMatchObject({ hub_id: 'hub-sede-uno', generation: 2 });
+    expect(Number(status[0]!.quarantined)).toBeGreaterThan(0);
+    expect(JSON.stringify(status)).not.toContain('token');
+    await identity(cloud, ids.waiter);
+    await expect(cloud.query('select public.get_venue_hubs($1)', [ids.venue])).rejects.toThrow();
+    await cloud.exec('reset role');
+
     // Fencing: the secret of generation 1 was rotated, generation 1 is refused even
     // with the current secret, and a generation that was never promoted is refused.
     const next = [{ ...forged[0]!, seq: base + 100 }];

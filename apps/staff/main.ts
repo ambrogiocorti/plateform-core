@@ -930,7 +930,7 @@ async function render(): Promise<void> {
     else if (pageLink.path === '/sedi')
       content = await (await import('../../src/pages/venues')).venuesPage(context);
     else if (pageLink.path === '/hub')
-      content = await (await import('../../src/pages/venue-hub')).venueHubPage();
+      content = await (await import('../../src/pages/venue-hub')).venueHubPage(context);
     else if (pageLink.path === '/dispositivi')
       content = await (await import('../../src/pages/devices')).devicesPage(context);
     else if (pageLink.path === '/stampe')

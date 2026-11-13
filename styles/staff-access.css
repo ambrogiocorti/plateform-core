@@ -292,3 +292,12 @@ body:has(#app > .login-layout-v5) {
 .hub-login-layout .login-panel-content {
   max-width: none;
 }
+.hub-secret {
+  display: block;
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--pf-surface);
+  font-size: 15px;
+  overflow-wrap: anywhere;
+  user-select: all;
+}

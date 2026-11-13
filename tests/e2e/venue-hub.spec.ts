@@ -225,3 +225,115 @@ test('with the cloud unreachable, a cook unlocks on the paired screen with the P
   await page.getByRole('button', { name: 'Blocca', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Chi inizia il servizio?' })).toBeVisible();
 });
+
+test('a venue administrator registers the hub and sees its secret only once', async ({ page }) => {
+  const admin = ids.admin;
+  await page.addInitScript((user) => {
+    const jwt = `${btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }))}.${btoa(JSON.stringify({ sub: user, aal: 'aal2', role: 'authenticated', exp: Math.floor(Date.now() / 1000) + 3600 }))}.fixture`;
+    localStorage.setItem(
+      'plateform-auth-staff',
+      JSON.stringify({
+        access_token: jwt,
+        refresh_token: 'fixture',
+        token_type: 'bearer',
+        expires_in: 3600,
+        expires_at: Math.floor(Date.now() / 1000) + 3600,
+        user: {
+          id: user,
+          aud: 'authenticated',
+          role: 'authenticated',
+          email: 'admin@staff.test',
+          app_metadata: {},
+          user_metadata: {},
+        },
+      }),
+    );
+  }, admin);
+  const secret = 'A'.repeat(20) + '_-' + 'b'.repeat(21);
+  const calls: { name: string; body: unknown }[] = [];
+  let registered = false;
+  await page.route('**/auth/v1/health', (route) => route.fulfill({ json: {} }));
+  await page.route('**/rest/v1/**', async (route) => {
+    const name = new URL(route.request().url()).pathname.split('/').at(-1)!;
+    calls.push({ name, body: route.request().postDataJSON() as unknown });
+    let data: unknown = [];
+    if (name === 'get_auth_requirements')
+      data = {
+        role: 'ADMIN',
+        display_name: 'Admin',
+        active: true,
+        mfa_required: false,
+        installation_active: true,
+        setup_required: false,
+        session_unlocked: true,
+        pin_enabled: true,
+        password_required: false,
+        full_auth_expires_at: new Date(Date.now() + 3600000).toISOString(),
+        retry_after_seconds: 0,
+      };
+    else if (name === 'staff_profiles')
+      data = {
+        id: admin,
+        display_name: 'Admin',
+        role: 'ADMIN',
+        scope: 'VENUE',
+        active: true,
+        version: 1,
+      };
+    else if (name === 'venues')
+      data = [
+        {
+          id: ids.venue,
+          name: 'Sede uno',
+          slug: 'sede-uno',
+          address: 'Via test 1',
+          phone: '+390000000001',
+          email: null,
+          opening_hours: {},
+          timezone: 'Europe/Rome',
+          currency: 'EUR',
+          locale: 'it-IT',
+          version: 1,
+        },
+      ];
+    else if (name === 'feature_flags') data = [{ name: 'MULTI_VENUE', licensed: false }];
+    else if (name === 'heartbeat_device') data = true;
+    else if (name === 'get_notification_summary')
+      data = { new_count: 0, badge_count: 0, active_count: 0, alerts: [], rules: {} };
+    else if (name === 'get_venue_hubs')
+      data = registered
+        ? [
+            {
+              hub_id: 'hub-sede-uno',
+              generation: 1,
+              applied_seq: 0,
+              last_ingest_at: null,
+              created_at: new Date().toISOString(),
+              revoked_at: null,
+              quarantined: 0,
+            },
+          ]
+        : [];
+    else if (name === 'register_venue_hub') {
+      registered = true;
+      data = { hub_id: 'hub-sede-uno', generation: 1, secret };
+    }
+    await route.fulfill({ json: data });
+  });
+  await page.goto('http://localhost:5174/hub');
+  await expect(page.getByText('Nessun hub registrato per questa sede.')).toBeVisible();
+  await expect(page.getByLabel('Nome dell’hub')).toHaveValue('hub-sede-uno');
+  await page.getByRole('button', { name: 'Registra l’hub di questa sede' }).click();
+  await expect(page.locator('.hub-secret')).toHaveText(secret);
+  await expect(page.getByText(/functions\/v1\/venue-hub-ingest/)).toBeVisible();
+  expect(calls.find((c) => c.name === 'register_venue_hub')?.body).toEqual({
+    p_venue: ids.venue,
+    p_hub: 'hub-sede-uno',
+  });
+  await page.screenshot({ path: 'test-results/venue-hub-registration.png', fullPage: true });
+  await page.getByRole('button', { name: 'Ho salvato la chiave' }).click();
+  await expect(page.locator('.hub-secret')).toHaveCount(0);
+  await expect(page.getByText('Nessun invio ricevuto finora · generazione 1')).toBeVisible();
+  // One hub per venue: registering again is replaced by the replacement action.
+  await expect(page.getByRole('button', { name: 'Registra l’hub di questa sede' })).toBeHidden();
+});
