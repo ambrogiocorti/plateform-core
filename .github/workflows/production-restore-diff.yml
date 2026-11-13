@@ -1,0 +1,37 @@
+# Read-only diagnosis after a restore test fails on the security_surface gate: prints which catalog lines
+# (ACLs, RLS flags, policies, triggers, event triggers, publications) differ between production and the
+# disposable restore target. Reads both databases, writes nothing.
+name: Plateform restore surface diff
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diff:
+    if: github.repository == 'ambrogiocorti/plateform-core'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    environment: plateform-production-backup
+    env:
+      SOURCE_DB_URL: ${{ secrets.PLATEFORM_BACKUP_SUPABASE_DB_URL }}
+      TARGET_DB_URL: ${{ secrets.PLATEFORM_RESTORE_TEST_DB_URL }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24.13.0'
+      - name: Install PostgreSQL 17 client
+        run: |
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl -fsSL -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt noble-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list >/dev/null
+          sudo apt-get update -q
+          sudo apt-get install -y -q postgresql-client-17
+          echo "PSQL_BIN=/usr/lib/postgresql/17/bin/psql" >> "$GITHUB_ENV"
+      - name: Diff the security surface
+        run: node scripts/diff-security-surface.mjs
