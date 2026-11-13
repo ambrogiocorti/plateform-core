@@ -32,9 +32,12 @@ import { client } from '../../src/api/client';
 import { lockedPage, lockSession, editPin } from '../../src/auth/lock';
 import { watchLive } from '../../src/realtime/live';
 import type { ConnectionState } from '../../src/realtime/live';
-import { loadContext } from '../../src/pages/staff-context';
+import { loadContext, loadHubContext } from '../../src/pages/staff-context';
 import type { StaffContext } from '../../src/pages/staff-context';
 import type { UserRole } from '../../src/types/domain';
+import { closeHubStaffSession, hubLink, hubStaffSession } from '../../src/api/venue-hub';
+import { hubLoginPage } from '../../src/auth/hub-login';
+import { connectivitySummary, probeConnectivity } from '../../src/services/connectivity';
 import {
   clearNotificationIndicator,
   notificationIndicator,
@@ -48,6 +51,8 @@ document.body.classList.add('staff-workspace');
 let renderRevision = 0;
 let recoveryIntent = consumePasswordRecoveryIntent();
 let currentContext: StaffContext | null = null;
+// Set when someone at a paired device prefers the cloud login over the PIN.
+let passwordLoginChosen = false;
 let authExpiryTimer: ReturnType<typeof setTimeout> | undefined;
 let liveKey = '';
 let stopLive: (() => void) | undefined;
@@ -59,6 +64,40 @@ function connectionLabel(): string {
     DEGRADED: 'Aggiornamenti da verificare',
     OFFLINE: 'MODALITÀ OFFLINE',
   }[connectionState];
+}
+// Shown only on devices paired with the venue hub: Internet, hub, cloud and
+// sync are reported separately so a working Wi-Fi is never read as "cloud OK".
+// The shell re-renders often: keep one probe loop and repaint each new badge
+// from the last known state, so a refresh never flashes "unknown" or adds traffic.
+let connectivityLoop: ReturnType<typeof setTimeout> | undefined;
+let lastConnectivity: ReturnType<typeof connectivitySummary> | undefined;
+function paintConnectivity(): void {
+  const badge = document.querySelector<HTMLElement>('.connectivity-badge');
+  if (!badge || !lastConnectivity) return;
+  badge.textContent = lastConnectivity.text;
+  badge.dataset.tone = lastConnectivity.tone;
+  badge.title = lastConnectivity.detail.join('\n');
+}
+function connectivityBadge(): HTMLElement | null {
+  if (!hubLink()) return null;
+  const badge = el(
+    'span',
+    { class: 'status connectivity-badge', role: 'status', 'aria-live': 'polite' },
+    lastConnectivity?.text ?? 'Verifica hub…',
+  );
+  if (lastConnectivity) {
+    badge.dataset.tone = lastConnectivity.tone;
+    badge.title = lastConnectivity.detail.join('\n');
+  }
+  if (!connectivityLoop) {
+    const probe = async () => {
+      lastConnectivity = connectivitySummary(await probeConnectivity());
+      paintConnectivity();
+      connectivityLoop = setTimeout(() => void probe(), 20_000);
+    };
+    connectivityLoop = setTimeout(() => void probe(), 0);
+  }
+  return badge;
 }
 function disconnectLive(): void {
   stopLive?.();
@@ -150,6 +189,12 @@ const navigation: {
     section: 'OPERATIVITÀ',
   },
   { path: '/conflitti', label: 'Conflitti offline', roles: ['ADMIN'], section: 'OPERATIVITÀ' },
+  {
+    path: '/hub',
+    label: 'Hub di sede',
+    roles: ['ADMIN', 'SUPER_ADMIN'],
+    section: 'CONFIGURAZIONE',
+  },
   {
     path: '/dispositivi',
     label: 'Dispositivi',
@@ -306,6 +351,7 @@ function pageDescription(path: string): string {
     '/stampe': 'Documenti in coda, esiti e ristampe.',
     '/privacy': 'Richieste sui dati e tempi di conservazione.',
     '/dispositivi': 'Postazioni, collegamenti e accessi autorizzati.',
+    '/hub': 'Continuità del servizio sulla rete del locale e stato dei collegamenti.',
     '/conflitti': 'Operazioni offline da verificare e riconciliare.',
     '/modifiche': 'Richieste di modifica e annullamento delle comande.',
     '/editor': 'Pianta della sala e disposizione dei tavoli.',
@@ -373,29 +419,53 @@ async function render(): Promise<void> {
     if (revision === renderRevision) app.replaceChildren(page);
     return;
   }
+  // A person who unlocked on the venue hub with the PIN works through the hub
+  // only: profile, venues and features come from the hub under their RLS.
+  const hubStaff = hubStaffSession();
   const {
     data: { session },
-  } = await client().auth.getSession();
-  const authInfo = session ? await requirements() : null;
+  } = hubStaff ? { data: { session: null } } : await client().auth.getSession();
+  // With a paired hub, an unreachable cloud leads to the PIN access in the venue
+  // instead of an error: the cloud login cannot be completed anyway.
+  let cloudUnreachable = false;
+  const authInfo = session
+    ? await requirements().catch((error: unknown) => {
+        if (!hubLink()) throw error;
+        cloudUnreachable = true;
+        return null;
+      })
+    : null;
   if (revision !== renderRevision) return;
   if (authInfo && !authInfo.session_unlocked) {
     disconnectLive();
     app.replaceChildren(lockedPage(authInfo, render));
     return;
   }
-  const profile = session ? await activeProfile() : null;
+  const hubContextLoaded = hubStaff ? await loadHubContext(navigate) : null;
+  const profile =
+    hubContextLoaded?.profile ?? (session && !cloudUnreachable ? await activeProfile() : null);
   if (revision !== renderRevision) return;
   if (!profile) {
     disconnectLive();
     if (staffPath() !== '/login') history.replaceState(null, '', staffHref('/login'));
     app.replaceChildren(
-      loginPage(async () => {
-        navigate('/');
-      }),
+      hubLink() && (cloudUnreachable || !passwordLoginChosen)
+        ? hubLoginPage(
+            async () => {
+              navigate('/');
+            },
+            () => {
+              passwordLoginChosen = true;
+              void render().catch(showError);
+            },
+          )
+        : loginPage(async () => {
+            navigate('/');
+          }),
     );
     return;
   }
-  const context = await loadContext(profile, navigate);
+  const context = hubContextLoaded ?? (await loadContext(profile, navigate));
   if (revision !== renderRevision) return;
   currentContext = context;
   context.refresh = async () => {
@@ -404,12 +474,13 @@ async function render(): Promise<void> {
     window.scrollTo(0, position);
   };
   if (revision !== renderRevision) return;
-  if (authInfo?.full_auth_expires_at)
+  const accessExpiry = hubStaff?.expires_at ?? authInfo?.full_auth_expires_at;
+  if (accessExpiry)
     authExpiryTimer = setTimeout(
       () => {
         void render().catch(showError);
       },
-      Math.max(0, Date.parse(authInfo.full_auth_expires_at) - Date.now()) + 1000,
+      Math.max(0, Date.parse(accessExpiry) - Date.now()) + 1000,
     );
   const links = navigation.filter(
     (entry) =>
@@ -561,7 +632,8 @@ async function render(): Promise<void> {
   const lockControl = button(
     'Blocca',
     async () => {
-      await lockSession();
+      if (hubStaffSession()) await closeHubStaffSession();
+      else await lockSession();
       await render();
     },
     'quiet',
@@ -683,6 +755,7 @@ async function render(): Promise<void> {
           ),
         ),
         el('span', { id: 'connection-state', class: 'muted', role: 'status' }, connectionLabel()),
+        connectivityBadge(),
         venueControl,
         el(
           'div',
@@ -856,6 +929,8 @@ async function render(): Promise<void> {
       content = await (await import('../../src/pages/offline')).conflictPage(context);
     else if (pageLink.path === '/sedi')
       content = await (await import('../../src/pages/venues')).venuesPage(context);
+    else if (pageLink.path === '/hub')
+      content = await (await import('../../src/pages/venue-hub')).venueHubPage(context);
     else if (pageLink.path === '/dispositivi')
       content = await (await import('../../src/pages/devices')).devicesPage(context);
     else if (pageLink.path === '/stampe')
@@ -939,7 +1014,8 @@ function openProfile(): void {
       'Blocca postazione',
       async () => {
         popup.close();
-        await lockSession();
+        if (hubStaffSession()) await closeHubStaffSession();
+        else await lockSession();
         await render();
       },
       'secondary',
@@ -982,7 +1058,8 @@ function openProfile(): void {
     button(
       'Esci',
       async () => {
-        await signOut();
+        if (hubStaffSession()) await closeHubStaffSession();
+        else await signOut();
         popup.close();
         navigate('/login');
       },

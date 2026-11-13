@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { cachedRpc, cacheRpc } from '../offline/store';
 import { environment } from '../config/environment';
 import { contextualHeaders } from '../../shared/request-context';
+import { hubRead, hubRpc, routesToHub } from './venue-hub';
 
 let instance: SupabaseClient | undefined;
 export function client(): SupabaseClient {
@@ -35,6 +36,19 @@ export function client(): SupabaseClient {
 }
 
 const messages: Record<string, string> = {
+  HUB_UNREACHABLE:
+    'L’hub di sede non risponde. Verifica che il computer dell’hub sia acceso e collegato alla rete del locale.',
+  HUB_NOT_PAIRED: 'Questo dispositivo non è associato all’hub di sede.',
+  STAFF_SESSION_INVALID: 'La sessione in sede è scaduta. Inserisci di nuovo il PIN.',
+  PIN_INVALID: 'PIN non corretto. Attendi qualche secondo prima di riprovare.',
+  INVALID_STAFF: 'Questa persona non può accedere da questo dispositivo.',
+  DEVICE_NOT_PAIRED: 'Questo dispositivo non è associato all’hub di sede. Ripeti l’associazione.',
+  DEVICE_BINDING_EXPIRED: 'L’associazione con l’hub di sede è scaduta. Ripeti l’associazione.',
+  RPC_NOT_AVAILABLE_ON_LAN:
+    'Questa operazione richiede il collegamento al cloud e non è disponibile tramite l’hub di sede.',
+  TABLE_NOT_AVAILABLE_ON_LAN: 'Questi dati non sono disponibili tramite l’hub di sede.',
+  PAYMENT_METHOD_UNAVAILABLE_ON_LAN:
+    'In sede si possono registrare solo contanti e POS esterno. I pagamenti online richiedono il cloud.',
   BOOKING_DEPOSITS_PROVIDER_LICENCE_REQUIRED:
     'Per le caparre attiva prima la licenza Stripe oppure Satispay online.',
   BOOKING_DEPOSITS_STILL_LICENSED:
@@ -299,8 +313,19 @@ export async function rpc<T>(
     );
   }
   const requestId = crypto.randomUUID();
-  const { data, error } = await client().rpc(name, args).setHeader('x-request-id', requestId);
-  if (error) throw safeError(error, requestId);
+  let data: unknown;
+  if (routesToHub('rpc', name)) {
+    // The venue hub is the write authority for service operations (ADR-0001).
+    try {
+      data = await hubRpc(name, args);
+    } catch (error) {
+      throw safeError(error, requestId);
+    }
+  } else {
+    const response = await client().rpc(name, args).setHeader('x-request-id', requestId);
+    if (response.error) throw safeError(response.error, requestId);
+    data = response.data;
+  }
   const parsed = schema.safeParse(data);
   if (!parsed.success) {
     if (import.meta.env.DEV)
@@ -341,6 +366,23 @@ export async function readRows<T>(
     'station_staff_assignments',
     'cashier_assignments',
   ]);
+  const scalarFilters = Object.values(filters).every((value) => typeof value === 'string');
+  if (relationTables.has(table) && routesToHub('table', table) && scalarFilters) {
+    const rows = await hubRead(table, {
+      filters: { ...(filters as Record<string, string>), ...(venue ? { venue_id: venue } : {}) },
+      limit: 1001,
+    }).catch((error: unknown) => {
+      throw safeError(error);
+    });
+    const result = z.array(schema).parse(rows);
+    if (result.length > 1000)
+      throw new ApplicationError(
+        'FILTER_REQUIRED',
+        crypto.randomUUID(),
+        'Restringi la ricerca per caricare questi dati.',
+      );
+    return result;
+  }
   if (relationTables.has(table)) {
     let query = client().from(table).select('*').limit(1001);
     if (venue) query = query.eq('venue_id', venue);
@@ -390,6 +432,34 @@ export async function readPage<T>(
   const limit = options.limit ?? 50;
   if (!Number.isInteger(limit) || limit < 1 || limit > 200) throw new Error('Invalid page size');
   const requestId = crypto.randomUUID();
+  const hubFilters = Object.values(options.filters ?? {}).every((v) => typeof v === 'string');
+  if (routesToHub('table', table) && hubFilters && key === 'id') {
+    let raw: Record<string, unknown>[];
+    try {
+      raw = await hubRead(table, {
+        filters: {
+          ...(options.filters as Record<string, string> | undefined),
+          ...(options.venue ? { venue_id: options.venue } : {}),
+        },
+        after: options.after ?? null,
+        limit: limit + 1,
+      });
+    } catch (error) {
+      throw safeError(error, requestId);
+    }
+    const page = raw.slice(0, limit);
+    const checked = z.array(schema).safeParse(page);
+    if (!checked.success)
+      throw new ApplicationError(
+        'INVALID_RESPONSE',
+        requestId,
+        'La risposta ricevuta non è valida. Aggiorna la pagina.',
+      );
+    return {
+      rows: checked.data,
+      next: raw.length > limit ? z.string().parse(page.at(-1)?.[key]) : null,
+    };
+  }
   let query = client()
     .from(table)
     .select('*')
