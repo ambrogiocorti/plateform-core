@@ -27,7 +27,16 @@ export const navigationSections = [
     id: 'administration',
     label: 'Amministrazione',
     icon: '/gestione',
-    paths: ['/gestione', '/impostazioni', '/staff', '/dispositivi', '/privacy', '/sedi', '/audit'],
+    paths: [
+      '/gestione',
+      '/impostazioni',
+      '/staff',
+      '/dispositivi',
+      '/hub',
+      '/privacy',
+      '/sedi',
+      '/audit',
+    ],
   },
 ] as const;
 
