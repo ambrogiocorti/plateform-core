@@ -363,15 +363,16 @@ function overlayManifest(manifest) {
   const overlay = manifest.components?.managed_overlay;
   const surface = manifest.components?.security_surface;
   if (
-    overlay?.policy !== 'managed-overlay-v1' ||
+    overlay?.policy !== 'managed-overlay-v2' ||
     !Array.isArray(overlay.files) ||
     !Number.isInteger(overlay.policy_count) ||
     !Number.isInteger(overlay.trigger_count) ||
-    surface?.policy !== 'security-surface-v1' ||
+    !Number.isInteger(overlay.event_trigger_count) ||
+    surface?.policy !== 'security-surface-v2' ||
     !SECURITY_SURFACE_KEYS.every((key) => /^[0-9a-f]{64}$/.test(String(surface[key] ?? '')))
   )
-    // Backups taken before managed-overlay-v1 cannot prove Storage policies,
-    // managed triggers or grants after restore: fail closed.
+    // Backups taken before managed-overlay-v2 cannot prove Storage policies,
+    // managed triggers, event triggers or grants after restore: fail closed.
     throw new Error('BACKUP_MANAGED_OVERLAY_MISSING');
   return { overlay, surface };
 }
@@ -402,9 +403,11 @@ export async function verifyManagedSurface(config, manifest) {
   return {
     managed_overlay:
       Number(counts.policy_count) === overlay.policy_count &&
-      Number(counts.trigger_count) === overlay.trigger_count,
+      Number(counts.trigger_count) === overlay.trigger_count &&
+      Number(counts.event_trigger_count) === overlay.event_trigger_count,
     managed_policy_count: Number(counts.policy_count),
     managed_trigger_count: Number(counts.trigger_count),
+    managed_event_trigger_count: Number(counts.event_trigger_count),
     schedules_quiesced: Number(counts.schedule_count) === 0,
     security_surface: mismatch.length === 0,
     security_surface_hash: actual.hashes.aggregate_sha256,

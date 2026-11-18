@@ -9,9 +9,17 @@ import { readFile, writeFile } from 'node:fs/promises';
 // a separate "managed overlay"; restore re-applies policies/triggers and keeps
 // schedules aside until cutover (restored automation stays quiesced).
 //
+// `supabase db dump` also drops event triggers, so Plateform's own (functions in
+// public/private, e.g. the audit DDL guard) travel in the overlay too.
+//
 // The security surface fingerprint lets restore prove that grants, default
 // privileges, RLS, policies, triggers, event triggers and publications match the
 // source exactly. ACLs are compared semantically (NULL == acldefault).
+// security-surface-v2 leaves out state that Supabase manages per project and that
+// differs between two healthy projects: default privileges in schemas other than
+// public/private (storage defaults depend on project age), event triggers whose
+// function is not Plateform's, and publication members outside public/private
+// (realtime.messages gets a new daily partition).
 
 const q = (sql) => sql.replace(/\s+/g, ' ').trim();
 
@@ -39,7 +47,18 @@ select json_build_object(
     where not t.tgisinternal and n.nspname in ('auth','storage')),
   'schedules',(select coalesce(json_agg(json_build_object('name',jobname,'schedule',schedule,'active',active,
       'ddl',format('select cron.schedule(%L,%L,%L);',jobname,schedule,command)) order by jobname),'[]')
-    from cron.job where jobname like 'plateform-%')
+    from cron.job where jobname like 'plateform-%'),
+  'event_triggers',(select coalesce(json_agg(json_build_object('name',e.evtname,'ddl',
+      format('drop event trigger if exists %I; create event trigger %I on %I%s execute function %s();%s',
+        e.evtname,e.evtname,e.evtevent,
+        case when e.evttags is null then '' else ' when tag in ('||(select string_agg(quote_literal(t),',') from unnest(e.evttags) t)||')' end,
+        e.evtfoid::regproc,
+        case e.evtenabled when 'D' then format(' alter event trigger %I disable;',e.evtname)
+          when 'A' then format(' alter event trigger %I enable always;',e.evtname)
+          when 'R' then format(' alter event trigger %I enable replica;',e.evtname) else '' end))
+      order by e.evtname),'[]')
+    from pg_event_trigger e join pg_proc p on p.oid=e.evtfoid join pg_namespace n on n.oid=p.pronamespace
+    where n.nspname in ('public','private'))
 );`);
 
 // Each line is sorted by its own text so the hash is independent of catalog order.
@@ -63,7 +82,7 @@ select json_build_object(
   )},
   'default_acl',${agg(
     `defaclrole::regrole::text||'|'||defaclnamespace::regnamespace::text||'|'||defaclobjtype::text||'|'||defaclacl::text`,
-    `from pg_default_acl`,
+    `from pg_default_acl where defaclnamespace=0 or defaclnamespace::regnamespace::text in ('public','private')`,
   )},
   'rls',${agg(
     `c.oid::regclass::text||'='||c.relrowsecurity::text||'/'||c.relforcerowsecurity::text`,
@@ -79,11 +98,11 @@ select json_build_object(
   )},
   'event_triggers',${agg(
     `evtname::text||'|'||evtenabled::text||'|'||evtevent::text||'|'||evtfoid::regproc::text`,
-    `from pg_event_trigger`,
+    `from pg_event_trigger e join pg_proc p on p.oid=e.evtfoid join pg_namespace n on n.oid=p.pronamespace where n.nspname in ('public','private')`,
   )},
   'publications',${agg(
     `pubname::text||'|'||schemaname::text||'.'||tablename::text`,
-    `from pg_catalog.pg_publication_tables`,
+    `from pg_catalog.pg_publication_tables where schemaname in ('public','private')`,
   )}
 );`);
 
@@ -153,12 +172,13 @@ export async function captureManagedOverlay(psql, databaseUrl, overlayPath, sche
   const raw = JSON.parse(
     await query(psql, databaseUrl, MANAGED_OVERLAY_SQL, 'MANAGED_OVERLAY_QUERY_FAILED'),
   );
-  if (![raw.policies, raw.triggers, raw.schedules].every(Array.isArray))
+  if (![raw.policies, raw.triggers, raw.schedules, raw.event_triggers].every(Array.isArray))
     throw new Error('MANAGED_OVERLAY_STATE_INVALID');
   const overlay = [
-    '-- Plateform managed-schema overlay: policies and triggers on auth/storage tables.',
+    '-- Plateform managed-schema overlay: policies and triggers on auth/storage tables, event triggers.',
     ...raw.policies.map((row) => row.ddl),
     ...raw.triggers.map((row) => row.ddl),
+    ...raw.event_triggers.map((row) => row.ddl),
     '',
   ].join('\n');
   const schedules = [
@@ -171,6 +191,7 @@ export async function captureManagedOverlay(psql, databaseUrl, overlayPath, sche
   return {
     policy_count: raw.policies.length,
     trigger_count: raw.triggers.length,
+    event_trigger_count: raw.event_triggers.length,
     schedule_count: raw.schedules.length,
     schedules: raw.schedules.map(({ name, schedule, active }) => ({ name, schedule, active })),
   };
@@ -238,7 +259,8 @@ export async function managedOverlayCounts(psql, databaseUrl) {
       `select json_build_object(
         'policy_count',(select count(*) from pg_policy p join pg_class c on c.oid=p.polrelid join pg_namespace n on n.oid=c.relnamespace where n.nspname in ('auth','storage')),
         'trigger_count',(select count(*) from pg_trigger t join pg_class c on c.oid=t.tgrelid join pg_namespace n on n.oid=c.relnamespace where not t.tgisinternal and n.nspname in ('auth','storage')),
-        'schedule_count',(select count(*) from cron.job where jobname like 'plateform-%'))`,
+        'schedule_count',(select count(*) from cron.job where jobname like 'plateform-%'),
+        'event_trigger_count',(select count(*) from pg_event_trigger e join pg_proc p on p.oid=e.evtfoid join pg_namespace n on n.oid=p.pronamespace where n.nspname in ('public','private')))`,
       'MANAGED_OVERLAY_QUERY_FAILED',
     ),
   );

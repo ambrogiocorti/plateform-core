@@ -86,13 +86,13 @@ async function processJob(config, job) {
           aggregate_sha256: db.migrationAggregateSha256,
         },
         managed_overlay: {
-          policy: 'managed-overlay-v1',
+          policy: 'managed-overlay-v2',
           files: encrypted.filter((row) =>
             ['managed_overlay.sql.enc', 'schedules.sql.enc'].includes(row.file),
           ),
           ...overlay,
         },
-        security_surface: { policy: 'security-surface-v1', ...surface.hashes },
+        security_surface: { policy: 'security-surface-v2', ...surface.hashes },
         auth: {
           source_artifact: 'data.sql.enc',
           user_count: db.authUserCount,
